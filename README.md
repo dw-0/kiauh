@@ -14,6 +14,9 @@ Give it a try if you want and if you have suggestions or encounter any problems,
 
 [![kiauh](https://abload.de/img/putty_20-05-22_18-49-1nkaa.png)](https://abload.de/image.php?img=putty_20-05-22_18-49-1nkaa.png)
 
+## Restrictions:
+* Tested only on Raspbian Buster Lite
+
 ## Functions and features:
 * Install Klipper + DWC2-for-klipper + DWC2 from scratch
 * Check the status of your installations
