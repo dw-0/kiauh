@@ -1,5 +1,5 @@
 # KIAUH
----
+
 ## Klipper Installation And Update Helper
 
 This script was actually created for my personal use only but i then decided to make the script accessible for everyone.
@@ -27,13 +27,11 @@ Give it a try if you want and if you have suggestions or encounter any problems,
 
 
 ## Q&A
----
 
 __*Q: Can i install octoprint with this script?*__
 
 **A:** No, and i don't plan to implement this function
 
----
 
 __*Q: Can i use this script to install multiple instancec of Klipper on the same Pi? (Multisession?)*__
 
