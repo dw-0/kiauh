@@ -6,7 +6,7 @@ This script was actually created for my personal use only but i then decided to 
 It is meant to help guiding you through a complete fresh install of Klipper and optionally the DWC2 web UI + DWC2-for-Klipper.
 There are also functions for updating your current installations or removing them from your system.
 
-## First things first: When you decide to use this script, you do it on your own risk!
+## First things first: When you decide to use this script, you use it at your own risk!
 
 Although i implemented backup-functions for pretty much everything and tested this script extensively with my available (yet limited) hardware before releasing it, it doesn't mean that it will work 100% perfect for everyone out there. Please keep that in mind!
 
