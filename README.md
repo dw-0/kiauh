@@ -14,6 +14,16 @@ Give it a try if you want and if you have suggestions or encounter any problems,
 
 [![kiauh](https://abload.de/img/putty_20-05-22_18-49-1nkaa.png)](https://abload.de/image.php?img=putty_20-05-22_18-49-1nkaa.png)
 
+## Instructions:
+In order to run this script you have to make it executable. Use the following commands in the given order to download and execute the script.
+```
+cd ~
+git clone https://github.com/th33xitus/KIAUH.git
+cd ~/KIAUH
+chmod +x kiauh.sh
+./kiauh.sh
+```
+
 ## Restrictions:
 * Tested only on Raspbian Buster Lite
 
