@@ -480,6 +480,10 @@ backup_msg(){
     status_msg "Running $1 backup ..."
 }
 backup_cfg(){
+    if [ ! -d $BACKUP_DIR ]
+    then
+        mkdir -p ${HOME}/backup
+    fi
     if [ -f $CFG_FILE ]
     then
         get_date
