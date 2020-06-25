@@ -12,7 +12,8 @@ default="\e[39m"
 ### setup repos
 KLIPPER_REPO=https://github.com/KevinOConnor/klipper.git
 #DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper.git
-DWC2FK_REPO=https://github.com/pluuuk/dwc2-for-klipper.git
+#DWC2FK_REPO=https://github.com/pluuuk/dwc2-for-klipper.git
+DWC2FK_REPO=https://github.com/th33xitus/dwc2-for-klipper.git
 
 ## setup some file and folder paths
 KLIPPER_DIR=${HOME}/klipper
