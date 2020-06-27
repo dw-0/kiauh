@@ -87,6 +87,37 @@ check_euid(){
     fi
 }
 
+### check for package dependencies
+dependency_check(){
+    package=(curl wget virtualenv unzip git)
+
+    for pkg in "${package[@]}"; do
+        if ! command -v $pkg >&/dev/null 2>&1
+        then
+            install+=($package)
+        fi
+    done
+
+    if ! [ ${#install[@]} -eq 0 ]
+    then
+        status_msg "The following packages are missing:"
+        echo -e "${red}${install[@]}${default}"
+        status_msg "They are necessary for this script to work."
+        status_msg "Please install them now or do it manually!"
+        echo
+        while true; do
+            read -p "Do you want to install them now? (Y/n): " yn
+            case "$yn" in
+                Y|y|Yes|yes|"")
+                echo; status_msg "Installing dependencies ..."
+                sudo apt install ${install[@]} -y && echo && confirm_msg "Dependencies successfully installed!"; echo; break;;
+                N|n|No|no) break;;
+                *) warn_msg "Unknown parameter: $yn"; echo;;
+            esac
+        done
+    fi
+}
+
 ### checking for existing installations on startup
 start_check(){
     check_files
