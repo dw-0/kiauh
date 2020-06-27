@@ -793,5 +793,6 @@ action(){
 
 print_header
 check_euid
+dependency_check
 start_check
 main_menu
