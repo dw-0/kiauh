@@ -7,6 +7,9 @@ mainsail_install_routine(){
     install_moonraker
     disable_wrong_webserver
     remove_wrong_webserver
+    check_printer_cfg
+    restart_moonraker
+    restart_klipper
     install_nginx
     test_api
     test_nginx
@@ -39,37 +42,143 @@ install_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"") switch_to_moonraker && install_moonraker; break;;
         N|n|No|no) break;;
-           *) echo "Unknown parameter: $yn"; echo;;
       esac
     done
   fi
 }
 
 check_printer_cfg(){
-  if [ ! -e $PRINTER_CFG ]; then
-    warn_msg "No printer.cfg found"
+  if [ -e $PRINTER_CFG ]; then
+    check_vsdcard_section
+    check_api_section
+  else
+    echo; warn_msg "No printer.cfg found!"
     while true; do
       echo -e "${cyan}"
-      read -p "###### Do you want to create a default config? (Y/n): " yn
+      read -p "###### Do you want to create a default config now? (Y/n): " yn
       echo -e "${default}"
       case "$yn" in
         Y|y|Yes|yes|"") create_default_cfg; break;;
         N|n|No|no) break;;
-           *) echo "Unknown parameter: $yn"; echo;;
       esac
     done
-  else
-    check_vsdcard_section
-    check_api_section
   fi
 }
 
+check_vsdcard_section(){
+  # check if virtual sdcard is present in printer.cfg
+  status_msg "Checking for virtual_sdcard configuration ..."
+  if [ $(grep '^\[virtual_sdcard\]$' $PRINTER_CFG) ]; then
+    ok_msg "Virtual sdcard already configured!"
+  else
+    status_msg "No virtual sdcard entry found."
+    status_msg "Configuring virtual sdcard..."
+# append the following lines to printer.cfg
+cat <<VSDCARD >> $PRINTER_CFG
+
+##########################
+### CREATED WITH KIAUH ###
+##########################
+[virtual_sdcard]
+path: ~/sdcard
+##########################
+##########################
+VSDCARD
+  fi
+}
+
+check_api_section(){
+  status_msg "Checking for api_server configuration ..."
+  # check if api server is present in printer.cfg
+  if [ $(grep '^\[api_server\]$' $PRINTER_CFG) ]; then
+    ok_msg "API server already configured"
+  else
+    status_msg "No API server entry found."
+    status_msg "Configuring API server..."
+# append the following lines to printer.cfg
+cat <<API >> $PRINTER_CFG
+
+##########################
+### CREATED WITH KIAUH ###
+##########################
+[api_server]
+trusted_clients:
+ 192.168.0.0/24
+ 192.168.1.0/24
+ 127.0.0.0/24
+##########################
+##########################
+API
+  fi
+}
+
+create_default_cfg(){
+cat <<DEFAULT_CFG >> $PRINTER_CFG
+
+##########################
+### CREATED WITH KIAUH ###
+##########################
+[virtual_sdcard]
+path: ~/sdcard
+
+[api_server]
+trusted_clients:
+ 192.168.0.0/24
+ 192.168.1.0/24
+ 127.0.0.0/24
+
+[pause_resume]
+
+[gcode_macro CANCEL]
+default_parameter_X: 230
+default_parameter_Y: 230
+default_parameter_Z: 10
+gcode:
+    M104 S0
+    M140 S0
+    M141 S0
+    M106 S0
+    CLEAR_PAUSE
+    RESET_SD
+
+[gcode_macro CANCEL_PRINT]
+gcode:
+    CANCEL
+
+[gcode_macro PAUSE]
+rename_existing: BASE_PAUSE
+default_parameter_X: 230
+default_parameter_Y: 230
+default_parameter_Z: 10
+gcode:
+    SAVE_GCODE_STATE NAME=PAUSE_state
+    BASE_PAUSE
+    G91
+    G1 E-1.7 F2100
+    G1 Z{Z}
+    G90
+    G1 X{X} Y{Y} F6000
+    G91
+
+[gcode_macro RESUME]
+rename_existing: BASE_RESUME
+gcode:
+    G91
+    G1 E1.7 F2100
+    G91
+    RESTORE_GCODE_STATE NAME=PAUSE_state MOVE=1
+    BASE_RESUME
+##########################
+##########################
+DEFAULT_CFG
+}
+
 disable_wrong_webserver(){
-  if systemctl is-active haproxy ; then
+  if systemctl is-active haproxy -q; then
     status_msg "Stopping haproxy service ..."
     sudo /etc/init.d/haproxy stop && ok_msg "Service stopped!"
   fi
-  if systemctl is-active lighttpd ; then
+  if systemctl is-active lighttpd -q; then
     status_msg "Stopping lighttpd service ..."
     sudo /etc/init.d/lighttpd stop && ok_msg "Service stopped!"
   fi
@@ -239,111 +348,5 @@ server {
         proxy_set_header X-Scheme \$scheme;
     }
 }
-MAINSAIL_CFG
-}
-
-check_vsdcard_section(){
-  # check if virtual sdcard is present in printer.cfg
-  if [ $(grep '^\[virtual_sdcard\]$' /home/pi/printer.cfg) ]; then
-    echo "Virtual sdcard already configured"
-  else
-    echo "No virtual sdcard entry found..."
-    echo "Configuring virtual sdcard..."
-# append the following lines to printer.cfg
-cat <<VSDCARD >> $PRINTER_CFG
-
-##########################
-### CREATED WITH KIAUH ###
-##########################
-[virtual_sdcard]
-path: ~/sdcard
-##########################
-##########################
-VSDCARD
-  fi
-}
-
-check_api_section(){
-  # check if api server is present in printer.cfg
-  if [ $(grep '^\[api_server\]$' /home/pi/printer.cfg) ]; then
-    echo "API server already configured"
-  else
-    echo "No API server entry found..."
-    echo "Configuring API server..."
-# append the following lines to printer.cfg
-cat <<API >> $PRINTER_CFG
-
-##########################
-### CREATED WITH KIAUH ###
-##########################
-[api_server]
-trusted_clients:
- 192.168.0.0/24
- 192.168.1.0/24
- 127.0.0.0/24
-##########################
-##########################
-API
-  fi
-}
-
-create_default_cfg(){
-cat <<MAINSAIL_CFG >> $PRINTER_CFG
-
-##########################
-### CREATED WITH KIAUH ###
-##########################
-[virtual_sdcard]
-path: ~/sdcard
-
-[api_server]
-trusted_clients:
- 192.168.0.0/24
- 192.168.1.0/24
- 127.0.0.0/24
-
-[pause_resume]
-
-[gcode_macro CANCEL]
-default_parameter_X: 230
-default_parameter_Y: 230
-default_parameter_Z: 10
-gcode:
-    M104 S0
-    M140 S0
-    M141 S0
-    M106 S0
-    CLEAR_PAUSE
-    RESET_SD
-
-[gcode_macro CANCEL_PRINT]
-gcode:
-    CANCEL
-
-[gcode_macro PAUSE]
-rename_existing: BASE_PAUSE
-default_parameter_X: 230
-default_parameter_Y: 230
-default_parameter_Z: 10
-gcode:
-    SAVE_GCODE_STATE NAME=PAUSE_state
-    BASE_PAUSE
-    G91
-    G1 E-1.7 F2100
-    G1 Z{Z}
-    G90
-    G1 X{X} Y{Y} F6000
-    G91
-
-[gcode_macro RESUME]
-rename_existing: BASE_RESUME
-gcode:
-    G91
-    G1 E1.7 F2100
-    G91
-    RESTORE_GCODE_STATE NAME=PAUSE_state MOVE=1
-    BASE_RESUME
-##########################
-##########################
 MAINSAIL_CFG
 }
