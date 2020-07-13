@@ -147,8 +147,8 @@ read_dwc2fk_versions(){
     LOCAL_DWC2FK_COMMIT=$(git rev-parse --short=8 HEAD)
     REMOTE_DWC2FK_COMMIT=$(git rev-parse --short=8 origin/master)
   else
-    LOCAL_DWC2FK_COMMIT=""
-    REMOTE_DWC2FK_COMMIT=""
+    LOCAL_DWC2FK_COMMIT="${red}--------${default}"
+    REMOTE_DWC2FK_COMMIT="${red}--------${default}"
   fi
 }
 
@@ -169,7 +169,7 @@ read_local_dwc2_version(){
   if [ -e $DWC2_DIR/web/version ]; then
     DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/web/version)
   else
-    DWC2_LOCAL_VER=""
+    DWC2_LOCAL_VER="${red}-----${default}"
   fi
 }
 
@@ -195,7 +195,7 @@ read_local_mainsail_version(){
   if [ -e $MAINSAIL_DIR/version ]; then
     MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/version)
   else
-    MAINSAIL_LOCAL_VER=""
+    MAINSAIL_LOCAL_VER="${red}------${default}"
   fi
 }
 
