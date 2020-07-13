@@ -12,7 +12,7 @@ check_euid(){
 }
 
 source_ini(){
-  source ${HOME}/kiauh2/kiauh.ini
+  source ${HOME}/kiauh/kiauh.ini
 }
 
 start_klipper(){
