@@ -19,9 +19,10 @@ In order to run this script you have to make it executable. Use the following co
 ```
 cd ~
 git clone https://github.com/th33xitus/kiauh.git
+cd kiauh && git checkout dev-2.0
 chmod +x ~/kiauh/kiauh.sh
 chmod +x ~/kiauh/scripts/*
-./kiauh/kiauh.sh
+./kiauh.sh
 ```
 
 ## Restrictions:
