@@ -4,6 +4,8 @@
 
 ## Klipper Installation And Update Helper
 
+[![kiauh](https://abload.de/img/mobaxterm_personal_207mk20.png)](https://abload.de/image.php?img=mobaxterm_personal_207mk20.png)
+
 This script was actually created for my personal use only but i then decided to make the script accessible for everyone.
 It is meant to help guiding you through a complete fresh install of Klipper and optionally the DWC2 web UI + DWC2-for-Klipper.
 There are also functions for updating your current installations or removing them from your system.
