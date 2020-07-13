@@ -21,10 +21,18 @@ start_klipper(){
     sudo /etc/init.d/klipper start && sleep 2 && ok_msg "Klipper service started!"
   fi
 }
+
 stop_klipper(){
   if [ -e /etc/init.d/klipper ]; then
     status_msg "Stopping klipper service ..."
     sudo /etc/init.d/klipper stop && sleep 2 && ok_msg "Klipper service stopped!"
+  fi
+}
+
+restart_klipper(){
+  if [ -e /etc/init.d/klipper ]; then
+    status_msg "Restarting klipper service ..."
+    sudo /etc/init.d/klipper restart && sleep 2 && ok_msg "Klipper service restarted!"
   fi
 }
 
@@ -39,6 +47,13 @@ stop_moonraker(){
   if [ -e /etc/init.d/moonraker ]; then
     status_msg "Stopping moonraker service ..."
     sudo /etc/init.d/moonraker stop && sleep 2 && ok_msg "Moonraker service stopped!"
+  fi
+}
+
+restart_moonraker(){
+  if [ -e /etc/init.d/moonraker ]; then
+    status_msg "Restarting moonraker service ..."
+    sudo /etc/init.d/moonraker restart && sleep 2 && ok_msg "Moonraker service restarted!"
   fi
 }
 
