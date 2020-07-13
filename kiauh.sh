@@ -107,8 +107,10 @@ main_menu(){
         break;;
       5)
         clear
-        backup_menu
-        break;;
+        print_header
+        ERROR_MSG=" Sorry this function is not implemented yet!"
+        print_error_msg && ERROR_MSG=""
+        main_ui;;
       Q|q)
         exit -1;;
       *)
