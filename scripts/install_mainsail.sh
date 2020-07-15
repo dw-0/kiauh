@@ -35,8 +35,7 @@ install_moonraker(){
       ln -s /tmp/moonraker.log ${HOME}/moonraker.log && ok_msg "Symlink created!"
     fi
   else
-    warn_msg "You are not using Arksine/work-web_server-20200131."
-    warn_msg "Please switch to the moonraker fork first!"
+    ERROR_MSG=" You are not using a moonraker fork\n Please switch to a moonraker fork first! Aborting ..."
     ERROR=1
   fi
 }
