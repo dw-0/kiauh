@@ -46,6 +46,11 @@ TORNADO_DIR2=${HOME}/klippy-env/lib/python2.7/site-packages/tornado-5.1.1.dist-i
 MAINSAIL_DIR=${HOME}/mainsail
 MOONRAKER_SERVICE1=/etc/init.d/moonraker
 MOONRAKER_SERVICE2=/etc/default/moonraker
+#octoprint
+OCTOPRINT_DIR=${HOME}/OctoPrint
+OCTOPRINT_CFG_DIR=${HOME}/.octoprint
+OCTOPRINT_SERVICE1=/etc/init.d/octoprint
+OCTOPRINT_SERVICE2=/etc/default/octoprint
 #misc
 BACKUP_DIR=${HOME}/kiauh-backups
 PRINTER_CFG=${HOME}/printer.cfg
@@ -78,6 +83,7 @@ main_menu(){
     klipper_status
     dwc2_status
     mainsail_status
+    octoprint_status
     print_branch
   main_ui
   while true; do
@@ -146,6 +152,12 @@ install_menu(){
         clear
         print_header
         mainsail_install_routine
+        print_error_msg && ERROR_MSG=""
+        install_ui;;
+      4)
+        clear
+        print_header
+        octoprint_install_routine
         print_error_msg && ERROR_MSG=""
         install_ui;;
       Q|q)
@@ -236,6 +248,12 @@ remove_menu(){
         clear
         print_header
         remove_mainsail
+        print_error_msg && ERROR_MSG=""
+        remove_ui;;
+      4)
+        clear
+        print_header
+        remove_octoprint
         print_error_msg && ERROR_MSG=""
         remove_ui;;
       Q|q)

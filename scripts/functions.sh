@@ -57,6 +57,27 @@ restart_moonraker(){
   fi
 }
 
+start_octoprint(){
+  if [ -e /etc/init.d/octoprint ]; then
+    status_msg "Starting octoprint service ..."
+    sudo /etc/init.d/octoprint start && sleep 2 && ok_msg "Octoprint service started!"
+  fi
+}
+
+stop_octoprint(){
+  if [ -e /etc/init.d/octoprint ]; then
+    status_msg "Stopping octoprint service ..."
+    sudo /etc/init.d/octoprint stop && sleep 2 && ok_msg "Octoprint service stopped!"
+  fi
+}
+
+restart_octoprint(){
+  if [ -e /etc/init.d/octoprint ]; then
+    status_msg "Restarting octoprint service ..."
+    sudo /etc/init.d/octoprint restart && sleep 2 && ok_msg "Octoprint service restarted!"
+  fi
+}
+
 dep_check(){
   for package in "${dep[@]}"
   do

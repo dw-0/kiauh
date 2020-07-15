@@ -77,6 +77,30 @@ mainsail_status(){
   fi
 }
 
+octoprint_status(){
+  ocount=0
+  octoprint_data=(
+    $OCTOPRINT_DIR
+    $OCTOPRINT_CFG_DIR
+    $OCTOPRINT_SERVICE1
+    $OCTOPRINT_SERVICE2
+  )
+  #count+1 for each found data-item from array
+  for op in "${octoprint_data[@]}"
+  do
+    if [ -e $op ]; then
+      ocount=$(expr $ocount + 1)
+    fi
+  done
+  if [ "$ocount" == "${#octoprint_data[*]}" ]; then
+    OCTOPRINT_STATUS="${green}Installed!${default}         "
+  elif [ "$ocount" == 0 ]; then
+    OCTOPRINT_STATUS="${red}Not installed!${default}     "
+  else
+    OCTOPRINT_STATUS="${yellow}Incomplete!${default}        "
+  fi
+}
+
 read_branch(){
   if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
     cd $KLIPPER_DIR

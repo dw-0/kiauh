@@ -15,7 +15,7 @@ remove_klipper(){
       sudo rm -rf /etc/init.d/klipper /etc/default/klipper && ok_msg "Klipper service removed!"
     fi
     if [[ -d $KLIPPER_DIR || -d $KLIPPY_ENV_DIR ]]; then
-      status_msg "Removing klipper and klippy-env diretory ..."
+      status_msg "Removing klipper and klippy-env directory ..."
       rm -rf $KLIPPER_DIR $KLIPPY_ENV_DIR && ok_msg "Directories removed!"
     fi
     if [[ -L ${HOME}/klippy.log || -e /tmp/klippy.log ]]; then
@@ -141,5 +141,37 @@ remove_nginx(){
         N|n|No|no) break;;
       esac
     done
+  fi
+}
+
+remove_octoprint(){
+  data_arr=(
+  $OCTOPRINT_SERVICE1
+  $OCTOPRINT_SERVICE2
+  $OCTOPRINT_DIR
+  $OCTOPRINT_CFG_DIR
+  ${HOME}/octoprint.log
+  /etc/sudoers.d/octoprint-shutdown
+  )
+  print_error "Octoprint" && data_count=()
+  if [ "$ERROR_MSG" = "" ]; then
+    stop_octoprint
+    if [[ -e $OCTOPRINT_SERVICE1 || -e $OCTOPRINT_SERVICE2 ]]; then
+      status_msg "Removing octoprint service ..."
+      sudo update-rc.d -f octoprint remove
+      sudo rm -rf $OCTOPRINT_SERVICE1 $OCTOPRINT_SERVICE2 && ok_msg "Octoprint service removed!"
+    fi
+    if [[ -d $OCTOPRINT_DIR || -d $OCTOPRINT_CFG_DIR ]]; then
+      status_msg "Removing Octoprint and .octoprint directory ..."
+      rm -rf $OCTOPRINT_DIR $OCTOPRINT_CFG_DIR && ok_msg "Directories removed!"
+    fi
+    if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
+      sudo rm -rf /etc/sudoers.d/octoprint-shutdown
+    fi
+    if [ -L ${HOME}/octoprint.log ]; then
+      status_msg "Removing octoprint.log symlink ..."
+      rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
+    fi
+    ok_msg "Octoprint successfully removed!"; echo
   fi
 }

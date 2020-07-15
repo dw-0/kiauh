@@ -37,7 +37,7 @@ main_ui(){
   echo -e "|  2) [Update]         |                                |"
   echo -e "|  3) [Remove]         |       DWC2: $DWC2_STATUS|"
   echo -e "|                      |   Mainsail: $MAINSAIL_STATUS|"
-  echo -e "|  4) [Advanced]       |  Octoprint: #### WIP ####      |"
+  echo -e "|  4) [Advanced]       |  Octoprint: $OCTOPRINT_STATUS|"
   echo -e "|  5) [Backup]         |                                |"
   quit_footer
 }
@@ -56,7 +56,7 @@ install_ui(){
   echo -e "|  Webinterface:         |                              | "
   echo -e "|  2) [DWC2]             |                              | "
   echo -e "|  3) [Mainsail]         |                              | "
-  echo -e "|                        |                              | "
+  echo -e "|  4) [Octoprint]        |                              | "
   quit_footer
 }
 
@@ -97,7 +97,7 @@ remove_ui(){
   echo -e "|  1) [Klipper]          |                              | "
   echo -e "|  2) [DWC2-for-Klipper] |                              | "
   echo -e "|  3) [Mainsail]         |                              | "
-  echo -e "|                        |                              | "
+  echo -e "|  4) [Octoprint]        |                              | "
   quit_footer
 }
 
