@@ -4,16 +4,18 @@ mainsail_install_routine(){
     dep=(wget curl unzip)
     dep_check
     #execute operation
-    install_moonraker
     disable_wrong_webserver
     remove_wrong_webserver
-    check_printer_cfg
-    restart_moonraker
-    restart_klipper
-    install_nginx
-    test_api
-    test_nginx
-    install_mainsail && ok_msg "Mainsail install complete!"; echo
+    install_moonraker
+    if [ $ERROR != 1 ]; then
+      check_printer_cfg
+      restart_moonraker
+      restart_klipper
+      install_nginx
+      test_api
+      test_nginx
+      install_mainsail && ok_msg "Mainsail install complete!"; echo
+    fi
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
   fi
@@ -21,7 +23,7 @@ mainsail_install_routine(){
 
 install_moonraker(){
   cd $KLIPPER_DIR
-  if [[ $(git describe --all) = "remotes/Arksine/work-web_server-20200131" ]]; then
+  if [[ $(git describe --all) = "remotes/Arksine/work-web_server-20200131" || $(git describe --all) = "remotes/Arksine/dev-moonraker-testing" ]]; then
     status_msg "Installing Moonraker ..."
     $KLIPPER_DIR/scripts/install-moonraker.sh && ok_msg "Moonraker successfully installed!"
     if [ ! -d ${HOME}/sdcard ]; then
@@ -35,15 +37,7 @@ install_moonraker(){
   else
     warn_msg "You are not using Arksine/work-web_server-20200131."
     warn_msg "Please switch to the moonraker fork first!"
-    while true; do
-      echo -e "${cyan}"
-      read -p "###### Do you want to switch to it now? (Y/n): " yn
-      echo -e "${default}"
-      case "$yn" in
-        Y|y|Yes|yes|"") switch_to_moonraker && install_moonraker; break;;
-        N|n|No|no) break;;
-      esac
-    done
+    ERROR=1
   fi
 }
 
