@@ -7,8 +7,8 @@
 [![kiauh](https://abload.de/img/mobaxterm_personal_207mk20.png)](https://abload.de/image.php?img=mobaxterm_personal_207mk20.png)
 
 This script was actually created for my personal use only but i then decided to make the script accessible for everyone.
-It is meant to help guiding you through a complete fresh install of Klipper and optionally the DWC2 web UI + DWC2-for-Klipper.
-There are also functions for updating your current installations or removing them from your system.
+~~It is meant to help guiding you through a complete fresh install of Klipper and optionally the DWC2 web UI + DWC2-for-Klipper.
+There are also functions for updating your current installations or removing them from your system.~~
 
 ## First things first: When you decide to use this script, you use it at your own risk!
 
@@ -17,6 +17,7 @@ Give it a try if you want and if you have suggestions or encounter any problems,
 ## Instructions:
 
 In order to run this script you have to make it executable. Use the following commands in the given order to download and execute the script.
+Make sure you don't skip checking out the development branch if you want to use this new version of the script.
 
 ```
 cd ~
@@ -31,16 +32,45 @@ chmod +x ~/kiauh/scripts/*
 * Tested only on Raspbian Buster Lite
 
 ## Functions and Features:
-Soon™
+- Installing:
+  - Klipper
+  - dwc2-for-klipper + Duet Web Control
+  - Moonraker + Mainsail
+  - OctoPrint
+- Updating:
+  - Klipper
+  - dwc2-for-klipper + Duet Web Control
+  - Moonraker + Mainsail
+- Removing:
+  - Klipper
+  - dwc2-for-klipper + Duet Web Control
+  - Moonraker + Mainsail
+  - OctoPrint
+  
+- Build Klipper Firmware
+- Flash MCU
+- Read ID of currently connected printer
+- Write several entries to your printer.cfg, some of them customizable right in the console
+- Switch between Klipper Forks:
+  - scurve-shaping
+  - scurve-smoothing
+  - moonraker
+- Toggle auto-create backups before updating
+- Toggle OctoPrint Service (usefull when using DWC2/Mainsail and Octoprint at the same time)
+
+tbc ...
+
+## What this script can't do:
+- Updating OctoPrint. Use OctoPrint for updating!
 
 
 ## Q&A
 
 __*Q: Can i install octoprint with this script?*__
 
-**A:** Soon™
+**A:** ~~Soon™~~ Yes :)
 
 
 __*Q: Can i use this script to install multiple instancec of Klipper on the same Pi? (Multisession?)*__
 
- **A:** No, and at the moment i don't plan to implement this function. For multisession installations take a look at this script manu7irl created: https://github.com/manu7irl/klipper-DWC2-installer
+ **A:** No, and at the moment i don't plan to implement this function. For multisession installations take a look at this script manu7irl created: https://github.com/manu7irl/klipper-DWC2-installer . Keep in mind that klipper-DWC2-installer and KIAUH are **NOT** compatible with each other.
