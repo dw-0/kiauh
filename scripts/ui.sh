@@ -105,6 +105,9 @@ advanced_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~")     | "
   hr
+  echo -e "|  0) $OPRINT_SERVICE_STATUS| "
+  hr
+  echo -e "|                                                       | "
   echo -e "|  1) [Switch Klipper version]                          | "
   echo -e "|                                                       | "
   echo -e "|  2) [Build Firmware]                                  | "
@@ -112,8 +115,6 @@ advanced_ui(){
   echo -e "|  4) [Get Printer-ID]                                  | "
   echo -e "|  5) [Write Printer-ID to printer.cfg]                 | "
   echo -e "|  6) [Write DWC2-for-klipper config]                   | "
-  echo -e "|                                                       | "
-  echo -e "|  x) [Enable/Disable Octoprint service]                | "
   echo -e "|                                                       | "
 quit_footer
 }

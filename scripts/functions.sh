@@ -219,3 +219,25 @@ flash_mcu(){
   fi
   start_klipper
 }
+
+toggle_octoprint_service(){
+  if systemctl is-enabled octoprint.service -q; then
+    status_msg "Service is enabled! Disabling now ..."
+    sudo systemctl stop octoprint && sudo systemctl disable octoprint -q
+    sleep 2
+    CONFIRM_MSG=" Octoprint Service is now >>> DISABLED <<< !"
+  else
+    status_msg "Service is disabled! Enabling now ..."
+    sudo systemctl enable octoprint -q && sudo systemctl start octoprint
+    sleep 2
+    CONFIRM_MSG=" Octoprint Service is now >>> ENABLED <<< !"
+  fi
+}
+
+read_octoprint_service_status(){
+  if ! systemctl is-enabled octoprint.service -q; then
+    OPRINT_SERVICE_STATUS="${green}[Enable]${default} Octoprint service                        "
+  else
+    OPRINT_SERVICE_STATUS="${red}[Disable]${default} Octoprint service                       "
+  fi
+}
