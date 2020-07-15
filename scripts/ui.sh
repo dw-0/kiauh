@@ -64,9 +64,9 @@ update_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~")     | "
   hr
-  echo -e "|  It's a good idea to check the following website      | "
+  echo -e "|  It is a good idea to check the following website     | "
   echo -e "|  for important software changes to the config file    | "
-  echo -e "|  BEFORE updating your klipper installation:           | "
+  echo -e "|  >> BEFORE << updating your klipper installation:     | "
   echo -e "|                                                       | "
   echo -e "|  ${yellow}https://www.klipper3d.org/Config_Changes.html${default}        | "
   bottom_border

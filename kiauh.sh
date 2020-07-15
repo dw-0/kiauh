@@ -52,6 +52,7 @@ OCTOPRINT_CFG_DIR=${HOME}/.octoprint
 OCTOPRINT_SERVICE1=/etc/init.d/octoprint
 OCTOPRINT_SERVICE2=/etc/default/octoprint
 #misc
+INI_DIR=${HOME}/kiauh/kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
 PRINTER_CFG=${HOME}/printer.cfg
 
@@ -182,6 +183,7 @@ install_menu(){
 
 update_menu(){
   print_header
+  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
   read_bb4u_stat
   #compare versions
     ui_print_versions
