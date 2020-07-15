@@ -390,7 +390,7 @@ switch_menu(){
       esac
     done
   else
-    ERROR_MSG=" No klipper directory found! Download klipper first!"
+    ERROR_MSG=" No Klipper directory found! Download Klipper first!"
   fi
 }
 

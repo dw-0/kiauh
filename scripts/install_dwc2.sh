@@ -37,11 +37,11 @@ install_tornado(){
 
 install_dwc2fk(){
   cd ${HOME}
-  status_msg "Cloning dwc2-for-klipper repository ..."
-  git clone $DWC2FK_REPO && ok_msg "dwc2-for-klipper successfully cloned!"
+  status_msg "Cloning DWC2-for-Klipper repository ..."
+  git clone $DWC2FK_REPO && ok_msg "DWC2-for-Klipper successfully cloned!"
   #create a web_dwc2.py symlink if not already existing
   if [ -d $KLIPPER_DIR/klippy/extras ] && [ ! -e $KLIPPER_DIR/klippy/extras/web_dwc2.py ]; then
-    status_msg "Creating web_dwc2.py symlink ..."
+    status_msg "Creating web_dwc2.py Symlink ..."
     ln -s $DWC2FK_DIR/web_dwc2.py $KLIPPER_DIR/klippy/extras/web_dwc2.py && ok_msg "Symlink created!"
   fi
 }
@@ -54,7 +54,6 @@ dwc2fk_cfg(){
     case "$yn" in
     Y|y|Yes|yes|"") create_dwc2fk_cfg; break;;
     N|n|No|no) break;;
-    *) echo "Unknown parameter: $yn"; dwc2fk_cfg;;
     esac
   done
 }
@@ -143,7 +142,6 @@ install_dwc2(){
       webcam_dep_check && ok_msg "Dependencies installed!"
       break;;
       N|n|No|no) break;;
-         *) echo "Unknown parameter: $yn"; echo;;
     esac
   done
   #the update_dwc2 function does the same as installing dwc2

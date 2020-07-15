@@ -37,7 +37,7 @@ octoprint_dependencies(){
 
 install_octoprint(){
   if [ ! -d $OCTOPRINT_DIR ];then
-    status_msg "Create Octoprint directory ..."
+    status_msg "Create OctoPrint directory ..."
     mkdir -p $OCTOPRINT_DIR && ok_msg "Directory created!"
   fi
   cd $OCTOPRINT_DIR
@@ -46,7 +46,7 @@ install_octoprint(){
   virtualenv venv
   source venv/bin/activate
   #install octoprint with pip
-  status_msg "Download and install octoprint ..."
+  status_msg "Download and install OctoPrint ..."
   pip install pip --upgrade
   pip install --no-cache-dir octoprint
   ok_msg "Download complete!"
@@ -57,11 +57,11 @@ install_octoprint(){
 add_groups(){
   USER=$(whoami)
   if [[ ! $(groups | grep tty) ]]; then
-    status_msg "Adding the current user to group 'tty' ..."
+    status_msg "Adding user '$USER' to group 'tty' ..."
     sudo usermod -a -G tty $USER && ok_msg "Done!"
   fi
   if [[ ! $(groups | grep tty) ]]; then
-    status_msg "Adding the current user to group 'dialout' ..."
+    status_msg "Adding user '$USER' to group 'dialout' ..."
     sudo usermod -a -G dialout $USER && ok_msg "Done!"
   fi
 }
@@ -74,7 +74,7 @@ configure_autostart(){
   wget https://github.com/foosel/OctoPrint/raw/master/scripts/octoprint.default
   ok_msg "Files downloaded successfully!"
   #make necessary changes in default file
-  status_msg "Configure octoprint service ..."
+  status_msg "Configure OctoPrint Service ..."
   DEFAULT_FILE=$OCTOPRINT_DIR/octoprint.default
   sed -i "s/pi/$USER/g" $DEFAULT_FILE
   sed -i "s/#BASEDIR=/BASEDIR=/" $DEFAULT_FILE
@@ -89,7 +89,7 @@ configure_autostart(){
   sudo update-rc.d octoprint defaults
   sudo systemctl daemon-reload
   ok_msg "Configuration complete!"
-  ok_msg "Octoprint installed!"
+  ok_msg "OctoPrint installed!"
 }
 
 add_reboot_permission(){
@@ -112,10 +112,10 @@ load_server(){
   start_octoprint
   #create an octoprint.log symlink in home-dir just for convenience
   if [ ! -e ${HOME}/octoprint.log ]; then
-      status_msg "Creating octoprint.log symlink ..."
+      status_msg "Creating octoprint.log Symlink ..."
       ln -s ${HOME}/.octoprint/logs/octoprint.log ${HOME}/octoprint.log && ok_msg "Symlink created!"
   fi
-  ok_msg "Octoprint is now running on:"
+  ok_msg "OctoPrint is now running on:"
   ok_msg "$(hostname -I | cut -d " " -f1):5000 or"
   ok_msg "http://localhost:5000"; echo
 }

@@ -18,7 +18,7 @@ mainsail_install_routine(){
       install_nginx
       test_api
       test_nginx
-      install_mainsail && ok_msg "Mainsail install complete!"; echo
+      install_mainsail && ok_msg "Mainsail installation complete!"; echo
     fi
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
@@ -39,7 +39,7 @@ install_moonraker(){
       ln -s /tmp/moonraker.log ${HOME}/moonraker.log && ok_msg "Symlink created!"
     fi
   else
-    ERROR_MSG=" You are not using a moonraker fork\n Please switch to a moonraker fork first! Aborting ..."
+    ERROR_MSG=" You are not using a Moonraker fork\n Please switch to a Moonraker fork first! Aborting ..."
     ERROR=1
   fi
 }
@@ -88,9 +88,9 @@ check_api_section(){
   status_msg "Checking for api_server configuration ..."
   # check if api server is present in printer.cfg
   if [ $(grep '^\[api_server\]$' $PRINTER_CFG) ]; then
-    ok_msg "API server already configured"
+    ok_msg "API Server already configured"
   else
-    status_msg "No API server entry found."
+    status_msg "No API Server entry found."
     status_msg "Configuring API server..."
 # append the following lines to printer.cfg
 cat <<API >> $PRINTER_CFG

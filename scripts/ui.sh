@@ -91,7 +91,7 @@ remove_ui(){
   hr
   echo -e "|  Files and directories which remain untouched:        | "
   echo -e "|  --> ~/printer.cfg                                    | "
-  echo -e "|  --> ~/backup                                         | "
+  echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
   hr
   echo -e "|  1) [Klipper]          |                              | "
@@ -114,7 +114,7 @@ advanced_ui(){
   echo -e "|  3) [Flash MCU]                                       | "
   echo -e "|  4) [Get Printer-ID]                                  | "
   echo -e "|  5) [Write Printer-ID to printer.cfg]                 | "
-  echo -e "|  6) [Write DWC2-for-klipper config]                   | "
+  echo -e "|  6) [Write DWC2-for-Klipper config]                   | "
   echo -e "|                                                       | "
 quit_footer
 }
@@ -141,7 +141,7 @@ switch_ui(){
   echo -e "|     $(title_msg "~~~~~~~~~ [ Switch Klipper Branch ] ~~~~~~~~~")     |"
   bottom_border
   echo
-  echo -e " $(title_msg "Active branch: ")${green}$GET_BRANCH${default}"
+  echo -e " $(title_msg "Active Branch: ")${green}$GET_BRANCH${default}"
   echo
   top_border
   echo -e "|  1) [--> origin/master]                               | "

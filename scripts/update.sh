@@ -40,7 +40,7 @@ update_dwc2fk(){
     cd $DWC2FK_DIR && git pull
     #create a web_dwc2.py symlink if not already existing
     if [ -d $KLIPPER_DIR/klippy/extras ] && [ ! -e $WEB_DWC2 ]; then
-      status_msg "Creating web_dwc2.py symlink ..."
+      status_msg "Creating web_dwc2.py Symlink ..."
       ln -s $DWC2FK_DIR/web_dwc2.py $WEB_DWC2 && ok_msg "Symlink created!"
     fi
   fi

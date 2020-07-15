@@ -17,64 +17,64 @@ source_ini(){
 
 start_klipper(){
   if [ -e /etc/init.d/klipper ]; then
-    status_msg "Starting klipper service ..."
-    sudo /etc/init.d/klipper start && sleep 2 && ok_msg "Klipper service started!"
+    status_msg "Starting Klipper Service ..."
+    sudo /etc/init.d/klipper start && sleep 2 && ok_msg "Klipper Service started!"
   fi
 }
 
 stop_klipper(){
   if [ -e /etc/init.d/klipper ]; then
-    status_msg "Stopping klipper service ..."
-    sudo /etc/init.d/klipper stop && sleep 2 && ok_msg "Klipper service stopped!"
+    status_msg "Stopping Klipper Service ..."
+    sudo /etc/init.d/klipper stop && sleep 2 && ok_msg "Klipper Service stopped!"
   fi
 }
 
 restart_klipper(){
   if [ -e /etc/init.d/klipper ]; then
-    status_msg "Restarting klipper service ..."
-    sudo /etc/init.d/klipper restart && sleep 2 && ok_msg "Klipper service restarted!"
+    status_msg "Restarting Klipper Service ..."
+    sudo /etc/init.d/klipper restart && sleep 2 && ok_msg "Klipper Service restarted!"
   fi
 }
 
 start_moonraker(){
   if [ -e /etc/init.d/moonraker ]; then
-    status_msg "Starting moonraker service ..."
-    sudo /etc/init.d/moonraker start && sleep 2 && ok_msg "Moonraker service started!"
+    status_msg "Starting Moonraker Service ..."
+    sudo /etc/init.d/moonraker start && sleep 2 && ok_msg "Moonraker Service started!"
   fi
 }
 
 stop_moonraker(){
   if [ -e /etc/init.d/moonraker ]; then
-    status_msg "Stopping moonraker service ..."
-    sudo /etc/init.d/moonraker stop && sleep 2 && ok_msg "Moonraker service stopped!"
+    status_msg "Stopping Moonraker Service ..."
+    sudo /etc/init.d/moonraker stop && sleep 2 && ok_msg "Moonraker Service stopped!"
   fi
 }
 
 restart_moonraker(){
   if [ -e /etc/init.d/moonraker ]; then
-    status_msg "Restarting moonraker service ..."
-    sudo /etc/init.d/moonraker restart && sleep 2 && ok_msg "Moonraker service restarted!"
+    status_msg "Restarting Moonraker Service ..."
+    sudo /etc/init.d/moonraker restart && sleep 2 && ok_msg "Moonraker Service restarted!"
   fi
 }
 
 start_octoprint(){
   if [ -e /etc/init.d/octoprint ]; then
-    status_msg "Starting octoprint service ..."
-    sudo /etc/init.d/octoprint start && sleep 2 && ok_msg "Octoprint service started!"
+    status_msg "Starting OctoPrint Service ..."
+    sudo /etc/init.d/octoprint start && sleep 2 && ok_msg "OctoPrint Service started!"
   fi
 }
 
 stop_octoprint(){
   if [ -e /etc/init.d/octoprint ]; then
-    status_msg "Stopping octoprint service ..."
-    sudo /etc/init.d/octoprint stop && sleep 2 && ok_msg "Octoprint service stopped!"
+    status_msg "Stopping OctoPrint Service ..."
+    sudo /etc/init.d/octoprint stop && sleep 2 && ok_msg "OctoPrint Service stopped!"
   fi
 }
 
 restart_octoprint(){
   if [ -e /etc/init.d/octoprint ]; then
-    status_msg "Restarting octoprint service ..."
-    sudo /etc/init.d/octoprint restart && sleep 2 && ok_msg "Octoprint service restarted!"
+    status_msg "Restarting OctoPrint Service ..."
+    sudo /etc/init.d/octoprint restart && sleep 2 && ok_msg "OctoPrint Service restarted!"
   fi
 }
 
@@ -94,7 +94,6 @@ dep_check(){
       sudo apt-get install ${install[@]} -y && ok_msg "Dependencies installed!"
       break;;
       N|n|No|no) break;;
-         *) echo "Unknown parameter: $yn"; echo;;
     esac
   done
   fi
@@ -118,22 +117,20 @@ print_error(){
 }
 
 pkg_check(){
-  status_msg "Checking if nginx is installed"
-  if [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
-echo "nginx found!"
-else
-echo "nginx was not found, installing..." 2>&1
-sudo apt-get -y install nginx 2>/dev/null
-fi
+  #WIP
+  if [[ $(dpkg-query -f'${Status}' --show $PKG 2>/dev/null) = *\ installed ]]; then
+  else
+    sudo apt-get -y install nginx 2>/dev/null
+  fi
 }
 
 build_fw(){
     if [ -d $KLIPPER_DIR ]; then
       cd $KLIPPER_DIR && make menuconfig
-      status_msg "Building firmware ..."
+      status_msg "Building Firmware ..."
       make clean && make && ok_msg "Firmware built!"
     else
-      warn_msg "Can not build firmware without a Klipper directory!"
+      warn_msg "Can not build Firmware without a Klipper directory!"
     fi
 }
 
@@ -186,7 +183,7 @@ PRINTERID
 
 flash_routine(){
   echo -e "/=================================================\ "
-  echo -e "|                   ATTENTION!                    |"
+  echo -e "|     ${red}~~~~~~~~~~~ [ ATTENTION! ] ~~~~~~~~~~~~${default}     |"
   echo -e "| Flashing a Smoothie based board for the first   |"
   echo -e "| time with this script will certainly fail.      |"
   echo -e "| This applies to boards like the BTT SKR V1.3 or |"
@@ -221,12 +218,12 @@ flash_mcu(){
 }
 
 enable_octoprint_service(){
-  status_msg "Octoprint Service is disabled! Enabling now ..."
+  status_msg "OctoPrint Service is disabled! Enabling now ..."
   sudo systemctl enable octoprint -q && sudo systemctl start octoprint
 }
 
 disable_octoprint_service(){
-  status_msg "Octoprint Service is enabled! Disabling now ..."
+  status_msg "OctoPrint Service is enabled! Disabling now ..."
   sudo systemctl stop octoprint && sudo systemctl disable octoprint -q
 }
 
@@ -234,18 +231,18 @@ toggle_octoprint_service(){
   if systemctl is-enabled octoprint.service -q; then
     disable_octoprint_service
     sleep 2
-    CONFIRM_MSG=" Octoprint Service is now >>> DISABLED <<< !"
+    CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
   else
     enable_octoprint_service
     sleep 2
-    CONFIRM_MSG=" Octoprint Service is now >>> ENABLED <<< !"
+    CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
   fi
 }
 
 read_octoprint_service_status(){
   if ! systemctl is-enabled octoprint.service -q; then
-    OPRINT_SERVICE_STATUS="${green}[Enable]${default} Octoprint service                        "
+    OPRINT_SERVICE_STATUS="${green}[Enable]${default} OctoPrint Service                        "
   else
-    OPRINT_SERVICE_STATUS="${red}[Disable]${default} Octoprint service                       "
+    OPRINT_SERVICE_STATUS="${red}[Disable]${default} OctoPrint Service                       "
   fi
 }
