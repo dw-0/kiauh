@@ -5,11 +5,15 @@
 dwc2_install_routine(){
   if [ -d $KLIPPER_DIR ]; then
     # check for existing installation
-    if [ -d ${HOME}/klippy-env/lib/python2.7/site-packages/tornado ]; then
-      ERROR_MSG=" Looks like DWC2 is already installed!\n Skipping..."
-      return
-    fi
+      if [ -d ${HOME}/klippy-env/lib/python2.7/site-packages/tornado ]; then
+        ERROR_MSG=" Looks like DWC2 is already installed!\n Skipping..."
+        return
+      fi
     stop_klipper
+    #disable octoprint service if installed
+      if systemctl is-enabled octoprint.service -q; then
+        disable_octoprint_service
+      fi
     install_tornado
     install_dwc2fk && dwc2fk_cfg
     install_dwc2

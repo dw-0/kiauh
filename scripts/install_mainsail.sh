@@ -4,6 +4,10 @@ mainsail_install_routine(){
     dep=(wget curl unzip)
     dep_check
     #execute operation
+    #disable octoprint service if installed
+      if systemctl is-enabled octoprint.service -q; then
+        disable_octoprint_service
+      fi
     disable_wrong_webserver
     remove_wrong_webserver
     install_moonraker
