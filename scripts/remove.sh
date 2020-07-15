@@ -58,8 +58,8 @@ remove_dwc2(){
 
 remove_mainsail(){
   data_arr=(
-  $MAINSAIL_SERVICE1
-  $MAINSAIL_SERVICE2
+  $MOONRAKER_SERVICE1
+  $MOONRAKER_SERVICE2
   $MAINSAIL_DIR
   ${HOME}/moonraker.log
   ${HOME}/.klippy_api_key

@@ -44,8 +44,8 @@ TORNADO_DIR1=${HOME}/klippy-env/lib/python2.7/site-packages/tornado
 TORNADO_DIR2=${HOME}/klippy-env/lib/python2.7/site-packages/tornado-5.1.1.dist-info
 #mainsail/moonraker
 MAINSAIL_DIR=${HOME}/mainsail
-MAINSAIL_SERVICE1=/etc/init.d/moonraker
-MAINSAIL_SERVICE2=/etc/default/moonraker
+MOONRAKER_SERVICE1=/etc/init.d/moonraker
+MOONRAKER_SERVICE2=/etc/default/moonraker
 #misc
 BACKUP_DIR=${HOME}/kiauh-backups
 PRINTER_CFG=${HOME}/printer.cfg

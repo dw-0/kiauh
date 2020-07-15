@@ -50,8 +50,8 @@ dwc2_status(){
 mainsail_status(){
   mcount=0
   mainsail_data=(
-    $MAINSAIL_SERVICE1
-    $MAINSAIL_SERVICE2
+    $MOONRAKER_SERVICE1
+    $MOONRAKER_SERVICE2
     $MAINSAIL_DIR
     #${HOME}/.klippy_api_key
     #${HOME}/.moonraker_api_key
