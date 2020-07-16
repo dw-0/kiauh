@@ -5,13 +5,11 @@ mainsail_install_routine(){
     dep_check
     #execute operation
     #disable octoprint service if installed
-      if systemctl is-enabled octoprint.service -q; then
-        disable_octoprint_service
-      fi
+      disable_octoprint_service
     disable_wrong_webserver
     remove_wrong_webserver
     install_moonraker
-    if [ $ERROR != 1 ]; then
+    if [ "$ERROR" != 1 ]; then
       check_printer_cfg
       restart_moonraker
       restart_klipper
@@ -203,7 +201,8 @@ config_nginx_mainsail(){
     mkdir $MAINSAIL_DIR
   fi
   status_msg "Create Nginx configuration ..."
-  sudo cat ${HOME}/kiauh/resources/mainsail_nginx.cfg > /etc/nginx/sites-available/mainsail
+  cat ${HOME}/kiauh/resources/mainsail_nginx.cfg > ${HOME}/kiauh/resources/mainsail
+  sudo mv ${HOME}/kiauh/resources/mainsail /etc/nginx/sites-available/mainsail
   if [ -e /etc/nginx/sites-enabled/default ]; then
     sudo rm /etc/nginx/sites-enabled/default
   fi
