@@ -116,13 +116,14 @@ print_error(){
   fi
 }
 
-pkg_check(){
-  #WIP
-  if [[ $(dpkg-query -f'${Status}' --show $PKG 2>/dev/null) = *\ installed ]]; then
-  else
-    sudo apt-get -y install nginx 2>/dev/null
-  fi
-}
+#pkg_check(){
+#  #WIP
+#  if [[ $(dpkg-query -f'${Status}' --show $PKG 2>/dev/null) = *\ installed ]]; then
+#    echo "WIP"
+#  else
+#    sudo apt-get -y install $PKG 2>/dev/null
+#  fi
+#}
 
 build_fw(){
     if [ -d $KLIPPER_DIR ]; then
