@@ -67,8 +67,6 @@ remove_mainsail(){
   ${HOME}/moonraker-env
   /etc/nginx/sites-available/mainsail
   /etc/nginx/sites-enabled/mainsail
-  /etc/init.d/nginx
-  /etc/default/nginx
   )
   print_error "Mainsail" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
@@ -114,33 +112,7 @@ remove_mainsail(){
       status_msg "Removing API Key ..."
       rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
     fi
-    remove_nginx
     ok_msg "Mainsail successfully removed!"
-  fi
-}
-
-remove_nginx(){
-  #ask for complete removal of nginx if installed
-  if [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]  ; then
-    while true; do
-      echo
-      read -p "Do you want to completely remove (purge) Nginx? (Y/n): " yn
-      case "$yn" in
-        Y|y|Yes|yes|"")
-        status_msg "Stopping and removing Nginx Service ..."
-        if [ -e /etc/init.d/nginx ]; then
-          sudo /etc/init.d/nginx stop && ok_msg "Nginx Service stopped!"
-          sudo rm /etc/init.d/nginx && ok_msg "Nginx Service removed!"
-        fi
-        if [ -e /etc/default/nginx ]; then
-          sudo rm /etc/default/nginx
-        fi
-        status_msg "Purging Nginx from system ..."
-        sudo apt-get purge nginx nginx-common -y && ok_msg "Nginx removed!"
-        break;;
-        N|n|No|no) break;;
-      esac
-    done
   fi
 }
 
