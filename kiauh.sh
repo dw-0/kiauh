@@ -130,7 +130,7 @@ main_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Unknown command '$action'"
+        ERROR_MSG=" Sorry, i don't know that command!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         main_ui;;
     esac
@@ -173,7 +173,7 @@ install_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Unknown command '$action'"
+        ERROR_MSG=" Sorry, i don't know that command!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         install_ui;;
     esac
@@ -226,7 +226,7 @@ update_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Unknown command '$action'"
+        ERROR_MSG=" Sorry, i don't know that command!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         ui_print_versions
         update_ui;;
@@ -270,7 +270,7 @@ remove_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Unknown command '$action'"
+        ERROR_MSG=" Sorry, i don't know that command!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         remove_ui;;
     esac
@@ -334,7 +334,7 @@ advanced_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Unknown command '$action'"
+        ERROR_MSG=" Sorry, i don't know that command!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         advanced_ui;;
     esac
@@ -412,7 +412,7 @@ backup_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Unknown command '$action'"
+        ERROR_MSG=" Sorry, i don't know that command!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         backup_ui;;
     esac

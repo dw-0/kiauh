@@ -58,8 +58,6 @@ mainsail_status(){
     #${HOME}/moonraker-env
     /etc/nginx/sites-available/mainsail
     /etc/nginx/sites-enabled/mainsail
-    /etc/init.d/nginx
-    /etc/default/nginx
   )
   #count+1 for each found data-item from array
   for md in "${mainsail_data[@]}"

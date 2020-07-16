@@ -22,7 +22,7 @@ remove_klipper(){
       status_msg "Removing klippy.log Symlink ..."
       rm -rf ${HOME}/klippy.log /tmp/klippy.log && ok_msg "Symlink removed!"
     fi
-    ok_msg "Klipper successfully removed!"
+    CONFIRM_MSG=" Klipper successfully removed!"
   fi
 }
 
@@ -52,7 +52,7 @@ remove_dwc2(){
       status_msg "Removing DWC2 directory ..."
       rm -rf $DWC2_DIR && ok_msg "Directory removed!"
     fi
-    ok_msg "DWC2-for-Klipper & DWC2 Web UI successfully removed!"
+    CONFIRM_MSG=" DWC2-for-Klipper & DWC2 Web UI successfully removed!"
   fi
 }
 
@@ -112,7 +112,7 @@ remove_mainsail(){
       status_msg "Removing API Key ..."
       rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
     fi
-    ok_msg "Mainsail successfully removed!"
+    CONFIRM_MSG=" Mainsail successfully removed!"
   fi
 }
 
@@ -144,6 +144,6 @@ remove_octoprint(){
       status_msg "Removing octoprint.log Symlink ..."
       rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
     fi
-    ok_msg "OctoPrint successfully removed!"; echo
+    CONFIRM_MSG=" OctoPrint successfully removed!"
   fi
 }
