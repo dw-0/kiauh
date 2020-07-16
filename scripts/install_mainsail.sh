@@ -15,7 +15,7 @@ mainsail_install_routine(){
       check_printer_cfg
       restart_moonraker
       restart_klipper
-      install_nginx
+      config_nginx_mainsail
       test_api
       test_nginx
       install_mainsail && ok_msg "Mainsail installation complete!"; echo
@@ -194,7 +194,7 @@ remove_wrong_webserver(){
   fi
 }
 
-install_nginx(){
+config_nginx_mainsail(){
   if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
     status_msg "Installing Nginx ..."
     sudo apt-get install nginx -y && ok_msg "Nginx successfully installed!"
@@ -202,8 +202,8 @@ install_nginx(){
   if [ ! -d $MAINSAIL_DIR ]; then
     mkdir $MAINSAIL_DIR
   fi
-  status_msg "Configure Nginx ..."
-  create_mainsail_cfgfile && sudo mv $MAINSAIL_DIR/mainsail /etc/nginx/sites-available/
+  status_msg "Create Nginx configuration ..."
+  sudo cat ${HOME}/kiauh/resources/mainsail_nginx.cfg > /etc/nginx/sites-available/mainsail
   if [ -e /etc/nginx/sites-enabled/default ]; then
     sudo rm /etc/nginx/sites-enabled/default
   fi
@@ -259,91 +259,4 @@ install_mainsail(){
   wget -q -O mainsail.zip $MAINSAIL_URL && status_msg "Extracting archive ..." && unzip -o mainsail.zip && rm mainsail.zip
   ### write mainsail version to file for update check reasons
   echo "$MAINSAIL_VERSION" > $MAINSAIL_DIR/version
-}
-
-create_mainsail_cfgfile(){
-  cat <<MAINSAIL_CFG > $MAINSAIL_DIR/mainsail
-map \$http_upgrade \$connection_upgrade {
-    default upgrade;
-    '' close;
-}
-
-upstream apiserver {
-    #edit your api port here
-    ip_hash;
-    server 127.0.0.1:7125;
-}
-
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    access_log /var/log/nginx/mainsail-access.log;
-    error_log /var/log/nginx/mainsail-error.log;
-
-    #web_path from mainsail static files
-    root /home/pi/mainsail;
-
-    index index.html;
-    server_name _;
-
-    #max upload size for gcodes
-    client_max_body_size 200M;
-
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-
-    location /printer {
-        proxy_pass http://apiserver/printer;
-        proxy_set_header Host \$http_host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Scheme \$scheme;
-    }
-
-    location /api {
-        proxy_pass http://apiserver/api;
-        proxy_set_header Host \$http_host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Scheme \$scheme;
-    }
-
-    location /access {
-        proxy_pass http://apiserver/access;
-        proxy_set_header Host \$http_host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Scheme \$scheme;
-    }
-
-    location /websocket {
-        proxy_pass http://apiserver/websocket;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection \$connection_upgrade;
-        proxy_set_header Host \$http_host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_read_timeout 86400;
-    }
-
-    location /machine {
-        proxy_pass http://apiserver/machine;
-        proxy_set_header Host \$http_host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Scheme \$scheme;
-    }
-
-    location /server {
-        proxy_pass http://apiserver/server;
-        proxy_set_header Host \$http_host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Scheme \$scheme;
-    }
-}
-MAINSAIL_CFG
 }
