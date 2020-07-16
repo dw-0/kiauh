@@ -229,14 +229,18 @@ disable_octoprint_service(){
 }
 
 toggle_octoprint_service(){
-  if systemctl is-enabled octoprint.service -q; then
-    disable_octoprint_service
-    sleep 2
-    CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
+  if [[ -f $OCTOPRINT_SERVICE1 && -f $OCTOPRINT_SERVICE2 ]]; then
+    if systemctl is-enabled octoprint.service -q; then
+      disable_octoprint_service
+      sleep 2
+      CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
+    else
+      enable_octoprint_service
+      sleep 2
+      CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
+    fi
   else
-    enable_octoprint_service
-    sleep 2
-    CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
+    ERROR_MSG=" You cannot activate a service that does not exist!"
   fi
 }
 
