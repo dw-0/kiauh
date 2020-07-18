@@ -6,8 +6,8 @@ mainsail_install_routine(){
     #execute operation
     #disable octoprint service if installed
       disable_octoprint_service
-    disable_wrong_webserver
-    remove_wrong_webserver
+    disable_haproxy_lighttpd
+    remove_haproxy_lighttpd
     install_moonraker
     if [ "$ERROR" != 1 ]; then
       check_printer_cfg
@@ -16,7 +16,9 @@ mainsail_install_routine(){
       config_nginx_mainsail
       test_api
       test_nginx
-      install_mainsail && ok_msg "Mainsail installation complete!"; echo
+      install_mainsail
+      create_custom_hostname
+      ok_msg "Mainsail installation complete!"; echo
     fi
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
@@ -168,7 +170,7 @@ gcode:
 DEFAULT_CFG
 }
 
-disable_wrong_webserver(){
+disable_haproxy_lighttpd(){
   if systemctl is-active haproxy -q; then
     status_msg "Stopping haproxy service ..."
     sudo /etc/init.d/haproxy stop && ok_msg "Service stopped!"
@@ -179,7 +181,7 @@ disable_wrong_webserver(){
   fi
 }
 
-remove_wrong_webserver(){
+remove_haproxy_lighttpd(){
   rem=(haproxy lighttpd)
   for remove in "${rem[@]}"
   do
@@ -193,6 +195,7 @@ remove_wrong_webserver(){
 }
 
 config_nginx_mainsail(){
+  USER=$(whoami)
   if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
     status_msg "Installing Nginx ..."
     sudo apt-get install nginx -y && ok_msg "Nginx successfully installed!"
@@ -203,6 +206,8 @@ config_nginx_mainsail(){
   status_msg "Create Nginx configuration ..."
   cat ${HOME}/kiauh/resources/mainsail_nginx.cfg > ${HOME}/kiauh/resources/mainsail
   sudo mv ${HOME}/kiauh/resources/mainsail /etc/nginx/sites-available/mainsail
+  #make sure the config is for the correct user
+  sudo sed -i "/root/s/pi/$USER/" /etc/nginx/sites-available/mainsail
   if [ -e /etc/nginx/sites-enabled/default ]; then
     sudo rm /etc/nginx/sites-enabled/default
   fi
@@ -258,4 +263,5 @@ install_mainsail(){
   wget -q -O mainsail.zip $MAINSAIL_URL && status_msg "Extracting archive ..." && unzip -o mainsail.zip && rm mainsail.zip
   ### write mainsail version to file for update check reasons
   echo "$MAINSAIL_VERSION" > $MAINSAIL_DIR/version
+  echo
 }
