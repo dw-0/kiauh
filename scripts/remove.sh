@@ -29,8 +29,6 @@ remove_klipper(){
 remove_dwc2(){
   data_arr=(
   $DWC2FK_DIR
-  $TORNADO_DIR1
-  $TORNADO_DIR2
   $WEB_DWC2
   $DWC2_DIR
   )
@@ -39,10 +37,6 @@ remove_dwc2(){
     if [ -d $DWC2FK_DIR ]; then
       status_msg "Removing DWC2-for-Klipper directory ..."
       rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
-    fi
-    if [ -d $TORNADO_DIR1 ]; then
-      status_msg "Removing Tornado from klippy-env ..."
-      rm -rf $TORNADO_DIR1 $TORNADO_DIR2 && ok_msg "Tornado removed!"
     fi
     if [ -e $WEB_DWC2 ]; then
       status_msg "Removing web_dwc2.py Symlink from klippy ..."

@@ -28,8 +28,6 @@ dwc2_status(){
     $DWC2FK_DIR
     $WEB_DWC2
     $DWC2_DIR
-    $TORNADO_DIR1
-    $TORNADO_DIR2
   )
   #count+1 for each found data-item from array
   for dd in "${dwc2_data[@]}"
