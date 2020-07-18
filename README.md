@@ -15,11 +15,14 @@ Give it a try if you want and if you have suggestions or encounter any problems,
 [![kiauh](https://abload.de/img/putty_20-05-22_18-49-1nkaa.png)](https://abload.de/image.php?img=putty_20-05-22_18-49-1nkaa.png)
 
 ## Instructions:
-In order to run this script you have to make it executable. Use the following commands in the given order to download and execute the script.
+If you don't have git already installed, please install it first:
+`sudo apt-get install git -y`
+
+After you made sure to have git installed, use the following commands in the given order to download and execute the script.
 ```
 cd ~
-git clone https://github.com/th33xitus/KIAUH.git
-cd ~/KIAUH
+git clone https://github.com/th33xitus/kiauh.git
+cd ~/kiauh
 chmod +x kiauh.sh
 ./kiauh.sh
 ```
