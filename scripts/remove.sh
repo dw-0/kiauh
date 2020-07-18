@@ -26,6 +26,20 @@ remove_klipper(){
   fi
 }
 
+remove_tornado(){
+  data_arr=(
+    $TORNADO_DIR1
+    $TORNADO_DIR2
+  )
+  print_error "Tornado" && data_count=()
+  if [ "$ERROR_MSG" = "" ]; then
+    status_msg "Removing Tornado from klippy-env ..."
+    PYTHONDIR=$KLIPPY_ENV_DIR
+    $PYTHONDIR/bin/pip uninstall tornado -y
+    CONFIRM_MSG=" Tornado successfully removed!"
+  fi
+}
+
 remove_dwc2(){
   data_arr=(
   $DWC2FK_DIR
@@ -118,6 +132,8 @@ remove_octoprint(){
   $OCTOPRINT_CFG_DIR
   ${HOME}/octoprint.log
   /etc/sudoers.d/octoprint-shutdown
+  /etc/nginx/sites-available/octoprint
+  /etc/nginx/sites-enabled/octoprint
   )
   print_error "OctoPrint" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
@@ -139,5 +155,23 @@ remove_octoprint(){
       rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
     fi
     CONFIRM_MSG=" OctoPrint successfully removed!"
+  fi
+}
+
+remove_nginx(){
+  if [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]  ; then
+    status_msg "Stopping and removing Nginx Service ..."
+    if [ -e /etc/init.d/nginx ]; then
+      sudo /etc/init.d/nginx stop && ok_msg "Nginx Service stopped!"
+      sudo rm /etc/init.d/nginx && ok_msg "Nginx Service removed!"
+    fi
+    if [ -e /etc/default/nginx ]; then
+      sudo rm /etc/default/nginx
+    fi
+    status_msg "Purging Nginx from system ..."
+    sudo apt-get purge nginx nginx-common -y
+    CONFIRM_MSG=" Nginx successfully removed!"
+  else
+    ERROR_MSG=" Looks like Nginx was already removed!\n Skipping..."
   fi
 }

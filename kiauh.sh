@@ -265,6 +265,18 @@ remove_menu(){
         remove_octoprint
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         remove_ui;;
+      5)
+        clear
+        print_header
+        remove_tornado
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        remove_ui;;
+      6)
+        clear
+        print_header
+        remove_nginx
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        remove_ui;;
       Q|q)
         clear; main_menu; break;;
       *)

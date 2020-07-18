@@ -94,8 +94,8 @@ remove_ui(){
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
   hr
-  echo -e "|  1) [Klipper]          |                              | "
-  echo -e "|  2) [DWC2-for-Klipper] |                              | "
+  echo -e "|  1) [Klipper]          |  5) [Tornado]                | "
+  echo -e "|  2) [DWC2-for-Klipper] |  6) [Nginx]                  | "
   echo -e "|  3) [Mainsail]         |                              | "
   echo -e "|  4) [Octoprint]        |                              | "
   quit_footer
