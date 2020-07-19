@@ -6,6 +6,7 @@ octoprint_install_routine(){
   add_groups
   configure_autostart
   add_reboot_permission
+  octoprint_reverse_proxy_dialog
   load_server
 }
 
@@ -106,6 +107,41 @@ add_reboot_permission(){
   sudo mv octoprint-shutdown /etc/sudoers.d/octoprint-shutdown
   ok_msg "Permission set!"
   sleep 2
+}
+
+octoprint_reverse_proxy_dialog(){
+  top_border
+  echo -e "|  If you want to have nicer URLs or simply need        | "
+  echo -e "|  OctoPrint to run on port 80 (http's default port)    | "
+  echo -e "|  due to some network restrictions, you can set up a   | "
+  echo -e "|  reverse proxy instead of configuring OctoPrint to    | "
+  echo -e "|  run on port 80.                                      | "
+  bottom_border
+  while true; do
+    echo -e "${cyan}"
+    read -p "###### Do you want to set up a reverse proxy now? (Y/n): " yn
+    echo -e "${default}"
+    case "$yn" in
+      Y|y|Yes|yes|"") octoprint_reverse_proxy; break;;
+      N|n|No|no) break;;
+    esac
+  done
+}
+
+octoprint_reverse_proxy(){
+  if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
+    sudo apt-get install nginx -y
+  fi
+  cat ${HOME}/kiauh/resources/octoprint_nginx.cfg > ${HOME}/kiauh/resources/octoprint
+  sudo mv ${HOME}/kiauh/resources/octoprint /etc/nginx/sites-available/octoprint
+  if [ -e /etc/nginx/sites-enabled/default ]; then
+    sudo rm /etc/nginx/sites-enabled/default
+  fi
+  if [ ! -e /etc/nginx/sites-enabled/octoprint ]; then
+    sudo ln -s /etc/nginx/sites-available/octoprint /etc/nginx/sites-enabled/
+  fi
+  restart_nginx
+  create_custom_hostname
 }
 
 load_server(){

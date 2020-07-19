@@ -78,6 +78,13 @@ restart_octoprint(){
   fi
 }
 
+restart_nginx(){
+  if [ -e /etc/init.d/nginx ]; then
+    status_msg "Restarting Nginx Service ..."
+    sudo /etc/init.d/nginx restart && sleep 2 && ok_msg "Nginx Service restarted!"
+  fi
+}
+
 dep_check(){
   for package in "${dep[@]}"
   do
@@ -261,12 +268,10 @@ create_custom_hostname(){
   top_border
   echo -e "|  You can change the hostname of this machine to use   |"
   echo -e "|  that name to open the Interface in your browser.     |"
-  echo -e "|  This option is completely optional and can also be   |"
-  echo -e "|  done at a later point in time if you are unsure.     |"
   echo -e "|                                                       |"
   echo -e "|  Example: If you set the hostname to 'my-printer'     |"
-  echo -e "|           you can open Mainsail by browsing to:       |"
-  echo -e "|           http://my-printer.local                     |"
+  echo -e "|           you can open Mainsail/Octoprint by          |"
+  echo -e "|           browsing to: http://my-printer.local        |"
   bottom_border
   while true; do
     echo -e "${cyan}"
@@ -323,7 +328,7 @@ set_hostname(){
         echo "127.0.0.1     $NEW_HOSTNAME ###set by kiauh" | sudo tee -a /etc/hosts &>/dev/null
       fi
       ok_msg "New hostname successfully configured!"
-      ok_msg "You need to reboot your machine for changes to take effect!"
+      ok_msg "Remember to reboot your machine for the changes to take effect!"
       break
     else
       warn_msg "'$NEW_HOSTNAME' is not a valid hostname!"
