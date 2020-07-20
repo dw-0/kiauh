@@ -131,38 +131,6 @@ DWC2
 }
 
 install_dwc2(){
-  #needed packages for webcam
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Do you want to use a webcam? (Y/n): " yn
-    echo -e "${default}"
-    case "$yn" in
-      Y|y|Yes|yes|"")
-      status_msg "Checking for dependencies ..."
-      webcam_dep_check && ok_msg "Dependencies installed!"
-      break;;
-      N|n|No|no) break;;
-    esac
-  done
   #the update_dwc2 function does the same as installing dwc2
   update_dwc2 && ok_msg "DWC2 Web UI installed!"
-}
-
-webcam_dep_check(){
-  webcam_dep=(
-  build-essential
-  libjpeg8-dev
-  imagemagick
-  libv4l-dev
-  cmake
-  )
-  for pkg in "${webcam_dep[@]}"
-  do
-    if ! [[ $(dpkg-query -f'${Status}' --show $pkg 2>/dev/null) = *\ installed ]]; then
-      install+=($pkg)
-    fi
-  done
-  if ! [ ${#install[@]} -eq 0 ]; then
-    sudo apt-get install ${install[@]} -y
-  fi
 }
