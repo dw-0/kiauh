@@ -31,6 +31,7 @@ chmod +x ~/kiauh/scripts/*
 ## Restrictions:
 
 - Tested only on Raspbian Buster Lite
+- Prevent simultaneous use of DWC2 and OctoPrint. There have been reports that DWC2 does strange things while the OctoPrint service is running while using the DWC2 web interface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
 
 ## Functions and Features:
 
@@ -58,19 +59,21 @@ chmod +x ~/kiauh/scripts/*
   - scurve-shaping
   - scurve-smoothing
   - moonraker
+  - dev-moonraker
 - Toggle auto-create backups before updating
 - Toggle OctoPrint Service (usefull when using DWC2/Mainsail and Octoprint at the same time)
 
-tbc ...
+- Set up reverse proxy for Mainsail/OctoPrint
+  tbc ...
 
 ## What this script can't do:
 
 - Updating OctoPrint -> Use OctoPrint for updating!
 - Setting up webcam related stuff:
 
-  - If you want to use a webcam in either case (DWC2/Mainsail/Octoprint) you have to install the dependencies and configurations yourself. I can't test this stuff sufficient enough due to me not using a webcam and therefore it's just too much work for me.
+  - If you want to use a webcam you have to install the dependencies and configurations yourself. I can't test this stuff sufficient enough due to me not having/using a webcam and therefore it's just too much work for me to set up an installation script which works, at best, with the first try.
 
-  There are install instructions (at least in case of Octoprint) available:
+  There are install instructions (at least in case of OctoPrint) available:
   [Setting up OctoPrint on a Raspberry Pi running Raspbian](https://community.octoprint.org/t/setting-up-octoprint-on-a-raspberry-pi-running-raspbian/2337)
   (look for "Optional: Webcam")
 
