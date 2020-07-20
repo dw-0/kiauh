@@ -1,4 +1,4 @@
-# THIS VERSION IS WORK IN PROGRESS!!! 
+# THIS VERSION IS WORK IN PROGRESS!!!
 
 # KIAUH
 
@@ -29,9 +29,11 @@ chmod +x ~/kiauh/scripts/*
 ```
 
 ## Restrictions:
-* Tested only on Raspbian Buster Lite
+
+- Tested only on Raspbian Buster Lite
 
 ## Functions and Features:
+
 - Installing:
   - Klipper
   - dwc2-for-klipper + Duet Web Control
@@ -42,11 +44,12 @@ chmod +x ~/kiauh/scripts/*
   - dwc2-for-klipper + Duet Web Control
   - Moonraker + Mainsail
 - Removing:
+
   - Klipper
   - dwc2-for-klipper + Duet Web Control
   - Moonraker + Mainsail
   - OctoPrint
-  
+
 - Build Klipper Firmware
 - Flash MCU
 - Read ID of currently connected printer
@@ -61,16 +64,22 @@ chmod +x ~/kiauh/scripts/*
 tbc ...
 
 ## What this script can't do:
-- Updating OctoPrint. Use OctoPrint for updating!
 
+- Updating OctoPrint -> Use OctoPrint for updating!
+- Setting up webcam related stuff:
+
+  - If you want to use a webcam in either case (DWC2/Mainsail/Octoprint) you have to install the dependencies and configurations yourself. I can't test this stuff sufficient enough due to me not using a webcam and therefore it's just too much work for me.
+
+  There are install instructions (at least in case of Octoprint) available:
+  [Setting up OctoPrint on a Raspberry Pi running Raspbian](https://community.octoprint.org/t/setting-up-octoprint-on-a-raspberry-pi-running-raspbian/2337)
+  (look for "Optional: Webcam")
 
 ## Q&A
 
-__*Q: Can i install octoprint with this script?*__
+**_Q: Can i install octoprint with this script?_**
 
 **A:** ~~Soon™~~ Yes :)
 
+**_Q: Can i use this script to install multiple instancec of Klipper on the same Pi? (Multisession?)_**
 
-__*Q: Can i use this script to install multiple instancec of Klipper on the same Pi? (Multisession?)*__
-
- **A:** No, and at the moment i don't plan to implement this function. For multisession installations take a look at this script manu7irl created: https://github.com/manu7irl/klipper-DWC2-installer . Keep in mind that klipper-DWC2-installer and KIAUH are **NOT** compatible with each other.
+**A:** No, and at the moment i don't plan to implement this function. For multisession installations take a look at this script manu7irl created: https://github.com/manu7irl/klipper-DWC2-installer . Keep in mind that klipper-DWC2-installer and KIAUH are **NOT** compatible with each other.
