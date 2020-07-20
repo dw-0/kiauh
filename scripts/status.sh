@@ -104,7 +104,7 @@ read_branch(){
     #if reading the branch gives an empty string
     #we are on non-detached HEAD state on origin/master
     #and need to set GET_BRANCH to make a non-empty string
-    if [ -z $GET_BRANCH ]; then
+    if [ -z "$GET_BRANCH" ]; then
       GET_BRANCH="origin/master"
     fi
   else
@@ -140,7 +140,12 @@ read_local_klipper_commit(){
 
 read_remote_klipper_commit(){
   read_branch
-  if [ ! -z $GET_BRANCH ];then
+  if [ ! -z "$GET_BRANCH" ];then
+    if [ "$GET_BRANCH" == "origin/master" ]; then
+      git fetch origin master -q
+    else
+      git fetch $GET_BRANCH -q
+    fi
     REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
   else
     REMOTE_COMMIT=""
@@ -164,6 +169,7 @@ compare_klipper_versions(){
 read_dwc2fk_versions(){
   if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
     cd $DWC2FK_DIR
+    git fetch origin master -q
     LOCAL_DWC2FK_COMMIT=$(git rev-parse --short=8 HEAD)
     REMOTE_DWC2FK_COMMIT=$(git rev-parse --short=8 origin/master)
   else
