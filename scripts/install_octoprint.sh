@@ -24,7 +24,7 @@ octoprint_dependencies(){
   status_msg "Checking for dependencies ..."
   for octo_dep_pgk in "${octo_dep[@]}"
   do
-    if [[ $(dpkg-query -f'${Status}' --show $octo_dep_pgk 2>/dev/null) = *\ installed ]]; then
+    if [[ ! $(dpkg-query -f'${Status}' --show $octo_dep_pgk 2>/dev/null) = *\ installed ]]; then
       install+=($octo_dep_pgk)
     fi
   done
