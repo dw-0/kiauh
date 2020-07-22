@@ -1,4 +1,5 @@
 mainsail_install_routine(){
+  ERROR="0" #reset error state
   if [ -d $KLIPPER_DIR ]; then
     #check for dependencies
     dep=(wget curl unzip)
@@ -9,7 +10,7 @@ mainsail_install_routine(){
     disable_haproxy_lighttpd
     remove_haproxy_lighttpd
     install_moonraker
-    if [ "$ERROR" != 1 ]; then
+    if [ "$ERROR" != "1" ]; then
       check_printer_cfg
       restart_moonraker
       restart_klipper
