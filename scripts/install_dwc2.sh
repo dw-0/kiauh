@@ -5,7 +5,7 @@
 dwc2_install_routine(){
   if [ -d $KLIPPER_DIR ]; then
     # check for existing installation
-      if [ -d ${HOME}/klippy-env/lib/python2.7/site-packages/tornado ]; then
+      if [ -d $DWC2FK_DIR ] && [ -d $DWC2_DIR ]; then
         ERROR_MSG=" Looks like DWC2 is already installed!\n Skipping..."
         return
       fi
@@ -17,6 +17,7 @@ dwc2_install_routine(){
     install_tornado
     install_dwc2fk && dwc2fk_cfg
     install_dwc2
+    dwc2_reverse_proxy_dialog
     start_klipper
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
@@ -133,4 +134,37 @@ DWC2
 install_dwc2(){
   #the update_dwc2 function does the same as installing dwc2
   update_dwc2 && ok_msg "DWC2 Web UI installed!"
+}
+
+dwc2_reverse_proxy_dialog(){
+  top_border
+  echo -e "|  If you want to have a nicer URL or simply need/want  | "
+  echo -e "|  DWC2 to run on port 80 (http's default port) you     | "
+  echo -e "|  can set up a reverse proxy to run DWC2 on port 80.   | "
+  bottom_border
+  while true; do
+    echo -e "${cyan}"
+    read -p "###### Do you want to set up a reverse proxy now? (Y/n): " yn
+    echo -e "${default}"
+    case "$yn" in
+      Y|y|Yes|yes|"") dwc2_reverse_proxy; break;;
+      N|n|No|no) break;;
+    esac
+  done
+}
+
+dwc2_reverse_proxy(){
+  if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
+    sudo apt-get install nginx -y
+  fi
+  cat ${HOME}/kiauh/resources/dwc2_nginx.cfg > ${HOME}/kiauh/resources/dwc2
+  sudo mv ${HOME}/kiauh/resources/dwc2 /etc/nginx/sites-available/dwc2
+  if [ -e /etc/nginx/sites-enabled/default ]; then
+    sudo rm /etc/nginx/sites-enabled/default
+  fi
+  if [ ! -e /etc/nginx/sites-enabled/dwc2 ]; then
+    sudo ln -s /etc/nginx/sites-available/dwc2 /etc/nginx/sites-enabled/
+  fi
+  restart_nginx
+  create_custom_hostname
 }
