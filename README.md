@@ -64,6 +64,7 @@ chmod +x ~/kiauh/scripts/*
 - Toggle OctoPrint Service (usefull when using DWC2/Mainsail and Octoprint at the same time)
 
 - Set up reverse proxy for Mainsail/OctoPrint
+  
   tbc ...
 
 ## What this script can't do:
@@ -73,9 +74,9 @@ chmod +x ~/kiauh/scripts/*
 
   - If you want to use a webcam you have to install the dependencies and configurations yourself. I can't test this stuff sufficient enough due to me not having/using a webcam and therefore it's just too much work for me to set up an installation script which works, at best, with the first try.
 
-  There are install instructions (at least in case of OctoPrint) available:
-  [Setting up OctoPrint on a Raspberry Pi running Raspbian](https://community.octoprint.org/t/setting-up-octoprint-on-a-raspberry-pi-running-raspbian/2337)
-  (look for "Optional: Webcam")
+    There are install instructions (at least in case of OctoPrint) available:
+    [Setting up OctoPrint on a Raspberry Pi running Raspbian](https://community.octoprint.org/t/setting-up-octoprint-on-a-raspberry-pi-running-raspbian/2337)
+    (look for "Optional: Webcam")
 
 ## Q&A
 
