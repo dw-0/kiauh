@@ -5,6 +5,7 @@ octoprint_install_routine(){
   configure_autostart
   add_reboot_permission
   octoprint_reverse_proxy_dialog
+  create_custom_hostname
   load_server
 }
 
@@ -107,26 +108,10 @@ octoprint_reverse_proxy_dialog(){
     read -p "###### Do you want to set up a reverse proxy now? (Y/n): " yn
     echo -e "${default}"
     case "$yn" in
-      Y|y|Yes|yes|"") octoprint_reverse_proxy; break;;
+      Y|y|Yes|yes|"") create_reverse_proxy "octoprint"; break;;
       N|n|No|no) break;;
     esac
   done
-}
-
-octoprint_reverse_proxy(){
-  if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
-    sudo apt-get install nginx -y
-  fi
-  cat ${HOME}/kiauh/resources/octoprint_nginx.cfg > ${HOME}/kiauh/resources/octoprint
-  sudo mv ${HOME}/kiauh/resources/octoprint /etc/nginx/sites-available/octoprint
-  if [ -e /etc/nginx/sites-enabled/default ]; then
-    sudo rm /etc/nginx/sites-enabled/default
-  fi
-  if [ ! -e /etc/nginx/sites-enabled/octoprint ]; then
-    sudo ln -s /etc/nginx/sites-available/octoprint /etc/nginx/sites-enabled/
-  fi
-  restart_nginx
-  create_custom_hostname
 }
 
 load_server(){

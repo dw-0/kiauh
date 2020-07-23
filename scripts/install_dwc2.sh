@@ -18,6 +18,7 @@ dwc2_install_routine(){
     install_dwc2fk && dwc2fk_cfg
     install_dwc2
     dwc2_reverse_proxy_dialog
+    create_custom_hostname
     start_klipper
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
@@ -148,25 +149,8 @@ dwc2_reverse_proxy_dialog(){
     read -p "###### Do you want to set up a reverse proxy now? (Y/n): " yn
     echo -e "${default}"
     case "$yn" in
-      Y|y|Yes|yes|"") dwc2_reverse_proxy; break;;
+      Y|y|Yes|yes|"") create_reverse_proxy "dwc2"; break;;
       N|n|No|no) break;;
     esac
   done
-}
-
-dwc2_reverse_proxy(){
-  #check for dependencies
-  dep=(avahi-daemon nginx)
-  dependency_check
-  #execute operations
-  cat ${HOME}/kiauh/resources/dwc2_nginx.cfg > ${HOME}/kiauh/resources/dwc2
-  sudo mv ${HOME}/kiauh/resources/dwc2 /etc/nginx/sites-available/dwc2
-  if [ -e /etc/nginx/sites-enabled/default ]; then
-    sudo rm /etc/nginx/sites-enabled/default
-  fi
-  if [ ! -e /etc/nginx/sites-enabled/dwc2 ]; then
-    sudo ln -s /etc/nginx/sites-available/dwc2 /etc/nginx/sites-enabled/
-  fi
-  restart_nginx
-  create_custom_hostname
 }

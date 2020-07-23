@@ -12,7 +12,7 @@ mainsail_install_routine(){
       check_printer_cfg
       restart_moonraker
       restart_klipper
-      config_nginx_mainsail
+      create_reverse_proxy "mainsail"
       test_api
       test_nginx
       install_mainsail
@@ -193,29 +193,6 @@ remove_haproxy_lighttpd(){
   if ! [ ${#delete[@]} -eq 0 ]; then
     sudo apt-get remove ${delete[@]} -y
   fi
-}
-
-config_nginx_mainsail(){
-  USER=$(whoami)
-  if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
-    status_msg "Installing Nginx ..."
-    sudo apt-get install nginx -y && ok_msg "Nginx successfully installed!"
-  fi
-  if [ ! -d $MAINSAIL_DIR ]; then
-    mkdir $MAINSAIL_DIR
-  fi
-  status_msg "Create Nginx configuration ..."
-  cat ${HOME}/kiauh/resources/mainsail_nginx.cfg > ${HOME}/kiauh/resources/mainsail
-  sudo mv ${HOME}/kiauh/resources/mainsail /etc/nginx/sites-available/mainsail
-  #make sure the config is for the correct user
-  sudo sed -i "/root/s/pi/$USER/" /etc/nginx/sites-available/mainsail
-  if [ -e /etc/nginx/sites-enabled/default ]; then
-    sudo rm /etc/nginx/sites-enabled/default
-  fi
-  if [ ! -e /etc/nginx/sites-enabled/mainsail ]; then
-    sudo ln -s /etc/nginx/sites-available/mainsail /etc/nginx/sites-enabled/
-  fi
-  ok_msg "Nginx configured!"
 }
 
 test_api(){

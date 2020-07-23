@@ -259,6 +259,30 @@ read_octoprint_service_status(){
   fi
 }
 
+create_reverse_proxy(){
+  #check for dependencies
+  dep=(nginx)
+  dependency_check
+  #execute operations
+  status_msg "Creating Nginx configuration for $1 ..."
+  cat ${HOME}/kiauh/resources/$1_nginx.cfg > ${HOME}/kiauh/resources/$1
+  sudo mv ${HOME}/kiauh/resources/$1 /etc/nginx/sites-available/$1
+  #ONLY FOR MAINSAIL: replace username if not "pi"
+    if [ "$1" = "mainsail" ]; then
+      sudo sed -i "/root/s/pi/${USER}/" /etc/nginx/sites-available/mainsail
+    fi
+  ok_msg "Nginx configuration for $1 was set!"
+  #remove default config
+  if [ -e /etc/nginx/sites-enabled/default ]; then
+    sudo rm /etc/nginx/sites-enabled/default
+  fi
+  #create symlink for own configs
+  if [ ! -e /etc/nginx/sites-enabled/$1 ]; then
+    sudo ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/
+  fi
+  restart_nginx
+}
+
 create_custom_hostname(){
   echo
   top_border
@@ -281,13 +305,10 @@ create_custom_hostname(){
 }
 
 set_hostname(){
-  #check for existing avahi installation
-  status_msg "Checking for necessary Avahi installation ..."
-  if ! [[ $(dpkg-query -f'${Status}' --show avahi-daemon 2>/dev/null) = *\ installed ]]; then
-    status_msg "Installing Avahi ..."
-    sudo apt-get install avahi-daemon -y && ok_msg "Avahi successfully installed!"
-  fi
-  ok_msg "Avahi found!"
+  #check for dependencies
+  dep=(avahi-daemon)
+  dependency_check
+  #execute operations
   #get current hostname and write to variable
   HOSTNAME=$(hostname)
   #create host file if missing or create backup of existing one with current date&time
