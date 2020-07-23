@@ -4,7 +4,7 @@ install_klipper(){
   else
     #check for dependencies
     dep=(git)
-    dep_check
+    dependency_check
     #execute operation
     cd ${HOME}
     status_msg "Cloning Klipper repository ..."

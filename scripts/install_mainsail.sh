@@ -1,10 +1,6 @@
 mainsail_install_routine(){
   ERROR="0" #reset error state
   if [ -d $KLIPPER_DIR ]; then
-    #check for dependencies
-    dep=(wget curl unzip)
-    dependency_check
-    #execute operation
     #disable octoprint service if installed
       if systemctl is-enabled octoprint.service -q 2>/dev/null; then
         disable_octoprint_service
@@ -31,6 +27,8 @@ mainsail_install_routine(){
 install_moonraker(){
   cd $KLIPPER_DIR
   if [[ $(git describe --all) = "remotes/Arksine/work-web_server-20200131" || $(git describe --all) = "remotes/Arksine/dev-moonraker-testing" ]]; then
+    dep=(wget curl unzip)
+    dependency_check
     status_msg "Installing Moonraker ..."
     $KLIPPER_DIR/scripts/install-moonraker.sh && ok_msg "Moonraker successfully installed!"
     if [ ! -d ${HOME}/sdcard ]; then
