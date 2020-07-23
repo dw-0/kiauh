@@ -11,7 +11,7 @@ dwc2_install_routine(){
       fi
     stop_klipper
     #disable octoprint service if installed
-      if systemctl is-enabled octoprint.service -q &>/dev/null; then
+      if systemctl is-enabled octoprint.service -q 2>/dev/null; then
         disable_octoprint_service
       fi
     install_tornado
@@ -25,18 +25,15 @@ dwc2_install_routine(){
 }
 
 install_tornado(){
-  if [ ! -d $TORNADO_DIR1 ]; then
-    #check for dependencies
-    dep=(virtualenv)
-    dep_check
-    #execute operation
+  if [ "$(cd $KLIPPY_ENV_DIR/bin/ && $_/pip list 2>/dev/null | grep "tornado" | cut -d" " -f9)" = "5.1.1" ]; then
+    ok_msg "Tornado 5.1.1 is already installed! Continue..."
+  else
     status_msg "Installing Tornado 5.1.1 ..."
     cd ${HOME}
     PYTHONDIR="${HOME}/klippy-env"
     virtualenv ${PYTHONDIR}
-    ${PYTHONDIR}/bin/pip install tornado==5.1.1 && ok_msg "Tornado 5.1.1 successfully installed!"
-  else
-    ok_msg "Looks like Tornado 5.1.1 is already installed! Continue..."
+    ${PYTHONDIR}/bin/pip install tornado==5.1.1
+    ok_msg "Tornado 5.1.1 successfully installed!"
   fi
 }
 
