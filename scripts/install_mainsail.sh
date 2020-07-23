@@ -3,10 +3,12 @@ mainsail_install_routine(){
   if [ -d $KLIPPER_DIR ]; then
     #check for dependencies
     dep=(wget curl unzip)
-    dep_check
+    dependency_check
     #execute operation
     #disable octoprint service if installed
-      disable_octoprint_service
+      if systemctl is-enabled octoprint.service -q 2>/dev/null; then
+        disable_octoprint_service
+      fi
     disable_haproxy_lighttpd
     remove_haproxy_lighttpd
     install_moonraker

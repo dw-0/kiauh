@@ -155,9 +155,10 @@ dwc2_reverse_proxy_dialog(){
 }
 
 dwc2_reverse_proxy(){
-  if ! [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]; then
-    sudo apt-get install nginx -y
-  fi
+  #check for dependencies
+  dep=(avahi-daemon nginx)
+  dependency_check
+  #execute operations
   cat ${HOME}/kiauh/resources/dwc2_nginx.cfg > ${HOME}/kiauh/resources/dwc2
   sudo mv ${HOME}/kiauh/resources/dwc2 /etc/nginx/sites-available/dwc2
   if [ -e /etc/nginx/sites-enabled/default ]; then
