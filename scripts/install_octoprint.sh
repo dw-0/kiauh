@@ -1,7 +1,5 @@
 octoprint_install_routine(){
-  #experimental new dependency check
-    octoprint_dependencies
-  #execute operations
+  octoprint_dependencies
   install_octoprint
   add_groups
   configure_autostart
@@ -11,29 +9,17 @@ octoprint_install_routine(){
 }
 
 octoprint_dependencies(){
-  octo_dep=(
+  dep=(
+    git
+    wget
     python-pip
     python-dev
-    python-setuptools
-    python-virtualenv
-    git
     libyaml-dev
     build-essential
-    wget
-  )
-  status_msg "Checking for dependencies ..."
-  for octo_dep_pgk in "${octo_dep[@]}"
-  do
-    if [[ ! $(dpkg-query -f'${Status}' --show $octo_dep_pgk 2>/dev/null) = *\ installed ]]; then
-      install+=($octo_dep_pgk)
-    fi
-  done
-  if ! [ ${#install[@]} -eq 0 ]; then
-    status_msg "Installing dependencies ..."
-    sudo apt-get install ${install[@]} -y && ok_msg "Dependencies installed!"
-  else
-    ok_msg "All dependencies already met!"
-  fi
+    python-setuptools
+    python-virtualenv
+    )
+  dependency_check
 }
 
 install_octoprint(){
@@ -56,14 +42,13 @@ install_octoprint(){
 }
 
 add_groups(){
-  USER=$(whoami)
-  if [[ ! $(groups | grep tty) ]]; then
-    status_msg "Adding user '$USER' to group 'tty' ..."
-    sudo usermod -a -G tty $USER && ok_msg "Done!"
+  if [ ! "$(groups | grep tty)" ]; then
+    status_msg "Adding user '${USER}' to group 'tty' ..."
+    sudo usermod -a -G tty ${USER} && ok_msg "Done!"
   fi
-  if [[ ! $(groups | grep tty) ]]; then
-    status_msg "Adding user '$USER' to group 'dialout' ..."
-    sudo usermod -a -G dialout $USER && ok_msg "Done!"
+  if [ ! "$(groups | grep dialout)" ]; then
+    status_msg "Adding user '${USER}' to group 'dialout' ..."
+    sudo usermod -a -G dialout ${USER} && ok_msg "Done!"
   fi
 }
 

@@ -3,9 +3,9 @@ check_euid(){
   if [ "$EUID" -eq 0 ]
   then
     echo -e "${red}"
-    echo -e "/=================================================\ "
-    echo -e "|    !!! THIS SCRIPT MUST NOT RAN AS ROOT !!!     |"
-    echo -e "\=================================================/ "
+    top_border
+    echo -e "|       !!! THIS SCRIPT MUST NOT RAN AS ROOT !!!        |"
+    bottom_border
     echo -e "${default}"
     exit 1
   fi
@@ -85,24 +85,29 @@ restart_nginx(){
   fi
 }
 
-dep_check(){
-  for package in "${dep[@]}"
+dependency_check(){
+  status_msg "Checking for dependencies ..."
+  #check if package is installed, if not write name into array
+  for pkg in "${dep[@]}"
   do
-    ! command -v $package >&/dev/null 2>&1 && install+=($package)
+    if [[ ! $(dpkg-query -f'${Status}' --show $pkg 2>/dev/null) = *\ installed ]]; then
+      inst+=($pkg)
+    fi
   done
-  if ! [ ${#install[@]} -eq 0 ]; then
-  warn_msg "The following packages are missing but necessary:"
-  echo ${install[@]}
-  while true; do
-    read -p "Do you want to install them now? (Y/n): " yn
-    case "$yn" in
-      Y|y|Yes|yes|"")
-      status_msg "Installing dependencies ..."
-      sudo apt-get install ${install[@]} -y && ok_msg "Dependencies installed!"
-      break;;
-      N|n|No|no) break;;
-    esac
-  done
+  #if array is not empty, install packages from array elements
+  if [ "${#inst[@]}" != "0" ]; then
+    status_msg "Installing the following dependencies:"
+    for element in ${inst[@]}
+    do
+      echo -e "${cyan}● $element ${default}"
+    done
+    echo
+    sudo apt-get install ${inst[@]} -y
+    ok_msg "Dependencies installed!"
+    #clearing the array
+    unset inst
+  else
+    ok_msg "Dependencies already met! Continue..."
   fi
 }
 

@@ -27,9 +27,6 @@ get_date(){
   current_date=`date +"%Y-%m-%d_%H%M%S"`
 }
 
-### sourcing all additional scripts
-for script in ${HOME}/kiauh/scripts/*; do . $script; done
-
 ### set important directories
 #klipper
 KLIPPER_DIR=${HOME}/klipper
@@ -431,6 +428,10 @@ backup_menu(){
   done
   backup_menu
 }
+
+### sourcing all additional scripts
+SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
+for script in ${SRCDIR}/kiauh/scripts/*; do . $script; done
 
 check_euid
 main_menu
