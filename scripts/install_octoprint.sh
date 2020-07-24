@@ -6,6 +6,7 @@ octoprint_install_routine(){
   add_reboot_permission
   octoprint_reverse_proxy_dialog
   create_custom_hostname
+  create_config_yaml
   load_server
 }
 
@@ -112,6 +113,15 @@ octoprint_reverse_proxy_dialog(){
       N|n|No|no) break;;
     esac
   done
+}
+
+create_config_yaml(){
+  if [ ! -d $OCTOPRINT_CFG_DIR ]; then
+    status_msg "Creating config.yaml ..."
+    mkdir $OCTOPRINT_CFG_DIR
+    cp ${HOME}/kiauh/resources/octoprint_config.cfg $OCTOPRINT_CFG_DIR/config.yaml
+    ok_msg "Config created!"
+  fi
 }
 
 load_server(){
