@@ -107,15 +107,17 @@ advanced_ui(){
   hr
   echo -e "|  0) $OPRINT_SERVICE_STATUS| "
   hr
-  echo -e "|                                                       | "
-  echo -e "|  1) [Switch Klipper version]                          | "
-  echo -e "|                                                       | "
-  echo -e "|  2) [Build Firmware]                                  | "
-  echo -e "|  3) [Flash MCU]                                       | "
-  echo -e "|  4) [Get Printer-ID]                                  | "
-  echo -e "|  5) [Write Printer-ID to printer.cfg]                 | "
-  echo -e "|  6) [Write DWC2-for-Klipper config]                   | "
-  echo -e "|                                                       | "
+  echo -e "|                           |                           | "
+  echo -e "|  Klipper:                 |  System:                  | "
+  echo -e "|  1) [Switch Version]      |  7) [Change hostname]     | "
+  echo -e "|                           |                           | "
+  echo -e "|  Firmware:                |                           | "
+  echo -e "|  2) [Build Firmware]      |                           | "
+  echo -e "|  3) [Flash MCU]           |                           | "
+  echo -e "|  4) [Get Printer-ID]      |                           | "
+  echo -e "|  5) [Write Printer-ID]    |                           | "
+  echo -e "|  6) [Write DWC2 config]   |                           | "
+  echo -e "|                           |                           | "
 quit_footer
 }
 

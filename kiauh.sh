@@ -350,6 +350,12 @@ advanced_menu(){
         create_dwc2fk_cfg
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         advanced_ui;;
+      7)
+        clear
+        print_header
+        create_custom_hostname
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        advanced_ui;;
       Q|q)
         clear; main_menu; break;;
       *)
