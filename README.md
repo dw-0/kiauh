@@ -18,6 +18,7 @@ Give it a try if you want and if you have suggestions or encounter any problems,
 If you don't have git already installed on your machine run `sudo apt-get install git -y` to install git first. You will need it anyways!
 
 After you have successfully installed git, use the following commands in the given order to download and execute the script.
+
 Make sure you **don't skip checking out the development branch** if you want to use this new version of the script.
 
 ```shell
@@ -65,7 +66,7 @@ During the use of this script you will be asked for your sudo password. There ar
     - adding the serial port `/tmp/printer`
     - set the behavior to "Cancel any ongoing prints but stay connected to the printer"
 - Enable/Disable OctoPrint Service:
-  - Usefull when using DWC2/Mainsail and Octoprint at the same time to prevent them interfering with each other
+  - Usefull when using DWC2/Mainsail and OctoPrint at the same time to prevent them interfering with each other
 - Set up reverse proxy for DWC2, Mainsail and OctoPrint and changing the hostname:
   - The script can install and configure Nginx for the selected webinterface. This will allow you to make your webinterface reachable over an URL like `<hostname>.local`
    - Example: If you name the host "mainsail" and set up a reverse proxy, type `mainsail.local` in your webbrowser to open the Mainsail webinterface
