@@ -67,7 +67,7 @@ backup_dwc2(){
     get_date
     status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/dwc2-backups/"$current_date"
-    cp -r $DWC2FK_DIR $_ && $DWC2_DIR $_
+    cp -r $DWC2FK_DIR $_ && cp -r $DWC2_DIR $_
     ok_msg "Backup complete!"
   else
     ERROR_MSG=" Can't backup dwc2-for-klipper and/or dwc2 directory!\n Not found!"

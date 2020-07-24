@@ -51,7 +51,7 @@ update_dwc2(){
   bb4u "dwc2"
   #check dependencies
   dep=(wget gzip tar curl)
-  dep_check
+  dependency_check
   #execute operation
   GET_DWC2_URL=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4`
   if [ ! -d $DWC2_DIR/web ]; then
