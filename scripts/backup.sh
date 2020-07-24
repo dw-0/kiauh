@@ -1,8 +1,12 @@
-backup_printer_cfg(){
+check_for_backup_dir(){
   if [ ! -d $BACKUP_DIR ]; then
     status_msg "Create backup directory ..."
     mkdir -p $BACKUP_DIR && ok_msg "Directory created!"
   fi
+}
+
+backup_printer_cfg(){
+  check_for_backup_dir
   if [ -f $PRINTER_CFG ]; then
     get_date
     status_msg "Create backup of printer.cfg ..."
@@ -35,42 +39,64 @@ toggle_backups(){
   fi
 }
 
-bb4u_klipper(){
+bb4u(){
   source_ini
-  if [ -d $KLIPPER_DIR ] && [ "$backup_before_update" = "true" ]; then
-    get_date
+  if [ "$backup_before_update" = "true" ]; then
+    backup_$1
+  fi
+}
+
+backup_klipper(){
+  if [ -d $KLIPPER_DIR ] && [ -d $KLIPPY_ENV_DIR ]; then
     status_msg "Creating Klipper backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/klipper-backups/"$current_date"
-    cp -r $KLIPPER_DIR $_ && cp -r $KLIPPY_ENV_DIR $_ && ok_msg "Backup complete!"
+    cp -r $KLIPPER_DIR $_ && cp -r $KLIPPY_ENV_DIR $_
+    ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup klipper and/or klipper-env directory! Not found!"
   fi
 }
 
-bb4u_dwc2fk(){
-  source_ini
-  if [ -d $DWC2FK_DIR ] && [ "$backup_before_update" = "true" ]; then
-    get_date
-    status_msg "Creating DWC2-for-Klipper backup ..."
-    mkdir -p $BACKUP_DIR/dwc2-for-klipper-backups/"$current_date"
-    cp -r $DWC2FK_DIR $_ && ok_msg "Backup complete!"
-  fi
-}
-
-bb4u_dwc2(){
-  source_ini
-  if [ -d $DWC2_DIR ] && [ "$backup_before_update" = "true" ]; then
-    get_date
+backup_dwc2(){
+  if [ -d $DWC2FK_DIR ] && [ -d $DWC2_DIR ]; then
     status_msg "Creating DWC2 Web UI backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/dwc2-backups/"$current_date"
-    cp -r $DWC2_DIR $_ && ok_msg "Backup complete!"
+    cp -r $DWC2FK_DIR $_ && $DWC2_DIR $_
+    ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup dwc2-for-klipper and/or dwc2 directory!\n Not found!"
   fi
 }
 
-bb4u_mainsail(){
-  source_ini
-  if [ -d $MAINSAIL_DIR ] && [ "$backup_before_update" = "true" ]; then
-    get_date
+backup_mainsail(){
+  if [ -d $MAINSAIL_DIR ]; then
     status_msg "Creating Mainsail backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/mainsail-backups/"$current_date"
     cp -r $MAINSAIL_DIR $_ && ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup mainsail directory! Not found!"
+  fi
+}
+
+backup_octoprint(){
+  if [ -d $OCTOPRINT_DIR ] && [ -d $OCTOPRINT_CFG_DIR ]; then
+    status_msg "Creating OctoPrint backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
+    mkdir -p $BACKUP_DIR/octoprint-backups/"$current_date"
+    cp -r $OCTOPRINT_DIR $_ && cp -r $OCTOPRINT_CFG_DIR $_
+    ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup OctoPrint and/or .octoprint directory!\n Not found!"
   fi
 }

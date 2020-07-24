@@ -10,7 +10,7 @@ update_check(){
 
 update_klipper(){
   stop_klipper
-  bb4u_klipper
+  bb4u "klipper"
   if [ ! -d $KLIPPER_DIR ]; then
     cd ${HOME} && git clone $KLIPPER_REPO
   else
@@ -33,7 +33,7 @@ update_klipper(){
 
 update_dwc2fk(){
   stop_klipper
-  bb4u_dwc2fk
+  bb4u "dwc2"
   if [ ! -d $DWC2FK_DIR ]; then
     cd ${HOME} && git clone $DWC2FK_REPO
   else
@@ -48,7 +48,7 @@ update_dwc2fk(){
 }
 
 update_dwc2(){
-  bb4u_dwc2
+  bb4u "dwc2"
   #check dependencies
   dep=(wget gzip tar curl)
   dep_check
@@ -70,7 +70,7 @@ update_dwc2(){
 
 update_mainsail(){
   stop_klipper
-  bb4u_mainsail
+  bb4u "mainsail"
   status_msg "Updating Mainsail ..."
   install_mainsail
   start_klipper
