@@ -123,15 +123,15 @@ backup_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Backup Menu ] ~~~~~~~~~~~~~~")     | "
   hr
-  echo -e "|                                                       | "
+  echo -e "|           ${yellow}Backup location: ~/kiauh-backups${default}            | "
   hr
-  echo -e "|  1) [        ]                                        | "
-  echo -e "|  2) [        ]                                        | "
-  echo -e "|  3) [        ]                                        | "
-  echo -e "|  4) [        ]                                        | "
-  echo -e "|  5) [        ]                                        | "
-  echo -e "|  6) [        ]                                        | "
-  echo -e "|  7) [        ]                                        | "
+  echo -e "|  Firmware:                                            | "
+  echo -e "|  1) [Klipper]                                         | "
+  echo -e "|                                                       | "
+  echo -e "|  Webinterface:                                        | "
+  echo -e "|  2) [DWC2-for-Klipper + DWC2 Web UI]                  | "
+  echo -e "|  3) [Mainsail]                                        | "
+  echo -e "|  4) [OctoPrint]                                       | "
   echo -e "|                                                       | "
   quit_footer
 }

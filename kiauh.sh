@@ -24,7 +24,10 @@ title_msg(){
   echo -e "${cyan}$1${default}"
 }
 get_date(){
-  current_date=`date +"%Y-%m-%d_%H%M%S"`
+  current_date=$(date +"%Y-%m-%d_%H-%M")
+}
+print_unkown_cmd(){
+  ERROR_MSG=" Sorry i don't know that command!"
 }
 
 ### set important directories
@@ -92,7 +95,9 @@ main_menu(){
     print_branch
   main_ui
   while true; do
+    echo -e "${cyan}"
     read -p "Perform action: " action; echo
+    echo -e "${default}"
     case "$action" in
       0)
         clear
@@ -118,16 +123,15 @@ main_menu(){
         break;;
       5)
         clear
-        print_header
-        ERROR_MSG=" Sorry this function is not implemented yet!"
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
-        main_ui;;
+        backup_menu
+        break;;
       Q|q)
+        echo -e "${green}###### Happy printing! ######${default}"; echo
         exit -1;;
       *)
         clear
         print_header
-        ERROR_MSG=" Sorry, i don't know that command!"
+        print_unkown_cmd
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         main_ui;;
     esac
@@ -139,7 +143,9 @@ install_menu(){
   print_header
   install_ui
   while true; do
+    echo -e "${cyan}"
     read -p "Perform action: " action; echo
+    echo -e "${default}"
     case "$action" in
       1)
         clear
@@ -170,7 +176,7 @@ install_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Sorry, i don't know that command!"
+        print_unkown_cmd
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         install_ui;;
     esac
@@ -186,7 +192,9 @@ update_menu(){
     ui_print_versions
   update_ui
   while true; do
+    echo -e "${cyan}"
     read -p "Perform action: " action; echo
+    echo -e "${default}"
     case "$action" in
       0)
         clear
@@ -223,7 +231,7 @@ update_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Sorry, i don't know that command!"
+        print_unkown_cmd
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         ui_print_versions
         update_ui;;
@@ -236,7 +244,9 @@ remove_menu(){
   print_header
   remove_ui
   while true; do
+    echo -e "${cyan}"
     read -p "Perform action: " action; echo
+    echo -e "${default}"
     case "$action" in
       1)
         clear
@@ -279,7 +289,7 @@ remove_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Sorry, i don't know that command!"
+        print_unkown_cmd
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         remove_ui;;
     esac
@@ -293,7 +303,9 @@ advanced_menu(){
   read_octoprint_service_status
   advanced_ui
   while true; do
+    echo -e "${cyan}"
     read -p "Perform action: " action; echo
+    echo -e "${default}"
     case "$action" in
       0)
         clear
@@ -343,7 +355,7 @@ advanced_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Sorry, i don't know that command!"
+        print_unkown_cmd
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         advanced_ui;;
     esac
@@ -357,7 +369,9 @@ switch_menu(){
     print_msg && CONFIRM_MSG="" && ERROR_MSG=""
     switch_ui
     while true; do
+      echo -e "${cyan}"
       read -p "Perform action: " action; echo
+      echo -e "${default}"
       case "$action" in
         1)
           clear
@@ -396,6 +410,12 @@ switch_menu(){
           switch_ui;;
         Q|q)
           clear; advanced_menu; break;;
+        *)
+          clear
+          print_header
+          print_unkown_cmd
+          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          switch_ui;;
       esac
     done
   else
@@ -408,12 +428,32 @@ backup_menu(){
   print_msg && CONFIRM_MSG="" && ERROR_MSG=""
   backup_ui
   while true; do
+    echo -e "${cyan}"
     read -p "Perform action: " action; echo
+    echo -e "${default}"
     case "$action" in
       1)
         clear
         print_header
-        #function goes here
+        backup_klipper
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        backup_ui;;
+      2)
+        clear
+        print_header
+        backup_dwc2
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        backup_ui;;
+      3)
+        clear
+        print_header
+        backup_mainsail
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        backup_ui;;
+      4)
+        clear
+        print_header
+        backup_octoprint
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         backup_ui;;
       Q|q)
@@ -421,7 +461,7 @@ backup_menu(){
       *)
         clear
         print_header
-        ERROR_MSG=" Sorry, i don't know that command!"
+        print_unkown_cmd
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         backup_ui;;
     esac
