@@ -1,8 +1,6 @@
 #TODO
-# - update the correct branch
 # - version checks before updating
 
-#WIP
 update_check(){
   read_local_commit
   read_remote_commit
@@ -49,23 +47,7 @@ update_dwc2fk(){
 
 update_dwc2(){
   bb4u "dwc2"
-  #check dependencies
-  dep=(wget gzip tar curl)
-  dependency_check
-  #execute operation
-  GET_DWC2_URL=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4`
-  if [ ! -d $DWC2_DIR/web ]; then
-    mkdir -p $DWC2_DIR/web
-  fi
-  cd $DWC2_DIR/web
-  status_msg "Downloading DWC2 Web UI ..."
-  wget -q $GET_DWC2_URL && ok_msg "Download complete!"
-  status_msg "Unzipping archive ..."
-  unzip -q -o *.zip && for f_ in $(find . | grep '.gz');do gunzip -f ${f_};done && ok_msg "Done!"
-  status_msg "Writing version to file ..."
-  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/web/version && ok_msg "Done!"
-  status_msg "Do a little cleanup ..."
-  rm -rf DuetWebControl-SD.zip && ok_msg "Done!"
+  install_dwc2
 }
 
 update_mainsail(){
