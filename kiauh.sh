@@ -71,14 +71,21 @@ print_msg(){
   if [[ "$ERROR_MSG" != "" ]]; then
     echo -e "${red}"
     echo -e "#########################################################"
-    echo -e "$ERROR_MSG "
+    echo -e " $ERROR_MSG "
+    echo -e "#########################################################"
+    echo -e "${default}"
+  fi
+  if [[ "$HINT_MSG" != "" ]]; then
+    echo -e "${yellow}"
+    echo -e "#########################################################"
+    echo -e " $HINT_MSG "
     echo -e "#########################################################"
     echo -e "${default}"
   fi
   if [ "$CONFIRM_MSG" != "" ]; then
     echo -e "${green}"
     echo -e "#########################################################"
-    echo -e "$CONFIRM_MSG "
+    echo -e " $CONFIRM_MSG "
     echo -e "#########################################################"
     echo -e "${default}"
   fi
@@ -102,7 +109,7 @@ main_menu(){
       0)
         clear
         print_header
-        ERROR_MSG=" Sorry this function is not implemented yet!"
+        ERROR_MSG="Sorry this function is not implemented yet!"
         print_msg && CONFIRM_MSG="" && ERROR_MSG=""
         main_ui;;
       1)
@@ -186,10 +193,10 @@ install_menu(){
 
 update_menu(){
   print_header
-  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
-  read_bb4u_stat
   #compare versions
     ui_print_versions
+  print_msg && CONFIRM_MSG="" && HINT_MSG="" && ERROR_MSG=""
+  read_bb4u_stat
   update_ui
   while true; do
     echo -e "${cyan}"
@@ -425,7 +432,7 @@ switch_menu(){
       esac
     done
   else
-    ERROR_MSG=" No Klipper directory found! Download Klipper first!"
+    ERROR_MSG="No Klipper directory found! Download Klipper first!"
   fi
 }
 

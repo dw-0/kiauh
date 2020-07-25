@@ -1,5 +1,4 @@
 #TODO:
-# - check for existing/running octoprint service
 # - ask for permission to disable octoprint service
 
 dwc2_install_routine(){
@@ -134,8 +133,24 @@ DWC2
 }
 
 install_dwc2(){
-  #the update_dwc2 function does the same as installing dwc2
-  update_dwc2 && ok_msg "DWC2 Web UI installed!"
+  #check dependencies
+  dep=(wget gzip tar curl)
+  dependency_check
+  #execute operation
+  GET_DWC2_URL=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4`
+  if [ ! -d $DWC2_DIR/web ]; then
+    mkdir -p $DWC2_DIR/web
+  fi
+  cd $DWC2_DIR/web
+  status_msg "Downloading DWC2 Web UI ..."
+  wget -q $GET_DWC2_URL && ok_msg "Download complete!"
+  status_msg "Unzipping archive ..."
+  unzip -q -o *.zip && for f_ in $(find . | grep '.gz');do gunzip -f ${f_};done && ok_msg "Done!"
+  status_msg "Writing version to file ..."
+  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/web/version && ok_msg "Done!"
+  status_msg "Do a little cleanup ..."
+  rm -rf DuetWebControl-SD.zip && ok_msg "Done!"
+  ok_msg "DWC2 Web UI installed!"
 }
 
 dwc2_reverse_proxy_dialog(){
