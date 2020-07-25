@@ -93,19 +93,29 @@ print_msg(){
 
 main_menu(){
   print_header
-  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+  #print KIAUH update msg if update available
+    if [ $KIAUH_UPDATE_AVAIL = 1 ]; then
+      kiauh_update_msg
+    fi
   #check install status
     klipper_status
     dwc2_status
     mainsail_status
     octoprint_status
     print_branch
+  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
   main_ui
   while true; do
     echo -e "${cyan}"
     read -p "Perform action: " action; echo
     echo -e "${default}"
     case "$action" in
+      update)
+        clear
+        print_header
+        update_kiauh
+        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        main_ui;;
       0)
         clear
         print_header
@@ -487,4 +497,5 @@ SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 for script in ${SRCDIR}/kiauh/scripts/*; do . $script; done
 
 check_euid
+kiauh_status
 main_menu

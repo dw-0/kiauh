@@ -6,6 +6,14 @@ update_check(){
   read_remote_commit
 }
 
+update_kiauh(){
+  if [ $KIAUH_UPDATE_AVAIL = 1 ]; then
+    status_msg "Updating KIAUH ..."
+    cd ${HOME}/kiauh
+    git pull && ok_msg "Update complete! Please restart KIAUH."; echo
+  fi
+}
+
 update_klipper(){
   stop_klipper
   bb4u "klipper"

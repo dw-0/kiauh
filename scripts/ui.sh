@@ -155,3 +155,10 @@ switch_ui(){
   echo -e "|  5) [--> dev-moonraker]                               | "
   quit_footer
 }
+
+kiauh_update_msg(){
+  top_border
+  echo -e "|  ${yellow}There is a newer version of this script available!${default}   | "
+  echo -e "|  ${yellow}Type 'update' if you want to update KIAUH now.${default}       | "
+  bottom_border
+}

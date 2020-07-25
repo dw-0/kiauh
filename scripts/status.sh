@@ -1,3 +1,16 @@
+kiauh_status(){
+  cd ${HOME}/kiauh
+  #get local state
+  LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
+  #REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
+  REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
+  if [ "$LOCAL_KIAUH_COMMIT" != "$REMOTE_KIAUH_COMMIT" ]; then
+    KIAUH_UPDATE_AVAIL=1
+  else
+    KIAUH_UPDATE_AVAIL=0
+  fi
+}
+
 klipper_status(){
   kcount=0
   klipper_data=(
