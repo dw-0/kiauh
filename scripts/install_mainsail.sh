@@ -70,7 +70,7 @@ check_vsdcard_section(){
     ok_msg "Virtual sdcard already configured!"
   else
     status_msg "No virtual sdcard entry found."
-    status_msg "Configuring virtual sdcard..."
+    ok_msg "Virtual sdcard entry added to printer.cfg!"
 # append the following lines to printer.cfg
 cat <<VSDCARD >> $PRINTER_CFG
 
@@ -92,7 +92,7 @@ check_api_section(){
     ok_msg "API Server already configured"
   else
     status_msg "No API Server entry found."
-    status_msg "Configuring API server..."
+    ok_msg "API server entry added to printer.cfg!"
 # append the following lines to printer.cfg
 cat <<API >> $PRINTER_CFG
 
