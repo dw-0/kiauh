@@ -28,12 +28,12 @@ read_bb4u_stat(){
 toggle_backups(){
   source_ini
   if [ "$backup_before_update" = "true" ]; then
-    sed -i '/backup_before_update=/s/true/false/' $INI_DIR
+    sed -i '/backup_before_update=/s/true/false/' $INI_FILE
     BB4U_STATUS="${green}[Enable]${default} backups before updating                  "
     CONFIRM_MSG=" Backups before updates are now >>> DISABLED <<< !"
   fi
   if [ "$backup_before_update" = "false" ]; then
-    sed -i '/backup_before_update=/s/false/true/' $INI_DIR
+    sed -i '/backup_before_update=/s/false/true/' $INI_FILE
     BB4U_STATUS="${red}[Disable]${default} backups before updating                 "
     CONFIRM_MSG=" Backups before updates are now >>> ENABLED <<< !"
   fi
