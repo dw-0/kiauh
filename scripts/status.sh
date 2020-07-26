@@ -157,7 +157,7 @@ read_remote_klipper_commit(){
     if [ "$GET_BRANCH" == "origin/master" ]; then
       git fetch origin master -q
     else
-      git fetch $GET_BRANCH -q
+      git fetch $(echo "$GET_BRANCH" | cut -d"/" -f1) -q
     fi
     REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
   else
