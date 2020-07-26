@@ -52,7 +52,7 @@ OCTOPRINT_CFG_DIR=${HOME}/.octoprint
 OCTOPRINT_SERVICE1=/etc/init.d/octoprint
 OCTOPRINT_SERVICE2=/etc/default/octoprint
 #misc
-INI_DIR=${HOME}/kiauh/kiauh.ini
+INI_FILE=${HOME}/kiauh/kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
 PRINTER_CFG=${HOME}/printer.cfg
 
@@ -75,13 +75,6 @@ print_msg(){
     echo -e "#########################################################"
     echo -e "${default}"
   fi
-  if [[ "$HINT_MSG" != "" ]]; then
-    echo -e "${yellow}"
-    echo -e "#########################################################"
-    echo -e " $HINT_MSG "
-    echo -e "#########################################################"
-    echo -e "${default}"
-  fi
   if [ "$CONFIRM_MSG" != "" ]; then
     echo -e "${green}"
     echo -e "#########################################################"
@@ -89,6 +82,10 @@ print_msg(){
     echo -e "#########################################################"
     echo -e "${default}"
   fi
+}
+
+clear_msg(){
+  CONFIRM_MSG="" && ERROR_MSG=""
 }
 
 main_menu(){
@@ -103,7 +100,7 @@ main_menu(){
     mainsail_status
     octoprint_status
     print_branch
-  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+  print_msg && clear_msg
   main_ui
   while true; do
     echo -e "${cyan}"
@@ -114,13 +111,13 @@ main_menu(){
         clear
         print_header
         update_kiauh
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         main_ui;;
       0)
         clear
         print_header
         ERROR_MSG="Sorry this function is not implemented yet!"
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         main_ui;;
       1)
         clear
@@ -149,7 +146,7 @@ main_menu(){
         clear
         print_header
         print_unkown_cmd
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         main_ui;;
     esac
   done
@@ -168,25 +165,25 @@ install_menu(){
         clear
         print_header
         install_klipper
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         install_ui;;
       2)
         clear
         print_header
         dwc2_install_routine
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         install_ui;;
       3)
         clear
         print_header
         mainsail_install_routine
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         install_ui;;
       4)
         clear
         print_header
         octoprint_install_routine
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         install_ui;;
       Q|q)
         clear; main_menu; break;;
@@ -194,7 +191,7 @@ install_menu(){
         clear
         print_header
         print_unkown_cmd
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         install_ui;;
     esac
   done
@@ -205,7 +202,7 @@ update_menu(){
   print_header
   #compare versions
     ui_print_versions
-  print_msg && CONFIRM_MSG="" && HINT_MSG="" && ERROR_MSG=""
+  print_msg && clear_msg
   read_bb4u_stat
   update_ui
   while true; do
@@ -217,31 +214,31 @@ update_menu(){
         clear
         print_header
         toggle_backups
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         update_ui;;
       1)
         clear
         print_header
         update_klipper && ui_print_versions
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         update_ui;;
       2)
         clear
         print_header
         update_dwc2fk && ui_print_versions
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         update_ui;;
       3)
         clear
         print_header
         update_dwc2 && ui_print_versions
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         update_ui;;
       4)
         clear
         print_header
         update_mainsail && ui_print_versions
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         update_ui;;
       Q|q)
         clear; main_menu; break;;
@@ -249,7 +246,7 @@ update_menu(){
         clear
         print_header
         print_unkown_cmd
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         ui_print_versions
         update_ui;;
     esac
@@ -269,37 +266,37 @@ remove_menu(){
         clear
         print_header
         remove_klipper
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
       2)
         clear
         print_header
         remove_dwc2
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
       3)
         clear
         print_header
         remove_mainsail
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
       4)
         clear
         print_header
         remove_octoprint
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
       5)
         clear
         print_header
         remove_tornado
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
       6)
         clear
         print_header
         remove_nginx
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
       Q|q)
         clear; main_menu; break;;
@@ -307,7 +304,7 @@ remove_menu(){
         clear
         print_header
         print_unkown_cmd
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         remove_ui;;
     esac
   done
@@ -316,7 +313,7 @@ remove_menu(){
 
 advanced_menu(){
   print_header
-  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+  print_msg && clear_msg
   read_octoprint_service_status
   advanced_ui
   while true; do
@@ -329,49 +326,49 @@ advanced_menu(){
         print_header
         toggle_octoprint_service
         read_octoprint_service_status
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       1)
         clear
         print_header
         switch_menu
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       2)
         clear
         print_header
         build_fw
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       3)
         clear
         print_header
         flash_routine
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       4)
         clear
         print_header
         get_usb_id
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       5)
         clear
         print_header
         get_usb_id && write_printer_id
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       6)
         clear
         print_header
         create_dwc2fk_cfg
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       7)
         clear
         print_header
         create_custom_hostname
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
       Q|q)
         clear; main_menu; break;;
@@ -379,7 +376,7 @@ advanced_menu(){
         clear
         print_header
         print_unkown_cmd
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         advanced_ui;;
     esac
   done
@@ -389,7 +386,7 @@ advanced_menu(){
 switch_menu(){
   if [ -d $KLIPPER_DIR ]; then
     read_branch
-    print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+    print_msg && clear_msg
     switch_ui
     while true; do
       echo -e "${cyan}"
@@ -401,35 +398,35 @@ switch_menu(){
           print_header
           switch_to_origin
           read_branch
-          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          print_msg && clear_msg
           switch_ui;;
         2)
           clear
           print_header
           switch_to_scurve_shaping
           read_branch
-          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          print_msg && clear_msg
           switch_ui;;
         3)
           clear
           print_header
           switch_to_scurve_smoothing
           read_branch
-          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          print_msg && clear_msg
           switch_ui;;
         4)
           clear
           print_header
           switch_to_moonraker
           read_branch
-          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          print_msg && clear_msg
           switch_ui;;
         5)
           clear
           print_header
           switch_to_dev_moonraker
           read_branch
-          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          print_msg && clear_msg
           switch_ui;;
         Q|q)
           clear; advanced_menu; break;;
@@ -437,7 +434,7 @@ switch_menu(){
           clear
           print_header
           print_unkown_cmd
-          print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+          print_msg && clear_msg
           switch_ui;;
       esac
     done
@@ -448,7 +445,7 @@ switch_menu(){
 
 backup_menu(){
   print_header
-  print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+  print_msg && clear_msg
   backup_ui
   while true; do
     echo -e "${cyan}"
@@ -459,25 +456,25 @@ backup_menu(){
         clear
         print_header
         backup_klipper
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         backup_ui;;
       2)
         clear
         print_header
         backup_dwc2
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         backup_ui;;
       3)
         clear
         print_header
         backup_mainsail
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         backup_ui;;
       4)
         clear
         print_header
         backup_octoprint
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         backup_ui;;
       Q|q)
         clear; main_menu; break;;
@@ -485,7 +482,7 @@ backup_menu(){
         clear
         print_header
         print_unkown_cmd
-        print_msg && CONFIRM_MSG="" && ERROR_MSG=""
+        print_msg && clear_msg
         backup_ui;;
     esac
   done

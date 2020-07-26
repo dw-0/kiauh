@@ -162,7 +162,6 @@ read_remote_klipper_commit(){
     REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
   else
     REMOTE_COMMIT="${red}--------${default}"
-    HINT_MSG="Can't fetch all remote versions!\n No git repo available or curl not installed!"
   fi
 }
 
@@ -189,7 +188,6 @@ read_dwc2fk_versions(){
   else
     LOCAL_DWC2FK_COMMIT="${red}--------${default}"
     REMOTE_DWC2FK_COMMIT="${red}--------${default}"
-    HINT_MSG="Can't fetch all remote versions!\n No git repo available or curl not installed!"
   fi
 }
 
@@ -218,7 +216,6 @@ read_remote_dwc2_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
     DWC2_REMOTE_VER="${red}-----${default}"
-    HINT_MSG="Can't fetch all remote versions!\n No git repo available or curl not installed!"
   else
     DWC2_REMOTE_VER=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep tag_name | cut -d'"' -f4)
   fi
@@ -250,7 +247,6 @@ read_remote_mainsail_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
     MAINSAIL_REMOTE_VER="${red}------${default}"
-    HINT_MSG="Can't fetch all remote versions!\n No git repo available or curl not installed!"
   else
     get_mainsail_ver
     MAINSAIL_REMOTE_VER=$MAINSAIL_VERSION
