@@ -11,7 +11,7 @@
 
 ## First things first: When you decide to use this script, you use it at your own risk!
 
-Give it a try if you want and if you have suggestions or encounter any problems, please report them to me. 
+Give it a try if you want and if you have suggestions or encounter any problems, please report them to me.
 
 ## Instructions:
 
@@ -34,11 +34,12 @@ chmod +x ~/kiauh/scripts/*
 
 - Tested only on Raspbian Buster Lite
 - During the use of this script you will be asked for your sudo password. There are several functions involved which need sudo privileges.
-- Prevent simultaneous use of DWC2 and OctoPrint if possible. There have been reports that DWC2 does strange things while the OctoPrint service is running while using    the DWC2 webinterface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
+- Prevent simultaneous use of DWC2 and OctoPrint if possible. There have been reports that DWC2 does strange things while the OctoPrint service is running while using the DWC2 webinterface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
 
 ## Functions and Features:
 
 ### Core Functions:
+
 - **Install:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail, OctoPrint
 - **Update:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail
 - **Backup:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail, OctoPrint
@@ -50,10 +51,11 @@ chmod +x ~/kiauh/scripts/*
   - Before writing to an existing printer.cfg the script will create a backup! (better safe than sorry!)
 
 ### Features:
+
 - Automatic dependency check:
   - If packages are missing on your machine but needed for the asked task, the script will automatically install them
 - Switch between Klipper Forks:
-  - origin/master, scurve-shaping, scurve-smoothing, moonraker, dev-moonraker
+  - [origin/master](https://github.com/KevinOConnor/klipper/tree/master), [scurve-shaping](https://github.com/dmbutyugin/klipper/tree/scurve-shaping), [scurve-smoothing](https://github.com/dmbutyugin/klipper/tree/scurve-smoothing), [moonraker](https://github.com/Arksine/klipper/tree/dev-moonraker-testing)
   - The update function of the script will always update the currently selected/active fork!
 - Toggle auto-create backups before updating:
   - When enabled, a backup of the installation you want to update is made prior updating
@@ -65,9 +67,10 @@ chmod +x ~/kiauh/scripts/*
 - Enable/Disable OctoPrint Service:
   - Usefull when using DWC2/Mainsail and OctoPrint at the same time to prevent them interfering with each other
 - Set up reverse proxy for DWC2, Mainsail and OctoPrint and changing the hostname:
+
   - The script can install and configure Nginx for the selected webinterface. This will allow you to make your webinterface reachable over an URL like `<hostname>.local`
-   - Example: If you name the host "mainsail" and set up a reverse proxy, type `mainsail.local` in your webbrowser to open the Mainsail webinterface
-  
+  - Example: If you name the host "mainsail" and set up a reverse proxy, type `mainsail.local` in your webbrowser to open the Mainsail webinterface
+
   tbc ...
 
 ## What this script can't do:

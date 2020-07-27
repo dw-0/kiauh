@@ -69,10 +69,11 @@ remove_mainsail(){
   $MOONRAKER_SERVICE1
   $MOONRAKER_SERVICE2
   $MAINSAIL_DIR
+  $MOONRAKER_DIR
+  $MOONRAKER_ENV_DIR
   ${HOME}/moonraker.log
   ${HOME}/.klippy_api_key
   ${HOME}/.moonraker_api_key
-  ${HOME}/moonraker-env
   /etc/nginx/sites-available/mainsail
   /etc/nginx/sites-enabled/mainsail
   )
@@ -90,15 +91,15 @@ remove_mainsail(){
       status_msg "Removing Mainsail directory ..."
       rm -rf $MAINSAIL_DIR && ok_msg "Directory removed!"
     fi
-    #remove moonraker-env
-    if [ -d ${HOME}/moonraker-env ]; then
-      status_msg "Removing Moonraker virtualenv ..."
-      rm -rf ${HOME}/moonraker-env && ok_msg "Directory removed!"
+    #remove moonraker and moonraker-env dir
+    if [[ -d $MOONRAKER_DIR || -d $MOONRAKER_ENV_DIR ]]; then
+      status_msg "Removing Moonraker and moonraker-env directory ..."
+      rm -rf $MOONRAKER_DIR $MOONRAKER_ENV_DIR && ok_msg "Directories removed!"
     fi
-    #remove moonraker.log symlink
+    #remove moonraker.log and symlink
     if [[ -L ${HOME}/moonraker.log || -e /tmp/moonraker.log ]]; then
-      status_msg "Removing moonraker.log Symlink ..."
-      rm -rf ${HOME}/moonraker.log /tmp/moonraker.log && ok_msg "Symlink removed!"
+      status_msg "Removing moonraker.log and Symlink ..."
+      rm -rf ${HOME}/moonraker.log /tmp/moonraker.log && ok_msg "Files removed!"
     fi
     #remove mainsail cfg
     if [ -e /etc/nginx/sites-available/mainsail ]; then

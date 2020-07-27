@@ -26,11 +26,15 @@ mainsail_install_routine(){
 
 install_moonraker(){
   cd $KLIPPER_DIR
-  if [[ $(git describe --all) = "remotes/Arksine/work-web_server-20200131" || $(git describe --all) = "remotes/Arksine/dev-moonraker-testing" ]]; then
+  if [[ $(git describe --all) = "remotes/Arksine/dev-moonraker-testing" ]]; then
     dep=(wget curl unzip)
     dependency_check
+    status_msg "Downloading Moonraker ..."
+    cd ${HOME} && git clone $MOONRAKER_REPO
+    ok_msg "Download complete!"
     status_msg "Installing Moonraker ..."
-    $KLIPPER_DIR/scripts/install-moonraker.sh && ok_msg "Moonraker successfully installed!"
+    $MOONRAKER_DIR/scripts/install-moonraker.sh && ok_msg "Moonraker successfully installed!"
+    #create sdcard folder if it doesn't exists yet
     if [ ! -d ${HOME}/sdcard ]; then
       mkdir ${HOME}/sdcard
     fi
@@ -40,7 +44,7 @@ install_moonraker(){
       ln -s /tmp/moonraker.log ${HOME}/moonraker.log && ok_msg "Symlink created!"
     fi
   else
-    ERROR_MSG=" You are not using a Moonraker fork\n Please switch to a Moonraker fork first! Aborting ..."
+    ERROR_MSG=" You are not using the Moonraker fork\n Please switch to the Moonraker fork first! Aborting ..."
     ERROR=1
   fi
 }
@@ -86,20 +90,20 @@ VSDCARD
 }
 
 check_api_section(){
-  status_msg "Checking for api_server configuration ..."
+  status_msg "Checking for moonraker configuration ..."
   # check if api server is present in printer.cfg
-  if [ $(grep '^\[api_server\]$' $PRINTER_CFG) ]; then
-    ok_msg "API Server already configured"
+  if [ $(grep '^\[moonraker\]$' $PRINTER_CFG) ]; then
+    ok_msg "Moonraker already configured"
   else
-    status_msg "No API Server entry found."
-    ok_msg "API server entry added to printer.cfg!"
+    status_msg "No Moonraker entry found."
+    ok_msg "Moonraker entry added to printer.cfg!"
 # append the following lines to printer.cfg
 cat <<API >> $PRINTER_CFG
 
 ##########################
 ### CREATED WITH KIAUH ###
 ##########################
-[api_server]
+[moonraker]
 trusted_clients:
  192.168.0.0/24
  192.168.1.0/24
@@ -119,7 +123,7 @@ cat <<DEFAULT_CFG >> $PRINTER_CFG
 [virtual_sdcard]
 path: ~/sdcard
 
-[api_server]
+[moonraker]
 trusted_clients:
  192.168.0.0/24
  192.168.1.0/24
@@ -223,12 +227,12 @@ test_nginx(){
 }
 
 get_mainsail_ver(){
-  MAINSAIL_VERSION=`curl -s https://api.github.com/repositories/240875926/tags | grep name | cut -d'"' -f4 | cut -d"v" -f2 | head -1`
+  MAINSAIL_VERSION=$(curl -s https://api.github.com/repositories/240875926/tags | grep name | cut -d'"' -f4 | cut -d"v" -f2 | head -1)
 }
 
 mainsail_dl_url(){
   get_mainsail_ver
-  MAINSAIL_URL=https://github.com/meteyou/mainsail/releases/download/v"$MAINSAIL_VERSION"/mainsail-alpha-"$MAINSAIL_VERSION".zip
+  MAINSAIL_URL=https://github.com/meteyou/mainsail/releases/download/v"$MAINSAIL_VERSION"/mainsail-beta-"$MAINSAIL_VERSION".zip
 }
 
 install_mainsail(){

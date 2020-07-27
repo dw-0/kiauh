@@ -44,6 +44,8 @@ TORNADO_DIR1=${HOME}/klippy-env/lib/python2.7/site-packages/tornado
 TORNADO_DIR2=${HOME}/klippy-env/lib/python2.7/site-packages/tornado-5.1.1.dist-info
 #mainsail/moonraker
 MAINSAIL_DIR=${HOME}/mainsail
+MOONRAKER_DIR=${HOME}/moonraker
+MOONRAKER_ENV_DIR=${HOME}/moonraker-env
 MOONRAKER_SERVICE1=/etc/init.d/moonraker
 MOONRAKER_SERVICE2=/etc/default/moonraker
 #octoprint
@@ -61,9 +63,9 @@ KLIPPER_REPO=https://github.com/KevinOConnor/klipper.git
 ARKSINE_REPO=https://github.com/Arksine/klipper.git
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
 DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper.git
+MOONRAKER_REPO=https://github.com/Arksine/moonraker.git
 #branches
-BRANCH_MOONRAKER=Arksine/work-web_server-20200131
-BRANCH_DEV_MOONRAKER=Arksine/dev-moonraker-testing
+BRANCH_MOONRAKER=Arksine/dev-moonraker-testing
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
 
@@ -424,13 +426,6 @@ switch_menu(){
           clear
           print_header
           switch_to_moonraker
-          read_branch
-          print_msg && clear_msg
-          switch_ui;;
-        5)
-          clear
-          print_header
-          switch_to_dev_moonraker
           read_branch
           print_msg && clear_msg
           switch_ui;;

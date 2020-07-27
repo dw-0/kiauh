@@ -133,10 +133,8 @@ print_branch(){
     PRINT_BRANCH="scurve-shaping     "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-smoothing" ]; then
     PRINT_BRANCH="scurve-smoothing   "
-  elif [ "$GET_BRANCH" == "Arksine/work-web_server-20200131" ]; then
-    PRINT_BRANCH="moonraker          "
   elif [ "$GET_BRANCH" == "Arksine/dev-moonraker-testing" ]; then
-    PRINT_BRANCH="dev-moonraker      "
+    PRINT_BRANCH="moonraker          "
   else
     PRINT_BRANCH="${red}----${default}               "
   fi

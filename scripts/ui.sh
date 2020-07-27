@@ -153,7 +153,6 @@ switch_ui(){
   echo -e "|  3) [--> scurve-smoothing]                            | "
   echo -e "|                                                       | "
   echo -e "|  4) [--> moonraker]                                   | "
-  echo -e "|  5) [--> dev-moonraker]                               | "
   quit_footer
 }
 
