@@ -33,7 +33,7 @@ main_ui(){
   hr
   echo -e "|  0) [System status]  |                                |"
   echo -e "|                      |    Klipper: $KLIPPER_STATUS|"
-  echo -e "|  1) [Install]        |     Branch: $PRINT_BRANCH|"
+  echo -e "|  1) [Install]        |     Branch: ${cyan}$PRINT_BRANCH${default}|"
   echo -e "|  2) [Update]         |                                |"
   echo -e "|  3) [Remove]         |       DWC2: $DWC2_STATUS|"
   echo -e "|                      |   Mainsail: $MAINSAIL_STATUS|"
@@ -109,14 +109,15 @@ advanced_ui(){
   hr
   echo -e "|                           |                           | "
   echo -e "|  Klipper:                 |  System:                  | "
-  echo -e "|  1) [Switch Version]      |  7) [Change hostname]     | "
+  echo -e "|  1) [Switch Version]      |  8) [Change hostname]     | "
+  echo -e "|  2) [Rollback]            |                           | "
   echo -e "|                           |                           | "
   echo -e "|  Firmware:                |                           | "
-  echo -e "|  2) [Build Firmware]      |                           | "
-  echo -e "|  3) [Flash MCU]           |                           | "
-  echo -e "|  4) [Get Printer-ID]      |                           | "
-  echo -e "|  5) [Write Printer-ID]    |                           | "
-  echo -e "|  6) [Write DWC2 config]   |                           | "
+  echo -e "|  3) [Build Firmware]      |                           | "
+  echo -e "|  4) [Flash MCU]           |                           | "
+  echo -e "|  5) [Get Printer-ID]      |                           | "
+  echo -e "|  6) [Write Printer-ID]    |                           | "
+  echo -e "|  7) [Write DWC2 config]   |                           | "
   echo -e "|                           |                           | "
 quit_footer
 }
@@ -161,4 +162,23 @@ kiauh_update_msg(){
   echo -e "|  ${yellow}There is a newer version of this script available!${default}   | "
   echo -e "|  ${yellow}Type 'update' if you want to update KIAUH now.${default}       | "
   bottom_border
+}
+
+rollback_ui(){
+  top_border
+  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     | "
+  hr
+  echo -e "|  If serious errors occured after updating Klipper,    | "
+  echo -e "|  you can use this menu to return to the previously    | "
+  echo -e "|  used commit from which you have updated.             | "
+  bottom_border
+  top_border
+  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                   | "
+  hr
+  echo -e "|  Currently on commit:                                 | "
+  echo -e "|  $CURR_UI                             | "
+  hr
+  echo -e "|  Commit last updated from:                            | "
+  echo -e "|  $PREV_UI                             | "
+  quit_footer
 }

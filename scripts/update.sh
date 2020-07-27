@@ -66,30 +66,3 @@ update_mainsail(){
   install_mainsail
   start_klipper
 }
-
-save_klipper_state(){
-  source_ini
-  #read current klipper state
-  COMMIT_STATE=$(git rev-parse --short HEAD)
-  if [ $GET_BRANCH = origin/master ]; then
-    ORI_OLD=$previous_origin_state
-    ORI_NEW=$COMMIT_STATE
-    sed -i "/previous_origin_state=/s/$ORI_OLD/$ORI_NEW/" $INI_FILE
-  elif [ $GET_BRANCH = dmbutyugin/scurve-shaping ]; then
-    SHA_OLD=$previous_shaping_state
-    SHA_NEW=$COMMIT_STATE
-    sed -i "/previous_shaping_state=/s/$SHA_OLD/$SHA_NEW/" $INI_FILE
-  elif [ $GET_BRANCH = dmbutyugin/scurve-smoothing ]; then
-    SMO_OLD=$previous_smoothing_state
-    SMO_NEW=$COMMIT_STATE
-    sed -i "/previous_smoothing_state=/s/$SMO_OLD/$SMO_NEW/" $INI_FILE
-  elif [ $GET_BRANCH = Arksine/work-web_server-20200131 ]; then
-    WWS_OLD=$previous_moonraker_state
-    WWS_NEW=$COMMIT_STATE
-    sed -i "/previous_moonraker_state=/s/$WWS_OLD/$WWS_NEW/" $INI_FILE
-  elif [ $GET_BRANCH = Arksine/dev-moonraker-testing ]; then
-    DMT_OLD=$previous_dev_moonraker_state
-    DMT_NEW=$COMMIT_STATE
-    sed -i "/previous_dev_moonraker_state=/s/$DMT_OLD/$DMT_NEW/" $INI_FILE
-  fi
-}

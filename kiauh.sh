@@ -337,34 +337,40 @@ advanced_menu(){
       2)
         clear
         print_header
-        build_fw
+        load_klipper_state
         print_msg && clear_msg
         advanced_ui;;
       3)
         clear
         print_header
-        flash_routine
+        build_fw
         print_msg && clear_msg
         advanced_ui;;
       4)
         clear
         print_header
-        get_usb_id
+        flash_routine
         print_msg && clear_msg
         advanced_ui;;
       5)
         clear
         print_header
-        get_usb_id && write_printer_id
+        get_usb_id
         print_msg && clear_msg
         advanced_ui;;
       6)
         clear
         print_header
-        create_dwc2fk_cfg
+        get_usb_id && write_printer_id
         print_msg && clear_msg
         advanced_ui;;
       7)
+        clear
+        print_header
+        create_dwc2fk_cfg
+        print_msg && clear_msg
+        advanced_ui;;
+      8)
         clear
         print_header
         create_custom_hostname
@@ -442,6 +448,12 @@ switch_menu(){
     ERROR_MSG="No Klipper directory found! Download Klipper first!"
   fi
 }
+
+#rollback_menu(){
+#  load_klipper_state
+#  print_msg && clear_msg
+#  advanced_menu
+#}
 
 backup_menu(){
   print_header

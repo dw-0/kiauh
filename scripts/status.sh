@@ -128,15 +128,15 @@ read_branch(){
 print_branch(){
   read_branch
   if [ "$GET_BRANCH" == "origin/master" ]; then
-    PRINT_BRANCH="${cyan}$GET_BRANCH${default}      "
+    PRINT_BRANCH="$GET_BRANCH      "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-shaping" ]; then
-    PRINT_BRANCH="${cyan}scurve-shaping${default}     "
+    PRINT_BRANCH="scurve-shaping     "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-smoothing" ]; then
-    PRINT_BRANCH="${cyan}scurve-smoothing${default}   "
+    PRINT_BRANCH="scurve-smoothing   "
   elif [ "$GET_BRANCH" == "Arksine/work-web_server-20200131" ]; then
-    PRINT_BRANCH="${cyan}moonraker${default}          "
+    PRINT_BRANCH="moonraker          "
   elif [ "$GET_BRANCH" == "Arksine/dev-moonraker-testing" ]; then
-    PRINT_BRANCH="${cyan}dev-moonraker${default}      "
+    PRINT_BRANCH="dev-moonraker      "
   else
     PRINT_BRANCH="${red}----${default}               "
   fi
