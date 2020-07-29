@@ -1,11 +1,3 @@
-#TODO
-# - version checks before updating
-
-update_check(){
-  read_local_commit
-  read_remote_commit
-}
-
 update_kiauh(){
   if [ $KIAUH_UPDATE_AVAIL = 1 ]; then
     status_msg "Updating KIAUH ..."
@@ -65,4 +57,17 @@ update_mainsail(){
   status_msg "Updating Mainsail ..."
   install_mainsail
   start_klipper
+}
+
+update_moonraker(){
+  stop_klipper && sleep 2 && stop_moonraker
+  bb4u "moonraker"
+  status_msg "Updating Moonraker ..."
+  if [ ! -d $MOONRAKER_DIR ]; then
+    cd ${HOME} && git clone $MOONRAKER_REPO
+  else
+    cd $MOONRAKER_DIR && git pull
+  fi
+  ok_msg "Update complete!"
+  start_moonraker && sleep 2 && start_klipper
 }
