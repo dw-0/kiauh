@@ -5,9 +5,6 @@
 ### ( THIS VERSION IS STILL WORK IN PROGRESS! )
 
 ![main_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/main.png)
-![remove_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/remove.png)
-![update_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/update.png)
-![advanced_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/advanced.png)
 
 ## First things first: If you decide to use this script, be aware you are using it at your own risk!
 
