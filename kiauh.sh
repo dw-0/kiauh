@@ -486,6 +486,12 @@ backup_menu(){
       4)
         clear
         print_header
+        backup_moonraker
+        print_msg && clear_msg
+        backup_ui;;
+      5)
+        clear
+        print_header
         backup_octoprint
         print_msg && clear_msg
         backup_ui;;

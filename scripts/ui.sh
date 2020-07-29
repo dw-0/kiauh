@@ -133,9 +133,12 @@ backup_ui(){
   echo -e "|  1) [Klipper]                                         | "
   echo -e "|                                                       | "
   echo -e "|  Webinterface:                                        | "
-  echo -e "|  2) [DWC2-for-Klipper + DWC2 Web UI]                  | "
+  echo -e "|  2) [DWC2 Web UI]                                     | "
+  echo -e "|                                                       | "
   echo -e "|  3) [Mainsail]                                        | "
-  echo -e "|  4) [OctoPrint]                                       | "
+  echo -e "|  4) [Moonraker]                                       | "
+  echo -e "|                                                       | "
+  echo -e "|  5) [OctoPrint]                                       | "
   echo -e "|                                                       | "
   quit_footer
 }
