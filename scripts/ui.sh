@@ -77,11 +77,12 @@ update_ui(){
   echo -e "|  Firmware:             |               |              | "
   echo -e "|  1) [Klipper]          |  $(echo "$LOCAL_COMMIT")     | $(echo "$REMOTE_COMMIT")     | "
   echo -e "|                        |               |              | "
-  echo -e "|  Webinterface:         |               |              | "
+  echo -e "|  Webinterface:         |---------------|--------------| "
   echo -e "|  2) [DWC2-for-Klipper] |  $(echo "$LOCAL_DWC2FK_COMMIT")     | $(echo "$REMOTE_DWC2FK_COMMIT")     | "
   echo -e "|  3) [DWC2 Web UI]      |  $(echo "$DWC2_LOCAL_VER")        | $(echo "$DWC2_REMOTE_VER")        | "
-  echo -e "|  4) [Mainsail]         |  $(echo "$MAINSAIL_LOCAL_VER")       | $(echo "$MAINSAIL_REMOTE_VER")       | "
-  echo -e "|                        |               |              | "
+  echo -e "|                        |---------------|--------------| "
+  echo -e "|  4) [Moonraker]        |  $(echo "$LOCAL_MOONRAKER_COMMIT")     | $(echo "$REMOTE_MOONRAKER_COMMIT")     | "
+  echo -e "|  5) [Mainsail]         |  $(echo "$MAINSAIL_LOCAL_VER")        | $(echo "$MAINSAIL_REMOTE_VER")        | "
   quit_footer
 }
 

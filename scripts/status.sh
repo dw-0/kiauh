@@ -265,9 +265,35 @@ compare_mainsail_versions(){
   fi
 }
 
+read_moonraker_versions(){
+  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
+    cd $MOONRAKER_DIR
+    git fetch origin master -q
+    LOCAL_MOONRAKER_COMMIT=$(git rev-parse --short=8 HEAD)
+    REMOTE_MOONRAKER_COMMIT=$(git rev-parse --short=8 origin/master)
+  else
+    LOCAL_MOONRAKER_COMMIT="${red}--------${default}"
+    REMOTE_MOONRAKER_COMMIT="${red}--------${default}"
+  fi
+}
+
+compare_moonraker_versions(){
+  read_moonraker_versions
+  #echo "Local: $LOCAL_MOONRAKER_COMMIT"
+  #echo "Remote: $REMOTE_MOONRAKER_COMMIT"
+  if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
+    LOCAL_MOONRAKER_COMMIT="${yellow}$LOCAL_MOONRAKER_COMMIT${default}"
+    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+  else
+    LOCAL_MOONRAKER_COMMIT="${green}$LOCAL_MOONRAKER_COMMIT${default}"
+    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+  fi
+}
+
 ui_print_versions(){
   compare_klipper_versions
   compare_dwc2fk_versions
   compare_dwc2_versions
+  compare_moonraker_versions
   compare_mainsail_versions
 }

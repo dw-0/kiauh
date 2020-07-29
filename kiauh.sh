@@ -239,6 +239,12 @@ update_menu(){
       4)
         clear
         print_header
+        update_moonraker && ui_print_versions
+        print_msg && clear_msg
+        update_ui;;
+      5)
+        clear
+        print_header
         update_mainsail && ui_print_versions
         print_msg && clear_msg
         update_ui;;

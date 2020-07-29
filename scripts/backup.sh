@@ -10,7 +10,7 @@ backup_printer_cfg(){
   if [ -f $PRINTER_CFG ]; then
     get_date
     status_msg "Create backup of printer.cfg ..."
-    cp $PRINTER_CFG $BACKUP_DIR/printer.cfg."$current_date".backup && ok_msg "Backup created!"
+    cp $PRINTER_CFG $BACKUP_DIR/printer.cfg."$current_date".backup && ok_msg "Backup complete!"
   else
     ok_msg "No printer.cfg found! Skipping backup ..."
   fi
@@ -53,8 +53,7 @@ backup_klipper(){
     get_date
     status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/klipper-backups/"$current_date"
-    cp -r $KLIPPER_DIR $_ && cp -r $KLIPPY_ENV_DIR $_
-    ok_msg "Backup complete!"
+    cp -r $KLIPPER_DIR $_ && cp -r $KLIPPY_ENV_DIR $_ && ok_msg "Backup complete!"
   else
     ERROR_MSG=" Can't backup klipper and/or klipper-env directory! Not found!"
   fi
@@ -67,8 +66,7 @@ backup_dwc2(){
     get_date
     status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/dwc2-backups/"$current_date"
-    cp -r $DWC2FK_DIR $_ && cp -r $DWC2_DIR $_
-    ok_msg "Backup complete!"
+    cp -r $DWC2FK_DIR $_ && cp -r $DWC2_DIR $_ && ok_msg "Backup complete!"
   else
     ERROR_MSG=" Can't backup dwc2-for-klipper and/or dwc2 directory!\n Not found!"
   fi
@@ -84,6 +82,19 @@ backup_mainsail(){
     cp -r $MAINSAIL_DIR $_ && ok_msg "Backup complete!"
   else
     ERROR_MSG=" Can't backup mainsail directory! Not found!"
+  fi
+}
+
+backup_moonraker(){
+  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_ENV_DIR ]; then
+    status_msg "Creating Moonraker backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
+    mkdir -p $BACKUP_DIR/moonraker-backups/"$current_date"
+    cp -r $MOONRAKER_DIR $_ && cp -r $MOONRAKER_ENV_DIR $_ && ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup moonraker and/or moonraker-env directory! Not found!"
   fi
 }
 
