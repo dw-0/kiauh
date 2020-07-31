@@ -26,28 +26,22 @@ remove_klipper(){
   fi
 }
 
-remove_tornado(){
-  data_arr=(
-    $TORNADO_DIR1
-    $TORNADO_DIR2
-  )
-  print_error "Tornado" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    status_msg "Removing Tornado from klippy-env ..."
-    PYTHONDIR=$KLIPPY_ENV_DIR
-    $PYTHONDIR/bin/pip uninstall tornado -y
-    CONFIRM_MSG=" Tornado successfully removed!"
-  fi
-}
-
 remove_dwc2(){
   data_arr=(
+  $TORNADO_DIR1
+  $TORNADO_DIR2
   $DWC2FK_DIR
   $WEB_DWC2
   $DWC2_DIR
   )
   print_error "DWC2-for-Klipper &\n DWC2 Web UI" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
+    if [ -d $TORNADO_DIR1 ]; then
+    status_msg "Removing Tornado from klippy-env ..."
+    PYTHONDIR=$KLIPPY_ENV_DIR
+    $PYTHONDIR/bin/pip uninstall tornado -y
+    CONFIRM_MSG=" Tornado successfully removed!"
+    fi
     if [ -d $DWC2FK_DIR ]; then
       status_msg "Removing DWC2-for-Klipper directory ..."
       rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"

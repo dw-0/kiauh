@@ -297,12 +297,6 @@ remove_menu(){
       5)
         clear
         print_header
-        remove_tornado
-        print_msg && clear_msg
-        remove_ui;;
-      6)
-        clear
-        print_header
         remove_nginx
         print_msg && clear_msg
         remove_ui;;
