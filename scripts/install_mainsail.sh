@@ -44,7 +44,7 @@ install_moonraker(){
       ln -s /tmp/moonraker.log ${HOME}/moonraker.log && ok_msg "Symlink created!"
     fi
   else
-    ERROR_MSG=" You are not using the Moonraker fork\n Please switch to the Moonraker fork first! Aborting ..."
+    ERROR_MSG="You are not using the Moonraker fork!\n Please switch to the Moonraker fork first! Aborting ..."
     ERROR=1
   fi
 }
@@ -92,7 +92,7 @@ VSDCARD
 check_api_section(){
   status_msg "Checking for moonraker configuration ..."
   # check if api server is present in printer.cfg
-  if [ $(grep '^\[moonraker\]$' $PRINTER_CFG) ]; then
+  if [[ $(grep '^\[moonraker\]$' $PRINTER_CFG) ]]; then
     ok_msg "Moonraker already configured"
   else
     status_msg "No Moonraker entry found."
