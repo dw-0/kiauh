@@ -237,14 +237,14 @@ read_local_mainsail_version(){
   if [ -e $MAINSAIL_DIR/version ]; then
     MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/version)
   else
-    MAINSAIL_LOCAL_VER="${red}------${default}"
+    MAINSAIL_LOCAL_VER="${red}-----${default}"
   fi
 }
 
 read_remote_mainsail_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    MAINSAIL_REMOTE_VER="${red}------${default}"
+    MAINSAIL_REMOTE_VER="${red}-----${default}"
   else
     get_mainsail_ver
     MAINSAIL_REMOTE_VER=$MAINSAIL_VERSION
