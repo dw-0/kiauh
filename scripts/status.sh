@@ -1,8 +1,10 @@
 kiauh_status(){
   cd ${HOME}/kiauh
+  #get remote state
+  git fetch origin master -q
+  REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
   #get local state
   LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-  REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
   #REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
   if [ "$LOCAL_KIAUH_COMMIT" != "$REMOTE_KIAUH_COMMIT" ]; then
     KIAUH_UPDATE_AVAIL=1
