@@ -17,6 +17,7 @@ quit_footer(){
   hr
   echo -e "|                        ${red}Q) Quit${default}                        | "
   bottom_border
+  echo -e "                                          KIAUH: $CURR_KIAUH_BRANCH"
 }
 
 print_header(){

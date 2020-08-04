@@ -1,15 +1,15 @@
 kiauh_status(){
   cd ${HOME}/kiauh
-  #get remote state
-  git fetch origin master -q
-  REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
-  #REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
-  #get local state
-  LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-  if [ "$LOCAL_KIAUH_COMMIT" != "$REMOTE_KIAUH_COMMIT" ]; then
-    KIAUH_UPDATE_AVAIL=1
-  else
-    KIAUH_UPDATE_AVAIL=0
+  git fetch --all -q
+  CURR_KIAUH_BRANCH=$(git branch -a | head -1 | cut -d" " -f2)
+  if [ $CURR_KIAUH_BRANCH = "master" ]; then
+    REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
+    #if count of new commits >0, then update available
+    KIAUH_UPDATE_AVAIL=$(git log ..origin/master --oneline | wc -l)
+  elif [ $CURR_KIAUH_BRANCH = "dev-2.0" ]; then
+    REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
+    #if count of new commits >0, then update available
+    KIAUH_UPDATE_AVAIL=$(git log ..dev-2.0 --oneline | wc -l)
   fi
 }
 
