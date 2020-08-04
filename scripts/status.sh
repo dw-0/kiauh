@@ -143,6 +143,8 @@ print_branch(){
   read_branch
   if [ "$GET_BRANCH" == "origin/master" ]; then
     PRINT_BRANCH="$GET_BRANCH      "
+  elif [ "$GET_BRANCH" == "master" ]; then
+    PRINT_BRANCH="origin/master      "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-shaping" ]; then
     PRINT_BRANCH="scurve-shaping     "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-smoothing" ]; then
@@ -166,7 +168,7 @@ read_local_klipper_commit(){
 read_remote_klipper_commit(){
   read_branch
   if [ ! -z "$GET_BRANCH" ];then
-    if [ "$GET_BRANCH" == "origin/master" ]; then
+    if [[ "$GET_BRANCH" == "origin/master" || "master" ]]; then
       git fetch origin master -q
     else
       git fetch $(echo "$GET_BRANCH" | cut -d"/" -f1) -q
