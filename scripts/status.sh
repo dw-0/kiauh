@@ -3,9 +3,9 @@ kiauh_status(){
   #get remote state
   git fetch origin master -q
   REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
+  #REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
   #get local state
   LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-  #REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
   if [ "$LOCAL_KIAUH_COMMIT" != "$REMOTE_KIAUH_COMMIT" ]; then
     KIAUH_UPDATE_AVAIL=1
   else
@@ -66,9 +66,7 @@ mainsail_status(){
     $MOONRAKER_SERVICE1
     $MOONRAKER_SERVICE2
     $MAINSAIL_DIR
-    #${HOME}/.klippy_api_key
-    #${HOME}/.moonraker_api_key
-    #${HOME}/moonraker-env
+    $MOONRAKER_ENV_DIR
     /etc/nginx/sites-available/mainsail
     /etc/nginx/sites-enabled/mainsail
   )
@@ -112,14 +110,27 @@ octoprint_status(){
   fi
 }
 
+#read_branch(){
+#  if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
+#    cd $KLIPPER_DIR
+#    GET_BRANCH=$(git branch -a | head -1 | cut -d " " -f5 | cut -d ")" -f1)
+#    #if reading the branch gives an empty string
+#    #we are on non-detached HEAD state on origin/master
+#    #and need to set GET_BRANCH to make a non-empty string
+#    if [ -z "$GET_BRANCH" ]; then
+#      GET_BRANCH="origin/master"
+#    fi
+#  else
+#    GET_BRANCH=""
+#  fi
+#}
+
+#reading the log for the last branch that got checked out assuming that this is also the currently active branch.
 read_branch(){
-  if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
-    cd $KLIPPER_DIR
-    GET_BRANCH=$(git branch -a | head -1 | cut -d " " -f5 | cut -d ")" -f1)
-    #if reading the branch gives an empty string
-    #we are on non-detached HEAD state on origin/master
-    #and need to set GET_BRANCH to make a non-empty string
-    if [ -z "$GET_BRANCH" ]; then
+  if [ -d $KLIPPER_DIR/.git ]; then
+    GET_BRANCH=$(cat ~/klipper/.git/logs/HEAD | grep "checkout" | tail -1 | sed "s/^.*to //")
+    #if the log file is empty, we can assume that klipper just got cloned and therefore is still on origin/master
+    if [[ -z $(cat ~/klipper/.git/logs/HEAD) ]]; then
       GET_BRANCH="origin/master"
     fi
   else
@@ -127,6 +138,7 @@ read_branch(){
   fi
 }
 
+#prints the current klipper branch in the main menu
 print_branch(){
   read_branch
   if [ "$GET_BRANCH" == "origin/master" ]; then
