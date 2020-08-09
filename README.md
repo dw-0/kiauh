@@ -6,6 +6,8 @@
 
 ![main_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/main.png)
 
+---
+
 ## First things first: If you decide to use this script, be aware you are using it at your own risk!
 
 Give it a try if you want and if you have suggestions or encounter any problems, please report them to me.
@@ -31,6 +33,40 @@ chmod +x ~/kiauh/scripts/*
 - During the use of this script you will be asked for your sudo password. There are several functions involved which need sudo privileges.
 - Prevent simultaneous use of DWC2 and OctoPrint if possible. There have been reports that DWC2 does strange things while the OctoPrint service is running while using the DWC2 webinterface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
 - If you used Mainsail v0.0.12 before and you want to upgrade to v0.1.0 or later, you have to reinstall Moonraker as well! Mainsail v0.1.0 will not work with the old Moonraker service. Don't worry, the script can handle the proper removal of the old version.
+
+---
+
+### For more information or instructions, please check out the appropriate repositories listed below:
+
+Klipper mainline by [KevinOConnor](https://github.com/KevinOConnor) :
+
+- https://github.com/KevinOConnor/klipper
+
+Klipper S-Curve fork by [dmbutyugin](https://github.com/dmbutyugin) :
+
+- https://github.com/dmbutyugin/klipper/tree/scurve-smoothing
+- https://github.com/dmbutyugin/klipper/tree/scurve-shaping
+
+Moonraker and Klipper fork by [Arksine](https://github.com/Arksine) :
+
+- https://github.com/Arksine/klipper/tree/dev-moonraker-testing
+- https://github.com/Arksine/moonraker
+
+Mainsail Webinterface by [meteyou](https://github.com/meteyou) :
+
+- https://github.com/meteyou/mainsail
+
+DWC and DWC2 for Klipper by [Duet3D](https://github.com/Duet3D) and [Stephan3](https://github.com/Stephan3) :
+
+- https://github.com/Duet3D/DuetWebControl
+- https://github.com/Stephan3/dwc2-for-klipper
+
+OctoPrint Webinterface by [OctoPrint](https://github.com/OctoPrint) :
+
+- https://octoprint.org
+- https://github.com/OctoPrint/OctoPrint
+
+---
 
 ## Functions and Features:
 
