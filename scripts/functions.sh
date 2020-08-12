@@ -352,3 +352,39 @@ set_hostname(){
     fi
   done
 }
+
+remove_branding(){
+  echo
+  top_border
+  echo -e "|  This action will remove the Voron brandings from     |"
+  echo -e "|  your Mainsail installation. You have to perform      |"
+  echo -e "|  this action again, everytime you updated Mainsail.   |"
+  bottom_border
+  while true; do
+    echo -e "${cyan}"
+    read -p "###### Do you want to continue? (Y/n): " yn
+    echo -e "${default}"
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        cd $MAINSAIL_DIR/css
+        FILE=$(find -name "app.*.css" | cut -d"/" -f2)
+        status_msg "Patching file '$FILE' ..."
+        cp -n $KLIPPER_DIR/docs/img/klipper-logo-small.png $MAINSAIL_DIR/img/
+        #write extra lines to app.css
+        echo >> $FILE
+        cat < ${HOME}/kiauh/resources/app.css >> $FILE
+        ok_msg "File '$FILE' patched!"
+        status_msg "Setting new Favicon ..."
+        #backup old favicon
+        cp -n $MAINSAIL_DIR/favicon.ico $MAINSAIL_DIR/voron_favicon.ico
+        cp ${HOME}/kiauh/resources/favicon.ico $MAINSAIL_DIR/favicon.ico
+        ok_msg "Icon set!"
+        echo
+        ok_msg "Brandings removed!"
+        ok_msg "Clear browser cache and reload Mainsail (F5)!"
+        echo
+        break;;
+      N|n|No|no) break;;
+    esac
+  done
+}

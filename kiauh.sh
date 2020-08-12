@@ -378,6 +378,12 @@ advanced_menu(){
         create_custom_hostname
         print_msg && clear_msg
         advanced_ui;;
+      9)
+        clear
+        print_header
+        remove_branding
+        print_msg && clear_msg
+        advanced_ui;;
       Q|q)
         clear; main_menu; break;;
       *)
