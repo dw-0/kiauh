@@ -389,8 +389,8 @@ remove_branding(){
         status_msg "Patching file '$FILE' ..."
         cp -n $KLIPPER_DIR/docs/img/klipper-logo-small.png $MAINSAIL_DIR/img/
         #write extra lines to app.css
-        echo >> $FILE
-        cat < ${HOME}/kiauh/resources/app.css >> $FILE
+        echo >> "$FILE"
+        cat < ${HOME}/kiauh/resources/app.css >> "$FILE"
         ok_msg "File '$FILE' patched!"
         status_msg "Setting new Favicon ..."
         #backup old favicon
