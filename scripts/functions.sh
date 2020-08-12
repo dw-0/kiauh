@@ -139,7 +139,7 @@ build_fw(){
 }
 
 ### grab the printers id
-get_usb_id(){
+get_printer_usb(){
   warn_msg "Make sure your printer is the only USB device connected!"
   while true; do
     echo -e "${cyan}"
@@ -150,17 +150,34 @@ get_usb_id(){
     esac
   done
   status_msg "Identifying the correct USB port ..."
-  USB_ID=$(ls /dev/serial/by-id/*)
+  sleep 3
   if [ -e /dev/serial/by-id/* ]; then
-    status_msg "The ID of your printer is:"
-    title_msg "$USB_ID"
+    if [ -e /dev/serial/by-id/* ]; then
+      PRINTER_USB=$(ls /dev/serial/by-id/*)
+      status_msg "The ID of your printer is:"
+      title_msg "$PRINTER_USB"
+      echo
+    else
+      warn_msg "Could not retrieve ID!"
+      echo
+    fi
+  elif [ -e /dev/serial/by-path/* ]; then
+    if [ -e /dev/serial/by-path/* ]; then
+      PRINTER_USB=$(ls /dev/serial/by-path/*)
+      status_msg "The path of your printer is:"
+      title_msg "$PRINTER_USB"
+      echo
+    else
+      warn_msg "Could not retrieve path!"
+      echo
+    fi
   else
-    warn_msg "Could not retrieve ID!"
-    return 1
-  fi
+    warn_msg "Printer not plugged in or not detectable!"
+    echo
+fi
 }
 
-write_printer_id(){
+write_printer_usb(){
   while true; do
     echo -e "${cyan}"
     read -p "###### Do you want to write the ID to your printer.cfg? (Y/n): " yn
@@ -168,16 +185,17 @@ write_printer_id(){
     case "$yn" in
       Y|y|Yes|yes|"")
         backup_printer_cfg
-cat <<PRINTERID >> $PRINTER_CFG
+cat <<PRINTERUSB >> $PRINTER_CFG
 
 ##########################
 ### CREATED WITH KIAUH ###
 ##########################
 [mcu]
-serial: $USB_ID
+serial: $PRINTER_USB
 ##########################
 ##########################
-PRINTERID
+PRINTERUSB
+        echo
         ok_msg "Config written!"
         break;;
       N|n|No|no) break;;
@@ -204,7 +222,7 @@ flash_routine(){
     echo -e "${default}"
     case "$yn" in
       Y|y|Yes|yes|"")
-      get_usb_id && flash_mcu && write_printer_id; break;;
+      get_printer_usb && flash_mcu && write_printer_usb; break;;
       N|n|No|no) break;;
     esac
   done
@@ -212,7 +230,7 @@ flash_routine(){
 
 flash_mcu(){
   stop_klipper
-  if ! make flash FLASH_DEVICE="$USB_ID" ; then
+  if ! make flash FLASH_DEVICE="$PRINTER_USB" ; then
     warn_msg "Flashing failed!"
     warn_msg "Please read the log above!"
   else

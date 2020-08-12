@@ -357,13 +357,13 @@ advanced_menu(){
       5)
         clear
         print_header
-        get_usb_id
+        get_printer_usb
         print_msg && clear_msg
         advanced_ui;;
       6)
         clear
         print_header
-        get_usb_id && write_printer_id
+        get_printer_usb && write_printer_usb
         print_msg && clear_msg
         advanced_ui;;
       7)
@@ -510,7 +510,7 @@ backup_menu(){
 
 ### sourcing all additional scripts
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
-for script in ${SRCDIR}/kiauh/scripts/*; do . $script; done
+for script in "${SRCDIR}/kiauh/scripts/"*; do . $script; done
 
 check_euid
 kiauh_status

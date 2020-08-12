@@ -120,8 +120,8 @@ advanced_ui(){
   echo -e "|  Firmware:                |  9) [Remove branding]     | "
   echo -e "|  3) [Build Firmware]      |                           | "
   echo -e "|  4) [Flash MCU]           |                           | "
-  echo -e "|  5) [Get Printer-ID]      |                           | "
-  echo -e "|  6) [Write Printer-ID]    |                           | "
+  echo -e "|  5) [Get Printer-USB]     |                           | "
+  echo -e "|  6) [Write Printer-USB]   |                           | "
   echo -e "|  7) [Write DWC2 config]   |                           | "
   echo -e "|                           |                           | "
 quit_footer
