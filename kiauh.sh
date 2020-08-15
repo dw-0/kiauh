@@ -93,7 +93,7 @@ clear_msg(){
 main_menu(){
   print_header
   #print KIAUH update msg if update available
-    if [ $KIAUH_UPDATE_AVAIL -gt 0 ]; then
+    if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
       kiauh_update_msg
     fi
   #check install status

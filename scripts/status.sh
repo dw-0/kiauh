@@ -4,12 +4,16 @@ kiauh_status(){
   CURR_KIAUH_BRANCH=$(git branch -a | head -1 | cut -d" " -f2)
   if [ $CURR_KIAUH_BRANCH = "master" ]; then
     REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
-    #if count of new commits >0, then update available
-    KIAUH_UPDATE_AVAIL=$(git log ..origin/master --oneline | wc -l)
+    LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
+    if [ "$REMOTE_KIAUH_COMMIT" != "$LOCAL_KIAUH_COMMIT" ]; then
+      KIAUH_UPDATE_AVAIL="true"
+    fi
   elif [ $CURR_KIAUH_BRANCH = "dev-2.0" ]; then
     REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
-    #if count of new commits >0, then update available
-    KIAUH_UPDATE_AVAIL=$(git log ..dev-2.0 --oneline | wc -l)
+    LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
+    if [ "$REMOTE_KIAUH_COMMIT" != "$LOCAL_KIAUH_COMMIT" ]; then
+      KIAUH_UPDATE_AVAIL="true"
+    fi
   fi
 }
 
