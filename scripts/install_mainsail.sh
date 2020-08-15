@@ -1,5 +1,4 @@
 mainsail_install_routine(){
-  ERROR="0" #reset error state
   if [ -d $KLIPPER_DIR ]; then
     #disable octoprint service if installed
       if systemctl is-enabled octoprint.service -q 2>/dev/null; then
@@ -8,62 +7,73 @@ mainsail_install_routine(){
     disable_haproxy_lighttpd
     remove_haproxy_lighttpd
     install_moonraker
-    if [ "$ERROR" != "1" ]; then
-      check_printer_cfg
-      restart_moonraker
-      restart_klipper
-      create_reverse_proxy "mainsail"
-      test_api
-      test_nginx
-      install_mainsail
-      create_custom_hostname
-      ok_msg "Mainsail installation complete!"; echo
-    fi
+    check_printer_cfg
+    restart_moonraker
+    restart_klipper
+    create_reverse_proxy "mainsail"
+    test_api
+    test_nginx
+    install_mainsail
+    create_custom_hostname
+    ok_msg "Mainsail installation complete!"; echo
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
   fi
 }
 
 install_moonraker(){
-  cd $KLIPPER_DIR
-  if [[ $(git describe --all) = "remotes/Arksine/dev-moonraker-testing" ]]; then
-    dep=(wget curl unzip)
-    dependency_check
-    status_msg "Downloading Moonraker ..."
-    cd ${HOME} && git clone $MOONRAKER_REPO
-    ok_msg "Download complete!"
-    status_msg "Installing Moonraker ..."
-    $MOONRAKER_DIR/scripts/install-moonraker.sh && ok_msg "Moonraker successfully installed!"
-    #create sdcard folder if it doesn't exists yet
-    if [ ! -d ${HOME}/sdcard ]; then
-      mkdir ${HOME}/sdcard
-    fi
-    #create a moonraker.log symlink in home-dir just for convenience
-    if [ ! -e ${HOME}/moonraker.log ]; then
-      status_msg "Creating moonraker.log symlink ..."
-      ln -s /tmp/moonraker.log ${HOME}/moonraker.log && ok_msg "Symlink created!"
-    fi
+  dep=(wget curl unzip)
+  dependency_check
+  status_msg "Downloading Moonraker ..."
+  cd ${HOME} && git clone $MOONRAKER_REPO
+  ok_msg "Download complete!"
+  backup_printer_cfg
+  status_msg "Installing Moonraker ..."
+  $MOONRAKER_DIR/scripts/install-moonraker.sh && ok_msg "Moonraker successfully installed!"
+  #copy basic moonraker.conf
+  if [ ! -e ${HOME}/moonraker.conf ]; then
+    status_msg "Creating moonraker.conf ..."
+    cp ${HOME}/kiauh/resources/moonraker.conf ${HOME}
+    ok_msg "moonraker.conf created!"
+  fi
+  #create sdcard folder
+  if [ ! -d ${HOME}/sdcard ]; then
+    status_msg "Creating sdcard directory ..."
+    mkdir ${HOME}/sdcard
+    ok_msg "sdcard directory created!"
+  fi
+  #create klipper_config folder
+  if [ ! -d ${HOME}/klipper_config ]; then
+    status_msg "Creating klipper_config directory ..."
+    mkdir ${HOME}/klipper_config
+    ok_msg "klipper_config directory created!"
+  fi
+  #move printer.cfg to new config location
+  if [ -e ${HOME}/printer.cfg ]; then
+    status_msg "Moving printer.cfg to its new location ..."
+    mv ${HOME}/printer.cfg ${HOME}/klipper_config
+    ok_msg "Done!"
+    status_msg "Create symlink in home directory ..."
+    ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
+    ok_msg "Done!"
   else
-    ERROR_MSG="You are not using the Moonraker fork!\n Please switch to the Moonraker fork first! Aborting ..."
-    ERROR=1
+    warn_msg "No printer.cfg was found!"
+    status_msg "Creating a default printer.cfg ..."
+    create_default_cfg
+    create_mainsail_macro_cfg
+    ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
+    ok_msg "Default printer.cfg created!"
+  fi
+  #create a moonraker.log symlink in home-dir just for convenience
+  if [ ! -e ${HOME}/moonraker.log ]; then
+    status_msg "Creating moonraker.log symlink ..."
+    ln -s /tmp/moonraker.log ${HOME}/moonraker.log && ok_msg "Symlink created!"
   fi
 }
 
 check_printer_cfg(){
   if [ -e $PRINTER_CFG ]; then
     check_vsdcard_section
-    check_api_section
-  else
-    echo; warn_msg "No printer.cfg found!"
-    while true; do
-      echo -e "${cyan}"
-      read -p "###### Do you want to create a default config now? (Y/n): " yn
-      echo -e "${default}"
-      case "$yn" in
-        Y|y|Yes|yes|"") create_default_cfg; break;;
-        N|n|No|no) break;;
-      esac
-    done
   fi
 }
 
@@ -83,39 +93,19 @@ cat <<VSDCARD >> $PRINTER_CFG
 ##########################
 [virtual_sdcard]
 path: ~/sdcard
+
+[pause_resume]
+[display_status]
 ##########################
 ##########################
 VSDCARD
   fi
 }
 
-check_api_section(){
-  status_msg "Checking for moonraker configuration ..."
-  # check if api server is present in printer.cfg
-  if [[ $(grep '^\[moonraker\]$' $PRINTER_CFG) ]]; then
-    ok_msg "Moonraker already configured"
-  else
-    status_msg "No Moonraker entry found."
-    ok_msg "Moonraker entry added to printer.cfg!"
-# append the following lines to printer.cfg
-cat <<API >> $PRINTER_CFG
-
-##########################
-### CREATED WITH KIAUH ###
-##########################
-[moonraker]
-trusted_clients:
- 192.168.0.0/24
- 192.168.1.0/24
- 127.0.0.0/24
-##########################
-##########################
-API
-  fi
-}
-
 create_default_cfg(){
-cat <<DEFAULT_CFG >> $PRINTER_CFG
+#create default config
+touch ${HOME}/klipper_config/printer.cfg
+cat <<DEFAULT_CFG >> ${HOME}/klipper_config/printer.cfg
 
 ##########################
 ### CREATED WITH KIAUH ###
@@ -123,14 +113,22 @@ cat <<DEFAULT_CFG >> $PRINTER_CFG
 [virtual_sdcard]
 path: ~/sdcard
 
-[moonraker]
-trusted_clients:
- 192.168.0.0/24
- 192.168.1.0/24
- 127.0.0.0/24
-
 [pause_resume]
+[display_status]
+[include ~/klipper_config/mainsail_macros.cfg]
 
+##########################
+##########################
+DEFAULT_CFG
+}
+
+create_mainsail_macro_cfg(){
+#create extra mainsail macro config
+touch ${HOME}/klipper_config/mainsail_macros.cfg
+cat <<MAINSAIL_MACRO_CFG >> ${HOME}/klipper_config/mainsail_macros.cfg
+##########################
+### CREATED WITH KIAUH ###
+##########################
 [gcode_macro CANCEL]
 default_parameter_X: 230
 default_parameter_Y: 230
@@ -141,7 +139,7 @@ gcode:
     M141 S0
     M106 S0
     CLEAR_PAUSE
-    RESET_SD
+    SDCARD_RESET_FILE
 
 [gcode_macro CANCEL_PRINT]
 gcode:
@@ -172,7 +170,7 @@ gcode:
     BASE_RESUME
 ##########################
 ##########################
-DEFAULT_CFG
+MAINSAIL_MACRO_CFG
 }
 
 disable_haproxy_lighttpd(){

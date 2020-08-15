@@ -65,6 +65,7 @@ remove_mainsail(){
   $MAINSAIL_DIR
   $MOONRAKER_DIR
   $MOONRAKER_ENV_DIR
+  ${HOME}/moonraker.conf
   ${HOME}/moonraker.log
   ${HOME}/.klippy_api_key
   ${HOME}/.moonraker_api_key
@@ -89,6 +90,18 @@ remove_mainsail(){
     if [[ -d $MOONRAKER_DIR || -d $MOONRAKER_ENV_DIR ]]; then
       status_msg "Removing Moonraker and moonraker-env directory ..."
       rm -rf $MOONRAKER_DIR $MOONRAKER_ENV_DIR && ok_msg "Directories removed!"
+    fi
+    #remove moonraker.conf
+    if [ -e ${HOME}/moonraker.conf ]; then
+      status_msg "Removing moonraker.conf ..."
+      rm -rf ${HOME}/moonraker.conf && ok_msg "File removed!"
+    fi
+    #remove printer.cfg symlink, copy printer.cfg back into home dir
+    if [ -L ${HOME}/printer.cfg ]; then
+      status_msg "Removing printer.cfg symlink ..."
+      rm -rf ${HOME}/printer.cfg && ok_msg "Symlink removed!"
+      status_msg "Copy printer.cfg back into '${HOME}' ..."
+      cp ${HOME}/klipper_config/printer.cfg ${HOME} && ok_msg "File copied!"
     fi
     #remove moonraker.log and symlink
     if [[ -L ${HOME}/moonraker.log || -e /tmp/moonraker.log ]]; then
