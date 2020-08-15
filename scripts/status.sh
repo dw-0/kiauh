@@ -134,7 +134,7 @@ read_branch(){
   if [ -d $KLIPPER_DIR/.git ]; then
     GET_BRANCH=$(cat ~/klipper/.git/logs/HEAD | grep "checkout" | tail -1 | sed "s/^.*to //")
     #if the log file is empty, we can assume that klipper just got cloned and therefore is still on origin/master
-    if [[ -z $(cat ~/klipper/.git/logs/HEAD) ]]; then
+    if [[ -z "$GET_BRANCH" ]]; then
       GET_BRANCH="origin/master"
     fi
   else
