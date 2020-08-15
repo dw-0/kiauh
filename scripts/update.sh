@@ -1,5 +1,5 @@
 update_kiauh(){
-  if [ $KIAUH_UPDATE_AVAIL -gt 0 ]; then
+  if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
     status_msg "Updating KIAUH ..."
     cd ${HOME}/kiauh
     git pull && ok_msg "Update complete! Please restart KIAUH."
