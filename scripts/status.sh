@@ -176,12 +176,13 @@ read_local_klipper_commit(){
 read_remote_klipper_commit(){
   read_branch
   if [ ! -z "$GET_BRANCH" ];then
-    if [[ "$GET_BRANCH" == "origin/master" || "master" ]]; then
-      git fetch origin master -q
+    if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
+      git fetch origin -q
+      REMOTE_COMMIT=$(git rev-parse --short=8 origin)
     else
       git fetch $(echo "$GET_BRANCH" | cut -d"/" -f1) -q
+      REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
     fi
-    REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
   else
     REMOTE_COMMIT="${red}--------${default}"
   fi
