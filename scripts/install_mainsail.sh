@@ -6,12 +6,9 @@ install_mainsail(){
           disable_octoprint_service
         fi
       disable_haproxy_lighttpd
-      #remove_haproxy_lighttpd
-      #beginning of mainsail installation
       create_reverse_proxy "mainsail"
-      test_api
-      test_nginx
       mainsail_setup
+      test_nginx
       ok_msg "Mainsail installation complete!"; echo
     else
       ERROR_MSG=" Please install Klipper first!\n Skipping..."
@@ -39,36 +36,10 @@ disable_haproxy_lighttpd(){
   done
 }
 
-#remove_haproxy_lighttpd(){
-#  rem=(haproxy lighttpd)
-#  for remove in "${rem[@]}"
-#  do
-#    if [[ $(dpkg-query -f'${Status}' --show $remove 2>/dev/null) = *\ installed #]]; then
-#      delete+=($remove)
-#    fi
-#  done
-#  if ! [ ${#delete[@]} -eq 0 ]; then
-#    sudo apt-get remove ${delete[@]} -y
-#  fi
-#}
-
-test_api(){
-  status_msg "Testing API ..."
-  sleep 5
-  status_msg "API response from http://localhost:7125/printer/info:"
-  API_RESPONSE=$(curl -sG4m5 http://localhost:7125/printer/info)
-  echo -e "${cyan}$API_RESPONSE${default}"
-  if [ $(curl -sG4 "http://localhost:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
-    echo; ok_msg "Klipper API is working correctly!"; echo
-  else
-    echo; warn_msg "Klipper API not working correctly!"; echo
-  fi
-}
-
 test_nginx(){
   status_msg "Testing Nginx ..."
   sleep 5
-  status_msg "API response from http://localhost/printer/info:"
+  status_msg "API response from http://localhost/printer/info :"
   API_RESPONSE="$(curl -sG4m5 http://localhost/printer/info)"
   echo -e "${cyan}$API_RESPONSE${default}"
   if [ $(curl -sG4 "http://localhost/printer/info" | grep '^{"result"' -c) -eq 1 ]; then

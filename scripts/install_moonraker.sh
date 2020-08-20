@@ -16,6 +16,7 @@ install_moonraker(){
   #after install actions
   restart_moonraker
   restart_klipper
+  test_api
 }
 
 system_check_moonraker(){
@@ -401,5 +402,21 @@ symlink_moonraker_log(){
     status_msg "Creating moonraker.log symlink ..."
     ln -s /tmp/moonraker.log ${HOME}/klipper_config/moonraker.log
     ok_msg "Symlink created!"
+  fi
+}
+
+#############################################################
+#############################################################
+
+test_api(){
+  status_msg "Testing API ..."
+  sleep 5
+  status_msg "API response from http://localhost:7125/printer/info :"
+  API_RESPONSE=$(curl -sG4m5 http://localhost:7125/printer/info)
+  echo -e "${cyan}$API_RESPONSE${default}"
+  if [ $(curl -sG4 "http://localhost:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+    echo; ok_msg "Klipper API is working correctly!"; echo
+  else
+    echo; warn_msg "Klipper API not working correctly!"; echo
   fi
 }
