@@ -122,7 +122,7 @@ print_error(){
   done
   sum=$(IFS=+; echo "$((${data_count[*]}))")
   if [ $sum -eq 0 ]; then
-    ERROR_MSG=" Looks like $1 was already removed!\n Skipping..."
+    ERROR_MSG="Looks like $1 was already removed!\n Skipping..."
   else
     ERROR_MSG=""
   fi
