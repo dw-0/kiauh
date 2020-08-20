@@ -67,6 +67,7 @@ remove_mainsail(){
   $MOONRAKER_ENV_DIR
   ${HOME}/moonraker.conf
   ${HOME}/moonraker.log
+  ${HOME}/klipper_config/moonraker.log
   ${HOME}/.klippy_api_key
   ${HOME}/.moonraker_api_key
   /etc/nginx/sites-available/mainsail
@@ -104,9 +105,10 @@ remove_mainsail(){
       cp ${HOME}/klipper_config/printer.cfg ${HOME} && ok_msg "File copied!"
     fi
     #remove moonraker.log and symlink
-    if [[ -L ${HOME}/moonraker.log || -e /tmp/moonraker.log ]]; then
+    if [[ -L ${HOME}/moonraker.log || -L ${HOME}/klipper_config/moonraker.log || -e /tmp/moonraker.log ]]; then
       status_msg "Removing moonraker.log and Symlink ..."
-      rm -rf ${HOME}/moonraker.log /tmp/moonraker.log && ok_msg "Files removed!"
+      rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log /tmp/moonraker.log
+      ok_msg "Files removed!"
     fi
     #remove mainsail cfg
     if [ -e /etc/nginx/sites-available/mainsail ]; then
