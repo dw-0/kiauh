@@ -312,63 +312,83 @@ create_custom_hostname(){
   echo -e "|           browsing to: http://my-printer.local        |"
   bottom_border
   while true; do
-    echo -e "${cyan}"
-    read -p "###### Do you want to change the hostname? (Y/n): " yn
-    echo -e "${default}"
+    read -p "${cyan}###### Do you want to change the hostname? (y/N):${default} " yn
     case "$yn" in
-      Y|y|Yes|yes|"") set_hostname; break;;
-      N|n|No|no) break;;
+      Y|y|Yes|yes)
+        user_input_hostname
+        break;;
+      N|n|No|no|"") break;;
     esac
   done
 }
 
-set_hostname(){
-  #check for dependencies
-  dep=(avahi-daemon)
-  dependency_check
-  #execute operations
-  #get current hostname and write to variable
-  HOSTNAME=$(hostname)
-  #create host file if missing or create backup of existing one with current date&time
-  if [ -f /etc/hosts ]; then
-    status_msg "Creating backup of hosts file ..."
-    get_date
-    sudo cp /etc/hosts /etc/hosts."$current_date".bak
-    ok_msg "Backup done!"
-    ok_msg "File:'/etc/hosts."$current_date".bak'"
-  else
-    sudo touch /etc/hosts
-  fi
-  echo
-  top_border
-  echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${default}          |"
-  echo -e "|  ${red}No special characters allowed!${default}                       |"
-  echo -e "|  ${red}No leading or trailing '-' allowed!${default}                  |"
-  bottom_border
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Please set the new hostname: " NEW_HOSTNAME
-    echo -e "${default}"
-    if [[ $NEW_HOSTNAME =~ ^[^\-]+([0-9a-z]\-{0,1})+[^\-]+$ ]]; then
-      ok_msg "'$NEW_HOSTNAME' is a valid hostname!"
-      #set hostname in /etc/hostname
-      status_msg "Setting hostname to '$NEW_HOSTNAME' ..."
-      status_msg "Please wait ..."
-      sudo hostnamectl set-hostname $NEW_HOSTNAME
-      #write new hostname to /etc/hosts
-      status_msg "Writing new hostname to /etc/hosts ..."
-      if cat /etc/hosts | grep "###set by kiauh" &>/dev/null; then
-        sudo sed -i "/###set by kiauh/s/\<$HOSTNAME\>/$NEW_HOSTNAME/" /etc/hosts
-      else
-        echo "127.0.0.1     $NEW_HOSTNAME ###set by kiauh" | sudo tee -a /etc/hosts &>/dev/null
-      fi
-      ok_msg "New hostname successfully configured!"
-      ok_msg "Remember to reboot your machine for the changes to take effect!"
+user_input_hostname(){
+    unset NEW_HOSTNAME
+    echo
+    top_border
+    echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${default}          |"
+    echo -e "|  ${red}No special characters allowed!${default}                       |"
+    echo -e "|  ${red}No leading or trailing '-' allowed!${default}                  |"
+    bottom_border
+    while true; do
+      read -p "${cyan}###### Please set the new hostname:${default} " NEW_HOSTNAME
+      if [[ $NEW_HOSTNAME =~ ^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$ ]]; then
+        ok_msg "'$NEW_HOSTNAME' is a valid hostname!"
+        HOSTNAME_VALID="true"
+        while true; do
+          echo
+          read -p "${cyan}###### Do you want '$NEW_HOSTNAME' to be the new hostname? (Y/n):${default} " yn
+          case "$yn" in
+            Y|y|Yes|yes|"")
+              echo -e "###### > Yes"
+              HOSTENAME_CONFIRM="true"
+              break;;
+            N|n|No|no)
+              echo -e "###### > No"
+              echo -e "${red}Skip hostname change ...${default}"
+              HOSTENAME_CONFIRM="false"
+              break;;
+          esac
+        done
       break
+      else
+        warn_msg "'$NEW_HOSTNAME' is not a valid hostname!"
+      fi
+    done
+}
+
+set_hostname(){
+  if [ "$HOSTNAME_VALID" = "true" ] && [ "$HOSTENAME_CONFIRM" = "true" ]; then
+    #check for dependencies
+    dep=(avahi-daemon)
+    dependency_check
+    #execute operations
+    #get current hostname and write to variable
+    HOSTNAME=$(hostname)
+    #create host file if missing or create backup of existing one with current date&time
+    if [ -f /etc/hosts ]; then
+      status_msg "Creating backup of hosts file ..."
+      get_date
+      sudo cp /etc/hosts /etc/hosts."$current_date".bak
+      ok_msg "Backup done!"
+      ok_msg "File:'/etc/hosts."$current_date".bak'"
     else
-      warn_msg "'$NEW_HOSTNAME' is not a valid hostname!"
+      sudo touch /etc/hosts
     fi
-  done
+    #set hostname in /etc/hostname
+    status_msg "Setting hostname to '$NEW_HOSTNAME' ..."
+    status_msg "Please wait ..."
+    sudo hostnamectl set-hostname "$NEW_HOSTNAME"
+    #write new hostname to /etc/hosts
+    status_msg "Writing new hostname to /etc/hosts ..."
+    if cat /etc/hosts | grep "###set by kiauh" &>/dev/null; then
+      sudo sed -i "/###set by kiauh/s/\<$HOSTNAME\>/$NEW_HOSTNAME/" /etc/hosts
+    else
+      echo "127.0.0.1     $NEW_HOSTNAME ###set by kiauh" | sudo tee -a /etc/hosts &>/dev/null
+    fi
+    ok_msg "New hostname successfully configured!"
+    ok_msg "Remember to reboot for the changes to take effect!"
+  fi
 }
 
 remove_branding(){
@@ -379,9 +399,7 @@ remove_branding(){
   echo -e "|  this action again, everytime you updated Mainsail.   |"
   bottom_border
   while true; do
-    echo -e "${cyan}"
-    read -p "###### Do you want to continue? (Y/n): " yn
-    echo -e "${default}"
+    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
     case "$yn" in
       Y|y|Yes|yes|"")
         cd $MAINSAIL_DIR/css
