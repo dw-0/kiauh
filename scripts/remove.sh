@@ -58,11 +58,10 @@ remove_dwc2(){
   fi
 }
 
-remove_mainsail(){
+remove_moonraker(){
   data_arr=(
   $MOONRAKER_SERVICE1
   $MOONRAKER_SERVICE2
-  $MAINSAIL_DIR
   $MOONRAKER_DIR
   $MOONRAKER_ENV_DIR
   ${HOME}/moonraker.conf
@@ -70,10 +69,8 @@ remove_mainsail(){
   ${HOME}/klipper_config/moonraker.log
   ${HOME}/.klippy_api_key
   ${HOME}/.moonraker_api_key
-  /etc/nginx/sites-available/mainsail
-  /etc/nginx/sites-enabled/mainsail
   )
-  print_error "Mainsail" && data_count=()
+  print_error "Moonraker" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
     stop_moonraker
     #remove moonraker services
@@ -81,11 +78,6 @@ remove_mainsail(){
       status_msg "Removing Moonraker Service ..."
       sudo update-rc.d -f moonraker remove
       sudo rm -rf /etc/init.d/moonraker /etc/default/moonraker && ok_msg "Moonraker Service removed!"
-    fi
-    #remove mainsail dir
-    if [ -d $MAINSAIL_DIR ]; then
-      status_msg "Removing Mainsail directory ..."
-      rm -rf $MAINSAIL_DIR && ok_msg "Directory removed!"
     fi
     #remove moonraker and moonraker-env dir
     if [[ -d $MOONRAKER_DIR || -d $MOONRAKER_ENV_DIR ]]; then
@@ -110,16 +102,6 @@ remove_mainsail(){
       rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log /tmp/moonraker.log
       ok_msg "Files removed!"
     fi
-    #remove mainsail cfg
-    if [ -e /etc/nginx/sites-available/mainsail ]; then
-      status_msg "Removing Mainsail configuration for Nginx ..."
-      sudo rm /etc/nginx/sites-available/mainsail && ok_msg "File removed!"
-    fi
-    #remove mainsail symlink
-    if [ -L /etc/nginx/sites-enabled/mainsail ]; then
-      status_msg "Removing Mainsail Symlink for Nginx ..."
-      sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
-    fi
     #remove legacy api key
     if [ -e ${HOME}/.klippy_api_key ]; then
       status_msg "Removing legacy API Key ..."
@@ -130,7 +112,34 @@ remove_mainsail(){
       status_msg "Removing API Key ..."
       rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
     fi
-    CONFIRM_MSG=" Mainsail successfully removed!"
+    CONFIRM_MSG="Moonraker successfully removed!"
+  fi
+}
+
+remove_mainsail(){
+  data_arr=(
+  $MAINSAIL_DIR
+  /etc/nginx/sites-available/mainsail
+  /etc/nginx/sites-enabled/mainsail
+  )
+  print_error "Mainsail" && data_count=()
+  if [ "$ERROR_MSG" = "" ]; then
+    #remove mainsail dir
+    if [ -d $MAINSAIL_DIR ]; then
+      status_msg "Removing Mainsail directory ..."
+      rm -rf $MAINSAIL_DIR && ok_msg "Directory removed!"
+    fi
+    #remove mainsail config for nginx
+    if [ -e /etc/nginx/sites-available/mainsail ]; then
+      status_msg "Removing Mainsail configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/mainsail && ok_msg "File removed!"
+    fi
+    #remove mainsail symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/mainsail ]; then
+      status_msg "Removing Mainsail Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
+    fi
+    CONFIRM_MSG="Mainsail successfully removed!"
   fi
 }
 

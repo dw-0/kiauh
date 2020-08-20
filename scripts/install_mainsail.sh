@@ -1,19 +1,21 @@
 install_mainsail(){
-  if [ -d $KLIPPER_DIR ] && [ "$INST_MAINSAIL" = "true" ]; then
-    #disable octoprint service if installed
-      if systemctl is-enabled octoprint.service -q 2>/dev/null; then
-        disable_octoprint_service
-      fi
-    disable_haproxy_lighttpd
-    #remove_haproxy_lighttpd
-    #beginning of mainsail installation
-    create_reverse_proxy "mainsail"
-    test_api
-    test_nginx
-    mainsail_setup
-    ok_msg "Mainsail installation complete!"; echo
-  else
-    ERROR_MSG=" Please install Klipper first!\n Skipping..."
+  if [ "$INST_MAINSAIL" = "true" ]; then
+    if [ -d $KLIPPER_DIR ]; then
+      #disable octoprint service if installed
+        if systemctl is-enabled octoprint.service -q 2>/dev/null; then
+          disable_octoprint_service
+        fi
+      disable_haproxy_lighttpd
+      #remove_haproxy_lighttpd
+      #beginning of mainsail installation
+      create_reverse_proxy "mainsail"
+      test_api
+      test_nginx
+      mainsail_setup
+      ok_msg "Mainsail installation complete!"; echo
+    else
+      ERROR_MSG=" Please install Klipper first!\n Skipping..."
+    fi
   fi
 }
 
@@ -64,7 +66,6 @@ test_api(){
 }
 
 test_nginx(){
-  sudo /etc/init.d/nginx restart
   status_msg "Testing Nginx ..."
   sleep 5
   status_msg "API response from http://localhost/printer/info:"

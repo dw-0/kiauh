@@ -172,16 +172,22 @@ install_menu(){
       2)
         clear
         print_header
-        dwc2_install_routine
+        install_moonraker
         print_msg && clear_msg
         install_ui;;
       3)
         clear
         print_header
-        install_moonraker
+        dwc2_install_routine
         print_msg && clear_msg
         install_ui;;
       4)
+        clear
+        print_header
+        INST_MAINSAIL="true" && install_mainsail
+        print_msg && clear_msg
+        install_ui;;
+      5)
         clear
         print_header
         octoprint_install_routine
@@ -279,22 +285,28 @@ remove_menu(){
       2)
         clear
         print_header
-        remove_dwc2
+        remove_moonraker
         print_msg && clear_msg
         remove_ui;;
       3)
         clear
         print_header
-        remove_mainsail
+        remove_dwc2
         print_msg && clear_msg
         remove_ui;;
       4)
         clear
         print_header
-        remove_octoprint
+        remove_mainsail
         print_msg && clear_msg
         remove_ui;;
       5)
+        clear
+        print_header
+        remove_octoprint
+        print_msg && clear_msg
+        remove_ui;;
+      6)
         clear
         print_header
         remove_nginx

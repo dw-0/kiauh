@@ -45,25 +45,23 @@ main_ui(){
 
 install_ui(){
   top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~")     | "
+  echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${default}     | "
   hr
   echo -e "|  You need this menu usually only for installing       | "
   echo -e "|  all necessary dependencies for the various           | "
   echo -e "|  functions on a completely fresh system.              | "
   hr
-  echo -e "|  Firmware:             |                              | "
-  echo -e "|  1) [Klipper]          |                              | "
-  echo -e "|                        |                              | "
-  echo -e "|  Webinterface:         |                              | "
-  echo -e "|  2) [DWC2]             |                              | "
-  echo -e "|  3) [Mainsail]         |                              | "
-  echo -e "|  4) [Octoprint]        |                              | "
+  echo -e "|  Firmware:             |  Webinterface:               | "
+  echo -e "|  1) [Klipper]          |  3) [DWC2]                   | "
+  echo -e "|                        |  4) [Mainsail]               | "
+  echo -e "|  Klipper API:          |  5) [Octoprint]              | "
+  echo -e "|  2) [Moonraker]        |                              | "
   quit_footer
 }
 
 update_ui(){
   top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~")     | "
+  echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
   echo -e "|  It is a good idea to check the following website     | "
   echo -e "|  for important software changes to the config file    | "
@@ -89,26 +87,26 @@ update_ui(){
 
 remove_ui(){
   top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~")     | "
+  echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
   echo -e "|  Files and directories which remain untouched:        | "
   echo -e "|  --> ~/printer.cfg                                    | "
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
   hr
-  echo -e "|  Firmware:             |                              | "
-  echo -e "|  1) [Klipper]          |  5) [Nginx]                  | "
-  echo -e "|                        |                              | "
-  echo -e "|  Webinterface:         |                              | "
-  echo -e "|  2) [DWC2]             |                              | "
-  echo -e "|  3) [Mainsail]         |                              | "
-  echo -e "|  4) [Octoprint]        |                              | "
+  echo -e "|  Firmware:             |  Webinterface:               | "
+  echo -e "|  1) [Klipper]          |  3) [DWC2]                   | "
+  echo -e "|                        |  4) [Mainsail]               | "
+  echo -e "|  Klipper API:          |  5) [Octoprint]              | "
+  echo -e "|  2) [Moonraker]        |                              | "
+  echo -e "|                        |  Webserver:                  | "
+  echo -e "|                        |  6) [Nginx]                  | "
   quit_footer
 }
 
 advanced_ui(){
   top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~")     | "
+  echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${default}     | "
   hr
   echo -e "|  0) $OPRINT_SERVICE_STATUS| "
   hr
