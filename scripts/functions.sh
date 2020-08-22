@@ -86,10 +86,11 @@ restart_nginx(){
 }
 
 dependency_check(){
-  status_msg "Checking for dependencies ..."
+  status_msg "Checking for the following dependencies:"
   #check if package is installed, if not write name into array
   for pkg in "${dep[@]}"
   do
+    echo -e "${cyan}● $pkg ${default}"
     if [[ ! $(dpkg-query -f'${Status}' --show $pkg 2>/dev/null) = *\ installed ]]; then
       inst+=($pkg)
     fi
