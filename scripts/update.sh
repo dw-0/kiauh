@@ -27,7 +27,6 @@ update_klipper(){
     cd $KLIPPER_DIR
     git fetch $FETCH_BRANCH -q && ok_msg "Fetch successfull!"
     status_msg "Checking out $FETCH_BRANCH"
-    echo "git checkout $FETCH_BRANCH"
     git checkout $FETCH_BRANCH -q && ok_msg "Checkout successfull!" && echo; ok_msg "Update complete!"
   fi
   start_klipper; echo
