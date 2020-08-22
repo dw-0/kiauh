@@ -4,13 +4,14 @@ install_moonraker(){
   get_user_selections_moonraker
   #moonraker main installation
   moonraker_setup
-  check_for_folder
+  check_for_folder_moonraker
   #setup configs
-  setup_printer_config
+  setup_printer_config_mainsail
   setup_moonraker_conf
   #execute customizations
   write_custom_trusted_clients
   symlink_moonraker_log
+  disable_octoprint
   install_mainsail
   set_hostname
   #after install actions
@@ -46,6 +47,11 @@ system_check_moonraker(){
   else
     MOONRAKER_CONF_FOUND="true"
   fi
+  #check if octoprint is installed
+  if systemctl is-enabled octoprint.service -q 2>/dev/null; then
+    unset OCTOPRINT_ENABLED
+    OCTOPRINT_ENABLED="true"
+  fi
 }
 
 get_user_selections_moonraker(){
@@ -77,6 +83,7 @@ get_user_selections_moonraker(){
   fi
   #user selection for printer.cfg
   if [ "$PRINTER_CFG_FOUND" = "false" ]; then
+    unset SEL_DEF_CFG
     while true; do
       echo
       warn_msg "No printer.cfg found!"
@@ -142,6 +149,27 @@ get_user_selections_moonraker(){
       esac
       break
     done
+  #ask user to disable octoprint when such installed service was found
+  if [ "$OCTOPRINT_ENABLED" = "true" ]; then
+    unset DISABLE_OPRINT
+    while true; do
+      echo
+      warn_msg "OctoPrint service found!"
+      echo -e "You might consider disabling the OctoPrint service,"
+      echo -e "since an active OctoPrint service may lead to unexpected"
+      echo -e "behavior of the Mainsail Webinterface."
+      read -p "${cyan}###### Do you want to disable OctoPrint now? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          DISABLE_OPRINT="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          DISABLE_OPRINT="false";;
+      esac
+      break
+    done
+  fi
 }
 
 #############################################################
@@ -161,7 +189,7 @@ moonraker_setup(){
   ok_msg "Moonraker successfully installed!"
 }
 
-check_for_folder(){
+check_for_folder_moonraker(){
   #check for / create sdcard folder
   if [ ! -d ${HOME}/sdcard ]; then
     status_msg "Creating sdcard directory ..."
@@ -179,7 +207,7 @@ check_for_folder(){
 #############################################################
 #############################################################
 
-setup_printer_config(){
+setup_printer_config_mainsail(){
   if [ "$PRINTER_CFG_FOUND" = "true" ]; then
     backup_printer_cfg
     if [ "$PRINTER_CFG_LOC" != "${HOME}/klipper_config/printer.cfg" ]; then
@@ -193,12 +221,12 @@ setup_printer_config(){
     fi
     ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
     ok_msg "Done!"
-    #check printer.cfg for necessary entries
-    read_printer_cfg
-    write_printer_cfg
+    #check printer.cfg for necessary mainsail entries
+    read_printer_cfg_mainsail
+    write_printer_cfg_mainsail
   fi
   if [ "$SEL_DEF_CFG" = "true" ]; then
-    create_default_printer_cfg
+    create_default_mainsail_printer_cfg
     status_msg "Create symlink in home directory ..."
     ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
     ok_msg "Done!"
@@ -215,7 +243,7 @@ setup_printer_config(){
   fi
 }
 
-read_printer_cfg(){
+read_printer_cfg_mainsail(){
   SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
   if [ ! $(grep '^\[virtual_sdcard\]$' ${HOME}/klipper_config/printer.cfg) ]; then
     VSD="false"
@@ -234,7 +262,7 @@ read_printer_cfg(){
   fi
 }
 
-write_printer_cfg(){
+write_printer_cfg_mainsail(){
   unset write_entries
   if [ "$ADD_MAINSAIL_MACROS" = "true" ]; then
     write_entries+=("[include klipper_config/mainsail_macros.cfg]")
@@ -253,6 +281,7 @@ write_printer_cfg(){
     write_entries=("############################\n" "${write_entries[@]}")
   fi
   #execute writing
+  status_msg "Writing to printer.cfg ..."
   if [ "$SC_ENTRY" = "true" ]; then
     PRE_SC_LINE="$(expr $SC_LINE - 1)a"
     for entry in "${write_entries[@]}"
@@ -267,6 +296,7 @@ write_printer_cfg(){
       sed -i "$LINE_COUNT $entry" ${HOME}/klipper_config/printer.cfg
     done
   fi
+  ok_msg "Done!"
 }
 
 setup_moonraker_conf(){
@@ -297,7 +327,7 @@ setup_moonraker_conf(){
 #############################################################
 #############################################################
 
-create_default_printer_cfg(){
+create_default_mainsail_printer_cfg(){
 #create default config
 touch ${HOME}/klipper_config/printer.cfg
 cat <<DEFAULT_CFG >> ${HOME}/klipper_config/printer.cfg

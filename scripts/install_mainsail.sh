@@ -1,11 +1,8 @@
 install_mainsail(){
   if [ "$INST_MAINSAIL" = "true" ]; then
     if [ -d $KLIPPER_DIR ]; then
-      #disable octoprint service if installed
-        if systemctl is-enabled octoprint.service -q 2>/dev/null; then
-          disable_octoprint_service
-        fi
       disable_haproxy_lighttpd
+      unset SET_REVERSE_PROXY && SET_REVERSE_PROXY"true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
       create_reverse_proxy "mainsail"
       mainsail_setup
       test_nginx
