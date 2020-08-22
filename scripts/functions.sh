@@ -246,6 +246,12 @@ enable_octoprint_service(){
   fi
 }
 
+disable_octoprint(){
+  if [ "$DISABLE_OPRINT" = "true" ]; then
+    disable_octoprint_service
+  fi
+}
+
 disable_octoprint_service(){
   if [[ -f $OCTOPRINT_SERVICE1 && -f $OCTOPRINT_SERVICE2 ]]; then
     status_msg "OctoPrint Service is enabled! Disabling now ..."
@@ -278,27 +284,29 @@ read_octoprint_service_status(){
 }
 
 create_reverse_proxy(){
-  #check for dependencies
-  dep=(nginx)
-  dependency_check
-  #execute operations
-  status_msg "Creating Nginx configuration for $1 ..."
-  cat ${HOME}/kiauh/resources/$1_nginx.cfg > ${HOME}/kiauh/resources/$1
-  sudo mv ${HOME}/kiauh/resources/$1 /etc/nginx/sites-available/$1
-  #ONLY FOR MAINSAIL: replace username if not "pi"
-    if [ "$1" = "mainsail" ]; then
-      sudo sed -i "/root/s/pi/${USER}/" /etc/nginx/sites-available/mainsail
+  if [ "$SET_REVERSE_PROXY" = "true" ]; then
+    #check for dependencies
+    dep=(nginx)
+    dependency_check
+    #execute operations
+    status_msg "Creating Nginx configuration for $1 ..."
+    cat ${HOME}/kiauh/resources/$1_nginx.cfg > ${HOME}/kiauh/resources/$1
+    sudo mv ${HOME}/kiauh/resources/$1 /etc/nginx/sites-available/$1
+    #ONLY FOR MAINSAIL: replace username if not "pi"
+      if [ "$1" = "mainsail" ]; then
+        sudo sed -i "/root/s/pi/${USER}/" /etc/nginx/sites-available/mainsail
+      fi
+    ok_msg "Nginx configuration for $1 was set!"
+    #remove default config
+    if [ -e /etc/nginx/sites-enabled/default ]; then
+      sudo rm /etc/nginx/sites-enabled/default
     fi
-  ok_msg "Nginx configuration for $1 was set!"
-  #remove default config
-  if [ -e /etc/nginx/sites-enabled/default ]; then
-    sudo rm /etc/nginx/sites-enabled/default
+    #create symlink for own configs
+    if [ ! -e /etc/nginx/sites-enabled/$1 ]; then
+      sudo ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/
+    fi
+    restart_nginx
   fi
-  #create symlink for own configs
-  if [ ! -e /etc/nginx/sites-enabled/$1 ]; then
-    sudo ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled/
-  fi
-  restart_nginx
 }
 
 create_custom_hostname(){
@@ -308,7 +316,7 @@ create_custom_hostname(){
   echo -e "|  that name to open the Interface in your browser.     |"
   echo -e "|                                                       |"
   echo -e "|  Example: If you set the hostname to 'my-printer'     |"
-  echo -e "|           you can open Mainsail/Octoprint by          |"
+  echo -e "|           you can open DWC2/Mainsail/Octoprint by     |"
   echo -e "|           browsing to: http://my-printer.local        |"
   bottom_border
   while true; do
