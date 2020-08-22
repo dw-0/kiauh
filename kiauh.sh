@@ -190,7 +190,7 @@ install_menu(){
       5)
         clear
         print_header
-        octoprint_install_routine
+        install_octoprint
         print_msg && clear_msg
         install_ui;;
       Q|q)

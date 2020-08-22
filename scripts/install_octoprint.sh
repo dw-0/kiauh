@@ -1,13 +1,29 @@
-octoprint_install_routine(){
+install_octoprint(){
+  #ask user for customization
+  get_user_selections_octoprint
+  #octoprint main installation
   octoprint_dependencies
-  install_octoprint
+  octoprint_setup
   add_groups
   configure_autostart
   add_reboot_permission
-  octoprint_reverse_proxy_dialog
-  create_custom_hostname
   create_config_yaml
-  load_server
+  #execute customizations
+  create_reverse_proxy "octoprint"
+  set_hostname
+  #after install actions
+  load_octoprint_server
+}
+
+get_user_selections_octoprint(){
+  status_msg "Initializing OctoPrint installation ..."
+  #ask user to set a reverse proxy
+  octoprint_reverse_proxy_dialog
+  #ask to change hostname
+  if [ "$SET_REVERSE_PROXY" = "true" ]; then
+    create_custom_hostname
+  fi
+  status_msg "Installation will start now! Please wait ..."
 }
 
 octoprint_dependencies(){
@@ -24,7 +40,7 @@ octoprint_dependencies(){
   dependency_check
 }
 
-install_octoprint(){
+octoprint_setup(){
   if [ ! -d $OCTOPRINT_DIR ];then
     status_msg "Create OctoPrint directory ..."
     mkdir -p $OCTOPRINT_DIR && ok_msg "Directory created!"
@@ -97,6 +113,8 @@ add_reboot_permission(){
 }
 
 octoprint_reverse_proxy_dialog(){
+  unset SET_REVERSE_PROXY
+  echo
   top_border
   echo -e "|  If you want to have nicer URLs or simply need        | "
   echo -e "|  OctoPrint to run on port 80 (http's default port)    | "
@@ -106,11 +124,15 @@ octoprint_reverse_proxy_dialog(){
   bottom_border
   while true; do
     echo -e "${cyan}"
-    read -p "###### Do you want to set up a reverse proxy now? (Y/n): " yn
+    read -p "###### Do you want to set up a reverse proxy now? (y/N): " yn
     echo -e "${default}"
     case "$yn" in
-      Y|y|Yes|yes|"") create_reverse_proxy "octoprint"; break;;
-      N|n|No|no) break;;
+      Y|y|Yes|yes)
+        SET_REVERSE_PROXY="true"
+        break;;
+      N|n|No|no|"")
+        SET_REVERSE_PROXY="false"
+        break;;
     esac
   done
 }
@@ -124,7 +146,7 @@ create_config_yaml(){
   fi
 }
 
-load_server(){
+load_octoprint_server(){
   start_octoprint
   #create an octoprint.log symlink in home-dir just for convenience
   if [ ! -e ${HOME}/octoprint.log ]; then
