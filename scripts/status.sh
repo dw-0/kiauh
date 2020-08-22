@@ -2,10 +2,12 @@ kiauh_status(){
   cd ${HOME}/kiauh
   git fetch --all -q
   if git branch -a | grep "* master" -q; then
+    CURR_KIAUH_BRANCH="master" #needed to display branch in UI
     if [[ "$(git rev-parse --short=8 origin/master)" != "$(git rev-parse --short=8 HEAD)" ]]; then
       KIAUH_UPDATE_AVAIL="true"
     fi
   elif git branch -a | grep "* dev-2.0" -q; then
+    CURR_KIAUH_BRANCH="dev-2.0" #needed to display branch in UI
     if [[ "$(git rev-parse --short=8 origin/dev-2.0)" != "$(git rev-parse --short=8 HEAD)" ]]; then
       KIAUH_UPDATE_AVAIL="true"
     fi
