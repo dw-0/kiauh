@@ -18,15 +18,17 @@ update_klipper(){
     status_msg "Updating $GET_BRANCH"
     #fetching origin/master -> error
     #rewriting origin/master to origin
-    if [ "$GET_BRANCH" == "origin/master" ]; then
+    if [ "$GET_BRANCH" = "origin/master" ]; then
       FETCH_BRANCH="origin"
     else
       FETCH_BRANCH=$(echo "$GET_BRANCH" | cut -d "/" -f1)
     fi
     status_msg "Fetching from $FETCH_BRANCH"
+    cd $KLIPPER_DIR
     git fetch $FETCH_BRANCH -q && ok_msg "Fetch successfull!"
-    status_msg "Checking out $GET_BRANCH"
-    git checkout $GET_BRANCH -q && ok_msg "Checkout successfull!" && echo; ok_msg "Update complete!"
+    status_msg "Checking out $FETCH_BRANCH"
+    echo "git checkout $FETCH_BRANCH"
+    git checkout $FETCH_BRANCH -q && ok_msg "Checkout successfull!" && echo; ok_msg "Update complete!"
   fi
   start_klipper; echo
 }
