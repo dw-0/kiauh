@@ -373,8 +373,12 @@ custom_trusted_clients(){
     echo -e "|  moonraker.conf file. Be warned, that there is no     |"
     echo -e "|  spellcheck to check for valid input.                 |"
     echo -e "|  Make sure to type the IP correct!                    |"
+    echo -e "|                                                       |"
+    echo -e "|  If you want to add IP ranges, you can type in e.g.:  |"
+    echo -e "|  192.168.1.0/24                                       |"
+    echo -e "|  This will add the IPs 192.168.1.1 to 192.168.1.254   |"
     echo -e "|-------------------------------------------------------|"
-    echo -e "|  You can add as many IPs as you want.                 |"
+    echo -e "|  You can add as many IPs / IP ranges as you want.     |"
     echo -e "|  When you are done type '${cyan}done${default}' to exit this dialoge.  |"
     bottom_border
     while true; do
