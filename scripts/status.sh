@@ -1,21 +1,12 @@
 kiauh_status(){
   cd ${HOME}/kiauh
   git fetch --all -q
-  if [ $(git branch -a | grep "* master" | cut -d" " -f2) ]; then
-    CURR_KIAUH_BRANCH="master"
-  elif [ $(git branch -a | grep "* dev-2.0" | cut -d" " -f2) ]; then
-    CURR_KIAUH_BRANCH="dev-2.0"
-  fi
-  if [ "$CURR_KIAUH_BRANCH" = "master" ]; then
-    REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
-    LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-    if [ "$REMOTE_KIAUH_COMMIT" != "$LOCAL_KIAUH_COMMIT" ]; then
+  if git branch -a | grep "* master" -q; then
+    if [[ "$(git rev-parse --short=8 origin/master)" != "$(git rev-parse --short=8 HEAD)" ]]; then
       KIAUH_UPDATE_AVAIL="true"
     fi
-  elif [ "$CURR_KIAUH_BRANCH" = "dev-2.0" ]; then
-    REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
-    LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-    if [ "$REMOTE_KIAUH_COMMIT" != "$LOCAL_KIAUH_COMMIT" ]; then
+  elif git branch -a | grep "* dev-2.0" -q; then
+    if [[ "$(git rev-parse --short=8 origin/dev-2.0)" != "$(git rev-parse --short=8 HEAD)" ]]; then
       KIAUH_UPDATE_AVAIL="true"
     fi
   fi
