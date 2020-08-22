@@ -151,6 +151,8 @@ print_branch(){
   read_branch
   if [ "$GET_BRANCH" == "origin/master" ]; then
     PRINT_BRANCH="$GET_BRANCH      "
+  elif [ "$GET_BRANCH" == "origin" ]; then
+    PRINT_BRANCH="origin/master      "
   elif [ "$GET_BRANCH" == "master" ]; then
     PRINT_BRANCH="origin/master      "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-shaping" ]; then
