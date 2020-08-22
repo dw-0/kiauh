@@ -116,6 +116,7 @@ get_user_selections_dwc2(){
       break
     done
   fi
+  status_msg "Installation will start now! Please wait ..."
 }
 
 #############################################################

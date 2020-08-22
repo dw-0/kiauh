@@ -170,6 +170,7 @@ get_user_selections_moonraker(){
       break
     done
   fi
+  status_msg "Installation will start now! Please wait ..."
 }
 
 #############################################################
