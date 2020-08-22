@@ -32,14 +32,14 @@ main_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|  0) [System status]  |                                |"
-  echo -e "|                      |    Klipper: $KLIPPER_STATUS|"
-  echo -e "|  1) [Install]        |     Branch: ${cyan}$PRINT_BRANCH${default}|"
-  echo -e "|  2) [Update]         |                                |"
-  echo -e "|  3) [Remove]         |       DWC2: $DWC2_STATUS|"
-  echo -e "|                      |   Mainsail: $MAINSAIL_STATUS|"
-  echo -e "|  4) [Advanced]       |  Octoprint: $OCTOPRINT_STATUS|"
-  echo -e "|  5) [Backup]         |                                |"
+  echo -e "|                      |                                |"
+  echo -e "|  1) [Install]        |    Klipper: $KLIPPER_STATUS|"
+  echo -e "|  2) [Update]         |     Branch: ${cyan}$PRINT_BRANCH${default}|"
+  echo -e "|  3) [Remove]         |                                |"
+  echo -e "|                      |       DWC2: $DWC2_STATUS|"
+  echo -e "|  4) [Advanced]       |   Mainsail: $MAINSAIL_STATUS|"
+  echo -e "|  5) [Backup]         |  Octoprint: $OCTOPRINT_STATUS|"
+  echo -e "|                      |                                |"
   quit_footer
 }
 
