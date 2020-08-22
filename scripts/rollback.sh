@@ -33,43 +33,51 @@ save_klipper_state(){
 load_klipper_state(){
   source_ini
   print_branch
-  CURR_COMM=$(git rev-parse --short=8 HEAD)
-  if [ "$GET_BRANCH" = "origin/master" ]; then
-    PREV_COMM=$previous_origin_state
+  cd $KLIPPER_DIR
+  CURRENT_COMMIT=$(git rev-parse --short=8 HEAD)
+  if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "origin" ]; then
+    PREVIOUS_COMMIT=$previous_origin_state
   elif [ "$GET_BRANCH" = "dmbutyugin/scurve-shaping" ]; then
-    PREV_COMM=$previous_shaping_state
+    PREVIOUS_COMMIT=$previous_shaping_state
   elif [ "$GET_BRANCH" = "dmbutyugin/scurve-smoothing" ]; then
-    PREV_COMM=$previous_smoothing_state
+    PREVIOUS_COMMIT=$previous_smoothing_state
   elif [ "$GET_BRANCH" = "Arksine/work-web_server-20200131" ]; then
-    PREV_COMM=$previous_moonraker_state
+    PREVIOUS_COMMIT=$previous_moonraker_state
   elif [ "$GET_BRANCH" = "Arksine/dev-moonraker-testing" ]; then
-    PREV_COMM=$previous_dev_moonraker_state
+    PREVIOUS_COMMIT=$previous_dev_moonraker_state
   fi
-  PREV_COMM_DATE=$(git show -s --format=%cd --date=short $PREV_COMM)
-  CURR_COMM_DATE=$(git show -s --format=%cd --date=short $CURR_COMM)
-  if [ $CURR_COMM = $PREV_COMM ]; then
-    CURR_UI=$(echo -e "${green}$CURR_COMM from $CURR_COMM_DATE${default}")
-    PREV_UI=$(echo -e "${green}$PREV_COMM from $PREV_COMM_DATE${default}")
+  CURRENT_COMMIT_DATE=$(git show -s --format=%cd --date=short $CURRENT_COMMIT)
+  if [ "$PREVIOUS_COMMIT" != "0" ]; then
+    PREVIOUS_COMMIT_DATE=$(git show -s --format=%cd --date=short $PREVIOUS_COMMIT)
+  fi
+  if [ "$PREVIOUS_COMMIT" = "0" ]; then
+    CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
+    PREV_UI=$(echo -e "${red}None${default}                    ")
   else
-    CURR_UI=$(echo -e "${yellow}$CURR_COMM from $CURR_COMM_DATE${default}")
-    PREV_UI=$(echo -e "${yellow}$PREV_COMM from $PREV_COMM_DATE${default}")
+    if [ "$CURRENT_COMMIT" = "$PREVIOUS_COMMIT" ]; then
+      CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
+      PREV_UI=$(echo -e "${green}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${default}")
+    else
+      CURR_UI=$(echo -e "${yellow}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
+      PREV_UI=$(echo -e "${yellow}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${default}")
+    fi
   fi
   rollback_ui
   rollback_klipper
 }
 
 rollback_klipper(){
-  if [ "$CURR_COMM" != "$PREV_COMM" ]; then
+  if [ "$PREVIOUS_COMMIT" != "0" ] && [ "$CURRENT_COMMIT" != "$PREVIOUS_COMMIT" ]; then
     while true; do
         echo -e "${cyan}"
-        read -p "###### Do you want to rollback to $PREV_COMM? (Y/n): " yn
+        read -p "###### Do you want to rollback to $PREVIOUS_COMMIT? (Y/n): " yn
         echo -e "${default}"
         case "$yn" in
           Y|y|Yes|yes|"")
             clear
             print_header
-              status_msg "Rolling back to $PREV_COMM ..."
-              git reset --hard $PREV_COMM -q
+              status_msg "Rolling back to $PREVIOUS_COMMIT ..."
+              git reset --hard $PREVIOUS_COMMIT -q
               ok_msg "Rollback complete!"; echo
             load_klipper_state
             break;;
