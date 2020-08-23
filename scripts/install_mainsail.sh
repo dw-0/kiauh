@@ -2,7 +2,7 @@ install_mainsail(){
   if [ "$INST_MAINSAIL" = "true" ]; then
     if [ -d $KLIPPER_DIR ]; then
       disable_haproxy_lighttpd
-      unset SET_REVERSE_PROXY && SET_REVERSE_PROXY"true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
+      unset SET_REVERSE_PROXY && SET_REVERSE_PROXY="true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
       create_reverse_proxy "mainsail"
       mainsail_setup
       test_nginx
