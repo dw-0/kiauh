@@ -111,21 +111,6 @@ octoprint_status(){
   fi
 }
 
-#read_branch(){
-#  if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
-#    cd $KLIPPER_DIR
-#    GET_BRANCH=$(git branch -a | head -1 | cut -d " " -f5 | cut -d ")" -f1)
-#    #if reading the branch gives an empty string
-#    #we are on non-detached HEAD state on origin/master
-#    #and need to set GET_BRANCH to make a non-empty string
-#    if [ -z "$GET_BRANCH" ]; then
-#      GET_BRANCH="origin/master"
-#    fi
-#  else
-#    GET_BRANCH=""
-#  fi
-#}
-
 #reading the log for the last branch that got checked out assuming that this is also the currently active branch.
 read_branch(){
   if [ -d $KLIPPER_DIR/.git ]; then
