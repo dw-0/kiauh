@@ -1,6 +1,6 @@
 check_for_backup_dir(){
   if [ ! -d $BACKUP_DIR ]; then
-    status_msg "Create backup directory ..."
+    status_msg "Create KIAUH backup directory ..."
     mkdir -p $BACKUP_DIR && ok_msg "Directory created!"
   fi
 }

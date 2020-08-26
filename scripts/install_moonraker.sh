@@ -1,0 +1,490 @@
+install_moonraker(){
+  system_check_moonraker
+  #ask user for customization
+  get_user_selections_moonraker
+  #moonraker main installation
+  moonraker_setup
+  check_for_folder_moonraker
+  #setup configs
+  setup_printer_config_mainsail
+  setup_moonraker_conf
+  #execute customizations
+  write_custom_trusted_clients
+  symlinks_moonraker
+  disable_octoprint
+  set_hostname
+  #after install actions
+  restart_moonraker
+  restart_klipper
+  test_api
+  install_mainsail
+}
+
+system_check_moonraker(){
+  status_msg "Initializing Moonraker installation ..."
+  #check for existing printer.cfg and for the location
+  locate_printer_cfg
+  if [ ! -z $PRINTER_CFG ]; then
+    PRINTER_CFG_FOUND="true"
+    PRINTER_CFG_LOC=$PRINTER_CFG
+  else
+    PRINTER_CFG_FOUND="false"
+  fi
+  #check for existing klippy.log symlink in /klipper_config
+  if [ ! -e ${HOME}/klipper_config/klippy.log ]; then
+    KLIPPY_SL_FOUND="false"
+  else
+    KLIPPY_SL_FOUND="true"
+  fi
+  #check for existing moonraker.log symlink in /klipper_config
+  if [ ! -e ${HOME}/klipper_config/moonraker.log ]; then
+    MOONRAKER_SL_FOUND="false"
+  else
+    MOONRAKER_SL_FOUND="true"
+  fi
+  #check for existing moonraker.conf
+  if [ ! -f ${HOME}/moonraker.conf ]; then
+    MOONRAKER_CONF_FOUND="false"
+  else
+    MOONRAKER_CONF_FOUND="true"
+  fi
+  #check if octoprint is installed
+  if systemctl is-enabled octoprint.service -q 2>/dev/null; then
+    unset OCTOPRINT_ENABLED
+    OCTOPRINT_ENABLED="true"
+  fi
+}
+
+get_user_selections_moonraker(){
+  #ask if moonraker only or moonraker + mainsail
+  while true; do
+    echo
+    top_border
+      echo -e "| Do you want to install Moonraker and Mainsail?        |"
+      echo -e "| You can choose to install Moonraker only by answering |"
+      echo -e "| with 'No'.                                            |"
+      hr
+      echo -e "| If you select 'Yes' please be aware that an existing  |"
+      echo -e "| Mainsail installation will then be overwritten!       |"
+    bottom_border
+    read -p "${cyan}###### Install Moonraker + Mainsail? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        INST_MAINSAIL="true";;
+      N|n|No|no)
+        echo -e "###### > No"
+        INST_MAINSAIL="false";;
+    esac
+    break
+  done
+  #ask to change hostname if mainsail should be installed as well
+  if [ "$INST_MAINSAIL" = "true" ]; then
+    create_custom_hostname
+  fi
+  #user selection for printer.cfg
+  if [ "$PRINTER_CFG_FOUND" = "false" ]; then
+    unset SEL_DEF_CFG
+    while true; do
+      echo
+      top_border
+      echo -e "|         ${red}WARNING! - No printer.cfg was found!${default}          |"
+      hr
+      echo -e "|  KIAUH can create a minimal printer.cfg with only the |"
+      echo -e "|  necessary Mainsail config entries if you wish.       |"
+      echo -e "|                                                       |"
+      echo -e "|  Please be aware, that this option will ${red}NOT${default} create a  |"
+      echo -e "|  fully working printer.cfg for you!                   |"
+      bottom_border
+      read -p "${cyan}###### Create a default printer.cfg? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          SEL_DEF_CFG="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          SEL_DEF_CFG="false";;
+      esac
+      break
+    done
+  fi
+  #user selection for moonraker.log symlink
+  if [ "$KLIPPY_SL_FOUND" = "false" ]; then
+    while true; do
+      echo
+      read -p "${cyan}###### Create klippy.log symlink? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          SEL_KLIPPYLOG_SL="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          SEL_KLIPPYLOG_SL="false";;
+      esac
+      break
+    done
+  fi
+  #user selection for moonraker.log symlink
+  if [ "$MOONRAKER_SL_FOUND" = "false" ]; then
+    while true; do
+      echo
+      read -p "${cyan}###### Create moonraker.log symlink? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          SEL_MRLOG_SL="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          SEL_MRLOG_SL="false";;
+      esac
+      break
+    done
+  fi
+  #ask user for more trusted clients
+    while true; do
+      echo
+      top_border
+      echo -e "| Apart from devices of your local network, you can add |"
+      echo -e "| additional trusted clients to the moonraker.conf file |"
+      bottom_border
+      read -p "${cyan}###### Add additional trusted clients? (y/N):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes)
+          echo -e "###### > Yes"
+          ADD_TRUSTED_CLIENT="true"
+          custom_trusted_clients
+          ;;
+        N|n|No|no|"")
+          echo -e "###### > No"
+          ADD_TRUSTED_CLIENT="false";;
+      esac
+      break
+    done
+  #ask user for mainsail default macros
+    while true; do
+      echo
+      read -p "${cyan}###### Add the recommended Mainsail macros? (Y/n):${default} "
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          ADD_MS_MCAROS="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          ADD_MS_MCAROS="false";;
+      esac
+      break
+    done
+  #ask user to disable octoprint when such installed service was found
+  if [ "$OCTOPRINT_ENABLED" = "true" ]; then
+    unset DISABLE_OPRINT
+    while true; do
+      echo
+      warn_msg "OctoPrint service found!"
+      echo -e "You might consider disabling the OctoPrint service,"
+      echo -e "since an active OctoPrint service may lead to unexpected"
+      echo -e "behavior of the Mainsail Webinterface."
+      read -p "${cyan}###### Do you want to disable OctoPrint now? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          DISABLE_OPRINT="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          DISABLE_OPRINT="false";;
+      esac
+      break
+    done
+  fi
+  status_msg "Installation will start now! Please wait ..."
+}
+
+#############################################################
+#############################################################
+
+moonraker_setup(){
+  dep=(wget curl unzip)
+  dependency_check
+  status_msg "Downloading Moonraker ..."
+  if [ -d $MOONRAKER_DIR ]; then
+    mv -f $MOONRAKER_DIR ${HOME}/moonraker_bak
+  fi
+  cd ${HOME} && git clone $MOONRAKER_REPO
+  ok_msg "Download complete!"
+  status_msg "Installing Moonraker ..."
+  $MOONRAKER_DIR/scripts/install-moonraker.sh
+  ok_msg "Moonraker successfully installed!"
+}
+
+check_for_folder_moonraker(){
+  #check for / create sdcard folder
+  if [ ! -d ${HOME}/sdcard ]; then
+    status_msg "Creating sdcard directory ..."
+    mkdir ${HOME}/sdcard
+    ok_msg "sdcard directory created!"
+  fi
+  ##check for / create klipper_config folder
+  if [ ! -d ${HOME}/klipper_config ]; then
+    status_msg "Creating klipper_config directory ..."
+    mkdir ${HOME}/klipper_config
+    ok_msg "klipper_config directory created!"
+  fi
+}
+
+#############################################################
+#############################################################
+
+setup_printer_config_mainsail(){
+  if [ "$PRINTER_CFG_FOUND" = "true" ]; then
+    backup_printer_cfg
+    #create a printer.cfg symlink to make it accessible
+    #in the mainsail config editor if the printer.cfg is not
+    #located in klipper_config by default
+    if [ "$PRINTER_CFG" != "${HOME}/klipper_config/printer.cfg" ] && [ ! -f ${HOME}/klipper_config/printer.cfg ]; then
+      status_msg "Create printer.cfg symlink ..."
+      ln -s $PRINTER_CFG ${HOME}/klipper_config
+      ok_msg "Done!"
+    fi
+    #check printer.cfg for necessary mainsail entries
+    read_printer_cfg_mainsail
+    write_printer_cfg_mainsail
+  fi
+  if [ "$SEL_DEF_CFG" = "true" ]; then
+    create_default_mainsail_printer_cfg
+    status_msg "Create symlink in home directory ..."
+    ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
+    ok_msg "Done!"
+  fi
+  #copy mainsail_macro.cfg
+  if [ "$ADD_MS_MCAROS" = "true" ]; then
+    status_msg "Create mainsail_macros.cfg ..."
+    if [ ! -f ${HOME}/klipper_config/mainsail_macros.cfg ]; then
+      cp ${HOME}/kiauh/resources/mainsail_macros.cfg ${HOME}/klipper_config
+      ok_msg "File created!"
+    else
+      warn_msg "File does already exist! Skipping ..."
+    fi
+  fi
+}
+
+read_printer_cfg_mainsail(){
+  SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
+  if [ ! $(grep '^\[virtual_sdcard\]$' $PRINTER_CFG) ]; then
+    VSD="false"
+  fi
+  if [ ! $(grep '^\[pause_resume\]$' $PRINTER_CFG) ]; then
+    PAUSE_RESUME="false"
+  fi
+  if [ ! $(grep '^\[display_status\]$' $PRINTER_CFG) ]; then
+    DISPLAY_STATUS="false"
+  fi
+  if [ ! "$(grep '^\[include klipper_config\/mainsail_macros\.cfg\]$' $PRINTER_CFG)" ]; then
+    MS_MACRO="false"
+  fi
+  #check for a SAVE_CONFIG entry
+  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
+    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
+    PRE_SC_LINE=$(expr $SC_LINE - 1)
+    SC_ENTRY="true"
+  else
+    SC_ENTRY="false"
+  fi
+}
+
+write_printer_cfg_mainsail(){
+  unset write_entries
+  if [ "$MS_MACRO" = "false" ] && [ "$ADD_MS_MCAROS" = "true" ]; then
+    write_entries+=("[include klipper_config/mainsail_macros.cfg]")
+  fi
+  if [ "$PAUSE_RESUME" = "false" ]; then
+    write_entries+=("[pause_resume]")
+  fi
+  if [ "$DISPLAY_STATUS" = "false" ]; then
+    write_entries+=("[display_status]")
+  fi
+  if [ "$VSD" = "false" ]; then
+    write_entries+=("[virtual_sdcard]\npath: ~/sdcard")
+  fi
+  if [ "${#write_entries[@]}" != "0" ]; then
+    write_entries+=("\\\n############################\n##### CREATED BY KIAUH #####\n############################")
+    write_entries=("############################\n" "${write_entries[@]}")
+  fi
+  #execute writing
+  status_msg "Writing to printer.cfg ..."
+  if [ "$SC_ENTRY" = "true" ]; then
+    PRE_SC_LINE="$(expr $SC_LINE - 1)a"
+    for entry in "${write_entries[@]}"
+    do
+      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
+    done
+  fi
+  if [ "$SC_ENTRY" = "false" ]; then
+    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
+    for entry in "${write_entries[@]}"
+    do
+      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
+    done
+  fi
+  ok_msg "Done!"
+}
+
+setup_moonraker_conf(){
+  if [ "$MOONRAKER_CONF_FOUND" = "false" ]; then
+    status_msg "Creating moonraker.conf ..."
+    cp ${HOME}/kiauh/resources/moonraker.conf ${HOME}
+    ok_msg "moonraker.conf created!"
+    status_msg "Writing trusted clients to config ..."
+    write_default_trusted_clients
+    ok_msg "Trusted clients written!"
+  fi
+  #check for at least one trusted client in an already existing moonraker.conf
+  #in no entry is found, write default trusted client
+  if [ "$MOONRAKER_CONF_FOUND" = "true" ]; then
+    if grep "trusted_clients:" ${HOME}/moonraker.conf -q; then
+      TC_LINE=$(grep -n "trusted_clients:" ${HOME}/moonraker.conf | cut -d ":" -f1)
+      FIRST_IP_LINE=$(expr $TC_LINE + 1)
+      FIRST_IP=$(sed -n 2p ${HOME}/moonraker.conf | cut -d" " -f5)
+      if [[ ! $FIRST_IP =~ ([0-9].[0-9].[0-9].[0-9]) ]]; then
+        status_msg "Writing trusted clients to config ..."
+        write_default_trusted_clients
+        ok_msg "Trusted clients written!"
+      fi
+    fi
+  fi
+}
+
+#############################################################
+#############################################################
+
+create_default_mainsail_printer_cfg(){
+#create default config
+touch ${HOME}/klipper_config/printer.cfg
+cat <<DEFAULT_CFG >> ${HOME}/klipper_config/printer.cfg
+
+##########################
+### CREATED WITH KIAUH ###
+##########################
+[virtual_sdcard]
+path: ~/sdcard
+
+[pause_resume]
+[display_status]
+[include klipper_config/mainsail_macros.cfg]
+
+##########################
+##########################
+DEFAULT_CFG
+}
+
+write_default_trusted_clients(){
+  DEFAULT_IP=$(hostname -I)
+  status_msg "Your devices current IP adress is:\n${cyan}● $DEFAULT_IP ${default}"
+  #make IP of the device KIAUH is exectuted on as
+  #default trusted client and expand the IP range from 0 - 255
+  DEFAULT_IP_RANGE="$(echo "$DEFAULT_IP" | cut -d"." -f1-3).0/24"
+  status_msg "Writing the following IP range to moonraker.conf:\n${cyan}● $DEFAULT_IP_RANGE ${default}"
+  #write the ip range in the first line below "trusted clients"
+  #example: 192.168.1.0/24
+  sed -i "/trusted_clients\:/a \ \ \ \ $DEFAULT_IP_RANGE" ${HOME}/moonraker.conf
+  ok_msg "IP range of ● $DEFAULT_IP_RANGE written to moonraker.conf!"
+}
+
+#############################################################
+#############################################################
+
+custom_trusted_clients(){
+  if [ "$ADD_TRUSTED_CLIENT" = "true" ]; then
+    unset trusted_arr
+    echo
+    top_border
+    echo -e "|  You can now add additional trusted clients to your   |"
+    echo -e "|  moonraker.conf file. Be warned, that there is no     |"
+    echo -e "|  spellcheck to check for valid input.                 |"
+    echo -e "|  Make sure to type the IP correct!                    |"
+    echo -e "|                                                       |"
+    echo -e "|  If you want to add IP ranges, you can type in e.g.:  |"
+    echo -e "|  192.168.1.0/24                                       |"
+    echo -e "|  This will add the IPs 192.168.1.1 to 192.168.1.254   |"
+    echo -e "|-------------------------------------------------------|"
+    echo -e "|  You can add as many IPs / IP ranges as you want.     |"
+    echo -e "|  When you are done type '${cyan}done${default}' to exit this dialoge.  |"
+    bottom_border
+    while true; do
+      read -p "${cyan}###### Enter IP and press ENTER:${default} " TRUSTED_IP
+      case "$TRUSTED_IP" in
+        done)
+          echo
+          echo -e "List of IPs to add:"
+          for ip in ${trusted_arr[@]}
+          do
+            echo -e "${cyan}● $ip ${default}"
+          done
+          while true; do
+            echo
+            echo -e "Select 'Yes' to confirm, 'No' to start again"
+            echo -e "or 'Q' to abort and skip."
+            read -p "${cyan}###### Confirm writing (Y/n/q):${default} " yn
+            case "$yn" in
+              Y|y|Yes|yes|"")
+                echo -e "###### > Yes"
+                TUSTED_CLIENT_CONFIRM="true"
+                break;;
+              N|n|No|no)
+                echo -e "###### > No"
+                custom_trusted_clients
+                break;;
+              Q|q)
+                unset trusted_arr
+                echo -e "###### > Abort"
+                echo -e "${red}Aborting ...${default}"
+                break;;
+            esac
+          done
+          break;;
+        *) trusted_arr+=($TRUSTED_IP);;
+      esac
+    done
+  fi
+}
+
+write_custom_trusted_clients(){
+  if [ "$TUSTED_CLIENT_CONFIRM" = "true" ]; then
+    if [ "${#trusted_arr[@]}" != "0" ]; then
+      for ip in ${trusted_arr[@]}
+      do
+        sed -i "/trusted_clients\:/a \ \ \ \ $ip" ${HOME}/moonraker.conf
+      done
+      ok_msg "Custom IPs written to moonraker.conf!"
+    fi
+  fi
+}
+
+symlinks_moonraker(){
+  #create a klippy.log/moonraker.log symlink in
+  #klipper_config-dir just for convenience
+  if [ "$SEL_KLIPPYLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/klippy.log ]; then
+    status_msg "Creating klippy.log symlink ..."
+    ln -s /tmp/klippy.log ${HOME}/klipper_config
+    ok_msg "Symlink created!"
+  fi
+  if [ "$SEL_MRLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/moonraker.log ]; then
+    status_msg "Creating moonraker.log symlink ..."
+    ln -s /tmp/moonraker.log ${HOME}/klipper_config
+    ok_msg "Symlink created!"
+  fi
+}
+
+#############################################################
+#############################################################
+
+test_api(){
+  status_msg "Testing API ..."
+  sleep 5
+  status_msg "API response from http://localhost:7125/printer/info :"
+  API_RESPONSE=$(curl -sG4m5 http://localhost:7125/printer/info)
+  echo -e "${cyan}$API_RESPONSE${default}"
+  if [ $(curl -sG4 "http://localhost:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+    echo; ok_msg "Klipper API is working correctly!"; echo
+  else
+    echo; warn_msg "Klipper API not working correctly!"; echo
+  fi
+}

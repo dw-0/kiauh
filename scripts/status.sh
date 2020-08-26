@@ -1,21 +1,14 @@
 kiauh_status(){
   cd ${HOME}/kiauh
   git fetch --all -q
-  if [ $(git branch -a | grep "* master" | cut -d" " -f2) ]; then
-    CURR_KIAUH_BRANCH="master"
-  elif [ $(git branch -a | grep "* dev-2.0" | cut -d" " -f2) ]; then
-    CURR_KIAUH_BRANCH="dev-2.0"
-  fi
-  if [ "$CURR_KIAUH_BRANCH" = "master" ]; then
-    REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 origin/master)
-    LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-    if [ "$REMOTE_KIAUH_COMMIT" != "$LOCAL_KIAUH_COMMIT" ]; then
+  if git branch -a | grep "* master" -q; then
+    CURR_KIAUH_BRANCH="master" #needed to display branch in UI
+    if [[ "$(git rev-parse --short=8 origin/master)" != "$(git rev-parse --short=8 HEAD)" ]]; then
       KIAUH_UPDATE_AVAIL="true"
     fi
-  elif [ "$CURR_KIAUH_BRANCH" = "dev-2.0" ]; then
-    REMOTE_KIAUH_COMMIT=$(git rev-parse --short=8 dev-2.0)
-    LOCAL_KIAUH_COMMIT=$(git rev-parse --short=8 HEAD)
-    if [ "$REMOTE_KIAUH_COMMIT" != "$LOCAL_KIAUH_COMMIT" ]; then
+  elif git branch -a | grep "* dev-2.0" -q; then
+    CURR_KIAUH_BRANCH="dev-2.0" #needed to display branch in UI
+    if [[ "$(git rev-parse --short=8 origin/dev-2.0)" != "$(git rev-parse --short=8 HEAD)" ]]; then
       KIAUH_UPDATE_AVAIL="true"
     fi
   fi
@@ -118,21 +111,6 @@ octoprint_status(){
   fi
 }
 
-#read_branch(){
-#  if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
-#    cd $KLIPPER_DIR
-#    GET_BRANCH=$(git branch -a | head -1 | cut -d " " -f5 | cut -d ")" -f1)
-#    #if reading the branch gives an empty string
-#    #we are on non-detached HEAD state on origin/master
-#    #and need to set GET_BRANCH to make a non-empty string
-#    if [ -z "$GET_BRANCH" ]; then
-#      GET_BRANCH="origin/master"
-#    fi
-#  else
-#    GET_BRANCH=""
-#  fi
-#}
-
 #reading the log for the last branch that got checked out assuming that this is also the currently active branch.
 read_branch(){
   if [ -d $KLIPPER_DIR/.git ]; then
@@ -151,6 +129,8 @@ print_branch(){
   read_branch
   if [ "$GET_BRANCH" == "origin/master" ]; then
     PRINT_BRANCH="$GET_BRANCH      "
+  elif [ "$GET_BRANCH" == "origin" ]; then
+    PRINT_BRANCH="origin/master      "
   elif [ "$GET_BRANCH" == "master" ]; then
     PRINT_BRANCH="origin/master      "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-shaping" ]; then
