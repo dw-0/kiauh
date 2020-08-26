@@ -34,7 +34,6 @@ OCTOPRINT_SERVICE2=/etc/default/octoprint
 #misc
 INI_FILE=${HOME}/kiauh/kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
-PRINTER_CFG=${HOME}/printer.cfg
 
 ### set github repos
 KLIPPER_REPO=https://github.com/KevinOConnor/klipper.git

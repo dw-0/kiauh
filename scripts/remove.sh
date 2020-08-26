@@ -67,6 +67,7 @@ remove_moonraker(){
   ${HOME}/moonraker.conf
   ${HOME}/moonraker.log
   ${HOME}/klipper_config/moonraker.log
+  ${HOME}/klipper_config/klippy.log
   ${HOME}/.klippy_api_key
   ${HOME}/.moonraker_api_key
   )
@@ -89,17 +90,10 @@ remove_moonraker(){
       status_msg "Removing moonraker.conf ..."
       rm -rf ${HOME}/moonraker.conf && ok_msg "File removed!"
     fi
-    #remove printer.cfg symlink, copy printer.cfg back into home dir
-    if [ -L ${HOME}/printer.cfg ]; then
-      status_msg "Removing printer.cfg symlink ..."
-      rm -rf ${HOME}/printer.cfg && ok_msg "Symlink removed!"
-      status_msg "Copy printer.cfg back into '${HOME}' ..."
-      cp ${HOME}/klipper_config/printer.cfg ${HOME} && ok_msg "File copied!"
-    fi
     #remove moonraker.log and symlink
-    if [[ -L ${HOME}/moonraker.log || -L ${HOME}/klipper_config/moonraker.log || -e /tmp/moonraker.log ]]; then
-      status_msg "Removing moonraker.log and Symlink ..."
-      rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log /tmp/moonraker.log
+    if [[ -L ${HOME}/moonraker.log || -L ${HOME}/klipper_config/moonraker.log || -L ${HOME}/klipper_config/klippy.log || -e /tmp/moonraker.log ]]; then
+      status_msg "Removing Logs and Symlinks ..."
+      rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log ${HOME}/klipper_config/klippy.log /tmp/moonraker.log
       ok_msg "Files removed!"
     fi
     #remove legacy api key

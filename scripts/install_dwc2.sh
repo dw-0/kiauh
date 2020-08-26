@@ -4,9 +4,7 @@ install_dwc2(){
     #ask user for customization
     get_user_selections_dwc2
     #dwc2 main installation
-    check_for_folder_dwc2
     tornado_setup
-    dwc2fk_setup
     dwc2_setup
     #setup config
     write_printer_cfg_dwc2
@@ -25,10 +23,11 @@ install_dwc2(){
 system_check_dwc2(){
   status_msg "Initializing DWC2 installation ..."
   stop_klipper
+  check_for_folder_dwc2
   #check for existing printer.cfg
-  if [ -e ${HOME}/printer.cfg ]; then
+  locate_printer_cfg
+  if [ ! -z $PRINTER_CFG ]; then
     PRINTER_CFG_FOUND="true"
-    PRINTER_CFG_LOC="${HOME}/printer.cfg"
   else
     PRINTER_CFG_FOUND="false"
   fi
@@ -59,8 +58,8 @@ get_user_selections_dwc2(){
       echo -e "|  option or error will prevent DWC2 from loading and   |"
       echo -e "|  you need to check klippy.log to resolve the error.   |"
       echo -e "|                                                       |"
-      echo -e "|  Neither option 1 or 2 of this script will create a   |"
-      echo -e "|  fully working printer.cfg for you!                   |"
+      echo -e "|  ${red}Neither option 1 or 2 of this script will create a   |"
+      echo -e "|  fully working printer.cfg for you!${default}                   |"
       hr
       echo -e "|  1) [Create default configuration]                    |"
       echo -e "|  2) [Create custom configuration]                     |"
@@ -142,32 +141,40 @@ tornado_setup(){
   fi
 }
 
-dwc2fk_setup(){
+dwc2_setup(){
+  #check dependencies
+  dep=(git wget gzip tar curl)
+  dependency_check
+  #get dwc2-for-klipper
   cd ${HOME}
   status_msg "Cloning DWC2-for-Klipper repository ..."
-  git clone $DWC2FK_REPO && ok_msg "DWC2-for-Klipper successfully cloned!"
+  git clone $DWC2FK_REPO
+  ok_msg "DWC2-for-Klipper successfully cloned!"
   #create a web_dwc2.py symlink if not already existing
   if [ -d $KLIPPER_DIR/klippy/extras ] && [ ! -e $KLIPPER_DIR/klippy/extras/web_dwc2.py ]; then
     status_msg "Creating web_dwc2.py Symlink ..."
-    ln -s $DWC2FK_DIR/web_dwc2.py $KLIPPER_DIR/klippy/extras/web_dwc2.py && ok_msg "Symlink created!"
+    ln -s $DWC2FK_DIR/web_dwc2.py $KLIPPER_DIR/klippy/extras/web_dwc2.py
+    ok_msg "Symlink created!"
   fi
-}
-
-dwc2_setup(){
-  #check dependencies
-  dep=(wget gzip tar curl)
-  dependency_check
-  #execute operation
+  #get Duet Web Control
   GET_DWC2_URL=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4`
   cd $DWC2_DIR/web
   status_msg "Downloading DWC2 Web UI ..."
-  wget -q $GET_DWC2_URL && ok_msg "Download complete!"
+  wget -q $GET_DWC2_URL
+  ok_msg "Download complete!"
   status_msg "Unzipping archive ..."
-  unzip -q -o *.zip && for f_ in $(find . | grep '.gz');do gunzip -f ${f_};done && ok_msg "Done!"
-  status_msg "Writing version to file ..."
-  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/web/version && ok_msg "Done!"
+  unzip -q -o *.zip
+  for f_ in $(find . | grep '.gz')
+  do
+    gunzip -f ${f_}
+  done
+  ok_msg "Done!"
+  status_msg "Writing DWC version to file ..."
+  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/web/version
+  ok_msg "Done!"
   status_msg "Do a little cleanup ..."
-  rm -rf DuetWebControl-SD.zip && ok_msg "Done!"
+  rm -rf DuetWebControl-SD.zip
+  ok_msg "Done!"
   ok_msg "DWC2 Web UI installed!"
 }
 
@@ -182,27 +189,31 @@ setup_printer_config_dwc2(){
   fi
   if [ "$SEL_DEF_CFG" = "true" ]; then
     create_default_dwc2_printer_cfg
+    locate_printer_cfg
   fi
   if [ "$SEL_CUS_CFG" = "true" ]; then
     #get user input for custom config
     create_custom_dwc2_printer_cfg
+    locate_printer_cfg
   fi
 }
 
 read_printer_cfg_dwc2(){
   unset SC_ENTRY
   SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  if [ ! $(grep '^\[virtual_sdcard\]$' ${HOME}/printer.cfg) ]; then
+  if [ ! $(grep '^\[virtual_sdcard\]$' $PRINTER_CFG) ]; then
     VSD="false"
   fi
-  if [ ! $(grep '^\[web_dwc2\]$' ${HOME}/printer.cfg) ]; then
+  if [ ! $(grep '^\[web_dwc2\]$' $PRINTER_CFG) ]; then
     WEB_DWC2="false"
   fi
   #check for a SAVE_CONFIG entry
-  if [[ $(grep "$SC" ${HOME}/printer.cfg) ]]; then
-    SC_LINE=$(grep -n "$SC" ${HOME}/printer.cfg | cut -d ":" -f1)
+  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
+    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
     PRE_SC_LINE=$(expr $SC_LINE - 1)
     SC_ENTRY="true"
+  else
+    SC_ENTRY="false"
   fi
 }
 
@@ -224,30 +235,32 @@ write_printer_cfg_dwc2(){
     PRE_SC_LINE="$(expr $SC_LINE - 1)a"
     for entry in "${write_entries[@]}"
     do
-      sed -i "$PRE_SC_LINE $entry" ${HOME}/printer.cfg
+      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
     done
   fi
   if [ "$SC_ENTRY" = "false" ]; then
-    LINE_COUNT="$(wc -l < ${HOME}/printer.cfg)a"
+    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
     for entry in "${write_entries[@]}"
     do
-      sed -i "$LINE_COUNT $entry" ${HOME}/printer.cfg
+      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
     done
   fi
   ok_msg "Done!"
 }
 
 write_custom_printer_cfg_dwc2(){
-  if [ "$CONFIRM_CUSTOM_CFG" = "true" ]; then
-    echo -e "$DWC2_CFG" >> ${HOME}/printer.cfg
+  #create custom config
+  if [ "$PRINTER_CFG_FOUND" = "false" ] && [ "$CONFIRM_CUSTOM_CFG" = "true" ]; then
+    touch $PRINTER_CFG
+    echo -e "$DWC2_CFG" >> $PRINTER_CFG
   fi
 }
 
 create_default_dwc2_printer_cfg(){
-#create default config
-touch ${HOME}/printer.cfg
-cat <<DEFAULT_DWC2_CFG >> ${HOME}/printer.cfg
-
+  #create default config
+  if [ "$PRINTER_CFG_FOUND" = "false" ] && [ "$SEL_CUS_CFG" = "true" ]; then
+    touch $PRINTER_CFG
+    cat <<DEFAULT_DWC2_CFG >> $PRINTER_CFG
 ##########################
 ### CREATED WITH KIAUH ###
 ##########################
@@ -267,8 +280,8 @@ listen_adress: 0.0.0.0
 listen_port: 4750
 web_path: dwc2/web
 ##########################
-##########################
 DEFAULT_DWC2_CFG
+  fi
 }
 
 #############################################################
@@ -288,7 +301,6 @@ create_custom_dwc2_printer_cfg(){
   read -e -p "Web path: " -i "dwc2/web" WEB_PATH
   echo -e "${default}"
   DWC2_CFG=$(cat <<DWC2
-
 ##########################
 ### CREATED WITH KIAUH ###
 ##########################
@@ -300,7 +312,6 @@ printer_name: $PRINTER_NAME
 listen_adress: $LISTEN_ADRESS
 listen_port: $LISTEN_PORT
 web_path: $WEB_PATH
-##########################
 ##########################
 DWC2
 )

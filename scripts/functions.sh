@@ -11,6 +11,20 @@ check_euid(){
   fi
 }
 
+locate_printer_cfg(){
+  if [ -f $KLIPPER_SERVICE2 ]; then
+    #reads /etc/default/klipper and gets the default printer.cfg location
+    PRINTER_CFG_LOC=$(grep "KLIPPY_ARGS=" /etc/default/klipper | cut -d" " -f2)
+    if [ -e $PRINTER_CFG_LOC ]; then
+      PRINTER_CFG=$(readlink -e $PRINTER_CFG_LOC)
+    else
+      PRINTER_CFG=""
+    fi
+  else
+    PRINTER_CFG=""
+  fi
+}
+
 source_ini(){
   source ${HOME}/kiauh/kiauh.ini
 }

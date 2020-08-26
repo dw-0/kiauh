@@ -10,30 +10,31 @@ install_moonraker(){
   setup_moonraker_conf
   #execute customizations
   write_custom_trusted_clients
-  symlink_moonraker_log
+  symlinks_moonraker
   disable_octoprint
-  install_mainsail
   set_hostname
   #after install actions
   restart_moonraker
   restart_klipper
   test_api
+  install_mainsail
 }
 
 system_check_moonraker(){
   status_msg "Initializing Moonraker installation ..."
   #check for existing printer.cfg and for the location
-  if [ ! -e ${HOME}/printer.cfg ] && [ ! -e ${HOME}/klipper_config/printer.cfg ]; then
-    PRINTER_CFG_FOUND="false"
+  locate_printer_cfg
+  if [ ! -z $PRINTER_CFG ]; then
+    PRINTER_CFG_FOUND="true"
+    PRINTER_CFG_LOC=$PRINTER_CFG
   else
-    if [ -f ${HOME}/printer.cfg ]; then
-      PRINTER_CFG_FOUND="true"
-      PRINTER_CFG_LOC="${HOME}/printer.cfg"
-    fi
-    if [ -f ${HOME}/klipper_config/printer.cfg ]; then
-      PRINTER_CFG_FOUND="true"
-      PRINTER_CFG_LOC="${HOME}/klipper_config/printer.cfg"
-    fi
+    PRINTER_CFG_FOUND="false"
+  fi
+  #check for existing klippy.log symlink in /klipper_config
+  if [ ! -e ${HOME}/klipper_config/klippy.log ]; then
+    KLIPPY_SL_FOUND="false"
+  else
+    KLIPPY_SL_FOUND="true"
   fi
   #check for existing moonraker.log symlink in /klipper_config
   if [ ! -e ${HOME}/klipper_config/moonraker.log ]; then
@@ -86,7 +87,15 @@ get_user_selections_moonraker(){
     unset SEL_DEF_CFG
     while true; do
       echo
-      warn_msg "No printer.cfg found!"
+      top_border
+      echo -e "|         ${red}WARNING! - No printer.cfg was found!${default}          |"
+      hr
+      echo -e "|  KIAUH can create a minimal printer.cfg with only the |"
+      echo -e "|  necessary Mainsail config entries if you wish.       |"
+      echo -e "|                                                       |"
+      echo -e "|  Please be aware, that this option will ${red}NOT${default} create a  |"
+      echo -e "|  fully working printer.cfg for you!                   |"
+      bottom_border
       read -p "${cyan}###### Create a default printer.cfg? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
@@ -95,6 +104,22 @@ get_user_selections_moonraker(){
         N|n|No|no)
           echo -e "###### > No"
           SEL_DEF_CFG="false";;
+      esac
+      break
+    done
+  fi
+  #user selection for moonraker.log symlink
+  if [ "$KLIPPY_SL_FOUND" = "false" ]; then
+    while true; do
+      echo
+      read -p "${cyan}###### Create klippy.log symlink? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          SEL_KLIPPYLOG_SL="true";;
+        N|n|No|no)
+          echo -e "###### > No"
+          SEL_KLIPPYLOG_SL="false";;
       esac
       break
     done
@@ -142,10 +167,10 @@ get_user_selections_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          ADD_MAINSAIL_MACROS="true";;
+          ADD_MS_MCAROS="true";;
         N|n|No|no)
           echo -e "###### > No"
-          ADD_MAINSAIL_MACROS="false";;
+          ADD_MS_MCAROS="false";;
       esac
       break
     done
@@ -211,17 +236,14 @@ check_for_folder_moonraker(){
 setup_printer_config_mainsail(){
   if [ "$PRINTER_CFG_FOUND" = "true" ]; then
     backup_printer_cfg
-    if [ "$PRINTER_CFG_LOC" != "${HOME}/klipper_config/printer.cfg" ]; then
-      status_msg "Moving printer.cfg to ~/klipper_config ..."
-      mv $PRINTER_CFG_LOC ${HOME}/klipper_config
+    #create a printer.cfg symlink to make it accessible
+    #in the mainsail config editor if the printer.cfg is not
+    #located in klipper_config by default
+    if [ "$PRINTER_CFG" != "${HOME}/klipper_config/printer.cfg" ] && [ ! -f ${HOME}/klipper_config/printer.cfg ]; then
+      status_msg "Create printer.cfg symlink ..."
+      ln -s $PRINTER_CFG ${HOME}/klipper_config
       ok_msg "Done!"
     fi
-    status_msg "Create symlink in home directory ..."
-    if [ -f ${HOME}/printer.cfg ]; then
-      mv ${HOME}/printer.cfg ${HOME}/printer_old.cfg
-    fi
-    ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
-    ok_msg "Done!"
     #check printer.cfg for necessary mainsail entries
     read_printer_cfg_mainsail
     write_printer_cfg_mainsail
@@ -233,7 +255,7 @@ setup_printer_config_mainsail(){
     ok_msg "Done!"
   fi
   #copy mainsail_macro.cfg
-  if [ "$ADD_MAINSAIL_MACROS" = "true" ]; then
+  if [ "$ADD_MS_MCAROS" = "true" ]; then
     status_msg "Create mainsail_macros.cfg ..."
     if [ ! -f ${HOME}/klipper_config/mainsail_macros.cfg ]; then
       cp ${HOME}/kiauh/resources/mainsail_macros.cfg ${HOME}/klipper_config
@@ -246,26 +268,31 @@ setup_printer_config_mainsail(){
 
 read_printer_cfg_mainsail(){
   SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  if [ ! $(grep '^\[virtual_sdcard\]$' ${HOME}/klipper_config/printer.cfg) ]; then
+  if [ ! $(grep '^\[virtual_sdcard\]$' $PRINTER_CFG) ]; then
     VSD="false"
   fi
-  if [ ! $(grep '^\[pause_resume\]$' ${HOME}/klipper_config/printer.cfg) ]; then
+  if [ ! $(grep '^\[pause_resume\]$' $PRINTER_CFG) ]; then
     PAUSE_RESUME="false"
   fi
-  if [ ! $(grep '^\[display_status\]$' ${HOME}/klipper_config/printer.cfg) ]; then
+  if [ ! $(grep '^\[display_status\]$' $PRINTER_CFG) ]; then
     DISPLAY_STATUS="false"
   fi
+  if [ ! "$(grep '^\[include klipper_config\/mainsail_macros\.cfg\]$' $PRINTER_CFG)" ]; then
+    MS_MACRO="false"
+  fi
   #check for a SAVE_CONFIG entry
-  if [[ $(grep "$SC" ${HOME}/klipper_config/printer.cfg) ]]; then
-    SC_LINE=$(grep -n "$SC" ${HOME}/klipper_config/printer.cfg | cut -d ":" -f1)
+  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
+    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
     PRE_SC_LINE=$(expr $SC_LINE - 1)
     SC_ENTRY="true"
+  else
+    SC_ENTRY="false"
   fi
 }
 
 write_printer_cfg_mainsail(){
   unset write_entries
-  if [ "$ADD_MAINSAIL_MACROS" = "true" ]; then
+  if [ "$MS_MACRO" = "false" ] && [ "$ADD_MS_MCAROS" = "true" ]; then
     write_entries+=("[include klipper_config/mainsail_macros.cfg]")
   fi
   if [ "$PAUSE_RESUME" = "false" ]; then
@@ -287,14 +314,14 @@ write_printer_cfg_mainsail(){
     PRE_SC_LINE="$(expr $SC_LINE - 1)a"
     for entry in "${write_entries[@]}"
     do
-      sed -i "$PRE_SC_LINE $entry" ${HOME}/klipper_config/printer.cfg
+      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
     done
   fi
   if [ "$SC_ENTRY" = "false" ]; then
-    LINE_COUNT="$(wc -l < ${HOME}/klipper_config/printer.cfg)a"
+    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
     for entry in "${write_entries[@]}"
     do
-      sed -i "$LINE_COUNT $entry" ${HOME}/klipper_config/printer.cfg
+      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
     done
   fi
   ok_msg "Done!"
@@ -358,7 +385,7 @@ write_default_trusted_clients(){
   #write the ip range in the first line below "trusted clients"
   #example: 192.168.1.0/24
   sed -i "/trusted_clients\:/a \ \ \ \ $DEFAULT_IP_RANGE" ${HOME}/moonraker.conf
-  ok_msg "IP range of ${cyan}$DEFAULT_IP_RANGE${default} written to moonraker.conf!"
+  ok_msg "IP range of ● $DEFAULT_IP_RANGE written to moonraker.conf!"
 }
 
 #############################################################
@@ -431,11 +458,17 @@ write_custom_trusted_clients(){
   fi
 }
 
-symlink_moonraker_log(){
-  #create a moonraker.log symlink in klipper_config-dir just for convenience
-  if [ "$SEL_MRLOG_SL" = "true" ]; then
+symlinks_moonraker(){
+  #create a klippy.log/moonraker.log symlink in
+  #klipper_config-dir just for convenience
+  if [ "$SEL_KLIPPYLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/klippy.log ]; then
+    status_msg "Creating klippy.log symlink ..."
+    ln -s /tmp/klippy.log ${HOME}/klipper_config
+    ok_msg "Symlink created!"
+  fi
+  if [ "$SEL_MRLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/moonraker.log ]; then
     status_msg "Creating moonraker.log symlink ..."
-    ln -s /tmp/moonraker.log ${HOME}/klipper_config/moonraker.log
+    ln -s /tmp/moonraker.log ${HOME}/klipper_config
     ok_msg "Symlink created!"
   fi
 }

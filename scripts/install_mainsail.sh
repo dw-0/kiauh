@@ -1,15 +1,11 @@
 install_mainsail(){
   if [ "$INST_MAINSAIL" = "true" ]; then
-    if [ -d $KLIPPER_DIR ]; then
-      disable_haproxy_lighttpd
-      unset SET_REVERSE_PROXY && SET_REVERSE_PROXY="true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
-      create_reverse_proxy "mainsail"
-      mainsail_setup
-      test_nginx
-      ok_msg "Mainsail installation complete!"; echo
-    else
-      ERROR_MSG=" Please install Klipper first!\n Skipping..."
-    fi
+    disable_haproxy_lighttpd
+    unset SET_REVERSE_PROXY && SET_REVERSE_PROXY="true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
+    create_reverse_proxy "mainsail"
+    mainsail_setup
+    test_nginx
+    ok_msg "Mainsail installation complete!"; echo
   fi
 }
 
