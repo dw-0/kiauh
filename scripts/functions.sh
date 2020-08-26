@@ -331,3 +331,76 @@ remove_branding(){
     esac
   done
 }
+
+install_extension_shell_command(){
+  echo
+  top_border
+  echo -e "| You are about to install the shell command extension. |"
+  echo -e "| Please make sure to read the instructions before you  |"
+  echo -e "| continue and remember that there are potential risks! |"
+  bottom_border
+  while true; do
+    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        if [ -d $KLIPPER_DIR/klippy/extras ] && [ ! -f $KLIPPER_DIR/klippy/extras/shell_command.py ] ; then
+          status_msg "Installing shell command extension ..."
+          stop_klipper
+          cp ${HOME}/kiauh/resources/shell_command.py $KLIPPER_DIR/klippy/extras
+          status_msg "Creating example macro ..."
+          create_shell_command_example
+          ok_msg "Example macro created!"
+          ok_msg "Shell command extension installed!"
+          restart_klipper
+        else
+          if [ ! -d $KLIPPER_DIR/klippy/extras ]; then
+            ERROR_MSG="Folder ~/klipper/klippy/extras not found!"
+          fi
+          if [ -f $KLIPPER_DIR/klippy/extras/shell_command.py ]; then
+            ERROR_MSG="Extension already installed!"
+          fi
+        fi
+        break;;
+      N|n|No|no)
+        break;;
+    esac
+  done
+}
+
+create_shell_command_example(){
+  unset SC_ENTRY
+  unset write_entries
+  #check for a SAVE_CONFIG entry
+  SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
+  if [[ $(grep "$SC" ${HOME}/printer.cfg) ]]; then
+    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
+    PRE_SC_LINE=$(expr $SC_LINE - 1)
+    SC_ENTRY="true"
+  else
+    SC_ENTRY="false"
+  fi
+  #example shell command
+  write_entries+=("[shell_command hello_world]\ncommand: echo hello world\ntimeout: 2.\nverbose: True")
+  #example macro
+  write_entries+=("[gcode_macro HELLO_WORLD]\ngcode:\n    RUN_SHELL_COMMAND CMD=hello_world")
+  if [ "${#write_entries[@]}" != "0" ]; then
+    write_entries+=("\\\n############################\n##### CREATED BY KIAUH #####\n############################")
+    write_entries=("############################\n" "${write_entries[@]}")
+  fi
+  #execute writing
+  status_msg "Writing to printer.cfg ..."
+  if [ "$SC_ENTRY" = "true" ]; then
+    PRE_SC_LINE="$(expr $SC_LINE - 1)a"
+    for entry in "${write_entries[@]}"
+    do
+      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
+    done
+  fi
+  if [ "$SC_ENTRY" = "false" ]; then
+    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
+    for entry in "${write_entries[@]}"
+    do
+      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
+    done
+  fi
+}
