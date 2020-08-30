@@ -162,15 +162,16 @@ get_user_selections_moonraker(){
     done
   #ask user for mainsail default macros
     while true; do
+      unset ADD_MS_MACROS
       echo
-      read -p "${cyan}###### Add the recommended Mainsail macros? (Y/n):${default} "
+      read -p "${cyan}###### Add the recommended Mainsail macros? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          ADD_MS_MCAROS="true";;
+          ADD_MS_MACROS="true";;
         N|n|No|no)
           echo -e "###### > No"
-          ADD_MS_MCAROS="false";;
+          ADD_MS_MACROS="false";;
       esac
       break
     done
@@ -212,6 +213,12 @@ moonraker_setup(){
   ok_msg "Download complete!"
   status_msg "Installing Moonraker ..."
   $MOONRAKER_DIR/scripts/install-moonraker.sh
+  #if [[ ! $(grep "klippy_uds" $KLIPPER_SERVICE2) ]]; then
+  #  status_msg "Patching /etc/default/klipper ..."
+  #  sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
+  #  ok_msg "Patching done!"
+  #fi
+  echo
   ok_msg "Moonraker successfully installed!"
 }
 
@@ -255,7 +262,7 @@ setup_printer_config_mainsail(){
     ok_msg "Done!"
   fi
   #copy mainsail_macro.cfg
-  if [ "$ADD_MS_MCAROS" = "true" ]; then
+  if [ "$ADD_MS_MACROS" = "true" ]; then
     status_msg "Create mainsail_macros.cfg ..."
     if [ ! -f ${HOME}/klipper_config/mainsail_macros.cfg ]; then
       cp ${HOME}/kiauh/resources/mainsail_macros.cfg ${HOME}/klipper_config
@@ -292,7 +299,7 @@ read_printer_cfg_mainsail(){
 
 write_printer_cfg_mainsail(){
   unset write_entries
-  if [ "$MS_MACRO" = "false" ] && [ "$ADD_MS_MCAROS" = "true" ]; then
+  if [ "$MS_MACRO" = "false" ] && [ "$ADD_MS_MACROS" = "true" ]; then
     write_entries+=("[include klipper_config/mainsail_macros.cfg]")
   fi
   if [ "$PAUSE_RESUME" = "false" ]; then
