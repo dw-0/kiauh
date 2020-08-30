@@ -10,8 +10,8 @@ advanced_ui(){
   echo -e "|  2) [Rollback]            |                           | "
   echo -e "|                           |  Mainsail:                | "
   echo -e "|  Firmware:                |  9) [Remove branding]     | "
-  echo -e "|  3) [Build Firmware]      |                           | "
-  echo -e "|  4) [Flash MCU]           |  Extensions:              | "
+  echo -e "|  3) [Build only]          |                           | "
+  echo -e "|  4) [Build + Flash MCU]   |  Extensions:              | "
   echo -e "|  5) [Get Printer-USB]     |  10) [Shell Command]      | "
   echo -e "|  6) [Write Printer-USB]   |                           | "
   echo -e "|  7) [Write DWC2 config]   |                           | "
@@ -51,13 +51,19 @@ advanced_menu(){
       3)
         clear
         print_header
+        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
         build_fw
         print_msg && clear_msg
         advanced_ui;;
       4)
         clear
         print_header
+        unset FLASH_FIRMWARE && FLASH_FIRMWARE="true"
         flash_routine
+        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
+        build_fw
+        unset CONFIRM_FLASHING && CONFIRM_FLASHING="true"
+        flash_mcu
         print_msg && clear_msg
         advanced_ui;;
       5)
