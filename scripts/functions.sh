@@ -13,14 +13,14 @@ check_euid(){
 
 locate_printer_cfg(){
   unset PRINTER_CFG
-  status_msg "Locating printer.cfg"
+  status_msg "Locating printer.cfg via /etc/default/klipper ..."
   if [ -f $KLIPPER_SERVICE2 ]; then
     #reads /etc/default/klipper and gets the default printer.cfg location
     KLIPPY_ARGS_LINE="$(grep "KLIPPY_ARGS=" /etc/default/klipper)"
     KLIPPY_ARGS_COUNT="$(grep -o " " <<< "$KLIPPY_ARGS_LINE" | wc -l)"
     i=1
     PRINTER_CFG=$(while [ "$i" != "$KLIPPY_ARGS_COUNT" ]; do grep -E "(\/[A-Za-z0-9\_-]+)+\/printer\.cfg" /etc/default/klipper | cut -d" " -f"$i"; i=$(( $i + 1 )); done | grep "printer.cfg")
-    ok_msg "printer.cfg found in: '$PRINTER_CFG'"
+    ok_msg "printer.cfg location: '$PRINTER_CFG'"
   else
     PRINTER_CFG=""
     warn_msg "Couldn't locate printer.cfg - File not found!"
