@@ -8,11 +8,11 @@ advanced_ui(){
   echo -e "|  Klipper:                 |  System:                  | "
   echo -e "|  1) [Switch Version]      |  6) [Change hostname]     | "
   echo -e "|  2) [Rollback]            |                           | "
-  echo -e "|                           |  Mainsail:                | "
-  echo -e "|  Firmware:                |  7) [Remove branding]     | "
+  echo -e "|                           |  Extensions:              | "
+  echo -e "|  Firmware:                |  7) [Shell Command]       | "
   echo -e "|  3) [Build only]          |                           | "
-  echo -e "|  4) [Build + Flash MCU]   |  Extensions:              | "
-  echo -e "|  5) [Get Printer-USB]     |  8) [Shell Command]       | "
+  echo -e "|  4) [Build + Flash MCU]   |                           | "
+  echo -e "|  5) [Get Printer-USB]     |                           | "
   echo -e "|                           |                           | "
 quit_footer
 }
@@ -76,13 +76,13 @@ advanced_menu(){
         create_custom_hostname
         print_msg && clear_msg
         advanced_ui;;
+      #7)
+      #  clear
+      #  print_header
+      #  remove_branding
+      #  print_msg && clear_msg
+      #  advanced_ui;;
       7)
-        clear
-        print_header
-        remove_branding
-        print_msg && clear_msg
-        advanced_ui;;
-      8)
         clear
         print_header
         install_extension_shell_command
