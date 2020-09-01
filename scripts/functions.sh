@@ -12,16 +12,18 @@ check_euid(){
 }
 
 locate_printer_cfg(){
+  unset PRINTER_CFG
+  status_msg "Locating printer.cfg via /etc/default/klipper ..."
   if [ -f $KLIPPER_SERVICE2 ]; then
     #reads /etc/default/klipper and gets the default printer.cfg location
-    PRINTER_CFG_LOC=$(grep "KLIPPY_ARGS=" /etc/default/klipper | cut -d" " -f2)
-    if [ -e $PRINTER_CFG_LOC ]; then
-      PRINTER_CFG=$(readlink -e $PRINTER_CFG_LOC)
-    else
-      PRINTER_CFG=""
-    fi
+    KLIPPY_ARGS_LINE="$(grep "KLIPPY_ARGS=" /etc/default/klipper)"
+    KLIPPY_ARGS_COUNT="$(grep -o " " <<< "$KLIPPY_ARGS_LINE" | wc -l)"
+    i=1
+    PRINTER_CFG=$(while [ "$i" != "$KLIPPY_ARGS_COUNT" ]; do grep -E "(\/[A-Za-z0-9\_-]+)+\/printer\.cfg" /etc/default/klipper | cut -d" " -f"$i"; i=$(( $i + 1 )); done | grep "printer.cfg")
+    ok_msg "printer.cfg location: '$PRINTER_CFG'"
   else
     PRINTER_CFG=""
+    warn_msg "Couldn't locate printer.cfg - File not found!"
   fi
 }
 
@@ -187,150 +189,39 @@ print_error(){
   fi
 }
 
-build_fw(){
-    if [ -d $KLIPPER_DIR ]; then
-      cd $KLIPPER_DIR && make menuconfig
-      status_msg "Building Firmware ..."
-      make clean && make && ok_msg "Firmware built!"
-    else
-      warn_msg "Can not build Firmware without a Klipper directory!"
-    fi
-}
-
-### grab the printers id
-get_printer_usb(){
-  warn_msg "Make sure your printer is the only USB device connected!"
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Press any key to continue ... " yn
-    echo -e "${default}"
-    case "$yn" in
-      *) break;;
-    esac
-  done
-  status_msg "Identifying the correct USB port ..."
-  sleep 3
-  if [ -e /dev/serial/by-id/* ]; then
-    if [ -e /dev/serial/by-id/* ]; then
-      PRINTER_USB=$(ls /dev/serial/by-id/*)
-      status_msg "The ID of your printer is:"
-      title_msg "$PRINTER_USB"
-      echo
-    else
-      warn_msg "Could not retrieve ID!"
-      echo
-    fi
-  elif [ -e /dev/serial/by-path/* ]; then
-    if [ -e /dev/serial/by-path/* ]; then
-      PRINTER_USB=$(ls /dev/serial/by-path/*)
-      status_msg "The path of your printer is:"
-      title_msg "$PRINTER_USB"
-      echo
-    else
-      warn_msg "Could not retrieve path!"
-      echo
-    fi
-  else
-    warn_msg "Printer not plugged in or not detectable!"
-    echo
-fi
-}
-
-write_printer_usb(){
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Do you want to write the ID to your printer.cfg? (Y/n): " yn
-    echo -e "${default}"
-    case "$yn" in
-      Y|y|Yes|yes|"")
-        backup_printer_cfg
-cat <<PRINTERUSB >> $PRINTER_CFG
-
-##########################
-### CREATED WITH KIAUH ###
-##########################
-[mcu]
-serial: $PRINTER_USB
-##########################
-##########################
-PRINTERUSB
-        echo
-        ok_msg "Config written!"
-        break;;
-      N|n|No|no) break;;
-    esac
-  done
-}
-
-flash_routine(){
-  echo -e "/=================================================\ "
-  echo -e "|     ${red}~~~~~~~~~~~ [ ATTENTION! ] ~~~~~~~~~~~~${default}     |"
-  echo -e "| Flashing a Smoothie based board for the first   |"
-  echo -e "| time with this script will certainly fail.      |"
-  echo -e "| This applies to boards like the BTT SKR V1.3 or |"
-  echo -e "| the newer SKR V1.4 (Turbo). You have to copy    |"
-  echo -e "| the firmware file to the microSD card manually  |"
-  echo -e "| and rename it to 'firmware.bin'.                |"
-  echo -e "|                                                 |"
-  echo -e "| You find the file in: ~/klipper/out/klipper.bin |"
-  echo -e "\=================================================/ "
-  echo
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Do you want to continue? (Y/n): " yn
-    echo -e "${default}"
-    case "$yn" in
-      Y|y|Yes|yes|"")
-      get_printer_usb && flash_mcu && write_printer_usb; break;;
-      N|n|No|no) break;;
-    esac
-  done
-}
-
-flash_mcu(){
-  stop_klipper
-  if ! make flash FLASH_DEVICE="$PRINTER_USB" ; then
-    warn_msg "Flashing failed!"
-    warn_msg "Please read the log above!"
-  else
-    ok_msg "Flashing successfull!"
-  fi
-  start_klipper
-}
-
-remove_branding(){
-  echo
-  top_border
-  echo -e "|  This action will remove the Voron brandings from     |"
-  echo -e "|  your Mainsail installation. You have to perform      |"
-  echo -e "|  this action again, everytime you updated Mainsail.   |"
-  bottom_border
-  while true; do
-    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
-    case "$yn" in
-      Y|y|Yes|yes|"")
-        cd $MAINSAIL_DIR/css
-        FILE=$(find -name "app.*.css" | cut -d"/" -f2)
-        status_msg "Patching file '$FILE' ..."
-        cp -n $KLIPPER_DIR/docs/img/klipper-logo-small.png $MAINSAIL_DIR/img/
-        #write extra lines to app.css
-        echo >> "$FILE"
-        cat < ${HOME}/kiauh/resources/app.css >> "$FILE"
-        ok_msg "File '$FILE' patched!"
-        status_msg "Setting new Favicon ..."
-        #backup old favicon
-        cp -n $MAINSAIL_DIR/favicon.ico $MAINSAIL_DIR/voron_favicon.ico
-        cp ${HOME}/kiauh/resources/favicon.ico $MAINSAIL_DIR/favicon.ico
-        ok_msg "Icon set!"
-        echo
-        ok_msg "Brandings removed!"
-        ok_msg "Clear browser cache and reload Mainsail (F5)!"
-        echo
-        break;;
-      N|n|No|no) break;;
-    esac
-  done
-}
+#remove_branding(){
+#  echo
+#  top_border
+#  echo -e "|  This action will remove the Voron brandings from     |"
+#  echo -e "|  your Mainsail installation. You have to perform      |"
+#  echo -e "|  this action again, everytime you updated Mainsail.   |"
+#  bottom_border
+#  while true; do
+#    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
+#    case "$yn" in
+#      Y|y|Yes|yes|"")
+#        cd $MAINSAIL_DIR/css
+#        FILE=$(find -name "app.*.css" | cut -d"/" -f2)
+#        status_msg "Patching file '$FILE' ..."
+#        cp -n $KLIPPER_DIR/docs/img/klipper-logo-small.png $MAINSAIL_DIR/img/
+#        #write extra lines to app.css
+#        echo >> "$FILE"
+#        cat < ${HOME}/kiauh/resources/app.css >> "$FILE"
+#        ok_msg "File '$FILE' patched!"
+#        status_msg "Setting new Favicon ..."
+#        #backup old favicon
+#        cp -n $MAINSAIL_DIR/favicon.ico $MAINSAIL_DIR/voron_favicon.ico
+#        cp ${HOME}/kiauh/resources/favicon.ico $MAINSAIL_DIR/favicon.ico
+#        ok_msg "Icon set!"
+#        echo
+#        ok_msg "Brandings removed!"
+#        ok_msg "Clear browser cache and reload Mainsail (F5)!"
+#        echo
+#        break;;
+#      N|n|No|no) break;;
+#    esac
+#  done
+#}
 
 install_extension_shell_command(){
   echo

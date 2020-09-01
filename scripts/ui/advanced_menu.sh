@@ -6,15 +6,13 @@ advanced_ui(){
   hr
   echo -e "|                           |                           | "
   echo -e "|  Klipper:                 |  System:                  | "
-  echo -e "|  1) [Switch Version]      |  8) [Change hostname]     | "
+  echo -e "|  1) [Switch Version]      |  6) [Change hostname]     | "
   echo -e "|  2) [Rollback]            |                           | "
-  echo -e "|                           |  Mainsail:                | "
-  echo -e "|  Firmware:                |  9) [Remove branding]     | "
-  echo -e "|  3) [Build Firmware]      |                           | "
-  echo -e "|  4) [Flash MCU]           |  Extensions:              | "
-  echo -e "|  5) [Get Printer-USB]     |  10) [Shell Command]      | "
-  echo -e "|  6) [Write Printer-USB]   |                           | "
-  echo -e "|  7) [Write DWC2 config]   |                           | "
+  echo -e "|                           |  Extensions:              | "
+  echo -e "|  Firmware:                |  7) [Shell Command]       | "
+  echo -e "|  3) [Build only]          |                           | "
+  echo -e "|  4) [Build + Flash MCU]   |                           | "
+  echo -e "|  5) [Get Printer-USB]     |                           | "
   echo -e "|                           |                           | "
 quit_footer
 }
@@ -51,13 +49,19 @@ advanced_menu(){
       3)
         clear
         print_header
+        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
         build_fw
         print_msg && clear_msg
         advanced_ui;;
       4)
         clear
         print_header
+        unset FLASH_FIRMWARE && FLASH_FIRMWARE="true"
         flash_routine
+        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
+        build_fw
+        unset CONFIRM_FLASHING && CONFIRM_FLASHING="true"
+        flash_mcu
         print_msg && clear_msg
         advanced_ui;;
       5)
@@ -69,28 +73,16 @@ advanced_menu(){
       6)
         clear
         print_header
-        get_printer_usb && write_printer_usb
-        print_msg && clear_msg
-        advanced_ui;;
-      7)
-        clear
-        print_header
-        create_dwc2fk_cfg
-        print_msg && clear_msg
-        advanced_ui;;
-      8)
-        clear
-        print_header
         create_custom_hostname
         print_msg && clear_msg
         advanced_ui;;
-      9)
-        clear
-        print_header
-        remove_branding
-        print_msg && clear_msg
-        advanced_ui;;
-      10)
+      #7)
+      #  clear
+      #  print_header
+      #  remove_branding
+      #  print_msg && clear_msg
+      #  advanced_ui;;
+      7)
         clear
         print_header
         install_extension_shell_command
