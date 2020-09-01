@@ -213,11 +213,24 @@ moonraker_setup(){
   ok_msg "Download complete!"
   status_msg "Installing Moonraker ..."
   $MOONRAKER_DIR/scripts/install-moonraker.sh
-  #if [[ ! $(grep "klippy_uds" $KLIPPER_SERVICE2) ]]; then
-  #  status_msg "Patching /etc/default/klipper ..."
-  #  sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
-  #  ok_msg "Patching done!"
-  #fi
+  #backup a possible existing printer.cfg at the old location
+  #and before patching in the new location
+  backup_printer_cfg
+  #patching new printer.cfg location to /etc/default/klipper
+  if ! grep "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
+    status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
+    sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" /etc/default/klipper
+    ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+  fi
+  #patching new UDS argument to /etc/default/klipper
+  if ! grep -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
+    status_msg "Patching unix domain socket to /etc/default/klipper ..."
+    #append the new argument to /tmp/klippy.log argument
+    sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
+    ok_msg "Patching done!"
+  fi
+  #re-run printer.cfg location function to read the new path for the printer.cfg
+  locate_printer_cfg
   echo
   ok_msg "Moonraker successfully installed!"
 }
@@ -243,12 +256,12 @@ check_for_folder_moonraker(){
 setup_printer_config_mainsail(){
   if [ "$PRINTER_CFG_FOUND" = "true" ]; then
     backup_printer_cfg
-    #create a printer.cfg symlink to make it accessible
-    #in the mainsail config editor if the printer.cfg is not
-    #located in klipper_config by default
-    if [ "$PRINTER_CFG" != "${HOME}/klipper_config/printer.cfg" ] && [ ! -f ${HOME}/klipper_config/printer.cfg ]; then
-      status_msg "Create printer.cfg symlink ..."
-      ln -s $PRINTER_CFG ${HOME}/klipper_config
+    #copy printer.cfg to new location if
+    #there is no printer.cfg at the new location already
+    if [ -f ${HOME}/printer.cfg ] && [ ! -f ${HOME}/klipper_config/printer.cfg ]; then
+      status_msg "Copy printer.cfg to new location ..."
+      cp ${HOME}/printer.cfg $PRINTER_CFG
+      ok_msg "printer.cfg location: '$PRINTER_CFG'"
       ok_msg "Done!"
     fi
     #check printer.cfg for necessary mainsail entries
@@ -256,9 +269,9 @@ setup_printer_config_mainsail(){
     write_printer_cfg_mainsail
   fi
   if [ "$SEL_DEF_CFG" = "true" ]; then
+    status_msg "Creating minimal default printer.cfg ..."
     create_default_mainsail_printer_cfg
-    status_msg "Create symlink in home directory ..."
-    ln -s ${HOME}/klipper_config/printer.cfg ${HOME}
+    ok_msg "printer.cfg location: '$PRINTER_CFG'"
     ok_msg "Done!"
   fi
   #copy mainsail_macro.cfg
@@ -284,7 +297,7 @@ read_printer_cfg_mainsail(){
   if [ ! $(grep '^\[display_status\]$' $PRINTER_CFG) ]; then
     DISPLAY_STATUS="false"
   fi
-  if [ ! "$(grep '^\[include klipper_config\/mainsail_macros\.cfg\]$' $PRINTER_CFG)" ]; then
+  if [ ! "$(grep '^\[include mainsail_macros\.cfg\]$' $PRINTER_CFG)" ]; then
     MS_MACRO="false"
   fi
   #check for a SAVE_CONFIG entry
@@ -300,7 +313,7 @@ read_printer_cfg_mainsail(){
 write_printer_cfg_mainsail(){
   unset write_entries
   if [ "$MS_MACRO" = "false" ] && [ "$ADD_MS_MACROS" = "true" ]; then
-    write_entries+=("[include klipper_config/mainsail_macros.cfg]")
+    write_entries+=("[include mainsail_macros.cfg]")
   fi
   if [ "$PAUSE_RESUME" = "false" ]; then
     write_entries+=("[pause_resume]")
