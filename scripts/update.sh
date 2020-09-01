@@ -57,7 +57,7 @@ update_mainsail(){
   stop_klipper
   bb4u "mainsail"
   status_msg "Updating Mainsail ..."
-  install_mainsail
+  mainsail_setup
   start_klipper
 }
 
