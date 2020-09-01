@@ -217,13 +217,13 @@ moonraker_setup(){
   #and before patching in the new location
   backup_printer_cfg
   #patching new printer.cfg location to /etc/default/klipper
-  if ! grep "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
+  if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
     status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
     sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" /etc/default/klipper
     ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
   fi
   #patching new UDS argument to /etc/default/klipper
-  if ! grep -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
+  if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
     status_msg "Patching unix domain socket to /etc/default/klipper ..."
     #append the new argument to /tmp/klippy.log argument
     sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
