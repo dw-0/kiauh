@@ -388,7 +388,7 @@ path: ~/sdcard
 
 [pause_resume]
 [display_status]
-[include klipper_config/mainsail_macros.cfg]
+[include mainsail_macros.cfg]
 
 ##########################
 ##########################
