@@ -24,7 +24,7 @@ system_check_moonraker(){
   status_msg "Initializing Moonraker installation ..."
   #check for existing printer.cfg and for the location
   locate_printer_cfg
-  if [ ! -z $PRINTER_CFG ]; then
+  if [ -f $PRINTER_CFG ]; then
     PRINTER_CFG_FOUND="true"
     PRINTER_CFG_LOC=$PRINTER_CFG
   else
