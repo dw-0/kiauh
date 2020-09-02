@@ -53,9 +53,12 @@ mainsail_dl_url(){
 
 mainsail_setup(){
   mainsail_dl_url
-  if [ ! -d $MAINSAIL_DIR ]; then
-    mkdir $MAINSAIL_DIR
+  #clean up an existing mainsail folder
+  if [ -d $MAINSAIL_DIR ]; then
+    rm -rf $MAINSAIL_DIR
   fi
+  #create fresh mainsail folder and download mainsail
+  mkdir $MAINSAIL_DIR
   cd $MAINSAIL_DIR
   status_msg "Downloading Mainsail v$MAINSAIL_VERSION ..."
   wget -q -O mainsail.zip $MAINSAIL_URL && status_msg "Extracting archive ..." && unzip -o mainsail.zip && rm mainsail.zip
