@@ -23,7 +23,7 @@ locate_printer_cfg(){
     ok_msg "printer.cfg location: '$PRINTER_CFG'"
   else
     PRINTER_CFG=""
-    warn_msg "Couldn't locate printer.cfg - File not found!"
+    warn_msg "Can't read /etc/default/klipper - File not found!"
   fi
 }
 

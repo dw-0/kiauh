@@ -216,6 +216,15 @@ moonraker_setup(){
   #backup a possible existing printer.cfg at the old location
   #and before patching in the new location
   backup_printer_cfg
+  patch_klipper_sysfile
+  #re-run printer.cfg location function to read the new path for the printer.cfg
+  locate_printer_cfg
+  echo
+  ok_msg "Moonraker successfully installed!"
+}
+
+patch_klipper_sysfile(){
+  status_msg "Checking /etc/default/klipper for necessary entries ..."
   #patching new printer.cfg location to /etc/default/klipper
   if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
     status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
@@ -229,10 +238,8 @@ moonraker_setup(){
     sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
     ok_msg "Patching done!"
   fi
-  #re-run printer.cfg location function to read the new path for the printer.cfg
-  locate_printer_cfg
+  ok_msg "Check complete!"
   echo
-  ok_msg "Moonraker successfully installed!"
 }
 
 check_for_folder_moonraker(){

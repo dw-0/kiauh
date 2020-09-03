@@ -70,6 +70,10 @@ update_moonraker(){
   else
     cd $MOONRAKER_DIR && git pull
   fi
+  #read default printer.cfg location for the patch function
+  locate_printer_cfg
+  #patch /etc/default/klipper if entries don't match
+  patch_klipper_sysfile
   ok_msg "Update complete!"
   start_moonraker && sleep 2 && start_klipper
 }
