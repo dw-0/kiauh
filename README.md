@@ -22,8 +22,7 @@ After you have successfully installed git, use the following commands in the giv
 cd ~
 git clone https://github.com/th33xitus/kiauh.git
 cd kiauh
-chmod +x ~/kiauh/kiauh.sh
-chmod +x ~/kiauh/scripts/*
+chmod +x kiauh.sh scripts/*
 ./kiauh.sh
 ```
 
