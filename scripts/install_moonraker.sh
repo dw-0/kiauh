@@ -432,19 +432,21 @@ setup_moonraker_conf(){
     cp ${HOME}/kiauh/resources/moonraker.conf ${HOME}
     ok_msg "moonraker.conf created!"
     status_msg "Writing trusted clients to config ..."
-    write_default_trusted_clients
+    write_default_trusted_client
     ok_msg "Trusted clients written!"
   fi
   #check for at least one trusted client in an already existing moonraker.conf
   #in no entry is found, write default trusted client
   if [ "$MOONRAKER_CONF_FOUND" = "true" ]; then
+    backup_moonraker_conf
     if grep "trusted_clients:" ${HOME}/moonraker.conf -q; then
       TC_LINE=$(grep -n "trusted_clients:" ${HOME}/moonraker.conf | cut -d ":" -f1)
       FIRST_IP_LINE=$(expr $TC_LINE + 1)
-      FIRST_IP=$(sed -n 2p ${HOME}/moonraker.conf | cut -d" " -f5)
-      if [[ ! $FIRST_IP =~ ([0-9].[0-9].[0-9].[0-9]) ]]; then
+      FIRST_IP=$(sed -n "$FIRST_IP_LINE"p ${HOME}/moonraker.conf | cut -d" " -f5)
+      #if [[ ! $FIRST_IP =~ ([0-9].[0-9].[0-9].[0-9]) ]]; then
+      if [ "$FIRST_IP" = "" ]; then
         status_msg "Writing trusted clients to config ..."
-        write_default_trusted_clients
+        write_default_trusted_client
         ok_msg "Trusted clients written!"
       fi
     fi
@@ -474,17 +476,13 @@ path: ~/sdcard
 DEFAULT_CFG
 }
 
-write_default_trusted_clients(){
-  DEFAULT_IP=$(hostname -I)
+write_default_trusted_client(){
+  DEFAULT_IP=$(hostname -I | cut -d" " -f1)
   status_msg "Your devices current IP adress is:\n${cyan}● $DEFAULT_IP ${default}"
-  #make IP of the device KIAUH is exectuted on as
-  #default trusted client and expand the IP range from 0 - 255
-  DEFAULT_IP_RANGE="$(echo "$DEFAULT_IP" | cut -d"." -f1-3).0/24"
-  status_msg "Writing the following IP range to moonraker.conf:\n${cyan}● $DEFAULT_IP_RANGE ${default}"
-  #write the ip range in the first line below "trusted clients"
-  #example: 192.168.1.0/24
-  sed -i "/trusted_clients\:/a \ \ \ \ $DEFAULT_IP_RANGE" ${HOME}/moonraker.conf
-  ok_msg "IP range of ● $DEFAULT_IP_RANGE written to moonraker.conf!"
+  #make IP of the device KIAUH is exectuted on as default trusted client
+  status_msg "Writing the following IP to moonraker.conf:\n${cyan}● $DEFAULT_IP ${default}"
+  sed -i "/trusted_clients\:/a \ \ \ \ $DEFAULT_IP" ${HOME}/moonraker.conf
+  ok_msg "IP ● $DEFAULT_IP written to moonraker.conf!"
 }
 
 #############################################################
@@ -587,6 +585,7 @@ handle_haproxy_lighttpd(){
         status_msg "Stopping haproxy service ..."
         sudo /etc/init.d/haproxy stop && ok_msg "Service stopped!"
       fi
+      status_msg "Removing haproxy ..."
       sudo apt-get remove haproxy -y
       sudo update-rc.d -f haproxy remove
       ok_msg "Haproxy removed!"
@@ -606,6 +605,7 @@ handle_haproxy_lighttpd(){
         status_msg "Stopping lighttpd service ..."
         sudo /etc/init.d/lighttpd stop && ok_msg "Service stopped!"
       fi
+      status_msg "Removing lighttpd ..."
       sudo apt-get remove lighttpd -y
       sudo update-rc.d -f lighttpd remove
       ok_msg "Lighttpd removed!"
@@ -617,12 +617,13 @@ handle_haproxy_lighttpd(){
 #############################################################
 
 test_api(){
+  HOST_IP=$(hostname -I | cut -d" " -f1)
   status_msg "Testing API ..."
   sleep 5
-  status_msg "API response from http://localhost:7125/printer/info :"
-  API_RESPONSE=$(curl -sG4m5 http://localhost:7125/printer/info)
+  status_msg "API response from http://$HOST_IP:7125/printer/info :"
+  API_RESPONSE=$(curl -sG4m5 http://$HOST_IP:7125/printer/info)
   echo -e "${cyan}$API_RESPONSE${default}"
-  if [ $(curl -sG4 "http://localhost:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+  if [ $(curl -sG4 "http://$HOST_IP:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
     echo; ok_msg "Klipper API is working correctly!"; echo
   else
     echo; warn_msg "Klipper API not working correctly!"; echo

@@ -16,6 +16,17 @@ backup_printer_cfg(){
   fi
 }
 
+backup_moonraker_conf(){
+  check_for_backup_dir
+  if [ -f ${HOME}/moonraker.conf ]; then
+    get_date
+    status_msg "Create backup of moonraker.conf ..."
+    cp ${HOME}/moonraker.conf $BACKUP_DIR/moonraker.conf."$current_date".backup && ok_msg "Backup complete!"
+  else
+    ok_msg "No moonraker.conf found! Skipping backup ..."
+  fi
+}
+
 read_bb4u_stat(){
   source_ini
   if [ ! "$backup_before_update" = "true" ]; then
