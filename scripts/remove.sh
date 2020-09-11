@@ -173,16 +173,14 @@ remove_octoprint(){
 
 remove_nginx(){
   if [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]  ; then
-    status_msg "Stopping and removing Nginx Service ..."
-    if [ -e /etc/init.d/nginx ]; then
-      sudo /etc/init.d/nginx stop && ok_msg "Nginx Service stopped!"
-      sudo rm /etc/init.d/nginx && ok_msg "Nginx Service removed!"
-    fi
-    if [ -e /etc/default/nginx ]; then
-      sudo rm /etc/default/nginx
+    if systemctl is-active nginx -q; then
+      status_msg "Stopping Nginx service ..."
+      sudo service nginx stop && sudo systemctl disable nginx
+      ok_msg "Service stopped!"
     fi
     status_msg "Purging Nginx from system ..."
     sudo apt-get purge nginx nginx-common -y
+    sudo update-rc.d -f nginx remove
     CONFIRM_MSG=" Nginx successfully removed!"
   else
     ERROR_MSG=" Looks like Nginx was already removed!\n Skipping..."
