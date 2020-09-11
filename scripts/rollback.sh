@@ -83,6 +83,9 @@ rollback_klipper(){
             break;;
           N|n|No|no) clear; advanced_menu; break;;
           Q|q) clear; advanced_menu; break;;
+          *)
+            print_unkown_cmd
+            print_msg && clear_msg;;
       esac
     done
   else

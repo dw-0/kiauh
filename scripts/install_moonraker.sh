@@ -81,12 +81,16 @@ get_user_selections_moonraker(){
     case "$yn" in
       Y|y|Yes|yes|"")
         echo -e "###### > Yes"
-        INST_MAINSAIL="true";;
+        INST_MAINSAIL="true"
+        break;;
       N|n|No|no)
         echo -e "###### > No"
-        INST_MAINSAIL="false";;
+        INST_MAINSAIL="false"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
-    break
   done
   #ask to change hostname if mainsail should be installed as well
   if [ "$INST_MAINSAIL" = "true" ]; then
@@ -110,12 +114,16 @@ get_user_selections_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          SEL_DEF_CFG="true";;
+          SEL_DEF_CFG="true"
+          break;;
         N|n|No|no)
           echo -e "###### > No"
-          SEL_DEF_CFG="false";;
+          SEL_DEF_CFG="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   fi
   #user selection for moonraker.log symlink
@@ -126,12 +134,16 @@ get_user_selections_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          SEL_KLIPPYLOG_SL="true";;
+          SEL_KLIPPYLOG_SL="true"
+          break;;
         N|n|No|no)
           echo -e "###### > No"
-          SEL_KLIPPYLOG_SL="false";;
+          SEL_KLIPPYLOG_SL="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   fi
   #user selection for moonraker.log symlink
@@ -142,12 +154,16 @@ get_user_selections_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          SEL_MRLOG_SL="true";;
+          SEL_MRLOG_SL="true"
+          break;;
         N|n|No|no)
           echo -e "###### > No"
-          SEL_MRLOG_SL="false";;
+          SEL_MRLOG_SL="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   fi
   #ask user for more trusted clients
@@ -163,12 +179,15 @@ get_user_selections_moonraker(){
           echo -e "###### > Yes"
           ADD_TRUSTED_CLIENT="true"
           custom_trusted_clients
-          ;;
+          break;;
         N|n|No|no|"")
           echo -e "###### > No"
-          ADD_TRUSTED_CLIENT="false";;
+          ADD_TRUSTED_CLIENT="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   #ask user for mainsail default macros
     while true; do
@@ -178,12 +197,16 @@ get_user_selections_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          ADD_MS_MACROS="true";;
+          ADD_MS_MACROS="true"
+          break;;
         N|n|No|no)
           echo -e "###### > No"
-          ADD_MS_MACROS="false";;
+          ADD_MS_MACROS="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   #ask user to disable octoprint when such installed service was found
   if [ "$OCTOPRINT_ENABLED" = "true" ]; then
@@ -198,12 +221,16 @@ get_user_selections_moonraker(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          DISABLE_OPRINT="true";;
+          DISABLE_OPRINT="true"
+          break;;
         N|n|No|no)
           echo -e "###### > No"
-          DISABLE_OPRINT="false";;
+          DISABLE_OPRINT="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   fi
   #notify user about haproxy or lighttpd services found and possible issues
@@ -541,7 +568,9 @@ custom_trusted_clients(){
             esac
           done
           break;;
-        *) trusted_arr+=($TRUSTED_IP);;
+        *)
+          trusted_arr+=($TRUSTED_IP)
+          break;;
       esac
     done
   fi

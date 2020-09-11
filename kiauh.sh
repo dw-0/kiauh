@@ -63,7 +63,7 @@ get_date(){
   current_date=$(date +"%Y-%m-%d_%H-%M")
 }
 print_unkown_cmd(){
-  ERROR_MSG=" Sorry i don't know that command!"
+  ERROR_MSG="Invalid command!"
 }
 
 print_msg(){

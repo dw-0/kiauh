@@ -133,6 +133,9 @@ octoprint_reverse_proxy_dialog(){
       N|n|No|no|"")
         SET_REVERSE_PROXY="false"
         break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
   done
 }

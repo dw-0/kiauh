@@ -222,7 +222,11 @@ remove_branding(){
         ok_msg "Clear browser cache and reload Mainsail (F5)!"
         echo
         break;;
-      N|n|No|no) break;;
+      N|n|No|no)
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
   done
 }
@@ -258,6 +262,9 @@ install_extension_shell_command(){
         break;;
       N|n|No|no)
         break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
   done
 }

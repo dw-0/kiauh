@@ -87,6 +87,9 @@ remove_moonraker(){
             echo -e "###### > No"
             REMOVE_MOONRAKER_CONF="false"
             break;;
+          *)
+            print_unkown_cmd
+            print_msg && clear_msg;;
         esac
       done
     fi
