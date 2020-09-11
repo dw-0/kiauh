@@ -1,5 +1,5 @@
 kiauh_status(){
-  if [ -d {$HOME}/kiauh/.git ]; then
+  if [ -d "${HOME}/kiauh/.git" ]; then
     cd ${HOME}/kiauh
     git fetch --all -q
     if git branch -a | grep "* master" -q; then
