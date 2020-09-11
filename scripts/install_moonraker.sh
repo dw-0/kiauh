@@ -2,6 +2,8 @@ install_moonraker(){
   system_check_moonraker
   #ask user for customization
   get_user_selections_moonraker
+  #disable/remove haproxy/lighttpd
+  handle_haproxy_lighttpd
   #moonraker main installation
   moonraker_setup
   check_for_folder_moonraker
@@ -52,6 +54,14 @@ system_check_moonraker(){
   if systemctl is-enabled octoprint.service -q 2>/dev/null; then
     unset OCTOPRINT_ENABLED
     OCTOPRINT_ENABLED="true"
+  fi
+  #check if haproxy is installed
+  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
+    HAPROXY_FOUND="true"
+  fi
+  #check if lighttpd is installed
+  if [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]]; then
+    LIGHTTPD_FOUND="true"
   fi
 }
 
@@ -196,6 +206,68 @@ get_user_selections_moonraker(){
       break
     done
   fi
+  #notify user about haproxy or lighttpd services found and possible issues
+  if [ "$HAPROXY_FOUND" = "true" ] || [ "$LIGHTTPD_FOUND" = "true" ]; then
+    while true; do
+      echo
+      top_border
+      echo -e "| ${red}Possibly disruptive/incompatible services found!${default}      |"
+      hr
+      if [ "$HAPROXY_FOUND" = "true" ]; then
+        echo -e "| ● haproxy                                             |"
+      fi
+      if [ "$LIGHTTPD_FOUND" = "true" ]; then
+        echo -e "| ● lighttpd                                            |"
+      fi
+      hr
+      echo -e "| Having those packages installed can lead to unwanted  |"
+      echo -e "| behaviour. It is recommend to remove those packages.  |"
+      echo -e "|                                                       |"
+      echo -e "| 1) Remove packages (recommend)                        |"
+      echo -e "| 2) Disable only (may cause issues)                    |"
+      echo -e "| ${red}3) Skip this step (not recommend)${default}                     |"
+      bottom_border
+      read -p "${cyan}###### Please choose:${default} " action
+      unset REMOVE_HAPROXY
+      unset REMOVE_LIGHTTPD
+      unset DISABLE_HAPROXY
+      unset DISABLE_LIGHTTPD
+      case "$action" in
+        1)
+          echo -e "###### > Remove packages"
+          if [ "$HAPROXY_FOUND" = "true" ]; then
+            DISABLE_HAPROXY="false"
+            REMOVE_HAPROXY="true"
+          fi
+          if [ "$LIGHTTPD_FOUND" = "true" ]; then
+            DISABLE_LIGHTTPD="false"
+            REMOVE_LIGHTTPD="true"
+          fi
+          break;;
+        2)
+          echo -e "###### > Disable only"
+          if [ "$HAPROXY_FOUND" = "true" ]; then
+            DISABLE_HAPROXY="true"
+            REMOVE_HAPROXY="false"
+          fi
+          if [ "$LIGHTTPD_FOUND" = "true" ]; then
+            DISABLE_LIGHTTPD="true"
+            REMOVE_LIGHTTPD="false"
+          fi
+          break;;
+        3)
+          echo -e "###### > Skip"
+          DISABLE_LIGHTTPD="false"
+          REMOVE_LIGHTTPD="false"
+          DISABLE_HAPROXY="false"
+          REMOVE_HAPROXY="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
+    done
+  fi
   status_msg "Installation will start now! Please wait ..."
 }
 
@@ -203,7 +275,7 @@ get_user_selections_moonraker(){
 #############################################################
 
 moonraker_setup(){
-  dep=(wget curl unzip)
+  dep=(wget curl unzip dfu-util nginx)
   dependency_check
   status_msg "Downloading Moonraker ..."
   if [ -d $MOONRAKER_DIR ]; then
@@ -497,6 +569,47 @@ symlinks_moonraker(){
     status_msg "Creating moonraker.log symlink ..."
     ln -s /tmp/moonraker.log ${HOME}/klipper_config
     ok_msg "Symlink created!"
+  fi
+}
+
+handle_haproxy_lighttpd(){
+  #handle haproxy
+  if [ "$DISABLE_HAPROXY" = "true" ]; then
+    if systemctl is-active haproxy -q; then
+      status_msg "Stopping haproxy service ..."
+      sudo /etc/init.d/haproxy stop && ok_msg "Service stopped!"
+    fi
+    sudo systemctl disable haproxy
+    ok_msg "Haproxy service disabled!"
+  else
+    if [ "$REMOVE_HAPROXY" = "true" ]; then
+      if systemctl is-active haproxy -q; then
+        status_msg "Stopping haproxy service ..."
+        sudo /etc/init.d/haproxy stop && ok_msg "Service stopped!"
+      fi
+      sudo apt-get remove haproxy -y
+      sudo update-rc.d -f haproxy remove
+      ok_msg "Haproxy removed!"
+    fi
+  fi
+  #handle lighttpd
+  if [ "$DISABLE_LIGHTTPD" = "true" ]; then
+    if systemctl is-active lighttpd -q; then
+      status_msg "Stopping lighttpd service ..."
+      sudo /etc/init.d/lighttpd stop && ok_msg "Service stopped!"
+    fi
+    sudo systemctl disable lighttpd
+    ok_msg "Lighttpd service disabled!"
+  else
+    if [ "$REMOVE_LIGHTTPD" = "true" ]; then
+      if systemctl is-active lighttpd -q; then
+        status_msg "Stopping lighttpd service ..."
+        sudo /etc/init.d/lighttpd stop && ok_msg "Service stopped!"
+      fi
+      sudo apt-get remove lighttpd -y
+      sudo update-rc.d -f lighttpd remove
+      ok_msg "Lighttpd removed!"
+    fi
   fi
 }
 

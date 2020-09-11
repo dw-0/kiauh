@@ -1,32 +1,11 @@
 install_mainsail(){
   if [ "$INST_MAINSAIL" = "true" ]; then
-    disable_haproxy_lighttpd
     unset SET_REVERSE_PROXY && SET_REVERSE_PROXY="true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
     create_reverse_proxy "mainsail"
     mainsail_setup
     test_nginx
     ok_msg "Mainsail installation complete!"; echo
   fi
-}
-
-disable_haproxy_lighttpd(){
-  disable_service=(haproxy lighttpd)
-  if systemctl is-active haproxy -q; then
-    status_msg "Stopping haproxy service ..."
-    sudo /etc/init.d/haproxy stop && ok_msg "Service stopped!"
-  fi
-  if systemctl is-active lighttpd -q; then
-    status_msg "Stopping lighttpd service ..."
-    sudo /etc/init.d/lighttpd stop && ok_msg "Service stopped!"
-  fi
-  for service in "${disable_service[@]}"
-  do
-    if [[ $(dpkg-query -f'${Status}' --show $service 2>/dev/null) = *\ installed ]]; then
-      status_msg "Disabling $service service ..."
-      sudo apt-get disable $service
-      ok_msg "$service service disabled!"
-    fi
-  done
 }
 
 test_nginx(){
