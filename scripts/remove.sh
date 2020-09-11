@@ -77,13 +77,13 @@ remove_moonraker(){
       unset REMOVE_MOONRAKER_CONF
       while true; do
         echo
-        read -p "${cyan}###### Delete moonraker.conf? (Y/n):${default} " yn
+        read -p "${cyan}###### Delete moonraker.conf? (y/N):${default} " yn
         case "$yn" in
-          Y|y|Yes|yes|"")
+          Y|y|Yes|yes)
             echo -e "###### > Yes"
             REMOVE_MOONRAKER_CONF="true"
             break;;
-          N|n|No|no)
+          N|n|No|no|"")
             echo -e "###### > No"
             REMOVE_MOONRAKER_CONF="false"
             break;;
