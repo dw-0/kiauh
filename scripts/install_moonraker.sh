@@ -432,7 +432,7 @@ setup_moonraker_conf(){
     cp ${HOME}/kiauh/resources/moonraker.conf ${HOME}
     ok_msg "moonraker.conf created!"
     status_msg "Writing trusted clients to config ..."
-    write_default_trusted_clients
+    write_default_trusted_client
     ok_msg "Trusted clients written!"
   fi
   #check for at least one trusted client in an already existing moonraker.conf
@@ -446,7 +446,7 @@ setup_moonraker_conf(){
       #if [[ ! $FIRST_IP =~ ([0-9].[0-9].[0-9].[0-9]) ]]; then
       if [ "$FIRST_IP" = "" ]; then
         status_msg "Writing trusted clients to config ..."
-        write_default_trusted_clients
+        write_default_trusted_client
         ok_msg "Trusted clients written!"
       fi
     fi
@@ -476,17 +476,13 @@ path: ~/sdcard
 DEFAULT_CFG
 }
 
-write_default_trusted_clients(){
-  DEFAULT_IP=$(hostname -I)
+write_default_trusted_client(){
+  DEFAULT_IP=$(hostname -I | cut -d" " -f1)
   status_msg "Your devices current IP adress is:\n${cyan}● $DEFAULT_IP ${default}"
-  #make IP of the device KIAUH is exectuted on as
-  #default trusted client and expand the IP range from 0 - 255
-  DEFAULT_IP_RANGE="$(echo "$DEFAULT_IP" | cut -d"." -f1-3).0/24"
-  status_msg "Writing the following IP range to moonraker.conf:\n${cyan}● $DEFAULT_IP_RANGE ${default}"
-  #write the ip range in the first line below "trusted clients"
-  #example: 192.168.1.0/24
-  sed -i "/trusted_clients\:/a \ \ \ \ $DEFAULT_IP_RANGE" ${HOME}/moonraker.conf
-  ok_msg "IP range of ● $DEFAULT_IP_RANGE written to moonraker.conf!"
+  #make IP of the device KIAUH is exectuted on as default trusted client
+  status_msg "Writing the following IP to moonraker.conf:\n${cyan}● $DEFAULT_IP ${default}"
+  sed -i "/trusted_clients\:/a \ \ \ \ $DEFAULT_IP" ${HOME}/moonraker.conf
+  ok_msg "IP ● $DEFAULT_IP written to moonraker.conf!"
 }
 
 #############################################################
