@@ -73,6 +73,24 @@ remove_moonraker(){
   )
   print_error "Moonraker" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
+    if [ -e ${HOME}/moonraker.conf ]; then
+      unset REMOVE_MOONRAKER_CONF
+      while true; do
+        echo
+        read -p "${cyan}###### Delete moonraker.conf? (Y/n):${default} " yn
+        case "$yn" in
+          Y|y|Yes|yes|"")
+            echo -e "###### > Yes"
+            REMOVE_MOONRAKER_CONF="true"
+            break;;
+          N|n|No|no)
+            echo -e "###### > No"
+            REMOVE_MOONRAKER_CONF="false"
+            break;;
+        esac
+      done
+    fi
+    status_msg "Processing ..."
     stop_moonraker
     #remove moonraker services
     if [[ -e /etc/init.d/moonraker || -e /etc/default/moonraker ]]; then
@@ -86,7 +104,7 @@ remove_moonraker(){
       rm -rf $MOONRAKER_DIR $MOONRAKER_ENV_DIR && ok_msg "Directories removed!"
     fi
     #remove moonraker.conf
-    if [ -e ${HOME}/moonraker.conf ]; then
+    if [ "$REMOVE_MOONRAKER_CONF" = "true" ]; then
       status_msg "Removing moonraker.conf ..."
       rm -rf ${HOME}/moonraker.conf && ok_msg "File removed!"
     fi
