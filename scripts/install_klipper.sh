@@ -25,6 +25,9 @@ get_user_selections_klipper(){
           echo -e "###### > No"
           BUILD_FIRMWARE="false"
           break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
     esac
   done
   #ask user for flashing mcu
@@ -41,6 +44,9 @@ get_user_selections_klipper(){
           echo -e "###### > No"
           FLASH_FIRMWARE="false"
           break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
     esac
   done
 }
@@ -93,6 +99,9 @@ flash_routine(){
           CONFIRM_FLASHING="false"
           CONFIRM_WRITE_PRINTER_USB="false"
           break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
     done
   fi

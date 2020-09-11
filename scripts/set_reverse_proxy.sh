@@ -41,6 +41,9 @@ create_custom_hostname(){
         user_input_hostname
         break;;
       N|n|No|no|"") break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
   done
 }
@@ -73,6 +76,9 @@ user_input_hostname(){
               echo -e "${red}Skip hostname change ...${default}"
               HOSTENAME_CONFIRM="false"
               break;;
+            *)
+              print_unkown_cmd
+              print_msg && clear_msg;;
           esac
         done
       break

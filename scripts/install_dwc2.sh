@@ -81,9 +81,12 @@ get_user_selections_dwc2(){
           echo -e "###### > Skip"
           SEL_DEF_CFG="false"
           SEL_CUS_CFG="false"
-          echo "${red}Skipping ...${default}"; break;;
+          echo "${red}Skipping ...${default}"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   fi
   #
@@ -107,12 +110,16 @@ get_user_selections_dwc2(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          DISABLE_OPRINT="true";;
+          DISABLE_OPRINT="true"
+          break;;
         N|n|No|no)
           echo -e "###### > No"
-          DISABLE_OPRINT="false";;
+          DISABLE_OPRINT="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
       esac
-      break
     done
   fi
   status_msg "Installation will start now! Please wait ..."
@@ -328,6 +335,9 @@ DWC2
         CONFIRM_CUSTOM_CFG="false"
         create_custom_dwc2_printer_cfg
         break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
   done
 }
@@ -352,6 +362,9 @@ dwc2_reverse_proxy_dialog(){
       N|n|No|no|"")
         SET_REVERSE_PROXY="false"
         break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
     esac
   done
 }
