@@ -71,15 +71,16 @@ backup_klipper(){
 }
 
 backup_dwc2(){
-  if [ -d $DWC2FK_DIR ] && [ -d $DWC2_DIR ]; then
+  if [ -d $DWC2FK_DIR ] && [ -d $DWC_ENV_DIR ] && [ -d $DWC2_DIR ]; then
     status_msg "Creating DWC2 Web UI backup ..."
     check_for_backup_dir
     get_date
     status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/dwc2-backups/"$current_date"
-    cp -r $DWC2FK_DIR $_ && cp -r $DWC2_DIR $_ && ok_msg "Backup complete!"
+    cp -r $DWC2FK_DIR $_ && cp -r $DWC_ENV_DIR $_ && cp -r $DWC2_DIR $_
+    ok_msg "Backup complete!"
   else
-    ERROR_MSG=" Can't backup dwc2-for-klipper and/or dwc2 directory!\n Not found!"
+    ERROR_MSG=" Can't backup dwc2-for-klipper-socket and/or dwc2 directory!\n Not found!"
   fi
 }
 

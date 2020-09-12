@@ -39,18 +39,13 @@ update_dwc2fk(){
     cd ${HOME} && git clone $DWC2FK_REPO
   else
     cd $DWC2FK_DIR && git pull
-    #create a web_dwc2.py symlink if not already existing
-    if [ -d $KLIPPER_DIR/klippy/extras ] && [ ! -e $WEB_DWC2 ]; then
-      status_msg "Creating web_dwc2.py Symlink ..."
-      ln -s $DWC2FK_DIR/web_dwc2.py $WEB_DWC2 && ok_msg "Symlink created!"
-    fi
   fi
   start_klipper
 }
 
 update_dwc2(){
   bb4u "dwc2"
-  install_dwc2
+  download_dwc2_webui
 }
 
 update_mainsail(){

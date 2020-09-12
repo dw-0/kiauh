@@ -44,7 +44,7 @@ dwc2_status(){
   dcount=0
   dwc2_data=(
     $DWC2FK_DIR
-    $WEB_DWC2
+    $DWC_ENV_DIR
     $DWC2_DIR
   )
   #count+1 for each found data-item from array
@@ -112,6 +112,9 @@ octoprint_status(){
     OCTOPRINT_STATUS="${yellow}Incomplete!${default}        "
   fi
 }
+
+#############################################################
+#############################################################
 
 #reading the log for the last branch that got checked out assuming that this is also the currently active branch.
 read_branch(){
@@ -184,6 +187,9 @@ compare_klipper_versions(){
   fi
 }
 
+#############################################################
+#############################################################
+
 read_dwc2fk_versions(){
   if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
     cd $DWC2FK_DIR
@@ -210,8 +216,8 @@ compare_dwc2fk_versions(){
 }
 
 read_local_dwc2_version(){
-  if [ -e $DWC2_DIR/web/version ]; then
-    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/web/version)
+  if [ -e $DWC2_DIR/version ]; then
+    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/version)
   else
     DWC2_LOCAL_VER="${red}-----${default}"
   fi
@@ -239,6 +245,9 @@ compare_dwc2_versions(){
     DWC2_REMOTE_VER="${green}$DWC2_REMOTE_VER${default}"
   fi
 }
+
+#############################################################
+#############################################################
 
 read_local_mainsail_version(){
   if [ -e $MAINSAIL_DIR/version ]; then

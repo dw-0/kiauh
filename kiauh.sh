@@ -17,9 +17,9 @@ KLIPPY_ENV_DIR=${HOME}/klippy-env
 KLIPPER_SERVICE1=/etc/init.d/klipper
 KLIPPER_SERVICE2=/etc/default/klipper
 #dwc2
-DWC2FK_DIR=${HOME}/dwc2-for-klipper
-DWC2_DIR=${HOME}/sdcard/dwc2
-WEB_DWC2=${HOME}/klipper/klippy/extras/web_dwc2.py
+DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
+DWC_ENV_DIR=${HOME}/dwc-env
+DWC2_DIR=${HOME}/sdcard/web
 #mainsail/moonraker
 MAINSAIL_DIR=${HOME}/mainsail
 MOONRAKER_DIR=${HOME}/moonraker
@@ -39,7 +39,7 @@ BACKUP_DIR=${HOME}/kiauh-backups
 KLIPPER_REPO=https://github.com/KevinOConnor/klipper.git
 ARKSINE_REPO=https://github.com/Arksine/klipper.git
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
-DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper.git
+DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
 MOONRAKER_REPO=https://github.com/Arksine/moonraker.git
 #branches
 BRANCH_MOONRAKER=Arksine/dev-moonraker-testing
