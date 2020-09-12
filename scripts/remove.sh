@@ -13,7 +13,6 @@ remove_klipper(){
       status_msg "Removing Klipper Service ..."
       sudo rm -rf /etc/init.d/klipper /etc/default/klipper
       sudo update-rc.d -f klipper remove
-      systemctl daemon-reload
       ok_msg "Klipper Service removed!"
     fi
     if [[ -d $KLIPPER_DIR || -d $KLIPPY_ENV_DIR ]]; then
@@ -50,7 +49,6 @@ remove_dwc2(){
       status_msg "Removing DWC2-for-Klipper-Socket Service ..."
       sudo rm -rf /etc/init.d/dwc /etc/default/dwc
       sudo update-rc.d -f dwc remove
-      sudo systemctl daemon-reload
       ok_msg "DWC2-for-Klipper-Socket Service removed!"
     fi
     if [ -d $DWC2FK_DIR ]; then
@@ -225,7 +223,6 @@ remove_nginx(){
     status_msg "Purging Nginx from system ..."
     sudo apt-get purge nginx nginx-common -y
     sudo update-rc.d -f nginx remove
-    sudo systemctl daemon-reload
     CONFIRM_MSG=" Nginx successfully removed!"
   else
     ERROR_MSG=" Looks like Nginx was already removed!\n Skipping..."
