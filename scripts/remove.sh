@@ -11,8 +11,10 @@ remove_klipper(){
     stop_klipper
     if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
       status_msg "Removing Klipper Service ..."
+      sudo rm -rf /etc/init.d/klipper /etc/default/klipper
       sudo update-rc.d -f klipper remove
-      sudo rm -rf /etc/init.d/klipper /etc/default/klipper && ok_msg "Klipper Service removed!"
+      systemctl daemon-reload
+      ok_msg "Klipper Service removed!"
     fi
     if [[ -d $KLIPPER_DIR || -d $KLIPPY_ENV_DIR ]]; then
       status_msg "Removing Klipper and klippy-env directory ..."
@@ -26,37 +28,49 @@ remove_klipper(){
   fi
 }
 
+#############################################################
+#############################################################
+
 remove_dwc2(){
   data_arr=(
-  $TORNADO_DIR1
-  $TORNADO_DIR2
+  /etc/init.d/dwc
+  /etc/default/dwc
   $DWC2FK_DIR
-  $WEB_DWC2
+  $DWC_ENV_DIR
   $DWC2_DIR
   )
-  print_error "DWC2-for-Klipper &\n DWC2 Web UI" && data_count=()
+  print_error "DWC2-for-Klipper-Socket &\n DWC2 Web UI" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
-    if [ -d $TORNADO_DIR1 ]; then
-    status_msg "Removing Tornado from klippy-env ..."
-    PYTHONDIR=$KLIPPY_ENV_DIR
-    $PYTHONDIR/bin/pip uninstall tornado -y
-    CONFIRM_MSG=" Tornado successfully removed!"
+    if systemctl is-active dwc -q; then
+      status_msg "Stopping DWC2-for-Klipper-Socket Service ..."
+      sudo /etc/init.d/dwc stop && sudo systemctl disable dwc
+      ok_msg "Service stopped!"
+    fi
+    if [[ -e /etc/init.d/dwc || -e /etc/default/dwc ]]; then
+      status_msg "Removing DWC2-for-Klipper-Socket Service ..."
+      sudo rm -rf /etc/init.d/dwc /etc/default/dwc
+      sudo update-rc.d -f dwc remove
+      sudo systemctl daemon-reload
+      ok_msg "DWC2-for-Klipper-Socket Service removed!"
     fi
     if [ -d $DWC2FK_DIR ]; then
-      status_msg "Removing DWC2-for-Klipper directory ..."
+      status_msg "Removing DWC2-for-Klipper-Socket directory ..."
       rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
     fi
-    if [ -e $WEB_DWC2 ]; then
-      status_msg "Removing web_dwc2.py Symlink from klippy ..."
-      rm -rf $WEB_DWC2 && ok_msg "File removed!"
+    if [ -d $DWC_ENV_DIR ]; then
+      status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
+      rm -rf $DWC_ENV_DIR && ok_msg "File removed!"
     fi
     if [ -d $DWC2_DIR ]; then
       status_msg "Removing DWC2 directory ..."
       rm -rf $DWC2_DIR && ok_msg "Directory removed!"
     fi
-    CONFIRM_MSG=" DWC2-for-Klipper & DWC2 Web UI successfully removed!"
+    CONFIRM_MSG=" DWC2-for-Klipper-Socket & DWC2 successfully removed!"
   fi
 }
+
+#############################################################
+#############################################################
 
 remove_moonraker(){
   data_arr=(
@@ -131,6 +145,9 @@ remove_moonraker(){
   fi
 }
 
+#############################################################
+#############################################################
+
 remove_mainsail(){
   data_arr=(
   $MAINSAIL_DIR
@@ -157,6 +174,9 @@ remove_mainsail(){
     CONFIRM_MSG="Mainsail successfully removed!"
   fi
 }
+
+#############################################################
+#############################################################
 
 remove_octoprint(){
   data_arr=(
@@ -192,6 +212,9 @@ remove_octoprint(){
   fi
 }
 
+#############################################################
+#############################################################
+
 remove_nginx(){
   if [[ $(dpkg-query -f'${Status}' --show nginx 2>/dev/null) = *\ installed ]]  ; then
     if systemctl is-active nginx -q; then
@@ -202,6 +225,7 @@ remove_nginx(){
     status_msg "Purging Nginx from system ..."
     sudo apt-get purge nginx nginx-common -y
     sudo update-rc.d -f nginx remove
+    sudo systemctl daemon-reload
     CONFIRM_MSG=" Nginx successfully removed!"
   else
     ERROR_MSG=" Looks like Nginx was already removed!\n Skipping..."
