@@ -1,22 +1,27 @@
-# KIAUH
+# KIAUH - Klipper Installation And Update Helper
 
-## Klipper Installation And Update Helper
-
-### ( THIS VERSION IS STILL WORK IN PROGRESS! )
+### ( This script is always work in progress! )
 
 ![main_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/main.png)
 
 ---
 
-## First things first: If you decide to use this script, be aware you are using it at your own risk!
+## Disclaimer: Usage of this script happens at your own risk!
 
-Give it a try if you want and if you have suggestions or encounter any problems, please report them to me.
+This script is "only" a helping hand for you to get set up in a fast and most comfortable way.
+
+**This does not mean, it will relieve you of using brain.exe!**
+
+Feel free to give it a try if you want. If you have suggestions or encounter any problems, please report them.
+
+---
 
 ## Instructions:
 
-If you haven't git already installed on your machine run `sudo apt-get install git -y` to install git first. You will need it anyways!
+For downloading this script it is best to have git installed on your machine or Raspberry Pi.
+If you haven't, please run `sudo apt-get install git -y` to install git first. You will need it anyways!
 
-After you have successfully installed git, use the following commands in the given order to download and execute the script.
+After git is installed, use the following commands in the given order to download and execute the script.
 
 ```shell
 cd ~
@@ -55,10 +60,13 @@ Mainsail Webinterface by [meteyou](https://github.com/meteyou) :
 
 - https://github.com/meteyou/mainsail
 
-DWC and DWC2 for Klipper by [Duet3D](https://github.com/Duet3D) and [Stephan3](https://github.com/Stephan3) :
+Duet Web Control by [Duet3D](https://github.com/Duet3D) :
 
 - https://github.com/Duet3D/DuetWebControl
-- https://github.com/Stephan3/dwc2-for-klipper
+
+DWC2-for-Klipper-Socket by [Stephan3](https://github.com/Stephan3) :
+
+- https://github.com/Stephan3/dwc2-for-klipper-socket
 
 OctoPrint Webinterface by [OctoPrint](https://github.com/OctoPrint) :
 
@@ -71,10 +79,10 @@ OctoPrint Webinterface by [OctoPrint](https://github.com/OctoPrint) :
 
 ### Core Functions:
 
-- **Install:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail, OctoPrint
-- **Update:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail
-- **Backup:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail, OctoPrint
-- **Remove:** Klipper Firmware, dwc2-for-klipper + Duet Web Control, Moonraker + Mainsail, OctoPrint
+- **Install:** Klipper Firmware, dwc2-for-klipper-socket + Duet Web Control, Moonraker + Mainsail, OctoPrint
+- **Update:** Klipper Firmware, dwc2-for-klipper-socket + Duet Web Control, Moonraker + Mainsail
+- **Backup:** Klipper Firmware, dwc2-for-klipper-socket + Duet Web Control, Moonraker + Mainsail, OctoPrint
+- **Remove:** Klipper Firmware, dwc2-for-klipper-socket + Duet Web Control, Moonraker + Mainsail, OctoPrint
 - Build Klipper Firmware
 - Flash MCU
 - Read ID of the currently connected printer (only one at the time)
