@@ -43,16 +43,16 @@ get_user_selections_dwc2(){
   while true; do
     echo
     top_border
-    echo -e "| Do you wan't to install dwc2-for-klipper-socket as    |"
+    echo -e "| Do you want to install dwc2-for-klipper-socket as     |"
     echo -e "| 1) Init.d Service                                     |"
     echo -e "| 2) Systemd Service                                    |"
     hr
     echo -e "| Please use the appropriate option for your chosen     |"
-    echo -e "| Linux distribution. If you are unsure what to pick,   |"
+    echo -e "| Linux distribution. If you are unsure what to select, |"
     echo -e "| please do a research before.                          |"
     hr
-    echo -e "| In case you are using Raspberry Pi OS, either option  |"
-    echo -e "| 1 or 2 will work.                                     |"
+    echo -e "| If you are using Raspberry Pi OS, either option 1 or  |"
+    echo -e "| 2 will work.                                          |"
     bottom_border
     read -p "${cyan}###### Please choose:${default} " action
     case "$action" in
