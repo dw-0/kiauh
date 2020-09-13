@@ -42,7 +42,7 @@ chmod +x kiauh.sh scripts/*
 - **Installing** of the Moonraker API 
 - **Updating** of all the listed installations above excluding OctoPrint. For updating OctoPrint, please use the OctoPrint interface!
 - **Removing** of all the listed installations above.
-- **Backup** of all the listed installationes above.
+- **Backup** of all the listed installations above.
 
 What also is possible:
 - Build the Klipper Firmware
