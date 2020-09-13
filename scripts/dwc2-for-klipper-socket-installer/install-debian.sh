@@ -62,7 +62,7 @@ WantedBy=multi-user.target
 Type=simple
 User=$DWC_USER
 RemainAfterExit=yes
-ExecStart=${PYTHONDIR}/bin/python3 ${SRCDIR}/dwc2-for-klipper-socket/web_dwc2.py
+ExecStart=${PYTHONDIR}/bin/python3 ${SRCDIR}/web_dwc2.py
 Restart=always
 RestartSec=10
 EOF
