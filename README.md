@@ -18,7 +18,7 @@ Feel free to give it a try if you want. If you have suggestions or encounter any
 
 ## Instructions:
 
-For downloading this script it is best to have git installed on your machine or Raspberry Pi.
+For downloading this script it is best to have git already installed.
 If you haven't, please run `sudo apt-get install git -y` to install git first. You will need it anyways!
 
 After git is installed, use the following commands in the given order to download and execute the script.
@@ -42,7 +42,7 @@ chmod +x kiauh.sh scripts/*
 
 ### For more information or instructions, please check out the appropriate repositories listed below:
 
-Klipper mainline by [KevinOConnor](https://github.com/KevinOConnor) :
+Klipper by [KevinOConnor](https://github.com/KevinOConnor) :
 
 - https://github.com/KevinOConnor/klipper
 
@@ -51,9 +51,8 @@ Klipper S-Curve fork by [dmbutyugin](https://github.com/dmbutyugin) :
 - https://github.com/dmbutyugin/klipper/tree/scurve-smoothing
 - https://github.com/dmbutyugin/klipper/tree/scurve-shaping
 
-Moonraker and Klipper fork by [Arksine](https://github.com/Arksine) :
+Moonraker by [Arksine](https://github.com/Arksine) :
 
-- https://github.com/Arksine/klipper/tree/dev-moonraker-testing
 - https://github.com/Arksine/moonraker
 
 Mainsail Webinterface by [meteyou](https://github.com/meteyou) :
