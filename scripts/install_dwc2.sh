@@ -37,6 +37,38 @@ system_check_dwc2(){
 }
 
 get_user_selections_dwc2(){
+  #let user choose to install systemd or init.d service
+  unset INST_SYSTEMD
+  unset INST_INITD
+  while true; do
+    echo
+    top_border
+    echo -e "| Do you want to install dwc2-for-klipper-socket as     |"
+    echo -e "| 1) Init.d Service                                     |"
+    echo -e "| 2) Systemd Service                                    |"
+    hr
+    echo -e "| Please use the appropriate option for your chosen     |"
+    echo -e "| Linux distribution. If you are unsure what to select, |"
+    echo -e "| please do a research before.                          |"
+    hr
+    echo -e "| If you are using Raspberry Pi OS, either option 1 or  |"
+    echo -e "| 2 will work.                                          |"
+    bottom_border
+    read -p "${cyan}###### Please choose:${default} " action
+    case "$action" in
+      1)
+        INST_INITD="true"
+        INST_SYSTEMD="false"
+        break;;
+      2)
+        INST_INITD="false"
+        INST_SYSTEMD="true"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
   #user selection for printer.cfg
   if [ "$PRINTER_CFG_FOUND" = "false" ]; then
     unset SEL_DEF_CFG
@@ -127,7 +159,11 @@ dwc2_setup(){
   cp -r ${SRCDIR}/kiauh/scripts/dwc2-for-klipper-socket-installer $DWC2FK_DIR/scripts
   ok_msg "Done!"
   status_msg "Starting service-installer ..."
-  $DWC2FK_DIR/scripts/install-octopi.sh
+  if [ "$INST_INITD" = "true" ] && [ "$INST_SYSTEMD" = "false" ]; then
+    $DWC2FK_DIR/scripts/install-octopi.sh
+  elif [ "$INST_INITD" = "false" ] && [ "$INST_SYSTEMD" = "true" ]; then
+    $DWC2FK_DIR/scripts/install-debian.sh
+  fi
   ok_msg "Service installed!"
   #patch /etc/default/klipper to append the uds argument
   patch_klipper_sysfile_dwc2

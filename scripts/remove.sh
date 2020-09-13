@@ -34,6 +34,7 @@ remove_dwc2(){
   data_arr=(
   /etc/init.d/dwc
   /etc/default/dwc
+  /etc/systemd/system/dwc.service
   $DWC2FK_DIR
   $DWC_ENV_DIR
   $DWC2_DIR
@@ -42,13 +43,22 @@ remove_dwc2(){
   if [ "$ERROR_MSG" = "" ]; then
     if systemctl is-active dwc -q; then
       status_msg "Stopping DWC2-for-Klipper-Socket Service ..."
-      sudo /etc/init.d/dwc stop && sudo systemctl disable dwc
+      sudo systemctl stop dwc && sudo systemctl disable dwc
       ok_msg "Service stopped!"
     fi
+    #remove if init.d service
     if [[ -e /etc/init.d/dwc || -e /etc/default/dwc ]]; then
+      status_msg "Init.d Service found ..."
       status_msg "Removing DWC2-for-Klipper-Socket Service ..."
       sudo rm -rf /etc/init.d/dwc /etc/default/dwc
       sudo update-rc.d -f dwc remove
+      ok_msg "DWC2-for-Klipper-Socket Service removed!"
+    fi
+    #remove if systemd service
+    if [ -e /etc/systemd/system/dwc.service ]; then
+      status_msg "Systemd Service found ..."
+      status_msg "Removing DWC2-for-Klipper-Socket Service ..."
+      sudo rm -rf /etc/systemd/system/dwc.service
       ok_msg "DWC2-for-Klipper-Socket Service removed!"
     fi
     if [ -d $DWC2FK_DIR ]; then
