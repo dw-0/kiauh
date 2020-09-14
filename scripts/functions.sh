@@ -52,6 +52,18 @@ restart_klipper(){
   fi
 }
 
+start_dwc(){
+  status_msg "Starting DWC-for-Klipper-Socket Service ..."
+  sudo systemctl start dwc
+  ok_msg "DWC-for-Klipper-Socket Service started!"
+}
+
+stop_dwc(){
+  status_msg "Stopping DWC-for-Klipper-Socket Service ..."
+  sudo systemctl stop dwc
+  ok_msg "DWC-for-Klipper-Socket Service stopped!"
+}
+
 start_moonraker(){
   if [ -e /etc/init.d/moonraker ]; then
     status_msg "Starting Moonraker Service ..."
