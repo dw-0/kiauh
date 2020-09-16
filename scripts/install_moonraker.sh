@@ -569,8 +569,7 @@ custom_trusted_clients(){
           done
           break;;
         *)
-          trusted_arr+=($TRUSTED_IP)
-          break;;
+          trusted_arr+=($TRUSTED_IP);;
       esac
     done
   fi
