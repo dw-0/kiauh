@@ -31,6 +31,14 @@ chmod +x kiauh.sh scripts/*
 ./kiauh.sh
 ```
 
+## Additional Instructions:
+If you need some more detailed instructions on how to install Klipper and Mainsail with KIAUH, check out this website:
+
+[Installing Klipper and Mainsail](https://3dp.tumbleweedlabs.com/firmware/klipper-firmware/installing-klipper-and-mainsail-on-your-raspberry-pi)
+
+Credits for these instructions go to [@tumbleweedlabs](https://github.com/tumbleweedlabs).
+Feel free to check out his work.
+
 ---
 
 ## Functions and Features:
