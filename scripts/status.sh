@@ -168,6 +168,7 @@ read_remote_klipper_commit(){
 }
 
 compare_klipper_versions(){
+  unset KLIPPER_UPDATE_AVAIL
   read_local_klipper_commit
   read_remote_klipper_commit
   #echo "Local: $LOCAL_COMMIT"
@@ -175,9 +176,12 @@ compare_klipper_versions(){
   if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
     LOCAL_COMMIT="${yellow}$LOCAL_COMMIT${default}"
     REMOTE_COMMIT="${green}$REMOTE_COMMIT${default}"
+    KLIPPER_UPDATE_AVAIL="true"
+    update_arr+=(update_klipper)
   else
     LOCAL_COMMIT="${green}$LOCAL_COMMIT${default}"
     REMOTE_COMMIT="${green}$REMOTE_COMMIT${default}"
+    KLIPPER_UPDATE_AVAIL="false"
   fi
 }
 
@@ -197,23 +201,30 @@ read_dwc2fk_versions(){
 }
 
 compare_dwc2fk_versions(){
+  unset DWC2FK_UPDATE_AVAIL
   read_dwc2fk_versions
   #echo "Local: $LOCAL_DWC2FK_COMMIT"
   #echo "Remote: $REMOTE_DWC2FK_COMMIT"
   if [ "$LOCAL_DWC2FK_COMMIT" != "$REMOTE_DWC2FK_COMMIT" ]; then
     LOCAL_DWC2FK_COMMIT="${yellow}$LOCAL_DWC2FK_COMMIT${default}"
     REMOTE_DWC2FK_COMMIT="${green}$REMOTE_DWC2FK_COMMIT${default}"
+    DWC2FK_UPDATE_AVAIL="true"
+    update_arr+=(update_dwc2fk)
   else
     LOCAL_DWC2FK_COMMIT="${green}$LOCAL_DWC2FK_COMMIT${default}"
     REMOTE_DWC2FK_COMMIT="${green}$REMOTE_DWC2FK_COMMIT${default}"
+    DWC2FK_UPDATE_AVAIL="false"
   fi
 }
 
 read_local_dwc2_version(){
+  unset DWC2_IS_INSTALLED
   if [ -e $DWC2_DIR/version ]; then
     DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/version)
+    DWC2_IS_INSTALLED="true"
   else
     DWC2_LOCAL_VER="${red}-----${default}"
+    DWC2_IS_INSTALLED="false"
   fi
 }
 
@@ -227,16 +238,20 @@ read_remote_dwc2_version(){
 }
 
 compare_dwc2_versions(){
+  unset DWC2_UPDATE_AVAIL
   read_local_dwc2_version
   read_remote_dwc2_version
   #echo "Local: $DWC2_LOCAL_VER"
   #echo "Remote: $DWC2_REMOTE_VER"
-  if [ "$DWC2_LOCAL_VER" != "$DWC2_REMOTE_VER" ]; then
+  if [ "$DWC2_LOCAL_VER" != "$DWC2_REMOTE_VER" ] && [ "$DWC2_IS_INSTALLED" = "true" ]; then
     DWC2_LOCAL_VER="${yellow}$DWC2_LOCAL_VER${default}"
     DWC2_REMOTE_VER="${green}$DWC2_REMOTE_VER${default}"
+    DWC2_UPDATE_AVAIL="true"
+    update_arr+=(update_dwc2)
   else
     DWC2_LOCAL_VER="${green}$DWC2_LOCAL_VER${default}"
     DWC2_REMOTE_VER="${green}$DWC2_REMOTE_VER${default}"
+    DWC2_UPDATE_AVAIL="false"
   fi
 }
 
@@ -244,10 +259,13 @@ compare_dwc2_versions(){
 #############################################################
 
 read_local_mainsail_version(){
+  unset MAINSAIL_IS_INSTALLED
   if [ -e $MAINSAIL_DIR/version ]; then
     MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/version)
+    MAINSAIL_IS_INSTALLED="true"
   else
     MAINSAIL_LOCAL_VER="${red}-----${default}"
+    MAINSAIL_IS_INSTALLED="false"
   fi
 }
 
@@ -262,16 +280,20 @@ read_remote_mainsail_version(){
 }
 
 compare_mainsail_versions(){
+  unset MAINSAIL_UPDATE_AVAIL
   read_local_mainsail_version
   read_remote_mainsail_version
   #echo "Local: $MAINSAIL_LOCAL_VER"
   #echo "Remote: $MAINSAIL_REMOTE_VER"
-  if [ "$MAINSAIL_LOCAL_VER" != "$MAINSAIL_REMOTE_VER" ]; then
+  if [ "$MAINSAIL_LOCAL_VER" != "$MAINSAIL_REMOTE_VER" ] && [ "$MAINSAIL_IS_INSTALLED" = "true" ]; then
     MAINSAIL_LOCAL_VER="${yellow}$MAINSAIL_LOCAL_VER${default}"
     MAINSAIL_REMOTE_VER="${green}$MAINSAIL_REMOTE_VER${default}"
+    MAINSAIL_UPDATE_AVAIL="true"
+    update_arr+=(update_mainsail)
   else
     MAINSAIL_LOCAL_VER="${green}$MAINSAIL_LOCAL_VER${default}"
     MAINSAIL_REMOTE_VER="${green}$MAINSAIL_REMOTE_VER${default}"
+    MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
 
@@ -288,19 +310,24 @@ read_moonraker_versions(){
 }
 
 compare_moonraker_versions(){
+  unset MOONRAKER_UPDATE_AVAIL
   read_moonraker_versions
   #echo "Local: $LOCAL_MOONRAKER_COMMIT"
   #echo "Remote: $REMOTE_MOONRAKER_COMMIT"
   if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
     LOCAL_MOONRAKER_COMMIT="${yellow}$LOCAL_MOONRAKER_COMMIT${default}"
     REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+    MOONRAKER_UPDATE_AVAIL="true"
+    update_arr+=(update_moonraker)
   else
     LOCAL_MOONRAKER_COMMIT="${green}$LOCAL_MOONRAKER_COMMIT${default}"
     REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+    MOONRAKER_UPDATE_AVAIL="false"
   fi
 }
 
 ui_print_versions(){
+  unset update_arr
   compare_klipper_versions
   compare_dwc2fk_versions
   compare_dwc2_versions

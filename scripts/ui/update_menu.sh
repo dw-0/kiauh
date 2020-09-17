@@ -2,16 +2,16 @@ update_ui(){
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
-  echo -e "|  It is a good idea to check the following website     | "
-  echo -e "|  for important software changes to the config file    | "
-  echo -e "|  >> BEFORE << updating your klipper installation:     | "
+  echo -e "|  Check the following website for important software   | "
+  echo -e "|  changes to the config file before updating Klipper:  | "
   echo -e "|                                                       | "
   echo -e "|  ${yellow}https://www.klipper3d.org/Config_Changes.html${default}        | "
   bottom_border
   top_border
   echo -e "|  0) $BB4U_STATUS| "
   hr
-  echo -e "|                        |  Local Vers:  | Remote Vers: | "
+  echo -e "|  a) [Update all]       |  Local Vers:  | Remote Vers: | "
+  echo -e "|                        |               |              | "
   echo -e "|  Firmware:             |               |              | "
   echo -e "|  1) [Klipper]          |  $(echo "$LOCAL_COMMIT")     | $(echo "$REMOTE_COMMIT")     | "
   echo -e "|                        |               |              | "
@@ -70,6 +70,12 @@ update_menu(){
         clear
         print_header
         update_mainsail && ui_print_versions
+        print_msg && clear_msg
+        update_ui;;
+      a)
+        clear
+        print_header
+        update_all && ui_print_versions
         print_msg && clear_msg
         update_ui;;
       Q|q)
