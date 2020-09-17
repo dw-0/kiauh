@@ -32,24 +32,21 @@ source_ini(){
 }
 
 start_klipper(){
-  if [ -e /etc/init.d/klipper ]; then
-    status_msg "Starting Klipper Service ..."
-    sudo /etc/init.d/klipper start && sleep 2 && ok_msg "Klipper Service started!"
-  fi
+  status_msg "Starting Klipper Service ..."
+  sudo systemctl start klipper
+  ok_msg "Klipper Service started!"
 }
 
 stop_klipper(){
-  if [ -e /etc/init.d/klipper ]; then
-    status_msg "Stopping Klipper Service ..."
-    sudo /etc/init.d/klipper stop && sleep 2 && ok_msg "Klipper Service stopped!"
-  fi
+  status_msg "Stopping Klipper Service ..."
+  sudo systemctl stop klipper
+  ok_msg "Klipper Service stopped!"
 }
 
 restart_klipper(){
-  if [ -e /etc/init.d/klipper ]; then
-    status_msg "Restarting Klipper Service ..."
-    sudo /etc/init.d/klipper restart && sleep 2 && ok_msg "Klipper Service restarted!"
-  fi
+  status_msg "Restarting Klipper Service ..."
+  sudo systemctl restart klipper
+  ok_msg "Klipper Service restarted!"
 }
 
 start_dwc(){
@@ -65,45 +62,39 @@ stop_dwc(){
 }
 
 start_moonraker(){
-  if [ -e /etc/init.d/moonraker ]; then
-    status_msg "Starting Moonraker Service ..."
-    sudo /etc/init.d/moonraker start && sleep 2 && ok_msg "Moonraker Service started!"
-  fi
+  status_msg "Starting Moonraker Service ..."
+  sudo systemctl start moonraker
+  ok_msg "Moonraker Service started!"
 }
 
 stop_moonraker(){
-  if [ -e /etc/init.d/moonraker ]; then
-    status_msg "Stopping Moonraker Service ..."
-    sudo /etc/init.d/moonraker stop && sleep 2 && ok_msg "Moonraker Service stopped!"
-  fi
+  status_msg "Stopping Moonraker Service ..."
+  sudo systemctl stop moonraker
+  ok_msg "Moonraker Service stopped!"
 }
 
 restart_moonraker(){
-  if [ -e /etc/init.d/moonraker ]; then
-    status_msg "Restarting Moonraker Service ..."
-    sudo /etc/init.d/moonraker restart && sleep 2 && ok_msg "Moonraker Service restarted!"
-  fi
+  status_msg "Restarting Moonraker Service ..."
+  sudo systemctl restart moonraker
+  ok_msg "Moonraker Service restarted!"
 }
 
 start_octoprint(){
-  if [ -e /etc/init.d/octoprint ]; then
     status_msg "Starting OctoPrint Service ..."
-    sudo /etc/init.d/octoprint start && sleep 2 && ok_msg "OctoPrint Service started!"
-  fi
+    sudo systemctl start octoprint
+    ok_msg "OctoPrint Service started!"
 }
 
 stop_octoprint(){
-  if [ -e /etc/init.d/octoprint ]; then
     status_msg "Stopping OctoPrint Service ..."
-    sudo /etc/init.d/octoprint stop && sleep 2 && ok_msg "OctoPrint Service stopped!"
-  fi
+    sudo systemctl stop octoprint
+    ok_msg "OctoPrint Service stopped!"
 }
 
 restart_octoprint(){
-  if [ -e /etc/init.d/octoprint ]; then
     status_msg "Restarting OctoPrint Service ..."
-    sudo /etc/init.d/octoprint restart && sleep 2 && ok_msg "OctoPrint Service restarted!"
-  fi
+    sudo systemctl restart octoprint
+    ok_msg "OctoPrint Service restarted!"
 }
 
 enable_octoprint_service(){
