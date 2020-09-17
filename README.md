@@ -59,7 +59,7 @@ What also is possible:
 - Write necessary entries to your printer.cfg, some of them customizable right in the CLI.
 
 For a list of additional features and their descriptions please see:
-[Feature List](https://github.com/th33xitus/kiauh/blob/work-13092020/docs/features.md)
+[Feature List](https://github.com/th33xitus/kiauh/blob/master/docs/features.md)
 
 ---
 
