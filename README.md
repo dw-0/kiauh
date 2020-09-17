@@ -2,7 +2,7 @@
 
 ### ( This script is always work in progress! )
 
-![main_menu](https://raw.githubusercontent.com/th33xitus/kiauh/dev-2.0/resources/screenshots/main.png)
+![main_menu](https://github.com/th33xitus/kiauh/blob/master/resources/screenshots/main.png)
 
 ---
 
