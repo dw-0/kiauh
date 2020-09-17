@@ -65,6 +65,7 @@ For a list of additional features and their descriptions please see:
 
 ## Notes:
 
+- Important changes to the script will be listet in the [Changelog](https://github.com/th33xitus/kiauh/blob/master/docs/changelog.md)
 - Tested only on Raspbian Buster Lite
 - During the use of this script you will be asked for your sudo password. There are several functions involved which need sudo privileges.
 - Prevent simultaneous use of DWC2 and OctoPrint if possible. There have been reports that DWC2 does strange things while the OctoPrint service is running while using the DWC2 webinterface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
