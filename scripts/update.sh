@@ -7,6 +7,50 @@ update_kiauh(){
   fi
 }
 
+update_all(){
+  while true; do
+    if [ "${#update_arr[@]}" = "0" ]; then
+      CONFIRM_MSG="Everything is already up to date!"
+      echo; break
+    fi
+    echo
+    top_border
+    echo -e "|  The following installations will be updated:         |"
+    if [ "$KLIPPER_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● Klipper${default}                                            |"
+    fi
+    if [ "$DWC2FK_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● DWC2-for-Klipper-Socket${default}                            |"
+    fi
+    if [ "$DWC2_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● Duet Web Control${default}                                   |"
+    fi
+    if [ "$MOONRAKER_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● Moonraker${default}                                          |"
+    fi
+    if [ "$MAINSAIL_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● Mainsail${default}                                           |"
+    fi
+    bottom_border
+    if [ "${#update_arr[@]}" != "0" ]; then
+      read -p "${cyan}###### Do you want to proceed? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          for update in ${update_arr[@]}
+          do
+            $update
+          done
+          break;;
+        N|n|No|no)
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
+    fi
+  done
+}
+
 update_klipper(){
   stop_klipper
   if [ ! -d $KLIPPER_DIR ]; then
@@ -49,11 +93,9 @@ update_dwc2(){
 }
 
 update_mainsail(){
-  stop_klipper
   bb4u "mainsail"
   status_msg "Updating Mainsail ..."
   mainsail_setup
-  start_klipper
 }
 
 update_moonraker(){
