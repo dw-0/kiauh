@@ -32,6 +32,7 @@ chmod +x kiauh.sh scripts/*
 ```
 
 ## Additional Instructions:
+
 If you need some more detailed instructions on how to install Klipper and Mainsail with KIAUH, check out this website:
 
 [Installing Klipper and Mainsail](https://3dp.tumbleweedlabs.com/firmware/klipper-firmware/installing-klipper-and-mainsail-on-your-raspberry-pi)
@@ -47,14 +48,15 @@ Feel free to check out his work.
 
 - **Installing** of the Klipper Firmware to your Raspberry Pi or other Linux Distribution which makes use of init.d.
 - **Installing** of several different web interfaces such as Duet Web Control, Mainsail or OctoPrint including their dependencies.
-- **Installing** of the Moonraker API 
+- **Installing** of the Moonraker API
 - **Updating** of all the listed installations above excluding OctoPrint. For updating OctoPrint, please use the OctoPrint interface!
 - **Removing** of all the listed installations above.
 - **Backup** of all the listed installations above.
 
 What also is possible:
+
 - Build the Klipper Firmware
-- Flash the MCU 
+- Flash the MCU
 - Read ID of the currently connected printer (only one at the time)
 - Write necessary entries to your printer.cfg, some of them customizable right in the CLI.
 
@@ -65,7 +67,7 @@ For a list of additional features and their descriptions please see:
 
 ## Notes:
 
-- Important changes to the script will be listet in the [Changelog](https://github.com/th33xitus/kiauh/blob/master/docs/changelog.md)
+- Important changes to the script will be listed in the [Changelog](https://github.com/th33xitus/kiauh/blob/master/docs/changelog.md)
 - Tested only on Raspbian Buster Lite
 - During the use of this script you will be asked for your sudo password. There are several functions involved which need sudo privileges.
 - Prevent simultaneous use of DWC2 and OctoPrint if possible. There have been reports that DWC2 does strange things while the OctoPrint service is running while using the DWC2 webinterface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
