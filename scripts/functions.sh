@@ -33,32 +33,27 @@ source_ini(){
 
 start_klipper(){
   status_msg "Starting Klipper Service ..."
-  sudo systemctl start klipper
-  ok_msg "Klipper Service started!"
+  sudo systemctl start klipper && ok_msg "Klipper Service started!"
 }
 
 stop_klipper(){
   status_msg "Stopping Klipper Service ..."
-  sudo systemctl stop klipper
-  ok_msg "Klipper Service stopped!"
+  sudo systemctl stop klipper && ok_msg "Klipper Service stopped!"
 }
 
 restart_klipper(){
   status_msg "Restarting Klipper Service ..."
-  sudo systemctl restart klipper
-  ok_msg "Klipper Service restarted!"
+  sudo systemctl restart klipper && ok_msg "Klipper Service restarted!"
 }
 
 start_dwc(){
   status_msg "Starting DWC-for-Klipper-Socket Service ..."
-  sudo systemctl start dwc
-  ok_msg "DWC-for-Klipper-Socket Service started!"
+  sudo systemctl start dwc && ok_msg "DWC-for-Klipper-Socket Service started!"
 }
 
 stop_dwc(){
   status_msg "Stopping DWC-for-Klipper-Socket Service ..."
-  sudo systemctl stop dwc
-  ok_msg "DWC-for-Klipper-Socket Service stopped!"
+  sudo systemctl stop dwc && ok_msg "DWC-for-Klipper-Socket Service stopped!"
 }
 
 start_moonraker(){
@@ -69,32 +64,27 @@ start_moonraker(){
 
 stop_moonraker(){
   status_msg "Stopping Moonraker Service ..."
-  sudo systemctl stop moonraker
-  ok_msg "Moonraker Service stopped!"
+  sudo systemctl stop moonraker && ok_msg "Moonraker Service stopped!"
 }
 
 restart_moonraker(){
   status_msg "Restarting Moonraker Service ..."
-  sudo systemctl restart moonraker
-  ok_msg "Moonraker Service restarted!"
+  sudo systemctl restart moonraker && ok_msg "Moonraker Service restarted!"
 }
 
 start_octoprint(){
-    status_msg "Starting OctoPrint Service ..."
-    sudo systemctl start octoprint
-    ok_msg "OctoPrint Service started!"
+  status_msg "Starting OctoPrint Service ..."
+  sudo systemctl start octoprint && ok_msg "OctoPrint Service started!"
 }
 
 stop_octoprint(){
-    status_msg "Stopping OctoPrint Service ..."
-    sudo systemctl stop octoprint
-    ok_msg "OctoPrint Service stopped!"
+  status_msg "Stopping OctoPrint Service ..."
+  sudo systemctl stop octoprint && ok_msg "OctoPrint Service stopped!"
 }
 
 restart_octoprint(){
-    status_msg "Restarting OctoPrint Service ..."
-    sudo systemctl restart octoprint
-    ok_msg "OctoPrint Service restarted!"
+  status_msg "Restarting OctoPrint Service ..."
+  sudo systemctl restart octoprint && ok_msg "OctoPrint Service restarted!"
 }
 
 enable_octoprint_service(){
