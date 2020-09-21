@@ -182,48 +182,6 @@ print_error(){
   fi
 }
 
-remove_branding(){
-  echo
-  top_border
-  echo -e "|  This action will replace the Mainsail logo and       |"
-  echo -e "|  Favicon with the Klipper logo. Also the Voron        |"
-  echo -e "|  background image of the sidebar will be replaced by  |"
-  echo -e "|  a carbon fibre style CSS pattern.                    |"
-  hr
-  echo -e "|  Note: You have to perform this action again,         |"
-  echo -e "|  everytime you update Mainsail.                       |"
-  bottom_border
-  while true; do
-    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
-    case "$yn" in
-      Y|y|Yes|yes|"")
-        cd $MAINSAIL_DIR/css
-        FILE=$(find -name "app.*.css" | cut -d"/" -f2)
-        status_msg "Patching file '$FILE' ..."
-        cp -n $KLIPPER_DIR/docs/img/klipper-logo-small.png $MAINSAIL_DIR/img/
-        #write extra lines to app.css
-        echo >> "$FILE"
-        cat < ${HOME}/kiauh/resources/app.css >> "$FILE"
-        ok_msg "File '$FILE' patched!"
-        status_msg "Setting new Favicon ..."
-        #backup old favicon
-        cp -n $MAINSAIL_DIR/favicon.ico $MAINSAIL_DIR/voron_favicon.ico
-        cp ${HOME}/kiauh/resources/favicon.ico $MAINSAIL_DIR/favicon.ico
-        ok_msg "Icon set!"
-        echo
-        ok_msg "Brandings removed!"
-        ok_msg "Clear browser cache and reload Mainsail (F5)!"
-        echo
-        break;;
-      N|n|No|no)
-        break;;
-      *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
-    esac
-  done
-}
-
 install_extension_shell_command(){
   echo
   top_border
