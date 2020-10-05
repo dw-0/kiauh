@@ -4,11 +4,11 @@ set -e
 
 ### set some variables
 ERROR_MSG=""
-green=$(echo -en "\001\033[01;32m\002")
-yellow=$(echo -en "\001\033[01;33m\002")
-red=$(echo -en "\001\033[01;31m\002")
-cyan=$(echo -en "\001\033[01;36m\002")
-default=$(echo -en "\001\033[0m\002")
+green=$(echo -en "\e[92m")
+yellow=$(echo -en "\e[93m")
+red=$(echo -en "\e[91m")
+cyan=$(echo -en "\e[96m")
+default=$(echo -en "\e[97m")
 
 ### set important directories
 #klipper
