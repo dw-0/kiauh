@@ -11,10 +11,11 @@ remove_ui(){
   echo -e "|  Firmware:             |  Webinterface:               | "
   echo -e "|  1) [Klipper]          |  3) [DWC2]                   | "
   echo -e "|                        |  4) [Mainsail]               | "
-  echo -e "|  Klipper API:          |  5) [Octoprint]              | "
-  echo -e "|  2) [Moonraker]        |                              | "
+  echo -e "|  Klipper API:          |  5) [Fluidd]                 | "
+  echo -e "|  2) [Moonraker]        |  6) [Octoprint]              | "
+  echo -e "|                        |                              | "
   echo -e "|                        |  Webserver:                  | "
-  echo -e "|                        |  6) [Nginx]                  | "
+  echo -e "|                        |  7) [Nginx]                  | "
   quit_footer
 }
 
@@ -53,10 +54,16 @@ remove_menu(){
       5)
         clear
         print_header
-        remove_octoprint
+        remove_fluidd
         print_msg && clear_msg
         remove_ui;;
       6)
+        clear
+        print_header
+        remove_octoprint
+        print_msg && clear_msg
+        remove_ui;;
+      7)
         clear
         print_header
         remove_nginx

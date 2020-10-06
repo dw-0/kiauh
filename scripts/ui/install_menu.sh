@@ -9,8 +9,8 @@ install_ui(){
   echo -e "|  Firmware:             |  Webinterface:               | "
   echo -e "|  1) [Klipper]          |  3) [DWC2]                   | "
   echo -e "|                        |  4) [Mainsail]               | "
-  echo -e "|  Klipper API:          |  5) [Octoprint]              | "
-  echo -e "|  2) [Moonraker]        |                              | "
+  echo -e "|  Klipper API:          |  5) [Fluidd]                 | "
+  echo -e "|  2) [Moonraker]        |  6) [Octoprint]              | "
   quit_footer
 }
 
@@ -47,6 +47,12 @@ install_menu(){
         print_msg && clear_msg
         install_ui;;
       5)
+        clear
+        print_header
+        INST_FLUIDD="true" && install_fluidd
+        print_msg && clear_msg
+        install_ui;;
+      6)
         clear
         print_header
         install_octoprint

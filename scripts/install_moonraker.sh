@@ -19,7 +19,9 @@ install_moonraker(){
   restart_moonraker
   restart_klipper
   test_api
-  install_mainsail
+  #test_nginx
+  #install_mainsail
+  #install_fluidd
 }
 
 system_check_moonraker(){
@@ -67,35 +69,42 @@ system_check_moonraker(){
 
 get_user_selections_moonraker(){
   #ask if moonraker only or moonraker + mainsail
-  while true; do
-    echo
-    top_border
-      echo -e "| Do you want to install Moonraker and Mainsail?        |"
-      echo -e "| You can choose to install Moonraker only by answering |"
-      echo -e "| with 'No'.                                            |"
-      hr
-      echo -e "| If you select 'Yes' please be aware that an existing  |"
-      echo -e "| Mainsail installation will then be overwritten!       |"
-    bottom_border
-    read -p "${cyan}###### Install Moonraker + Mainsail? (Y/n):${default} " yn
-    case "$yn" in
-      Y|y|Yes|yes|"")
-        echo -e "###### > Yes"
-        INST_MAINSAIL="true"
-        break;;
-      N|n|No|no)
-        echo -e "###### > No"
-        INST_MAINSAIL="false"
-        break;;
-      *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
-    esac
-  done
-  #ask to change hostname if mainsail should be installed as well
-  if [ "$INST_MAINSAIL" = "true" ]; then
-    create_custom_hostname
-  fi
+  #while true; do
+  #  echo
+  #  top_border
+  #    echo -e "| Install the Moonraker API only?                       |"
+  #    blank_line
+  #    echo -e "| You can choose to install Moonraker and one of the    |"
+  #    echo -e "| following web interfaces:                             |"
+  #    echo -e "| 1) Mainsail                                           |"
+  #    echo -e "| 2) Fluidd                                             |"
+  #    hr
+  #    echo -e "| If you want to install a web interface later, just    |"
+  #    echo -e "| press 'ENTER' to continue the Moonraker installation. |"
+  #  bottom_border
+  #  read -p "${cyan}Please choose:${default} " selection
+  #  case "$selection" in
+  #    "")
+  #      echo -e "###### > Moonraker only"
+  #      INST_NOUI="true"
+  #      break;;
+  #    1)
+  #      echo -e "###### > Moonraker + Mainsail"
+  #      INST_MAINSAIL="true"
+  #      break;;
+  #    2)
+  #      echo -e "###### > Moonraker + Fluidd"
+  #      INST_FLUIDD="true"
+  #      break;;
+  #    *)
+  #      print_unkown_cmd
+  #      print_msg && clear_msg;;
+  #  esac
+  #done
+  ##ask to change hostname if mainsail should be installed as well
+  #if [ "$INST_MAINSAIL" = "true" ]; then
+  #  create_custom_hostname
+  #fi
   #user selection for printer.cfg
   if [ "$PRINTER_CFG_FOUND" = "false" ]; then
     unset SEL_DEF_CFG
@@ -252,7 +261,7 @@ get_user_selections_moonraker(){
       echo -e "|                                                       |"
       echo -e "| 1) Remove packages (recommend)                        |"
       echo -e "| 2) Disable only (may cause issues)                    |"
-      echo -e "| ${red}3) Skip this step (not recommend)${default}                     |"
+      echo -e "| ${red}3) Skip this step (not recommended)${default}                   |"
       bottom_border
       read -p "${cyan}###### Please choose:${default} " action
       unset REMOVE_HAPROXY
@@ -312,6 +321,8 @@ moonraker_setup(){
   ok_msg "Download complete!"
   status_msg "Installing Moonraker ..."
   $MOONRAKER_DIR/scripts/install-moonraker.sh
+  #copy moonraker configuration for nginx to /etc/nginx/conf.d
+  setup_moonraker_nginx_cfg
   #backup a possible existing printer.cfg at the old location
   #and before patching in the new location
   backup_printer_cfg
@@ -477,6 +488,15 @@ setup_moonraker_conf(){
         ok_msg "Trusted clients written!"
       fi
     fi
+  fi
+}
+
+setup_moonraker_nginx_cfg(){
+  if [ ! -f $NGINX_CONFD/upstreams.conf ]; then
+    sudo cp ${SRCDIR}/kiauh/resources/moonraker_nginx.cfg $NGINX_CONFD/upstreams.conf
+  fi
+  if [ ! -f $NGINX_CONFD/common_vars.conf ]; then
+    sudo cp ${SRCDIR}/kiauh/resources/common_vars_nginx.cfg $NGINX_CONFD/common_vars.conf
   fi
 }
 
@@ -651,13 +671,22 @@ handle_haproxy_lighttpd(){
 test_api(){
   HOST_IP=$(hostname -I | cut -d" " -f1)
   status_msg "Testing API ..."
-  sleep 5
-  status_msg "API response from http://$HOST_IP:7125/printer/info :"
-  API_RESPONSE=$(curl -sG4m5 http://$HOST_IP:7125/printer/info)
-  echo -e "${cyan}$API_RESPONSE${default}"
-  if [ $(curl -sG4 "http://$HOST_IP:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+  status_msg "Please wait ..."
+  sleep 15
+  status_msg "API response from http://"$HOST_IP":7125/printer/info :"
+  echo -e "${cyan}$(curl -s "http://"$HOST_IP":7125/printer/info")${default}"
+  if [ $(curl -s "http://"$HOST_IP":7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
     echo; ok_msg "Klipper API is working correctly!"; echo
   else
     echo; warn_msg "Klipper API not working correctly!"; echo
+  fi
+  status_msg "Testing Nginx ..."
+  status_msg "Please wait ..."
+  status_msg "API response from http://"$HOST_IP"/printer/info :"
+  echo -e "${cyan}$(curl -s "http://"$HOST_IP"/printer/info")${default}"
+  if [ $(curl -s "http://"$HOST_IP"/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+    echo; ok_msg "Nginx is working correctly!"; echo
+  else
+    echo; warn_msg "Nginx is not working correctly!"; echo
   fi
 }

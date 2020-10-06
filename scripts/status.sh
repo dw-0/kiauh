@@ -57,15 +57,38 @@ dwc2_status(){
   fi
 }
 
+moonraker_status(){
+  mrcount=0
+  moonraker_data=(
+    $MOONRAKER_SERVICE1
+    $MOONRAKER_SERVICE2
+    $MOONRAKER_DIR
+    $MOONRAKER_ENV_DIR
+    $NGINX_CONFD/upstreams.conf
+    $NGINX_CONFD/common_vars.conf
+  )
+  #count+1 for each found data-item from array
+  for mrd in "${moonraker_data[@]}"
+  do
+    if [ -e $mrd ]; then
+      mrcount=$(expr $mrcount + 1)
+    fi
+  done
+  if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
+    MOONRAKER_STATUS="${green}Installed!${default}         "
+  elif [ "$mrcount" == 0 ]; then
+    MOONRAKER_STATUS="${red}Not installed!${default}     "
+  else
+    MOONRAKER_STATUS="${yellow}Incomplete!${default}        "
+  fi
+}
+
 mainsail_status(){
   mcount=0
   mainsail_data=(
-    $MOONRAKER_SERVICE1
-    $MOONRAKER_SERVICE2
     $MAINSAIL_DIR
-    $MOONRAKER_ENV_DIR
-    /etc/nginx/sites-available/mainsail
-    /etc/nginx/sites-enabled/mainsail
+    $NGINX_SA/mainsail
+    $NGINX_SE/mainsail
   )
   #count+1 for each found data-item from array
   for md in "${mainsail_data[@]}"
@@ -80,6 +103,29 @@ mainsail_status(){
     MAINSAIL_STATUS="${red}Not installed!${default}     "
   else
     MAINSAIL_STATUS="${yellow}Incomplete!${default}        "
+  fi
+}
+
+fluidd_status(){
+  fcount=0
+  fluidd_data=(
+    $FLUIDD_DIR
+    $NGINX_SA/fluidd
+    $NGINX_SE/fluidd
+  )
+  #count+1 for each found data-item from array
+  for fd in "${fluidd_data[@]}"
+  do
+    if [ -e $fd ]; then
+      fcount=$(expr $fcount + 1)
+    fi
+  done
+  if [ "$fcount" == "${#fluidd_data[*]}" ]; then
+    FLUIDD_STATUS="${green}Installed!${default}         "
+  elif [ "$fcount" == 0 ]; then
+    FLUIDD_STATUS="${red}Not installed!${default}     "
+  else
+    FLUIDD_STATUS="${yellow}Incomplete!${default}        "
   fi
 }
 
@@ -258,6 +304,35 @@ compare_dwc2_versions(){
 #############################################################
 #############################################################
 
+read_moonraker_versions(){
+  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
+    cd $MOONRAKER_DIR
+    git fetch origin master -q
+    LOCAL_MOONRAKER_COMMIT=$(git rev-parse --short=8 HEAD)
+    REMOTE_MOONRAKER_COMMIT=$(git rev-parse --short=8 origin/master)
+  else
+    LOCAL_MOONRAKER_COMMIT="${red}--------${default}"
+    REMOTE_MOONRAKER_COMMIT="${red}--------${default}"
+  fi
+}
+
+compare_moonraker_versions(){
+  unset MOONRAKER_UPDATE_AVAIL
+  read_moonraker_versions
+  #echo "Local: $LOCAL_MOONRAKER_COMMIT"
+  #echo "Remote: $REMOTE_MOONRAKER_COMMIT"
+  if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
+    LOCAL_MOONRAKER_COMMIT="${yellow}$LOCAL_MOONRAKER_COMMIT${default}"
+    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+    MOONRAKER_UPDATE_AVAIL="true"
+    update_arr+=(update_moonraker)
+  else
+    LOCAL_MOONRAKER_COMMIT="${green}$LOCAL_MOONRAKER_COMMIT${default}"
+    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+    MOONRAKER_UPDATE_AVAIL="false"
+  fi
+}
+
 read_local_mainsail_version(){
   unset MAINSAIL_IS_INSTALLED
   if [ -e $MAINSAIL_DIR/version ]; then
@@ -297,34 +372,47 @@ compare_mainsail_versions(){
   fi
 }
 
-read_moonraker_versions(){
-  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
-    cd $MOONRAKER_DIR
-    git fetch origin master -q
-    LOCAL_MOONRAKER_COMMIT=$(git rev-parse --short=8 HEAD)
-    REMOTE_MOONRAKER_COMMIT=$(git rev-parse --short=8 origin/master)
+read_local_fluidd_version(){
+  unset FLUIDD_IS_INSTALLED
+  if [ -e $FLUIDD_DIR/version ]; then
+    FLUIDD_LOCAL_VER=$(head -n 1 $FLUIDD_DIR/version)
+    FLUIDD_IS_INSTALLED="true"
   else
-    LOCAL_MOONRAKER_COMMIT="${red}--------${default}"
-    REMOTE_MOONRAKER_COMMIT="${red}--------${default}"
+    FLUIDD_LOCAL_VER="${red}-----${default}"
+    FLUIDD_IS_INSTALLED="false"
   fi
 }
 
-compare_moonraker_versions(){
-  unset MOONRAKER_UPDATE_AVAIL
-  read_moonraker_versions
-  #echo "Local: $LOCAL_MOONRAKER_COMMIT"
-  #echo "Remote: $REMOTE_MOONRAKER_COMMIT"
-  if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
-    LOCAL_MOONRAKER_COMMIT="${yellow}$LOCAL_MOONRAKER_COMMIT${default}"
-    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
-    MOONRAKER_UPDATE_AVAIL="true"
-    update_arr+=(update_moonraker)
+read_remote_fluidd_version(){
+  #remote checks don't work without curl installed!
+  if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
+    FLUIDD_REMOTE_VER="${red}-----${default}"
   else
-    LOCAL_MOONRAKER_COMMIT="${green}$LOCAL_MOONRAKER_COMMIT${default}"
-    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
-    MOONRAKER_UPDATE_AVAIL="false"
+    get_fluidd_ver
+    FLUIDD_REMOTE_VER=$FLUIDD_VERSION
   fi
 }
+
+compare_fluidd_versions(){
+  unset FLUIDD_UPDATE_AVAIL
+  read_local_fluidd_version
+  read_remote_fluidd_version
+  #echo "Local: $FLUIDD_LOCAL_VER"
+  #echo "Remote: $FLUIDD_REMOTE_VER"
+  if [ "$FLUIDD_LOCAL_VER" != "$FLUIDD_REMOTE_VER" ] && [ "$FLUIDD_IS_INSTALLED" = "true" ]; then
+    FLUIDD_LOCAL_VER="${yellow}$FLUIDD_LOCAL_VER${default}"
+    FLUIDD_REMOTE_VER="${green}$FLUIDD_REMOTE_VER${default}"
+    FLUIDD_UPDATE_AVAIL="true"
+    update_arr+=(update_fluidd)
+  else
+    FLUIDD_LOCAL_VER="${green}$FLUIDD_LOCAL_VER${default}"
+    FLUIDD_REMOTE_VER="${green}$FLUIDD_REMOTE_VER${default}"
+    FLUIDD_UPDATE_AVAIL="false"
+  fi
+}
+
+#############################################################
+#############################################################
 
 ui_print_versions(){
   unset update_arr
@@ -333,4 +421,5 @@ ui_print_versions(){
   compare_dwc2_versions
   compare_moonraker_versions
   compare_mainsail_versions
+  compare_fluidd_versions
 }

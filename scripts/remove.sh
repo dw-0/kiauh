@@ -38,6 +38,8 @@ remove_dwc2(){
   $DWC2FK_DIR
   $DWC_ENV_DIR
   $DWC2_DIR
+  /etc/nginx/sites-available/dwc2
+  /etc/nginx/sites-enabled/dwc2
   )
   print_error "DWC2-for-Klipper-Socket &\n DWC2 Web UI" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
@@ -73,6 +75,16 @@ remove_dwc2(){
       status_msg "Removing DWC2 directory ..."
       rm -rf $DWC2_DIR && ok_msg "Directory removed!"
     fi
+    #remove dwc2 config for nginx
+    if [ -e /etc/nginx/sites-available/dwc2 ]; then
+      status_msg "Removing DWC2 configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/dwc2 && ok_msg "File removed!"
+    fi
+    #remove dwc2 symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/dwc2 ]; then
+      status_msg "Removing DWC2 Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/dwc2 && ok_msg "File removed!"
+    fi
     CONFIRM_MSG=" DWC2-for-Klipper-Socket & DWC2 successfully removed!"
   fi
 }
@@ -86,6 +98,8 @@ remove_moonraker(){
   $MOONRAKER_SERVICE2
   $MOONRAKER_DIR
   $MOONRAKER_ENV_DIR
+  $NGINX_CONFD/upstreams.conf
+  $NGINX_CONFD/common_vars.conf
   ${HOME}/moonraker.conf
   ${HOME}/moonraker.log
   ${HOME}/klipper_config/moonraker.log
@@ -139,6 +153,11 @@ remove_moonraker(){
       rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log ${HOME}/klipper_config/klippy.log /tmp/moonraker.log
       ok_msg "Files removed!"
     fi
+    #remove moonraker nginx config
+    if [[ -e $NGINX_CONFD/upstreams.conf || -e $NGINX_CONFD/common_vars.conf ]]; then
+      status_msg "Removing Moonraker NGINX configuration ..."
+      sudo rm -f $NGINX_CONFD/upstreams.conf $NGINX_CONFD/common_vars.conf && ok_msg "Moonraker NGINX configuration removed!"
+    fi
     #remove legacy api key
     if [ -e ${HOME}/.klippy_api_key ]; then
       status_msg "Removing legacy API Key ..."
@@ -183,6 +202,33 @@ remove_mainsail(){
   fi
 }
 
+remove_fluidd(){
+  data_arr=(
+  $fluidd_DIR
+  /etc/nginx/sites-available/fluidd
+  /etc/nginx/sites-enabled/fluidd
+  )
+  print_error "Fluidd" && data_count=()
+  if [ "$ERROR_MSG" = "" ]; then
+    #remove fluidd dir
+    if [ -d $FLUIDD_DIR ]; then
+      status_msg "Removing Fluidd directory ..."
+      rm -rf $FLUIDD_DIR && ok_msg "Directory removed!"
+    fi
+    #remove fluidd config for nginx
+    if [ -e /etc/nginx/sites-available/fluidd ]; then
+      status_msg "Removing Fluidd configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/fluidd && ok_msg "File removed!"
+    fi
+    #remove fluidd symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/fluidd ]; then
+      status_msg "Removing Fluidd Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
+    fi
+    CONFIRM_MSG="Fluidd successfully removed!"
+  fi
+}
+
 #############################################################
 #############################################################
 
@@ -215,6 +261,16 @@ remove_octoprint(){
     if [ -L ${HOME}/octoprint.log ]; then
       status_msg "Removing octoprint.log Symlink ..."
       rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
+    fi
+    #remove octoprint config for nginx
+    if [ -e /etc/nginx/sites-available/octoprint ]; then
+      status_msg "Removing OctoPrint configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/octoprint && ok_msg "File removed!"
+    fi
+    #remove octoprint symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/octoprint ]; then
+      status_msg "Removing OctoPrint Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/octoprint && ok_msg "File removed!"
     fi
     CONFIRM_MSG=" OctoPrint successfully removed!"
   fi

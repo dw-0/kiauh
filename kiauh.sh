@@ -4,11 +4,11 @@ set -e
 
 ### set some variables
 ERROR_MSG=""
-green=$(echo -en "\001\033[01;32m\002")
-yellow=$(echo -en "\001\033[01;33m\002")
-red=$(echo -en "\001\033[01;31m\002")
-cyan=$(echo -en "\001\033[01;36m\002")
-default=$(echo -en "\001\033[0m\002")
+green=$(echo -en "\e[92m")
+yellow=$(echo -en "\e[93m")
+red=$(echo -en "\e[91m")
+cyan=$(echo -en "\e[96m")
+default=$(echo -en "\e[97m")
 
 ### set important directories
 #klipper
@@ -16,16 +16,23 @@ KLIPPER_DIR=${HOME}/klipper
 KLIPPY_ENV_DIR=${HOME}/klippy-env
 KLIPPER_SERVICE1=/etc/init.d/klipper
 KLIPPER_SERVICE2=/etc/default/klipper
-#dwc2
-DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
-DWC_ENV_DIR=${HOME}/dwc-env
-DWC2_DIR=${HOME}/sdcard/web
-#mainsail/moonraker
-MAINSAIL_DIR=${HOME}/mainsail
+#nginx
+NGINX_SA=/etc/nginx/sites-available
+NGINX_SE=/etc/nginx/sites-enabled
+NGINX_CONFD=/etc/nginx/conf.d
+#moonraker
 MOONRAKER_DIR=${HOME}/moonraker
 MOONRAKER_ENV_DIR=${HOME}/moonraker-env
 MOONRAKER_SERVICE1=/etc/init.d/moonraker
 MOONRAKER_SERVICE2=/etc/default/moonraker
+#mainsail
+MAINSAIL_DIR=${HOME}/mainsail
+#fluidd
+FLUIDD_DIR=${HOME}/fluidd
+#dwc2
+DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
+DWC_ENV_DIR=${HOME}/dwc-env
+DWC2_DIR=${HOME}/sdcard/web
 #octoprint
 OCTOPRINT_DIR=${HOME}/OctoPrint
 OCTOPRINT_CFG_DIR=${HOME}/.octoprint

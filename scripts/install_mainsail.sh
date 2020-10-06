@@ -1,24 +1,65 @@
 install_mainsail(){
   if [ "$INST_MAINSAIL" = "true" ]; then
-    unset SET_REVERSE_PROXY && SET_REVERSE_PROXY="true" #quick and dirty hack to make mainsail reverse proxy install, needs polish
-    create_reverse_proxy "mainsail"
-    mainsail_setup
-    test_nginx
-    ok_msg "Mainsail installation complete!"; echo
+    unset SET_LISTEN_PORT
+    #check for other enabled web interfaces
+    detect_enabled_sites
+    #check if another site already listens to port 80
+    mainsail_port_check
+    #creating the mainsail nginx cfg
+    set_nginx_cfg "mainsail"
+    mainsail_setup && ok_msg "Mainsail installation complete!"; echo
   fi
 }
 
-test_nginx(){
-  HOST_IP=$(hostname -I | cut -d" " -f1)
-  status_msg "Testing Nginx ..."
-  sleep 5
-  status_msg "API response from http://$HOST_IP/printer/info :"
-  API_RESPONSE="$(curl -sG4m5 http://$HOST_IP/printer/info)"
-  echo -e "${cyan}$API_RESPONSE${default}"
-  if [ $(curl -sG4 "http://$HOST_IP/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
-    echo; ok_msg "Nginx is working correctly!"; echo
+mainsail_port_check(){
+  if [ "$MAINSAIL_ENABLED" = "false" ]; then
+    if [ "$SITE_ENABLED" = "true" ]; then
+      status_msg "Detected other enabled interfaces:"
+      [ "$OCTOPRINT_ENABLED" = "true" ] && echo -e "   ${cyan}● OctoPrint - Port: $OCTOPRINT_PORT${default}"
+      [ "$FLUIDD_ENABLED" = "true" ] && echo -e "   ${cyan}● Fluidd - Port: $FLUIDD_PORT${default}"
+      [ "$DWC2_ENABLED" = "true" ] && echo -e "   ${cyan}● DWC2 - Port: $DWC2_PORT${default}"
+      if [ "$FLUIDD_PORT" = "80" ] || [ "$DWC2_PORT" = "80" ] || [ "$OCTOPRINT_PORT" = "80" ]; then
+        PORT_80_BLOCKED="true"
+        select_mainsail_port
+      fi
+    else
+      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/mainsail_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      SET_LISTEN_PORT=$DEFAULT_PORT
+    fi
+    SET_NGINX_CFG="true"
   else
-    echo; warn_msg "Nginx is not working correctly!"; echo
+    SET_NGINX_CFG="false"
+  fi
+}
+
+select_mainsail_port(){
+  if [ "$PORT_80_BLOCKED" = "true" ]; then
+    echo
+    top_border
+    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
+    echo -e "| ${red}You need to choose a different port for Mainsail!${default}     |"
+    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
+    blank_line
+    [ "$OCTOPRINT_PORT" = "80" ] && echo "|  ● OctoPrint                                          |"
+    [ "$FLUIDD_PORT" = "80" ] && echo "|  ● Fluidd                                             |"
+    [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                               |"
+    blank_line
+    echo -e "| Make sure you don't choose a port which was already   |"
+    echo -e "| assigned to one of the other web interfaces!          |"
+    blank_line
+    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
+    echo -e "| input. So make sure to choose a valid port!           |"
+    bottom_border
+    while true; do
+      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+      if [ "$NEW_PORT" != "$FLUIDD_PORT" ] && [ "$NEW_PORT" != "$DWC2_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ]; then
+        echo "Setting port $NEW_PORT for Mainsail!"
+        SET_LISTEN_PORT=$NEW_PORT
+        break
+      else
+        echo "That port is already taken! Select a different one!"
+      fi
+    done
   fi
 }
 
@@ -28,20 +69,17 @@ get_mainsail_ver(){
 
 mainsail_dl_url(){
   get_mainsail_ver
-  MAINSAIL_URL=https://github.com/meteyou/mainsail/releases/download/v"$MAINSAIL_VERSION"/mainsail-beta-"$MAINSAIL_VERSION".zip
+  MAINSAIL_URL=https://github.com/meteyou/mainsail/releases/download/v$MAINSAIL_VERSION/mainsail-beta-$MAINSAIL_VERSION.zip
 }
 
 mainsail_setup(){
   mainsail_dl_url
   #clean up an existing mainsail folder
-  if [ -d $MAINSAIL_DIR ]; then
-    rm -rf $MAINSAIL_DIR
-  fi
+  [ -d $MAINSAIL_DIR ] && rm -rf $MAINSAIL_DIR
   #create fresh mainsail folder and download mainsail
-  mkdir $MAINSAIL_DIR
-  cd $MAINSAIL_DIR
+  mkdir $MAINSAIL_DIR && cd $MAINSAIL_DIR
   status_msg "Downloading Mainsail v$MAINSAIL_VERSION ..."
-  wget -q -O mainsail.zip $MAINSAIL_URL && status_msg "Extracting archive ..." && unzip -o mainsail.zip && rm mainsail.zip
+  wget -O mainsail.zip $MAINSAIL_URL && status_msg "Extracting archive ..." && unzip -o mainsail.zip && rm mainsail.zip
   ### write mainsail version to file for update check reasons
   echo "$MAINSAIL_VERSION" > $MAINSAIL_DIR/version
   echo

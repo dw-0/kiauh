@@ -7,6 +7,10 @@ bottom_border(){
   echo -e "\=======================================================/"
 }
 
+blank_line(){
+  echo -e "|                                                       | "
+}
+
 hr(){
   echo -e "|-------------------------------------------------------|"
 }
@@ -29,5 +33,8 @@ kiauh_update_msg(){
   top_border
   echo -e "|  ${yellow}There is a newer version of this script available!${default}   | "
   echo -e "|  ${yellow}Type 'update' if you want to update KIAUH now.${default}       | "
+  blank_line
+  echo -e "|  ${yellow}Check out the KIAUH changelog for important changes${default}  | "
+  echo -e "|  ${yellow}either to the script or the installable components!${default}  | "
   bottom_border
 }

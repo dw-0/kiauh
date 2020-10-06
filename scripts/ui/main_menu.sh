@@ -6,9 +6,12 @@ main_ui(){
   echo -e "|  1) [Install]        |    Klipper: $KLIPPER_STATUS|"
   echo -e "|  2) [Update]         |     Branch: ${cyan}$PRINT_BRANCH${default}|"
   echo -e "|  3) [Remove]         |                                |"
-  echo -e "|                      |       DWC2: $DWC2_STATUS|"
-  echo -e "|  4) [Advanced]       |   Mainsail: $MAINSAIL_STATUS|"
-  echo -e "|  5) [Backup]         |  Octoprint: $OCTOPRINT_STATUS|"
+  echo -e "|                      |  Moonraker: $MOONRAKER_STATUS|"
+  echo -e "|  4) [Advanced]       |                                |"
+  echo -e "|  5) [Backup]         |       DWC2: $DWC2_STATUS|"
+  echo -e "|                      |     Fluidd: $FLUIDD_STATUS|"
+  echo -e "|                      |   Mainsail: $MAINSAIL_STATUS|"
+  echo -e "|                      |  Octoprint: $OCTOPRINT_STATUS|"
   echo -e "|                      |                                |"
   quit_footer
 }
@@ -21,7 +24,9 @@ main_menu(){
     fi
   #check install status
     klipper_status
+    moonraker_status
     dwc2_status
+    fluidd_status
     mainsail_status
     octoprint_status
     print_branch
@@ -32,6 +37,7 @@ main_menu(){
     read -p "Perform action: " action; echo
     echo -e "${default}"
     case "$action" in
+      8) read_listen_port;;
       update)
         clear
         print_header
