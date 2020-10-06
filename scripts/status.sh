@@ -57,15 +57,38 @@ dwc2_status(){
   fi
 }
 
+moonraker_status(){
+  mrcount=0
+  moonraker_data=(
+    $MOONRAKER_SERVICE1
+    $MOONRAKER_SERVICE2
+    $MOONRAKER_DIR
+    $MOONRAKER_ENV_DIR
+    $NGINX_CONFD/upstreams.conf
+    $NGINX_CONFD/common_vars.conf
+  )
+  #count+1 for each found data-item from array
+  for mrd in "${moonraker_data[@]}"
+  do
+    if [ -e $mrd ]; then
+      mrcount=$(expr $mrcount + 1)
+    fi
+  done
+  if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
+    MOONRAKER_STATUS="${green}Installed!${default}         "
+  elif [ "$mrcount" == 0 ]; then
+    MOONRAKER_STATUS="${red}Not installed!${default}     "
+  else
+    MOONRAKER_STATUS="${yellow}Incomplete!${default}        "
+  fi
+}
+
 mainsail_status(){
   mcount=0
   mainsail_data=(
-    $MOONRAKER_SERVICE1
-    $MOONRAKER_SERVICE2
     $MAINSAIL_DIR
-    $MOONRAKER_ENV_DIR
-    /etc/nginx/sites-available/mainsail
-    /etc/nginx/sites-enabled/mainsail
+    NGINX_SA/mainsail
+    NGINX_SE/mainsail
   )
   #count+1 for each found data-item from array
   for md in "${mainsail_data[@]}"
@@ -80,6 +103,29 @@ mainsail_status(){
     MAINSAIL_STATUS="${red}Not installed!${default}     "
   else
     MAINSAIL_STATUS="${yellow}Incomplete!${default}        "
+  fi
+}
+
+fluidd_status(){
+  fcount=0
+  fluidd_data=(
+    $FLUIDD_DIR
+    NGINX_SA/fluidd
+    NGINX_SE/fluidd
+  )
+  #count+1 for each found data-item from array
+  for fd in "${fluidd_data[@]}"
+  do
+    if [ -e $fd ]; then
+      fcount=$(expr $fcount + 1)
+    fi
+  done
+  if [ "$fcount" == "${#fluidd_data[*]}" ]; then
+    FLUIDD_STATUS="${green}Installed!${default}         "
+  elif [ "$fcount" == 0 ]; then
+    FLUIDD_STATUS="${red}Not installed!${default}     "
+  else
+    FLUIDD_STATUS="${yellow}Incomplete!${default}        "
   fi
 }
 
