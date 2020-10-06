@@ -38,6 +38,8 @@ remove_dwc2(){
   $DWC2FK_DIR
   $DWC_ENV_DIR
   $DWC2_DIR
+  /etc/nginx/sites-available/dwc2
+  /etc/nginx/sites-enabled/dwc2
   )
   print_error "DWC2-for-Klipper-Socket &\n DWC2 Web UI" && data_count=()
   if [ "$ERROR_MSG" = "" ]; then
@@ -72,6 +74,16 @@ remove_dwc2(){
     if [ -d $DWC2_DIR ]; then
       status_msg "Removing DWC2 directory ..."
       rm -rf $DWC2_DIR && ok_msg "Directory removed!"
+    fi
+    #remove dwc2 config for nginx
+    if [ -e /etc/nginx/sites-available/dwc2 ]; then
+      status_msg "Removing DWC2 configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/dwc2 && ok_msg "File removed!"
+    fi
+    #remove dwc2 symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/dwc2 ]; then
+      status_msg "Removing DWC2 Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/dwc2 && ok_msg "File removed!"
     fi
     CONFIRM_MSG=" DWC2-for-Klipper-Socket & DWC2 successfully removed!"
   fi
@@ -249,6 +261,16 @@ remove_octoprint(){
     if [ -L ${HOME}/octoprint.log ]; then
       status_msg "Removing octoprint.log Symlink ..."
       rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
+    fi
+    #remove octoprint config for nginx
+    if [ -e /etc/nginx/sites-available/octoprint ]; then
+      status_msg "Removing OctoPrint configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/octoprint && ok_msg "File removed!"
+    fi
+    #remove octoprint symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/octoprint ]; then
+      status_msg "Removing OctoPrint Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/octoprint && ok_msg "File removed!"
     fi
     CONFIRM_MSG=" OctoPrint successfully removed!"
   fi
