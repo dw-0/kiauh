@@ -142,18 +142,12 @@ octoprint_reverse_proxy_dialog(){
 octoprint_port_check(){
   if [ "$OCTOPRINT_ENABLED" = "false" ]; then
     if [ "$SITE_ENABLED" = "true" ]; then
-      echo "Detected other enabled Interfaces:"
-      [ "$MAINSAIL_ENABLED" = "true" ] && echo "${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
-      [ "$FLUIDD_ENABLED" = "true" ] && echo "${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
-      [ "$DWC2_ENABLED" = "true" ] && echo "${cyan}● DWC2 - Port:$DWC2_PORT${default}"
+      status_msg "Detected other enabled interfaces:"
+      [ "$MAINSAIL_ENABLED" = "true" ] && echo "   ${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
+      [ "$FLUIDD_ENABLED" = "true" ] && echo "   ${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
+      [ "$DWC2_ENABLED" = "true" ] && echo "   ${cyan}● DWC2 - Port:$DWC2_PORT${default}"
       if [ "$MAINSAIL_PORT" = "80" ] || [ "$DWC2_PORT" = "80" ] || [ "$FLUIDD_PORT" = "80" ]; then
         PORT_80_BLOCKED="true"
-      fi
-      if [ "$PORT_80_BLOCKED" = "true" ]; then
-        [ "$MAINSAIL_PORT" = "80" ] && echo "${cyan}Mainsail${default} already listens on Port 80!"
-        [ "$FLUIDD_PORT" = "80" ] && echo "${cyan}Fluidd${default} already listens on Port 80!"
-        [ "$DWC2_PORT" = "80" ] && echo "${cyan}DWC2${default} already listens on Port 80!"
-        echo "You need to choose a different Port for OctoPrint than the above!"
         select_octoprint_port
       fi
     else
@@ -167,16 +161,34 @@ octoprint_port_check(){
 }
 
 select_octoprint_port(){
-  while true; do
-    read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
-    if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$DWC2_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ]; then
-      echo "Setting port $NEW_PORT for OctoPrint!"
-      SET_LISTEN_PORT=$NEW_PORT
-      break
-    else
-      echo "That port is already taken! Select a different one!"
-    fi
-  done
+  if [ "$PORT_80_BLOCKED" = "true" ]; then
+    echo
+    top_border
+    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
+    echo -e "| ${red}You need to choose a different port for OctoPrint!${default}    |"
+    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
+    blank_line
+    [ "$MAINSAIL_PORT" = "80" ] && echo "|  ● Mainsail                                           |"
+    [ "$FLUIDD_PORT" = "80" ] && echo "|  ● Fluidd                                             |"
+    [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                          |"
+    blank_line
+    echo -e "| Make sure you don't choose a port which was already   |"
+    echo -e "| assigned to one of the other web interfaces!          |"
+    blank_line
+    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
+    echo -e "| input. So make sure to choose a valid port!           |"
+    bottom_border
+    while true; do
+      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+      if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ] && [ "$NEW_PORT" != "$DWC2_PORT" ]; then
+        echo "Setting port $NEW_PORT for OctoPrint!"
+        SET_LISTEN_PORT=$NEW_PORT
+        break
+      else
+        echo "That port is already taken! Select a different one!"
+      fi
+    done
+  fi
 }
 
 create_config_yaml(){

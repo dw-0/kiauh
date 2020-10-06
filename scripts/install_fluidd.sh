@@ -14,18 +14,12 @@ install_fluidd(){
 fluidd_port_check(){
   if [ "$FLUIDD_ENABLED" = "false" ]; then
     if [ "$SITE_ENABLED" = "true" ]; then
-      echo "Detected other enabled Interfaces:"
-      [ "$MAINSAIL_ENABLED" = "true" ] && echo "${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
-      [ "$DWC2_ENABLED" = "true" ] && echo "${cyan}● DWC2 - Port:$DWC2_PORT${default}"
-      [ "$OCTOPRINT_ENABLED" = "true" ] && echo "${cyan}● OctoPrint - Port:$OCTOPRINT_PORT${default}"
+      status_msg "Detected other enabled interfaces:"
+      [ "$OCTOPRINT_ENABLED" = "true" ] && echo "   ${cyan}● OctoPrint - Port: $OCTOPRINT_PORT${default}"
+      [ "$MAINSAIL_ENABLED" = "true" ] && echo "   ${cyan}● Mainsail - Port: $MAINSAIL_PORT${default}"
+      [ "$DWC2_ENABLED" = "true" ] && echo "   ${cyan}● DWC2 - Port: $DWC2_PORT${default}"
       if [ "$MAINSAIL_PORT" = "80" ] || [ "$DWC2_PORT" = "80" ] || [ "$OCTOPRINT_PORT" = "80" ]; then
         PORT_80_BLOCKED="true"
-      fi
-      if [ "$PORT_80_BLOCKED" = "true" ]; then
-        [ "$MAINSAIL_PORT" = "80" ] && echo "${cyan}Mainsail${default} already listens on Port 80!"
-        [ "$DWC2_PORT" = "80" ] && echo "${cyan}DWC2${default} already listens on Port 80!"
-        [ "$OCTOPRINT_PORT" = "80" ] && echo "${cyan}OctoPrint${default} already listens on Port 80!"
-        echo "You need to choose a different Port for Fluidd than the above!"
         select_fluidd_port
       fi
     else
@@ -39,16 +33,34 @@ fluidd_port_check(){
 }
 
 select_fluidd_port(){
-  while true; do
-    read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
-    if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$DWC2_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ]; then
-      echo "Setting port $NEW_PORT for Mainsail!"
-      SET_LISTEN_PORT=$NEW_PORT
-      break
-    else
-      echo "That port is already taken! Select a different one!"
-    fi
-  done
+  if [ "$PORT_80_BLOCKED" = "true" ]; then
+    echo
+    top_border
+    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
+    echo -e "| ${red}You need to choose a different port for Fluidd!${default}       |"
+    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
+    blank_line
+    [ "$OCTOPRINT_PORT" = "80" ] && echo "|  ● OctoPrint                                          |"
+    [ "$MAINSAIL_PORT" = "80" ] && echo "|  ● Mainsail                                           |"
+    [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                               |"
+    blank_line
+    echo -e "| Make sure you don't choose a port which was already   |"
+    echo -e "| assigned to one of the other web interfaces!          |"
+    blank_line
+    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
+    echo -e "| input. So make sure to choose a valid port!           |"
+    bottom_border
+    while true; do
+      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+      if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$DWC2_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ]; then
+        echo "Setting port $NEW_PORT for Fluidd!"
+        SET_LISTEN_PORT=$NEW_PORT
+        break
+      else
+        echo "That port is already taken! Select a different one!"
+      fi
+    done
+  fi
 }
 
 get_fluidd_ver(){

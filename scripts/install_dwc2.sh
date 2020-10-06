@@ -319,18 +319,12 @@ dwc2_reverse_proxy_dialog(){
 dwc2_port_check(){
   if [ "$DWC2_ENABLED" = "false" ]; then
     if [ "$SITE_ENABLED" = "true" ]; then
-      echo "Detected other enabled Interfaces:"
-      [ "$OCTOPRINT_ENABLED" = "true" ] && echo "${cyan}● OctoPrint - Port:$OCTOPRINT_PORT${default}"
-      [ "$MAINSAIL_ENABLED" = "true" ] && echo "${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
-      [ "$FLUIDD_ENABLED" = "true" ] && echo "${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
+      status_msg "Detected other enabled interfaces:"
+      [ "$OCTOPRINT_ENABLED" = "true" ] && echo "   ${cyan}● OctoPrint - Port:$OCTOPRINT_PORT${default}"
+      [ "$MAINSAIL_ENABLED" = "true" ] && echo "   ${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
+      [ "$FLUIDD_ENABLED" = "true" ] && echo "   ${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
       if [ "$MAINSAIL_PORT" = "80" ] || [ "$OCTOPRINT_PORT" = "80" ] || [ "$FLUIDD_PORT" = "80" ]; then
         PORT_80_BLOCKED="true"
-      fi
-      if [ "$PORT_80_BLOCKED" = "true" ]; then
-        [ "$OCTOPRINT_PORT" = "80" ] && echo "${cyan}OctoPrint${default} already listens on Port 80!"
-        [ "$MAINSAIL_PORT" = "80" ] && echo "${cyan}Mainsail${default} already listens on Port 80!"
-        [ "$FLUIDD_PORT" = "80" ] && echo "${cyan}Fluidd${default} already listens on Port 80!"
-        echo "You need to choose a different Port for DWC2 than the above!"
         select_dwc2_port
       fi
     else
@@ -344,14 +338,32 @@ dwc2_port_check(){
 }
 
 select_dwc2_port(){
-  while true; do
-    read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
-    if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ]; then
-      echo "Setting port $NEW_PORT for DWC2!"
-      SET_LISTEN_PORT=$NEW_PORT
-      break
-    else
-      echo "That port is already taken! Select a different one!"
-    fi
-  done
+  if [ "$PORT_80_BLOCKED" = "true" ]; then
+    echo
+    top_border
+    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
+    echo -e "| ${red}You need to choose a different port for DWC2!${default}         |"
+    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
+    blank_line
+    [ "$OCTOPRINT_PORT" = "80" ] && echo "|  ● OctoPrint                                          |"
+    [ "$MAINSAIL_PORT" = "80" ] && echo "|  ● Mainsail                                           |"
+    [ "$FLUIDD_PORT" = "80" ] && echo "|  ● Fluidd                                             |"
+    blank_line
+    echo -e "| Make sure you don't choose a port which was already   |"
+    echo -e "| assigned to one of the other web interfaces!          |"
+    blank_line
+    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
+    echo -e "| input. So make sure to choose a valid port!           |"
+    bottom_border
+    while true; do
+      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+      if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ]; then
+        echo "Setting port $NEW_PORT for DWC2!"
+        SET_LISTEN_PORT=$NEW_PORT
+        break
+      else
+        echo "That port is already taken! Select a different one!"
+      fi
+    done
+  fi
 }
