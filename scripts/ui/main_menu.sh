@@ -32,6 +32,7 @@ main_menu(){
     read -p "Perform action: " action; echo
     echo -e "${default}"
     case "$action" in
+      8) read_listen_port;;
       update)
         clear
         print_header

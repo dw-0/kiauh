@@ -1,4 +1,7 @@
 install_octoprint(){
+  #check for other enabled web interfaces
+  unset SET_LISTEN_PORT
+  detect_enabled_sites
   #ask user for customization
   get_user_selections_octoprint
   #octoprint main installation
@@ -9,7 +12,7 @@ install_octoprint(){
   add_reboot_permission
   create_config_yaml
   #execute customizations
-  create_reverse_proxy "octoprint"
+  set_nginx_cfg "octoprint"
   set_hostname
   #after install actions
   load_octoprint_server
@@ -20,9 +23,7 @@ get_user_selections_octoprint(){
   #ask user to set a reverse proxy
   octoprint_reverse_proxy_dialog
   #ask to change hostname
-  if [ "$SET_REVERSE_PROXY" = "true" ]; then
-    create_custom_hostname
-  fi
+  [ "$SET_NGINX_CFG" = "true" ] && create_custom_hostname
   status_msg "Installation will start now! Please wait ..."
 }
 
@@ -113,7 +114,6 @@ add_reboot_permission(){
 }
 
 octoprint_reverse_proxy_dialog(){
-  unset SET_REVERSE_PROXY
   echo
   top_border
   echo -e "|  If you want to have nicer URLs or simply need        | "
@@ -128,15 +128,54 @@ octoprint_reverse_proxy_dialog(){
     echo -e "${default}"
     case "$yn" in
       Y|y|Yes|yes)
-        SET_REVERSE_PROXY="true"
+        octoprint_port_check
         break;;
       N|n|No|no|"")
-        SET_REVERSE_PROXY="false"
         break;;
       *)
         print_unkown_cmd
         print_msg && clear_msg;;
     esac
+  done
+}
+
+octoprint_port_check(){
+  if [ "$OCTOPRINT_ENABLED" = "false" ]; then
+    if [ "$SITE_ENABLED" = "true" ]; then
+      echo "Detected other enabled Interfaces:"
+      [ "$MAINSAIL_ENABLED" = "true" ] && echo "${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
+      [ "$FLUIDD_ENABLED" = "true" ] && echo "${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
+      [ "$DWC2_ENABLED" = "true" ] && echo "${cyan}● DWC2 - Port:$DWC2_PORT${default}"
+      if [ "$MAINSAIL_PORT" = "80" ] || [ "$DWC2_PORT" = "80" ] || [ "$FLUIDD_PORT" = "80" ]; then
+        PORT_80_BLOCKED="true"
+      fi
+      if [ "$PORT_80_BLOCKED" = "true" ]; then
+        [ "$MAINSAIL_PORT" = "80" ] && echo "${cyan}Mainsail${default} already listens on Port 80!"
+        [ "$FLUIDD_PORT" = "80" ] && echo "${cyan}Fluidd${default} already listens on Port 80!"
+        [ "$DWC2_PORT" = "80" ] && echo "${cyan}DWC2${default} already listens on Port 80!"
+        echo "You need to choose a different Port for OctoPrint than the above!"
+        select_octoprint_port
+      fi
+    else
+      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/octoprint_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      SET_LISTEN_PORT=$DEFAULT_PORT
+    fi
+    SET_NGINX_CFG="true"
+  else
+    SET_NGINX_CFG="false"
+  fi
+}
+
+select_octoprint_port(){
+  while true; do
+    read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+    if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$DWC2_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ]; then
+      echo "Setting port $NEW_PORT for OctoPrint!"
+      SET_LISTEN_PORT=$NEW_PORT
+      break
+    else
+      echo "That port is already taken! Select a different one!"
+    fi
   done
 }
 

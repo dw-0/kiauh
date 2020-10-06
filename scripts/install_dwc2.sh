@@ -1,6 +1,9 @@
 install_dwc2(){
   if [ -d $KLIPPER_DIR ]; then
     system_check_dwc2
+    #check for other enabled web interfaces
+    unset SET_LISTEN_PORT
+    detect_enabled_sites
     #ask user for customization
     get_user_selections_dwc2
     #dwc2 main installation
@@ -10,7 +13,7 @@ install_dwc2(){
     write_printer_cfg_dwc2
     #execute customizations
     disable_octoprint
-    create_reverse_proxy "dwc2"
+    set_nginx_cfg "dwc2"
     set_hostname
     #after install actions
     restart_klipper
@@ -31,7 +34,6 @@ system_check_dwc2(){
   fi
   #check if octoprint is installed
   if systemctl is-enabled octoprint.service -q 2>/dev/null; then
-    unset OCTOPRINT_ENABLED
     OCTOPRINT_ENABLED="true"
   fi
 }
@@ -104,9 +106,7 @@ get_user_selections_dwc2(){
   #ask user to install reverse proxy
   dwc2_reverse_proxy_dialog
   #ask to change hostname
-  if [ "$SET_REVERSE_PROXY" = "true" ]; then
-    create_custom_hostname
-  fi
+  [ "$SET_NGINX_CFG" = "true" ] && create_custom_hostname
   #ask user to disable octoprint when such installed service was found
   if [ "$OCTOPRINT_ENABLED" = "true" ]; then
     unset DISABLE_OPRINT
@@ -191,7 +191,7 @@ download_dwc2_webui(){
   GET_DWC2_URL=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4`
   cd $DWC2_DIR
   status_msg "Downloading DWC2 Web UI ..."
-  wget $GET_DWC2_URL
+  wget -O $GET_DWC2_URL
   ok_msg "Download complete!"
   status_msg "Unzipping archive ..."
   unzip -q -o *.zip
@@ -295,7 +295,6 @@ DEFAULT_DWC2_CFG
 #############################################################
 
 dwc2_reverse_proxy_dialog(){
-  unset SET_REVERSE_PROXY
   echo
   top_border
   echo -e "|  If you want to have a nicer URL or simply need/want  | "
@@ -306,14 +305,53 @@ dwc2_reverse_proxy_dialog(){
     read -p "${cyan}###### Do you want to set up a reverse proxy now? (y/N):${default} " yn
     case "$yn" in
       Y|y|Yes|yes)
-        SET_REVERSE_PROXY="true"
+        dwc2_port_check
         break;;
       N|n|No|no|"")
-        SET_REVERSE_PROXY="false"
         break;;
       *)
         print_unkown_cmd
         print_msg && clear_msg;;
     esac
+  done
+}
+
+dwc2_port_check(){
+  if [ "$DWC2_ENABLED" = "false" ]; then
+    if [ "$SITE_ENABLED" = "true" ]; then
+      echo "Detected other enabled Interfaces:"
+      [ "$OCTOPRINT_ENABLED" = "true" ] && echo "${cyan}● OctoPrint - Port:$OCTOPRINT_PORT${default}"
+      [ "$MAINSAIL_ENABLED" = "true" ] && echo "${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
+      [ "$FLUIDD_ENABLED" = "true" ] && echo "${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
+      if [ "$MAINSAIL_PORT" = "80" ] || [ "$OCTOPRINT_PORT" = "80" ] || [ "$FLUIDD_PORT" = "80" ]; then
+        PORT_80_BLOCKED="true"
+      fi
+      if [ "$PORT_80_BLOCKED" = "true" ]; then
+        [ "$OCTOPRINT_PORT" = "80" ] && echo "${cyan}OctoPrint${default} already listens on Port 80!"
+        [ "$MAINSAIL_PORT" = "80" ] && echo "${cyan}Mainsail${default} already listens on Port 80!"
+        [ "$FLUIDD_PORT" = "80" ] && echo "${cyan}Fluidd${default} already listens on Port 80!"
+        echo "You need to choose a different Port for DWC2 than the above!"
+        select_dwc2_port
+      fi
+    else
+      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/dwc2_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      SET_LISTEN_PORT=$DEFAULT_PORT
+    fi
+    SET_NGINX_CFG="true"
+  else
+    SET_NGINX_CFG="false"
+  fi
+}
+
+select_dwc2_port(){
+  while true; do
+    read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+    if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ]; then
+      echo "Setting port $NEW_PORT for DWC2!"
+      SET_LISTEN_PORT=$NEW_PORT
+      break
+    else
+      echo "That port is already taken! Select a different one!"
+    fi
   done
 }

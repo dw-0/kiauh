@@ -86,6 +86,8 @@ remove_moonraker(){
   $MOONRAKER_SERVICE2
   $MOONRAKER_DIR
   $MOONRAKER_ENV_DIR
+  $NGINX_CONFD/upstreams.conf
+  $NGINX_CONFD/common_vars.conf
   ${HOME}/moonraker.conf
   ${HOME}/moonraker.log
   ${HOME}/klipper_config/moonraker.log
@@ -139,6 +141,11 @@ remove_moonraker(){
       rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log ${HOME}/klipper_config/klippy.log /tmp/moonraker.log
       ok_msg "Files removed!"
     fi
+    #remove moonraker nginx config
+    if [[ -e $NGINX_CONFD/upstreams.conf || -e $NGINX_CONFD/common_vars.conf ]]; then
+      status_msg "Removing Moonraker NGINX configuration ..."
+      sudo rm -f $NGINX_CONFD/upstreams.conf $NGINX_CONFD/common_vars.conf && ok_msg "Moonraker NGINX configuration removed!"
+    fi
     #remove legacy api key
     if [ -e ${HOME}/.klippy_api_key ]; then
       status_msg "Removing legacy API Key ..."
@@ -180,6 +187,33 @@ remove_mainsail(){
       sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
     fi
     CONFIRM_MSG="Mainsail successfully removed!"
+  fi
+}
+
+remove_fluidd(){
+  data_arr=(
+  $fluidd_DIR
+  /etc/nginx/sites-available/fluidd
+  /etc/nginx/sites-enabled/fluidd
+  )
+  print_error "Fluidd" && data_count=()
+  if [ "$ERROR_MSG" = "" ]; then
+    #remove fluidd dir
+    if [ -d $FLUIDD_DIR ]; then
+      status_msg "Removing Fluidd directory ..."
+      rm -rf $FLUIDD_DIR && ok_msg "Directory removed!"
+    fi
+    #remove fluidd config for nginx
+    if [ -e /etc/nginx/sites-available/fluidd ]; then
+      status_msg "Removing Fluidd configuration for Nginx ..."
+      sudo rm /etc/nginx/sites-available/fluidd && ok_msg "File removed!"
+    fi
+    #remove fluidd symlink for nginx
+    if [ -L /etc/nginx/sites-enabled/fluidd ]; then
+      status_msg "Removing Fluidd Symlink for Nginx ..."
+      sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
+    fi
+    CONFIRM_MSG="Fluidd successfully removed!"
   fi
 }
 

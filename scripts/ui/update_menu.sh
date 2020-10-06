@@ -21,6 +21,7 @@ update_ui(){
   echo -e "|                        |---------------|--------------| "
   echo -e "|  4) [Moonraker]        |  $(echo "$LOCAL_MOONRAKER_COMMIT")     | $(echo "$REMOTE_MOONRAKER_COMMIT")     | "
   echo -e "|  5) [Mainsail]         |  $(echo "$MAINSAIL_LOCAL_VER")        | $(echo "$MAINSAIL_REMOTE_VER")        | "
+  echo -e "|  6) [Fluidd]           |  $(echo "$FLUIDD_LOCAL_VER")        | $(echo "$FLUIDD_REMOTE_VER")        | "
   quit_footer
 }
 
