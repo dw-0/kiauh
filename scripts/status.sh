@@ -87,8 +87,8 @@ mainsail_status(){
   mcount=0
   mainsail_data=(
     $MAINSAIL_DIR
-    NGINX_SA/mainsail
-    NGINX_SE/mainsail
+    $NGINX_SA/mainsail
+    $NGINX_SE/mainsail
   )
   #count+1 for each found data-item from array
   for md in "${mainsail_data[@]}"
@@ -110,8 +110,8 @@ fluidd_status(){
   fcount=0
   fluidd_data=(
     $FLUIDD_DIR
-    NGINX_SA/fluidd
-    NGINX_SE/fluidd
+    $NGINX_SA/fluidd
+    $NGINX_SE/fluidd
   )
   #count+1 for each found data-item from array
   for fd in "${fluidd_data[@]}"
