@@ -17,8 +17,8 @@ KLIPPY_ENV_DIR=${HOME}/klippy-env
 KLIPPER_SERVICE1=/etc/init.d/klipper
 KLIPPER_SERVICE2=/etc/default/klipper
 #nginx
-NGINX_SA=/etc/nginx/sites_available
-NGINX_SE=/etc/nginx/sites_enabled
+NGINX_SA=/etc/nginx/sites-available
+NGINX_SE=/etc/nginx/sites-enabled
 NGINX_CONFD=/etc/nginx/conf.d
 #moonraker
 MOONRAKER_DIR=${HOME}/moonraker
