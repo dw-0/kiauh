@@ -6,9 +6,9 @@
 
 ## 📢 Disclaimer: Usage of this script happens at your own risk!
 
-This script is "only" a helping hand for you to get set up in a fast and most comfortable way.\
-**This does not mean, it will relieve you of using brain.exe! 🧠**\
-Feel free to give it a try if you want. If you have suggestions or encounter any problems, please report them.
+This script acts as a helping hand for you to get set up in a fast and comfortable way.\
+**This does not mean, it will relieve you of using your brain.exe! 🧠**\
+Feel free to give it a try. If you have suggestions or encounter any problems, please report them.
 
 ---
 
@@ -48,7 +48,7 @@ Feel free to check out his work.
 - **Removing** of all the listed installations above.
 - **Backup** of all the listed installations above.
 
-What also is possible:
+**What also is possible:**
 
 - Build the Klipper Firmware
 - Flash the MCU
@@ -84,7 +84,7 @@ https://github.com/KevinOConnor/klipper
 
 **⛵Klipper S-Curve fork** by [dmbutyugin](https://github.com/dmbutyugin) :
 
-https://github.com/dmbutyugin/klipper/tree/scurve-smoothing\
+https://github.com/dmbutyugin/klipper/tree/scurve-smoothing \
 https://github.com/dmbutyugin/klipper/tree/scurve-shaping
 
 ---
@@ -121,7 +121,7 @@ https://github.com/Stephan3/dwc2-for-klipper-socket
 
 **🐙OctoPrint Webinterface** by [OctoPrint](https://github.com/OctoPrint) :
 
-https://octoprint.org\
+https://octoprint.org \
 https://github.com/OctoPrint/OctoPrint
 
 ---
