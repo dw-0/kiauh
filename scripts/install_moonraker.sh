@@ -671,27 +671,22 @@ handle_haproxy_lighttpd(){
 test_api(){
   HOST_IP=$(hostname -I | cut -d" " -f1)
   status_msg "Testing API ..."
-  sleep 5
-  status_msg "API response from http://$HOST_IP:7125/printer/info :"
-  API_RESPONSE=$(curl -sG4m5 http://$HOST_IP:7125/printer/info)
-  echo -e "${cyan}$API_RESPONSE${default}"
-  if [ $(curl -sG4 "http://$HOST_IP:7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+  status_msg "Please wait ..."
+  sleep 15
+  status_msg "API response from http://"$HOST_IP":7125/printer/info :"
+  echo -e "${cyan}$(curl -s "http://"$HOST_IP":7125/printer/info")${default}"
+  if [ $(curl -s "http://"$HOST_IP":7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
     echo; ok_msg "Klipper API is working correctly!"; echo
   else
     echo; warn_msg "Klipper API not working correctly!"; echo
   fi
+  status_msg "Testing Nginx ..."
+  status_msg "Please wait ..."
+  status_msg "API response from http://"$HOST_IP"/printer/info :"
+  echo -e "${cyan}$(curl -s "http://"$HOST_IP"/printer/info")${default}"
+  if [ $(curl -s "http://"$HOST_IP"/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+    echo; ok_msg "Nginx is working correctly!"; echo
+  else
+    echo; warn_msg "Nginx is not working correctly!"; echo
+  fi
 }
-
-#test_nginx(){
-#  HOST_IP=$(hostname -I | cut -d" " -f1)
-#  status_msg "Testing Nginx ..."
-#  sleep 5
-#  status_msg "API response from http://$HOST_IP/printer/info :"
-#  API_RESPONSE="$(curl -sG4m5 http://$HOST_IP/printer/info)"
-#  echo -e "${cyan}$API_RESPONSE${default}"
-#  if [ $(curl -sG4 "http://$HOST_IP/printer/info" | grep '^{"result"' -c) -eq 1 #]; then
-#    echo; ok_msg "Nginx is working correctly!"; echo
-#  else
-#    echo; warn_msg "Nginx is not working correctly!"; echo
-#  fi
-#}
