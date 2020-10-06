@@ -188,10 +188,10 @@ patch_klipper_sysfile_dwc2(){
 
 download_dwc2_webui(){
   #get Duet Web Control
-  GET_DWC2_URL=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4`
+  GET_DWC2_URL=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4)
   cd $DWC2_DIR
   status_msg "Downloading DWC2 Web UI ..."
-  wget -O $GET_DWC2_URL
+  wget $GET_DWC2_URL
   ok_msg "Download complete!"
   status_msg "Unzipping archive ..."
   unzip -q -o *.zip
