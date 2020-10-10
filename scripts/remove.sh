@@ -204,7 +204,7 @@ remove_mainsail(){
 
 remove_fluidd(){
   data_arr=(
-  $fluidd_DIR
+  $FLUIDD_DIR
   /etc/nginx/sites-available/fluidd
   /etc/nginx/sites-enabled/fluidd
   )
