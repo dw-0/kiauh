@@ -7,7 +7,7 @@ install_fluidd(){
     fluidd_port_check
     #creating the fluidd nginx cfg
     set_nginx_cfg "fluidd"
-    fluidd_setup && ok_msg "Fluidd installation complete!"; echo
+    fluidd_setup
   fi
 }
 
@@ -64,24 +64,26 @@ select_fluidd_port(){
 }
 
 get_fluidd_ver(){
-  FLUIDD_VERSION=$(curl -s https://api.github.com/repositories/295836951/tags | grep name | cut -d'"' -f4 | cut -d"v" -f2 | head -1)
-}
-
-fluidd_dl_url(){
-  get_fluidd_ver
-  FLUIDD_URL=https://github.com/cadriel/fluidd/releases/download/v$FLUIDD_VERSION/fluidd_v$FLUIDD_VERSION.zip
+  FLUIDD_VERSION=$(curl -s https://api.github.com/repositories/295836951/releases/latest | grep tag_name | cut -d'"' -f4 | cut -d"v" -f2)
 }
 
 fluidd_setup(){
-  fluidd_dl_url
+  #get fluidd download url
+  FLUIDD_DL_URL=$(curl -s https://api.github.com/repositories/295836951/releases/latest | grep browser_download_url | cut -d'"' -f4)
   #clean up an existing fluidd folder
   [ -d $FLUIDD_DIR ] && rm -rf $FLUIDD_DIR
   #create fresh fluidd folder and download fluidd
-  mkdir $FLUIDD_DIR
-  cd $FLUIDD_DIR
+  mkdir $FLUIDD_DIR && cd $FLUIDD_DIR
   status_msg "Downloading Fluidd $FLUIDD_VERSION ..."
-  wget -O fluidd.zip $FLUIDD_URL && status_msg "Extracting archive ..." && unzip -o fluidd.zip && rm fluidd.zip
-  ### write fluidd version to file for update check reasons
-  echo "$FLUIDD_VERSION" > $FLUIDD_DIR/version
+  wget $FLUIDD_DL_URL && ok_msg "Download complete!"
+  #extract archive
+  status_msg "Unzipping archive ..."
+  unzip -q -o *.zip && ok_msg "Done!"
+  #write fluidd version to file for update check reasons
+  status_msg "Writing Fluidd version to file ..."
+  get_fluidd_ver && echo $FLUIDD_VERSION > $FLUIDD_DIR/version && ok_msg "Done!"
+  #delete downloaded zip
+  status_msg "Do a little cleanup ..."
+  rm -rf *.zip && ok_msg "Done!" && ok_msg "Fluidd installation complete!"
   echo
 }
