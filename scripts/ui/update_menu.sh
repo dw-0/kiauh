@@ -73,6 +73,12 @@ update_menu(){
         update_mainsail && ui_print_versions
         print_msg && clear_msg
         update_ui;;
+      6)
+        clear
+        print_header
+        update_fluidd && ui_print_versions
+        print_msg && clear_msg
+        update_ui;;
       a)
         clear
         print_header

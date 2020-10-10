@@ -98,6 +98,12 @@ update_mainsail(){
   mainsail_setup
 }
 
+update_fluidd(){
+  bb4u "fluidd"
+  status_msg "Updating Fluidd ..."
+  fluidd_setup
+}
+
 update_moonraker(){
   stop_klipper && sleep 2 && stop_moonraker
   bb4u "moonraker"
