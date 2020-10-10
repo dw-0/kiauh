@@ -2,6 +2,12 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2020-10-10:
+
+Support for changing the Klipper branch to the moonraker-dev branch from @Arksine has been dropped. Support for Moonraker has been merged into Klipper mainline a long time ago.
+
+A new function is available from the main menu. You can now upload your log files to http://paste.c-net.org/ to share them for debugging purposes.
+
 ### 2020-10-06:
 
 Fluidd, a new Klipper interface got added to the list of available installers. At the same time some installation routines have changed or have seen some rework. Changes were made to the installation of NGINX configurations. A method was introduced to change the listen port of a webinterface configuration if there is already another webinterface listening on the default port (80).\

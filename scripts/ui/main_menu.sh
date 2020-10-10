@@ -2,17 +2,15 @@ main_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|                      |                                |"
-  echo -e "|  1) [Install]        |    Klipper: $KLIPPER_STATUS|"
-  echo -e "|  2) [Update]         |     Branch: ${cyan}$PRINT_BRANCH${default}|"
+  echo -e "|  0) [Upload Log]     |    Klipper: $KLIPPER_STATUS|"
+  echo -e "|                      |     Branch: ${cyan}$PRINT_BRANCH${default}|"
+  echo -e "|  1) [Install]        |                                |"
+  echo -e "|  2) [Update]         |  Moonraker: $MOONRAKER_STATUS|"
   echo -e "|  3) [Remove]         |                                |"
-  echo -e "|                      |  Moonraker: $MOONRAKER_STATUS|"
-  echo -e "|  4) [Advanced]       |                                |"
-  echo -e "|  5) [Backup]         |       DWC2: $DWC2_STATUS|"
-  echo -e "|                      |     Fluidd: $FLUIDD_STATUS|"
-  echo -e "|                      |   Mainsail: $MAINSAIL_STATUS|"
+  echo -e "|                      |       DWC2: $DWC2_STATUS|"
+  echo -e "|  4) [Advanced]       |     Fluidd: $FLUIDD_STATUS|"
+  echo -e "|  5) [Backup]         |   Mainsail: $MAINSAIL_STATUS|"
   echo -e "|                      |  Octoprint: $OCTOPRINT_STATUS|"
-  echo -e "|                      |                                |"
   quit_footer
 }
 
@@ -33,11 +31,8 @@ main_menu(){
   print_msg && clear_msg
   main_ui
   while true; do
-    echo -e "${cyan}"
-    read -p "Perform action: " action; echo
-    echo -e "${default}"
+    read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
-      8) read_listen_port;;
       update)
         clear
         print_header
@@ -47,7 +42,7 @@ main_menu(){
       0)
         clear
         print_header
-        ERROR_MSG="Sorry this function is not implemented yet!"
+        upload_selection
         print_msg && clear_msg
         main_ui;;
       1)

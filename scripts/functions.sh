@@ -28,7 +28,7 @@ locate_printer_cfg(){
 }
 
 source_ini(){
-  source ${HOME}/kiauh/kiauh.ini
+  source ${SRCDIR}/kiauh/kiauh.ini
 }
 
 start_klipper(){

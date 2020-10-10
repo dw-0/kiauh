@@ -2,13 +2,17 @@
 clear
 set -e
 
-### set some variables
-ERROR_MSG=""
+### set color variables
 green=$(echo -en "\e[92m")
 yellow=$(echo -en "\e[93m")
 red=$(echo -en "\e[91m")
 cyan=$(echo -en "\e[96m")
 default=$(echo -en "\e[97m")
+
+### sourcing all additional scripts
+SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
+for script in "${SRCDIR}/kiauh/scripts/"*.sh; do . $script; done
+for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . $script; done
 
 ### set important directories
 #klipper
@@ -39,7 +43,7 @@ OCTOPRINT_CFG_DIR=${HOME}/.octoprint
 OCTOPRINT_SERVICE1=/etc/init.d/octoprint
 OCTOPRINT_SERVICE2=/etc/default/octoprint
 #misc
-INI_FILE=${HOME}/kiauh/kiauh.ini
+INI_FILE=${SRCDIR}/kiauh/kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
 
 ### set github repos
@@ -49,7 +53,6 @@ DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
 DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
 MOONRAKER_REPO=https://github.com/Arksine/moonraker.git
 #branches
-BRANCH_MOONRAKER=Arksine/dev-moonraker-testing
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
 
@@ -94,11 +97,6 @@ clear_msg(){
   unset CONFIRM_MSG
   unset ERROR_MSG
 }
-
-### sourcing all additional scripts
-SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
-for script in "${SRCDIR}/kiauh/scripts/"*.sh; do . $script; done
-for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . $script; done
 
 check_euid
 kiauh_status

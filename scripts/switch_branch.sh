@@ -21,12 +21,3 @@ switch_to_scurve_smoothing(){
   fi
   git fetch dmbutyugin -q && git checkout $BRANCH_SCURVE_SMOOTHING -q
 }
-
-switch_to_moonraker(){
-  cd $KLIPPER_DIR
-  status_msg "Switching...Please wait ..."; echo
-  if ! git remote | grep Arksine -q; then
-    git remote add Arksine $ARKSINE_REPO
-  fi
-  git fetch Arksine -q && git checkout $BRANCH_MOONRAKER -q
-}

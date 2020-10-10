@@ -25,7 +25,7 @@ set_nginx_cfg(){
     if [ "$SET_LISTEN_PORT" != "" ]; then
       ok_msg "$1 listening on port $SET_LISTEN_PORT!"
     else
-      ok_msg "$1 listening on def-port $DEFAULT_PORT!"
+      ok_msg "$1 listening on default port $DEFAULT_PORT!"
     fi
     #remove nginx default config
     [ -e /etc/nginx/sites-enabled/default ] && sudo rm /etc/nginx/sites-enabled/default
