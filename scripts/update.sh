@@ -31,6 +31,9 @@ update_all(){
     if [ "$MAINSAIL_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● Mainsail${default}                                           |"
     fi
+    if [ "$FLUIDD_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● Fluidd${default}                                           |"
+    fi
     bottom_border
     if [ "${#update_arr[@]}" != "0" ]; then
       read -p "${cyan}###### Do you want to proceed? (Y/n):${default} " yn
