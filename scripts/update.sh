@@ -32,7 +32,7 @@ update_all(){
       echo -e "|  ${cyan}● Mainsail${default}                                           |"
     fi
     if [ "$FLUIDD_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Fluidd${default}                                           |"
+      echo -e "|  ${cyan}● Fluidd${default}                                             |"
     fi
     bottom_border
     if [ "${#update_arr[@]}" != "0" ]; then

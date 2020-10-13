@@ -99,5 +99,6 @@ clear_msg(){
 }
 
 check_euid
+init_ini
 kiauh_status
 main_menu
