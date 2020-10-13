@@ -259,7 +259,9 @@ create_shell_command_example(){
 }
 
 init_ini(){
-  [ ! -f $INI_FILE ] && touch $INI_FILE
+  if [ ! -f $INI_FILE ]; then
+    echo -e "#don't edit this file if you don't know what you are doing...\c" > $INI_FILE
+  fi
   if [ ! $(grep -E "^backup_before_update=." $INI_FILE) ]; then
     echo -e "\nbackup_before_update=false\c" >> $INI_FILE
   fi
