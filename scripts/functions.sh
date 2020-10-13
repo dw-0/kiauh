@@ -257,3 +257,22 @@ create_shell_command_example(){
     done
   fi
 }
+
+init_ini(){
+  [ ! -f $INI_FILE ] && touch $INI_FILE
+  if [ ! $(grep -E "^backup_before_update=." $INI_FILE) ]; then
+    echo -e "\nbackup_before_update=false\c" >> $INI_FILE
+  fi
+  if [ ! $(grep -E "^previous_origin_state=[[:alnum:]]" $INI_FILE) ]; then
+    echo -e "\nprevious_origin_state=0\c" >> $INI_FILE
+  fi
+  if [ ! $(grep -E "^previous_smoothing_state=[[:alnum:]]" $INI_FILE) ]; then
+    echo -e "\nprevious_smoothing_state=0\c" >> $INI_FILE
+  fi
+  if [ ! $(grep -E "^previous_shaping_state=[[:alnum:]]" $INI_FILE) ]; then
+    echo -e "\nprevious_shaping_state=0\c" >> $INI_FILE
+  fi
+  if [ ! $(grep -E "^logupload_accepted=." $INI_FILE) ]; then
+    echo -e "\nlogupload_accepted=false\c" >> $INI_FILE
+  fi
+}
