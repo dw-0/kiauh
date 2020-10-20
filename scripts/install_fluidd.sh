@@ -1,13 +1,18 @@
 install_fluidd(){
   if [ "$INST_FLUIDD" = "true" ]; then
-    unset SET_LISTEN_PORT
-    #check for other enabled web interfaces
-    detect_enabled_sites
-    #check if another site already listens to port 80
-    fluidd_port_check
-    #creating the fluidd nginx cfg
-    set_nginx_cfg "fluidd"
-    fluidd_setup
+    #check if moonraker is already installed
+    check_moonraker
+    if [ "$MOONRAKER_SERVICE_FOUND" = "true" ]; then
+      #check for other enabled web interfaces
+      unset SET_LISTEN_PORT
+      detect_enabled_sites
+      #check if another site already listens to port 80
+      fluidd_port_check
+      #creating the fluidd nginx cfg
+      set_nginx_cfg "fluidd"
+      test_nginx "$SET_LISTEN_PORT"
+      fluidd_setup
+    fi
   fi
 }
 

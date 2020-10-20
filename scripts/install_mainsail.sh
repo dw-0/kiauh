@@ -1,13 +1,30 @@
 install_mainsail(){
   if [ "$INST_MAINSAIL" = "true" ]; then
-    unset SET_LISTEN_PORT
-    #check for other enabled web interfaces
-    detect_enabled_sites
-    #check if another site already listens to port 80
-    mainsail_port_check
-    #creating the mainsail nginx cfg
-    set_nginx_cfg "mainsail"
-    mainsail_setup && ok_msg "Mainsail installation complete!"; echo
+    #check if moonraker is already installed
+    check_moonraker
+    if [ "$MOONRAKER_SERVICE_FOUND" = "true" ]; then
+      #check for other enabled web interfaces
+      unset SET_LISTEN_PORT
+      detect_enabled_sites
+      #check if another site already listens to port 80
+      mainsail_port_check
+      #creating the mainsail nginx cfg
+      set_nginx_cfg "mainsail"
+      test_nginx "$SET_LISTEN_PORT"
+      mainsail_setup && ok_msg "Mainsail installation complete!"; echo
+    fi
+  fi
+}
+
+check_moonraker(){
+  status_msg "Checking for Moonraker service ..."
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
+    ok_msg "Moonraker service found!"; echo
+    MOONRAKER_SERVICE_FOUND="true"
+  else
+    warn_msg "Moonraker service not found!"
+    warn_msg "Please install Moonraker first!"; echo
+    MOONRAKER_SERVICE_FOUND="false"
   fi
 }
 

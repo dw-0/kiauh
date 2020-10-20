@@ -19,9 +19,6 @@ install_moonraker(){
   restart_moonraker
   restart_klipper
   test_api
-  #test_nginx
-  #install_mainsail
-  #install_fluidd
 }
 
 system_check_moonraker(){
@@ -679,14 +676,5 @@ test_api(){
     echo; ok_msg "Klipper API is working correctly!"; echo
   else
     echo; warn_msg "Klipper API not working correctly!"; echo
-  fi
-  status_msg "Testing Nginx ..."
-  status_msg "Please wait ..."
-  status_msg "API response from http://"$HOST_IP"/printer/info :"
-  echo -e "${cyan}$(curl -s "http://"$HOST_IP"/printer/info")${default}"
-  if [ $(curl -s "http://"$HOST_IP"/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
-    echo; ok_msg "Nginx is working correctly!"; echo
-  else
-    echo; warn_msg "Nginx is not working correctly!"; echo
   fi
 }
