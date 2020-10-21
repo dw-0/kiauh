@@ -73,7 +73,7 @@ advanced_menu(){
       6)
         clear
         print_header
-        create_custom_hostname
+        create_custom_hostname && set_hostname
         print_msg && clear_msg
         advanced_ui;;
       7)

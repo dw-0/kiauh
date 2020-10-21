@@ -178,11 +178,7 @@ set_hostname(){
     sudo hostnamectl set-hostname "$NEW_HOSTNAME"
     #write new hostname to /etc/hosts
     status_msg "Writing new hostname to /etc/hosts ..."
-    if cat /etc/hosts | grep "###set by kiauh" &>/dev/null; then
-      sudo sed -i "/###set by kiauh/s/\<$HOSTNAME\>/$NEW_HOSTNAME/" /etc/hosts
-    else
-      echo "127.0.0.1     $NEW_HOSTNAME ###set by kiauh" | sudo tee -a /etc/hosts &>/dev/null
-    fi
+    echo "127.0.0.1     $NEW_HOSTNAME" | sudo tee -a /etc/hosts &>/dev/null
     ok_msg "New hostname successfully configured!"
     ok_msg "Remember to reboot for the changes to take effect!"
   fi
