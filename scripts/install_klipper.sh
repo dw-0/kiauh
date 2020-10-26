@@ -15,13 +15,13 @@ get_user_selections_klipper(){
   #ask user for building firmware
   while true; do
       echo
-      read -p "${cyan}###### Do you want to build the Firmware? (Y/n):${default} " yn
+      read -p "${cyan}###### Do you want to build the Firmware? (y/N):${default} " yn
       case "$yn" in
-        Y|y|Yes|yes|"")
+        Y|y|Yes|yes)
           echo -e "###### > Yes"
           BUILD_FIRMWARE="true"
           break;;
-        N|n|No|no)
+        N|n|No|no|"")
           echo -e "###### > No"
           BUILD_FIRMWARE="false"
           break;;
@@ -33,14 +33,14 @@ get_user_selections_klipper(){
   #ask user for flashing mcu
   while true; do
       echo
-      read -p "${cyan}###### Do you want to flash your MCU? (Y/n):${default} " yn
+      read -p "${cyan}###### Do you want to flash your MCU? (y/N):${default} " yn
       case "$yn" in
-        Y|y|Yes|yes|"")
+        Y|y|Yes|yes)
           echo -e "###### > Yes"
           FLASH_FIRMWARE="true"
           flash_routine
           break;;
-        N|n|No|no)
+        N|n|No|no|"")
           echo -e "###### > No"
           FLASH_FIRMWARE="false"
           break;;
