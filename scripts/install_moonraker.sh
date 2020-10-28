@@ -46,9 +46,13 @@ system_check_moonraker(){
     OCTOPRINT_ENABLED="true"
   fi
   #check if haproxy is installed
-  [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]] && HAPROXY_FOUND="true"
+  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
+    HAPROXY_FOUND="true"
+  fi
   #check if lighttpd is installed
-  [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]] && LIGHTTPD_FOUND="true"
+  if [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]]; then
+    LIGHTTPD_FOUND="true"
+  fi
 }
 
 get_user_selections_moonraker(){
@@ -254,8 +258,7 @@ moonraker_setup(){
   patch_klipper_sysfile
   #re-run printer.cfg location function to read the new path for the printer.cfg
   locate_printer_cfg
-  echo
-  ok_msg "Moonraker successfully installed!"
+  echo; ok_msg "Moonraker successfully installed!"
 }
 
 patch_klipper_sysfile(){
@@ -355,30 +358,35 @@ sc_check(){
 }
 
 read_printer_cfg(){
-  echo "selected: $1"
-  echo "pre sc"
   sc_check
-  echo "past sc"
   if [ "$1" = "moonraker" ]; then
-  echo "$1" && echo "moonraker"
     [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false"
     [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false"
     [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false"
   elif [ "$1" = "mainsail" ] || [ "$1" = "fluidd" ]; then
-    echo "$1" && echo "mainsail/fluidd"
     [ ! "$(grep '^\[include webui_macros\.cfg\]$' $PRINTER_CFG)" ] && WEBUI_MACROS="false"
   fi
 }
 
 write_printer_cfg(){
-  unset write_entries
-  [ "$VSD" = "false" ] && write_entries+=("[virtual_sdcard]\npath: ~/sdcard")
-  [ "$PAUSE_RESUME" = "false" ] && write_entries+=("[pause_resume]")
-  [ "$DISPLAY_STATUS" = "false" ] && write_entries+=("[display_status]")
-  [ "$WEBUI_MACROS" = "false" ] && [ "$ADD_WEBUI_MACROS" = "true" ] && write_entries+=("[include webui_macros.cfg]")
-  [ "${#write_entries[@]}" != "0" ] && write_entries=("##### AUTOCREATED BY KIAUH #####" "${write_entries[@]}")
-  #write needed entries to kiauh.cfg
-  for entry in "${write_entries[@]}"; do echo -e "$entry" >> ~/klipper_config/kiauh.cfg; done
+  #create kiauh.cfg if its needed and doesn't exist
+  if [ "$VSD" = "false" ] || [ "$PAUSE_RESUME" = "false" ] || [ "$DISPLAY_STATUS" = "false" ] || [ "$WEBUI_MACROS" = "false" ] && [ ! -f ~/klipper_config/kiauh.cfg ]; then
+    status_msg "Creating kiauh.cfg ..."
+    echo -e "##### AUTOCREATED BY KIAUH #####" > ~/klipper_config/kiauh.cfg
+  fi
+  #write each entry to kiauh.cfg if it doesn't exist
+  if [ "$VSD" = "false" ] && [[ ! $(grep '^\[virtual_sdcard\]$' ~/klipper_config/kiauh.cfg) ]]; then
+    echo -e "\n[virtual_sdcard]\npath: ~/sdcard\c" >> ~/klipper_config/kiauh.cfg
+  fi
+  if [ "$PAUSE_RESUME" = "false" ] && [[ ! $(grep '^\[pause_resume]$' ~/klipper_config/kiauh.cfg) ]]; then
+    echo -e "\n[pause_resume]\c" >> ~/klipper_config/kiauh.cfg
+  fi
+  if [ "$DISPLAY_STATUS" = "false" ] && [[ ! $(grep '^\[display_status]$' ~/klipper_config/kiauh.cfg) ]]; then
+    echo -e "\n[display_status]\c" >> ~/klipper_config/kiauh.cfg
+  fi
+  if [ "$WEBUI_MACROS" = "false" ] && [ "$ADD_WEBUI_MACROS" = "true" ] && [[ ! $(grep '^\[include webui_macros.cfg]$' ~/klipper_config/kiauh.cfg) ]]; then
+    echo -e "\n[include webui_macros.cfg]\c" >> ~/klipper_config/kiauh.cfg
+  fi
   #execute writing to printer.cfg
   if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ]; then
     status_msg "Writing [include kiauh.cfg] to printer.cfg ..."
