@@ -15,9 +15,10 @@ klipper_status(){
   klipper_data=(
     $KLIPPER_DIR
     $KLIPPY_ENV_DIR
-    $KLIPPER_SERVICE1
-    $KLIPPER_SERVICE2
+    SERVICE
   )
+  #remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
+  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && unset klipper_data[2]
   #count+1 for each found data-item from array
   for kd in "${klipper_data[@]}"
   do

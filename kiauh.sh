@@ -20,6 +20,7 @@ KLIPPER_DIR=${HOME}/klipper
 KLIPPY_ENV_DIR=${HOME}/klippy-env
 KLIPPER_SERVICE1=/etc/init.d/klipper
 KLIPPER_SERVICE2=/etc/default/klipper
+KLIPPER_SERVICE3=/etc/systemd/system/klipper.service
 #nginx
 NGINX_SA=/etc/nginx/sites-available
 NGINX_SE=/etc/nginx/sites-enabled
