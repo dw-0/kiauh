@@ -330,7 +330,7 @@ patch_klipper_sysfile(){
       SERVICE_FILE_PATCHED="true"
     fi
     #reloading the units is only needed when the service file was patched.
-    [ "$SERVICE_FILE_PATCHED" = "true" ] && echo "test: daemon-reload" && sudo systemctl daemon-reload
+    [ "$SERVICE_FILE_PATCHED" = "true" ] && status_msg "Reloading unit ..." && sudo systemctl daemon-reload
   fi
   ok_msg "Check complete!"
   echo
