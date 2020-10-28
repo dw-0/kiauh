@@ -2,6 +2,7 @@ remove_klipper(){
   data_arr=(
   /etc/init.d/klipper
   /etc/default/klipper
+  /etc/systemd/system/klipper.service
   $KLIPPER_DIR
   $KLIPPY_ENV_DIR
   ${HOME}/klippy.log
@@ -13,6 +14,13 @@ remove_klipper(){
       status_msg "Removing Klipper Service ..."
       sudo rm -rf /etc/init.d/klipper /etc/default/klipper
       sudo update-rc.d -f klipper remove
+      ok_msg "Klipper Service removed!"
+    fi
+    if [ -e /etc/systemd/system/klipper.service ]; then
+      status_msg "Removing Klipper Service ..."
+      sudo rm -rf /etc/systemd/system/klipper.service
+      sudo update-rc.d -f klipper remove
+      sudo systemctl daemon-reload
       ok_msg "Klipper Service removed!"
     fi
     if [[ -d $KLIPPER_DIR || -d $KLIPPY_ENV_DIR ]]; then

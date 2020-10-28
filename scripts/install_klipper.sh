@@ -1,5 +1,5 @@
 install_klipper(){
-  if [ -e /etc/init.d/klipper ] && [ -e /etc/default/klipper ]; then
+  if [ -e $KLIPPER_SERVICE1 ] && [ -e $KLIPPER_SERVICE2 ] || [ -e $KLIPPER_SERVICE3 ]; then
     ERROR_MSG="Looks like Klipper is already installed!"
   else
     get_user_selections_klipper
@@ -12,6 +12,37 @@ install_klipper(){
 
 get_user_selections_klipper(){
   status_msg "Initializing Klipper installation ..."
+  #let user choose to install systemd or init.d service
+  unset INST_SYSTEMD
+  unset INST_INITD
+  while true; do
+    echo
+    top_border
+    echo -e "| Do you want to install Klipper as:                    |"
+    echo -e "| 1) Init.d Service (default)                           |"
+    echo -e "| 2) Systemd Service                                    |"
+    hr
+    echo -e "| Please use the appropriate option for your chosen     |"
+    echo -e "| Linux distribution. If you are unsure what to select, |"
+    echo -e "| please do some research before.                       |"
+    hr
+    echo -e "| If you run Raspberry Pi OS, both options will work.   |"
+    bottom_border
+    read -p "${cyan}###### Please choose:${default} " action
+    case "$action" in
+      1|"")
+        INST_KLIPPER_INITD="true"
+        INST_KLIPPER_SYSTEMD="false"
+        break;;
+      2)
+        INST_KLIPPER_INITD="false"
+        INST_KLIPPER_SYSTEMD="true"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
   #ask user for building firmware
   while true; do
       echo
@@ -61,14 +92,12 @@ klipper_setup(){
   git clone $KLIPPER_REPO
   ok_msg "Klipper successfully cloned!"
   status_msg "Installing Klipper Service ..."
-  $KLIPPER_DIR/scripts/install-octopi.sh
-  ok_msg "Klipper installation complete!"
-  #create a klippy.log symlink in home-dir just for convenience
-  if [ ! -e ${HOME}/klippy.log ]; then
-    status_msg "Creating klippy.log Symlink ..."
-    ln -s /tmp/klippy.log ${HOME}/klippy.log
-    ok_msg "Symlink created!"
+  if [ "$INST_KLIPPER_INITD" = "true" ]; then
+    $KLIPPER_DIR/scripts/install-octopi.sh
+  elif [ "$INST_KLIPPER_SYSTEMD" = "true" ]; then
+    $KLIPPER_DIR/scripts/install-debian.sh
   fi
+  ok_msg "Klipper installation complete!"
 }
 
 flash_routine(){
