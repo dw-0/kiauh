@@ -99,13 +99,13 @@ get_user_selections_moonraker(){
   if [ "$KLIPPY_SL_FOUND" = "false" ]; then
     while true; do
       echo
-      read -p "${cyan}###### Create klippy.log symlink? (Y/n):${default} " yn
+      read -p "${cyan}###### Create klippy.log symlink? (y/N):${default} " yn
       case "$yn" in
-        Y|y|Yes|yes|"")
+        Y|y|Yes|yes)
           echo -e "###### > Yes"
           SEL_KLIPPYLOG_SL="true"
           break;;
-        N|n|No|no)
+        N|n|No|no|"")
           echo -e "###### > No"
           SEL_KLIPPYLOG_SL="false"
           break;;
@@ -119,13 +119,13 @@ get_user_selections_moonraker(){
   if [ "$MOONRAKER_SL_FOUND" = "false" ]; then
     while true; do
       echo
-      read -p "${cyan}###### Create moonraker.log symlink? (Y/n):${default} " yn
+      read -p "${cyan}###### Create moonraker.log symlink? (y/N):${default} " yn
       case "$yn" in
-        Y|y|Yes|yes|"")
+        Y|y|Yes|yes)
           echo -e "###### > Yes"
           SEL_MRLOG_SL="true"
           break;;
-        N|n|No|no)
+        N|n|No|no|"")
           echo -e "###### > No"
           SEL_MRLOG_SL="false"
           break;;
