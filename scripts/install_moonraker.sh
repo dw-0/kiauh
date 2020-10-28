@@ -65,43 +65,6 @@ system_check_moonraker(){
 }
 
 get_user_selections_moonraker(){
-  #ask if moonraker only or moonraker + mainsail
-  #while true; do
-  #  echo
-  #  top_border
-  #    echo -e "| Install the Moonraker API only?                       |"
-  #    blank_line
-  #    echo -e "| You can choose to install Moonraker and one of the    |"
-  #    echo -e "| following web interfaces:                             |"
-  #    echo -e "| 1) Mainsail                                           |"
-  #    echo -e "| 2) Fluidd                                             |"
-  #    hr
-  #    echo -e "| If you want to install a web interface later, just    |"
-  #    echo -e "| press 'ENTER' to continue the Moonraker installation. |"
-  #  bottom_border
-  #  read -p "${cyan}Please choose:${default} " selection
-  #  case "$selection" in
-  #    "")
-  #      echo -e "###### > Moonraker only"
-  #      INST_NOUI="true"
-  #      break;;
-  #    1)
-  #      echo -e "###### > Moonraker + Mainsail"
-  #      INST_MAINSAIL="true"
-  #      break;;
-  #    2)
-  #      echo -e "###### > Moonraker + Fluidd"
-  #      INST_FLUIDD="true"
-  #      break;;
-  #    *)
-  #      print_unkown_cmd
-  #      print_msg && clear_msg;;
-  #  esac
-  #done
-  ##ask to change hostname if mainsail should be installed as well
-  #if [ "$INST_MAINSAIL" = "true" ]; then
-  #  create_custom_hostname
-  #fi
   #user selection for printer.cfg
   if [ "$PRINTER_CFG_FOUND" = "false" ]; then
     unset SEL_DEF_CFG
@@ -331,19 +294,43 @@ moonraker_setup(){
 }
 
 patch_klipper_sysfile(){
-  status_msg "Checking /etc/default/klipper for necessary entries ..."
-  #patching new printer.cfg location to /etc/default/klipper
-  if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
-    status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
-    sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" /etc/default/klipper
-    ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+  if [ -e $KLIPPER_SERVICE2 ]; then
+    status_msg "Checking /etc/default/klipper for necessary entries ..."
+    #patching new printer.cfg location to /etc/default/klipper
+    if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
+      status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
+      sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE2
+      ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+    fi
+    #patching new UDS argument to /etc/default/klipper
+    if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
+      status_msg "Patching unix domain socket to /etc/default/klipper ..."
+      #append the new argument to /tmp/klippy.log argument
+      sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
+      ok_msg "Patching done!"
+    fi
   fi
-  #patching new UDS argument to /etc/default/klipper
-  if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
-    status_msg "Patching unix domain socket to /etc/default/klipper ..."
-    #append the new argument to /tmp/klippy.log argument
-    sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
-    ok_msg "Patching done!"
+  if [ -e $KLIPPER_SERVICE3 ]; then
+    status_msg "Checking /etc/systemd/system/klipper.service for necessary entries ..."
+    #patching new printer.cfg location to /etc/systemd/system/klipper.service
+    if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE3; then
+      status_msg "Patching new printer.cfg location to /etc/systemd/system/klipper.service ..."
+      sudo sed -i "/ExecStart=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE3
+      ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+      #set variable if file got edited
+      SERVICE_FILE_PATCHED="true"
+    fi
+    #patching new UDS argument to /etc/systemd/system/klipper.service
+    if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE3; then
+      status_msg "Patching unix domain socket to /etc/systemd/system/klipper.service ..."
+      #append the new argument to /tmp/klippy.log argument
+      sudo sed -i "/ExecStart/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE3
+      ok_msg "Patching done!"
+      #set variable if file got edited
+      SERVICE_FILE_PATCHED="true"
+    fi
+    #reloading the units is only needed when the service file was patched.
+    [ "$SERVICE_FILE_PATCHED" = "true" ] && echo "test: daemon-reload" && sudo systemctl daemon-reload
   fi
   ok_msg "Check complete!"
   echo
@@ -402,18 +389,10 @@ setup_printer_config_mainsail(){
 
 read_printer_cfg_mainsail(){
   SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  if [ ! $(grep '^\[virtual_sdcard\]$' $PRINTER_CFG) ]; then
-    VSD="false"
-  fi
-  if [ ! $(grep '^\[pause_resume\]$' $PRINTER_CFG) ]; then
-    PAUSE_RESUME="false"
-  fi
-  if [ ! $(grep '^\[display_status\]$' $PRINTER_CFG) ]; then
-    DISPLAY_STATUS="false"
-  fi
-  if [ ! "$(grep '^\[include mainsail_macros\.cfg\]$' $PRINTER_CFG)" ]; then
-    MS_MACRO="false"
-  fi
+  [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false"
+  [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false"
+  [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false"
+  [ ! "$(grep '^\[include mainsail_macros\.cfg\]$' $PRINTER_CFG)" ] && MS_MACRO="false"
   #check for a SAVE_CONFIG entry
   if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
     SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
