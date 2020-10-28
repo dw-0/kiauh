@@ -41,13 +41,13 @@ install_menu(){
       4)
         clear
         print_header
-        INST_MAINSAIL="true" && install_mainsail
+        install_mainsail
         print_msg && clear_msg
         install_ui;;
       5)
         clear
         print_header
-        INST_FLUIDD="true" && install_fluidd
+        install_fluidd
         print_msg && clear_msg
         install_ui;;
       6)
