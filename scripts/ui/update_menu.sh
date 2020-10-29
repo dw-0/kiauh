@@ -33,9 +33,7 @@ update_menu(){
   read_bb4u_stat
   update_ui
   while true; do
-    echo -e "${cyan}"
-    read -p "Perform action: " action; echo
-    echo -e "${default}"
+    read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       0)
         clear

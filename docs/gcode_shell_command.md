@@ -1,4 +1,4 @@
-# Shell Command Extension
+# G-Code Shell Command Extension
 
 ### Creator of this extension is [Arksine](https://github.com/Arksine).
 
@@ -12,7 +12,7 @@ After installing the extension you can execute linux commands or even scripts fr
 # Runs a linux command or script from within klipper.  Note that sudo commands
 # that require password authentication are disallowed. All executable scripts
 # should include a shebang.
-# [shell_command my_shell_cmd]
+# [gcode_shell_command my_shell_cmd]
 #command:
 #  The linux shell command/script to be executed.  This parameter must be
 #  provided
@@ -31,7 +31,7 @@ Once you have set up a shell command with the given parameters from above in you
 Example:
 
 ```
-[shell_command hello_world]
+[gcode_shell_command hello_world]
 command: echo hello world
 timeout: 2.
 verbose: True

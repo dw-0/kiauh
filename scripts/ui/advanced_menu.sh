@@ -23,9 +23,7 @@ advanced_menu(){
   read_octoprint_service_status
   advanced_ui
   while true; do
-    echo -e "${cyan}"
-    read -p "Perform action: " action; echo
-    echo -e "${default}"
+    read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       0)
         clear
@@ -79,7 +77,7 @@ advanced_menu(){
       7)
         clear
         print_header
-        install_extension_shell_command
+        setup_gcode_shell_command
         print_msg && clear_msg
         advanced_ui;;
       Q|q)
@@ -121,9 +119,7 @@ switch_menu(){
     print_msg && clear_msg
     switch_ui
     while true; do
-      echo -e "${cyan}"
-      read -p "Perform action: " action; echo
-      echo -e "${default}"
+      read -p "${cyan}Perform action:${default} " action; echo
       case "$action" in
         1)
           clear
