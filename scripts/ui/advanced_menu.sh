@@ -77,7 +77,7 @@ advanced_menu(){
       7)
         clear
         print_header
-        install_extension_shell_command
+        setup_gcode_shell_command
         print_msg && clear_msg
         advanced_ui;;
       Q|q)

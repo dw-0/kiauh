@@ -189,33 +189,42 @@ print_error(){
   fi
 }
 
-install_extension_shell_command(){
+setup_gcode_shell_command(){
   echo
   top_border
-  echo -e "| You are about to install the shell command extension. |"
-  echo -e "| Please make sure to read the instructions before you  |"
-  echo -e "| continue and remember that there are potential risks! |"
+  echo -e "| You are about to install the G-Code Shell Command     |"
+  echo -e "| extension. Please make sure to read the instructions  |"
+  echo -e "| before you continue and remember that potential risks |"
+  echo -e "| can be involved after installing this extension!      |"
+  blank_line
+  echo -e "| ${red}You accept that you are doing this on your own risk!${default}  |"
   bottom_border
   while true; do
     read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
     case "$yn" in
       Y|y|Yes|yes|"")
-        if [ -d $KLIPPER_DIR/klippy/extras ] && [ ! -f $KLIPPER_DIR/klippy/extras/shell_command.py ] ; then
-          status_msg "Installing shell command extension ..."
-          stop_klipper
-          cp ${HOME}/kiauh/resources/shell_command.py $KLIPPER_DIR/klippy/extras
-          status_msg "Creating example macro ..."
-          create_shell_command_example
-          ok_msg "Example macro created!"
-          ok_msg "Shell command extension installed!"
-          restart_klipper
+        if [ -d $KLIPPER_DIR/klippy/extras ]; then
+          status_msg "Installing gcode shell command extension ..."
+          status_msg "Copy gcode_shell_command.py to '$KLIPPER_DIR/klippy/extras' ..."
+          if [ -f $KLIPPER_DIR/klippy/extras/gcode_shell_command.py ]; then
+            warn_msg "There is already a file named 'gcode_shell_command.py'"
+            warn_msg "in the destination location!"
+            while true; do
+              read -p "${cyan}###### Do you want to overwrite it? (Y/n):${default} " yn
+              case "$yn" in
+                Y|y|Yes|yes|"")
+                  rm -f $KLIPPER_DIR/klippy/extras/gcode_shell_command.py
+                  install_gcode_shell_command
+                  break;;
+                N|n|No|no)
+                  break;;
+              esac
+            done
+          else
+            install_gcode_shell_command
+          fi
         else
-          if [ ! -d $KLIPPER_DIR/klippy/extras ]; then
-            ERROR_MSG="Folder ~/klipper/klippy/extras not found!"
-          fi
-          if [ -f $KLIPPER_DIR/klippy/extras/shell_command.py ]; then
-            ERROR_MSG="Extension already installed!"
-          fi
+          ERROR_MSG="Folder ~/klipper/klippy/extras not found!"
         fi
         break;;
       N|n|No|no)
@@ -227,12 +236,23 @@ install_extension_shell_command(){
   done
 }
 
+install_gcode_shell_command(){
+  stop_klipper
+  cp ${HOME}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
+  status_msg "Creating example macro ..."
+  locate_printer_cfg
+  create_shell_command_example
+  ok_msg "Example macro created!"
+  ok_msg "Shell command extension installed!"
+  restart_klipper
+}
+
 create_shell_command_example(){
   unset SC_ENTRY
   unset write_entries
   #check for a SAVE_CONFIG entry
   SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  if [[ $(grep "$SC" ${HOME}/printer.cfg) ]]; then
+  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
     SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
     PRE_SC_LINE=$(expr $SC_LINE - 1)
     SC_ENTRY="true"
@@ -243,10 +263,6 @@ create_shell_command_example(){
   write_entries+=("[shell_command hello_world]\ncommand: echo hello world\ntimeout: 2.\nverbose: True")
   #example macro
   write_entries+=("[gcode_macro HELLO_WORLD]\ngcode:\n    RUN_SHELL_COMMAND CMD=hello_world")
-  if [ "${#write_entries[@]}" != "0" ]; then
-    write_entries+=("\\\n############################\n##### CREATED BY KIAUH #####\n############################")
-    write_entries=("############################\n" "${write_entries[@]}")
-  fi
   #execute writing
   status_msg "Writing to printer.cfg ..."
   if [ "$SC_ENTRY" = "true" ]; then
