@@ -18,9 +18,7 @@ install_menu(){
   print_header
   install_ui
   while true; do
-    echo -e "${cyan}"
-    read -p "Perform action: " action; echo
-    echo -e "${default}"
+    read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       1)
         clear

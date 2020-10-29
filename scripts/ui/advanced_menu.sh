@@ -23,9 +23,7 @@ advanced_menu(){
   read_octoprint_service_status
   advanced_ui
   while true; do
-    echo -e "${cyan}"
-    read -p "Perform action: " action; echo
-    echo -e "${default}"
+    read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       0)
         clear
@@ -121,9 +119,7 @@ switch_menu(){
     print_msg && clear_msg
     switch_ui
     while true; do
-      echo -e "${cyan}"
-      read -p "Perform action: " action; echo
-      echo -e "${default}"
+      read -p "${cyan}Perform action:${default} " action; echo
       case "$action" in
         1)
           clear
