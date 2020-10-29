@@ -96,9 +96,9 @@ create_custom_hostname(){
   echo -e "|  You can change the hostname of this machine to use   |"
   echo -e "|  that name to open the Interface in your browser.     |"
   echo -e "|                                                       |"
-  echo -e "|  Example: If you set the hostname to 'my-printer'     |"
-  echo -e "|           you can open DWC2/Mainsail/Octoprint by     |"
-  echo -e "|           browsing to: http://my-printer.local        |"
+  echo -e "|  E.g.: If you set the hostname to 'my-printer' you    |"
+  echo -e "|        can open DWC2/Mainsail/Fluidd/Octoprint by     |"
+  echo -e "|        browsing to: http://my-printer.local           |"
   bottom_border
   while true; do
     read -p "${cyan}###### Do you want to change the hostname? (y/N):${default} " yn

@@ -8,13 +8,12 @@ install_moonraker(){
   moonraker_setup
   check_for_folder_moonraker
   #setup configs
-  setup_printer_config_mainsail
+  setup_printer_config_moonraker
   setup_moonraker_conf
   #execute customizations
   write_custom_trusted_clients
   symlinks_moonraker
   disable_octoprint
-  set_hostname
   #after install actions
   restart_moonraker
   restart_klipper
@@ -32,17 +31,9 @@ system_check_moonraker(){
     PRINTER_CFG_FOUND="false"
   fi
   #check for existing klippy.log symlink in /klipper_config
-  if [ ! -e ${HOME}/klipper_config/klippy.log ]; then
-    KLIPPY_SL_FOUND="false"
-  else
-    KLIPPY_SL_FOUND="true"
-  fi
+  [ ! -e ${HOME}/klipper_config/klippy.log ] && KLIPPY_SL_FOUND="false"
   #check for existing moonraker.log symlink in /klipper_config
-  if [ ! -e ${HOME}/klipper_config/moonraker.log ]; then
-    MOONRAKER_SL_FOUND="false"
-  else
-    MOONRAKER_SL_FOUND="true"
-  fi
+  [ ! -e ${HOME}/klipper_config/moonraker.log ] && MOONRAKER_SL_FOUND="false"
   #check for existing moonraker.conf
   if [ ! -f ${HOME}/moonraker.conf ]; then
     MOONRAKER_CONF_FOUND="false"
@@ -158,25 +149,6 @@ get_user_selections_moonraker(){
           print_msg && clear_msg;;
       esac
     done
-  #ask user for mainsail default macros
-    while true; do
-      unset ADD_MS_MACROS
-      echo
-      read -p "${cyan}###### Add the recommended Mainsail macros? (Y/n):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
-          ADD_MS_MACROS="true"
-          break;;
-        N|n|No|no)
-          echo -e "###### > No"
-          ADD_MS_MACROS="false"
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-      esac
-    done
   #ask user to disable octoprint when such installed service was found
   if [ "$OCTOPRINT_ENABLED" = "true" ]; then
     unset DISABLE_OPRINT
@@ -274,9 +246,6 @@ moonraker_setup(){
   dep=(wget curl unzip dfu-util nginx)
   dependency_check
   status_msg "Downloading Moonraker ..."
-  if [ -d $MOONRAKER_DIR ]; then
-    mv -f $MOONRAKER_DIR ${HOME}/moonraker_bak
-  fi
   cd ${HOME} && git clone $MOONRAKER_REPO
   ok_msg "Download complete!"
   status_msg "Installing Moonraker ..."
@@ -289,8 +258,7 @@ moonraker_setup(){
   patch_klipper_sysfile
   #re-run printer.cfg location function to read the new path for the printer.cfg
   locate_printer_cfg
-  echo
-  ok_msg "Moonraker successfully installed!"
+  echo; ok_msg "Moonraker successfully installed!"
 }
 
 patch_klipper_sysfile(){
@@ -354,7 +322,7 @@ check_for_folder_moonraker(){
 #############################################################
 #############################################################
 
-setup_printer_config_mainsail(){
+setup_printer_config_moonraker(){
   if [ "$PRINTER_CFG_FOUND" = "true" ]; then
     backup_printer_cfg
     #copy printer.cfg to new location if
@@ -365,79 +333,16 @@ setup_printer_config_mainsail(){
       ok_msg "printer.cfg location: '$PRINTER_CFG'"
       ok_msg "Done!"
     fi
-    #check printer.cfg for necessary mainsail entries
-    read_printer_cfg_mainsail
-    write_printer_cfg_mainsail
+    #check printer.cfg for necessary moonraker entries
+    read_printer_cfg "moonraker"
+    write_printer_cfg
   fi
   if [ "$SEL_DEF_CFG" = "true" ]; then
     status_msg "Creating minimal default printer.cfg ..."
-    create_default_mainsail_printer_cfg
+    create_default_moonraker_printer_cfg
     ok_msg "printer.cfg location: '$PRINTER_CFG'"
     ok_msg "Done!"
   fi
-  #copy mainsail_macro.cfg
-  if [ "$ADD_MS_MACROS" = "true" ]; then
-    status_msg "Create mainsail_macros.cfg ..."
-    if [ ! -f ${HOME}/klipper_config/mainsail_macros.cfg ]; then
-      cp ${HOME}/kiauh/resources/mainsail_macros.cfg ${HOME}/klipper_config
-      ok_msg "File created!"
-    else
-      warn_msg "File does already exist! Skipping ..."
-    fi
-  fi
-}
-
-read_printer_cfg_mainsail(){
-  SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false"
-  [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false"
-  [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false"
-  [ ! "$(grep '^\[include mainsail_macros\.cfg\]$' $PRINTER_CFG)" ] && MS_MACRO="false"
-  #check for a SAVE_CONFIG entry
-  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
-    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
-    PRE_SC_LINE=$(expr $SC_LINE - 1)
-    SC_ENTRY="true"
-  else
-    SC_ENTRY="false"
-  fi
-}
-
-write_printer_cfg_mainsail(){
-  unset write_entries
-  if [ "$MS_MACRO" = "false" ] && [ "$ADD_MS_MACROS" = "true" ]; then
-    write_entries+=("[include mainsail_macros.cfg]")
-  fi
-  if [ "$PAUSE_RESUME" = "false" ]; then
-    write_entries+=("[pause_resume]")
-  fi
-  if [ "$DISPLAY_STATUS" = "false" ]; then
-    write_entries+=("[display_status]")
-  fi
-  if [ "$VSD" = "false" ]; then
-    write_entries+=("[virtual_sdcard]\npath: ~/sdcard")
-  fi
-  if [ "${#write_entries[@]}" != "0" ]; then
-    write_entries+=("\\\n############################\n##### CREATED BY KIAUH #####\n############################")
-    write_entries=("############################\n" "${write_entries[@]}")
-  fi
-  #execute writing
-  status_msg "Writing to printer.cfg ..."
-  if [ "$SC_ENTRY" = "true" ]; then
-    PRE_SC_LINE="$(expr $SC_LINE - 1)a"
-    for entry in "${write_entries[@]}"
-    do
-      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
-    done
-  fi
-  if [ "$SC_ENTRY" = "false" ]; then
-    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
-    for entry in "${write_entries[@]}"
-    do
-      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
-    done
-  fi
-  ok_msg "Done!"
 }
 
 setup_moonraker_conf(){
@@ -479,23 +384,16 @@ setup_moonraker_nginx_cfg(){
 #############################################################
 #############################################################
 
-create_default_mainsail_printer_cfg(){
+create_default_moonraker_printer_cfg(){
 #create default config
 touch ${HOME}/klipper_config/printer.cfg
 cat <<DEFAULT_CFG >> ${HOME}/klipper_config/printer.cfg
-
-##########################
-### CREATED WITH KIAUH ###
-##########################
+### AUTOCREATED WITH KIAUH ###
 [virtual_sdcard]
 path: ~/sdcard
 
 [pause_resume]
 [display_status]
-[include mainsail_macros.cfg]
-
-##########################
-##########################
 DEFAULT_CFG
 }
 

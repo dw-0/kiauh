@@ -1,10 +1,10 @@
-# KIAUH - Klipper Installation And Update Helper
+# **KIAUH - Klipper Installation And Update Helper**
 
-![main_menu](https://github.com/th33xitus/kiauh/blob/master/resources/screenshots/main.png)
+![main_menu](resources/screenshots/main.png)
 
 ---
 
-## 📢 Disclaimer: Usage of this script happens at your own risk!
+## **📢 Disclaimer: Usage of this script happens at your own risk!**
 
 This script acts as a helping hand for you to get set up in a fast and comfortable way.\
 **This does not mean, it will relieve you of using your brain.exe! 🧠**\
@@ -12,7 +12,7 @@ Feel free to give it a try. If you have suggestions or encounter any problems, p
 
 ---
 
-## 🛠️ Instructions:
+## **🛠️ Instructions:**
 
 For downloading this script it is best to have git already installed.\
 If you haven't, please run `sudo apt-get install git -y` to install git first.\
@@ -28,7 +28,7 @@ chmod +x kiauh.sh scripts/*
 ./kiauh.sh
 ```
 
-### Additional Instructions:
+## Additional Instructions:
 
 If you need some more detailed instructions on how to install Klipper and Mainsail with KIAUH, check out this website:\
 [Installing Klipper and Mainsail](https://3dp.tumbleweedlabs.com/firmware/klipper-firmware/installing-klipper-and-mainsail-on-your-raspberry-pi)\
@@ -37,9 +37,9 @@ Feel free to check out his work.
 
 ---
 
-## 🧰 Functions and Features:
+## **🧰 Functions and Features:**
 
-### Core Functions:
+### **Core Functions:**
 
 - **Installing** of the Klipper Firmware to your Raspberry Pi or other Linux Distribution which makes use of init.d.
 - **Installing** of several different web interfaces such as Duet Web Control, Mainsail, Fluidd or OctoPrint including their dependencies.
@@ -48,85 +48,83 @@ Feel free to check out his work.
 - **Removing** of all the listed installations above.
 - **Backup** of all the listed installations above.
 
-**What also is possible:**
+### **Also possible:**
 
 - Build the Klipper Firmware
 - Flash the MCU
 - Read ID of the currently connected printer (only one at the time)
 - Write necessary entries to your printer.cfg, some of them customizable right in the CLI.
+- and more ...
 
-For a list of additional features and their descriptions please see:
-[Feature List](https://github.com/th33xitus/kiauh/blob/master/docs/features.md)
-
----
-
-## 📝 Notes:
-
-- Important changes to the script will be listed in the [Changelog](https://github.com/th33xitus/kiauh/blob/master/docs/changelog.md)
-- Tested only on Raspbian Buster Lite
-- During the use of this script you will be asked for your sudo password. There are several functions involved which need sudo privileges.
-- Prevent simultaneous use of DWC2 and OctoPrint if possible. There have been reports that DWC2 does strange things while the OctoPrint service is running while using the DWC2 webinterface. The script disables an existing OctoPrint service when installing DWC2. However, the service can also be reactivated with the script!
-- If you used Mainsail v0.0.12 before and you want to upgrade to v0.1.0 or later, you have to reinstall Moonraker as well! Mainsail v0.1.0 will not work with the old Moonraker service. Don't worry, the script can handle the proper removal of the old version.
+### **For a list of additional features please see: [Feature List](docs/features.md)**
 
 ---
 
-## 🛈 Sources & Further Information
+## **📝 Notes:**
+
+- ### **Important changes to the script will be listed in the [Changelog](docs/changelog.md)**
+- Tested **only** on Raspberry Pi OS Lite (Debian Buster)
+- During the use of this script you might be asked for your sudo password. There are several functions involved which need sudo privileges.
+
+---
+
+## **🛈 Sources & Further Information**
 
 For more information or instructions, please check out the appropriate repositories listed below:
 
 ---
 
-**⛵Klipper** by [KevinOConnor](https://github.com/KevinOConnor) :
+### **⛵Klipper** by [KevinOConnor](https://github.com/KevinOConnor) :
 
 https://github.com/KevinOConnor/klipper
 
 ---
 
-**⛵Klipper S-Curve fork** by [dmbutyugin](https://github.com/dmbutyugin) :
+### **⛵Klipper S-Curve fork** by [dmbutyugin](https://github.com/dmbutyugin) :
 
 https://github.com/dmbutyugin/klipper/tree/scurve-smoothing \
 https://github.com/dmbutyugin/klipper/tree/scurve-shaping
 
 ---
 
-**🌙Moonraker** by [Arksine](https://github.com/Arksine) :
+### **🌙Moonraker** by [Arksine](https://github.com/Arksine) :
 
 https://github.com/Arksine/moonraker
 
 ---
 
-**💨Mainsail Webinterface** by [meteyou](https://github.com/meteyou) :
+### **💨Mainsail Webinterface** by [meteyou](https://github.com/meteyou) :
 
 https://github.com/meteyou/mainsail
 
 ---
 
-**🌊Fluidd Webinterface** by [cadriel](https://github.com/cadriel) :
+### **🌊Fluidd Webinterface** by [cadriel](https://github.com/cadriel) :
 
 https://github.com/cadriel/fluidd
 
 ---
 
-**🕸️Duet Web Control** by [Duet3D](https://github.com/Duet3D) :
+### **🕸️Duet Web Control** by [Duet3D](https://github.com/Duet3D) :
 
 https://github.com/Duet3D/DuetWebControl
 
 ---
 
-**🕸️DWC2-for-Klipper-Socket** by [Stephan3](https://github.com/Stephan3) :
+### **🕸️DWC2-for-Klipper-Socket** by [Stephan3](https://github.com/Stephan3) :
 
 https://github.com/Stephan3/dwc2-for-klipper-socket
 
 ---
 
-**🐙OctoPrint Webinterface** by [OctoPrint](https://github.com/OctoPrint) :
+### **🐙OctoPrint Webinterface** by [OctoPrint](https://github.com/OctoPrint) :
 
 https://octoprint.org \
 https://github.com/OctoPrint/OctoPrint
 
 ---
 
-## ❓ FAQ
+## **❓ FAQ**
 
 **_Q: Can i use this script to install multiple instancec of Klipper on the same Pi? (Multisession?)_**
 

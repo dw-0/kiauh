@@ -238,47 +238,82 @@ setup_gcode_shell_command(){
 
 install_gcode_shell_command(){
   stop_klipper
+  status_msg "Copy 'gcode_shell_command.py' to $KLIPPER_DIR/klippy/extras"
   cp ${HOME}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
-  status_msg "Creating example macro ..."
-  locate_printer_cfg
-  create_shell_command_example
-  ok_msg "Example macro created!"
+  echo
+  while true; do
+    read -p "${cyan}###### Do you want to create the example shell command? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        ADD_SHELL_CMD_MACRO="true"
+        status_msg "Creating example macro ..."
+        locate_printer_cfg
+        read_printer_cfg "gcode_shell_command"
+        write_printer_cfg
+        ok_msg "Example macro created!"
+        break;;
+      N|n|No|no)
+        break;;
+    esac
+  done
   ok_msg "Shell command extension installed!"
   restart_klipper
 }
 
-create_shell_command_example(){
-  unset SC_ENTRY
-  unset write_entries
-  #check for a SAVE_CONFIG entry
-  SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
-    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
-    PRE_SC_LINE=$(expr $SC_LINE - 1)
-    SC_ENTRY="true"
-  else
-    SC_ENTRY="false"
+read_printer_cfg(){
+  KIAUH_CFG=$(echo $PRINTER_CFG | sed 's/printer/kiauh/')
+  if [ "$1" = "gcode_shell_command" ]; then
+    [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
+  elif [ "$1" = "moonraker" ]; then
+    [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
+    [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false"
+    [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false"
+    [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false"
+  elif [ "$1" = "mainsail" ] || [ "$1" = "fluidd" ]; then
+    [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
+    [ ! "$(grep '^\[include webui_macros\.cfg\]$' $PRINTER_CFG)" ] && WEBUI_MACROS="false"
   fi
-  #example shell command
-  write_entries+=("[shell_command hello_world]\ncommand: echo hello world\ntimeout: 2.\nverbose: True")
-  #example macro
-  write_entries+=("[gcode_macro HELLO_WORLD]\ngcode:\n    RUN_SHELL_COMMAND CMD=hello_world")
-  #execute writing
-  status_msg "Writing to printer.cfg ..."
-  if [ "$SC_ENTRY" = "true" ]; then
-    PRE_SC_LINE="$(expr $SC_LINE - 1)a"
-    for entry in "${write_entries[@]}"
-    do
-      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
-    done
+}
+
+write_printer_cfg(){
+  #create kiauh.cfg if its needed and doesn't exist
+  if [ "$KIAUH_CFG_FOUND" = "false" ]; then
+    status_msg "Creating kiauh.cfg ..."
+    echo -e "##### AUTOCREATED BY KIAUH #####\c" > $KIAUH_CFG
   fi
-  if [ "$SC_ENTRY" = "false" ]; then
-    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
-    for entry in "${write_entries[@]}"
-    do
-      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
-    done
+  #write each entry to kiauh.cfg if it doesn't exist
+  #Moonraker related config options
+  if [ "$VSD" = "false" ] && [[ ! $(grep '^\[virtual_sdcard\]$' $KIAUH_CFG) ]]; then
+    echo -e "\n[virtual_sdcard]\npath: ~/sdcard" >> $KIAUH_CFG
   fi
+  if [ "$PAUSE_RESUME" = "false" ] && [[ ! $(grep '^\[pause_resume]$' $KIAUH_CFG) ]]; then
+    echo -e "\n[pause_resume]" >> $KIAUH_CFG
+  fi
+  if [ "$DISPLAY_STATUS" = "false" ] && [[ ! $(grep '^\[display_status]$' $KIAUH_CFG) ]]; then
+    echo -e "\n[display_status]" >> $KIAUH_CFG
+  fi
+  #Klipper webui related config options
+  if [ "$WEBUI_MACROS" = "false" ] && [ "$ADD_WEBUI_MACROS" = "true" ] && [[ ! $(grep '^\[include webui_macros.cfg]$' $KIAUH_CFG) ]]; then
+    echo -e "\n[include webui_macros.cfg]" >> $KIAUH_CFG
+  fi
+  #G-Code Shell Command extension related config options
+  if [ "$ADD_SHELL_CMD_MACRO" = "true" ] && [[ ! $(grep '^\[gcode_shell_command hello_world]$' $KIAUH_CFG) ]]; then
+		cat <<-EOF >> $KIAUH_CFG
+		[gcode_shell_command hello_world]
+		command: echo hello world
+		timeout: 2.
+		verbose: True
+		[gcode_macro HELLO_WORLD]
+		gcode:
+		    RUN_SHELL_COMMAND CMD=hello_world
+EOF
+  fi
+  #including the kiauh.cfg into printer.cfg if not already done
+  if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ]; then
+    status_msg "Writing [include kiauh.cfg] to printer.cfg ..."
+    sed -i '1 i ##### AUTOCREATED BY KIAUH #####\n[include kiauh.cfg]\n################################' $PRINTER_CFG
+  fi
+  ok_msg "Done!"
 }
 
 init_ini(){
