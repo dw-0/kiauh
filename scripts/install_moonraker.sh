@@ -345,60 +345,6 @@ setup_printer_config_moonraker(){
   fi
 }
 
-sc_check(){
-  SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  #check for a SAVE_CONFIG entry
-  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
-    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
-    PRE_SC_LINE=$(expr $SC_LINE - 1)
-    SC_ENTRY="true"
-  else
-    SC_ENTRY="false"
-  fi
-}
-
-read_printer_cfg(){
-  sc_check
-  if [ "$1" = "moonraker" ]; then
-    [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false"
-    [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false"
-    [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false"
-  elif [ "$1" = "mainsail" ] || [ "$1" = "fluidd" ]; then
-    [ ! "$(grep '^\[include webui_macros\.cfg\]$' $PRINTER_CFG)" ] && WEBUI_MACROS="false"
-  fi
-}
-
-write_printer_cfg(){
-  #create kiauh.cfg if its needed and doesn't exist
-  if [ "$VSD" = "false" ] || [ "$PAUSE_RESUME" = "false" ] || [ "$DISPLAY_STATUS" = "false" ] || [ "$WEBUI_MACROS" = "false" ] && [ ! -f ~/klipper_config/kiauh.cfg ]; then
-    status_msg "Creating kiauh.cfg ..."
-    echo -e "##### AUTOCREATED BY KIAUH #####" > ~/klipper_config/kiauh.cfg
-  fi
-  #write each entry to kiauh.cfg if it doesn't exist
-  if [ "$VSD" = "false" ] && [[ ! $(grep '^\[virtual_sdcard\]$' ~/klipper_config/kiauh.cfg) ]]; then
-    echo -e "\n[virtual_sdcard]\npath: ~/sdcard\c" >> ~/klipper_config/kiauh.cfg
-  fi
-  if [ "$PAUSE_RESUME" = "false" ] && [[ ! $(grep '^\[pause_resume]$' ~/klipper_config/kiauh.cfg) ]]; then
-    echo -e "\n[pause_resume]\c" >> ~/klipper_config/kiauh.cfg
-  fi
-  if [ "$DISPLAY_STATUS" = "false" ] && [[ ! $(grep '^\[display_status]$' ~/klipper_config/kiauh.cfg) ]]; then
-    echo -e "\n[display_status]\c" >> ~/klipper_config/kiauh.cfg
-  fi
-  if [ "$WEBUI_MACROS" = "false" ] && [ "$ADD_WEBUI_MACROS" = "true" ] && [[ ! $(grep '^\[include webui_macros.cfg]$' ~/klipper_config/kiauh.cfg) ]]; then
-    echo -e "\n[include webui_macros.cfg]\c" >> ~/klipper_config/kiauh.cfg
-  fi
-  #execute writing to printer.cfg
-  if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ]; then
-    status_msg "Writing [include kiauh.cfg] to printer.cfg ..."
-    [ "$SC_ENTRY" = "false" ] && echo -e "\n\n[include kiauh.cfg]\c" >> $PRINTER_CFG
-    if [ "$SC_ENTRY" = "true" ]; then
-      PRE_SC_LINE="$(expr $SC_LINE - 1)a"
-      sed -i "$PRE_SC_LINE [include kiauh.cfg]" $PRINTER_CFG
-    fi
-  fi
-  ok_msg "Done!"
-}
-
 setup_moonraker_conf(){
   if [ "$MOONRAKER_CONF_FOUND" = "false" ]; then
     status_msg "Creating moonraker.conf ..."
