@@ -279,7 +279,7 @@ write_printer_cfg(){
   #create kiauh.cfg if its needed and doesn't exist
   if [ "$KIAUH_CFG_FOUND" = "false" ]; then
     status_msg "Creating kiauh.cfg ..."
-    echo -e "##### AUTOCREATED BY KIAUH #####\c" > $KIAUH_CFG
+    echo -e "##### AUTOCREATED BY KIAUH #####" > $KIAUH_CFG
   fi
   #write each entry to kiauh.cfg if it doesn't exist
   #Moonraker related config options
