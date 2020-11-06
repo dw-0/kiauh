@@ -17,7 +17,7 @@ install_moonraker(){
   #after install actions
   restart_moonraker
   restart_klipper
-  test_api
+  #test_api
 }
 
 system_check_moonraker(){
@@ -542,16 +542,16 @@ handle_haproxy_lighttpd(){
 #############################################################
 #############################################################
 
-test_api(){
-  HOST_IP=$(hostname -I | cut -d" " -f1)
-  status_msg "Testing API ..."
-  status_msg "Please wait ..."
-  sleep 15
-  status_msg "API response from http://"$HOST_IP":7125/printer/info :"
-  echo -e "${cyan}$(curl -s "http://"$HOST_IP":7125/printer/info")${default}"
-  if [ $(curl -s "http://"$HOST_IP":7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
-    echo; ok_msg "Klipper API is working correctly!"; echo
-  else
-    echo; warn_msg "Klipper API not working correctly!"; echo
-  fi
-}
+#test_api(){
+#  HOST_IP=$(hostname -I | cut -d" " -f1)
+#  status_msg "Testing API ..."
+#  status_msg "Please wait ..."
+#  sleep 15
+#  status_msg "API response from http://"$HOST_IP":7125/printer/info :"
+#  echo -e "${cyan}$(curl -s "http://"$HOST_IP":7125/printer/info")${default}"
+#  if [ $(curl -s "http://"$HOST_IP":7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+#    echo; ok_msg "Klipper API is working correctly!"; echo
+#  else
+#    echo; warn_msg "Klipper API not working correctly!"; echo
+#  fi
+#}

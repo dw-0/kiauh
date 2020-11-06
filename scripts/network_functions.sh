@@ -39,19 +39,19 @@ read_listen_port(){
   LISTEN_PORT=$(grep listen /etc/nginx/sites-enabled/$1 | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
 }
 
-test_nginx(){
-  HOST_IP=$(hostname -I | cut -d" " -f1)
-  status_msg "Testing NGINX ..."
-  status_msg "Please wait ..."
-  sleep 15
-  status_msg "API response from http://$HOST_IP:$1/printer/info :"
-  echo -e "${cyan}$(curl -s "http://"$HOST_IP:$1"/printer/info")${default}"
-  if [ $(curl -s "http://"$HOST_IP:$1"/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
-    echo; ok_msg "NGINX is working correctly!"; echo
-  else
-    echo; warn_msg "NGINX is not working correctly!"; echo
-  fi
-}
+#test_nginx(){
+#  HOST_IP=$(hostname -I | cut -d" " -f1)
+#  status_msg "Testing NGINX ..."
+#  status_msg "Please wait ..."
+#  sleep 15
+#  status_msg "API response from http://$HOST_IP:$1/printer/info :"
+#  echo -e "${cyan}$(curl -s "http://"$HOST_IP:$1"/printer/info")${default}"
+#  if [ $(curl -s "http://"$HOST_IP:$1"/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
+#    echo; ok_msg "NGINX is working correctly!"; echo
+#  else
+#    echo; warn_msg "NGINX is not working correctly!"; echo
+#  fi
+#}
 
 detect_enabled_sites(){
   #check if there is another UI config already installed

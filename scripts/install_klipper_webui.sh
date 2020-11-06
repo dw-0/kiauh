@@ -51,7 +51,7 @@ install_mainsail(){
     mainsail_port_check
     #creating the mainsail nginx cfg
     set_nginx_cfg "mainsail"
-    test_nginx "$SET_LISTEN_PORT"
+    #test_nginx "$SET_LISTEN_PORT"
     locate_printer_cfg && read_printer_cfg "mainsail"
     install_webui_macros
     mainsail_setup
