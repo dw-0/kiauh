@@ -74,9 +74,17 @@ update_klipper(){
     cd $KLIPPER_DIR
     git fetch $FETCH_BRANCH -q && ok_msg "Fetch successfull!"
     status_msg "Checking out $FETCH_BRANCH"
-    git checkout $FETCH_BRANCH -q && ok_msg "Checkout successfull!" && echo; ok_msg "Update complete!"
+    git checkout $FETCH_BRANCH -q && ok_msg "Checkout successfull!"
+    #check for possible new dependencies and install them
+    status_msg "Checking for possible new dependencies ..."
+    PKGLIST=$(grep "PKGLIST=" ~/klipper/scripts/install-octopi.sh | cut -d'"' -f2- | cut -d'"' -f1 | cut -d"}" -f2)
+    PYTHONDIR="${HOME}/klippy-env"
+    sudo apt-get update && sudo apt-get install --yes $PKGLIST
+    $PYTHONDIR/bin/pip install -r ~/klipper/scripts/klippy-requirements.txt
+    ok_msg "Dependencies already met or have been installed!"
+    ok_msg "Update complete!"
   fi
-  start_klipper; echo
+  start_klipper
 }
 
 update_dwc2fk(){
@@ -108,18 +116,25 @@ update_fluidd(){
 }
 
 update_moonraker(){
-  stop_klipper && sleep 2 && stop_moonraker
+  stop_moonraker
   bb4u "moonraker"
   status_msg "Updating Moonraker ..."
   if [ ! -d $MOONRAKER_DIR ]; then
     cd ${HOME} && git clone $MOONRAKER_REPO
   else
     cd $MOONRAKER_DIR && git pull
+    #check for possible new dependencies and install them
+    status_msg "Checking for possible new dependencies ..."
+    PKGLIST="$(grep "PKGLIST=" ~/moonraker/scripts/install-moonraker.sh | cut -d'"' -f2- | cut -d'"' -f1)"
+    PYTHONDIR="${HOME}/moonraker-env"
+    sudo apt-get update && sudo apt-get install --yes $PKGLIST
+    $PYTHONDIR/bin/pip install -r ~/moonraker/scripts/moonraker-requirements.txt
+    ok_msg "Dependencies already met or have been installed!"
   fi
   #read default printer.cfg location for the patch function
   locate_printer_cfg
   #patch /etc/default/klipper if entries don't match
   patch_klipper_sysfile
   ok_msg "Update complete!"
-  start_moonraker && sleep 2 && start_klipper
+  start_moonraker
 }
