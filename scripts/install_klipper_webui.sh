@@ -70,7 +70,7 @@ install_fluidd(){
     fluidd_port_check
     #creating the fluidd nginx cfg
     set_nginx_cfg "fluidd"
-    test_nginx "$SET_LISTEN_PORT"
+    #test_nginx "$SET_LISTEN_PORT"
     locate_printer_cfg && read_printer_cfg "fluidd"
     install_webui_macros
     fluidd_setup
