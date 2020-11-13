@@ -22,6 +22,7 @@ locate_printer_cfg(){
     PRINTER_CFG=$(while [ "$i" != "$KLIPPY_ARGS_COUNT" ]; do grep -E "(\/[A-Za-z0-9\_-]+)+\/printer\.cfg" /etc/default/klipper | cut -d" " -f"$i"; i=$(( $i + 1 )); done | grep "printer.cfg")
     ok_msg "printer.cfg location: '$PRINTER_CFG'"
   elif [ -e $KLIPPER_SERVICE3 ]; then
+    status_msg "Locating printer.cfg via $KLIPPER_SERVICE3 ..."
     #reads /etc/systemd/system/klipper.service and gets the default printer.cfg location
     KLIPPY_ARGS_LINE="$(grep "ExecStart=" /etc/systemd/system/klipper.service)"
     KLIPPY_ARGS_COUNT="$(grep -o " " <<< "$KLIPPY_ARGS_LINE" | wc -l)"
@@ -260,29 +261,55 @@ install_gcode_shell_command(){
   restart_klipper
 }
 
+create_minimal_cfg(){
+  #create a minimal default config for either moonraker or dwc2
+  if [ "$SEL_DEF_CFG" = "true" ]; then
+		cat <<- EOF >> $PRINTER_CFG
+		[mcu]
+		serial: </dev/serial/by-id/your-mcu>
+
+		[printer]
+		kinematics: cartesian
+		max_velocity: 300
+		max_accel: 3000
+		max_z_velocity: 5
+		max_z_accel: 100
+
+		[virtual_sdcard]
+		path: ~/sdcard
+
+		[pause_resume]
+		[display_status]
+EOF
+  fi
+}
+
 read_printer_cfg(){
   KIAUH_CFG=$(echo $PRINTER_CFG | sed 's/printer/kiauh/')
-  if [ "$1" = "gcode_shell_command" ]; then
-    [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
-  elif [ "$1" = "moonraker" ]; then
-    [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
-    [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false"
-    [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false"
-    [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false"
-  elif [ "$1" = "mainsail" ] || [ "$1" = "fluidd" ]; then
-    [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
-    [ ! "$(grep '^\[include webui_macros\.cfg\]$' $PRINTER_CFG)" ] && WEBUI_MACROS="false"
+  [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
+  if [ -f $PRINTER_CFG ]; then
+    if [ "$1" = "moonraker" ]; then
+      [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false" && EDIT_CFG="true"
+      [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false" && EDIT_CFG="true"
+      [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false" && EDIT_CFG="true"
+    elif [ "$1" = "mainsail" ] || [ "$1" = "fluidd" ]; then
+      [ ! "$(grep '^\[include webui_macros\.cfg\]$' $PRINTER_CFG)" ] && WEBUI_MACROS="false" && EDIT_CFG="true"
+    elif [ "$1" = "dwc2" ]; then
+      [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false" && EDIT_CFG="true"
+    fi
   fi
 }
 
 write_printer_cfg(){
+  #backup printer.cfg if edits will be written
+  [ "$EDIT_CFG" = "true" ] && backup_printer_cfg
   #create kiauh.cfg if its needed and doesn't exist
-  if [ "$KIAUH_CFG_FOUND" = "false" ]; then
+  if [ "$KIAUH_CFG_FOUND" = "false" ] && [ "$EDIT_CFG" = "true" ]; then
     status_msg "Creating kiauh.cfg ..."
     echo -e "##### AUTOCREATED BY KIAUH #####" > $KIAUH_CFG
   fi
   #write each entry to kiauh.cfg if it doesn't exist
-  #Moonraker related config options
+  #Moonraker/DWC2 related config options
   if [ "$VSD" = "false" ] && [[ ! $(grep '^\[virtual_sdcard\]$' $KIAUH_CFG) ]]; then
     echo -e "\n[virtual_sdcard]\npath: ~/sdcard" >> $KIAUH_CFG
   fi
@@ -309,9 +336,9 @@ write_printer_cfg(){
 EOF
   fi
   #including the kiauh.cfg into printer.cfg if not already done
-  if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ]; then
+  if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ] && [ "$EDIT_CFG" = "true" ]; then
     status_msg "Writing [include kiauh.cfg] to printer.cfg ..."
-    sed -i '1 i ##### AUTOCREATED BY KIAUH #####\n[include kiauh.cfg]\n################################' $PRINTER_CFG
+    sed -i '1 i ##### AUTOCREATED BY KIAUH #####\n[include kiauh.cfg]' $PRINTER_CFG
   fi
   ok_msg "Done!"
 }

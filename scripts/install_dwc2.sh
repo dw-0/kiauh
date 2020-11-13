@@ -10,7 +10,7 @@ install_dwc2(){
     stop_klipper
     dwc2_setup
     #setup config
-    write_printer_cfg_dwc2
+    setup_printer_config_dwc2
     #execute customizations
     disable_octoprint
     set_nginx_cfg "dwc2"
@@ -24,10 +24,9 @@ install_dwc2(){
 
 system_check_dwc2(){
   status_msg "Initializing DWC2 installation ..."
-  check_for_folder_dwc2
   #check for existing printer.cfg
   locate_printer_cfg
-  if [ ! -z $PRINTER_CFG ]; then
+  if [ -f $PRINTER_CFG ]; then
     PRINTER_CFG_FOUND="true"
   else
     PRINTER_CFG_FOUND="false"
@@ -40,31 +39,30 @@ system_check_dwc2(){
 
 get_user_selections_dwc2(){
   #let user choose to install systemd or init.d service
-  unset INST_SYSTEMD
-  unset INST_INITD
   while true; do
     echo
     top_border
     echo -e "| Do you want to install dwc2-for-klipper-socket as     |"
-    echo -e "| 1) Init.d Service                                     |"
+    echo -e "| 1) Init.d Service (default)                           |"
     echo -e "| 2) Systemd Service                                    |"
     hr
     echo -e "| Please use the appropriate option for your chosen     |"
     echo -e "| Linux distribution. If you are unsure what to select, |"
     echo -e "| please do a research before.                          |"
     hr
-    echo -e "| If you are using Raspberry Pi OS, either option 1 or  |"
-    echo -e "| 2 will work.                                          |"
+    echo -e "| If you run Raspberry Pi OS, both options will work.   |"
     bottom_border
     read -p "${cyan}###### Please choose:${default} " action
     case "$action" in
-      1)
-        INST_INITD="true"
-        INST_SYSTEMD="false"
+      1|"")
+        echo -e "###### > 1) Init.d"
+        INST_DWC2_INITD="true"
+        INST_DWC2_SYSTEMD="false"
         break;;
       2)
-        INST_INITD="false"
-        INST_SYSTEMD="true"
+        echo -e "###### > 1) Systemd"
+        INST_DWC2_INITD="false"
+        INST_DWC2_SYSTEMD="true"
         break;;
       *)
         print_unkown_cmd
@@ -73,7 +71,6 @@ get_user_selections_dwc2(){
   done
   #user selection for printer.cfg
   if [ "$PRINTER_CFG_FOUND" = "false" ]; then
-    unset SEL_DEF_CFG
     while true; do
       echo
       top_border
@@ -101,15 +98,12 @@ get_user_selections_dwc2(){
       esac
     done
   fi
-  #
-  setup_printer_config_dwc2
   #ask user to install reverse proxy
   dwc2_reverse_proxy_dialog
   #ask to change hostname
   [ "$SET_NGINX_CFG" = "true" ] && create_custom_hostname
   #ask user to disable octoprint when such installed service was found
   if [ "$OCTOPRINT_ENABLED" = "true" ]; then
-    unset DISABLE_OPRINT
     while true; do
       echo
       warn_msg "OctoPrint service found!"
@@ -138,60 +132,37 @@ get_user_selections_dwc2(){
 #############################################################
 #############################################################
 
-check_for_folder_dwc2(){
-  #check for needed folder
-  if [ ! -d $DWC2_DIR ]; then
-    mkdir -p $DWC2_DIR
-  fi
-}
-
 dwc2_setup(){
   #check dependencies
   dep=(git wget gzip tar curl)
   dependency_check
   #get dwc2-for-klipper
-  cd ${HOME}
   status_msg "Cloning DWC2-for-Klipper-Socket repository ..."
-  git clone $DWC2FK_REPO
+  cd ${HOME} && git clone $DWC2FK_REPO
   ok_msg "DWC2-for-Klipper successfully cloned!"
   #copy installers from kiauh srcdir to dwc-for-klipper-socket
   status_msg "Copy installers to $DWC2FK_DIR"
   cp -r ${SRCDIR}/kiauh/scripts/dwc2-for-klipper-socket-installer $DWC2FK_DIR/scripts
   ok_msg "Done!"
   status_msg "Starting service-installer ..."
-  if [ "$INST_INITD" = "true" ] && [ "$INST_SYSTEMD" = "false" ]; then
+  if [ "$INST_DWC2_INITD" = "true" ]; then
     $DWC2FK_DIR/scripts/install-octopi.sh
-  elif [ "$INST_INITD" = "false" ] && [ "$INST_SYSTEMD" = "true" ]; then
+  elif [ "$INST_DWC2_SYSTEMD" = "true" ]; then
     $DWC2FK_DIR/scripts/install-debian.sh
   fi
   ok_msg "Service installed!"
   #patch /etc/default/klipper to append the uds argument
-  patch_klipper_sysfile_dwc2
+  patch_klipper_sysfile "dwc2"
   #download Duet Web Control
   download_dwc2_webui
-}
-
-patch_klipper_sysfile_dwc2(){
-  status_msg "Checking /etc/default/klipper for necessary entries ..."
-  #patching new UDS argument to /etc/default/klipper
-  if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
-    status_msg "Patching unix domain socket to /etc/default/klipper ..."
-    #append the new argument to /tmp/klippy.log argument
-    sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
-    ok_msg "Patching done!"
-  else
-    ok_msg "No patching needed!"
-  fi
-  ok_msg "Check complete!"
-  echo
 }
 
 download_dwc2_webui(){
   #get Duet Web Control
   GET_DWC2_URL=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4)
-  cd $DWC2_DIR
   status_msg "Downloading DWC2 Web UI ..."
-  wget $GET_DWC2_URL
+  [ ! -d $DWC2_DIR ] && mkdir -p $DWC2_DIR
+  cd $DWC2_DIR && wget $GET_DWC2_URL
   ok_msg "Download complete!"
   status_msg "Unzipping archive ..."
   unzip -q -o *.zip
@@ -214,80 +185,14 @@ download_dwc2_webui(){
 
 setup_printer_config_dwc2(){
   if [ "$PRINTER_CFG_FOUND" = "true" ]; then
-    backup_printer_cfg
     #check printer.cfg for necessary dwc2 entries
-    read_printer_cfg_dwc2
+    read_printer_cfg "dwc2" && write_printer_cfg
   fi
   if [ "$SEL_DEF_CFG" = "true" ]; then
-    create_default_dwc2_printer_cfg
-    locate_printer_cfg
-  fi
-}
-
-read_printer_cfg_dwc2(){
-  unset SC_ENTRY
-  SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-  if [ ! $(grep '^\[virtual_sdcard\]$' $PRINTER_CFG) ]; then
-    VSD="false"
-  fi
-  #check for a SAVE_CONFIG entry
-  if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
-    SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
-    PRE_SC_LINE=$(expr $SC_LINE - 1)
-    SC_ENTRY="true"
-  else
-    SC_ENTRY="false"
-  fi
-}
-
-write_printer_cfg_dwc2(){
-  unset write_entries
-  if [ "$VSD" = "false" ]; then
-    write_entries+=("[virtual_sdcard]\npath: ~/sdcard")
-  fi
-  if [ "${#write_entries[@]}" != "0" ]; then
-    write_entries+=("\\\n############################\n##### CREATED BY KIAUH #####\n############################")
-    write_entries=("############################\n" "${write_entries[@]}")
-  fi
-  #execute writing
-  status_msg "Writing to printer.cfg ..."
-  if [ "$SC_ENTRY" = "true" ]; then
-    PRE_SC_LINE="$(expr $SC_LINE - 1)a"
-    for entry in "${write_entries[@]}"
-    do
-      sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
-    done
-  fi
-  if [ "$SC_ENTRY" = "false" ]; then
-    LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
-    for entry in "${write_entries[@]}"
-    do
-      sed -i "$LINE_COUNT $entry" $PRINTER_CFG
-    done
-  fi
-  ok_msg "Done!"
-}
-
-create_default_dwc2_printer_cfg(){
-  #create default config
-  if [ "$PRINTER_CFG_FOUND" = "false" ] && [ "$SEL_DEF_CFG" = "true" ]; then
-    touch $PRINTER_CFG
-    cat <<DEFAULT_DWC2_CFG >> $PRINTER_CFG
-##########################
-### CREATED WITH KIAUH ###
-##########################
-[printer]
-kinematics: cartesian
-max_velocity: 300
-max_accel: 3000
-max_z_velocity: 5
-max_z_accel: 100
-
-[virtual_sdcard]
-path: ~/sdcard
-
-##########################
-DEFAULT_DWC2_CFG
+    status_msg "Creating minimal default printer.cfg ..."
+    create_minimal_cfg
+    ok_msg "printer.cfg location: '$PRINTER_CFG'"
+    ok_msg "Done!"
   fi
 }
 

@@ -58,7 +58,6 @@ system_check_moonraker(){
 get_user_selections_moonraker(){
   #user selection for printer.cfg
   if [ "$PRINTER_CFG_FOUND" = "false" ]; then
-    unset SEL_DEF_CFG
     while true; do
       echo
       top_border
@@ -196,10 +195,6 @@ get_user_selections_moonraker(){
       echo -e "| ${red}3) Skip this step (not recommended)${default}                   |"
       bottom_border
       read -p "${cyan}###### Please choose:${default} " action
-      unset REMOVE_HAPROXY
-      unset REMOVE_LIGHTTPD
-      unset DISABLE_HAPROXY
-      unset DISABLE_LIGHTTPD
       case "$action" in
         1)
           echo -e "###### > Remove packages"
@@ -255,7 +250,7 @@ moonraker_setup(){
   #backup a possible existing printer.cfg at the old location
   #and before patching in the new location
   backup_printer_cfg
-  patch_klipper_sysfile
+  patch_klipper_sysfile "moonraker"
   #re-run printer.cfg location function to read the new path for the printer.cfg
   locate_printer_cfg
   echo; ok_msg "Moonraker successfully installed!"
@@ -265,37 +260,45 @@ patch_klipper_sysfile(){
   if [ -e $KLIPPER_SERVICE2 ]; then
     status_msg "Checking /etc/default/klipper for necessary entries ..."
     #patching new printer.cfg location to /etc/default/klipper
-    if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
-      status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
-      sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE2
-      ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+    if [ "$1" = "moonraker" ]; then
+      if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
+        status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
+        sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE2
+        ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+      fi
     fi
     #patching new UDS argument to /etc/default/klipper
-    if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
-      status_msg "Patching unix domain socket to /etc/default/klipper ..."
-      #append the new argument to /tmp/klippy.log argument
-      sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
-      ok_msg "Patching done!"
+    if [ "$1" = "moonraker" ] || [ "$1" = "dwc2" ]; then
+      if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
+        status_msg "Patching unix domain socket to /etc/default/klipper ..."
+        #append the new argument to /tmp/klippy.log argument
+        sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
+        ok_msg "Patching done!"
+      fi
     fi
   fi
   if [ -e $KLIPPER_SERVICE3 ]; then
     status_msg "Checking /etc/systemd/system/klipper.service for necessary entries ..."
     #patching new printer.cfg location to /etc/systemd/system/klipper.service
-    if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE3; then
-      status_msg "Patching new printer.cfg location to /etc/systemd/system/klipper.service ..."
-      sudo sed -i "/ExecStart=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE3
-      ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
-      #set variable if file got edited
-      SERVICE_FILE_PATCHED="true"
+    if [ "$1" = "moonraker" ]; then
+      if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE3; then
+        status_msg "Patching new printer.cfg location to /etc/systemd/system/klipper.service ..."
+        sudo sed -i "/ExecStart=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE3
+        ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
+        #set variable if file got edited
+        SERVICE_FILE_PATCHED="true"
+      fi
     fi
     #patching new UDS argument to /etc/systemd/system/klipper.service
-    if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE3; then
-      status_msg "Patching unix domain socket to /etc/systemd/system/klipper.service ..."
-      #append the new argument to /tmp/klippy.log argument
-      sudo sed -i "/ExecStart/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE3
-      ok_msg "Patching done!"
-      #set variable if file got edited
-      SERVICE_FILE_PATCHED="true"
+    if [ "$1" = "moonraker" ] || [ "$1" = "dwc2" ]; then
+      if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE3; then
+        status_msg "Patching unix domain socket to /etc/systemd/system/klipper.service ..."
+        #append the new argument to /tmp/klippy.log argument
+        sudo sed -i "/ExecStart/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE3
+        ok_msg "Patching done!"
+        #set variable if file got edited
+        SERVICE_FILE_PATCHED="true"
+      fi
     fi
     #reloading the units is only needed when the service file was patched.
     [ "$SERVICE_FILE_PATCHED" = "true" ] && status_msg "Reloading unit ..." && sudo systemctl daemon-reload
@@ -324,9 +327,7 @@ check_for_folder_moonraker(){
 
 setup_printer_config_moonraker(){
   if [ "$PRINTER_CFG_FOUND" = "true" ]; then
-    backup_printer_cfg
-    #copy printer.cfg to new location if
-    #there is no printer.cfg at the new location already
+    #copy printer.cfg to new location if there is no printer.cfg at the new location already
     if [ -f ${HOME}/printer.cfg ] && [ ! -f ${HOME}/klipper_config/printer.cfg ]; then
       status_msg "Copy printer.cfg to new location ..."
       cp ${HOME}/printer.cfg $PRINTER_CFG
@@ -334,12 +335,11 @@ setup_printer_config_moonraker(){
       ok_msg "Done!"
     fi
     #check printer.cfg for necessary moonraker entries
-    read_printer_cfg "moonraker"
-    write_printer_cfg
+    read_printer_cfg "moonraker" && write_printer_cfg
   fi
   if [ "$SEL_DEF_CFG" = "true" ]; then
     status_msg "Creating minimal default printer.cfg ..."
-    create_default_moonraker_printer_cfg
+    create_minimal_cfg
     ok_msg "printer.cfg location: '$PRINTER_CFG'"
     ok_msg "Done!"
   fi
@@ -357,7 +357,6 @@ setup_moonraker_conf(){
   #check for at least one trusted client in an already existing moonraker.conf
   #in no entry is found, write default trusted client
   if [ "$MOONRAKER_CONF_FOUND" = "true" ]; then
-    backup_moonraker_conf
     if grep "trusted_clients:" ${HOME}/moonraker.conf -q; then
       TC_LINE=$(grep -n "trusted_clients:" ${HOME}/moonraker.conf | cut -d ":" -f1)
       FIRST_IP_LINE=$(expr $TC_LINE + 1)
@@ -365,7 +364,7 @@ setup_moonraker_conf(){
       #if [[ ! $FIRST_IP =~ ([0-9].[0-9].[0-9].[0-9]) ]]; then
       if [ "$FIRST_IP" = "" ]; then
         status_msg "Writing trusted clients to config ..."
-        write_default_trusted_clients
+        backup_moonraker_conf && write_default_trusted_clients
         ok_msg "Trusted clients written!"
       fi
     fi
@@ -383,19 +382,6 @@ setup_moonraker_nginx_cfg(){
 
 #############################################################
 #############################################################
-
-create_default_moonraker_printer_cfg(){
-#create default config
-touch ${HOME}/klipper_config/printer.cfg
-cat <<DEFAULT_CFG >> ${HOME}/klipper_config/printer.cfg
-### AUTOCREATED WITH KIAUH ###
-[virtual_sdcard]
-path: ~/sdcard
-
-[pause_resume]
-[display_status]
-DEFAULT_CFG
-}
 
 write_default_trusted_clients(){
   DEFAULT_IP=$(hostname -I)
@@ -538,20 +524,3 @@ handle_haproxy_lighttpd(){
     fi
   fi
 }
-
-#############################################################
-#############################################################
-
-#test_api(){
-#  HOST_IP=$(hostname -I | cut -d" " -f1)
-#  status_msg "Testing API ..."
-#  status_msg "Please wait ..."
-#  sleep 15
-#  status_msg "API response from http://"$HOST_IP":7125/printer/info :"
-#  echo -e "${cyan}$(curl -s "http://"$HOST_IP":7125/printer/info")${default}"
-#  if [ $(curl -s "http://"$HOST_IP":7125/printer/info" | grep '^{"result"' -c) -eq 1 ]; then
-#    echo; ok_msg "Klipper API is working correctly!"; echo
-#  else
-#    echo; warn_msg "Klipper API not working correctly!"; echo
-#  fi
-#}
