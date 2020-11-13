@@ -13,8 +13,6 @@ install_klipper(){
 get_user_selections_klipper(){
   status_msg "Initializing Klipper installation ..."
   #let user choose to install systemd or init.d service
-  unset INST_SYSTEMD
-  unset INST_INITD
   while true; do
     echo
     top_border
@@ -31,10 +29,12 @@ get_user_selections_klipper(){
     read -p "${cyan}###### Please choose:${default} " action
     case "$action" in
       1|"")
+        echo -e "###### > 1) Init.d"
         INST_KLIPPER_INITD="true"
         INST_KLIPPER_SYSTEMD="false"
         break;;
       2)
+        echo -e "###### > 2) Systemd"
         INST_KLIPPER_INITD="false"
         INST_KLIPPER_SYSTEMD="true"
         break;;
