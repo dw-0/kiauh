@@ -1,23 +1,27 @@
 install_moonraker(){
-  system_check_moonraker
-  #ask user for customization
-  get_user_selections_moonraker
-  #disable/remove haproxy/lighttpd
-  handle_haproxy_lighttpd
-  #moonraker main installation
-  moonraker_setup
-  check_for_folder_moonraker
-  #setup configs
-  setup_printer_config_moonraker
-  setup_moonraker_conf
-  #execute customizations
-  write_custom_trusted_clients
-  symlinks_moonraker
-  disable_octoprint
-  #after install actions
-  restart_moonraker
-  restart_klipper
-  #test_api
+  if [ $(python3 --version | cut -d"." -f2) -ge 7 ]; then
+    system_check_moonraker
+    #ask user for customization
+    get_user_selections_moonraker
+    #disable/remove haproxy/lighttpd
+    handle_haproxy_lighttpd
+    #moonraker main installation
+    moonraker_setup
+    check_for_folder_moonraker
+    #setup configs
+    setup_printer_config_moonraker
+    setup_moonraker_conf
+    #execute customizations
+    write_custom_trusted_clients
+    symlinks_moonraker
+    disable_octoprint
+    #after install actions
+    restart_moonraker
+    restart_klipper
+  else
+    ERROR_MSG="Python 3.7 or above required!\n Please upgrade your Python version first."
+    print_msg && clear_msg
+  fi
 }
 
 system_check_moonraker(){
@@ -247,8 +251,7 @@ moonraker_setup(){
   $MOONRAKER_DIR/scripts/install-moonraker.sh
   #copy moonraker configuration for nginx to /etc/nginx/conf.d
   setup_moonraker_nginx_cfg
-  #backup a possible existing printer.cfg at the old location
-  #and before patching in the new location
+  #backup a possible existing printer.cfg at the old location and before patching in the new location
   backup_printer_cfg
   patch_klipper_sysfile "moonraker"
   #re-run printer.cfg location function to read the new path for the printer.cfg
@@ -355,7 +358,7 @@ setup_moonraker_conf(){
     ok_msg "Trusted clients written!"
   fi
   #check for at least one trusted client in an already existing moonraker.conf
-  #in no entry is found, write default trusted client
+  #if no entry is found, write default trusted client
   if [ "$MOONRAKER_CONF_FOUND" = "true" ]; then
     if grep "trusted_clients:" ${HOME}/moonraker.conf -q; then
       TC_LINE=$(grep -n "trusted_clients:" ${HOME}/moonraker.conf | cut -d ":" -f1)
@@ -468,8 +471,7 @@ write_custom_trusted_clients(){
 }
 
 symlinks_moonraker(){
-  #create a klippy.log/moonraker.log symlink in
-  #klipper_config-dir just for convenience
+  #create a klippy.log/moonraker.log symlink in klipper_config-dir just for convenience
   if [ "$SEL_KLIPPYLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/klippy.log ]; then
     status_msg "Creating klippy.log symlink ..."
     ln -s /tmp/klippy.log ${HOME}/klipper_config
