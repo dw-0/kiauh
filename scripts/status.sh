@@ -13,12 +13,12 @@ kiauh_status(){
 klipper_status(){
   kcount=0
   klipper_data=(
+    SERVICE
     $KLIPPER_DIR
     $KLIPPY_ENV_DIR
-    SERVICE
   )
   #remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && unset klipper_data[2]
+  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && unset klipper_data[0]
   #count+1 for each found data-item from array
   for kd in "${klipper_data[@]}"
   do
@@ -61,13 +61,14 @@ dwc2_status(){
 moonraker_status(){
   mrcount=0
   moonraker_data=(
-    $MOONRAKER_SERVICE1
-    $MOONRAKER_SERVICE2
+    SERVICE
     $MOONRAKER_DIR
     $MOONRAKER_ENV_DIR
     $NGINX_CONFD/upstreams.conf
     $NGINX_CONFD/common_vars.conf
   )
+  #remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
+  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] && unset moonraker_data[0]
   #count+1 for each found data-item from array
   for mrd in "${moonraker_data[@]}"
   do
