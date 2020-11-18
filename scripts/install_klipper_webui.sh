@@ -239,8 +239,36 @@ fluidd_setup(){
   #write fluidd version to file for update check reasons
   status_msg "Writing Fluidd version to file ..."
   get_fluidd_ver && echo $FLUIDD_VERSION > $FLUIDD_DIR/version && ok_msg "Done!"
+  #patch moonraker.conf to apply cors domains if needed
+  backup_moonraker_conf
+  patch_moonraker
   #delete downloaded zip
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!" && ok_msg "Fluidd installation complete!"
   echo
+}
+
+patch_moonraker(){
+  mr_conf=${HOME}/moonraker.conf
+  # looking for a cors_domain entry in moonraker.conf
+  if [ ! "$(grep "^cors_domains:$" $mr_conf)" ]; then
+    #find trusted_clients line number and subtract one, to insert cors_domains later
+    line="$(grep -n "trusted_clients:" $mr_conf | cut -d":" -f1)i"
+    sed -i "$line cors_domains:" $mr_conf
+    mr_restart="true"
+  fi
+  if [ "$(grep "^cors_domains:$" $mr_conf)" ]; then
+    hostname=$(hostname -I | cut -d" " -f1)
+    url1="\ \ \ \ http://*.local"
+    url2="\ \ \ \ http://app.fluidd.xyz"
+    url3="\ \ \ \ https://app.fluidd.xyz"
+    url4="\ \ \ \ http://$hostname:*"
+    #find cors_domains line number and add one, to insert urls later
+    line="$(expr $(grep -n "cors_domains:" $mr_conf | cut -d":" -f1) + 1)i"
+    [ ! "$(grep -E '^\s+http:\/\/\*\.local$' $mr_conf)" ] && sed -i "$line $url1" $mr_conf && mr_restart="true"
+    [ ! "$(grep -E '^\s+http:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url2" $mr_conf && mr_restart="true"
+    [ ! "$(grep -E '^\s+https:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url3" $mr_conf && mr_restart="true"
+    [ ! "$(grep -E '^\s+http:\/\/([0-9]{1,3}\.){3}[0-9]{1,3}' $mr_conf)" ] && sed -i "$line $url4" $mr_conf && mr_restart="true"
+  fi
+  [ "$mr_restart" == "true" ] && restart_moonraker
 }
