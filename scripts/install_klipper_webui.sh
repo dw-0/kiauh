@@ -255,6 +255,7 @@ patch_moonraker(){
     #find trusted_clients line number and subtract one, to insert cors_domains later
     line="$(grep -n "trusted_clients:" $mr_conf | cut -d":" -f1)i"
     sed -i "$line cors_domains:" $mr_conf
+    mr_restart="true"
   fi
   if [ "$(grep "^cors_domains:$" $mr_conf)" ]; then
     hostname=$(hostname -I | cut -d" " -f1)
@@ -264,9 +265,10 @@ patch_moonraker(){
     url4="\ \ \ \ http://$hostname:*"
     #find cors_domains line number and add one, to insert urls later
     line="$(expr $(grep -n "cors_domains:" $mr_conf | cut -d":" -f1) + 1)i"
-    [ ! "$(grep -E '^\s+http:\/\/\*\.local$' $mr_conf)" ] && sed -i "$line $url1" $mr_conf
-    [ ! "$(grep -E '^\s+http:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url2" $mr_conf
-    [ ! "$(grep -E '^\s+https:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url3" $mr_conf
-    [ ! "$(grep -E '^\s+http:\/\/([0-9]{1,3}\.){3}[0-9]{1,3}' $mr_conf)" ] && sed -i "$line $url4" $mr_conf
+    [ ! "$(grep -E '^\s+http:\/\/\*\.local$' $mr_conf)" ] && sed -i "$line $url1" $mr_conf && mr_restart="true"
+    [ ! "$(grep -E '^\s+http:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url2" $mr_conf && mr_restart="true"
+    [ ! "$(grep -E '^\s+https:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url3" $mr_conf && mr_restart="true"
+    [ ! "$(grep -E '^\s+http:\/\/([0-9]{1,3}\.){3}[0-9]{1,3}' $mr_conf)" ] && sed -i "$line $url4" $mr_conf && mr_restart="true"
   fi
+  [ "$mr_restart" == "true" ] && restart_moonraker
 }
