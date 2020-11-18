@@ -4,6 +4,10 @@
 
 ---
 
+## **📋 Please see the [Changelog](docs/changelog.md) for possible important information !**
+
+---
+
 ## **📢 Disclaimer: Usage of this script happens at your own risk!**
 
 This script acts as a helping hand for you to get set up in a fast and comfortable way.\
@@ -62,7 +66,6 @@ Feel free to check out his work.
 
 ## **📝 Notes:**
 
-- ### **Important changes to the script will be listed in the [Changelog](docs/changelog.md)**
 - Tested **only** on Raspberry Pi OS Lite (Debian Buster)
 - During the use of this script you might be asked for your sudo password. There are several functions involved which need sudo privileges.
 

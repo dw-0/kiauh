@@ -2,6 +2,10 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2020-11-18
+
+* Some changes to Fluidd caused a little rework on how KIAUH will install/update Fluidd from now on. Please see the [fluidd v1.0.0-rc0 release notes](https://github.com/cadriel/fluidd/releases/tag/v1.0.0-rc.0) for further information about what modifications to the moonraker.conf file exactly had to be done. In a nutshell, KIAUH will now always patch the required entries to the moonraker.conf if not already there.
+
 ### 2020-10-30:
 
 * The user can now choose to install Klipper as a systemd service.
