@@ -249,6 +249,7 @@ fluidd_setup(){
 }
 
 patch_moonraker(){
+  status_msg "Patching moonraker.conf ..."
   mr_conf=${HOME}/moonraker.conf
   # remove the now deprecated enable_cors option from moonraker.conf if it still exists
   if [ "$(grep "^enable_cors:" $mr_conf)" ]; then
@@ -274,5 +275,10 @@ patch_moonraker(){
     [ ! "$(grep -E '^\s+https:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url3" $mr_conf && mr_restart="true"
     [ ! "$(grep -E '^\s+http:\/\/([0-9]{1,3}\.){3}[0-9]{1,3}' $mr_conf)" ] && sed -i "$line $url4" $mr_conf && mr_restart="true"
   fi
-  [ "$mr_restart" == "true" ] && restart_moonraker
+  #restart moonraker service if mr_restart was set to true
+  if [[ $mr_restart == "true" ]]; then
+    ok_msg "Patching done!" && restart_moonraker
+  else
+    ok_msg "No patching was needed!"
+  fi
 }
