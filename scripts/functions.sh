@@ -66,8 +66,7 @@ stop_dwc(){
 
 start_moonraker(){
   status_msg "Starting Moonraker Service ..."
-  sudo systemctl start moonraker
-  ok_msg "Moonraker Service started!"
+  sudo systemctl start moonraker && ok_msg "Moonraker Service started!"
 }
 
 stop_moonraker(){
@@ -140,9 +139,9 @@ read_octoprint_service_status(){
 }
 
 restart_nginx(){
-  if [ -e /etc/init.d/nginx ]; then
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "nginx.service")" ]; then
     status_msg "Restarting Nginx Service ..."
-    sudo /etc/init.d/nginx restart && sleep 2 && ok_msg "Nginx Service restarted!"
+    sudo systemctl restart nginx && ok_msg "Nginx Service restarted!"
   fi
 }
 
