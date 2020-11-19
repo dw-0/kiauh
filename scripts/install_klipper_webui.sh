@@ -250,12 +250,16 @@ fluidd_setup(){
 
 patch_moonraker(){
   mr_conf=${HOME}/moonraker.conf
+  # remove the now deprecated enable_cors option from moonraker.conf if it still exists
+  if [ "$(grep "^enable_cors:" $mr_conf)" ]; then
+    line="$(grep -n "^enable_cors:" ~/moonraker.conf | cut -d":" -f1)d"
+    sed -i "$line" $mr_conf && mr_restart="true"
+  fi
   # looking for a cors_domain entry in moonraker.conf
   if [ ! "$(grep "^cors_domains:$" $mr_conf)" ]; then
     #find trusted_clients line number and subtract one, to insert cors_domains later
-    line="$(grep -n "trusted_clients:" $mr_conf | cut -d":" -f1)i"
-    sed -i "$line cors_domains:" $mr_conf
-    mr_restart="true"
+    line="$(grep -n "^trusted_clients:$" $mr_conf | cut -d":" -f1)i"
+    sed -i "$line cors_domains:" $mr_conf && mr_restart="true"
   fi
   if [ "$(grep "^cors_domains:$" $mr_conf)" ]; then
     hostname=$(hostname -I | cut -d" " -f1)
