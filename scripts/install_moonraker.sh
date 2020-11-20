@@ -1,5 +1,6 @@
 install_moonraker(){
-  if [ $(python3 --version | cut -d"." -f2) -ge 7 ]; then
+  python3_check
+  if [ $py_chk_ok = "true" ]; then
     system_check_moonraker
     #ask user for customization
     get_user_selections_moonraker
@@ -21,6 +22,18 @@ install_moonraker(){
   else
     ERROR_MSG="Python 3.7 or above required!\n Please upgrade your Python version first."
     print_msg && clear_msg
+  fi
+}
+
+python3_check(){
+  status_msg "Your Python 3 version is: $(python3 --version)"
+  major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
+  minor=$(python3 --version | cut -d"." -f2)
+  if [ $major -ge 3 ] && [ $minor -ge 7 ]; then
+    ok_msg "Python version ok!"
+    py_chk_ok="true"
+  else
+    py_chk_ok="false"
   fi
 }
 
@@ -68,7 +81,7 @@ get_user_selections_moonraker(){
       echo -e "|         ${red}WARNING! - No printer.cfg was found!${default}          |"
       hr
       echo -e "|  KIAUH can create a minimal printer.cfg with only the |"
-      echo -e "|  necessary Mainsail config entries if you wish.       |"
+      echo -e "|  recommended Moonraker config entries if you wish.    |"
       echo -e "|                                                       |"
       echo -e "|  Please be aware, that this option will ${red}NOT${default} create a  |"
       echo -e "|  fully working printer.cfg for you!                   |"
@@ -242,9 +255,12 @@ get_user_selections_moonraker(){
 #############################################################
 
 moonraker_setup(){
-  dep=(wget curl unzip dfu-util nginx)
+  dep=(wget curl unzip dfu-util)
   dependency_check
   status_msg "Downloading Moonraker ..."
+  #force remove existing moonraker dir
+  [ -d $MOONRAKER_DIR ] && rm -rf $MOONRAKER_DIR
+  #clone into fresh moonraker dir
   cd ${HOME} && git clone $MOONRAKER_REPO
   ok_msg "Download complete!"
   status_msg "Installing Moonraker ..."

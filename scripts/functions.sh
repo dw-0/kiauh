@@ -261,18 +261,16 @@ install_gcode_shell_command(){
 }
 
 create_minimal_cfg(){
-  #create a minimal default config for either moonraker or dwc2
+  #create a minimal default config
   if [ "$SEL_DEF_CFG" = "true" ]; then
 		cat <<- EOF >> $PRINTER_CFG
 		[mcu]
 		serial: </dev/serial/by-id/your-mcu>
 
 		[printer]
-		kinematics: cartesian
-		max_velocity: 300
-		max_accel: 3000
-		max_z_velocity: 5
-		max_z_accel: 100
+		kinematics: none
+		max_velocity: 1
+		max_accel: 1
 
 		[virtual_sdcard]
 		path: ~/sdcard
