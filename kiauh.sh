@@ -7,7 +7,7 @@ green=$(echo -en "\e[92m")
 yellow=$(echo -en "\e[93m")
 red=$(echo -en "\e[91m")
 cyan=$(echo -en "\e[96m")
-default=$(echo -en "\e[97m")
+default=$(echo -en "\e[39m")
 
 ### sourcing all additional scripts
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
