@@ -217,10 +217,7 @@ read_remote_klipper_commit(){
 
 compare_klipper_versions(){
   unset KLIPPER_UPDATE_AVAIL
-  read_local_klipper_commit
-  read_remote_klipper_commit
-  #echo "Local: $LOCAL_COMMIT"
-  #echo "Remote: $REMOTE_COMMIT"
+  read_local_klipper_commit && read_remote_klipper_commit
   if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
     LOCAL_COMMIT="${yellow}$LOCAL_COMMIT${default}"
     REMOTE_COMMIT="${green}$REMOTE_COMMIT${default}"
@@ -251,8 +248,6 @@ read_dwc2fk_versions(){
 compare_dwc2fk_versions(){
   unset DWC2FK_UPDATE_AVAIL
   read_dwc2fk_versions
-  #echo "Local: $LOCAL_DWC2FK_COMMIT"
-  #echo "Remote: $REMOTE_DWC2FK_COMMIT"
   if [ "$LOCAL_DWC2FK_COMMIT" != "$REMOTE_DWC2FK_COMMIT" ]; then
     LOCAL_DWC2FK_COMMIT="${yellow}$LOCAL_DWC2FK_COMMIT${default}"
     REMOTE_DWC2FK_COMMIT="${green}$REMOTE_DWC2FK_COMMIT${default}"
@@ -266,39 +261,40 @@ compare_dwc2fk_versions(){
 }
 
 read_local_dwc2_version(){
-  unset DWC2_IS_INSTALLED
+  unset DWC2_VER_FOUND
   if [ -e $DWC2_DIR/version ]; then
+    DWC2_VER_FOUND="true"
     DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/version)
-    DWC2_IS_INSTALLED="true"
   else
-    DWC2_LOCAL_VER="${red}-----${default}"
-    DWC2_IS_INSTALLED="false"
+    DWC2_VER_FOUND="false" && unset DWC2_LOCAL_VER
   fi
 }
 
 read_remote_dwc2_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    DWC2_REMOTE_VER="${red}-----${default}"
+    DWC2_REMOTE_VER="${red}------------${default}"
   else
-    DWC2_REMOTE_VER=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep tag_name | cut -d'"' -f4)
+    get_dwc2_ver
+    DWC2_REMOTE_VER=$DWC2_VERSION
   fi
 }
 
 compare_dwc2_versions(){
   unset DWC2_UPDATE_AVAIL
-  read_local_dwc2_version
-  read_remote_dwc2_version
-  #echo "Local: $DWC2_LOCAL_VER"
-  #echo "Remote: $DWC2_REMOTE_VER"
-  if [ "$DWC2_LOCAL_VER" != "$DWC2_REMOTE_VER" ] && [ "$DWC2_IS_INSTALLED" = "true" ]; then
-    DWC2_LOCAL_VER="${yellow}$DWC2_LOCAL_VER${default}"
-    DWC2_REMOTE_VER="${green}$DWC2_REMOTE_VER${default}"
-    DWC2_UPDATE_AVAIL="true"
-    update_arr+=(update_dwc2)
+  read_local_dwc2_version && read_remote_dwc2_version
+  if [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER == $DWC2_REMOTE_VER ]]; then
+    #printf fits the string for displaying it in the ui to a total char length of 12
+    DWC2_LOCAL_VER="${green}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+  elif [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER != $DWC2_REMOTE_VER ]]; then
+    DWC2_LOCAL_VER="${yellow}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+    # set flag for the multi update function
+    DWC2_UPDATE_AVAIL="true" && update_arr+=(update_dwc2)
   else
-    DWC2_LOCAL_VER="${green}$DWC2_LOCAL_VER${default}"
-    DWC2_REMOTE_VER="${green}$DWC2_REMOTE_VER${default}"
+    DWC2_LOCAL_VER="${red}------------${default}"
+    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
     DWC2_UPDATE_AVAIL="false"
   fi
 }
@@ -321,8 +317,6 @@ read_moonraker_versions(){
 compare_moonraker_versions(){
   unset MOONRAKER_UPDATE_AVAIL
   read_moonraker_versions
-  #echo "Local: $LOCAL_MOONRAKER_COMMIT"
-  #echo "Remote: $REMOTE_MOONRAKER_COMMIT"
   if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
     LOCAL_MOONRAKER_COMMIT="${yellow}$LOCAL_MOONRAKER_COMMIT${default}"
     REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
@@ -336,20 +330,19 @@ compare_moonraker_versions(){
 }
 
 read_local_mainsail_version(){
-  unset MAINSAIL_IS_INSTALLED
+  unset MAINSAIL_VER_FOUND
   if [ -e $MAINSAIL_DIR/version ]; then
+    MAINSAIL_VER_FOUND="true"
     MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/version)
-    MAINSAIL_IS_INSTALLED="true"
   else
-    MAINSAIL_LOCAL_VER="${red}-----${default}"
-    MAINSAIL_IS_INSTALLED="false"
+    MAINSAIL_VER_FOUND="false" && unset MAINSAIL_LOCAL_VER
   fi
 }
 
 read_remote_mainsail_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    MAINSAIL_REMOTE_VER="${red}-----${default}"
+    MAINSAIL_REMOTE_VER="${red}------------${default}"
   else
     get_mainsail_ver
     MAINSAIL_REMOTE_VER=$MAINSAIL_VERSION
@@ -358,37 +351,37 @@ read_remote_mainsail_version(){
 
 compare_mainsail_versions(){
   unset MAINSAIL_UPDATE_AVAIL
-  read_local_mainsail_version
-  read_remote_mainsail_version
-  #echo "Local: $MAINSAIL_LOCAL_VER"
-  #echo "Remote: $MAINSAIL_REMOTE_VER"
-  if [ "$MAINSAIL_LOCAL_VER" != "$MAINSAIL_REMOTE_VER" ] && [ "$MAINSAIL_IS_INSTALLED" = "true" ]; then
-    MAINSAIL_LOCAL_VER="${yellow}$MAINSAIL_LOCAL_VER${default}"
-    MAINSAIL_REMOTE_VER="${green}$MAINSAIL_REMOTE_VER${default}"
-    MAINSAIL_UPDATE_AVAIL="true"
-    update_arr+=(update_mainsail)
+  read_local_mainsail_version && read_remote_mainsail_version
+  if [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER == $MAINSAIL_REMOTE_VER ]]; then
+    #printf fits the string for displaying it in the ui to a total char length of 12
+    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+  elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
+    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    # set flag for the multi update function
+    MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
-    MAINSAIL_LOCAL_VER="${green}$MAINSAIL_LOCAL_VER${default}"
-    MAINSAIL_REMOTE_VER="${green}$MAINSAIL_REMOTE_VER${default}"
+    MAINSAIL_LOCAL_VER="${red}------------${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
 
 read_local_fluidd_version(){
-  unset FLUIDD_IS_INSTALLED
+  unset FLUIDD_VER_FOUND
   if [ -e $FLUIDD_DIR/version ]; then
+    FLUIDD_VER_FOUND="true"
     FLUIDD_LOCAL_VER=$(head -n 1 $FLUIDD_DIR/version)
-    FLUIDD_IS_INSTALLED="true"
   else
-    FLUIDD_LOCAL_VER="${red}-----${default}"
-    FLUIDD_IS_INSTALLED="false"
+    FLUIDD_VER_FOUND="false" && unset FLUIDD_LOCAL_VER
   fi
 }
 
 read_remote_fluidd_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    FLUIDD_REMOTE_VER="${red}-----${default}"
+    FLUIDD_REMOTE_VER="${red}------------${default}"
   else
     get_fluidd_ver
     FLUIDD_REMOTE_VER=$FLUIDD_VERSION
@@ -397,18 +390,19 @@ read_remote_fluidd_version(){
 
 compare_fluidd_versions(){
   unset FLUIDD_UPDATE_AVAIL
-  read_local_fluidd_version
-  read_remote_fluidd_version
-  #echo "Local: $FLUIDD_LOCAL_VER"
-  #echo "Remote: $FLUIDD_REMOTE_VER"
-  if [ "$FLUIDD_LOCAL_VER" != "$FLUIDD_REMOTE_VER" ] && [ "$FLUIDD_IS_INSTALLED" = "true" ]; then
-    FLUIDD_LOCAL_VER="${yellow}$FLUIDD_LOCAL_VER${default}"
-    FLUIDD_REMOTE_VER="${green}$FLUIDD_REMOTE_VER${default}"
-    FLUIDD_UPDATE_AVAIL="true"
-    update_arr+=(update_fluidd)
+  read_local_fluidd_version && read_remote_fluidd_version
+  if [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER == $FLUIDD_REMOTE_VER ]]; then
+    #printf fits the string for displaying it in the ui to a total char length of 12
+    FLUIDD_LOCAL_VER="${green}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+  elif [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER != $FLUIDD_REMOTE_VER ]]; then
+    FLUIDD_LOCAL_VER="${yellow}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+    # set flag for the multi update function
+    FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
-    FLUIDD_LOCAL_VER="${green}$FLUIDD_LOCAL_VER${default}"
-    FLUIDD_REMOTE_VER="${green}$FLUIDD_REMOTE_VER${default}"
+    FLUIDD_LOCAL_VER="${red}------------${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
 }

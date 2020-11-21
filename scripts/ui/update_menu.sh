@@ -13,15 +13,15 @@ update_ui(){
   echo -e "|  a) [Update all]       |  Local Vers:  | Remote Vers: | "
   echo -e "|                        |               |              | "
   echo -e "|  Firmware:             |               |              | "
-  echo -e "|  1) [Klipper]          |  $(echo "$LOCAL_COMMIT")     | $(echo "$REMOTE_COMMIT")     | "
+  echo -e "|  1) [Klipper]          |  $LOCAL_COMMIT     | $REMOTE_COMMIT     | "
   echo -e "|                        |               |              | "
   echo -e "|  Webinterface:         |---------------|--------------| "
-  echo -e "|  2) [DWC2-for-Klipper] |  $(echo "$LOCAL_DWC2FK_COMMIT")     | $(echo "$REMOTE_DWC2FK_COMMIT")     | "
-  echo -e "|  3) [DWC2 Web UI]      |  $(echo "$DWC2_LOCAL_VER")        | $(echo "$DWC2_REMOTE_VER")        | "
+  echo -e "|  2) [DWC2-for-Klipper] |  $LOCAL_DWC2FK_COMMIT     | $REMOTE_DWC2FK_COMMIT     | "
+  echo -e "|  3) [DWC2 Web UI]      |  $DWC2_LOCAL_VER | $DWC2_REMOTE_VER | "
   echo -e "|                        |---------------|--------------| "
-  echo -e "|  4) [Moonraker]        |  $(echo "$LOCAL_MOONRAKER_COMMIT")     | $(echo "$REMOTE_MOONRAKER_COMMIT")     | "
-  echo -e "|  5) [Mainsail]         |  $(echo "$MAINSAIL_LOCAL_VER")        | $(echo "$MAINSAIL_REMOTE_VER")        | "
-  echo -e "|  6) [Fluidd]           |  $(echo "$FLUIDD_LOCAL_VER")        | $(echo "$FLUIDD_REMOTE_VER")        | "
+  echo -e "|  4) [Moonraker]        |  $LOCAL_MOONRAKER_COMMIT     | $REMOTE_MOONRAKER_COMMIT     | "
+  echo -e "|  5) [Mainsail]         |  $MAINSAIL_LOCAL_VER | $MAINSAIL_REMOTE_VER | "
+  echo -e "|  6) [Fluidd]           |  $FLUIDD_LOCAL_VER | $FLUIDD_REMOTE_VER | "
   quit_footer
 }
 
