@@ -127,8 +127,8 @@ update_moonraker(){
     echo -e "| code and/or its dependencies might require a rebuild  |"
     echo -e "| of the python virtual envrionment.                    |"
     blank_line
-    echo -e "| Please check the docs in the Moonraker repository to  |"
-    echo -e "| see if a rebuild is necessary (user_changes.md).      |"
+    echo -e "| ${yellow}Please check the docs in the Moonraker repository to${default}  |"
+    echo -e "| ${yellow}see if a rebuild is necessary (user_changes.md).${default}      |"
     blank_line
     echo -e "| 1) Update Moonraker (default)                         |"
     echo -e "| 2) Update Moonraker + rebuild virtualenv              |"
