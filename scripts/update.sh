@@ -73,8 +73,8 @@ update_klipper(){
     status_msg "Fetching from $FETCH_BRANCH"
     cd $KLIPPER_DIR
     git fetch $FETCH_BRANCH -q && ok_msg "Fetch successfull!"
-    status_msg "Checking out $FETCH_BRANCH"
-    git checkout $FETCH_BRANCH -q && ok_msg "Checkout successfull!"
+    status_msg "Checking out $GET_BRANCH"
+    git checkout $GET_BRANCH -q && ok_msg "Checkout successfull!"
     #check for possible new dependencies and install them
     status_msg "Checking for possible new dependencies ..."
     PKGLIST=$(grep "PKGLIST=" ~/klipper/scripts/install-octopi.sh | cut -d'"' -f2- | cut -d'"' -f1 | cut -d"}" -f2)
