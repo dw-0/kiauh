@@ -84,7 +84,7 @@ get_user_selections_klipper(){
 
 klipper_setup(){
   #check for dependencies
-  dep=(git)
+  dep=(git dbus)
   dependency_check
   #execute operation
   cd ${HOME}
