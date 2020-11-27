@@ -71,7 +71,7 @@ klipperscreen_setup(){
 
 symlinks_klipperscreen(){
   #create a KlipperScreen.log symlink in klipper_config-dir just for convenience
-  if [ "$KLIPPERSCREEN_SL_FOUND" = "true" ] && [ ! -e ${HOME}/klipper_config/KlipperScreen.log ]; then
+  if [ "$SEL_KSLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/KlipperScreen.log ]; then
     status_msg "Creating KlipperScreen.log symlink ..."
     ln -s /tmp/KlipperScreen.log ${HOME}/klipper_config
     ok_msg "Symlink created!"
