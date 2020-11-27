@@ -43,6 +43,9 @@ OCTOPRINT_DIR=${HOME}/OctoPrint
 OCTOPRINT_CFG_DIR=${HOME}/.octoprint
 OCTOPRINT_SERVICE1=/etc/init.d/octoprint
 OCTOPRINT_SERVICE2=/etc/default/octoprint
+#KlipperScreen
+KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
+KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
 #misc
 INI_FILE=${SRCDIR}/kiauh/kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
@@ -53,6 +56,7 @@ ARKSINE_REPO=https://github.com/Arksine/klipper.git
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
 DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
 MOONRAKER_REPO=https://github.com/Arksine/moonraker.git
+KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
 #branches
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping

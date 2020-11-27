@@ -34,6 +34,9 @@ update_all(){
     if [ "$FLUIDD_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● Fluidd${default}                                             |"
     fi
+    if [ "$KLIPPERSCREEN_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● KlipperScreen${default}                                      |"
+    fi
     bottom_border
     if [ "${#update_arr[@]}" != "0" ]; then
       read -p "${cyan}###### Do you want to proceed? (Y/n):${default} " yn
@@ -165,4 +168,21 @@ update_moonraker(){
   locate_printer_cfg && patch_klipper_sysfile
   ok_msg "Update complete!"
   start_moonraker
+}
+
+update_klipperscreen(){
+  stop_klipperscreen
+  cd $KLIPPERSCREEN_DIR
+  KLIPPERSCREEN_OLDREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt | cut -d " " -f1)
+  git pull origin master -q && ok_msg "Fetch successfull!"
+  git checkout -f origin/master && ok_msg "Checkout successfull"
+  #KLIPPERSCREEN_NEWREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt)
+  if [[ $(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt | cut -d " " -f1) != $KLIPPERSCREEN_OLDREQ_MD5SUM ]]; then
+    status_msg "New dependecies detected..."
+    PYTHONDIR="${HOME}/.KlipperScreen-env"
+    $PYTHONDIR/bin/pip install -r $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt
+    ok_msg "Dependencies have been installed!"
+  fi
+  ok_msg "Update complete!"
+  start_klipper
 }

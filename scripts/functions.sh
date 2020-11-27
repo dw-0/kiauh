@@ -138,6 +138,21 @@ read_octoprint_service_status(){
   fi
 }
 
+start_klipperscreen(){
+  status_msg "Starting KlipperScreen Service ..."
+  sudo systemctl start KlipperScreen && ok_msg "KlipperScreen Service started!"
+}
+
+stop_klipperscreen(){
+  status_msg "Stopping KlipperScreen Service ..."
+  sudo systemctl stop KlipperScreen && ok_msg "KlipperScreen Service stopped!"
+}
+
+restart_klipperscreen(){
+  status_msg "Restarting KlipperScreen Service ..."
+  sudo systemctl restart KlipperScreen && ok_msg "KlipperScreen Service restarted!"
+}
+
 restart_nginx(){
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "nginx.service")" ]; then
     status_msg "Restarting Nginx Service ..."
