@@ -219,7 +219,7 @@ print_branch(){
 read_local_klipper_commit(){
   if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
     cd $KLIPPER_DIR
-    LOCAL_COMMIT=$(git rev-parse --short=8 HEAD)
+    LOCAL_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_COMMIT=$NONE
   fi
@@ -230,10 +230,10 @@ read_remote_klipper_commit(){
   if [ ! -z "$GET_BRANCH" ];then
     if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
       git fetch origin -q
-      REMOTE_COMMIT=$(git rev-parse --short=8 origin)
+      REMOTE_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
     else
       git fetch $(echo "$GET_BRANCH" | cut -d"/" -f1) -q
-      REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
+      REMOTE_COMMIT=$(git describe $GET_BRANCH --always --tags | cut -d "-" -f 1,2)
     fi
   else
     REMOTE_COMMIT=$NONE
@@ -262,8 +262,8 @@ read_dwc2fk_versions(){
   if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
     cd $DWC2FK_DIR
     git fetch origin master -q
-    LOCAL_DWC2FK_COMMIT=$(git rev-parse --short=8 HEAD)
-    REMOTE_DWC2FK_COMMIT=$(git rev-parse --short=8 origin/master)
+    LOCAL_DWC2FK_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_DWC2FK_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_DWC2FK_COMMIT=$NONE
     REMOTE_DWC2FK_COMMIT=$NONE
@@ -331,8 +331,8 @@ read_moonraker_versions(){
   if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
     cd $MOONRAKER_DIR
     git fetch origin master -q
-    LOCAL_MOONRAKER_COMMIT=$(git rev-parse --short=8 HEAD)
-    REMOTE_MOONRAKER_COMMIT=$(git rev-parse --short=8 origin/master)
+    LOCAL_MOONRAKER_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_MOONRAKER_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_MOONRAKER_COMMIT=$NONE
     REMOTE_MOONRAKER_COMMIT=$NONE
