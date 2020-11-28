@@ -120,6 +120,12 @@ https://github.com/Stephan3/dwc2-for-klipper-socket
 
 ---
 
+### **🖥️KlipperScreen** by [jordanruthe](https://github.com/jordanruthe) :
+
+https://github.com/jordanruthe/KlipperScreen
+
+---
+
 ### **🐙OctoPrint Webinterface** by [OctoPrint](https://github.com/OctoPrint) :
 
 https://octoprint.org \
