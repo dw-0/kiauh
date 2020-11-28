@@ -322,7 +322,7 @@ remove_klipperscreen(){
     fi
     #remove KlipperScreen systemd file
     if [ -e /etc/systemd/system/KlipperScreen.service ]; then
-      status_msg "Removing KlipperScreen configuration for Nginx ..."
+      status_msg "Removing KlipperScreen Service ..."
       sudo rm /etc/systemd/system/KlipperScreen.service && ok_msg "File removed!"
     fi
     CONFIRM_MSG="KlipperScreen successfully removed!"
