@@ -22,6 +22,9 @@ update_ui(){
   echo -e "|  4) [Moonraker]        |  $LOCAL_MOONRAKER_COMMIT     | $REMOTE_MOONRAKER_COMMIT     | "
   echo -e "|  5) [Mainsail]         |  $MAINSAIL_LOCAL_VER | $MAINSAIL_REMOTE_VER | "
   echo -e "|  6) [Fluidd]           |  $FLUIDD_LOCAL_VER | $FLUIDD_REMOTE_VER | "
+  echo -e "|                        |               |              | "
+  echo -e "|  HDMI Screen:          |---------------|--------------| "
+  echo -e "|  7) [KlipperScreen]    |  $LOCAL_KLIPPERSCREEN_COMMIT | $REMOTE_KLIPPERSCREEN_COMMIT | "
   quit_footer
 }
 
@@ -75,6 +78,12 @@ update_menu(){
         clear
         print_header
         update_fluidd && ui_print_versions
+        print_msg && clear_msg
+        update_ui;;
+      7)
+        clear
+        print_header
+        update_klipperscreen && ui_print_versions
         print_msg && clear_msg
         update_ui;;
       a)

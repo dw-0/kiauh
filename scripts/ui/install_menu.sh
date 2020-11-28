@@ -11,6 +11,9 @@ install_ui(){
   echo -e "|                        |  4) [Mainsail]               | "
   echo -e "|  Klipper API:          |  5) [Fluidd]                 | "
   echo -e "|  2) [Moonraker]        |  6) [Octoprint]              | "
+  echo -e "|                        |                              | "
+  echo -e "|                        |  HDMI Screen                 | "
+  echo -e "|                        |  7) [KlipperScreen]          | "
   quit_footer
 }
 
@@ -54,6 +57,12 @@ install_menu(){
         clear
         print_header
         install_octoprint
+        print_msg && clear_msg
+        install_ui;;
+      7)
+        clear
+        print_header
+        install_klipperscreen
         print_msg && clear_msg
         install_ui;;
       Q|q)

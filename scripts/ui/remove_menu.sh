@@ -16,6 +16,9 @@ remove_ui(){
   echo -e "|                        |                              | "
   echo -e "|                        |  Webserver:                  | "
   echo -e "|                        |  7) [Nginx]                  | "
+  echo -e "|                        |                              | "
+  echo -e "|                        |  HDMI Screen:                | "
+  echo -e "|                        |  8) KlipperScreen            | "
   quit_footer
 }
 
@@ -65,6 +68,12 @@ remove_menu(){
         clear
         print_header
         remove_nginx
+        print_msg && clear_msg
+        remove_ui;;
+      8)
+        clear
+        print_header
+        remove_klipperscreen
         print_msg && clear_msg
         remove_ui;;
       Q|q)

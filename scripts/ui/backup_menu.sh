@@ -15,6 +15,9 @@ backup_ui(){
   echo -e "|                                                       | "
   echo -e "|  5) [OctoPrint]                                       | "
   echo -e "|                                                       | "
+  echo -e "|  HDMI Screen:                                         | "
+  echo -e "|  6) [KlipperScreen]                                   | "
+  echo -e "|                                                       | "
   quit_footer
 }
 
@@ -53,6 +56,12 @@ backup_menu(){
         clear
         print_header
         backup_octoprint
+        print_msg && clear_msg
+        backup_ui;;
+      6)
+        clear
+        print_header
+        backup_klipperscreen
         print_msg && clear_msg
         backup_ui;;
       Q|q)

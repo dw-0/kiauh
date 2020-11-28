@@ -123,3 +123,17 @@ backup_octoprint(){
     ERROR_MSG=" Can't backup OctoPrint and/or .octoprint directory!\n Not found!"
   fi
 }
+
+backup_klipperscreen(){
+  if [ -d $KLIPPERSCREEN_DIR ] ; then
+    status_msg "Creating KlipperScreen backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
+    mkdir -p $BACKUP_DIR/klipperscreen-backups/"$current_date"
+    cp -r $KLIPPERSCREEN_DIR $_
+    ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup KlipperScreen directory!\n Not found!"
+  fi
+}

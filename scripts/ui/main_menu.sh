@@ -2,15 +2,17 @@ main_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|  0) [Upload Log]     |    Klipper: $KLIPPER_STATUS|"
-  echo -e "|                      |     Branch: ${cyan}$PRINT_BRANCH${default}|"
+  echo -e "|  0) [Upload Log]     |       Klipper: $KLIPPER_STATUS|"
+  echo -e "|                      |        Branch: ${cyan}$PRINT_BRANCH${default}|"
   echo -e "|  1) [Install]        |                                |"
-  echo -e "|  2) [Update]         |  Moonraker: $MOONRAKER_STATUS|"
+  echo -e "|  2) [Update]         |     Moonraker: $MOONRAKER_STATUS|"
   echo -e "|  3) [Remove]         |                                |"
-  echo -e "|                      |       DWC2: $DWC2_STATUS|"
-  echo -e "|  4) [Advanced]       |     Fluidd: $FLUIDD_STATUS|"
-  echo -e "|  5) [Backup]         |   Mainsail: $MAINSAIL_STATUS|"
-  echo -e "|                      |  Octoprint: $OCTOPRINT_STATUS|"
+  echo -e "|                      |          DWC2: $DWC2_STATUS|"
+  echo -e "|  4) [Advanced]       |        Fluidd: $FLUIDD_STATUS|"
+  echo -e "|  5) [Backup]         |      Mainsail: $MAINSAIL_STATUS|"
+  echo -e "|                      |     Octoprint: $OCTOPRINT_STATUS|"
+  echo -e "|                      |                                |"
+  echo -e "|                      | KlipperScreen: $KLIPPERSCREEN_STATUS|"
   quit_footer
 }
 
@@ -27,6 +29,7 @@ main_menu(){
     fluidd_status
     mainsail_status
     octoprint_status
+    klipperscreen_status
     print_branch
   print_msg && clear_msg
   main_ui

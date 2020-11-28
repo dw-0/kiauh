@@ -27,11 +27,11 @@ klipper_status(){
     fi
   done
   if [ "$kcount" == "${#klipper_data[*]}" ]; then
-    KLIPPER_STATUS="${green}Installed!${default}         "
+    KLIPPER_STATUS="${green}Installed!${default}      "
   elif [ "$kcount" == 0 ]; then
-    KLIPPER_STATUS="${red}Not installed!${default}     "
+    KLIPPER_STATUS="${red}Not installed!${default}  "
   else
-    KLIPPER_STATUS="${yellow}Incomplete!${default}        "
+    KLIPPER_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -50,11 +50,11 @@ dwc2_status(){
     fi
   done
   if [ "$dcount" == "${#dwc2_data[*]}" ]; then
-    DWC2_STATUS="${green}Installed!${default}         "
+    DWC2_STATUS="${green}Installed!${default}      "
   elif [ "$dcount" == 0 ]; then
-    DWC2_STATUS="${red}Not installed!${default}     "
+    DWC2_STATUS="${red}Not installed!${default}  "
   else
-    DWC2_STATUS="${yellow}Incomplete!${default}        "
+    DWC2_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -77,11 +77,11 @@ moonraker_status(){
     fi
   done
   if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
-    MOONRAKER_STATUS="${green}Installed!${default}         "
+    MOONRAKER_STATUS="${green}Installed!${default}      "
   elif [ "$mrcount" == 0 ]; then
-    MOONRAKER_STATUS="${red}Not installed!${default}     "
+    MOONRAKER_STATUS="${red}Not installed!${default}  "
   else
-    MOONRAKER_STATUS="${yellow}Incomplete!${default}        "
+    MOONRAKER_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -100,11 +100,11 @@ mainsail_status(){
     fi
   done
   if [ "$mcount" == "${#mainsail_data[*]}" ]; then
-    MAINSAIL_STATUS="${green}Installed!${default}         "
+    MAINSAIL_STATUS="${green}Installed!${default}      "
   elif [ "$mcount" == 0 ]; then
-    MAINSAIL_STATUS="${red}Not installed!${default}     "
+    MAINSAIL_STATUS="${red}Not installed!${default}  "
   else
-    MAINSAIL_STATUS="${yellow}Incomplete!${default}        "
+    MAINSAIL_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -123,11 +123,11 @@ fluidd_status(){
     fi
   done
   if [ "$fcount" == "${#fluidd_data[*]}" ]; then
-    FLUIDD_STATUS="${green}Installed!${default}         "
+    FLUIDD_STATUS="${green}Installed!${default}      "
   elif [ "$fcount" == 0 ]; then
-    FLUIDD_STATUS="${red}Not installed!${default}     "
+    FLUIDD_STATUS="${red}Not installed!${default}  "
   else
-    FLUIDD_STATUS="${yellow}Incomplete!${default}        "
+    FLUIDD_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -147,11 +147,36 @@ octoprint_status(){
     fi
   done
   if [ "$ocount" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="${green}Installed!${default}         "
+    OCTOPRINT_STATUS="${green}Installed!${default}      "
   elif [ "$ocount" == 0 ]; then
-    OCTOPRINT_STATUS="${red}Not installed!${default}     "
+    OCTOPRINT_STATUS="${red}Not installed!${default}  "
   else
-    OCTOPRINT_STATUS="${yellow}Incomplete!${default}        "
+    OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
+  fi
+}
+
+klipperscreen_status(){
+  mrcount=0
+  klipperscreen_data=(
+    SERVICE
+    $KLIPPERSCREEN_DIR
+    $KLIPPERSCREEN_ENV_DIR
+  )
+  #remove the "SERVICE" entry from the klipperscreen_data array if a klipperscreen service is installed
+  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "KlipperScreen.service")" ] && unset klipperscreen_data[0]
+  #count+1 for each found data-item from array
+  for mrd in "${klipperscreen_data[@]}"
+  do
+    if [ -e $mrd ]; then
+      mrcount=$(expr $mrcount + 1)
+    fi
+  done
+  if [ "$mrcount" == "${#klipperscreen_data[*]}" ]; then
+    KLIPPERSCREEN_STATUS="${green}Installed!${default}      "
+  elif [ "$mrcount" == 0 ]; then
+    KLIPPERSCREEN_STATUS="${red}Not installed!${default}  "
+  else
+    KLIPPERSCREEN_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -175,19 +200,19 @@ read_branch(){
 print_branch(){
   read_branch
   if [ "$GET_BRANCH" == "origin/master" ]; then
-    PRINT_BRANCH="$GET_BRANCH      "
+    PRINT_BRANCH="$GET_BRANCH   "
   elif [ "$GET_BRANCH" == "origin" ]; then
-    PRINT_BRANCH="origin/master      "
+    PRINT_BRANCH="origin/master   "
   elif [ "$GET_BRANCH" == "master" ]; then
-    PRINT_BRANCH="origin/master      "
+    PRINT_BRANCH="origin/master   "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-shaping" ]; then
-    PRINT_BRANCH="scurve-shaping     "
+    PRINT_BRANCH="scurve-shaping  "
   elif [ "$GET_BRANCH" == "dmbutyugin/scurve-smoothing" ]; then
-    PRINT_BRANCH="scurve-smoothing   "
+    PRINT_BRANCH="scurve-smoothing"
   elif [ "$GET_BRANCH" == "Arksine/dev-moonraker-testing" ]; then
-    PRINT_BRANCH="moonraker          "
+    PRINT_BRANCH="moonraker       "
   else
-    PRINT_BRANCH="${red}----${default}               "
+    PRINT_BRANCH="${red}----${default}            "
   fi
 }
 
@@ -407,6 +432,35 @@ compare_fluidd_versions(){
   fi
 }
 
+read_klipperscreen_versions(){
+  if [ -d $KLIPPERSCREEN_DIR ] && [ -d $KLIPPERSCREEN_DIR/.git ]; then
+    cd $KLIPPERSCREEN_DIR
+    git fetch origin master -q
+    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    LOCAL_KLIPPERSCREEN_COMMIT=$LOCAL_KLIPPERSCREEN_COMMIT$(printf "%$[12-${#LOCAL_KLIPPERSCREEN_COMMIT}]s")
+    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+    REMOTE_KLIPPERSCREEN_COMMIT=$REMOTE_KLIPPERSCREEN_COMMIT$(printf "%$[12-${#REMOTE_KLIPPERSCREEN_COMMIT}]s")
+  else
+    LOCAL_KLIPPERSCREEN_COMMIT="${red}--------${default}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${red}--------${default}"
+  fi
+}
+
+compare_klipperscreen_versions(){
+  unset KLIPPERSCREEN_UPDATE_AVAIL
+  read_klipperscreen_versions
+  if [ "$LOCAL_KLIPPERSCREEN_COMMIT" != "$REMOTE_KLIPPERSCREEN_COMMIT" ]; then
+    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$LOCAL_KLIPPERSCREEN_COMMIT${default}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${green}$REMOTE_KLIPPERSCREEN_COMMIT${default}"
+    KLIPPERSCREEN_UPDATE_AVAIL="true"
+    update_arr+=(update_klipperscreen)
+  else
+    LOCAL_KLIPPERSCREEN_COMMIT="${green}$LOCAL_KLIPPERSCREEN_COMMIT${default}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${green}$REMOTE_KLIPPERSCREEN_COMMIT${default}"
+    KLIPPERSCREEN_UPDATE_AVAIL="false"
+  fi
+}
+
 #############################################################
 #############################################################
 
@@ -418,4 +472,5 @@ ui_print_versions(){
   compare_moonraker_versions
   compare_mainsail_versions
   compare_fluidd_versions
+  compare_klipperscreen_versions
 }

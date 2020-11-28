@@ -302,3 +302,29 @@ remove_nginx(){
     ERROR_MSG=" Looks like Nginx was already removed!\n Skipping..."
   fi
 }
+
+remove_klipperscreen(){
+  data_arr=(
+  $KLIPPERSCREEN_DIR
+  $KLIPPERSCREEN_ENV_DIR
+  /etc/systemd/system/KlipperScreen.service
+  )
+  print_error "KlipperScreen" && data_count=()
+  if [ "$ERROR_MSG" = "" ]; then
+    #remove KlipperScreen dir
+    if [ -d $KLIPPERSCREEN_DIR ]; then
+      status_msg "Removing KlipperScreen directory ..."
+      rm -rf $KLIPPERSCREEN_DIR && ok_msg "Directory removed!"
+    fi
+    if [ -d $KLIPPERSCREEN_ENV_DIR ]; then
+      status_msg "Removing KlipperScreen VENV directory ..."
+      rm -rf $KLIPPERSCREEN_ENV_DIR && ok_msg "Directory removed!"
+    fi
+    #remove KlipperScreen systemd file
+    if [ -e /etc/systemd/system/KlipperScreen.service ]; then
+      status_msg "Removing KlipperScreen configuration for Nginx ..."
+      sudo rm /etc/systemd/system/KlipperScreen.service && ok_msg "File removed!"
+    fi
+    CONFIRM_MSG="KlipperScreen successfully removed!"
+  fi
+}
