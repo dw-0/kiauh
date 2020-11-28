@@ -184,5 +184,5 @@ update_klipperscreen(){
     ok_msg "Dependencies have been installed!"
   fi
   ok_msg "Update complete!"
-  start_klipper
+  start_klipperscreen
 }

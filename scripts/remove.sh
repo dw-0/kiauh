@@ -321,7 +321,7 @@ remove_klipperscreen(){
       rm -rf $KLIPPERSCREEN_ENV_DIR && ok_msg "Directory removed!"
     fi
     #remove KlipperScreen systemd file
-    if [ -e /etc/nginx/sites-available/mainsail ]; then
+    if [ -e /etc/systemd/system/KlipperScreen.service ]; then
       status_msg "Removing KlipperScreen configuration for Nginx ..."
       sudo rm /etc/systemd/system/KlipperScreen.service && ok_msg "File removed!"
     fi
