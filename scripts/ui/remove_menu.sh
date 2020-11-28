@@ -18,7 +18,7 @@ remove_ui(){
   echo -e "|                        |  7) [Nginx]                  | "
   echo -e "|                        |                              | "
   echo -e "|                        |  HDMI Screen:                | "
-  echo -e "|                        |  8) KlipperScreen            | "
+  echo -e "|                        |  8) [KlipperScreen]          | "
   quit_footer
 }
 

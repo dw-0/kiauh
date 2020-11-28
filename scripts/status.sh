@@ -156,7 +156,7 @@ octoprint_status(){
 }
 
 klipperscreen_status(){
-  mrcount=0
+  klsccount=0
   klipperscreen_data=(
     SERVICE
     $KLIPPERSCREEN_DIR
@@ -165,15 +165,15 @@ klipperscreen_status(){
   #remove the "SERVICE" entry from the klipperscreen_data array if a klipperscreen service is installed
   [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "KlipperScreen.service")" ] && unset klipperscreen_data[0]
   #count+1 for each found data-item from array
-  for mrd in "${klipperscreen_data[@]}"
+  for klscd in "${klipperscreen_data[@]}"
   do
-    if [ -e $mrd ]; then
-      mrcount=$(expr $mrcount + 1)
+    if [ -e $klscd ]; then
+      klsccount=$(expr $klsccount + 1)
     fi
   done
-  if [ "$mrcount" == "${#klipperscreen_data[*]}" ]; then
+  if [ "$klsccount" == "${#klipperscreen_data[*]}" ]; then
     KLIPPERSCREEN_STATUS="${green}Installed!${default}      "
-  elif [ "$mrcount" == 0 ]; then
+  elif [ "$klsccount" == 0 ]; then
     KLIPPERSCREEN_STATUS="${red}Not installed!${default}  "
   else
     KLIPPERSCREEN_STATUS="${yellow}Incomplete!${default}     "
@@ -212,7 +212,7 @@ print_branch(){
   elif [ "$GET_BRANCH" == "Arksine/dev-moonraker-testing" ]; then
     PRINT_BRANCH="moonraker       "
   else
-    PRINT_BRANCH="${red}----${default}            "
+    PRINT_BRANCH="${red}--------------${default}  "
   fi
 }
 
@@ -221,7 +221,7 @@ read_local_klipper_commit(){
     cd $KLIPPER_DIR
     LOCAL_COMMIT=$(git rev-parse --short=8 HEAD)
   else
-    LOCAL_COMMIT="${red}--------${default}"
+    LOCAL_COMMIT=$NONE
   fi
 }
 
@@ -236,7 +236,7 @@ read_remote_klipper_commit(){
       REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
     fi
   else
-    REMOTE_COMMIT="${red}--------${default}"
+    REMOTE_COMMIT=$NONE
   fi
 }
 
@@ -244,13 +244,13 @@ compare_klipper_versions(){
   unset KLIPPER_UPDATE_AVAIL
   read_local_klipper_commit && read_remote_klipper_commit
   if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
-    LOCAL_COMMIT="${yellow}$LOCAL_COMMIT${default}"
-    REMOTE_COMMIT="${green}$REMOTE_COMMIT${default}"
+    LOCAL_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
+    REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
     KLIPPER_UPDATE_AVAIL="true"
     update_arr+=(update_klipper)
   else
-    LOCAL_COMMIT="${green}$LOCAL_COMMIT${default}"
-    REMOTE_COMMIT="${green}$REMOTE_COMMIT${default}"
+    LOCAL_COMMIT="${green}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
+    REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
     KLIPPER_UPDATE_AVAIL="false"
   fi
 }
@@ -265,8 +265,8 @@ read_dwc2fk_versions(){
     LOCAL_DWC2FK_COMMIT=$(git rev-parse --short=8 HEAD)
     REMOTE_DWC2FK_COMMIT=$(git rev-parse --short=8 origin/master)
   else
-    LOCAL_DWC2FK_COMMIT="${red}--------${default}"
-    REMOTE_DWC2FK_COMMIT="${red}--------${default}"
+    LOCAL_DWC2FK_COMMIT=$NONE
+    REMOTE_DWC2FK_COMMIT=$NONE
   fi
 }
 
@@ -274,13 +274,13 @@ compare_dwc2fk_versions(){
   unset DWC2FK_UPDATE_AVAIL
   read_dwc2fk_versions
   if [ "$LOCAL_DWC2FK_COMMIT" != "$REMOTE_DWC2FK_COMMIT" ]; then
-    LOCAL_DWC2FK_COMMIT="${yellow}$LOCAL_DWC2FK_COMMIT${default}"
-    REMOTE_DWC2FK_COMMIT="${green}$REMOTE_DWC2FK_COMMIT${default}"
+    LOCAL_DWC2FK_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
+    REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
     DWC2FK_UPDATE_AVAIL="true"
     update_arr+=(update_dwc2fk)
   else
-    LOCAL_DWC2FK_COMMIT="${green}$LOCAL_DWC2FK_COMMIT${default}"
-    REMOTE_DWC2FK_COMMIT="${green}$REMOTE_DWC2FK_COMMIT${default}"
+    LOCAL_DWC2FK_COMMIT="${green}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
+    REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
     DWC2FK_UPDATE_AVAIL="false"
   fi
 }
@@ -298,7 +298,7 @@ read_local_dwc2_version(){
 read_remote_dwc2_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    DWC2_REMOTE_VER="${red}------------${default}"
+    DWC2_REMOTE_VER=$NONE
   else
     get_dwc2_ver
     DWC2_REMOTE_VER=$DWC2_VERSION
@@ -318,7 +318,7 @@ compare_dwc2_versions(){
     # set flag for the multi update function
     DWC2_UPDATE_AVAIL="true" && update_arr+=(update_dwc2)
   else
-    DWC2_LOCAL_VER="${red}------------${default}"
+    DWC2_LOCAL_VER=$NONE
     DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
     DWC2_UPDATE_AVAIL="false"
   fi
@@ -334,8 +334,8 @@ read_moonraker_versions(){
     LOCAL_MOONRAKER_COMMIT=$(git rev-parse --short=8 HEAD)
     REMOTE_MOONRAKER_COMMIT=$(git rev-parse --short=8 origin/master)
   else
-    LOCAL_MOONRAKER_COMMIT="${red}--------${default}"
-    REMOTE_MOONRAKER_COMMIT="${red}--------${default}"
+    LOCAL_MOONRAKER_COMMIT=$NONE
+    REMOTE_MOONRAKER_COMMIT=$NONE
   fi
 }
 
@@ -343,13 +343,13 @@ compare_moonraker_versions(){
   unset MOONRAKER_UPDATE_AVAIL
   read_moonraker_versions
   if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
-    LOCAL_MOONRAKER_COMMIT="${yellow}$LOCAL_MOONRAKER_COMMIT${default}"
-    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+    LOCAL_MOONRAKER_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_COMMIT")${default}"
+    REMOTE_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_COMMIT")${default}"
     MOONRAKER_UPDATE_AVAIL="true"
     update_arr+=(update_moonraker)
   else
-    LOCAL_MOONRAKER_COMMIT="${green}$LOCAL_MOONRAKER_COMMIT${default}"
-    REMOTE_MOONRAKER_COMMIT="${green}$REMOTE_MOONRAKER_COMMIT${default}"
+    LOCAL_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_COMMIT")${default}"
+    REMOTE_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_COMMIT")${default}"
     MOONRAKER_UPDATE_AVAIL="false"
   fi
 }
@@ -367,7 +367,7 @@ read_local_mainsail_version(){
 read_remote_mainsail_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    MAINSAIL_REMOTE_VER="${red}------------${default}"
+    MAINSAIL_REMOTE_VER=$NONE
   else
     get_mainsail_ver
     MAINSAIL_REMOTE_VER=$MAINSAIL_VERSION
@@ -387,7 +387,7 @@ compare_mainsail_versions(){
     # set flag for the multi update function
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
-    MAINSAIL_LOCAL_VER="${red}------------${default}"
+    MAINSAIL_LOCAL_VER=$NONE
     MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
@@ -406,7 +406,7 @@ read_local_fluidd_version(){
 read_remote_fluidd_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    FLUIDD_REMOTE_VER="${red}------------${default}"
+    FLUIDD_REMOTE_VER=$NONE
   else
     get_fluidd_ver
     FLUIDD_REMOTE_VER=$FLUIDD_VERSION
@@ -426,7 +426,7 @@ compare_fluidd_versions(){
     # set flag for the multi update function
     FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
-    FLUIDD_LOCAL_VER="${red}------------${default}"
+    FLUIDD_LOCAL_VER=$NONE
     FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
@@ -436,13 +436,13 @@ read_klipperscreen_versions(){
   if [ -d $KLIPPERSCREEN_DIR ] && [ -d $KLIPPERSCREEN_DIR/.git ]; then
     cd $KLIPPERSCREEN_DIR
     git fetch origin master -q
-    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    LOCAL_KLIPPERSCREEN_COMMIT=$LOCAL_KLIPPERSCREEN_COMMIT$(printf "%$[12-${#LOCAL_KLIPPERSCREEN_COMMIT}]s")
-    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-    REMOTE_KLIPPERSCREEN_COMMIT=$REMOTE_KLIPPERSCREEN_COMMIT$(printf "%$[12-${#REMOTE_KLIPPERSCREEN_COMMIT}]s")
+    LOCAL_KLIPPERSCREEN_COMMIT=$(git rev-parse --short=8 HEAD)
+    #LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_KLIPPERSCREEN_COMMIT=$(git rev-parse --short=8 origin/master)
+    #REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
-    LOCAL_KLIPPERSCREEN_COMMIT="${red}--------${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${red}--------${default}"
+    LOCAL_KLIPPERSCREEN_COMMIT=$NONE
+    REMOTE_KLIPPERSCREEN_COMMIT=$NONE
   fi
 }
 
@@ -450,19 +450,22 @@ compare_klipperscreen_versions(){
   unset KLIPPERSCREEN_UPDATE_AVAIL
   read_klipperscreen_versions
   if [ "$LOCAL_KLIPPERSCREEN_COMMIT" != "$REMOTE_KLIPPERSCREEN_COMMIT" ]; then
-    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$LOCAL_KLIPPERSCREEN_COMMIT${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$REMOTE_KLIPPERSCREEN_COMMIT${default}"
+    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_KLIPPERSCREEN_COMMIT")${default}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "$REMOTE_KLIPPERSCREEN_COMMIT")${default}"
     KLIPPERSCREEN_UPDATE_AVAIL="true"
     update_arr+=(update_klipperscreen)
   else
-    LOCAL_KLIPPERSCREEN_COMMIT="${green}$LOCAL_KLIPPERSCREEN_COMMIT${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$REMOTE_KLIPPERSCREEN_COMMIT${default}"
+    LOCAL_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "$LOCAL_KLIPPERSCREEN_COMMIT")${default}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "$REMOTE_KLIPPERSCREEN_COMMIT")${default}"
     KLIPPERSCREEN_UPDATE_AVAIL="false"
   fi
 }
 
 #############################################################
 #############################################################
+
+#display this as placeholder if no version/commit could be fetched
+NONE="${red}$(printf "%-12s" "--------")${default}"
 
 ui_print_versions(){
   unset update_arr
