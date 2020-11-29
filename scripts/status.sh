@@ -219,7 +219,7 @@ print_branch(){
 read_local_klipper_commit(){
   if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
     cd $KLIPPER_DIR
-    LOCAL_COMMIT=$(git rev-parse --short=8 HEAD)
+    LOCAL_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
   else
     LOCAL_COMMIT=$NONE
   fi
@@ -230,10 +230,10 @@ read_remote_klipper_commit(){
   if [ ! -z "$GET_BRANCH" ];then
     if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
       git fetch origin -q
-      REMOTE_COMMIT=$(git rev-parse --short=8 origin)
+      REMOTE_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
     else
       git fetch $(echo "$GET_BRANCH" | cut -d"/" -f1) -q
-      REMOTE_COMMIT=$(git rev-parse --short=8 $GET_BRANCH)
+      REMOTE_COMMIT=$(git describe $GET_BRANCH --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
     fi
   else
     REMOTE_COMMIT=$NONE
@@ -262,8 +262,8 @@ read_dwc2fk_versions(){
   if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
     cd $DWC2FK_DIR
     git fetch origin master -q
-    LOCAL_DWC2FK_COMMIT=$(git rev-parse --short=8 HEAD)
-    REMOTE_DWC2FK_COMMIT=$(git rev-parse --short=8 origin/master)
+    LOCAL_DWC2FK_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    REMOTE_DWC2FK_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
   else
     LOCAL_DWC2FK_COMMIT=$NONE
     REMOTE_DWC2FK_COMMIT=$NONE
@@ -331,8 +331,8 @@ read_moonraker_versions(){
   if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
     cd $MOONRAKER_DIR
     git fetch origin master -q
-    LOCAL_MOONRAKER_COMMIT=$(git rev-parse --short=8 HEAD)
-    REMOTE_MOONRAKER_COMMIT=$(git rev-parse --short=8 origin/master)
+    LOCAL_MOONRAKER_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    REMOTE_MOONRAKER_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
   else
     LOCAL_MOONRAKER_COMMIT=$NONE
     REMOTE_MOONRAKER_COMMIT=$NONE
@@ -356,9 +356,10 @@ compare_moonraker_versions(){
 
 read_local_mainsail_version(){
   unset MAINSAIL_VER_FOUND
-  if [ -e $MAINSAIL_DIR/version ]; then
+  if [ -d $MAINSAIL_DIR/js ] && [ "$(ls -A $MAINSAIL_DIR/js)" ]; then
+    MAINSAIL_APP_FILE=$(find $MAINSAIL_DIR/js -name "app.*.js")
+    MAINSAIL_LOCAL_VER=$(grep -o -E 'state:{packageVersion:.+' $MAINSAIL_APP_FILE | cut -d'"' -f2)
     MAINSAIL_VER_FOUND="true"
-    MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/version)
   else
     MAINSAIL_VER_FOUND="false" && unset MAINSAIL_LOCAL_VER
   fi
@@ -395,9 +396,10 @@ compare_mainsail_versions(){
 
 read_local_fluidd_version(){
   unset FLUIDD_VER_FOUND
-  if [ -e $FLUIDD_DIR/version ]; then
+  if [ -d $FLUIDD_DIR/js ] && [ "$(ls -A $FLUIDD_DIR/js)" ]; then
+    FLUIDD_APP_FILE=$(find $FLUIDD_DIR/js -name "app.*.js")
+    FLUIDD_LOCAL_VER=$(grep -o -E '"setVersion",".+"' $FLUIDD_APP_FILE | cut -d'"' -f4)
     FLUIDD_VER_FOUND="true"
-    FLUIDD_LOCAL_VER=$(head -n 1 $FLUIDD_DIR/version)
   else
     FLUIDD_VER_FOUND="false" && unset FLUIDD_LOCAL_VER
   fi
@@ -436,10 +438,8 @@ read_klipperscreen_versions(){
   if [ -d $KLIPPERSCREEN_DIR ] && [ -d $KLIPPERSCREEN_DIR/.git ]; then
     cd $KLIPPERSCREEN_DIR
     git fetch origin master -q
-    LOCAL_KLIPPERSCREEN_COMMIT=$(git rev-parse --short=8 HEAD)
-    #LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_KLIPPERSCREEN_COMMIT=$(git rev-parse --short=8 origin/master)
-    #REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
   else
     LOCAL_KLIPPERSCREEN_COMMIT=$NONE
     REMOTE_KLIPPERSCREEN_COMMIT=$NONE
