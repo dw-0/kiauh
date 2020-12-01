@@ -215,9 +215,6 @@ mainsail_setup(){
   #extract archive
   status_msg "Extracting archive ..."
   unzip -q -o *.zip && ok_msg "Done!"
-  ### write mainsail version to file for update check reasons
-  status_msg "Writing Mainsail version to file ..."
-  get_mainsail_ver && echo "$MAINSAIL_VERSION" > $MAINSAIL_DIR/version && ok_msg "Done!"
   #delete downloaded zip
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!" && ok_msg "Mainsail installation complete!"
@@ -236,9 +233,6 @@ fluidd_setup(){
   #extract archive
   status_msg "Extracting archive ..."
   unzip -q -o *.zip && ok_msg "Done!"
-  #write fluidd version to file for update check reasons
-  status_msg "Writing Fluidd version to file ..."
-  get_fluidd_ver && echo $FLUIDD_VERSION > $FLUIDD_DIR/version && ok_msg "Done!"
   #patch moonraker.conf to apply cors domains if needed
   backup_moonraker_conf
   patch_moonraker
