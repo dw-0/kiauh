@@ -126,27 +126,25 @@ update_moonraker(){
     top_border
     echo -e "| You can now choose how you want to update Moonraker.  |"
     blank_line
-    echo -e "| It is possible, that changes made to the Moonraker    |"
-    echo -e "| code and/or its dependencies might require a rebuild  |"
-    echo -e "| of the python virtual envrionment.                    |"
+    echo -e "| Changes made to the Moonraker code and/or its depen-  |"
+    echo -e "| dencies might require a rebuild of the python virtual |"
+    echo -e "| environment or downloading of additional packages.    |"
     blank_line
-    echo -e "| ${yellow}Please check the docs in the Moonraker repository to${default}  |"
-    echo -e "| ${yellow}see if a rebuild is necessary (user_changes.md).${default}      |"
+    echo -e "| ${red}Check the docs in the Moonraker repository to see if${default}  |"
+    echo -e "| ${red}rebuilding is necessary (user_changes.md)!${default}            |"
     blank_line
     echo -e "| 1) Update Moonraker (default)                         |"
-    echo -e "| 2) Update Moonraker + rebuild virtualenv              |"
+    echo -e "| 2) Update Moonraker + rebuild virtualenv/dependencies |"
     quit_footer
     read -p "${cyan}###### Please choose:${default} " action
     case "$action" in
       1|"")
         echo -e "###### > Update Moonraker"
-        update_mr="true"
-        rebuild_env="false"
+        update_mr="true" && rebuild_env="false"
         break;;
       2)
-        echo -e "###### > Update Moonraker + rebuild virtualenv"
-        update_mr="true"
-        rebuild_env="true"
+        echo -e "###### > Update Moonraker + rebuild virtualenv/dependencies"
+        update_mr="true" && rebuild_env="true"
         break;;
       Q|q)
         clear; update_menu; break;;
@@ -158,7 +156,7 @@ update_moonraker(){
   stop_moonraker; echo
   if [[ $update_mr = "true" ]] && [[ $rebuild_env = "false" ]]; then
     unset update_mr && unset rebuild_env
-    cd $MOONRAKER_DIR && git pull && ./scripts/install-moonraker.sh
+    cd $MOONRAKER_DIR && git pull
   fi
   if [[ $update_mr = "true" ]] && [[ $rebuild_env = "true" ]]; then
     unset update_mr && unset rebuild_env
@@ -167,7 +165,7 @@ update_moonraker(){
   #read printer.cfg location and patch /etc/default/klipper if entries don't match
   locate_printer_cfg && patch_klipper_sysfile
   ok_msg "Update complete!"
-  start_moonraker
+  restart_moonraker
 }
 
 update_klipperscreen(){
