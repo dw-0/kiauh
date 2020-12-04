@@ -29,22 +29,24 @@
 grab_version(){
   if [ ! -z "$klipper_folder" ]; then
     cd "$klipper_folder"
-    klipper_commit=$(git rev-parse --short=8 HEAD)
+    klipper_commit=$(git rev-parse --short=7 HEAD)
     m1="Klipper on commit: $klipper_commit"
-    cd ${HOME}
+    cd ..
   fi
   if [ ! -z "$moonraker_folder" ]; then
     cd "$moonraker_folder"
-    moonraker_commit=$(git rev-parse --short=8 HEAD)
+    moonraker_commit=$(git rev-parse --short=7 HEAD)
     m2="Moonraker on commit: $moonraker_commit"
-    cd ${HOME}
+    cd ..
   fi
-  if [ ! -z "$mainsail_folder" ] && [ -f $mainsail_folder/version ]; then
-    mainsail_ver=$(head -n 1 $mainsail_folder/version)
+  if [ ! -z "$mainsail_folder" ]; then
+    mainsail_file=$(find $mainsail_folder/js -name "app.*.js" 2>/dev/null)
+    mainsail_ver=$(grep -o -E 'state:{packageVersion:.+' $mainsail_file | cut -d'"' -f2)
     m3="Mainsail version: $mainsail_ver"
   fi
-  if [ ! -z "$fluidd_folder" ] && [ -f $mainsail_folder/version ]; then
-    fluidd_ver=$(head -n 1 $fluidd_folder/version)
+  if [ ! -z "$fluidd_folder" ]; then
+    fluidd_file=$(find $fluidd_folder/js -name "app.*.js" 2>/dev/null)
+    fluidd_ver=$(grep -o -E '"setVersion",".+"' $fluidd_file | cut -d'"' -f4)
     m4="Fluidd version: $fluidd_ver"
   fi
 }
