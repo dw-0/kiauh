@@ -186,11 +186,8 @@ klipperscreen_status(){
 #reading the log for the last branch that got checked out assuming that this is also the currently active branch.
 read_branch(){
   if [ -d $KLIPPER_DIR/.git ]; then
-    GET_BRANCH=$(cat ~/klipper/.git/logs/HEAD | grep "checkout" | tail -1 | sed "s/^.*to //")
-    #if the log file is empty, we can assume that klipper just got cloned and therefore is still on origin/master
-    if [[ -z "$GET_BRANCH" ]]; then
-      GET_BRANCH="origin/master"
-    fi
+    cd $KLIPPER_DIR
+    GET_BRANCH="$(git branch | grep "*" | cut -d"*" -f2 | cut -d" " -f2)"
   else
     GET_BRANCH=""
   fi
@@ -199,18 +196,8 @@ read_branch(){
 #prints the current klipper branch in the main menu
 print_branch(){
   read_branch
-  if [ "$GET_BRANCH" == "origin/master" ]; then
-    PRINT_BRANCH="$GET_BRANCH   "
-  elif [ "$GET_BRANCH" == "origin" ]; then
-    PRINT_BRANCH="origin/master   "
-  elif [ "$GET_BRANCH" == "master" ]; then
-    PRINT_BRANCH="origin/master   "
-  elif [ "$GET_BRANCH" == "dmbutyugin/scurve-shaping" ]; then
-    PRINT_BRANCH="scurve-shaping  "
-  elif [ "$GET_BRANCH" == "dmbutyugin/scurve-smoothing" ]; then
-    PRINT_BRANCH="scurve-smoothing"
-  elif [ "$GET_BRANCH" == "Arksine/dev-moonraker-testing" ]; then
-    PRINT_BRANCH="moonraker       "
+  if [ ! -z "$GET_BRANCH" ]; then
+    PRINT_BRANCH="$(printf "%-16s" "$GET_BRANCH")"
   else
     PRINT_BRANCH="${red}--------------${default}  "
   fi
@@ -231,9 +218,12 @@ read_remote_klipper_commit(){
     if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
       git fetch origin -q
       REMOTE_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
-    else
-      git fetch $(echo "$GET_BRANCH" | cut -d"/" -f1) -q
-      REMOTE_COMMIT=$(git describe $GET_BRANCH --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    elif [ "$GET_BRANCH" = "scurve-shaping" ]; then
+      git fetch dmbutyugin scurve-shaping -q
+      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-shaping --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    elif [ "$GET_BRANCH" = "scurve-smoothing" ]; then
+      git fetch dmbutyugin scurve-smoothing -q
+      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-smoothing --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
     fi
   else
     REMOTE_COMMIT=$NONE

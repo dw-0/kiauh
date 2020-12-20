@@ -104,12 +104,13 @@ switch_ui(){
   echo -e " $(title_msg "Active Branch: ")${green}$GET_BRANCH${default}"
   echo
   top_border
-  echo -e "|  1) [--> origin/master]                               | "
   echo -e "|                                                       | "
+  echo -e "|  KevinOConnor:                                        | "
+  echo -e "|  1) [--> master]                                      | "
+  echo -e "|                                                       | "
+  echo -e "|  dmbutyugin:                                          | "
   echo -e "|  2) [--> scurve-shaping]                              | "
   echo -e "|  3) [--> scurve-smoothing]                            | "
-  echo -e "|                                                       | "
-  echo -e "|  4) [--> moonraker]                                   | "
   quit_footer
 }
 
@@ -124,7 +125,7 @@ switch_menu(){
         1)
           clear
           print_header
-          switch_to_origin
+          switch_to_master
           read_branch
           print_msg && clear_msg
           switch_ui;;
@@ -176,7 +177,7 @@ rollback_ui(){
   echo -e "|  used commit from which you have updated.             | "
   bottom_border
   top_border
-  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                   | "
+  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                      | "
   hr
   echo -e "|  Currently on commit:                                 | "
   echo -e "|  $CURR_UI                             | "

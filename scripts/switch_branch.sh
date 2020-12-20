@@ -1,7 +1,7 @@
-switch_to_origin(){
+switch_to_master(){
   cd $KLIPPER_DIR
   status_msg "Switching...Please wait ..."; echo
-  git fetch origin -q && git checkout origin/master -q
+  git fetch origin -q && git checkout master; echo
 }
 
 switch_to_scurve_shaping(){
@@ -10,7 +10,7 @@ switch_to_scurve_shaping(){
   if ! git remote | grep dmbutyugin -q; then
     git remote add dmbutyugin $DMBUTYUGIN_REPO
   fi
-  git fetch dmbutyugin -q && git checkout $BRANCH_SCURVE_SHAPING -q
+  git fetch dmbutyugin -q && git checkout scurve-shaping; echo
 }
 
 switch_to_scurve_smoothing(){
@@ -19,5 +19,5 @@ switch_to_scurve_smoothing(){
   if ! git remote | grep dmbutyugin -q; then
     git remote add dmbutyugin $DMBUTYUGIN_REPO
   fi
-  git fetch dmbutyugin -q && git checkout $BRANCH_SCURVE_SMOOTHING -q
+  git fetch dmbutyugin -q && git checkout scurve-smoothing; echo
 }

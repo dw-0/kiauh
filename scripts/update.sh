@@ -66,18 +66,8 @@ update_klipper(){
     read_branch
     save_klipper_state
     status_msg "Updating $GET_BRANCH"
-    #fetching origin/master -> error
-    #rewriting origin/master to origin
-    if [ "$GET_BRANCH" = "origin/master" ]; then
-      FETCH_BRANCH="origin"
-    else
-      FETCH_BRANCH=$(echo "$GET_BRANCH" | cut -d "/" -f1)
-    fi
-    status_msg "Fetching from $FETCH_BRANCH"
-    cd $KLIPPER_DIR
-    git fetch $FETCH_BRANCH -q && ok_msg "Fetch successfull!"
-    status_msg "Checking out $GET_BRANCH"
-    git checkout $GET_BRANCH -q && ok_msg "Checkout successfull!"
+    cd $KLIPPER_DIR && git pull && ok_msg "Update successfull!"
+
     #check for possible new dependencies and install them
     status_msg "Checking for possible new dependencies ..."
     PKGLIST=$(grep "PKGLIST=" ~/klipper/scripts/install-octopi.sh | cut -d'"' -f2- | cut -d'"' -f1 | cut -d"}" -f2)
