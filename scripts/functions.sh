@@ -297,7 +297,7 @@ EOF
 }
 
 read_printer_cfg(){
-  KIAUH_CFG=$(echo $PRINTER_CFG | sed 's/printer/kiauh/')
+  KIAUH_CFG="$(dirname $PRINTER_CFG)/kiauh.cfg"
   [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
   if [ -f $PRINTER_CFG ]; then
     if [ "$1" = "moonraker" ]; then
