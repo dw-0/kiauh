@@ -398,7 +398,7 @@ read_local_fluidd_version(){
   unset FLUIDD_VER_FOUND
   FLUIDD_APP_FILE=$(find $FLUIDD_DIR/js -name "app.*.js" 2>/dev/null)
   if [ ! -z $FLUIDD_APP_FILE ]; then
-    FLUIDD_LOCAL_VER=$(grep -o -E '"setVersion",".+"' $FLUIDD_APP_FILE | cut -d'"' -f4)
+    FLUIDD_LOCAL_VER=$(grep -o -E '"version/setVersion",".+"' $FLUIDD_APP_FILE | cut -d'"' -f4)
     FLUIDD_VER_FOUND="true"
   else
     FLUIDD_VER_FOUND="false" && unset FLUIDD_LOCAL_VER
