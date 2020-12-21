@@ -12,8 +12,14 @@ main_ui(){
   echo -e "|  5) [Backup]         |      Mainsail: $MAINSAIL_STATUS|"
   echo -e "|                      |     Octoprint: $OCTOPRINT_STATUS|"
   echo -e "|                      |                                |"
-  echo -e "|                      | KlipperScreen: $KLIPPERSCREEN_STATUS|"
+  echo -e "|  ${cyan}$KIAUH_VER${default}| KlipperScreen: $KLIPPERSCREEN_STATUS|"
   quit_footer
+}
+
+print_kiauh_version(){
+  cd ${SRCDIR}/kiauh
+  KIAUH_VER=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+  KIAUH_VER="$(printf "%-20s" "$KIAUH_VER")"
 }
 
 main_menu(){
@@ -23,6 +29,7 @@ main_menu(){
       kiauh_update_msg
     fi
   #check install status
+    print_kiauh_version
     klipper_status
     moonraker_status
     dwc2_status

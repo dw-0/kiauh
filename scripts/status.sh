@@ -206,7 +206,7 @@ print_branch(){
 read_local_klipper_commit(){
   if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
     cd $KLIPPER_DIR
-    LOCAL_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    LOCAL_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_COMMIT=$NONE
   fi
@@ -217,13 +217,13 @@ read_remote_klipper_commit(){
   if [ ! -z "$GET_BRANCH" ];then
     if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
       git fetch origin -q
-      REMOTE_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+      REMOTE_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
     elif [ "$GET_BRANCH" = "scurve-shaping" ]; then
       git fetch dmbutyugin scurve-shaping -q
-      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-shaping --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-shaping --always --tags | cut -d "-" -f 1,2)
     elif [ "$GET_BRANCH" = "scurve-smoothing" ]; then
       git fetch dmbutyugin scurve-smoothing -q
-      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-smoothing --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-smoothing --always --tags | cut -d "-" -f 1,2)
     fi
   else
     REMOTE_COMMIT=$NONE
@@ -252,8 +252,8 @@ read_dwc2fk_versions(){
   if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
     cd $DWC2FK_DIR
     git fetch origin master -q
-    LOCAL_DWC2FK_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
-    REMOTE_DWC2FK_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    LOCAL_DWC2FK_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_DWC2FK_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_DWC2FK_COMMIT=$NONE
     REMOTE_DWC2FK_COMMIT=$NONE
@@ -300,16 +300,16 @@ compare_dwc2_versions(){
   read_local_dwc2_version && read_remote_dwc2_version
   if [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER == $DWC2_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    DWC2_LOCAL_VER="${green}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
-    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+    DWC2_LOCAL_VER="${green}$(printf "v%-11s" "$DWC2_LOCAL_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "v%-11s" "$DWC2_REMOTE_VER")${default}"
   elif [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER != $DWC2_REMOTE_VER ]]; then
-    DWC2_LOCAL_VER="${yellow}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
-    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+    DWC2_LOCAL_VER="${yellow}$(printf "v%-11s" "$DWC2_LOCAL_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "v%-11s" "$DWC2_REMOTE_VER")${default}"
     # set flag for the multi update function
     DWC2_UPDATE_AVAIL="true" && update_arr+=(update_dwc2)
   else
     DWC2_LOCAL_VER=$NONE
-    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "v%-11s" "$DWC2_REMOTE_VER")${default}"
     DWC2_UPDATE_AVAIL="false"
   fi
 }
@@ -321,8 +321,8 @@ read_moonraker_versions(){
   if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
     cd $MOONRAKER_DIR
     git fetch origin master -q
-    LOCAL_MOONRAKER_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
-    REMOTE_MOONRAKER_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    LOCAL_MOONRAKER_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_MOONRAKER_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_MOONRAKER_COMMIT=$NONE
     REMOTE_MOONRAKER_COMMIT=$NONE
@@ -370,16 +370,16 @@ compare_mainsail_versions(){
   read_local_mainsail_version && read_remote_mainsail_version
   if [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER == $MAINSAIL_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${green}$(printf "v%-11s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
   elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
-    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${yellow}$(printf "v%-11s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
     # set flag for the multi update function
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
     MAINSAIL_LOCAL_VER=$NONE
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
@@ -410,16 +410,16 @@ compare_fluidd_versions(){
   read_local_fluidd_version && read_remote_fluidd_version
   if [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER == $FLUIDD_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    FLUIDD_LOCAL_VER="${green}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_LOCAL_VER="${green}$(printf "v%-11s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
   elif [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER != $FLUIDD_REMOTE_VER ]]; then
-    FLUIDD_LOCAL_VER="${yellow}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_LOCAL_VER="${yellow}$(printf "v%-11s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
     # set flag for the multi update function
     FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
     FLUIDD_LOCAL_VER=$NONE
-    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
 }
@@ -428,8 +428,8 @@ read_klipperscreen_versions(){
   if [ -d $KLIPPERSCREEN_DIR ] && [ -d $KLIPPERSCREEN_DIR/.git ]; then
     cd $KLIPPERSCREEN_DIR
     git fetch origin master -q
-    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
-    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2 | cut -d"v" -f2)
+    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
     LOCAL_KLIPPERSCREEN_COMMIT=$NONE
     REMOTE_KLIPPERSCREEN_COMMIT=$NONE
