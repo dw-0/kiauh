@@ -97,6 +97,19 @@ backup_mainsail(){
   fi
 }
 
+backup_fluidd(){
+  if [ -d $FLUIDD_DIR ]; then
+    status_msg "Creating Fluidd backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
+    mkdir -p $BACKUP_DIR/fluidd-backups/"$current_date"
+    cp -r $FLUIDD_DIR $_ && ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup fluidd directory! Not found!"
+  fi
+}
+
 backup_moonraker(){
   if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_ENV_DIR ]; then
     status_msg "Creating Moonraker backup ..."

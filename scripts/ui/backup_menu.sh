@@ -7,16 +7,17 @@ backup_ui(){
   echo -e "|  Firmware:                                            | "
   echo -e "|  1) [Klipper]                                         | "
   echo -e "|                                                       | "
+  echo -e "|  Klipper API:                                         | "
+  echo -e "|  2) [Moonraker]                                       | "
+  echo -e "|                                                       | "
   echo -e "|  Webinterface:                                        | "
-  echo -e "|  2) [DWC2 Web UI]                                     | "
-  echo -e "|                                                       | "
   echo -e "|  3) [Mainsail]                                        | "
-  echo -e "|  4) [Moonraker]                                       | "
-  echo -e "|                                                       | "
-  echo -e "|  5) [OctoPrint]                                       | "
+  echo -e "|  4) [Fluidd]                                          | "
+  echo -e "|  5) [DWC2 Web UI]                                     | "
+  echo -e "|  6) [OctoPrint]                                       | "
   echo -e "|                                                       | "
   echo -e "|  HDMI Screen:                                         | "
-  echo -e "|  6) [KlipperScreen]                                   | "
+  echo -e "|  7) [KlipperScreen]                                   | "
   echo -e "|                                                       | "
   quit_footer
 }
@@ -37,7 +38,7 @@ backup_menu(){
       2)
         clear
         print_header
-        backup_dwc2
+        backup_moonraker
         print_msg && clear_msg
         backup_ui;;
       3)
@@ -49,16 +50,22 @@ backup_menu(){
       4)
         clear
         print_header
-        backup_moonraker
+        backup_fluidd
         print_msg && clear_msg
         backup_ui;;
       5)
         clear
         print_header
-        backup_octoprint
+        backup_dwc2
         print_msg && clear_msg
         backup_ui;;
       6)
+        clear
+        print_header
+        backup_octoprint
+        print_msg && clear_msg
+        backup_ui;;
+      7)
         clear
         print_header
         backup_klipperscreen
