@@ -183,15 +183,26 @@ klipperscreen_status(){
 #############################################################
 #############################################################
 
-#reading the log for the last branch that got checked out assuming that this is also the currently active branch.
+### reading the klipper branch the user is currently on
 read_branch(){
   if [ -d $KLIPPER_DIR/.git ]; then
     cd $KLIPPER_DIR
     GET_BRANCH="$(git branch | grep "*" | cut -d"*" -f2 | cut -d" " -f2)"
-    #try to fix a detached head state and read the correct branch from the output you get
+    ### try to fix a detached HEAD state and read the correct branch from the output you get
     if [ "$(echo $GET_BRANCH | grep "HEAD" )" ]; then
       DETACHED_HEAD="true"
       GET_BRANCH=$(git branch | grep "HEAD" | rev | cut -d" " -f1 | rev | cut -d")" -f1 | cut -d"/" -f2)
+      ### try to identify the branch when the HEAD was detached at a single commit
+      ### will only work if its either master, scurve-shaping or scurve-smoothing branch
+      if [[ $GET_BRANCH =~ [[:alnum:]] ]]; then
+        if [ "$(git branch -r --contains $GET_BRANCH | grep "master")" ]; then
+          GET_BRANCH="master"
+        elif [ "$(git branch -r --contains $GET_BRANCH | grep "scurve-shaping")" ]; then
+          GET_BRANCH="scurve-shaping"
+        elif [ "$(git branch -r --contains $GET_BRANCH | grep "scurve-smoothing")" ]; then
+          GET_BRANCH="scurve-smoothing"
+        fi
+      fi
     fi
   else
     GET_BRANCH=""
