@@ -66,7 +66,12 @@ update_klipper(){
     read_branch
     save_klipper_state
     status_msg "Updating $GET_BRANCH"
-    cd $KLIPPER_DIR && git pull && ok_msg "Update successfull!"
+    cd $KLIPPER_DIR
+    if [ "$DETACHED_HEAD" == "true" ]; then
+      git checkout $GET_BRANCH
+      unset DETACHED_HEAD
+    fi
+    git pull && ok_msg "Update successfull!"
 
     #check for possible new dependencies and install them
     status_msg "Checking for possible new dependencies ..."

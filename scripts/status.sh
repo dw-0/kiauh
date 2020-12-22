@@ -188,6 +188,11 @@ read_branch(){
   if [ -d $KLIPPER_DIR/.git ]; then
     cd $KLIPPER_DIR
     GET_BRANCH="$(git branch | grep "*" | cut -d"*" -f2 | cut -d" " -f2)"
+    #try to fix a detached head state and read the correct branch from the output you get
+    if [ "$(echo $GET_BRANCH | grep "HEAD" )" ]; then
+      DETACHED_HEAD="true"
+      GET_BRANCH=$(git branch | grep "HEAD" | rev | cut -d" " -f1 | rev | cut -d")" -f1 | cut -d"/" -f2)
+    fi
   else
     GET_BRANCH=""
   fi
@@ -242,6 +247,10 @@ compare_klipper_versions(){
     LOCAL_COMMIT="${green}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
     REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
     KLIPPER_UPDATE_AVAIL="false"
+  fi
+  #if detached head was found, force the user with warn message to update klipper
+  if [ "$DETACHED_HEAD" == "true" ]; then
+    LOCAL_COMMIT="${red}$(printf "%-12s" "Need update!")${default}"
   fi
 }
 
