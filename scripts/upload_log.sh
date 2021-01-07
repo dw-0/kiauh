@@ -37,7 +37,7 @@ accept_upload_conditions(){
 }
 
 upload_selection(){
-  source_ini
+  source_kiauh_ini
   [ "$logupload_accepted" = "false" ] && accept_upload_conditions
   KLIPPY_LOG=/tmp/klippy.log
   MOONRAKER_LOG=/tmp/moonraker.log

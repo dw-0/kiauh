@@ -26,13 +26,13 @@ install_menu(){
       1)
         clear
         print_header
-        install_klipper
+        klipper_setup_dialog
         print_msg && clear_msg
         install_ui;;
       2)
         clear
         print_header
-        install_moonraker
+        moonraker_setup_dialog
         print_msg && clear_msg
         install_ui;;
       3)

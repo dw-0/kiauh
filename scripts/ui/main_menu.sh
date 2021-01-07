@@ -7,10 +7,10 @@ main_ui(){
   echo -e "|  1) [Install]        |                                |"
   echo -e "|  2) [Update]         |     Moonraker: $MOONRAKER_STATUS|"
   echo -e "|  3) [Remove]         |                                |"
-  echo -e "|                      |          DWC2: $DWC2_STATUS|"
-  echo -e "|  4) [Advanced]       |        Fluidd: $FLUIDD_STATUS|"
-  echo -e "|  5) [Backup]         |      Mainsail: $MAINSAIL_STATUS|"
-  echo -e "|                      |     Octoprint: $OCTOPRINT_STATUS|"
+  echo -e "|  4) [Advanced]       |          DWC2: $DWC2_STATUS|"
+  echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
+  echo -e "|                      |      Mainsail: $MAINSAIL_STATUS|"
+  echo -e "|  6) [Settings]       |     Octoprint: $OCTOPRINT_STATUS|"
   echo -e "|                      |                                |"
   echo -e "|  ${cyan}$KIAUH_VER${default}| KlipperScreen: $KLIPPERSCREEN_STATUS|"
   quit_footer
@@ -74,6 +74,10 @@ main_menu(){
       5)
         clear
         backup_menu
+        break;;
+      6)
+        clear
+        settings_menu
         break;;
       Q|q)
         echo -e "${green}###### Happy printing! ######${default}"; echo

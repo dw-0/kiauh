@@ -1,38 +1,66 @@
 remove_klipper(){
-  data_arr=(
-  /etc/init.d/klipper
-  /etc/default/klipper
-  /etc/systemd/system/klipper.service
-  $KLIPPER_DIR
-  $KLIPPY_ENV_DIR
-  ${HOME}/klippy.log
-  )
-  print_error "Klipper" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    stop_klipper
-    if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
-      status_msg "Removing Klipper Service ..."
-      sudo rm -rf /etc/init.d/klipper /etc/default/klipper
-      sudo update-rc.d -f klipper remove
-      ok_msg "Klipper Service removed!"
-    fi
-    if [ -e /etc/systemd/system/klipper.service ]; then
-      status_msg "Removing Klipper Service ..."
-      sudo rm -rf /etc/systemd/system/klipper.service
-      sudo update-rc.d -f klipper remove
-      sudo systemctl daemon-reload
-      ok_msg "Klipper Service removed!"
-    fi
-    if [[ -d $KLIPPER_DIR || -d $KLIPPY_ENV_DIR ]]; then
-      status_msg "Removing Klipper and klippy-env directory ..."
-      rm -rf $KLIPPER_DIR $KLIPPY_ENV_DIR && ok_msg "Directories removed!"
-    fi
-    if [[ -L ${HOME}/klippy.log || -e /tmp/klippy.log ]]; then
-      status_msg "Removing klippy.log Symlink ..."
-      rm -rf ${HOME}/klippy.log /tmp/klippy.log && ok_msg "Symlink removed!"
-    fi
-    CONFIRM_MSG=" Klipper successfully removed!"
+  ###remove single instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    status_msg "Removing Klipper Service ..."
+    sudo systemctl stop klipper
+    sudo systemctl disable klipper
+    sudo rm -f $SYSTEMDDIR/klipper.service
+    ok_msg "Klipper Service removed!"
   fi
+  if [ -f /tmp/klippy.log ]; then
+    status_msg "Removing /tmp/klippy.log ..." && rm -f /tmp/klippy.log && ok_msg "Done!"
+  fi
+  if [ -e /tmp/klippy_uds ]; then
+    status_msg "Removing /tmp/klippy_uds ..." && rm -f /tmp/klippy_uds && ok_msg "Done!"
+  fi
+  if [ -h /tmp/printer ]; then
+    status_msg "Removing /tmp/printer ..." && rm -f /tmp/printer && ok_msg "Done!"
+  fi
+
+  ###remove multi instance services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+    status_msg "Removing Klipper Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "klipper-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+  fi
+  ###remove multi instance logfiles
+  if [ "$(find /tmp -maxdepth 1 -name "klippy-*.log")" ]; then
+    for logfile in $(find /tmp -maxdepth 1 -name "klippy-*.log")
+    do
+      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+    done
+  fi
+  ###remove multi instance UDS
+  if [ "$(find /tmp -maxdepth 1 -name "klippy_uds-*")" ]; then
+    for uds in $(find /tmp -maxdepth 1 -name "klippy_uds-*")
+    do
+      status_msg "Removing $uds ..." && rm -f $uds && ok_msg "Done!"
+    done
+  fi
+  ###remove multi instance tmp-printer
+  if [ "$(find /tmp -maxdepth 1 -name "printer-*")" ]; then
+    for tmp_printer in $(find /tmp -maxdepth 1 -name "printer-*")
+    do
+      status_msg "Removing $tmp_printer ..." && rm -f $tmp_printer && ok_msg "Done!"
+    done
+  fi
+
+  ###reloading units
+  sudo systemctl daemon-reload
+
+  ###removing klipper and klippy-env folders
+  if [ -d $KLIPPER_DIR ] || [ -d $KLIPPY_ENV ]; then
+    status_msg "Removing Klipper and klippy-env directory ..."
+    rm -rf $KLIPPER_DIR $KLIPPY_ENV && ok_msg "Directories removed!"
+  fi
+
+  CONFIRM_MSG=" Klipper was successfully removed!"
 }
 
 #############################################################
@@ -101,83 +129,63 @@ remove_dwc2(){
 #############################################################
 
 remove_moonraker(){
-  data_arr=(
-  $MOONRAKER_SERVICE1
-  $MOONRAKER_SERVICE2
-  $MOONRAKER_DIR
-  $MOONRAKER_ENV_DIR
-  $NGINX_CONFD/upstreams.conf
-  $NGINX_CONFD/common_vars.conf
-  ${HOME}/moonraker.conf
-  ${HOME}/moonraker.log
-  ${HOME}/klipper_config/moonraker.log
-  ${HOME}/klipper_config/klippy.log
-  ${HOME}/.klippy_api_key
-  ${HOME}/.moonraker_api_key
-  )
-  print_error "Moonraker" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    if [ -e ${HOME}/moonraker.conf ]; then
-      unset REMOVE_MOONRAKER_CONF
-      while true; do
-        echo
-        read -p "${cyan}###### Delete moonraker.conf? (y/N):${default} " yn
-        case "$yn" in
-          Y|y|Yes|yes)
-            echo -e "###### > Yes"
-            REMOVE_MOONRAKER_CONF="true"
-            break;;
-          N|n|No|no|"")
-            echo -e "###### > No"
-            REMOVE_MOONRAKER_CONF="false"
-            break;;
-          *)
-            print_unkown_cmd
-            print_msg && clear_msg;;
-        esac
-      done
-    fi
-    status_msg "Processing ..."
-    stop_moonraker
-    #remove moonraker services
-    if [[ -e /etc/init.d/moonraker || -e /etc/default/moonraker ]]; then
-      status_msg "Removing Moonraker Service ..."
-      sudo update-rc.d -f moonraker remove
-      sudo rm -rf /etc/init.d/moonraker /etc/default/moonraker && ok_msg "Moonraker Service removed!"
-    fi
-    #remove moonraker and moonraker-env dir
-    if [[ -d $MOONRAKER_DIR || -d $MOONRAKER_ENV_DIR ]]; then
-      status_msg "Removing Moonraker and moonraker-env directory ..."
-      rm -rf $MOONRAKER_DIR $MOONRAKER_ENV_DIR && ok_msg "Directories removed!"
-    fi
-    #remove moonraker.conf
-    if [ "$REMOVE_MOONRAKER_CONF" = "true" ]; then
-      status_msg "Removing moonraker.conf ..."
-      rm -rf ${HOME}/moonraker.conf && ok_msg "File removed!"
-    fi
-    #remove moonraker.log and symlink
-    if [[ -L ${HOME}/moonraker.log || -L ${HOME}/klipper_config/moonraker.log || -L ${HOME}/klipper_config/klippy.log || -e /tmp/moonraker.log ]]; then
-      status_msg "Removing Logs and Symlinks ..."
-      rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log ${HOME}/klipper_config/klippy.log /tmp/moonraker.log
-      ok_msg "Files removed!"
-    fi
-    #remove moonraker nginx config
-    if [[ -e $NGINX_CONFD/upstreams.conf || -e $NGINX_CONFD/common_vars.conf ]]; then
-      status_msg "Removing Moonraker NGINX configuration ..."
-      sudo rm -f $NGINX_CONFD/upstreams.conf $NGINX_CONFD/common_vars.conf && ok_msg "Moonraker NGINX configuration removed!"
-    fi
-    #remove legacy api key
-    if [ -e ${HOME}/.klippy_api_key ]; then
-      status_msg "Removing legacy API Key ..."
-      rm ${HOME}/.klippy_api_key && ok_msg "Done!"
-    fi
-    #remove api key
-    if [ -e ${HOME}/.moonraker_api_key ]; then
-      status_msg "Removing API Key ..."
-      rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
-    fi
-    CONFIRM_MSG="Moonraker successfully removed!"
+###remove single instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
+    status_msg "Removing Moonraker Service ..."
+    sudo systemctl stop moonraker
+    sudo systemctl disable moonraker
+    sudo rm -f $SYSTEMDDIR/moonraker.service
+    ok_msg "Moonraker Service removed!"
   fi
+  if [ -f /tmp/moonraker.log ]; then
+    status_msg "Removing /tmp/moonraker.log ..." && rm -f /tmp/moonraker.log && ok_msg "Done!"
+  fi
+
+  ###remove multi instance services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+    status_msg "Removing Moonraker Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "moonraker-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+  fi
+  ###remove multi instance logfiles
+  if [ "$(find /tmp -maxdepth 1 -name "moonraker-*.log")" ]; then
+    for logfile in $(find /tmp -maxdepth 1 -name "moonraker-*.log")
+    do
+      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+    done
+  fi
+
+  ###reloading units
+  sudo systemctl daemon-reload
+
+  ###removing moonraker and moonraker-env folders
+  if [ -d $MOONRAKER_DIR ] || [ -d $MOONRAKER_ENV ]; then
+    status_msg "Removing Moonraker and moonraker-env directory ..."
+    rm -rf $MOONRAKER_DIR $MOONRAKER_ENV && ok_msg "Directories removed!"
+  fi
+
+  #remove moonraker nginx config
+  if [[ -e $NGINX_CONFD/upstreams.conf || -e $NGINX_CONFD/common_vars.conf ]]; then
+    status_msg "Removing Moonraker NGINX configuration ..."
+    sudo rm -f $NGINX_CONFD/upstreams.conf $NGINX_CONFD/common_vars.conf && ok_msg "Moonraker NGINX configuration removed!"
+  fi
+
+  #remove legacy api key
+  if [ -e ${HOME}/.klippy_api_key ]; then
+    status_msg "Removing legacy API Key ..." && rm ${HOME}/.klippy_api_key && ok_msg "Done!"
+  fi
+  #remove api key
+  if [ -e ${HOME}/.moonraker_api_key ]; then
+    status_msg "Removing API Key ..." && rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
+  fi
+
+  CONFIRM_MSG=" Moonraker was successfully removed!"
 }
 
 #############################################################

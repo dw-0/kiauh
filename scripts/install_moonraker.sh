@@ -1,3 +1,317 @@
+### base variables
+SYSTEMDDIR="/etc/systemd/system"
+MOONRAKER_ENV="${HOME}/moonraker-env"
+MOONRAKER_DIR="${HOME}/moonraker"
+
+moonraker_setup_dialog(){
+  status_msg "Initializing Moonraker installation ..."
+
+  ### check for existing moonraker service installations
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+    ERROR_MSG="At least one Moonraker service is already installed!" && return 0
+  fi
+
+  ### check for existing klipper service installations
+  if [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+    ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
+  fi
+
+  ### count amount of klipper services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    INSTANCE_COUNT=1
+  else
+    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+  fi
+
+  ### initial moonraker.conf path check
+  check_klipper_cfg_path
+
+  ### ask for amount of instances to create
+  while true; do
+      echo
+      top_border
+      printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
+      echo -e "| You need one Moonraker instance per Klipper instance. | "
+      bottom_border
+      echo
+      read -p "${cyan}###### Create $INSTANCE_COUNT Moonraker instances? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Creating $INSTANCE_COUNT Moonraker instances ..."
+          moonraker_setup
+          break;;
+        N|n|No|no)
+          echo -e "###### > No"
+          warn_msg "Exiting Moonraker setup ..."
+          echo
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+    esac
+  done
+}
+
+install_moonraker_packages(){
+  PKGLIST="python3-virtualenv python3-dev nginx libopenjp2-7 python3-libgpiod"
+
+  ### Update system package info
+  status_msg "Running apt-get update..."
+  sudo apt-get update
+
+  ### Install desired packages
+  status_msg "Installing packages..."
+  sudo apt-get install --yes ${PKGLIST}
+}
+
+create_moonraker_virtualenv(){
+  status_msg "Installing python virtual environment..."
+
+  ### If venv exists and user prompts a rebuild, then do so
+  if [ -d ${MOONRAKER_ENV} ] && [ $REBUILD_ENV = "y" ]; then
+    status_msg "Removing old virtualenv"
+    rm -rf ${MOONRAKER_ENV}
+  fi
+
+  [ ! -d ${MOONRAKER_ENV} ] && virtualenv -p /usr/bin/python3 --system-site-packages ${MOONRAKER_ENV}
+
+  ### Install/update dependencies
+  ${MOONRAKER_ENV}/bin/pip install -r ${MOONRAKER_DIR}/scripts/moonraker-requirements.txt
+}
+
+create_single_moonraker_startscript(){
+### create systemd service file
+sudo /bin/sh -c "cat > ${SYSTEMDDIR}/moonraker.service" << EOF
+#Systemd service file for moonraker
+[Unit]
+Description=Starts Moonraker on startup
+After=network.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+Type=simple
+User=$USER
+RemainAfterExit=yes
+ExecStart=${MOONRAKER_ENV}/bin/python ${MOONRAKER_DIR}/moonraker/moonraker.py -l ${MOONRAKER_LOG} -c ${MOONRAKER_CONF}
+Restart=always
+RestartSec=10
+EOF
+}
+
+create_multi_moonraker_startscript(){
+### create multi instance systemd service file
+sudo /bin/sh -c "cat > ${SYSTEMDDIR}/moonraker-$INSTANCE.service" << EOF
+#Systemd service file for moonraker
+[Unit]
+Description=Starts Moonraker instance $INSTANCE on startup
+After=network.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+Type=simple
+User=$USER
+RemainAfterExit=yes
+ExecStart=${MOONRAKER_ENV}/bin/python ${MOONRAKER_DIR}/moonraker/moonraker.py -l ${MOONRAKER_LOG} -c ${MOONRAKER_CONF}
+Restart=always
+RestartSec=10
+EOF
+}
+
+moonraker_setup(){
+  ### get printer config directory
+  source_kiauh_ini
+  MOONRAKER_CONF_LOC="$klipper_cfg_loc"
+
+  ### clone moonraker
+  status_msg "Downloading Moonraker ..."
+  ### force remove existing moonraker dir
+  [ -d $MOONRAKER_DIR ] && rm -rf $MOONRAKER_DIR
+
+  ### clone into fresh moonraker dir
+  cd ${HOME} && git clone $MOONRAKER_REPO
+  status_msg "Download complete!"
+
+  ### install klipper dependencies and create python virtualenv
+  status_msg "Installing dependencies ..."
+  install_moonraker_packages
+  create_moonraker_virtualenv
+
+  ### create moonraker.conf folder
+  [ ! -d $MOONRAKER_CONF_LOC ] && mkdir -p $MOONRAKER_CONF_LOC
+
+  ### create moonraker.confs
+  moonraker_conf_creation
+
+  ### create moonraker instances
+  INSTANCE=1
+  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+    create_single_moonraker_instance
+  else
+    create_multi_moonraker_instance
+  fi
+}
+
+create_single_moonraker_instance(){
+  status_msg "Setting up 1 Moonraker instance ..."
+
+  ### single instance variables
+  MOONRAKER_LOG=/tmp/moonraker.log
+  MOONRAKER_CONF="$MOONRAKER_CONF_LOC/moonraker.conf"
+
+  ### create instance
+  status_msg "Creating single Moonraker instance ..."
+  status_msg "Installing system start script ..."
+  create_single_moonraker_startscript
+
+  ### enable instance
+  sudo systemctl enable moonraker.service
+  ok_msg "Single Moonraker instance created!"
+
+  ### launching instance
+  status_msg "Launching Moonraker instance ..."
+  sudo systemctl start moonraker
+
+  ### confirm message
+  ok_msg "Single Moonraker instance has been set up!\n"
+}
+
+create_multi_moonraker_instance(){
+  status_msg "Setting up $INSTANCE_COUNT instances of Moonraker ..."
+  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+    ### multi instance variables
+    MOONRAKER_LOG=/tmp/moonraker-$INSTANCE.log
+    MOONRAKER_CONF="$MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf"
+
+    ### create instance
+    status_msg "Creating instance #$INSTANCE ..."
+    create_multi_moonraker_startscript
+
+    ### enable instance
+    sudo systemctl enable moonraker-$INSTANCE.service
+    ok_msg "Moonraker instance $INSTANCE created!"
+
+    ### launching instance
+    status_msg "Launching Moonraker instance $INSTANCE ..."
+    sudo systemctl start moonraker-$INSTANCE
+
+    ### instance counter +1
+    INSTANCE=$(expr $INSTANCE + 1)
+  done
+  ### confirm message
+  ok_msg "$INSTANCE_COUNT Moonraker instances have been set up!\n"
+}
+
+moonraker_conf_creation(){
+  ### default moonraker port
+  PORT=7125
+
+  ### get printer and moonraker config directory
+  source_kiauh_ini
+  PRINTER_CFG_LOC="$klipper_cfg_loc"
+  MOONRAKER_CONF_LOC="$klipper_cfg_loc"
+
+  ### reset instances back to 1 again
+  INSTANCE=1
+
+  ### create moonraker.conf
+  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+    status_msg "Creating moonraker.conf in $MOONRAKER_CONF_LOC"
+    if [ ! -f $MOONRAKER_CONF_LOC/moonraker.conf ]; then
+      create_single_moonraker_conf && ok_msg "moonraker.conf created!"
+    else
+      warn_msg "There is already a file called 'moonraker.conf'!"
+      warn_msg "Skipping..."
+    fi
+  else
+    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      status_msg "Creating moonraker-$INSTANCE.conf in $MOONRAKER_CONF_LOC"
+      if [ ! -f $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf ]; then
+        PORT=$(expr $PORT + $INSTANCE - 1)
+        create_multi_moonraker_conf && ok_msg "moonraker-$INSTANCE.conf created!"
+      else
+        warn_msg "There is already a file called 'moonraker-$INSTANCE.conf'!"
+        warn_msg "Skipping..."
+      fi
+      INSTANCE=$(expr $INSTANCE + 1)
+    done
+  fi
+}
+
+create_single_moonraker_conf(){
+  HOSTNAME=$(hostname -I | cut -d" " -f1)
+
+/bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker.conf" << MOONRAKERCONF
+[server]
+host: 0.0.0.0
+port: $PORT
+klippy_uds_address: /tmp/klippy_uds
+enable_debug_logging: True
+config_path: $PRINTER_CFG_LOC
+
+[authorization]
+enabled: True
+api_key_file: ~/.moonraker_api_key
+trusted_clients:
+    127.0.0.1
+cors_domains:
+    http://*.local
+    http://app.fluidd.xyz
+    https://app.fluidd.xyz
+    http://$HOSTNAME:*
+
+[update_manager]
+#client_repo:
+#client_path:
+MOONRAKERCONF
+}
+
+create_multi_moonraker_conf(){
+  HOSTNAME=$(hostname -I | cut -d" " -f1)
+
+/bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf" << MOONRAKERCONF
+[server]
+host: 0.0.0.0
+port: $PORT
+klippy_uds_address: /tmp/klippy_uds-$INSTANCE
+enable_debug_logging: True
+config_path: $PRINTER_CFG_LOC
+
+[authorization]
+enabled: True
+api_key_file: ~/.moonraker_api_key
+trusted_clients:
+    127.0.0.1
+    $HOSTNAME
+cors_domains:
+    http://*.local
+    http://app.fluidd.xyz
+    https://app.fluidd.xyz
+    http://$HOSTNAME:*
+
+[update_manager]
+#client_repo:
+#client_path:
+MOONRAKERCONF
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 install_moonraker(){
   python3_check
   if [ $py_chk_ok = "true" ]; then
@@ -18,7 +332,7 @@ install_moonraker(){
     disable_octoprint
     #after install actions
     restart_moonraker
-    restart_klipper
+    klipper_service "restart"
   else
     ERROR_MSG="Python 3.7 or above required!\n Please upgrade your Python version first."
     print_msg && clear_msg
@@ -254,48 +568,28 @@ get_user_selections_moonraker(){
 #############################################################
 #############################################################
 
-moonraker_setup(){
-  dep=(wget curl unzip dfu-util)
-  dependency_check
-  status_msg "Downloading Moonraker ..."
-  #force remove existing moonraker dir
-  [ -d $MOONRAKER_DIR ] && rm -rf $MOONRAKER_DIR
-  #clone into fresh moonraker dir
-  cd ${HOME} && git clone $MOONRAKER_REPO
-  ok_msg "Download complete!"
-  status_msg "Installing Moonraker ..."
-  $MOONRAKER_DIR/scripts/install-moonraker.sh
-  #copy moonraker configuration for nginx to /etc/nginx/conf.d
-  setup_moonraker_nginx_cfg
-  #backup a possible existing printer.cfg at the old location and before patching in the new location
-  backup_printer_cfg
-  patch_klipper_sysfile "moonraker"
-  #re-run printer.cfg location function to read the new path for the printer.cfg
-  locate_printer_cfg
-  echo; ok_msg "Moonraker successfully installed!"
-}
+#moonraker_setup(){
+#  dep=(wget curl unzip dfu-util)
+#  dependency_check
+#  status_msg "Downloading Moonraker ..."
+#  #force remove existing moonraker dir
+#  [ -d $MOONRAKER_DIR ] && rm -rf $MOONRAKER_DIR
+#  #clone into fresh moonraker dir
+#  cd ${HOME} && git clone $MOONRAKER_REPO
+#  ok_msg "Download complete!"
+#  status_msg "Installing Moonraker ..."
+#  $MOONRAKER_DIR/scripts/install-moonraker.sh
+#  #copy moonraker configuration for nginx to /etc/nginx/conf.d
+#  setup_moonraker_nginx_cfg
+#  #backup a possible existing printer.cfg at the old location and before patching in the new location
+#  backup_printer_cfg
+#  patch_klipper_sysfile "moonraker"
+#  #re-run printer.cfg location function to read the new path for the printer.cfg
+#  locate_printer_cfg
+#  echo; ok_msg "Moonraker successfully installed!"
+#}
 
 patch_klipper_sysfile(){
-  if [ -e $KLIPPER_SERVICE2 ]; then
-    status_msg "Checking /etc/default/klipper for necessary entries ..."
-    #patching new printer.cfg location to /etc/default/klipper
-    if [ "$1" = "moonraker" ]; then
-      if ! grep -q "/klipper_config/printer.cfg" $KLIPPER_SERVICE2; then
-        status_msg "Patching new printer.cfg location to /etc/default/klipper ..."
-        sudo sed -i "/KLIPPY_ARGS=/ s|$PRINTER_CFG|/home/${USER}/klipper_config/printer.cfg|" $KLIPPER_SERVICE2
-        ok_msg "New location is: '/home/${USER}/klipper_config/printer.cfg'"
-      fi
-    fi
-    #patching new UDS argument to /etc/default/klipper
-    if [ "$1" = "moonraker" ] || [ "$1" = "dwc2" ]; then
-      if ! grep -q -- "-a /tmp/klippy_uds" $KLIPPER_SERVICE2; then
-        status_msg "Patching unix domain socket to /etc/default/klipper ..."
-        #append the new argument to /tmp/klippy.log argument
-        sudo sed -i "/KLIPPY_ARGS/s/\.log/\.log -a \/tmp\/klippy_uds/" $KLIPPER_SERVICE2
-        ok_msg "Patching done!"
-      fi
-    fi
-  fi
   if [ -e $KLIPPER_SERVICE3 ]; then
     status_msg "Checking /etc/systemd/system/klipper.service for necessary entries ..."
     #patching new printer.cfg location to /etc/systemd/system/klipper.service

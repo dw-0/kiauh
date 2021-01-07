@@ -7,7 +7,7 @@ install_dwc2(){
     #ask user for customization
     get_user_selections_dwc2
     #dwc2 main installation
-    stop_klipper
+    klipper_service "stop"
     dwc2_setup
     #setup config
     setup_printer_config_dwc2
@@ -16,7 +16,7 @@ install_dwc2(){
     set_nginx_cfg "dwc2"
     set_hostname
     #after install actions
-    restart_klipper
+    klipper_service "restart"
   else
     ERROR_MSG=" Please install Klipper first!\n Skipping..."
   fi

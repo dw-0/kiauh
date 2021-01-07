@@ -18,7 +18,9 @@ klipper_status(){
     $KLIPPY_ENV_DIR
   )
   #remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && unset klipper_data[0]
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+    unset klipper_data[0]
+  fi
   #count+1 for each found data-item from array
   for kd in "${klipper_data[@]}"
   do
@@ -64,11 +66,11 @@ moonraker_status(){
     SERVICE
     $MOONRAKER_DIR
     $MOONRAKER_ENV_DIR
-    $NGINX_CONFD/upstreams.conf
-    $NGINX_CONFD/common_vars.conf
   )
   #remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] && unset moonraker_data[0]
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+    unset moonraker_data[0]
+  fi
   #count+1 for each found data-item from array
   for mrd in "${moonraker_data[@]}"
   do

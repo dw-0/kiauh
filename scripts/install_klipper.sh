@@ -1,103 +1,207 @@
-install_klipper(){
-  if [ -e $KLIPPER_SERVICE1 ] && [ -e $KLIPPER_SERVICE2 ] || [ -e $KLIPPER_SERVICE3 ]; then
-    ERROR_MSG="Looks like Klipper is already installed!"
-  else
-    get_user_selections_klipper
-    klipper_setup
-    build_fw
-    flash_mcu
-    write_printer_usb
+#install_klipper(){
+#  get_user_selections_klipper
+#  klipper_setup
+#  build_fw
+#  flash_mcu
+#  write_printer_usb
+#}
+
+### base variables
+SYSTEMDDIR="/etc/systemd/system"
+KLIPPY_ENV="${HOME}/klippy-env"
+KLIPPER_DIR="${HOME}/klipper"
+
+klipper_setup_dialog(){
+  status_msg "Initializing Klipper installation ..."
+
+  ### check for existing klipper service installations
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+    ERROR_MSG="At least one Klipper service is already installed!" && return 0
   fi
+
+  ### initial printer.cfg path check
+  check_klipper_cfg_path
+
+  ### ask for amount of instances to create
+  while true; do
+      echo
+      read -p "${cyan}###### How many Klipper instances do you want to set up?:${default} " INSTANCE_COUNT
+      echo
+      if [ $INSTANCE_COUNT == 1 ]; then
+        read -p "${cyan}###### Create $INSTANCE_COUNT single instance? (Y/n):${default} " yn
+      else
+        read -p "${cyan}###### Create $INSTANCE_COUNT instances? (Y/n):${default} " yn
+      fi
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Creating $INSTANCE_COUNT Klipper instances ..."
+          klipper_setup
+          break;;
+        N|n|No|no)
+          echo -e "###### > No"
+          warn_msg "Exiting Klipper setup ..."
+          echo
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+    esac
+  done
 }
 
-get_user_selections_klipper(){
-  status_msg "Initializing Klipper installation ..."
-  #let user choose to install systemd or init.d service
-  while true; do
-    echo
-    top_border
-    echo -e "| Do you want to install Klipper as:                    |"
-    echo -e "| 1) Init.d Service (default)                           |"
-    echo -e "| 2) Systemd Service                                    |"
-    hr
-    echo -e "| Please use the appropriate option for your chosen     |"
-    echo -e "| Linux distribution. If you are unsure what to select, |"
-    echo -e "| please do some research before.                       |"
-    hr
-    echo -e "| If you run Raspberry Pi OS, both options will work.   |"
-    bottom_border
-    read -p "${cyan}###### Please choose:${default} " action
-    case "$action" in
-      1|"")
-        echo -e "###### > 1) Init.d"
-        INST_KLIPPER_INITD="true"
-        INST_KLIPPER_SYSTEMD="false"
-        break;;
-      2)
-        echo -e "###### > 2) Systemd"
-        INST_KLIPPER_INITD="false"
-        INST_KLIPPER_SYSTEMD="true"
-        break;;
-      *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
-    esac
-  done
-  #ask user for building firmware
-  while true; do
-      echo
-      read -p "${cyan}###### Do you want to build the Firmware? (y/N):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes)
-          echo -e "###### > Yes"
-          BUILD_FIRMWARE="true"
-          break;;
-        N|n|No|no|"")
-          echo -e "###### > No"
-          BUILD_FIRMWARE="false"
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-    esac
-  done
-  #ask user for flashing mcu
-  while true; do
-      echo
-      read -p "${cyan}###### Do you want to flash your MCU? (y/N):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes)
-          echo -e "###### > Yes"
-          FLASH_FIRMWARE="true"
-          flash_routine
-          break;;
-        N|n|No|no|"")
-          echo -e "###### > No"
-          FLASH_FIRMWARE="false"
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-    esac
-  done
+install_klipper_packages(){
+  ### Packages for python cffi
+  PKGLIST="python-virtualenv virtualenv python-dev libffi-dev build-essential"
+  ### kconfig requirements
+  PKGLIST="${PKGLIST} libncurses-dev"
+  ### hub-ctrl
+  PKGLIST="${PKGLIST} libusb-dev"
+  ### AVR chip installation and building
+  PKGLIST="${PKGLIST} avrdude gcc-avr binutils-avr avr-libc"
+  ### ARM chip installation and building
+  PKGLIST="${PKGLIST} stm32flash libnewlib-arm-none-eabi"
+  PKGLIST="${PKGLIST} gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0"
+  ### dbus requirement for DietPi
+  PKGLIST="${PKGLIST} dbus"
+
+  ### Update system package info
+  status_msg "Running apt-get update..."
+  sudo apt-get update
+
+  ### Install desired packages
+  status_msg "Installing packages..."
+  sudo apt-get install --yes ${PKGLIST}
+}
+
+create_klipper_virtualenv(){
+  status_msg "Installing python virtual environment..."
+  # Create virtualenv if it doesn't already exist
+  [ ! -d ${KLIPPY_ENV} ] && virtualenv -p python2 ${KLIPPY_ENV}
+  # Install/update dependencies
+  ${KLIPPY_ENV}/bin/pip install -r ${KLIPPER_DIR}/scripts/klippy-requirements.txt
+}
+
+create_single_klipper_startscript(){
+### create systemd service file
+sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper.service" << EOF
+#Systemd service file for klipper
+[Unit]
+Description=Starts klipper on startup
+After=network.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+Type=simple
+User=$USER
+RemainAfterExit=yes
+ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
+Restart=always
+RestartSec=10
+EOF
+}
+
+create_multi_klipper_startscript(){
+### create multi instance systemd service file
+sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper-$INSTANCE.service" << EOF
+#Systemd service file for klipper
+[Unit]
+Description=Starts klipper instance $INSTANCE on startup
+After=network.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+Type=simple
+User=$USER
+RemainAfterExit=yes
+ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -I ${TMP_PRINTER} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
+Restart=always
+RestartSec=10
+EOF
 }
 
 klipper_setup(){
-  #check for dependencies
-  dep=(git dbus)
-  dependency_check
-  #execute operation
+  ### get printer config directory
+  source_kiauh_ini
+  PRINTER_CFG_LOC="$klipper_cfg_loc"
+
+  ### clone klipper
   cd ${HOME}
-  status_msg "Cloning Klipper repository ..."
+  status_msg "Downloading Klipper ..."
+  [ -d $KLIPPER_DIR ] && rm -rf $KLIPPER_DIR
   git clone $KLIPPER_REPO
-  ok_msg "Klipper successfully cloned!"
-  status_msg "Installing Klipper Service ..."
-  if [ "$INST_KLIPPER_INITD" = "true" ]; then
-    $KLIPPER_DIR/scripts/install-octopi.sh
-  elif [ "$INST_KLIPPER_SYSTEMD" = "true" ]; then
-    $KLIPPER_DIR/scripts/install-debian.sh
+  status_msg "Download complete!"
+
+  ### install klipper dependencies and create python virtualenv
+  status_msg "Installing dependencies ..."
+  install_klipper_packages
+  create_klipper_virtualenv
+
+  ### create sdcard folder
+  [ ! -d ${HOME}/sdcard ] && mkdir -p ${HOME}/sdcard
+  ### create config folder
+  [ ! -d $PRINTER_CFG_LOC ] && mkdir -p $PRINTER_CFG_LOC
+
+  ### create klipper instances
+  INSTANCE=1
+  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+    create_single_klipper_instance
+  else
+    create_multi_klipper_instance
   fi
-  ok_msg "Klipper installation complete!"
+}
+
+create_single_klipper_instance(){
+  status_msg "Setting up 1 Klipper instance ..."
+
+  ### single instance variables
+  KLIPPER_LOG=/tmp/klippy.log
+  KLIPPY_UDS=/tmp/klippy_uds
+  PRINTER_CFG="$PRINTER_CFG_LOC/printer.cfg"
+
+  ### create instance
+  status_msg "Creating single Klipper instance ..."
+  status_msg "Installing system start script ..."
+  create_single_klipper_startscript
+
+  ### enable instance
+  sudo systemctl enable klipper.service
+  ok_msg "Single Klipper instance created!"
+
+  ### launching instance
+  status_msg "Launching Klipper instance ..."
+  sudo systemctl start klipper
+
+  ### confirm message
+  ok_msg "Single Klipper instance has been set up!\n"
+}
+
+create_multi_klipper_instance(){
+  status_msg "Setting up $INSTANCE_COUNT instances of Klipper ..."
+  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+    ### multi instance variables
+    KLIPPER_LOG=/tmp/klippy-$INSTANCE.log
+    KLIPPY_UDS=/tmp/klippy_uds-$INSTANCE
+    TMP_PRINTER=/tmp/printer-$INSTANCE
+    PRINTER_CFG="$PRINTER_CFG_LOC/printer-$INSTANCE.cfg"
+
+    ### create instance
+    status_msg "Creating instance #$INSTANCE ..."
+    create_multi_klipper_startscript
+
+    ### enable instance
+    sudo systemctl enable klipper-$INSTANCE.service
+    ok_msg "Klipper instance $INSTANCE created!"
+
+    ### launching instance
+    status_msg "Launching Klipper instance $INSTANCE ..."
+    sudo systemctl start klipper-$INSTANCE
+
+    ### instance counter +1
+    INSTANCE=$(expr $INSTANCE + 1)
+  done
+  ### confirm message
+  ok_msg "$INSTANCE_COUNT Klipper instances have been set up!\n"
 }
 
 flash_routine(){
@@ -138,14 +242,14 @@ flash_routine(){
 
 flash_mcu(){
   if [ "$CONFIRM_FLASHING" = "true" ] && [ ! -z "$PRINTER_USB" ]; then
-    stop_klipper
+    klipper_service "stop"
     if ! make flash FLASH_DEVICE="$PRINTER_USB" ; then
       warn_msg "Flashing failed!"
       warn_msg "Please read the console output above!"
     else
       ok_msg "Flashing successfull!"
     fi
-    start_klipper
+    klipper_service "start"
   fi
 }
 

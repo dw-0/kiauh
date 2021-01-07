@@ -11,47 +11,162 @@ check_euid(){
   fi
 }
 
-locate_printer_cfg(){
-  unset PRINTER_CFG
-  if [ -e $KLIPPER_SERVICE2 ]; then
-    status_msg "Locating printer.cfg via $KLIPPER_SERVICE2 ..."
-    #reads /etc/default/klipper and gets the default printer.cfg location
-    KLIPPY_ARGS_LINE="$(grep "KLIPPY_ARGS=" /etc/default/klipper)"
-    KLIPPY_ARGS_COUNT="$(grep -o " " <<< "$KLIPPY_ARGS_LINE" | wc -l)"
-    i=1
-    PRINTER_CFG=$(while [ "$i" != "$KLIPPY_ARGS_COUNT" ]; do grep -E "(\/[A-Za-z0-9\_-]+)+\/printer\.cfg" /etc/default/klipper | cut -d" " -f"$i"; i=$(( $i + 1 )); done | grep "printer.cfg")
-    ok_msg "printer.cfg location: '$PRINTER_CFG'"
-  elif [ -e $KLIPPER_SERVICE3 ]; then
-    status_msg "Locating printer.cfg via $KLIPPER_SERVICE3 ..."
-    #reads /etc/systemd/system/klipper.service and gets the default printer.cfg location
-    KLIPPY_ARGS_LINE="$(grep "ExecStart=" /etc/systemd/system/klipper.service)"
-    KLIPPY_ARGS_COUNT="$(grep -o " " <<< "$KLIPPY_ARGS_LINE" | wc -l)"
-    i=1
-    PRINTER_CFG=$(while [ "$i" != "$KLIPPY_ARGS_COUNT" ]; do grep -E "(\/[A-Za-z0-9\_-]+)+\/printer\.cfg" /etc/systemd/system/klipper.service | cut -d" " -f"$i"; i=$(( $i + 1 )); done | grep "printer.cfg")
-    ok_msg "printer.cfg location: '$PRINTER_CFG'"
-  else
-    PRINTER_CFG=""
-    warn_msg "Can't read printer.cfg location!"
+check_klipper_cfg_path(){
+  source_kiauh_ini
+  if [ -z $klipper_cfg_loc ]; then
+    echo
+    top_border
+    echo -e "|                    ${red}!!! WARNING !!!${default}                    |"
+    echo -e "|        ${red}No Klipper configuration directory set!${default}        |"
+    hr
+    echo -e "|  Before we can continue, you need to specify a folder |"
+    echo -e "|  where your Klipper configuration(s) will be stored!  |"
+    bottom_border
+    change_klipper_cfg_path
   fi
 }
 
-source_ini(){
+change_klipper_cfg_path(){
+  source_kiauh_ini
+  old_klipper_cfg_loc="$klipper_cfg_loc"
+  while true; do
+    echo
+    echo -e "${cyan}###### Please set the Klipper config directory:${default} "
+    if [ -z "$old_klipper_cfg_loc" ]; then
+      read -e -i "/home/${USER}/klipper_config" -e new_klipper_cfg_loc
+    else
+      read -e -i "$old_klipper_cfg_loc" -e new_klipper_cfg_loc
+    fi
+    echo
+    read -p "${cyan}###### Set config directory to '${yellow}$new_klipper_cfg_loc${cyan}' ? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+
+        ### write new location to kiauh.ini
+        sed -i "s|klipper_cfg_loc=$old_klipper_cfg_loc|klipper_cfg_loc=$new_klipper_cfg_loc|" $INI_FILE
+        status_msg "Directory set to '$new_klipper_cfg_loc'!"
+
+        ### backup the old config dir
+        backup_klipper_config_dir
+
+        ### write new location to klipper and moonraker service
+        set_klipper_cfg_path
+
+        echo; ok_msg "Config directory changed!"
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        change_klipper_cfg_path
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
+
+###? if path was changed in 'change_klipper_cfg_path', we need to edit the service files
+###? and set the new path. after that, copy configs to new location and reload service units.
+set_klipper_cfg_path(){
+  ### stop services
+  klipper_service "stop" && moonraker_service "stop"
+
+  ### copy config files to new location if old location exists
+  [ ! -d "$new_klipper_cfg_loc" ] && mkdir -p "$new_klipper_cfg_loc"
+  if [ ! -z "$old_klipper_cfg_loc" ]; then
+    status_msg "Copy files to '$new_klipper_cfg_loc'!"; echo
+    cd $old_klipper_cfg_loc
+    cp -avr * "$new_klipper_cfg_loc/" && ok_msg "Done!"
+  fi
+
+  ### handle single klipper instance service file
+  if [ -f /etc/systemd/system/klipper.service ]; then
+    status_msg "Configuring Klipper for new path ..."
+    sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer.cfg|$new_klipper_cfg_loc/printer.cfg|" /etc/systemd/system/klipper.service
+    ok_msg "OK!"
+  fi
+  ### handle multi klipper instance service file
+  if [ "$(ls /etc/systemd/system/klipper-*.service)" > /dev/null 2>&1 ]; then
+    status_msg "Configuring Klipper for new path ..."
+    for service in $(find /etc/systemd/system/klipper-*.service); do
+      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer-|$new_klipper_cfg_loc/printer-|" $service
+    done
+    ok_msg "OK!"
+  fi
+
+  ### handle single moonraker instance service and moonraker.conf file
+  if [ -f /etc/systemd/system/moonraker.service ]; then
+    status_msg "Configuring Moonraker for new path ..."
+    sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/moonraker.conf|$new_klipper_cfg_loc/moonraker.conf|" /etc/systemd/system/moonraker.service
+    ### replace old file path with new one in moonraker.conf
+    sed -i "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $new_klipper_cfg_loc/moonraker.conf
+    ok_msg "OK!"
+  fi
+  ### handle multi moonraker instance service file
+  if [ "$(ls /etc/systemd/system/moonraker-*.service)" > /dev/null 2>&1 ]; then
+    status_msg "Configuring Moonraker for new path ..."
+    for service in $(find /etc/systemd/system/moonraker-*.service); do
+      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/moonraker-|$new_klipper_cfg_loc/moonraker-|" $service
+    done
+    ### replace old file path with new one in moonraker-*.conf
+    for moonraker_conf in $(find $new_klipper_cfg_loc/moonraker-*.conf); do
+      sed -i "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $moonraker_conf
+    done
+    ok_msg "OK!"
+  fi
+
+  ### reloading units
+  sudo systemctl daemon-reload
+
+  ### restart services
+  klipper_service "stop" && moonraker_service "stop"
+}
+
+source_kiauh_ini(){
   source ${SRCDIR}/kiauh/kiauh.ini
 }
 
-start_klipper(){
-  status_msg "Starting Klipper Service ..."
-  sudo systemctl start klipper && ok_msg "Klipper Service started!"
+klipper_service(){
+  ### set a variable for the ok and status messages
+  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
+  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
+  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
+
+  if [ "$(ls /etc/systemd/system/klipper-*.service)" > /dev/null 2>&1 ]; then
+    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+    INSTANCE=1
+    status_msg "$ACTION2 $INSTANCE_COUNT Klipper Services ..."
+    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      sudo systemctl $1 klipper-$INSTANCE && ok_msg "Klipper Service #$INSTANCE $ACTION1!"
+      ### instance counter +1
+      INSTANCE=$(expr $INSTANCE + 1)
+    done
+  elif [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper.service")" ]; then
+    status_msg "$ACTION2 Klipper Service ..."
+    sudo systemctl $1 klipper && ok_msg "Klipper Service $ACTION1!"
+  fi
 }
 
-stop_klipper(){
-  status_msg "Stopping Klipper Service ..."
-  sudo systemctl stop klipper && ok_msg "Klipper Service stopped!"
-}
+moonraker_service(){
+  ### set a variable for the ok and status messages
+  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
+  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
+  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
 
-restart_klipper(){
-  status_msg "Restarting Klipper Service ..."
-  sudo systemctl restart klipper && ok_msg "Klipper Service restarted!"
+  if [ "$(ls /etc/systemd/system/moonraker-*.service)" > /dev/null 2>&1 ]; then
+    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service" | wc -l)
+    INSTANCE=1
+    status_msg "$ACTION2 $INSTANCE_COUNT Moonraker Services ..."
+    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      sudo systemctl $1 moonraker-$INSTANCE && ok_msg "Moonraker Service #$INSTANCE $ACTION1!"
+      ### instance counter +1
+      INSTANCE=$(expr $INSTANCE + 1)
+    done
+  elif [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker.service")" ]; then
+    status_msg "$ACTION2 Moonraker Service ..."
+    sudo systemctl $1 moonraker && ok_msg "Moonraker Service $ACTION1!"
+  fi
 }
 
 start_dwc(){
@@ -62,21 +177,6 @@ start_dwc(){
 stop_dwc(){
   status_msg "Stopping DWC-for-Klipper-Socket Service ..."
   sudo systemctl stop dwc && ok_msg "DWC-for-Klipper-Socket Service stopped!"
-}
-
-start_moonraker(){
-  status_msg "Starting Moonraker Service ..."
-  sudo systemctl start moonraker && ok_msg "Moonraker Service started!"
-}
-
-stop_moonraker(){
-  status_msg "Stopping Moonraker Service ..."
-  sudo systemctl stop moonraker && ok_msg "Moonraker Service stopped!"
-}
-
-restart_moonraker(){
-  status_msg "Restarting Moonraker Service ..."
-  sudo systemctl restart moonraker && ok_msg "Moonraker Service restarted!"
 }
 
 start_octoprint(){
@@ -252,8 +352,8 @@ setup_gcode_shell_command(){
 }
 
 install_gcode_shell_command(){
-  stop_klipper
-  status_msg "Copy 'gcode_shell_command.py' to $KLIPPER_DIR/klippy/extras"
+  klipper_service "stop"
+  status_msg "Copy 'gcode_shell_command.py' to $KLIKLIPPER_DIRPPER/klippy/extras"
   cp ${HOME}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
   echo
   while true; do
@@ -272,7 +372,7 @@ install_gcode_shell_command(){
     esac
   done
   ok_msg "Shell command extension installed!"
-  restart_klipper
+  klipper_service "restart"
 }
 
 create_minimal_cfg(){
@@ -373,5 +473,9 @@ init_ini(){
   fi
   if [ ! $(grep -E "^logupload_accepted=." $INI_FILE) ]; then
     echo -e "\nlogupload_accepted=false\c" >> $INI_FILE
+  fi
+  ###add empty klipper config path if missing
+  if [ ! $(grep -E "^klipper_cfg_loc=" $INI_FILE) ]; then
+    echo -e "\nklipper_cfg_loc=\c" >> $INI_FILE
   fi
 }

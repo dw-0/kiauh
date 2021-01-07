@@ -58,7 +58,7 @@ update_all(){
 }
 
 update_klipper(){
-  stop_klipper
+  klipper_service "stop"
   if [ ! -d $KLIPPER_DIR ]; then
     cd ${HOME} && git clone $KLIPPER_REPO
   else
@@ -82,7 +82,7 @@ update_klipper(){
     ok_msg "Dependencies already met or have been installed!"
     ok_msg "Update complete!"
   fi
-  start_klipper
+  klipper_service "start"
 }
 
 update_dwc2fk(){
