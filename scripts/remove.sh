@@ -14,12 +14,15 @@ remove_klipper(){
       status_msg "Removing Klipper Service ..."
       sudo rm -rf /etc/init.d/klipper /etc/default/klipper
       sudo update-rc.d -f klipper remove
+      sudo systemctl disable klipper
+      sudo systemctl daemon-reload
       ok_msg "Klipper Service removed!"
     fi
     if [ -e /etc/systemd/system/klipper.service ]; then
       status_msg "Removing Klipper Service ..."
       sudo rm -rf /etc/systemd/system/klipper.service
       sudo update-rc.d -f klipper remove
+      sudo systemctl disable klipper
       sudo systemctl daemon-reload
       ok_msg "Klipper Service removed!"
     fi
