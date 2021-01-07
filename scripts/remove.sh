@@ -1,4 +1,14 @@
 remove_klipper(){
+  ### remove "legacy" init.d service
+  if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
+    status_msg "Removing Klipper Service ..."
+    sudo rm -rf /etc/init.d/klipper /etc/default/klipper
+    sudo update-rc.d -f klipper remove
+    sudo systemctl disable klipper
+    sudo systemctl daemon-reload
+    ok_msg "Klipper Service removed!"
+  fi
+
   ###remove single instance
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
     status_msg "Removing Klipper Service ..."
