@@ -1,5 +1,5 @@
 remove_klipper(){
-  ### remove "legacy" init.d service
+  ### remove "legacy" klipper init.d service
   if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
     status_msg "Removing Klipper Service ..."
     sudo rm -rf /etc/init.d/klipper /etc/default/klipper
@@ -139,7 +139,17 @@ remove_dwc2(){
 #############################################################
 
 remove_moonraker(){
-###remove single instance
+  ### remove "legacy" moonraker init.d service
+  if [[ -e /etc/init.d/moonraker || -e /etc/default/moonraker ]]; then
+    status_msg "Removing Moonraker Service ..."
+    sudo rm -rf /etc/init.d/moonraker /etc/default/moonraker
+    sudo update-rc.d -f moonraker remove
+    sudo systemctl disable moonraker
+    sudo systemctl daemon-reload
+    ok_msg "Moonraker Service removed!"
+  fi
+
+  ###remove single instance
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
     status_msg "Removing Moonraker Service ..."
     sudo systemctl stop moonraker
