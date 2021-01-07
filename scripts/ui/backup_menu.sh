@@ -4,21 +4,14 @@ backup_ui(){
   hr
   echo -e "|           ${yellow}Backup location: ~/kiauh-backups${default}            | "
   hr
-  echo -e "|  Firmware:                                            | "
-  echo -e "|  1) [Klipper]                                         | "
-  echo -e "|                                                       | "
-  echo -e "|  Klipper API:                                         | "
-  echo -e "|  2) [Moonraker]                                       | "
-  echo -e "|                                                       | "
-  echo -e "|  Webinterface:                                        | "
-  echo -e "|  3) [Mainsail]                                        | "
-  echo -e "|  4) [Fluidd]                                          | "
-  echo -e "|  5) [DWC2 Web UI]                                     | "
-  echo -e "|  6) [OctoPrint]                                       | "
-  echo -e "|                                                       | "
-  echo -e "|  HDMI Screen:                                         | "
-  echo -e "|  7) [KlipperScreen]                                   | "
-  echo -e "|                                                       | "
+  echo -e "|  Configuration folder:    |  Webinterface:            | "
+  echo -e "|  0) [Klipper configs]     |  3) [Mainsail]            | "
+  echo -e "|                           |  4) [Fluidd]              | "
+  echo -e "|  Firmware:                |  5) [DWC2 Web UI]         | "
+  echo -e "|  1) [Klipper]             |  6) [OctoPrint]           | "
+  echo -e "|                           |                           | "
+  echo -e "|  Klipper API:             |  HDMI Screen:             | "
+  echo -e "|  2) [Moonraker]           |  7) [KlipperScreen]       | "
   quit_footer
 }
 
@@ -29,6 +22,12 @@ backup_menu(){
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
+      0)
+        clear
+        print_header
+        backup_klipper_config_dir
+        print_msg && clear_msg
+        backup_ui;;
       1)
         clear
         print_header

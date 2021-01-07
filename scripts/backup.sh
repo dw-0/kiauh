@@ -16,6 +16,19 @@ backup_printer_cfg(){
   fi
 }
 
+backup_klipper_config_dir(){
+  source_kiauh_ini
+  check_for_backup_dir
+  if [ -d "$klipper_cfg_loc" ]; then
+    get_date
+    status_msg "Create backup of the Klipper config directory ..."
+    config_folder_name="$(echo "$klipper_cfg_loc" | rev | cut -d"/" -f1 | rev)"
+    cp -r "$klipper_cfg_loc" "$BACKUP_DIR/$config_folder_name.$current_date.backup" && ok_msg "Backup complete!"
+  else
+    ok_msg "No config directory found! Skipping backup ..."
+  fi
+}
+
 backup_moonraker_conf(){
   check_for_backup_dir
   if [ -f ${HOME}/moonraker.conf ]; then
@@ -28,7 +41,7 @@ backup_moonraker_conf(){
 }
 
 read_bb4u_stat(){
-  source_ini
+  source_kiauh_ini
   if [ ! "$backup_before_update" = "true" ]; then
     BB4U_STATUS="${green}[Enable]${default} backups before updating                  "
   else
@@ -37,7 +50,7 @@ read_bb4u_stat(){
 }
 
 toggle_backups(){
-  source_ini
+  source_kiauh_ini
   if [ "$backup_before_update" = "true" ]; then
     sed -i '/backup_before_update=/s/true/false/' $INI_FILE
     BB4U_STATUS="${green}[Enable]${default} backups before updating                  "
@@ -51,7 +64,7 @@ toggle_backups(){
 }
 
 bb4u(){
-  source_ini
+  source_kiauh_ini
   if [ "$backup_before_update" = "true" ]; then
     backup_$1
   fi
