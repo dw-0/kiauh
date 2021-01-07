@@ -87,7 +87,7 @@ set_klipper_cfg_path(){
     ok_msg "OK!"
   fi
   ### handle multi klipper instance service file
-  if [ "$(ls /etc/systemd/system/klipper-*.service)" > /dev/null 2>&1 ]; then
+  if ls /etc/systemd/system/klipper-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Klipper for new path ..."
     for service in $(find /etc/systemd/system/klipper-*.service); do
       sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer-|$new_klipper_cfg_loc/printer-|" $service
@@ -104,7 +104,7 @@ set_klipper_cfg_path(){
     ok_msg "OK!"
   fi
   ### handle multi moonraker instance service file
-  if [ "$(ls /etc/systemd/system/moonraker-*.service)" > /dev/null 2>&1 ]; then
+  if ls /etc/systemd/system/moonraker-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Moonraker for new path ..."
     for service in $(find /etc/systemd/system/moonraker-*.service); do
       sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/moonraker-|$new_klipper_cfg_loc/moonraker-|" $service
@@ -120,7 +120,7 @@ set_klipper_cfg_path(){
   sudo systemctl daemon-reload
 
   ### restart services
-  klipper_service "stop" && moonraker_service "stop"
+  klipper_service "restart" && moonraker_service "restart"
 }
 
 source_kiauh_ini(){
@@ -133,7 +133,7 @@ klipper_service(){
   [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
   [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
 
-  if [ "$(ls /etc/systemd/system/klipper-*.service)" > /dev/null 2>&1 ]; then
+  if ls /etc/systemd/system/klipper-*.service 2>/dev/null 1>&2; then
     INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
     INSTANCE=1
     status_msg "$ACTION2 $INSTANCE_COUNT Klipper Services ..."
@@ -154,7 +154,7 @@ moonraker_service(){
   [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
   [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
 
-  if [ "$(ls /etc/systemd/system/moonraker-*.service)" > /dev/null 2>&1 ]; then
+  if ls /etc/systemd/system/moonraker-*.service 2>/dev/null 1>&2; then
     INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service" | wc -l)
     INSTANCE=1
     status_msg "$ACTION2 $INSTANCE_COUNT Moonraker Services ..."
