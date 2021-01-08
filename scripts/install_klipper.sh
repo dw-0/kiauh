@@ -1,11 +1,3 @@
-#install_klipper(){
-#  get_user_selections_klipper
-#  klipper_setup
-#  build_fw
-#  flash_mcu
-#  write_printer_usb
-#}
-
 ### base variables
 SYSTEMDDIR="/etc/systemd/system"
 KLIPPY_ENV="${HOME}/klippy-env"
@@ -205,77 +197,108 @@ create_multi_klipper_instance(){
 }
 
 flash_routine(){
-  if [ "$FLASH_FIRMWARE" = "true" ]; then
-    echo
+  echo
+  top_border
+  echo -e "|        ${red}~~~~~~~~~~~ [ ATTENTION! ] ~~~~~~~~~~~~${default}        |"
+  hr
+  echo -e "| Flashing a Smoothie based board with this script will |"
+  echo -e "| certainly fail. This applies to boards like the BTT   |"
+  echo -e "| SKR V1.3 or SKR V1.4(Turbo). You have to copy the     |"
+  echo -e "| firmware file to the microSD card manually and rename |"
+  echo -e "| it to 'firmware.bin'.                                 |"
+  hr
+  echo -e "| You can find the file in: ~/klipper/out/klipper.bin   |"
+  bottom_border
+  while true; do
+    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        get_mcu_id
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
+
+flash_mcu(){
+  if [ ${#mcu_list[@]} -ge 1 ]; then
     top_border
-    echo -e "|        ${red}~~~~~~~~~~~ [ ATTENTION! ] ~~~~~~~~~~~~${default}        |"
+    echo -e "|               ${red}!!! IMPORTANT WARNING !!!${default}               |"
     hr
-    echo -e "| Flashing a Smoothie based board with this script will |"
-    echo -e "| certainly fail. This applies to boards like the BTT   |"
-    echo -e "| SKR V1.3 or SKR V1.4(Turbo). You have to copy the     |"
-    echo -e "| firmware file to the microSD card manually and rename |"
-    echo -e "| it to 'firmware.bin'.                                 |"
-    hr
-    echo -e "| You can find the file in: ~/klipper/out/klipper.bin   |"
+    echo -e "| Make sure, that you select the correct ID for the MCU |"
+    echo -e "| you have build the firmware for in the previous step! |"
+    blank_line
+    echo -e "| This is especially important if you use different MCU |"
+    echo -e "| models which each require their own firmware!         |"
+    blank_line
+    echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${default} |"
     bottom_border
+
+    ### list all mcus
+    i=1
+    for mcu in ${mcu_list[@]}; do
+      ### rewrite mcu to cut off everything except the important stuff
+      mcu=$(echo $mcu | rev | cut -d"/" -f1 | rev)
+      echo -e "$i) ${cyan}$mcu${default}"
+      i=$(expr $i + 1)
+    done
     while true; do
-      read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
-          CONFIRM_FLASHING="true"
-          CONFIRM_WRITE_PRINTER_USB="true"
-          get_printer_usb
-          break;;
-        N|n|No|no)
-          echo -e "###### > No"
-          CONFIRM_FLASHING="false"
-          CONFIRM_WRITE_PRINTER_USB="false"
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-      esac
+      echo
+      read -p "${cyan}###### Please select the ID for flashing:${default} " selected_id
+      mcu_index=$(echo $((selected_id - 1)))
+      echo -e "\nYou have selected to flash:\n● MCU #$selected_id: ${mcu_list[$mcu_index]}\n"
+      while true; do
+        read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
+        case "$yn" in
+          Y|y|Yes|yes|"")
+            echo -e "###### > Yes"
+            status_msg "Flashing ${mcu_list[$mcu_index]} ..."
+              klipper_service "stop"
+              if ! make flash FLASH_DEVICE="${mcu_list[$mcu_index]}" ; then
+                warn_msg "Flashing failed!"
+                warn_msg "Please read the console output above!"
+              else
+                ok_msg "Flashing successfull!"
+              fi
+              klipper_service "start"
+            break;;
+          N|n|No|no)
+            echo -e "###### > No"
+            break;;
+          *)
+            print_unkown_cmd
+            print_msg && clear_msg;;
+        esac
+      done
+      break
     done
   fi
 }
 
-flash_mcu(){
-  if [ "$CONFIRM_FLASHING" = "true" ] && [ ! -z "$PRINTER_USB" ]; then
-    klipper_service "stop"
-    if ! make flash FLASH_DEVICE="$PRINTER_USB" ; then
-      warn_msg "Flashing failed!"
-      warn_msg "Please read the console output above!"
-    else
-      ok_msg "Flashing successfull!"
-    fi
-    klipper_service "start"
-  fi
-}
-
 build_fw(){
-  if [ "$BUILD_FIRMWARE" = "true" ]; then
-    if [ -d $KLIPPER_DIR ]; then
-      cd $KLIPPER_DIR
-      status_msg "Initializing Firmware Setup ..."
-      make menuconfig
-      status_msg "Building Firmware ..."
-      make clean && make && ok_msg "Firmware built!"
-    else
-      warn_msg "Can not build Firmware without a Klipper directory!"
-    fi
+  if [ -d $KLIPPER_DIR ]; then
+    cd $KLIPPER_DIR
+    status_msg "Initializing firmware Setup ..."
+    make menuconfig
+    status_msg "Building firmware ..."
+    make clean && make && ok_msg "Firmware built!"
+  else
+    warn_msg "Can not build firmware without a Klipper directory!"
   fi
 }
 
-### grab the printers id
-get_printer_usb(){
+### grab the mcu id
+get_mcu_id(){
   echo
   top_border
-  echo -e "| Please make sure your printer is connected to the Pi! |"
-  echo -e "| If the printer is not connected yet, connect it now.  |"
-  hr
-  echo -e "| Also make sure, that it is the only USB device        |"
-  echo -e "| connected at for now! Otherwise this step may fail!   |"
+  echo -e "| Please make sure your MCU is connected to the Pi!     |"
+  echo -e "| If the MCU is not connected yet, connect it now.      |"
   bottom_border
   while true; do
     echo -e "${cyan}"
@@ -283,70 +306,30 @@ get_printer_usb(){
     echo -e "${default}"
     case "$yn" in
       *)
-        CONFIRM_PRINTER_USB="true"
         break;;
     esac
   done
-  status_msg "Identifying the correct USB port ..."
+  status_msg "Identifying the ID of your MCU ..."
   sleep 2
-  unset PRINTER_USB
-  if [ -e /dev/serial/by-id/* ]; then
-    if [ -e /dev/serial/by-id/* ]; then
-      PRINTER_USB=$(ls /dev/serial/by-id/*)
-      status_msg "The ID of your printer is:"
-      title_msg "$PRINTER_USB"
-    else
-      warn_msg "Could not retrieve ID!"
-    fi
-  elif [ -e /dev/serial/by-path/* ]; then
-    if [ -e /dev/serial/by-path/* ]; then
-      PRINTER_USB=$(ls /dev/serial/by-path/*)
-      status_msg "The path of your printer is:"
-      title_msg "$PRINTER_USB"
-    else
-      warn_msg "Could not retrieve path!"
-    fi
+  unset MCU_ID
+  ### if there are devices found, continue, else show warn message
+  if ls /dev/serial/by-id/* 2>/dev/null 1>&2; then
+    mcu_count=1
+    mcu_list=()
+    status_msg "The ID of your printers MCU is:"
+    ### loop over the IDs, write every ID as an item of the array 'mcu_list'
+    for mcu in /dev/serial/by-id/*; do
+      declare "mcu_id_$mcu_count"="$mcu"
+      mcu_id="mcu_id_$mcu_count"
+      mcu_list+=("${!mcu_id}")
+      ### rewrite mcu to cut off everything except the important stuff
+      mcu=$(echo $mcu | rev | cut -d"/" -f1 | rev)
+      echo " ● MCU #$mcu_count: ${cyan}$mcu${default}"
+      mcu_count=$(expr $mcu_count + 1)
+    done
+    unset mcu_count
   else
+    warn_msg "Could not retrieve ID!"
     warn_msg "Printer not plugged in or not detectable!"
-fi
-}
-
-write_printer_usb(){
-  locate_printer_cfg
-  if [ ! -z "$PRINTER_CFG" ] && [ "$CONFIRM_WRITE_PRINTER_USB" = "true" ]; then
-    SERIAL_OLD=$(grep "serial" $PRINTER_CFG | tail -1 | cut -d" " -f2)
-    SERIAL_NEW=$PRINTER_USB
-    if [ "$SERIAL_OLD" != "$SERIAL_NEW" ]; then
-      unset write_entries
-      backup_printer_cfg
-      write_entries+=("[mcu]\nserial: $SERIAL_NEW")
-      write_entries+=("\\\n############################\n##### CREATED BY KIAUH #####\n############################")
-      write_entries=("############################\n" "${write_entries[@]}")
-      #check for a SAVE_CONFIG entry
-      SC="#*# <---------------------- SAVE_CONFIG ---------------------->"
-      if [[ $(grep "$SC" $PRINTER_CFG) ]]; then
-        SC_LINE=$(grep -n "$SC" $PRINTER_CFG | cut -d ":" -f1)
-        PRE_SC_LINE=$(expr $SC_LINE - 1)
-        SC_ENTRY="true"
-      else
-        SC_ENTRY="false"
-      fi
-      status_msg "Writing printer ID/path to printer.cfg ..."
-      if [ "$SC_ENTRY" = "true" ]; then
-        PRE_SC_LINE="$(expr $SC_LINE - 1)a"
-        for entry in "${write_entries[@]}"
-        do
-          sed -i "$PRE_SC_LINE $entry" $PRINTER_CFG
-        done
-      fi
-      if [ "$SC_ENTRY" = "false" ]; then
-        LINE_COUNT="$(wc -l < $PRINTER_CFG)a"
-        for entry in "${write_entries[@]}"
-        do
-          sed -i "$LINE_COUNT $entry" $PRINTER_CFG
-        done
-      fi
-      ok_msg "Done!"
-    fi
   fi
 }

@@ -12,7 +12,7 @@ advanced_ui(){
   echo -e "|  Firmware:                |  7) [Shell Command]       | "
   echo -e "|  3) [Build only]          |                           | "
   echo -e "|  4) [Build + Flash MCU]   |                           | "
-  echo -e "|  5) [Get Printer-USB]     |                           | "
+  echo -e "|  5) [Get MCU ID]          |                           | "
   echo -e "|                           |                           | "
 quit_footer
 }
@@ -47,25 +47,23 @@ advanced_menu(){
       3)
         clear
         print_header
-        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
         build_fw
         print_msg && clear_msg
         advanced_ui;;
       4)
         clear
         print_header
-        unset FLASH_FIRMWARE && FLASH_FIRMWARE="true"
         flash_routine
-        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
-        build_fw
-        unset CONFIRM_FLASHING && CONFIRM_FLASHING="true"
+        ### build in a sleep to give the user a chance to have a look at the
+        ### MCU IDs before directly starting to build the klipper firmware
+        status_msg "Please wait..." && sleep 10 && build_fw
         flash_mcu
         print_msg && clear_msg
         advanced_ui;;
       5)
         clear
         print_header
-        get_printer_usb
+        get_mcu_id
         print_msg && clear_msg
         advanced_ui;;
       6)
