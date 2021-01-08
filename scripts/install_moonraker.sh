@@ -240,6 +240,7 @@ moonraker_conf_creation(){
 
 create_single_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
+  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
 
 /bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker.conf" << MOONRAKERCONF
 [server]
@@ -254,6 +255,7 @@ enabled: True
 api_key_file: ~/.moonraker_api_key
 trusted_clients:
     127.0.0.1
+    $LOCAL_NETWORK
 cors_domains:
     http://*.local
     http://app.fluidd.xyz
@@ -268,6 +270,7 @@ MOONRAKERCONF
 
 create_multi_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
+  NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
 
 /bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf" << MOONRAKERCONF
 [server]
@@ -282,7 +285,7 @@ enabled: True
 api_key_file: ~/.moonraker_api_key
 trusted_clients:
     127.0.0.1
-    $HOSTNAME
+    $LOCAL_NETWORK
 cors_domains:
     http://*.local
     http://app.fluidd.xyz
