@@ -243,8 +243,6 @@ flash_mcu(){
     ### list all mcus
     i=1
     for mcu in ${mcu_list[@]}; do
-      ### rewrite mcu to cut off everything except the important stuff
-      mcu=$(echo $mcu | rev | cut -d"/" -f1 | rev)
       echo -e "$i) ${cyan}$mcu${default}"
       i=$(expr $i + 1)
     done
@@ -322,8 +320,6 @@ get_mcu_id(){
       declare "mcu_id_$mcu_count"="$mcu"
       mcu_id="mcu_id_$mcu_count"
       mcu_list+=("${!mcu_id}")
-      ### rewrite mcu to cut off everything except the important stuff
-      mcu=$(echo $mcu | rev | cut -d"/" -f1 | rev)
       echo " ● MCU #$mcu_count: ${cyan}$mcu${default}"
       mcu_count=$(expr $mcu_count + 1)
     done
