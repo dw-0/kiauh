@@ -204,7 +204,7 @@ create_multi_moonraker_instance(){
 
 moonraker_conf_creation(){
   ### default moonraker port
-  PORT=7125
+  DEFAULT_PORT=7125
 
   ### get printer and moonraker config directory
   source_kiauh_ini
@@ -227,7 +227,7 @@ moonraker_conf_creation(){
     while [ $INSTANCE -le $INSTANCE_COUNT ]; do
       status_msg "Creating moonraker-$INSTANCE.conf in $MOONRAKER_CONF_LOC"
       if [ ! -f $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf ]; then
-        PORT=$(expr $PORT + $INSTANCE - 1)
+        PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
         create_multi_moonraker_conf && ok_msg "moonraker-$INSTANCE.conf created!"
       else
         warn_msg "There is already a file called 'moonraker-$INSTANCE.conf'!"
@@ -260,7 +260,7 @@ cors_domains:
     http://*.local
     http://app.fluidd.xyz
     https://app.fluidd.xyz
-    http://$HOSTNAME:*
+    http://$HOSTNAME
 
 [update_manager]
 #client_repo:
@@ -290,7 +290,7 @@ cors_domains:
     http://*.local
     http://app.fluidd.xyz
     https://app.fluidd.xyz
-    http://$HOSTNAME:*
+    http://$HOSTNAME
 
 [update_manager]
 #client_repo:
