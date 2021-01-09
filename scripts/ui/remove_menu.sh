@@ -2,8 +2,7 @@ remove_ui(){
   top_border
   echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
-  echo -e "|  Files and directories which remain untouched:        | "
-  echo -e "|  --> ~/printer.cfg                                    | "
+  echo -e "|  Directories which remain untouched:                  | "
   echo -e "|  --> ~/klipper_config                                 | "
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "

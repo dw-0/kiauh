@@ -12,7 +12,7 @@ install_ui(){
   echo -e "|  Klipper API:          |  5) [Fluidd]                 | "
   echo -e "|  2) [Moonraker]        |  6) [Octoprint]              | "
   echo -e "|                        |                              | "
-  echo -e "|                        |  HDMI Screen                 | "
+  echo -e "|                        |  HDMI Screen:                | "
   echo -e "|                        |  7) [KlipperScreen]          | "
   quit_footer
 }
