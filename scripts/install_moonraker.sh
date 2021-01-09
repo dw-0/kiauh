@@ -3,7 +3,26 @@ SYSTEMDDIR="/etc/systemd/system"
 MOONRAKER_ENV="${HOME}/moonraker-env"
 MOONRAKER_DIR="${HOME}/moonraker"
 
+python3_check(){
+  status_msg "Your Python 3 version is: $(python3 --version)"
+  major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
+  minor=$(python3 --version | cut -d"." -f2)
+  if [ $major -ge 3 ] && [ $minor -ge 7 ]; then
+    ok_msg "Python version ok!"
+    py_chk_ok="true"
+  else
+    warn_msg "Python version not ok!"
+    py_chk_ok="false"
+  fi
+}
+
 moonraker_setup_dialog(){
+  ### check system for python3 before initializing the moonraker installation
+  python3_check
+  if [ $py_chk_ok = "false" ]; then
+    return 0
+  fi
+
   status_msg "Initializing Moonraker installation ..."
 
   ### check for existing moonraker service installations
@@ -152,6 +171,14 @@ moonraker_setup(){
   fi
 }
 
+print_ip_list(){
+  i=1
+  for ip in ${ip_list[@]}; do
+    echo -e "       ${cyan}● Instance $i:${default} $ip"
+    i=$((i + 1))
+  done
+}
+
 create_single_moonraker_instance(){
   status_msg "Setting up 1 Moonraker instance ..."
 
@@ -173,7 +200,10 @@ create_single_moonraker_instance(){
   sudo systemctl start moonraker
 
   ### confirm message
-  ok_msg "Single Moonraker instance has been set up!\n"
+  ok_msg "Single Moonraker instance has been set up!"
+
+  ### display moonraker ip to the user
+  print_ip_list; echo
 }
 
 create_multi_moonraker_instance(){
@@ -199,7 +229,11 @@ create_multi_moonraker_instance(){
     INSTANCE=$(expr $INSTANCE + 1)
   done
   ### confirm message
-  ok_msg "$INSTANCE_COUNT Moonraker instances have been set up!\n"
+  echo; echo;
+  ok_msg "$INSTANCE_COUNT Moonraker instances have been set up!"
+
+  ### display all moonraker ips to the user
+  print_ip_list; echo
 }
 
 moonraker_conf_creation(){
@@ -214,8 +248,18 @@ moonraker_conf_creation(){
   ### reset instances back to 1 again
   INSTANCE=1
 
-  ### create moonraker.conf
+  ### declare empty array for ips which get displayed to the user at the end of the setup
+  HOSTNAME=$(hostname -I | cut -d" " -f1)
+  ip_list=()
+
+  ### create single instance moonraker.conf file
   if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+    ### set port
+    PORT=$DEFAULT_PORT
+
+    ### write the ip and port to the ip list for displaying it later to the user
+    ip_list+=("$HOSTNAME:$PORT")
+
     status_msg "Creating moonraker.conf in $MOONRAKER_CONF_LOC"
     if [ ! -f $MOONRAKER_CONF_LOC/moonraker.conf ]; then
       create_single_moonraker_conf && ok_msg "moonraker.conf created!"
@@ -223,16 +267,26 @@ moonraker_conf_creation(){
       warn_msg "There is already a file called 'moonraker.conf'!"
       warn_msg "Skipping..."
     fi
+
+  ### create multi instance moonraker.conf files
   else
     while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      ### set each instance to its own port
+      PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
+
+      ### write the ip and port to the ip list for displaying it later to the user
+      ip_list+=("$HOSTNAME:$PORT")
+
+      ### start the creation of each instance
       status_msg "Creating moonraker-$INSTANCE.conf in $MOONRAKER_CONF_LOC"
       if [ ! -f $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf ]; then
-        PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
         create_multi_moonraker_conf && ok_msg "moonraker-$INSTANCE.conf created!"
       else
         warn_msg "There is already a file called 'moonraker-$INSTANCE.conf'!"
         warn_msg "Skipping..."
       fi
+
+      ### raise instance counter by 1
       INSTANCE=$(expr $INSTANCE + 1)
     done
   fi
@@ -339,18 +393,6 @@ install_moonraker(){
   else
     ERROR_MSG="Python 3.7 or above required!\n Please upgrade your Python version first."
     print_msg && clear_msg
-  fi
-}
-
-python3_check(){
-  status_msg "Your Python 3 version is: $(python3 --version)"
-  major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
-  minor=$(python3 --version | cut -d"." -f2)
-  if [ $major -ge 3 ] && [ $minor -ge 7 ]; then
-    ok_msg "Python version ok!"
-    py_chk_ok="true"
-  else
-    py_chk_ok="false"
   fi
 }
 
