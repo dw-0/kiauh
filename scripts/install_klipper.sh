@@ -76,7 +76,7 @@ create_klipper_virtualenv(){
 
 create_single_klipper_startscript(){
 ### create systemd service file
-sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper.service" << EOF
+sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper.service" << SINGLE_STARTSCRIPT
 #Systemd service file for klipper
 [Unit]
 Description=Starts klipper on startup
@@ -90,12 +90,12 @@ RemainAfterExit=yes
 ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
 Restart=always
 RestartSec=10
-EOF
+SINGLE_STARTSCRIPT
 }
 
 create_multi_klipper_startscript(){
 ### create multi instance systemd service file
-sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper-$INSTANCE.service" << EOF
+sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper-$INSTANCE.service" << MULTI_STARTSCRIPT
 #Systemd service file for klipper
 [Unit]
 Description=Starts klipper instance $INSTANCE on startup
@@ -109,7 +109,26 @@ RemainAfterExit=yes
 ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -I ${TMP_PRINTER} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
 Restart=always
 RestartSec=10
-EOF
+MULTI_STARTSCRIPT
+}
+
+create_minimal_printer_cfg(){
+/bin/sh -c "cat > $1" << MINIMAL_CFG
+[mcu]
+serial: /dev/serial/by-id/
+pin_map: arduino
+
+[pause_resume]
+[display_status]
+
+[virtual_sdcard]
+path: ~/gcode_files
+
+[printer]
+kinematics: none
+max_velocity: 1
+max_accel: 1
+MINIMAL_CFG
 }
 
 klipper_setup(){
@@ -129,9 +148,9 @@ klipper_setup(){
   install_klipper_packages
   create_klipper_virtualenv
 
-  ### create sdcard folder
-  [ ! -d ${HOME}/sdcard ] && mkdir -p ${HOME}/sdcard
-  ### create config folder
+  ### create shared gcode_files folder
+  [ ! -d ${HOME}/gcode_files ] && mkdir -p ${HOME}/gcode_files
+  ### create shared config folder
   [ ! -d $PRINTER_CFG_LOC ] && mkdir -p $PRINTER_CFG_LOC
 
   ### create klipper instances
@@ -155,6 +174,7 @@ create_single_klipper_instance(){
   status_msg "Creating single Klipper instance ..."
   status_msg "Installing system start script ..."
   create_single_klipper_startscript
+  [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
 
   ### enable instance
   sudo systemctl enable klipper.service
@@ -165,7 +185,8 @@ create_single_klipper_instance(){
   sudo systemctl start klipper
 
   ### confirm message
-  ok_msg "Single Klipper instance has been set up!\n"
+  CONFIRM_MSG="Single Klipper instance has been set up!"
+  print_msg && clear_msg
 }
 
 create_multi_klipper_instance(){
@@ -175,7 +196,11 @@ create_multi_klipper_instance(){
     KLIPPER_LOG=/tmp/klippy-$INSTANCE.log
     KLIPPY_UDS=/tmp/klippy_uds-$INSTANCE
     TMP_PRINTER=/tmp/printer-$INSTANCE
-    PRINTER_CFG="$PRINTER_CFG_LOC/printer-$INSTANCE.cfg"
+    PRINTER_CFG="$PRINTER_CFG_LOC/printer_$INSTANCE/printer.cfg"
+
+    ### create printer config folder and write a minimal printer.cfg to it
+    [ ! -d $PRINTER_CFG_LOC/printer_$INSTANCE ] && mkdir -p $PRINTER_CFG_LOC/printer_$INSTANCE
+    [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
 
     ### create instance
     status_msg "Creating instance #$INSTANCE ..."
@@ -192,9 +217,17 @@ create_multi_klipper_instance(){
     ### instance counter +1
     INSTANCE=$(expr $INSTANCE + 1)
   done
+
   ### confirm message
-  ok_msg "$INSTANCE_COUNT Klipper instances have been set up!\n"
+  CONFIRM_MSG="$INSTANCE_COUNT Klipper instances have been set up!"
+  print_msg && clear_msg
 }
+
+
+##############################################################################################
+#********************************************************************************************#
+##############################################################################################
+
 
 flash_routine(){
   echo

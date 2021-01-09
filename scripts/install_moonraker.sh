@@ -20,7 +20,8 @@ moonraker_setup_dialog(){
   ### check system for python3 before initializing the moonraker installation
   python3_check
   if [ $py_chk_ok = "false" ]; then
-    return 0
+    ERROR_MSG="Python 3.7 or above required!\n Please upgrade your Python version first."
+    print_msg && clear_msg && return 0
   fi
 
   status_msg "Initializing Moonraker installation ..."
@@ -157,6 +158,7 @@ moonraker_setup(){
   create_moonraker_virtualenv
 
   ### create moonraker.conf folder
+  ### athough it should already exist because its the same as the klipper config folder
   [ ! -d $MOONRAKER_CONF_LOC ] && mkdir -p $MOONRAKER_CONF_LOC
 
   ### create moonraker.confs
@@ -200,7 +202,8 @@ create_single_moonraker_instance(){
   sudo systemctl start moonraker
 
   ### confirm message
-  ok_msg "Single Moonraker instance has been set up!"
+  CONFIRM_MSG="Single Moonraker instance has been set up!"
+  print_msg && clear_msg
 
   ### display moonraker ip to the user
   print_ip_list; echo
@@ -211,7 +214,7 @@ create_multi_moonraker_instance(){
   while [ $INSTANCE -le $INSTANCE_COUNT ]; do
     ### multi instance variables
     MOONRAKER_LOG=/tmp/moonraker-$INSTANCE.log
-    MOONRAKER_CONF="$MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf"
+    MOONRAKER_CONF="$MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf"
 
     ### create instance
     status_msg "Creating instance #$INSTANCE ..."
@@ -228,9 +231,10 @@ create_multi_moonraker_instance(){
     ### instance counter +1
     INSTANCE=$(expr $INSTANCE + 1)
   done
+
   ### confirm message
-  echo; echo;
-  ok_msg "$INSTANCE_COUNT Moonraker instances have been set up!"
+  CONFIRM_MSG="$INSTANCE_COUNT Moonraker instances have been set up!"
+  print_msg && clear_msg
 
   ### display all moonraker ips to the user
   print_ip_list; echo
@@ -278,9 +282,9 @@ moonraker_conf_creation(){
       ip_list+=("$HOSTNAME:$PORT")
 
       ### start the creation of each instance
-      status_msg "Creating moonraker-$INSTANCE.conf in $MOONRAKER_CONF_LOC"
-      if [ ! -f $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf ]; then
-        create_multi_moonraker_conf && ok_msg "moonraker-$INSTANCE.conf created!"
+      status_msg "Creating moonraker.conf for instance #$INSTANCE"
+      if [ ! -f $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf ]; then
+        create_multi_moonraker_conf && ok_msg "moonraker.conf created!"
       else
         warn_msg "There is already a file called 'moonraker-$INSTANCE.conf'!"
         warn_msg "Skipping..."
@@ -312,6 +316,8 @@ trusted_clients:
     $LOCAL_NETWORK
 cors_domains:
     http://*.local
+    http://my.mainsail.app
+    https://my.mainsail.app
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
@@ -324,15 +330,15 @@ MOONRAKERCONF
 
 create_multi_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
-  NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
+  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
 
-/bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker-$INSTANCE.conf" << MOONRAKERCONF
+/bin/sh -c "cat > $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf" << MOONRAKERCONF
 [server]
 host: 0.0.0.0
 port: $PORT
 klippy_uds_address: /tmp/klippy_uds-$INSTANCE
 enable_debug_logging: True
-config_path: $PRINTER_CFG_LOC
+config_path: $PRINTER_CFG_LOC/printer_$INSTANCE
 
 [authorization]
 enabled: True
@@ -342,6 +348,8 @@ trusted_clients:
     $LOCAL_NETWORK
 cors_domains:
     http://*.local
+    http://my.mainsail.app
+    https://my.mainsail.app
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
@@ -353,20 +361,9 @@ MOONRAKERCONF
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+##############################################################################################
+#********************************************************************************************#
+##############################################################################################
 
 
 install_moonraker(){
