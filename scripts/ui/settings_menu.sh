@@ -5,18 +5,18 @@ settings_ui(){
   echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     | "
   hr
   echo -e "| ${red}Caution:${default}                                              | "
-  echo -e "| Changing the path below will COPY the config files    | "
-  echo -e "| to the new location. During that process ALL Klipper  | "
-  echo -e "| and Moonraker services get stopped and reconfigured.  | "
+  echo -e "| When you rename the config folder, be aware that ALL  | "
+  echo -e "| Klipper and Moonraker services will be STOPPED,       | "
+  echo -e "| reconfigured and then restarted again.                | "
   blank_line
-  echo -e "| ${red}DO NOT change the folder location during printing!${default}    | "
+  echo -e "| ${red}DO NOT rename the folder during printing!${default}             | "
   hr
   blank_line
-  echo -e "|  ${yellow}● Current Klipper configuration folder:${default}              | "
+  echo -e "|  ${yellow}● Current Klipper config folder:${default}                     | "
   printf "|%-55s|\n" "    $klipper_cfg_loc"
   blank_line
   hr
-  echo -e "|  1) Change configuration folder                       | "
+  echo -e "|  1) Rename config folder                              | "
   quit_footer
 }
 

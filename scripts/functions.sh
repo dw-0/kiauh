@@ -43,12 +43,12 @@ change_klipper_cfg_path(){
       Y|y|Yes|yes|"")
         echo -e "###### > Yes"
 
+        ### backup the old config dir
+        backup_klipper_config_dir
+
         ### write new location to kiauh.ini
         sed -i "s|klipper_cfg_loc=$old_klipper_cfg_loc|klipper_cfg_loc=$new_klipper_cfg_loc|" $INI_FILE
         status_msg "Directory set to '$new_klipper_cfg_loc'!"
-
-        ### backup the old config dir
-        backup_klipper_config_dir
 
         ### write new location to klipper and moonraker service
         set_klipper_cfg_path
@@ -67,17 +67,18 @@ change_klipper_cfg_path(){
 }
 
 ###? if path was changed in 'change_klipper_cfg_path', we need to edit the service files
-###? and set the new path. after that, copy configs to new location and reload service units.
+###? and set the new path. after that, rename the old folder and reload service units.
+###! users shouldn't try and move the files into subfolders with this function! as the mv command will fail
+###! but the new path still gets written to the service files. if they really need to, they need to move all
+###! config files or printer folder into that subfolder (still not recommended!)
 set_klipper_cfg_path(){
   ### stop services
   klipper_service "stop" && moonraker_service "stop"
 
-  ### copy config files to new location if old location exists
-  [ ! -d "$new_klipper_cfg_loc" ] && mkdir -p "$new_klipper_cfg_loc"
-  if [ ! -z "$old_klipper_cfg_loc" ]; then
-    status_msg "Copy files to '$new_klipper_cfg_loc'!"; echo
-    cd $old_klipper_cfg_loc
-    cp -avr * "$new_klipper_cfg_loc/" && ok_msg "Done!"
+  ### rename the klipper config folder
+  if [ ! -z "$old_klipper_cfg_loc" ] && [ -d "$old_klipper_cfg_loc" ]; then
+    status_msg "Renaming '$old_klipper_cfg_loc' to '$new_klipper_cfg_loc'!"; echo
+    mv -v "$old_klipper_cfg_loc" "$new_klipper_cfg_loc" && ok_msg "Done!"
   fi
 
   ### handle single klipper instance service file
@@ -90,7 +91,7 @@ set_klipper_cfg_path(){
   if ls /etc/systemd/system/klipper-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Klipper for new path ..."
     for service in $(find /etc/systemd/system/klipper-*.service); do
-      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer-|$new_klipper_cfg_loc/printer-|" $service
+      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer_|$new_klipper_cfg_loc/printer_|" $service
     done
     ok_msg "OK!"
   fi
@@ -107,11 +108,12 @@ set_klipper_cfg_path(){
   if ls /etc/systemd/system/moonraker-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Moonraker for new path ..."
     for service in $(find /etc/systemd/system/moonraker-*.service); do
-      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/moonraker-|$new_klipper_cfg_loc/moonraker-|" $service
+      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer_|$new_klipper_cfg_loc/printer_|" $service
     done
-    ### replace old file path with new one in moonraker-*.conf
-    for moonraker_conf in $(find $new_klipper_cfg_loc/moonraker-*.conf); do
-      sed -i "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $moonraker_conf
+    ### replace old file path with new one in moonraker.conf
+    for moonraker_conf in $(find $new_klipper_cfg_loc/printer_*/moonraker.conf); do
+      loc=$(echo "$moonraker_conf" | rev | cut -d"/" -f2- | rev)
+      sed -i "/config_path:/ s|config_path:.*|config_path: $loc|" $moonraker_conf
     done
     ok_msg "OK!"
   fi
