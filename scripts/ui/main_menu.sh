@@ -43,6 +43,36 @@ main_menu(){
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
+      "start klipper")
+        clear
+        print_header
+        klipper_service "start"
+        main_ui;;
+      "stop klipper")
+        clear
+        print_header
+        klipper_service "stop"
+        main_ui;;
+      "restart klipper")
+        clear
+        print_header
+        klipper_service "restart"
+        main_ui;;
+      "start moonraker")
+        clear
+        print_header
+        moonraker_service "start"
+        main_ui;;
+      "stop moonraker")
+        clear
+        print_header
+        moonraker_service "stop"
+        main_ui;;
+      "restart moonraker")
+        clear
+        print_header
+        moonraker_service "restart"
+        main_ui;;
       update)
         clear
         print_header
