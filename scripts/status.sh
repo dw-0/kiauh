@@ -17,19 +17,29 @@ klipper_status(){
     $KLIPPER_DIR
     $KLIPPY_ENV_DIR
   )
-  #remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
+  ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
     unset klipper_data[0]
   fi
-  #count+1 for each found data-item from array
+
+  ### count+1 for each found data-item from array
   for kd in "${klipper_data[@]}"
   do
     if [ -e $kd ]; then
       kcount=$(expr $kcount + 1)
     fi
   done
+
+  ### count amount of klipper services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    instances=1
+  else
+    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+  fi
+
+  ### display status
   if [ "$kcount" == "${#klipper_data[*]}" ]; then
-    KLIPPER_STATUS="${green}Installed!${default}      "
+    KLIPPER_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
   elif [ "$kcount" == 0 ]; then
     KLIPPER_STATUS="${red}Not installed!${default}  "
   else
@@ -71,15 +81,25 @@ moonraker_status(){
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
     unset moonraker_data[0]
   fi
-  #count+1 for each found data-item from array
+
+  ### count+1 for each found data-item from array
   for mrd in "${moonraker_data[@]}"
   do
     if [ -e $mrd ]; then
       mrcount=$(expr $mrcount + 1)
     fi
   done
+
+  ### count amount of moonraker services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    instances=1
+  else
+    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+  fi
+
+  ### display status
   if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
-    MOONRAKER_STATUS="${green}Installed!${default}      "
+    MOONRAKER_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
   elif [ "$mrcount" == 0 ]; then
     MOONRAKER_STATUS="${red}Not installed!${default}  "
   else
