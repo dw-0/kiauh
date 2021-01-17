@@ -10,39 +10,39 @@ check_moonraker(){
   fi
 }
 
-# get_user_selection_webui(){
-#   #ask user for webui default macros
-#   while true; do
-#     unset ADD_WEBUI_MACROS
-#     echo
-#     top_border
-#     echo -e "| It is recommended to have some important macros to    |"
-#     echo -e "| have full functionality of the web interface.         |"
-#     blank_line
-#     echo -e "| If you do not have such macros, you can choose to     |"
-#     echo -e "| install the suggested default macros now.             |"
-#     bottom_border
-#     read -p "${cyan}###### Add the recommended macros? (Y/n):${default} " yn
-#     case "$yn" in
-#       Y|y|Yes|yes|"")
-#         echo -e "###### > Yes"
-#         ADD_WEBUI_MACROS="true"
-#         break;;
-#       N|n|No|no)
-#         echo -e "###### > No"
-#         ADD_WEBUI_MACROS="false"
-#         break;;
-#       *)
-#         print_unkown_cmd
-#         print_msg && clear_msg;;
-#     esac
-#   done
-# }
+get_user_selection_kiauh_macros(){
+  #ask user for webui default macros
+  while true; do
+    unset ADD_KIAUH_MACROS
+    echo
+    top_border
+    echo -e "| It is recommended to have some important macros to    |"
+    echo -e "| have full functionality of the web interface.         |"
+    blank_line
+    echo -e "| If you don't have those macros, you can choose to     |"
+    echo -e "| install suggested default macros now.                 |"
+    blank_line
+    echo -e "| If unsure which macros are meant, just go ahead and   |"
+    echo -e "| select 'Yes'. You can always delete them later.       |"
+    bottom_border
+    read -p "${cyan}###### Add the recommended macros? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        ADD_KIAUH_MACROS="true"
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        ADD_KIAUH_MACROS="false"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
 
 install_mainsail(){
-  ###! outdated dialog, see comment below regarding webui macros
-  #get_user_selection_webui
-
   ### check if moonraker is already installed
   check_moonraker
 
@@ -54,16 +54,17 @@ install_mainsail(){
     ### check if another site already listens to port 80
     mainsail_port_check
 
+    ### ask user to install the recommended webinterface macros
+    get_user_selection_kiauh_macros
+
     ### ask user to enable the moonraker update manager
     enable_update_manager "mainsail"
 
     ### creating the mainsail nginx cfg
     set_nginx_cfg "mainsail"
 
-    ###! outdated way of locating the printer.cfg. need a new way to install the webui-macros
-    ###! especially for multi instances, therefore disabling this function for now...
-    #locate_printer_cfg && read_printer_cfg "mainsail"
-    #install_webui_macros
+    ### copy the kiauh_macros.cfg to the config location
+    install_kiauh_macros
 
     ### install mainsail
     mainsail_setup
@@ -71,9 +72,6 @@ install_mainsail(){
 }
 
 install_fluidd(){
-  ###! outdated dialog, see comment below regarding webui macros
-  #get_user_selection_webui
-
   ### check if moonraker is already installed
   check_moonraker
 
@@ -85,35 +83,58 @@ install_fluidd(){
     ### check if another site already listens to port 80
     fluidd_port_check
 
+    ### ask user to install the recommended webinterface macros
+    get_user_selection_kiauh_macros
+
     ### ask user to enable the moonraker update manager
     enable_update_manager "fluidd"
 
     ### creating the fluidd nginx cfg
     set_nginx_cfg "fluidd"
 
-    ###! outdated way of locating the printer.cfg. need a new way to install the webui-macros
-    ###! especially for multi instances, therefore disabling this function for now...
-    #locate_printer_cfg && read_printer_cfg "fluidd"
-    #install_webui_macros
+    ### copy the kiauh_macros.cfg to the config location
+    install_kiauh_macros
 
     ### install fluidd
     fluidd_setup
   fi
 }
 
-# install_webui_macros(){
-#   #copy webui_macros.cfg
-#   if [ "$ADD_WEBUI_MACROS" = "true" ]; then
-#     status_msg "Create webui_macros.cfg ..."
-#     if [ ! -f ${HOME}/klipper_config/webui_macros.cfg ]; then
-#       cp ${HOME}/kiauh/resources/webui_macros.cfg ${HOME}/klipper_config
-#       ok_msg "File created!"
-#     else
-#       warn_msg "File already exists! Skipping ..."
-#     fi
-#   fi
-#   write_printer_cfg
-# }
+install_kiauh_macros(){
+  source_kiauh_ini
+  ### copy kiauh_macros.cfg
+  if [ "$ADD_KIAUH_MACROS" = "true" ]; then
+    ### create a backup of the config folder
+    backup_klipper_config_dir
+
+    ### handle single printer.cfg
+    if [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/kiauh_macros.cfg ]; then
+      ### copy kiauh_macros.cfg to config location
+      cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $klipper_cfg_loc
+      ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
+
+      ### write the include to the very first line of the printer.cfg
+      sed -i "1 i [include kiauh_macros.cfg]" $klipper_cfg_loc/printer.cfg
+    fi
+
+    ### handle multi printer.cfg
+    if ls $klipper_cfg_loc/printer_*  2>/dev/null 1>&2; then
+      for config in $(find $klipper_cfg_loc/printer_*/printer.cfg); do
+        path=$(echo $config | rev | cut -d"/" -f2- | rev)
+        if [ ! -f $path/kiauh_macros.cfg ]; then
+          ### copy kiauh_macros.cfg to config location
+          cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $path
+          ok_msg "$path/kiauh_macros.cfg created!"
+
+          ### write the include to the very first line of the printer.cfg
+          sed -i "1 i [include kiauh_macros.cfg]" $path/printer.cfg
+      done
+    fi
+
+    ### restart klipper service to parse the modified printer.cfg
+    klipper_service "restart"
+  fi
+}
 
 mainsail_port_check(){
   if [ "$MAINSAIL_ENABLED" = "false" ]; then
