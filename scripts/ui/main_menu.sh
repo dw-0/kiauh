@@ -7,12 +7,12 @@ main_ui(){
   echo -e "|  1) [Install]        |                                |"
   echo -e "|  2) [Update]         |     Moonraker: $MOONRAKER_STATUS|"
   echo -e "|  3) [Remove]         |                                |"
-  echo -e "|  4) [Advanced]       |          DWC2: $DWC2_STATUS|"
-  echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
-  echo -e "|                      |      Mainsail: $MAINSAIL_STATUS|"
-  echo -e "|  6) [Settings]       |     Octoprint: $OCTOPRINT_STATUS|"
-  echo -e "|                      |                                |"
-  echo -e "|  ${cyan}$KIAUH_VER${default}| KlipperScreen: $KLIPPERSCREEN_STATUS|"
+  echo -e "|  4) [Advanced]       |        Fluidd: $FLUIDD_STATUS|"
+  echo -e "|  5) [Backup]         |      Mainsail: $MAINSAIL_STATUS|"
+  echo -e "|                      | KlipperScreen: $KLIPPERSCREEN_STATUS|"
+  echo -e "|  6) [Settings]       |                                |"
+  echo -e "|                      |          DWC2: $DWC2_STATUS|"
+  echo -e "|  ${cyan}$KIAUH_VER${default}|     Octoprint: $OCTOPRINT_STATUS|"
   quit_footer
 }
 
