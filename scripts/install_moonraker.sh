@@ -218,9 +218,9 @@ create_single_moonraker_conf(){
 [server]
 host: 0.0.0.0
 port: $PORT
-klippy_uds_address: /tmp/klippy_uds
 enable_debug_logging: True
 config_path: $PRINTER_CFG_LOC
+klippy_uds_address: /tmp/klippy_uds
 
 [authorization]
 enabled: True
@@ -249,9 +249,9 @@ create_multi_moonraker_conf(){
 [server]
 host: 0.0.0.0
 port: $PORT
-klippy_uds_address: /tmp/klippy_uds-$INSTANCE
 enable_debug_logging: True
 config_path: $PRINTER_CFG_LOC/printer_$INSTANCE
+klippy_uds_address: /tmp/klippy_uds-$INSTANCE
 
 [authorization]
 enabled: True
