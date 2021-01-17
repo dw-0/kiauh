@@ -128,6 +128,7 @@ install_kiauh_macros(){
 
           ### write the include to the very first line of the printer.cfg
           sed -i "1 i [include kiauh_macros.cfg]" $path/printer.cfg
+        fi
       done
     fi
 
