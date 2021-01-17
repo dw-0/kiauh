@@ -54,6 +54,9 @@ install_mainsail(){
     ### check if another site already listens to port 80
     mainsail_port_check
 
+    ### ask user to enable the moonraker update manager
+    enable_update_manager "mainsail"
+
     ### creating the mainsail nginx cfg
     set_nginx_cfg "mainsail"
 
@@ -81,6 +84,9 @@ install_fluidd(){
 
     ### check if another site already listens to port 80
     fluidd_port_check
+
+    ### ask user to enable the moonraker update manager
+    enable_update_manager "fluidd"
 
     ### creating the fluidd nginx cfg
     set_nginx_cfg "fluidd"
@@ -265,6 +271,62 @@ fluidd_setup(){
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!" && ok_msg "Fluidd installation complete!"
   echo
+}
+
+enable_update_manager(){
+  source_kiauh_ini
+  ### ask user if he wants to enable the moonraker update manager
+  while true; do
+    echo
+    top_border
+    echo -e "| Do you want to enable the Moonraker Update Manager    | "
+    echo -e "| for the selected webinterface?                        | "
+    hr
+    echo -e "| ${yellow}Please note:${default}                                          | "
+    echo -e "| Entries for an already enabled update manager will be | "
+    echo -e "| overwritten if you decide to choose 'Yes'!            | "
+    bottom_border
+    echo
+    read -p "${cyan}###### Enable Update Manager? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        if [ $1 = "mainsail" ]; then
+          MOONRAKER_UPDATE_MANAGER="[update_manager]\nclient_repo: meteyou/mainsail\nclient_path: /home/${USER}/mainsail"
+        elif [ $1 = "fluidd" ]; then
+          MOONRAKER_UPDATE_MANAGER="[update_manager]\nclient_repo: cadriel/fluidd\nclient_path: /home/${USER}/fluidd"
+        else
+          unset MOONRAKER_UPDATE_MANAGER
+        fi
+        ### handle single moonraker install
+        if [ -f /etc/systemd/system/moonraker.service ]; then
+          ### delete existing entries
+          sed -i "/update_manager/d" $klipper_cfg_loc/moonraker.conf
+          sed -i "/client_repo/d" $klipper_cfg_loc/moonraker.conf
+          sed -i "/client_path/d" $klipper_cfg_loc/moonraker.conf
+          echo -e $MOONRAKER_UPDATE_MANAGER >> $klipper_cfg_loc/moonraker.conf
+        fi
+        ### handle multi moonraker installs
+        if ls /etc/systemd/system/moonraker-*.service 2>/dev/null 1>&2; then
+          for moonraker_conf in $(find $klipper_cfg_loc/printer_*/moonraker.conf); do
+            ### delete existing entries
+            sed -i "/update_manager/d" $moonraker_conf
+            sed -i "/client_repo/d" $moonraker_conf
+            sed -i "/client_path/d" $moonraker_conf
+            echo -e $MOONRAKER_UPDATE_MANAGER >> $moonraker_conf
+          done
+        fi
+        moonraker_service "restart"
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        unset MOONRAKER_UPDATE_MANAGER
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
 }
 
 # patch_moonraker(){
