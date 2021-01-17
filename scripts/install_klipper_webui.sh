@@ -261,12 +261,6 @@ fluidd_setup(){
   status_msg "Extracting archive ..."
   unzip -q -o *.zip && ok_msg "Done!"
 
-  ###! this will be difficult to achieve for multi instances, so i will disable those functions for now....
-  ###! will be probably easier to tell the user to simply re-install moonraker, those entries will be there then.
-  ### patch moonraker.conf to apply cors domains if needed
-  #backup_moonraker_conf
-  #patch_moonraker
-
   ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!" && ok_msg "Fluidd installation complete!"
@@ -328,38 +322,3 @@ enable_update_manager(){
     esac
   done
 }
-
-# patch_moonraker(){
-#   status_msg "Patching moonraker.conf ..."
-#   mr_conf=${HOME}/moonraker.conf
-#   # remove the now deprecated enable_cors option from moonraker.conf if it still exists
-#   if [ "$(grep "^enable_cors:" $mr_conf)" ]; then
-#     line="$(grep -n "^enable_cors:" ~/moonraker.conf | cut -d":" -f1)d"
-#     sed -i "$line" $mr_conf && mr_restart="true"
-#   fi
-#   # looking for a cors_domain entry in moonraker.conf
-#   if [ ! "$(grep "^cors_domains:$" $mr_conf)" ]; then
-#     #find trusted_clients line number and subtract one, to insert cors_domains later
-#     line="$(grep -n "^trusted_clients:$" $mr_conf | cut -d":" -f1)i"
-#     sed -i "$line cors_domains:" $mr_conf && mr_restart="true"
-#   fi
-#   if [ "$(grep "^cors_domains:$" $mr_conf)" ]; then
-#     hostname=$(hostname -I | cut -d" " -f1)
-#     url1="\ \ \ \ http://*.local"
-#     url2="\ \ \ \ http://app.fluidd.xyz"
-#     url3="\ \ \ \ https://app.fluidd.xyz"
-#     url4="\ \ \ \ http://$hostname:*"
-#     #find cors_domains line number and add one, to insert urls later
-#     line="$(expr $(grep -n "cors_domains:" $mr_conf | cut -d":" -f1) + 1)i"
-#     [ ! "$(grep -E '^\s+http:\/\/\*\.local$' $mr_conf)" ] && sed -i "$line $url1" $mr_conf && mr_restart="true"
-#     [ ! "$(grep -E '^\s+http:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url2" $mr_conf && mr_restart="true"
-#     [ ! "$(grep -E '^\s+https:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url3" $mr_conf && mr_restart="true"
-#     [ ! "$(grep -E '^\s+http:\/\/([0-9]{1,3}\.){3}[0-9]{1,3}' $mr_conf)" ] && sed -i "$line $url4" $mr_conf && mr_restart="true"
-#   fi
-#   #restart moonraker service if mr_restart was set to true
-#   if [[ $mr_restart == "true" ]]; then
-#     ok_msg "Patching done!" && restart_moonraker
-#   else
-#     ok_msg "No patching was needed!"
-#   fi
-# }
