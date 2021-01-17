@@ -214,7 +214,7 @@ create_single_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
   LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
 
-/bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker.conf" << MOONRAKERCONF
+  /bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker.conf" << MOONRAKERCONF
 [server]
 host: 0.0.0.0
 port: $PORT
@@ -228,17 +228,16 @@ api_key_file: ~/.moonraker_api_key
 trusted_clients:
     127.0.0.1
     $LOCAL_NETWORK
+    ::1/128
+    FE80::/10
 cors_domains:
+    http://*.*
     http://*.local
     http://my.mainsail.app
     https://my.mainsail.app
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
-
-[update_manager]
-#client_repo:
-#client_path:
 MOONRAKERCONF
 }
 
@@ -246,7 +245,7 @@ create_multi_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
   LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
 
-/bin/sh -c "cat > $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf" << MOONRAKERCONF
+  /bin/sh -c "cat > $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf" << MOONRAKERCONF
 [server]
 host: 0.0.0.0
 port: $PORT
@@ -260,17 +259,16 @@ api_key_file: ~/.moonraker_api_key
 trusted_clients:
     127.0.0.1
     $LOCAL_NETWORK
+    ::1/128
+    FE80::/10
 cors_domains:
+    http://*.*
     http://*.local
     http://my.mainsail.app
     https://my.mainsail.app
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
-
-[update_manager]
-#client_repo:
-#client_path:
 MOONRAKERCONF
 }
 
@@ -386,6 +384,7 @@ moonraker_conf_creation(){
     ip_list+=("$HOSTNAME:$PORT")
 
     status_msg "Creating moonraker.conf in $MOONRAKER_CONF_LOC"
+    [ ! -d $MOONRAKER_CONF_LOC ] && mkdir -p $MOONRAKER_CONF_LOC
     if [ ! -f $MOONRAKER_CONF_LOC/moonraker.conf ]; then
       create_single_moonraker_conf && ok_msg "moonraker.conf created!"
     else
@@ -404,6 +403,7 @@ moonraker_conf_creation(){
 
       ### start the creation of each instance
       status_msg "Creating moonraker.conf for instance #$INSTANCE"
+      [ ! -d $MOONRAKER_CONF_LOC/printer_$INSTANCE ] && mkdir -p $MOONRAKER_CONF_LOC/printer_$INSTANCE
       if [ ! -f $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf ]; then
         create_multi_moonraker_conf && ok_msg "moonraker.conf created!"
       else
