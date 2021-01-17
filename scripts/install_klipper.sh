@@ -114,6 +114,8 @@ MULTI_STARTSCRIPT
 
 create_minimal_printer_cfg(){
 /bin/sh -c "cat > $1" << MINIMAL_CFG
+[include kiauh_macros.cfg]
+
 [mcu]
 serial: /dev/serial/by-id/
 pin_map: arduino
@@ -174,7 +176,13 @@ create_single_klipper_instance(){
   status_msg "Creating single Klipper instance ..."
   status_msg "Installing system start script ..."
   create_single_klipper_startscript
+
+  ### create printer config directory if missing
+  [ ! -d $PRINTER_CFG_LOC ] && mkdir -p $PRINTER_CFG_LOC
+
+  ### create basic configs if missing
   [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
+  [ ! -f $PRINTER_CFG_LOC/kiauh_macros.cfg ] && cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $PRINTER_CFG_LOC/kiauh_macros.cfg
 
   ### enable instance
   sudo systemctl enable klipper.service
@@ -198,13 +206,16 @@ create_multi_klipper_instance(){
     TMP_PRINTER=/tmp/printer-$INSTANCE
     PRINTER_CFG="$PRINTER_CFG_LOC/printer_$INSTANCE/printer.cfg"
 
-    ### create printer config folder and write a minimal printer.cfg to it
-    [ ! -d $PRINTER_CFG_LOC/printer_$INSTANCE ] && mkdir -p $PRINTER_CFG_LOC/printer_$INSTANCE
-    [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
-
     ### create instance
     status_msg "Creating instance #$INSTANCE ..."
     create_multi_klipper_startscript
+
+    ### create printer config directory if missing
+    [ ! -d $PRINTER_CFG_LOC/printer_$INSTANCE ] && mkdir -p $PRINTER_CFG_LOC/printer_$INSTANCE
+
+    ### create basic configs if missing
+    [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
+    [ ! -f $PRINTER_CFG_LOC/printer_$INSTANCE/kiauh_macros.cfg ] && cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $PRINTER_CFG_LOC/printer_$INSTANCE/kiauh_macros.cfg
 
     ### enable instance
     sudo systemctl enable klipper-$INSTANCE.service
