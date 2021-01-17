@@ -1,6 +1,7 @@
 install_klipperscreen(){
   python3_check
   if [ $py_chk_ok = "true" ]; then
+    source_kiauh_ini
     system_check_klipperscreen
     #ask user for customization
     get_user_selections_klipperscreen
@@ -29,7 +30,7 @@ python3_check(){
 }
 
 system_check_klipperscreen(){
-  [ ! -e ${HOME}/klipper_config/KlipperScreen.log ] && KLIPPERSCREEN_SL_FOUND="false"
+  [ ! -e $klipper_cfg_loc/KlipperScreen.log ] && KLIPPERSCREEN_SL_FOUND="false"
 }
 
 get_user_selections_klipperscreen(){
@@ -71,9 +72,9 @@ klipperscreen_setup(){
 
 symlinks_klipperscreen(){
   #create a KlipperScreen.log symlink in klipper_config-dir just for convenience
-  if [ "$SEL_KSLOG_SL" = "true" ] && [ ! -e ${HOME}/klipper_config/KlipperScreen.log ]; then
+  if [ "$SEL_KSLOG_SL" = "true" ] && [ ! -e $klipper_cfg_loc/KlipperScreen.log ]; then
     status_msg "Creating KlipperScreen.log symlink ..."
-    ln -s /tmp/KlipperScreen.log ${HOME}/klipper_config
+    ln -s /tmp/KlipperScreen.log $klipper_cfg_loc
     ok_msg "Symlink created!"
   fi
 }
