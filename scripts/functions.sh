@@ -355,19 +355,41 @@ setup_gcode_shell_command(){
 
 install_gcode_shell_command(){
   klipper_service "stop"
-  status_msg "Copy 'gcode_shell_command.py' to $KLIKLIPPER_DIRPPER/klippy/extras"
-  cp ${HOME}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
+  status_msg "Copy 'gcode_shell_command.py' to $KLIPPER_DIR/klippy/extras"
+  cp ${SRCDIR}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
   echo
   while true; do
     read -p "${cyan}###### Do you want to create the example shell command? (Y/n):${default} " yn
     case "$yn" in
       Y|y|Yes|yes|"")
-        ADD_SHELL_CMD_MACRO="true"
-        status_msg "Creating example macro ..."
-        locate_printer_cfg
-        read_printer_cfg "gcode_shell_command"
-        write_printer_cfg
-        ok_msg "Example macro created!"
+        status_msg "Copy shell_command.cfg ..."
+        ### create a backup of the config folder
+        backup_klipper_config_dir
+
+        ### handle single printer.cfg
+        if [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/shell_command.cfg ]; then
+          ### copy shell_command.cfg to config location
+          cp ${SRCDIR}/kiauh/resources/shell_command.cfg $klipper_cfg_loc
+          ok_msg "$klipper_cfg_loc/shell_command.cfg created!"
+
+          ### write the include to the very first line of the printer.cfg
+          sed -i "1 i [include shell_command.cfg]" $klipper_cfg_loc/printer.cfg
+        fi
+
+        ### handle multi printer.cfg
+        if ls $klipper_cfg_loc/printer_*  2>/dev/null 1>&2; then
+          for config in $(find $klipper_cfg_loc/printer_*/printer.cfg); do
+            path=$(echo $config | rev | cut -d"/" -f2- | rev)
+            if [ ! -f $path/shell_command.cfg ]; then
+              ### copy shell_command.cfg to config location
+              cp ${SRCDIR}/kiauh/resources/shell_command.cfg $path
+              ok_msg "$path/shell_command.cfg created!"
+
+              ### write the include to the very first line of the printer.cfg
+              sed -i "1 i [include shell_command.cfg]" $path/printer.cfg
+            fi
+          done
+        fi
         break;;
       N|n|No|no)
         break;;
@@ -432,22 +454,6 @@ write_printer_cfg(){
   fi
   if [ "$DISPLAY_STATUS" = "false" ] && [[ ! $(grep '^\[display_status]$' $KIAUH_CFG) ]]; then
     echo -e "\n[display_status]" >> $KIAUH_CFG
-  fi
-  #Klipper webui related config options
-  if [ "$WEBUI_MACROS" = "false" ] && [ "$ADD_WEBUI_MACROS" = "true" ] && [[ ! $(grep '^\[include webui_macros.cfg]$' $KIAUH_CFG) ]]; then
-    echo -e "\n[include webui_macros.cfg]" >> $KIAUH_CFG
-  fi
-  #G-Code Shell Command extension related config options
-  if [ "$ADD_SHELL_CMD_MACRO" = "true" ] && [[ ! $(grep '^\[gcode_shell_command hello_world]$' $KIAUH_CFG) ]]; then
-		cat <<-EOF >> $KIAUH_CFG
-		[gcode_shell_command hello_world]
-		command: echo hello world
-		timeout: 2.
-		verbose: True
-		[gcode_macro HELLO_WORLD]
-		gcode:
-		    RUN_SHELL_COMMAND CMD=hello_world
-EOF
   fi
   #including the kiauh.cfg into printer.cfg if not already done
   if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ] && [ "$EDIT_CFG" = "true" ]; then
