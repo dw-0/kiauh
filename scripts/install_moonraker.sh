@@ -37,7 +37,6 @@ system_check_moonraker(){
 
 }
 
-### check the users linux system
 moonraker_setup_dialog(){
   status_msg "Initializing Moonraker installation ..."
 
@@ -276,9 +275,9 @@ MOONRAKERCONF
 #********************************************************************************************#
 ##############################################################################################
 
-print_ip_list(){
+print_mr_ip_list(){
   i=1
-  for ip in ${ip_list[@]}; do
+  for ip in ${mr_ip_list[@]}; do
     echo -e "       ${cyan}● Instance $i:${default} $ip"
     i=$((i + 1))
   done
@@ -309,7 +308,7 @@ create_single_moonraker_instance(){
   print_msg && clear_msg
 
   ### display moonraker ip to the user
-  print_ip_list; echo
+  print_mr_ip_list; echo
 }
 
 create_multi_moonraker_instance(){
@@ -340,7 +339,7 @@ create_multi_moonraker_instance(){
   print_msg && clear_msg
 
   ### display all moonraker ips to the user
-  print_ip_list; echo
+  print_mr_ip_list; echo
 }
 
 setup_moonraker_nginx_cfg(){
@@ -373,7 +372,7 @@ moonraker_conf_creation(){
 
   ### declare empty array for ips which get displayed to the user at the end of the setup
   HOSTNAME=$(hostname -I | cut -d" " -f1)
-  ip_list=()
+  mr_ip_list=()
 
   ### create single instance moonraker.conf file
   if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
@@ -381,7 +380,7 @@ moonraker_conf_creation(){
     PORT=$DEFAULT_PORT
 
     ### write the ip and port to the ip list for displaying it later to the user
-    ip_list+=("$HOSTNAME:$PORT")
+    mr_ip_list+=("$HOSTNAME:$PORT")
 
     status_msg "Creating moonraker.conf in $MOONRAKER_CONF_LOC"
     [ ! -d $MOONRAKER_CONF_LOC ] && mkdir -p $MOONRAKER_CONF_LOC
@@ -399,7 +398,7 @@ moonraker_conf_creation(){
       PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
 
       ### write the ip and port to the ip list for displaying it later to the user
-      ip_list+=("$HOSTNAME:$PORT")
+      mr_ip_list+=("$HOSTNAME:$PORT")
 
       ### start the creation of each instance
       status_msg "Creating moonraker.conf for instance #$INSTANCE"
