@@ -156,11 +156,21 @@ fluidd_status(){
 octoprint_status(){
   ocount=0
   octoprint_data=(
+    SERVICE
     $OCTOPRINT_DIR
-    $OCTOPRINT_CFG_DIR
-    $OCTOPRINT_SERVICE1
-    $OCTOPRINT_SERVICE2
   )
+  #remove the "SERVICE" entry from the octoprint array if an octoprint service is installed
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "octoprint.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "octoprint-[[:digit:]].service")" ]; then
+    unset octoprint_data[0]
+  fi
+
+  ### count amount of octoprint services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "octoprint.service")" ]; then
+    instances=1
+  else
+    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "octoprint-[[:digit:]].service" | wc -l)
+  fi
+
   #count+1 for each found data-item from array
   for op in "${octoprint_data[@]}"
   do
@@ -168,8 +178,10 @@ octoprint_status(){
       ocount=$(expr $ocount + 1)
     fi
   done
+
+  ### display status
   if [ "$ocount" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="${green}Installed!${default}      "
+    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
   elif [ "$ocount" == 0 ]; then
     OCTOPRINT_STATUS="${red}Not installed!${default}  "
   else
