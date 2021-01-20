@@ -116,7 +116,6 @@ create_minimal_printer_cfg(){
 /bin/sh -c "cat > $1" << MINIMAL_CFG
 [mcu]
 serial: /dev/serial/by-id/
-pin_map: arduino
 
 [pause_resume]
 [display_status]
