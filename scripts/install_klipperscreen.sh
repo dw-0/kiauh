@@ -29,7 +29,11 @@ python3_check(){
 }
 
 system_check_klipperscreen(){
-  [ ! -e ${HOME}/klipper_config/KlipperScreen.log ] && KLIPPERSCREEN_SL_FOUND="false"
+  if [ ! -e ${HOME}/klipper_config/KlipperScreen.log ]; then
+    KLIPPERSCREEN_SL_FOUND="false"
+  else
+    KLIPPERSCREEN_SL_FOUND="true"
+  fi
 }
 
 get_user_selections_klipperscreen(){
