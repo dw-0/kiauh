@@ -24,8 +24,10 @@ backup_klipper_config_dir(){
     status_msg "Create backup of the Klipper config directory ..."
     config_folder_name="$(echo "$klipper_cfg_loc" | rev | cut -d"/" -f1 | rev)"
     cp -r "$klipper_cfg_loc" "$BACKUP_DIR/$config_folder_name.$current_date.backup" && ok_msg "Backup complete!"
+    echo
   else
     ok_msg "No config directory found! Skipping backup ..."
+    echo
   fi
 }
 
