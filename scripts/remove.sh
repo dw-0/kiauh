@@ -40,6 +40,7 @@ remove_klipper(){
       ok_msg "Done!"
     done
   fi
+
   ###remove multi instance logfiles
   if [ "$(find /tmp -maxdepth 1 -name "klippy-*.log")" ]; then
     for logfile in $(find /tmp -maxdepth 1 -name "klippy-*.log")
@@ -47,6 +48,7 @@ remove_klipper(){
       status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
     done
   fi
+
   ###remove multi instance UDS
   if [ "$(find /tmp -maxdepth 1 -name "klippy_uds-*")" ]; then
     for uds in $(find /tmp -maxdepth 1 -name "klippy_uds-*")
@@ -54,6 +56,7 @@ remove_klipper(){
       status_msg "Removing $uds ..." && rm -f $uds && ok_msg "Done!"
     done
   fi
+
   ###remove multi instance tmp-printer
   if [ "$(find /tmp -maxdepth 1 -name "printer-*")" ]; then
     for tmp_printer in $(find /tmp -maxdepth 1 -name "printer-*")
@@ -271,47 +274,43 @@ remove_fluidd(){
 #############################################################
 
 remove_octoprint(){
-  data_arr=(
-  $OCTOPRINT_SERVICE1
-  $OCTOPRINT_SERVICE2
-  $OCTOPRINT_DIR
-  $OCTOPRINT_CFG_DIR
-  ${HOME}/octoprint.log
-  /etc/sudoers.d/octoprint-shutdown
-  /etc/nginx/sites-available/octoprint
-  /etc/nginx/sites-enabled/octoprint
-  )
-  print_error "OctoPrint" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    stop_octoprint
-    if [[ -e $OCTOPRINT_SERVICE1 || -e $OCTOPRINT_SERVICE2 ]]; then
-      status_msg "Removing OctoPrint Service ..."
-      sudo update-rc.d -f octoprint remove
-      sudo rm -rf $OCTOPRINT_SERVICE1 $OCTOPRINT_SERVICE2 && ok_msg "OctoPrint Service removed!"
-    fi
-    if [[ -d $OCTOPRINT_DIR || -d $OCTOPRINT_CFG_DIR ]]; then
-      status_msg "Removing OctoPrint and .octoprint directory ..."
-      rm -rf $OCTOPRINT_DIR $OCTOPRINT_CFG_DIR && ok_msg "Directories removed!"
-    fi
-    if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
-      sudo rm -rf /etc/sudoers.d/octoprint-shutdown
-    fi
-    if [ -L ${HOME}/octoprint.log ]; then
-      status_msg "Removing octoprint.log Symlink ..."
-      rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
-    fi
-    #remove octoprint config for nginx
-    if [ -e /etc/nginx/sites-available/octoprint ]; then
-      status_msg "Removing OctoPrint configuration for Nginx ..."
-      sudo rm /etc/nginx/sites-available/octoprint && ok_msg "File removed!"
-    fi
-    #remove octoprint symlink for nginx
-    if [ -L /etc/nginx/sites-enabled/octoprint ]; then
-      status_msg "Removing OctoPrint Symlink for Nginx ..."
-      sudo rm /etc/nginx/sites-enabled/octoprint && ok_msg "File removed!"
-    fi
-    CONFIRM_MSG=" OctoPrint successfully removed!"
+  ###remove single instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "octoprint.service")" ]; then
+    status_msg "Removing OctoPrint Service ..."
+    sudo systemctl stop octoprint
+    sudo systemctl disable octoprint
+    sudo rm -f $SYSTEMDDIR/octoprint.service
+    ok_msg "OctoPrint Service removed!"
   fi
+
+  ###remove multi instance services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "octoprint-[[:digit:]].service")" ]; then
+    status_msg "Removing OctoPrint Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "octoprint-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "OctoPrint Service removed!"
+    done
+  fi
+
+  ###reloading units
+  sudo systemctl daemon-reload
+
+  ### remove .octoprint directories
+  if [ -d ${HOME}/OctoPrint ] || [ -d ${HOME}/.octoprint* ]; then
+    status_msg "Removing OctoPrint and .octoprint directory ..."
+    rm -rf ${HOME}/OctoPrint ${HOME}/.octoprint* && ok_msg "Directories removed!"
+  fi
+
+  ### remove sudoers file
+  if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
+    sudo rm -rf /etc/sudoers.d/octoprint-shutdown
+  fi
+
+  CONFIRM_MSG=" OctoPrint successfully removed!"
 }
 
 #############################################################

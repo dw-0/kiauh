@@ -35,9 +35,6 @@ DWC_ENV_DIR=${HOME}/dwc-env
 DWC2_DIR=${HOME}/sdcard/web
 #octoprint
 OCTOPRINT_DIR=${HOME}/OctoPrint
-OCTOPRINT_CFG_DIR=${HOME}/.octoprint
-OCTOPRINT_SERVICE1=/etc/init.d/octoprint
-OCTOPRINT_SERVICE2=/etc/default/octoprint
 #KlipperScreen
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
