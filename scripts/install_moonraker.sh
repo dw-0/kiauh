@@ -114,7 +114,7 @@ moonraker_setup(){
   ### force remove existing moonraker dir and clone into fresh moonraker dir
   [ -d $MOONRAKER_DIR ] && rm -rf $MOONRAKER_DIR
   cd ${HOME} && git clone $MOONRAKER_REPO
-  status_msg "Download complete!"
+  ok_msg "Download complete!"
 
   ### step 2: install moonraker dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
@@ -182,7 +182,7 @@ After=network.target
 WantedBy=multi-user.target
 [Service]
 Type=simple
-User=$USER
+User=${USER}
 RemainAfterExit=yes
 ExecStart=${MOONRAKER_ENV}/bin/python ${MOONRAKER_DIR}/moonraker/moonraker.py -l ${MOONRAKER_LOG} -c ${MOONRAKER_CONF}
 Restart=always
@@ -201,7 +201,7 @@ After=network.target
 WantedBy=multi-user.target
 [Service]
 Type=simple
-User=$USER
+User=${USER}
 RemainAfterExit=yes
 ExecStart=${MOONRAKER_ENV}/bin/python ${MOONRAKER_DIR}/moonraker/moonraker.py -l ${MOONRAKER_LOG} -c ${MOONRAKER_CONF}
 Restart=always
@@ -292,7 +292,6 @@ create_single_moonraker_instance(){
 
   ### create instance
   status_msg "Creating single Moonraker instance ..."
-  status_msg "Installing system start script ..."
   create_single_moonraker_startscript
 
   ### enable instance
