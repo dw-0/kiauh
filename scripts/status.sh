@@ -50,10 +50,16 @@ klipper_status(){
 dwc2_status(){
   dcount=0
   dwc2_data=(
+    SERVICE
+    $DWC2_DIR
     $DWC2FK_DIR
     $DWC_ENV_DIR
-    $DWC2_DIR
   )
+  ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "dwc.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc-[[:digit:]].service")" ]; then
+    unset dwc2_data[0]
+  fi
+
   #count+1 for each found data-item from array
   for dd in "${dwc2_data[@]}"
   do
@@ -61,8 +67,16 @@ dwc2_status(){
       dcount=$(expr $dcount + 1)
     fi
   done
+
+  ### count amount of klipper services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    instances=1
+  else
+    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+  fi
+
   if [ "$dcount" == "${#dwc2_data[*]}" ]; then
-    DWC2_STATUS="${green}Installed!${default}      "
+    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
   elif [ "$dcount" == 0 ]; then
     DWC2_STATUS="${red}Not installed!${default}  "
   else

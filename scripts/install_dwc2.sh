@@ -239,15 +239,15 @@ create_single_dwcfk_cfg(){
 /bin/sh -c "cat > $DWC_CONF_LOC/dwc2.cfg" << DWCCFG
 [webserver]
 listen_adress: 0.0.0.0
-web_root: ~/duetwebcontrol
+web_root: ${HOME}/duetwebcontrol
 port: ${PORT}
 
 [reply_filters]
 regex:
-	max_accel: \d+.\d+
-	max_accel_to_decel: \d+.\d+
-	square_corner_velocity: \d+.\d+
-	max_velocity: \d+.\d+
+    max_accel: \d+.\d+
+    max_accel_to_decel: \d+.\d+
+    square_corner_velocity: \d+.\d+
+    max_velocity: \d+.\d+
 DWCCFG
 }
 
@@ -256,15 +256,15 @@ create_multi_dwcfk_cfg(){
 /bin/sh -c "cat > $DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg" << DWCCFG
 [webserver]
 listen_adress: 0.0.0.0
-web_root: ~/duetwebcontrol
+web_root: ${HOME}/duetwebcontrol
 port: ${PORT}
 
 [reply_filters]
 regex:
-	max_accel: \d+.\d+
-	max_accel_to_decel: \d+.\d+
-	square_corner_velocity: \d+.\d+
-	max_velocity: \d+.\d+
+    max_accel: \d+.\d+
+    max_accel_to_decel: \d+.\d+
+    square_corner_velocity: \d+.\d+
+    max_velocity: \d+.\d+
 DWCCFG
 }
 

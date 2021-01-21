@@ -32,7 +32,6 @@ FLUIDD_DIR=${HOME}/fluidd
 #dwc2
 DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
 DWC_ENV_DIR=${HOME}/dwc-env
-#DWC2_DIR=${HOME}/sdcard/web
 DWC2_DIR=${HOME}/duetwebcontrol
 #octoprint
 OCTOPRINT_DIR=${HOME}/OctoPrint
