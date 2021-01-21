@@ -400,10 +400,9 @@ compare_moonraker_versions(){
 
 read_local_mainsail_version(){
   unset MAINSAIL_VER_FOUND
-  MAINSAIL_APP_FILE=$(find $MAINSAIL_DIR/js -name "app.*.js" 2>/dev/null)
-  if [ ! -z $MAINSAIL_APP_FILE ]; then
-    MAINSAIL_LOCAL_VER=$(grep -o -E 'state:{packageVersion:.+' $MAINSAIL_APP_FILE | cut -d'"' -f2)
+  if [ -e $MAINSAIL_DIR/.version ]; then
     MAINSAIL_VER_FOUND="true"
+    MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/.version)
   else
     MAINSAIL_VER_FOUND="false" && unset MAINSAIL_LOCAL_VER
   fi
@@ -440,10 +439,9 @@ compare_mainsail_versions(){
 
 read_local_fluidd_version(){
   unset FLUIDD_VER_FOUND
-  FLUIDD_APP_FILE=$(find $FLUIDD_DIR/js -name "app.*.js" 2>/dev/null)
-  if [ ! -z $FLUIDD_APP_FILE ]; then
-    FLUIDD_LOCAL_VER=$(grep -o -E '"version/setVersion",".+"' $FLUIDD_APP_FILE | cut -d'"' -f4)
+  if [ -e $FLUIDD_DIR/.version ]; then
     FLUIDD_VER_FOUND="true"
+    FLUIDD_LOCAL_VER=$(head -n 1 $FLUIDD_DIR/.version)
   else
     FLUIDD_VER_FOUND="false" && unset FLUIDD_LOCAL_VER
   fi
