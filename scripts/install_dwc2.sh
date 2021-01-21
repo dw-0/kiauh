@@ -1,124 +1,99 @@
-install_dwc2(){
-  if [ -d $KLIPPER_DIR ]; then
-    system_check_dwc2
-    #check for other enabled web interfaces
-    unset SET_LISTEN_PORT
-    detect_enabled_sites
-    #ask user for customization
-    get_user_selections_dwc2
-    #dwc2 main installation
-    klipper_service "stop"
-    dwc2_setup
-    #setup config
-    setup_printer_config_dwc2
-    #execute customizations
-    disable_octoprint
-    set_nginx_cfg "dwc2"
-    set_hostname
-    #after install actions
-    klipper_service "restart"
-  else
-    ERROR_MSG=" Please install Klipper first!\n Skipping..."
-  fi
-}
+##############################################################################################
+#********************************************************************************************#
+##############################################################################################
+
+### base variables
+SYSTEMDDIR="/etc/systemd/system"
+DWC_ENV="${HOME}/dwc-env"
+DWC2_DIR="${HOME}/sdcard/web"
 
 system_check_dwc2(){
-  status_msg "Initializing DWC2 installation ..."
-  #check for existing printer.cfg
-  locate_printer_cfg
-  if [ -f $PRINTER_CFG ]; then
-    PRINTER_CFG_FOUND="true"
-  else
-    PRINTER_CFG_FOUND="false"
-  fi
-  #check if octoprint is installed
+  ### check system for an installed octoprint service
   if systemctl is-enabled octoprint.service -q 2>/dev/null; then
     OCTOPRINT_ENABLED="true"
   fi
 }
 
-get_user_selections_dwc2(){
-  #let user choose to install systemd or init.d service
+dwc_setup_dialog(){
+  status_msg "Initializing DWC2 installation ..."
+
+  ### check system for several requirements before initializing the dwc2 installation
+  system_check_dwc2
+
+  ### check for existing klipper service installations
+  if [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+    ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
+  fi
+
+  ### count amount of klipper services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    INSTANCE_COUNT=1
+  else
+    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+  fi
+
+  ### initial config path check
+  check_klipper_cfg_path
+
+  ### ask user how to handle OctoPrint, Haproxy and Lighttpd
+  process_octoprint_dialog_dwc2
+  process_haproxy_lighttpd_dialog
+
+  ### instance confirmation dialog
   while true; do
-    echo
-    top_border
-    echo -e "| Do you want to install dwc2-for-klipper-socket as     |"
-    echo -e "| 1) Init.d Service (default)                           |"
-    echo -e "| 2) Systemd Service                                    |"
-    hr
-    echo -e "| Please use the appropriate option for your chosen     |"
-    echo -e "| Linux distribution. If you are unsure what to select, |"
-    echo -e "| please do a research before.                          |"
-    hr
-    echo -e "| If you run Raspberry Pi OS, both options will work.   |"
-    bottom_border
-    read -p "${cyan}###### Please choose:${default} " action
-    case "$action" in
-      1|"")
-        echo -e "###### > 1) Init.d"
-        INST_DWC2_INITD="true"
-        INST_DWC2_SYSTEMD="false"
-        break;;
-      2)
-        echo -e "###### > 1) Systemd"
-        INST_DWC2_INITD="false"
-        INST_DWC2_SYSTEMD="true"
-        break;;
-      *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
-    esac
-  done
-  #user selection for printer.cfg
-  if [ "$PRINTER_CFG_FOUND" = "false" ]; then
-    while true; do
       echo
       top_border
-      echo -e "|         ${red}WARNING! - No printer.cfg was found!${default}          |"
-      hr
-      echo -e "|  KIAUH can create a minimal printer.cfg with only the |"
-      echo -e "|  necessary config entries if you wish.                |"
-      echo -e "|                                                       |"
-      echo -e "|  Please be aware, that this option will ${red}NOT${default} create a  |"
-      echo -e "|  fully working printer.cfg for you!                   |"
+      if [ $INSTANCE_COUNT -gt 1 ]; then
+        printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
+      else
+        echo -e "| 1 Klipper instance was found!                         | "
+      fi
+      echo -e "| You need one DWC instance per Klipper instance.       | "
       bottom_border
-      read -p "${cyan}###### Create a default printer.cfg? (Y/n):${default} " yn
+      echo
+      read -p "${cyan}###### Create $INSTANCE_COUNT DWC instances? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          SEL_DEF_CFG="true"
+          status_msg "Creating $INSTANCE_COUNT DWC instances ..."
+          dwc_setup
           break;;
         N|n|No|no)
           echo -e "###### > No"
-          SEL_DEF_CFG="false"
+          warn_msg "Exiting DWC setup ..."
+          echo
           break;;
         *)
           print_unkown_cmd
           print_msg && clear_msg;;
-      esac
-    done
-  fi
-  #ask user to install reverse proxy
-  dwc2_reverse_proxy_dialog
-  #ask to change hostname
-  [ "$SET_NGINX_CFG" = "true" ] && create_custom_hostname
-  #ask user to disable octoprint when such installed service was found
+    esac
+  done
+}
+
+###TODO for future: should be some kind of shared function between moonraker and this installer, since it does the same
+process_octoprint_dialog_dwc2(){
+  ### ask user to disable octoprint when its service was found
   if [ "$OCTOPRINT_ENABLED" = "true" ]; then
     while true; do
       echo
-      warn_msg "OctoPrint service found!"
-      echo -e "You might consider disabling the OctoPrint service,"
-      echo -e "since an active OctoPrint service may lead to unexpected"
-      echo -e "behavior of the DWC2 Webinterface."
+      top_border
+      echo -e "|       ${red}!!! WARNING - OctoPrint service found !!!${default}       |"
+      hr
+      echo -e "|  You might consider disabling the OctoPrint service,  |"
+      echo -e "|  since an active OctoPrint service may lead to unex-  |"
+      echo -e "|  pected behavior of Duet Web Control for Klipper.     |"
+      bottom_border
       read -p "${cyan}###### Do you want to disable OctoPrint now? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          DISABLE_OPRINT="true"
+          status_msg "Stopping OctoPrint ..."
+          sudo systemctl stop octoprint && ok_msg "OctoPrint service stopped!"
+          status_msg "Disabling OctoPrint ..."
+          sudo systemctl disable octoprint && ok_msg "OctoPrint service disabled!"
           break;;
         N|n|No|no)
           echo -e "###### > No"
-          DISABLE_OPRINT="false"
           break;;
         *)
           print_unkown_cmd
@@ -132,36 +107,39 @@ get_user_selections_dwc2(){
 #############################################################
 #############################################################
 
-get_dwc2_ver(){
+get_dwc_ver(){
   DWC2_VERSION=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep tag_name | cut -d'"' -f4)
 }
 
-dwc2_setup(){
-  #check dependencies
+dwc_setup(){
+  ### check dependencies
   dep=(git wget gzip tar curl)
   dependency_check
-  #get dwc2-for-klipper
-  status_msg "Cloning DWC2-for-Klipper-Socket repository ..."
+
+  ### step 1: get dwc2-for-klipper
+  status_msg "Downloading DWC2-for-Klipper-Socket ..."
   cd ${HOME} && git clone $DWC2FK_REPO
-  ok_msg "DWC2-for-Klipper successfully cloned!"
-  #copy installers from kiauh srcdir to dwc-for-klipper-socket
-  status_msg "Copy installers to $DWC2FK_DIR"
-  cp -r ${SRCDIR}/kiauh/scripts/dwc2-for-klipper-socket-installer $DWC2FK_DIR/scripts
-  ok_msg "Done!"
-  status_msg "Starting service-installer ..."
-  if [ "$INST_DWC2_INITD" = "true" ]; then
-    $DWC2FK_DIR/scripts/install-octopi.sh
-  elif [ "$INST_DWC2_SYSTEMD" = "true" ]; then
-    $DWC2FK_DIR/scripts/install-debian.sh
+  ok_msg "Download complete!"
+
+  ### step 2: install dwc2 dependencies and create python virtualenv
+  status_msg "Installing dependencies ..."
+  install_dwc_packages
+  create_dwc_virtualenv
+
+  ### step 3: download Duet Web Control
+  download_dwc_webui
+
+  ### step 4: create dwc instances
+  INSTANCE=1
+  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+    create_single_dwc_instance
+  else
+    #create_multi_dwc_instance
+    warn_msg "Sorry, at the moment only single instance installations are supported!"
   fi
-  ok_msg "Service installed!"
-  #patch /etc/default/klipper to append the uds argument
-  patch_klipper_sysfile "dwc2"
-  #download Duet Web Control
-  download_dwc2_webui
 }
 
-download_dwc2_webui(){
+download_dwc_webui(){
   #get Duet Web Control
   GET_DWC2_URL=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4)
   status_msg "Downloading DWC2 Web UI ..."
@@ -176,7 +154,7 @@ download_dwc2_webui(){
   done
   ok_msg "Done!"
   status_msg "Writing DWC version to file ..."
-  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/version
+  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/.version
   ok_msg "Done!"
   status_msg "Do a little cleanup ..."
   rm -rf DuetWebControl-SD.zip
@@ -184,95 +162,109 @@ download_dwc2_webui(){
   ok_msg "DWC2 Web UI installed!"
 }
 
-#############################################################
-#############################################################
+##############################################################################################
+#********************************************************************************************#
+##############################################################################################
 
-setup_printer_config_dwc2(){
-  if [ "$PRINTER_CFG_FOUND" = "true" ]; then
-    #check printer.cfg for necessary dwc2 entries
-    read_printer_cfg "dwc2" && write_printer_cfg
-  fi
-  if [ "$SEL_DEF_CFG" = "true" ]; then
-    status_msg "Creating minimal default printer.cfg ..."
-    create_minimal_cfg
-    ok_msg "printer.cfg location: '$PRINTER_CFG'"
-    ok_msg "Done!"
-  fi
+install_dwc_packages()
+{
+    PKGLIST="python3-virtualenv python3-dev python3-tornado"
+
+    # Update system package info
+    status_msg "Running apt-get update..."
+    sudo apt-get update
+
+    # Install desired packages
+    status_msg "Installing packages..."
+    sudo apt-get install --yes ${PKGLIST}
 }
 
-#############################################################
-#############################################################
+create_dwc_virtualenv()
+{
+    status_msg "Installing python virtual environment..."
 
-dwc2_reverse_proxy_dialog(){
-  echo
-  top_border
-  echo -e "|  If you want to have a nicer URL or simply need/want  | "
-  echo -e "|  DWC2 to run on port 80 (http's default port) you     | "
-  echo -e "|  can set up a reverse proxy to run DWC2 on port 80.   | "
-  bottom_border
-  while true; do
-    read -p "${cyan}###### Do you want to set up a reverse proxy now? (y/N):${default} " yn
-    case "$yn" in
-      Y|y|Yes|yes)
-        dwc2_port_check
-        break;;
-      N|n|No|no|"")
-        break;;
-      *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
-    esac
+    # Create virtualenv if it doesn't already exist
+    [ ! -d ${DWC_ENV} ] && virtualenv -p /usr/bin/python3 ${DWC_ENV}
+
+    # Install/update dependencies
+    ${DWC_ENV}/bin/pip install tornado==6.0.4
+}
+
+create_single_dwc_startscript(){
+### create systemd service file
+sudo /bin/sh -c "cat > ${SYSTEMDDIR}/dwc.service" << DWC
+#Systemd service file for DWC
+[Unit]
+Description=dwc_webif
+After=network.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+Type=simple
+User=${USER}
+RemainAfterExit=yes
+ExecStart=${DWC_ENV}/bin/python3 ${DWC2FK_DIR}/web_dwc2.py
+Restart=always
+RestartSec=10
+DWC
+}
+
+create_multi_dwc_startscript(){
+  ###! atm not possible due to hardcoded log and config files used by dwc2-for-klipper-socket!
+  ###! either needs a PR to read start-arguments passed over by the service file or
+  ###! every instance needs its own copy of dwc2-for-klipper-socket with a modifief web_dwc2.py
+  ###! on line 223, 228 and probably 217 as well
+}
+
+##############################################################################################
+#********************************************************************************************#
+##############################################################################################
+
+print_dwc_ip_list(){
+  i=1
+  for ip in ${dwc_ip_list[@]}; do
+    echo -e "       ${cyan}● Instance $i:${default} $ip"
+    i=$((i + 1))
   done
 }
 
-dwc2_port_check(){
-  if [ "$DWC2_ENABLED" = "false" ]; then
-    if [ "$SITE_ENABLED" = "true" ]; then
-      status_msg "Detected other enabled interfaces:"
-      [ "$OCTOPRINT_ENABLED" = "true" ] && echo "   ${cyan}● OctoPrint - Port:$OCTOPRINT_PORT${default}"
-      [ "$MAINSAIL_ENABLED" = "true" ] && echo "   ${cyan}● Mainsail - Port:$MAINSAIL_PORT${default}"
-      [ "$FLUIDD_ENABLED" = "true" ] && echo "   ${cyan}● Fluidd - Port:$FLUIDD_PORT${default}"
-      if [ "$MAINSAIL_PORT" = "80" ] || [ "$OCTOPRINT_PORT" = "80" ] || [ "$FLUIDD_PORT" = "80" ]; then
-        PORT_80_BLOCKED="true"
-        select_dwc2_port
-      fi
-    else
-      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/dwc2_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
-      SET_LISTEN_PORT=$DEFAULT_PORT
-    fi
-    SET_NGINX_CFG="true"
-  else
-    SET_NGINX_CFG="false"
-  fi
+create_single_dwc_instance(){
+  status_msg "Setting up 1 Duet Web Control instance ..."
+
+  ### single instance variables
+  PORT=4750
+  DWC_LOG=/tmp/dwc.log
+
+  ### declare empty array for ips which get displayed to the user at the end of the setup
+  HOSTNAME=$(hostname -I | cut -d" " -f1)
+  dwc_ip_list=()
+
+  ### create instance
+  status_msg "Creating single DWC instance ..."
+  create_single_dwc_startscript
+
+  ### write the ip and port to the ip list for displaying it later to the user
+  dwc_ip_list+=("$HOSTNAME:$PORT")
+
+  ### enable instance
+  sudo systemctl enable dwc.service
+  ok_msg "Single DWC instance created!"
+
+  ### launching instance
+  status_msg "Launching DWC instance ..."
+  sudo systemctl start dwc
+
+  ### confirm message
+  CONFIRM_MSG="Single DWC instance has been set up!"
+  print_msg && clear_msg
+
+  ### display moonraker ip to the user
+  print_dwc_ip_list; echo
 }
 
-select_dwc2_port(){
-  if [ "$PORT_80_BLOCKED" = "true" ]; then
-    echo
-    top_border
-    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
-    echo -e "| ${red}You need to choose a different port for DWC2!${default}         |"
-    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
-    blank_line
-    [ "$OCTOPRINT_PORT" = "80" ] && echo "|  ● OctoPrint                                          |"
-    [ "$MAINSAIL_PORT" = "80" ] && echo "|  ● Mainsail                                           |"
-    [ "$FLUIDD_PORT" = "80" ] && echo "|  ● Fluidd                                             |"
-    blank_line
-    echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other web interfaces!          |"
-    blank_line
-    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
-    echo -e "| input. So make sure to choose a valid port!           |"
-    bottom_border
-    while true; do
-      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
-      if [ "$NEW_PORT" != "$MAINSAIL_PORT" ] && [ "$NEW_PORT" != "$FLUIDD_PORT" ] && [ "$NEW_PORT" != "$OCTOPRINT_PORT" ]; then
-        echo "Setting port $NEW_PORT for DWC2!"
-        SET_LISTEN_PORT=$NEW_PORT
-        break
-      else
-        echo "That port is already taken! Select a different one!"
-      fi
-    done
-  fi
+create_multi_dwc_instance(){
+  ###! atm not possible due to hardcoded log and config files used by dwc2-for-klipper-socket!
+  ###! either needs a PR to read start-arguments passed over by the service file or
+  ###! every instance needs its own copy of dwc2-for-klipper-socket with a modifief web_dwc2.py
+  ###! on line 223, 228 and probably 217 as well
 }

@@ -58,7 +58,7 @@ install_menu(){
       6)
         clear
         print_header
-        install_dwc2
+        dwc_setup_dialog
         print_msg && clear_msg
         install_ui;;
       7)

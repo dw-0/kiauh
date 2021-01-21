@@ -331,9 +331,9 @@ compare_dwc2fk_versions(){
 
 read_local_dwc2_version(){
   unset DWC2_VER_FOUND
-  if [ -e $DWC2_DIR/version ]; then
+  if [ -e $DWC2_DIR/.version ]; then
     DWC2_VER_FOUND="true"
-    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/version)
+    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/.version)
   else
     DWC2_VER_FOUND="false" && unset DWC2_LOCAL_VER
   fi
@@ -344,7 +344,7 @@ read_remote_dwc2_version(){
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
     DWC2_REMOTE_VER=$NONE
   else
-    get_dwc2_ver
+    get_dwc_ver
     DWC2_REMOTE_VER=$DWC2_VERSION
   fi
 }
