@@ -112,6 +112,10 @@ get_dwc_ver(){
 }
 
 dwc_setup(){
+  ### get printer config directory
+  source_kiauh_ini
+  DWC_CONF_LOC="$klipper_cfg_loc"
+
   ### check dependencies
   dep=(git wget gzip tar curl)
   dependency_check
@@ -126,16 +130,20 @@ dwc_setup(){
   install_dwc_packages
   create_dwc_virtualenv
 
-  ### step 3: download Duet Web Control
+  ### step 3: create dwc2.cfg folder and dwc2.cfg
+  [ ! -d $DWC_CONF_LOC ] && mkdir -p $DWC_CONF_LOC
+  dwc_cfg_creation
+
+  ### step 4: download Duet Web Control
   download_dwc_webui
 
-  ### step 4: create dwc instances
+  ### step 5: create dwc instances
   INSTANCE=1
   if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
     create_single_dwc_instance
   else
     #create_multi_dwc_instance
-    warn_msg "Sorry, at the moment only single instance installations are supported!"
+    create_multi_dwc_instance
   fi
 }
 
@@ -191,11 +199,10 @@ create_dwc_virtualenv()
 }
 
 create_single_dwc_startscript(){
-### create systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/dwc.service" << DWC
-#Systemd service file for DWC
+  ### create systemd service file
+  sudo /bin/sh -c "cat > ${SYSTEMDDIR}/dwc.service" << DWC
 [Unit]
-Description=dwc_webif
+Description=DuetWebControl
 After=network.target
 [Install]
 WantedBy=multi-user.target
@@ -203,17 +210,62 @@ WantedBy=multi-user.target
 Type=simple
 User=${USER}
 RemainAfterExit=yes
-ExecStart=${DWC_ENV}/bin/python3 ${DWC2FK_DIR}/web_dwc2.py
+ExecStart=${DWC_ENV}/bin/python3 ${DWC2FK_DIR}/web_dwc2.py -l ${DWC_LOG} -c ${DWC_CFG}
 Restart=always
 RestartSec=10
 DWC
 }
 
 create_multi_dwc_startscript(){
-  ###! atm not possible due to hardcoded log and config files used by dwc2-for-klipper-socket!
-  ###! either needs a PR to read start-arguments passed over by the service file or
-  ###! every instance needs its own copy of dwc2-for-klipper-socket with a modifief web_dwc2.py
-  ###! on line 223, 228 and probably 217 as well
+  ### create systemd service file
+  sudo /bin/sh -c "cat > ${SYSTEMDDIR}/dwc-$INSTANCE.service" << DWC
+[Unit]
+Description=DuetWebControl
+After=network.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+Type=simple
+User=${USER}
+RemainAfterExit=yes
+ExecStart=${DWC_ENV}/bin/python3 ${DWC2FK_DIR}/web_dwc2.py -l ${DWC_LOG} -c ${DWC_CFG}
+Restart=always
+RestartSec=10
+DWC
+}
+
+create_single_dwcfk_cfg(){
+### create single instance config file
+/bin/sh -c "cat > $DWC_CONF_LOC/dwc2.cfg" << DWCCFG
+[webserver]
+listen_adress: 0.0.0.0
+web_root: ~/duetwebcontrol
+port: ${PORT}
+
+[reply_filters]
+regex:
+	max_accel: \d+.\d+
+	max_accel_to_decel: \d+.\d+
+	square_corner_velocity: \d+.\d+
+	max_velocity: \d+.\d+
+DWCCFG
+}
+
+create_multi_dwcfk_cfg(){
+### create single instance config file
+/bin/sh -c "cat > $DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg" << DWCCFG
+[webserver]
+listen_adress: 0.0.0.0
+web_root: ~/duetwebcontrol
+port: ${PORT}
+
+[reply_filters]
+regex:
+	max_accel: \d+.\d+
+	max_accel_to_decel: \d+.\d+
+	square_corner_velocity: \d+.\d+
+	max_velocity: \d+.\d+
+DWCCFG
 }
 
 ##############################################################################################
@@ -232,19 +284,12 @@ create_single_dwc_instance(){
   status_msg "Setting up 1 Duet Web Control instance ..."
 
   ### single instance variables
-  PORT=4750
   DWC_LOG=/tmp/dwc.log
-
-  ### declare empty array for ips which get displayed to the user at the end of the setup
-  HOSTNAME=$(hostname -I | cut -d" " -f1)
-  dwc_ip_list=()
+  DWC_CFG="$DWC_CONF_LOC/dwc2.cfg"
 
   ### create instance
   status_msg "Creating single DWC instance ..."
   create_single_dwc_startscript
-
-  ### write the ip and port to the ip list for displaying it later to the user
-  dwc_ip_list+=("$HOSTNAME:$PORT")
 
   ### enable instance
   sudo systemctl enable dwc.service
@@ -263,8 +308,89 @@ create_single_dwc_instance(){
 }
 
 create_multi_dwc_instance(){
-  ###! atm not possible due to hardcoded log and config files used by dwc2-for-klipper-socket!
-  ###! either needs a PR to read start-arguments passed over by the service file or
-  ###! every instance needs its own copy of dwc2-for-klipper-socket with a modifief web_dwc2.py
-  ###! on line 223, 228 and probably 217 as well
+  status_msg "Setting up $INSTANCE_COUNT instances of Duet Web Control ..."
+  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+    ### multi instance variables
+    DWC_LOG=/tmp/dwc-$INSTANCE.log
+    DWC_CFG="$DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg"
+
+    ### create instance
+    status_msg "Creating instance #$INSTANCE ..."
+    create_multi_dwc_startscript
+
+    ### enable instance
+    sudo systemctl enable dwc-$INSTANCE.service
+    ok_msg "DWC instance $INSTANCE created!"
+
+    ### launching instance
+    status_msg "Launching DWC instance $INSTANCE ..."
+    sudo systemctl start dwc-$INSTANCE
+
+    ### instance counter +1
+    INSTANCE=$(expr $INSTANCE + 1)
+  done
+
+  ### confirm message
+  CONFIRM_MSG="$INSTANCE_COUNT DWC instances has been set up!"
+  print_msg && clear_msg
+
+  ### display moonraker ip to the user
+  print_dwc_ip_list; echo
+}
+
+dwc_cfg_creation(){
+  ### default dwc port
+  DEFAULT_PORT=4750
+
+  ### get printer config directory
+  source_kiauh_ini
+  DWC_CONF_LOC="$klipper_cfg_loc"
+
+  ### reset instances back to 1 again
+  INSTANCE=1
+
+  ### declare empty array for ips which get displayed to the user at the end of the setup
+  HOSTNAME=$(hostname -I | cut -d" " -f1)
+  dwc_ip_list=()
+
+  ### create single instance dwc2.cfg file
+  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+    ### set port
+    PORT=$DEFAULT_PORT
+
+    ### write the ip and port to the ip list for displaying it later to the user
+    dwc_ip_list+=("$HOSTNAME:$PORT")
+
+    status_msg "Creating dwc2.cfg in $DWC_CONF_LOC"
+    [ ! -d $DWC_CONF_LOC ] && mkdir -p $DWC_CONF_LOC
+    if [ ! -f $DWC_CONF_LOC/dwc2.cfg ]; then
+      create_single_dwcfk_cfg && ok_msg "dwc2.cfg created!"
+    else
+      warn_msg "There is already a file called 'dwc2.cfg'!"
+      warn_msg "Skipping..."
+    fi
+
+  ### create multi instance moonraker.conf files
+  else
+    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      ### set each instance to its own port
+      PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
+
+      ### write the ip and port to the ip list for displaying it later to the user
+      dwc_ip_list+=("$HOSTNAME:$PORT")
+
+      ### start the creation of each instance
+      status_msg "Creating dwc2.cfg for instance #$INSTANCE"
+      [ ! -d $DWC_CONF_LOC/printer_$INSTANCE ] && mkdir -p $DWC_CONF_LOC/printer_$INSTANCE
+      if [ ! -f $DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg ]; then
+        create_multi_dwcfk_cfg && ok_msg "dwc2.cfg created!"
+      else
+        warn_msg "There is already a file called 'dwc2.cfg'!"
+        warn_msg "Skipping..."
+      fi
+
+      ### raise instance counter by 1
+      INSTANCE=$(expr $INSTANCE + 1)
+    done
+  fi
 }
