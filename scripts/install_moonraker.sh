@@ -351,10 +351,10 @@ setup_moonraker_nginx_cfg(){
 
   ### copy nginx configs to target destination
   if [ ! -f $NGINX_CONFD/upstreams.conf ]; then
-    sudo cp ${SRCDIR}/kiauh/resources/moonraker_nginx.cfg $NGINX_CONFD/upstreams.conf
+    sudo cp ${SRCDIR}/kiauh/resources/upstreams.conf $NGINX_CONFD
   fi
   if [ ! -f $NGINX_CONFD/common_vars.conf ]; then
-    sudo cp ${SRCDIR}/kiauh/resources/common_vars_nginx.cfg $NGINX_CONFD/common_vars.conf
+    sudo cp ${SRCDIR}/kiauh/resources/common_vars.conf $NGINX_CONFD
   fi
 }
 
