@@ -232,8 +232,8 @@ trusted_clients:
 cors_domains:
     http://*.*
     http://*.local
-    http://my.mainsail.app
-    https://my.mainsail.app
+    http://my.mainsail.xyz
+    https://my.mainsail.xyz
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
@@ -263,8 +263,8 @@ trusted_clients:
 cors_domains:
     http://*.*
     http://*.local
-    http://my.mainsail.app
-    https://my.mainsail.app
+    http://my.mainsail.xyz
+    https://my.mainsail.xyz
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
