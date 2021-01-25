@@ -1,9 +1,9 @@
 ### base variables
 SYSTEMDDIR="/etc/systemd/system"
 DWC_ENV="${HOME}/dwc-env"
-DWC2_DIR="${HOME}/sdcard/web"
+DWC2_DIR="${HOME}/duetwebcontrol"
 
-system_check_dwc2(){
+system_check_dwc(){
   ### check system for an installed octoprint service
   if systemctl is-enabled octoprint.service -q 2>/dev/null; then
     OCTOPRINT_ENABLED="true"
@@ -11,10 +11,10 @@ system_check_dwc2(){
 }
 
 dwc_setup_dialog(){
-  status_msg "Initializing DWC2 installation ..."
+  status_msg "Initializing Duet Web Control installation ..."
 
   ### check system for several requirements before initializing the dwc2 installation
-  system_check_dwc2
+  system_check_dwc
 
   ### check for existing klipper service installations
   if [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
@@ -150,7 +150,7 @@ download_dwc_webui(){
   [ ! -d $DWC2_DIR ] && mkdir -p $DWC2_DIR
   cd $DWC2_DIR && wget $GET_DWC2_URL
   ok_msg "Download complete!"
-  status_msg "Unzipping archive ..."
+  status_msg "Extracting archive ..."
   unzip -q -o *.zip
   for f_ in $(find . | grep '.gz')
   do
@@ -160,10 +160,8 @@ download_dwc_webui(){
   status_msg "Writing DWC version to file ..."
   echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/.version
   ok_msg "Done!"
-  status_msg "Do a little cleanup ..."
-  rm -rf DuetWebControl-SD.zip
-  ok_msg "Done!"
-  ok_msg "DWC2 Web UI installed!"
+  status_msg "Remove downloaded archive ..."
+  rm -rf *.zip && ok_msg "Done!" && ok_msg "Duet Web Control installed!"
 }
 
 ##############################################################################################
