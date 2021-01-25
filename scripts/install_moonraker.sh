@@ -230,13 +230,24 @@ trusted_clients:
     ::1/128
     FE80::/10
 cors_domains:
-    http://*.*
     http://*.local
     http://my.mainsail.xyz
     https://my.mainsail.xyz
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
+
+[update_manager]
+
+[update_manager client mainsail]
+type: web
+repo: meteyou/mainsail
+path: ~/mainsail
+
+[update_manager client fluidd]
+type: web
+repo: cadriel/fluidd
+path: ~/fluidd
 MOONRAKERCONF
 }
 
@@ -261,13 +272,24 @@ trusted_clients:
     ::1/128
     FE80::/10
 cors_domains:
-    http://*.*
     http://*.local
     http://my.mainsail.xyz
     https://my.mainsail.xyz
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
+
+[update_manager]
+
+[update_manager client mainsail]
+type: web
+repo: meteyou/mainsail
+path: ~/mainsail
+
+[update_manager client fluidd]
+type: web
+repo: cadriel/fluidd
+path: ~/fluidd
 MOONRAKERCONF
 }
 
