@@ -115,7 +115,7 @@ MULTI_STARTSCRIPT
 create_minimal_printer_cfg(){
 /bin/sh -c "cat > $1" << MINIMAL_CFG
 [mcu]
-serial: /dev/serial/by-id/
+serial: /dev/serial/by-id/<put-in-mcu-id>
 
 [pause_resume]
 [display_status]
