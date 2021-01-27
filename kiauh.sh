@@ -69,7 +69,7 @@ title_msg(){
   echo -e "${cyan}$1${default}"
 }
 get_date(){
-  current_date=$(date +"%Y%m%d_%H%M")
+  current_date=$(date +"%y%m%d-%H%M")
 }
 print_unkown_cmd(){
   ERROR_MSG="Invalid command!"
