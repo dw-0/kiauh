@@ -39,7 +39,7 @@ OCTOPRINT_DIR=${HOME}/OctoPrint
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
 #misc
-INI_FILE=${SRCDIR}/kiauh/kiauh.ini
+INI_FILE=${HOME}/.config/kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
 
 ### set github repos
