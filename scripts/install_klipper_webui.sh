@@ -242,11 +242,11 @@ select_fluidd_port(){
 }
 
 get_mainsail_ver(){
-  MAINSAIL_VERSION=$(curl -s https://api.github.com/repositories/240875926/releases | grep tag_name | cut -d'"' -f4 | cut -d"v" -f2 | head -1)
+  MAINSAIL_VERSION=$(curl -s https://api.github.com/repositories/240875926/releases | grep tag_name | cut -d'"' -f4 | head -1)
 }
 
 get_fluidd_ver(){
-  FLUIDD_VERSION=$(curl -s https://api.github.com/repositories/295836951/releases | grep tag_name | cut -d'"' -f4 | cut -d"v" -f2 | head -1)
+  FLUIDD_VERSION=$(curl -s https://api.github.com/repositories/295836951/releases | grep tag_name | cut -d'"' -f4 | head -1)
 }
 
 mainsail_setup(){

@@ -437,16 +437,16 @@ compare_mainsail_versions(){
   read_local_mainsail_version && read_remote_mainsail_version
   if [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER == $MAINSAIL_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    MAINSAIL_LOCAL_VER="${green}$(printf "v%-11s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
   elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
-    MAINSAIL_LOCAL_VER="${yellow}$(printf "v%-11s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
     # set flag for the multi update function
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
     MAINSAIL_LOCAL_VER=$NONE
-    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
@@ -476,16 +476,16 @@ compare_fluidd_versions(){
   read_local_fluidd_version && read_remote_fluidd_version
   if [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER == $FLUIDD_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    FLUIDD_LOCAL_VER="${green}$(printf "v%-11s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_LOCAL_VER="${green}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
   elif [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER != $FLUIDD_REMOTE_VER ]]; then
-    FLUIDD_LOCAL_VER="${yellow}$(printf "v%-11s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_LOCAL_VER="${yellow}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
     # set flag for the multi update function
     FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
     FLUIDD_LOCAL_VER=$NONE
-    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
 }
