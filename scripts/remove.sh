@@ -308,14 +308,18 @@ remove_octoprint(){
     sudo rm -rf /etc/sudoers.d/octoprint-shutdown
   fi
 
-  ### remove OctoPrint and .octoprint directories
+  ### remove OctoPrint directory
   if [ -d ${HOME}/OctoPrint ]; then
     status_msg "Removing OctoPrint directory ..."
     rm -rf ${HOME}/OctoPrint && ok_msg "Directory removed!"
   fi
-  if [ -d ${HOME}/.octoprint* ]; then
-    status_msg "Removing .octoprint directory ..."
-    rm -rf ${HOME}/.octoprint* && ok_msg "Directory removed!"
+
+  ###remove .octoprint directories
+  if [ "$(find ${HOME} -maxdepth 1 -name ".octoprint*")" ]; then
+    for folder in $(find ${HOME} -maxdepth 1 -name ".octoprint*")
+    do
+      status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
+    done
   fi
 
   CONFIRM_MSG=" OctoPrint successfully removed!"
