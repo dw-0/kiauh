@@ -174,16 +174,12 @@ octoprint_status(){
     $OCTOPRINT_DIR
   )
   #remove the "SERVICE" entry from the octoprint array if an octoprint service is installed
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "octoprint.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "octoprint-[[:digit:]].service")" ]; then
+  if systemctl list-unit-files | grep -E "octoprint.*" &>/dev/null; then
     unset octoprint_data[0]
   fi
 
   ### count amount of octoprint services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "octoprint.service")" ]; then
-    instances=1
-  else
-    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "octoprint-[[:digit:]].service" | wc -l)
-  fi
+  instances=$(systemctl list-unit-files | grep -E "octoprint.*" | wc -l)
 
   #count+1 for each found data-item from array
   for op in "${octoprint_data[@]}"
