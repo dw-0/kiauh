@@ -30,7 +30,8 @@ python3_check(){
 }
 
 system_check_klipperscreen(){
-  if [ ! -e ${HOME}/klipper_config/KlipperScreen.log ]; then
+  source_kiauh_ini
+  if [ ! -e $klipper_cfg_loc/KlipperScreen.log ]; then
     KLIPPERSCREEN_SL_FOUND="false"
   else
     KLIPPERSCREEN_SL_FOUND="true"
