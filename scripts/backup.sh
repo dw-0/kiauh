@@ -136,13 +136,13 @@ backup_fluidd(){
 }
 
 backup_moonraker(){
-  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_ENV_DIR ]; then
+  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_ENV ]; then
     status_msg "Creating Moonraker backup ..."
     check_for_backup_dir
     get_date
     status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/moonraker-backups/"$current_date"
-    cp -r $MOONRAKER_DIR $_ && cp -r $MOONRAKER_ENV_DIR $_ && ok_msg "Backup complete!"
+    cp -r $MOONRAKER_DIR $_ && cp -r $MOONRAKER_ENV $_ && ok_msg "Backup complete!"
   else
     ERROR_MSG=" Can't backup moonraker and/or moonraker-env directory! Not found!"
   fi
