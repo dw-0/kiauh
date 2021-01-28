@@ -20,61 +20,28 @@ install_ui(){
 }
 
 install_menu(){
-  print_header
-  install_ui
+  do_action "" "install_ui"
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       1)
-        clear
-        print_header
-        klipper_setup_dialog
-        print_msg && clear_msg
-        install_ui;;
+        do_action "klipper_setup_dialog" "install_ui";;
       2)
-        clear
-        print_header
-        moonraker_setup_dialog
-        print_msg && clear_msg
-        install_ui;;
+        do_action "moonraker_setup_dialog" "install_ui";;
       3)
-        clear
-        print_header
-        install_mainsail
-        print_msg && clear_msg
-        install_ui;;
+        do_action "install_mainsail" "install_ui";;
       4)
-        clear
-        print_header
-        install_fluidd
-        print_msg && clear_msg
-        install_ui;;
+        do_action "install_fluidd" "install_ui";;
       5)
-        clear
-        print_header
-        install_klipperscreen
-        print_msg && clear_msg
-        install_ui;;
+        do_action "install_klipperscreen" "install_ui";;
       6)
-        clear
-        print_header
-        dwc_setup_dialog
-        print_msg && clear_msg
-        install_ui;;
+        do_action "dwc_setup_dialog" "install_ui";;
       7)
-        clear
-        print_header
-        octoprint_setup_dialog
-        print_msg && clear_msg
-        install_ui;;
+        do_action "octoprint_setup_dialog" "install_ui";;
       Q|q)
         clear; main_menu; break;;
       *)
-        clear
-        print_header
-        print_unkown_cmd
-        print_msg && clear_msg
-        install_ui;;
+        deny_action "install_ui";;
     esac
   done
   install_menu

@@ -3,86 +3,49 @@ remove_ui(){
   echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
   echo -e "|  Directories which remain untouched:                  | "
-  echo -e "|  --> ~/klipper_config                                 | "
+  echo -e "|  --> Your printer configuration directory             | "
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
   hr
-  echo -e "|  Firmware:             |  Webinterface:               | "
-  echo -e "|  1) [Klipper]          |  3) [DWC2]                   | "
-  echo -e "|                        |  4) [Mainsail]               | "
-  echo -e "|  Klipper API:          |  5) [Fluidd]                 | "
-  echo -e "|  2) [Moonraker]        |  6) [Octoprint]              | "
+  echo -e "|  Firmware:             |  Klipper Webinterface:       | "
+  echo -e "|  1) [Klipper]          |  3) [Mainsail]               | "
+  echo -e "|                        |  4) [Fluidd]                 | "
+  echo -e "|  Klipper API:          |                              | "
+  echo -e "|  2) [Moonraker]        |  HDMI Screen:                | "
+  echo -e "|                        |  5) [KlipperScreen]          | "
   echo -e "|                        |                              | "
-  echo -e "|                        |  Webserver:                  | "
-  echo -e "|                        |  7) [Nginx]                  | "
-  echo -e "|                        |                              | "
-  echo -e "|                        |  HDMI Screen:                | "
-  echo -e "|                        |  8) [KlipperScreen]          | "
+  echo -e "|                        |  Other:                      | "
+  echo -e "|                        |  6) [Duet Web Control]       | "
+  echo -e "|                        |  7) [OctoPrint]              | "
+  echo -e "|                        |  8) [NGINX]                  | "
   quit_footer
 }
 
 remove_menu(){
-  print_header
-  remove_ui
+  do_action "" "remove_ui"
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       1)
-        clear
-        print_header
-        remove_klipper
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_klipper" "remove_ui";;
       2)
-        clear
-        print_header
-        remove_moonraker
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_moonraker" "remove_ui";;
       3)
-        clear
-        print_header
-        remove_dwc2
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_mainsail" "remove_ui";;
       4)
-        clear
-        print_header
-        remove_mainsail
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_fluidd" "remove_ui";;
       5)
-        clear
-        print_header
-        remove_fluidd
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_klipperscreen" "remove_ui";;
       6)
-        clear
-        print_header
-        remove_octoprint
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_dwc2" "remove_ui";;
       7)
-        clear
-        print_header
-        remove_nginx
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_octoprint" "remove_ui";;
       8)
-        clear
-        print_header
-        remove_klipperscreen
-        print_msg && clear_msg
-        remove_ui;;
+        do_action "remove_nginx" "remove_ui";;
       Q|q)
         clear; main_menu; break;;
       *)
-        clear
-        print_header
-        print_unkown_cmd
-        print_msg && clear_msg
-        remove_ui;;
+        deny_action "remove_ui";;
     esac
   done
   remove_menu
