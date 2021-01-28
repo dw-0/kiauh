@@ -249,7 +249,7 @@ MOONRAKERCONF
 
 create_multi_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
-  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
+  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/16"
 
   /bin/sh -c "cat > $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf" << MOONRAKERCONF
 [server]
@@ -269,6 +269,7 @@ trusted_clients:
     FE80::/10
 cors_domains:
     http://*.local
+    https://*.local
     http://my.mainsail.xyz
     https://my.mainsail.xyz
     http://app.fluidd.xyz
