@@ -16,8 +16,8 @@ system_check_moonraker(){
     py_chk_ok="false"
   fi
 
-  ### check system for an installed octoprint service
-  if systemctl is-enabled octoprint.service -q 2>/dev/null; then
+  ### check system for an installed and enabled octoprint service
+  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
     OCTOPRINT_ENABLED="true"
   fi
 
@@ -487,9 +487,9 @@ process_octoprint_dialog(){
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
           status_msg "Stopping OctoPrint ..."
-          sudo systemctl stop octoprint && ok_msg "OctoPrint service stopped!"
+          octoprint_service "stop" && ok_msg "OctoPrint service stopped!"
           status_msg "Disabling OctoPrint ..."
-          sudo systemctl disable octoprint && ok_msg "OctoPrint service disabled!"
+          octoprint_service "disable" && ok_msg "OctoPrint service disabled!"
           break;;
         N|n|No|no)
           echo -e "###### > No"
