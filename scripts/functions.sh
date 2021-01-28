@@ -171,72 +171,72 @@ moonraker_service(){
   fi
 }
 
-start_dwc(){
-  status_msg "Starting DWC-for-Klipper-Socket Service ..."
-  sudo systemctl start dwc && ok_msg "DWC-for-Klipper-Socket Service started!"
-}
+dwc_service(){
+  ### set a variable for the ok and status messages
+  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
+  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
+  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
 
-stop_dwc(){
-  status_msg "Stopping DWC-for-Klipper-Socket Service ..."
-  sudo systemctl stop dwc && ok_msg "DWC-for-Klipper-Socket Service stopped!"
-}
-
-start_octoprint(){
-  status_msg "Starting OctoPrint Service ..."
-  sudo systemctl start octoprint && ok_msg "OctoPrint Service started!"
-}
-
-stop_octoprint(){
-  status_msg "Stopping OctoPrint Service ..."
-  sudo systemctl stop octoprint && ok_msg "OctoPrint Service stopped!"
-}
-
-restart_octoprint(){
-  status_msg "Restarting OctoPrint Service ..."
-  sudo systemctl restart octoprint && ok_msg "OctoPrint Service restarted!"
-}
-
-enable_octoprint_service(){
-  if [[ -f $OCTOPRINT_SERVICE1 && -f $OCTOPRINT_SERVICE2 ]]; then
-    status_msg "OctoPrint Service is disabled! Enabling now ..."
-    sudo systemctl enable octoprint -q && sudo systemctl start octoprint
+  if ls /etc/systemd/system/dwc-*.service 2>/dev/null 1>&2; then
+    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc-[[:digit:]].service" | wc -l)
+    INSTANCE=1
+    status_msg "$ACTION2 $INSTANCE_COUNT DWC-for-Klipper-Socket Services ..."
+    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      sudo systemctl $1 dwc-$INSTANCE && ok_msg "DWC-for-Klipper-Socket Service #$INSTANCE $ACTION1!"
+      ### instance counter +1
+      INSTANCE=$(expr $INSTANCE + 1)
+    done
+  elif [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc.service")" ]; then
+    status_msg "$ACTION2 DWC-for-Klipper-Socket Service ..."
+    sudo systemctl $1 dwc && ok_msg "DWC-for-Klipper-Socket Service $ACTION1!"
   fi
 }
 
-disable_octoprint(){
-  if [ "$DISABLE_OPRINT" = "true" ]; then
-    disable_octoprint_service
-  fi
-}
+octoprint_service(){
+  ### set a variable for the ok and status messages
+  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
+  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
+  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
+  [ "$1" == "enable" ] && ACTION1="enabled" && ACTION2="Enabling"
+  [ "$1" == "disable" ] && ACTION1="disabled" && ACTION2="Disabling"
 
-disable_octoprint_service(){
-  if [[ -f $OCTOPRINT_SERVICE1 && -f $OCTOPRINT_SERVICE2 ]]; then
-    status_msg "OctoPrint Service is enabled! Disabling now ..."
-    sudo systemctl stop octoprint && sudo systemctl disable octoprint -q
+  if ls /etc/systemd/system/octoprint-*.service 2>/dev/null 1>&2; then
+    INSTANCE=1
+    INSTANCE_COUNT=$(systemctl list-unit-files | grep -E "octoprint.*" | wc -l)
+    status_msg "$ACTION2 $INSTANCE_COUNT OctoPrint Services ..."
+    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+      sudo systemctl $1 octoprint-$INSTANCE && ok_msg "OctoPrint Service #$INSTANCE $ACTION1!"
+      ### instance counter +1
+      INSTANCE=$(expr $INSTANCE + 1)
+    done
+  elif [ "$(systemctl list-unit-files | grep -E "octoprint.*")" ]; then
+    status_msg "$ACTION2 OctoPrint Service ..."
+    sudo systemctl $1 octoprint && ok_msg "OctoPrint Service $ACTION1!"
   fi
 }
 
 toggle_octoprint_service(){
-  if [[ -f $OCTOPRINT_SERVICE1 && -f $OCTOPRINT_SERVICE2 ]]; then
-    if systemctl is-enabled octoprint.service -q; then
-      disable_octoprint_service
-      sleep 2
-      CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
-    else
-      enable_octoprint_service
-      sleep 2
-      CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
-    fi
+  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
+    octoprint_service "stop"
+    octoprint_service "disable"
+    sleep 2
+    CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
+  elif systemctl list-unit-files | grep -E "octoprint.*" | grep "disabled" &>/dev/null; then
+    octoprint_service "enable"
+    octoprint_service "start"
+    sleep 2
+    CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
   else
     ERROR_MSG=" You cannot activate a service that does not exist!"
   fi
 }
 
 read_octoprint_service_status(){
-  if ! systemctl is-enabled octoprint.service -q &>/dev/null; then
-    OPRINT_SERVICE_STATUS="${green}[Enable]${default} OctoPrint Service                        "
-  else
+  unset OPRINT_SERVICE_STATUS
+  if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
     OPRINT_SERVICE_STATUS="${red}[Disable]${default} OctoPrint Service                       "
+  else
+    OPRINT_SERVICE_STATUS="${green}[Enable]${default} OctoPrint Service                        "
   fi
 }
 

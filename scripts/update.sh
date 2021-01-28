@@ -97,14 +97,14 @@ update_klipper(){
 }
 
 update_dwc2fk(){
-  stop_dwc
+  dwc_service "stop"
   bb4u "dwc2"
   if [ ! -d $DWC2FK_DIR ]; then
     cd ${HOME} && git clone $DWC2FK_REPO
   else
     cd $DWC2FK_DIR && git pull
   fi
-  start_dwc
+  dwc_service "start"
 }
 
 update_dwc2(){
@@ -125,9 +125,9 @@ update_fluidd(){
 }
 
 update_moonraker(){
+  moonraker_service "stop"
   bb4u "moonraker"
   status_msg "Updating Moonraker ..."
-  moonraker_service "stop"; echo
   cd $MOONRAKER_DIR
   MOONRAKER_OLDREQ_MD5SUM=$(md5sum $MOONRAKER_DIR/scripts/moonraker-requirements.txt | cut -d " " -f1)
 
