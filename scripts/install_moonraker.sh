@@ -105,6 +105,12 @@ moonraker_setup(){
   source_kiauh_ini
   MOONRAKER_CONF_LOC="$klipper_cfg_loc"
 
+  ### checking dependencies
+  dep=(wget curl unzip dfu-util)
+  ### additional deps for kiauh compatibility for armbian
+  dep+=(libjpeg-dev zlib1g-dev)
+  dependency_check
+
   ### step 1: clone moonraker
   status_msg "Downloading Moonraker ..."
   ### force remove existing moonraker dir and clone into fresh moonraker dir
