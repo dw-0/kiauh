@@ -255,7 +255,7 @@ get_user_selections_moonraker(){
 #############################################################
 
 moonraker_setup(){
-  dep=(wget curl unzip dfu-util)
+  dep=(wget curl unzip dfu-util libjpeg-dev zlib1g-dev)
   dependency_check
   status_msg "Downloading Moonraker ..."
   #force remove existing moonraker dir
