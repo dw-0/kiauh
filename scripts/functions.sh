@@ -465,7 +465,7 @@ write_printer_cfg(){
 
 init_ini(){
   ### copy an existing kiauh.ini to its new location to keep all possible saved values
-  if [ -f ${SRCDIR}/kiauh/kiauh.ini ] || [ ! -f $INI_FILE ]; then
+  if [ -f ${SRCDIR}/kiauh/kiauh.ini ] && [ ! -f $INI_FILE ]; then
     cp ${SRCDIR}/kiauh/kiauh.ini $INI_FILE
   fi
   if [ ! -f $INI_FILE ]; then
