@@ -6,8 +6,9 @@ set_nginx_cfg(){
     #execute operations
     status_msg "Creating Nginx configuration for $1 ..."
     #copy content from resources to the respective nginx config file
-    cat ${SRCDIR}/kiauh/resources/$1_nginx.cfg > ${SRCDIR}/kiauh/resources/$1
+    cat ${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg > ${SRCDIR}/kiauh/resources/$1
     ##edit the nginx config file before moving it
+    sed -i "s/<<UI>>/$1/g" ${SRCDIR}/kiauh/resources/$1
     if [ "$SET_LISTEN_PORT" != "$DEFAULT_PORT" ]; then
       status_msg "Configuring port for $1 ..."
       #set listen port ipv4
