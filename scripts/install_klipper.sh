@@ -115,9 +115,10 @@ MULTI_STARTSCRIPT
 create_minimal_printer_cfg(){
 /bin/sh -c "cat > $1" << MINIMAL_CFG
 [mcu]
-serial: /dev/serial/by-id/<put-in-mcu-id>
+serial: /dev/serial/by-id/<your-mcu-id>
 
 [pause_resume]
+
 [display_status]
 
 [virtual_sdcard]
@@ -125,8 +126,8 @@ path: ~/gcode_files
 
 [printer]
 kinematics: none
-max_velocity: 1
-max_accel: 1
+max_velocity: 1000
+max_accel: 1000
 MINIMAL_CFG
 }
 
