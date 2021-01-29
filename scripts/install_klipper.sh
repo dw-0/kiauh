@@ -8,7 +8,7 @@ klipper_setup_dialog(){
 
   ### check for existing klipper service installations
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
-    ERROR_MSG="At least one Klipper service is already installed!" && return 0
+    ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
   fi
 
   ### initial printer.cfg path check
