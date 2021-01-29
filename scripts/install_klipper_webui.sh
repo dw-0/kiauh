@@ -191,7 +191,8 @@ select_mainsail_port(){
     [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                               |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other web interfaces!          |"
+    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
+    echo -e "| use ports in the range of 4750 or above!              |"
     blank_line
     echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
@@ -222,7 +223,8 @@ select_fluidd_port(){
     [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                               |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other web interfaces!          |"
+    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
+    echo -e "| use ports in the range of 4750 or above!              |"
     blank_line
     echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
