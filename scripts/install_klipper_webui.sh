@@ -16,14 +16,19 @@ get_user_selection_kiauh_macros(){
     unset ADD_KIAUH_MACROS
     echo
     top_border
-    echo -e "| It is recommended to have some important macros to    |"
-    echo -e "| have full functionality of the web interface.         |"
+    echo -e "| It is recommended to have some important macros set   |"
+    echo -e "| up in your printer configuration to have $1|"
+    echo -e "| fully functional and working.                         |"
     blank_line
-    echo -e "| If you don't have those macros, you can choose to     |"
-    echo -e "| install suggested default macros now.                 |"
+    echo -e "| Those macros are:                                     |"
+    echo -e "| ${cyan}● [gcode_macro PAUSE]${default}                                 |"
+    echo -e "| ${cyan}● [gcode_macro RESUME]${default}                                |"
+    echo -e "| ${cyan}● [gcode_macro CANCEL_PRINT]${default}                          |"
     blank_line
-    echo -e "| If unsure which macros are meant, just go ahead and   |"
-    echo -e "| select 'Yes'. You can always delete them later.       |"
+    echo -e "| If you already have these macros in your config file  |"
+    echo -e "| you can skip this step and choose 'no'.               |"
+    echo -e "| Otherwise you should consider to answer with 'yes' to |"
+    echo -e "| add the recommended example macros to your config.    |"
     bottom_border
     read -p "${cyan}###### Add the recommended macros? (Y/n):${default} " yn
     case "$yn" in
@@ -55,7 +60,7 @@ install_mainsail(){
     mainsail_port_check
 
     ### ask user to install the recommended webinterface macros
-    get_user_selection_kiauh_macros
+    get_user_selection_kiauh_macros "Mainsail     "
 
     ### creating the mainsail nginx cfg
     set_nginx_cfg "mainsail"
@@ -81,7 +86,7 @@ install_fluidd(){
     fluidd_port_check
 
     ### ask user to install the recommended webinterface macros
-    get_user_selection_kiauh_macros
+    get_user_selection_kiauh_macros "Fluidd       "
 
     ### creating the fluidd nginx cfg
     set_nginx_cfg "fluidd"
