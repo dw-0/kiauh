@@ -29,7 +29,15 @@ check_klipper_cfg_path(){
 change_klipper_cfg_path(){
   source_kiauh_ini
   old_klipper_cfg_loc="$klipper_cfg_loc"
+  EXAMPLE_FOLDER=$(printf "%s/your_config_folder" "${HOME}")
   while true; do
+    top_border
+    echo -e "|  ${red}IMPORTANT:${default}                                           |"
+    echo -e "|  Please enter the new path in the following form:     |"
+    printf "|  ${yellow}%-51s${default}  |\n" "$EXAMPLE_FOLDER"
+    blank_line
+    echo -e "|  By default 'klipper_config' is recommended!          |"
+    bottom_border
     echo
     echo -e "${cyan}###### Please set the Klipper config directory:${default} "
     if [ -z "$old_klipper_cfg_loc" ]; then
@@ -52,7 +60,6 @@ change_klipper_cfg_path(){
 
         ### write new location to klipper and moonraker service
         set_klipper_cfg_path
-
         echo; ok_msg "Config directory changed!"
         break;;
       N|n|No|no)
@@ -126,7 +133,7 @@ set_klipper_cfg_path(){
 }
 
 source_kiauh_ini(){
-  source ${SRCDIR}/kiauh/kiauh.ini
+  source $INI_FILE
 }
 
 klipper_service(){
