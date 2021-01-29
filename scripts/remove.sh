@@ -279,7 +279,7 @@ remove_fluidd(){
 
 remove_octoprint(){
   ###remove single instance
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "octoprint.service")" ]; then
+  if [ "$(systemctl list-unit-files | grep -F "octoprint.service")" ]; then
     status_msg "Removing OctoPrint Service ..."
     sudo systemctl stop octoprint
     sudo systemctl disable octoprint
@@ -288,7 +288,7 @@ remove_octoprint(){
   fi
 
   ###remove multi instance services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "octoprint-[[:digit:]].service")" ]; then
+  if [ "$(systemctl list-unit-files | grep -E "octoprint-[[:digit:]].service")" ]; then
     status_msg "Removing OctoPrint Services ..."
     for service in $(find $SYSTEMDDIR -maxdepth 1 -name "octoprint-*.service" | cut -d"/" -f5)
     do
