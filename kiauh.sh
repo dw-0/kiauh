@@ -46,9 +46,7 @@ BACKUP_DIR=${HOME}/kiauh-backups
 KLIPPER_REPO=https://github.com/KevinOConnor/klipper.git
 ARKSINE_REPO=https://github.com/Arksine/klipper.git
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
-###TODO use my own dwc2-for-klipper-socket repo as long as the needed start argument PR is not merged yet
-DWC2FK_REPO=https://github.com/th33xitus/dwc2-for-klipper-socket.git
-#DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
+DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
 MOONRAKER_REPO=https://github.com/Arksine/moonraker.git
 KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
 #branches
