@@ -29,9 +29,9 @@ install_menu(){
       2)
         do_action "moonraker_setup_dialog" "install_ui";;
       3)
-        do_action "install_mainsail" "install_ui";;
+        do_action "install_webui mainsail" "install_ui";;
       4)
-        do_action "install_fluidd" "install_ui";;
+        do_action "install_webui fluidd" "install_ui";;
       5)
         do_action "install_klipperscreen" "install_ui";;
       6)

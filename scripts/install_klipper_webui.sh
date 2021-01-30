@@ -1,12 +1,9 @@
 check_moonraker(){
   status_msg "Checking for Moonraker service ..."
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
-    ok_msg "Moonraker service found!"; echo
-    MOONRAKER_SERVICE_FOUND="true"
+    moonraker_chk_ok="true"
   else
-    warn_msg "Moonraker service not found!"
-    warn_msg "Please install Moonraker first!"; echo
-    MOONRAKER_SERVICE_FOUND="false"
+    moonraker_chk_ok="false"
   fi
 }
 
@@ -47,56 +44,40 @@ get_user_selection_kiauh_macros(){
   done
 }
 
-install_mainsail(){
+install_webui(){
   ### check if moonraker is already installed
   check_moonraker
 
-  if [ "$MOONRAKER_SERVICE_FOUND" = "true" ]; then
-    ### check for other enabled web interfaces
-    unset SET_LISTEN_PORT
-    detect_enabled_sites
+  [ $1 == "mainsail" ] && INTERFACE="Mainsail"
+  [ $1 == "fluidd" ] && INTERFACE="Mainsail"
 
-    ### check if another site already listens to port 80
-    mainsail_port_check
-
-    ### ask user to install the recommended webinterface macros
-    get_user_selection_kiauh_macros "Mainsail     "
-
-    ### creating the mainsail nginx cfg
-    set_nginx_cfg "mainsail"
-
-    ### copy the kiauh_macros.cfg to the config location
-    install_kiauh_macros
-
-    ### install mainsail
-    mainsail_setup
+  ### exit mainsail/fluidd setup if moonraker not found
+  if [ $moonraker_chk_ok = "false" ]; then
+    ERROR_MSG="Moonraker service not found!\n Please install Moonraker first!"
+    print_msg && clear_msg && return 0
+  else
+    ok_msg "Moonraker service found!"
+    status_msg "Initializing $INTERFACE installation ..."
   fi
-}
 
-install_fluidd(){
-  ### check if moonraker is already installed
-  check_moonraker
+  ### check for other enabled web interfaces
+  unset SET_LISTEN_PORT
+  detect_enabled_sites
 
-  if [ "$MOONRAKER_SERVICE_FOUND" = "true" ]; then
-    ### check for other enabled web interfaces
-    unset SET_LISTEN_PORT
-    detect_enabled_sites
+  ### check if another site already listens to port 80
+  $1_port_check
 
-    ### check if another site already listens to port 80
-    fluidd_port_check
+  ### ask user to install the recommended webinterface macros
+  get_user_selection_kiauh_macros "$INTERFACE     "
 
-    ### ask user to install the recommended webinterface macros
-    get_user_selection_kiauh_macros "Fluidd       "
+  ### creating the mainsail/fluidd nginx cfg
+  set_nginx_cfg "$1"
 
-    ### creating the fluidd nginx cfg
-    set_nginx_cfg "fluidd"
+  ### copy the kiauh_macros.cfg to the config location
+  install_kiauh_macros
 
-    ### copy the kiauh_macros.cfg to the config location
-    install_kiauh_macros
-
-    ### install fluidd
-    fluidd_setup
-  fi
+  ### install mainsail/fluidd
+  $1_setup
 }
 
 install_kiauh_macros(){
