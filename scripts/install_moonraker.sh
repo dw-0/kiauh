@@ -242,6 +242,7 @@ cors_domains:
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
+    http://$HOSTNAME:*
 
 [update_manager]
 
@@ -293,6 +294,7 @@ cors_domains:
     http://app.fluidd.xyz
     https://app.fluidd.xyz
     http://$HOSTNAME
+    http://$HOSTNAME:*
 
 [update_manager]
 
