@@ -243,13 +243,17 @@ mainsail_setup(){
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!"
 
-  ### check for moonraker multi-instance and if multi-instance was found, activate mainsail remoteMode
+  ### check for moonraker multi-instance and if multi-instance was found, enable mainsails remoteMode
   if [ $(ls /etc/systemd/system/moonraker* | wc -l) -gt 1 ]; then
-    rm -f $MAINSAIL_DIR/config.json
-    echo -e "{\n    \"remoteMode\":true\n}" >> $MAINSAIL_DIR/config.json
+    enable_mainsail_remotemode
   fi
 
   ok_msg "Mainsail installation complete!\n"
+}
+
+enable_mainsail_remotemode(){
+  rm -f $MAINSAIL_DIR/config.json
+  echo -e "{\n    \"remoteMode\":true\n}" >> $MAINSAIL_DIR/config.json
 }
 
 fluidd_setup(){

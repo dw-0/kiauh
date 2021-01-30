@@ -139,6 +139,10 @@ moonraker_setup(){
     create_single_moonraker_instance
   else
     create_multi_moonraker_instance
+    ### step 6.5: enable mainsails remoteMode if its already installed
+    if [ -d $MAINSAIL_DIR ]; then
+      enable_mainsail_remotemode
+    fi
   fi
 }
 
