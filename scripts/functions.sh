@@ -19,8 +19,12 @@ check_klipper_cfg_path(){
     echo -e "|                    ${red}!!! WARNING !!!${default}                    |"
     echo -e "|        ${red}No Klipper configuration directory set!${default}        |"
     hr
-    echo -e "|  Before we can continue, you need to specify a folder |"
-    echo -e "|  where your Klipper configuration(s) will be stored!  |"
+    echo -e "|  Before we can continue, KIAUH needs to know where    |"
+    echo -e "|  you want your printer configuration to be.           |"
+    blank_line
+    echo -e "|  Please specify a folder where your Klipper configu-  |"
+    echo -e "|  ration is stored or, if you don't have one yet, in   |"
+    echo -e "|  which it should be saved after the installation.     |"
     bottom_border
     change_klipper_cfg_path
   fi
@@ -33,7 +37,7 @@ change_klipper_cfg_path(){
   while true; do
     top_border
     echo -e "|  ${red}IMPORTANT:${default}                                           |"
-    echo -e "|  Please enter the new path in the following form:     |"
+    echo -e "|  Please enter the new path in the following format:   |"
     printf "|  ${yellow}%-51s${default}  |\n" "$EXAMPLE_FOLDER"
     blank_line
     echo -e "|  By default 'klipper_config' is recommended!          |"
