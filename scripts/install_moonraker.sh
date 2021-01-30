@@ -250,6 +250,14 @@ path: ~/mainsail
 type: web
 repo: cadriel/fluidd
 path: ~/fluidd
+
+#[update_manager client KlipperScreen]
+#type: git_repo
+#path: /home/${HOME}/KlipperScreen
+#origin: https://github.com/jordanruthe/KlipperScreen.git
+#env: /home/${HOME}/.KlipperScreen-env/bin/python
+#requirements: scripts/KlipperScreen-requirements.txt
+#install_script: scripts/KlipperScreen-install.sh
 MOONRAKERCONF
 }
 
@@ -293,6 +301,14 @@ path: ~/mainsail
 type: web
 repo: cadriel/fluidd
 path: ~/fluidd
+
+#[update_manager client KlipperScreen]
+#type: git_repo
+#path: /home/${USER}/KlipperScreen
+#origin: https://github.com/jordanruthe/KlipperScreen.git
+#env: /home/${USER}/.KlipperScreen-env/bin/python
+#requirements: scripts/KlipperScreen-requirements.txt
+#install_script: scripts/KlipperScreen-install.sh
 MOONRAKERCONF
 }
 
