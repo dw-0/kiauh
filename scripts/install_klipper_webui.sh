@@ -48,8 +48,8 @@ install_webui(){
   ### check if moonraker is already installed
   check_moonraker
 
-  [ $1 == "mainsail" ] && INTERFACE="Mainsail"
-  [ $1 == "fluidd" ] && INTERFACE="Mainsail"
+  [ $1 == "mainsail" ] && IF_NAME1="Mainsail" && IF_NAME2="Mainsail     "
+  [ $1 == "fluidd" ] && IF_NAME1="Fluidd" && IF_NAME2="Fluidd       "
 
   ### exit mainsail/fluidd setup if moonraker not found
   if [ $moonraker_chk_ok = "false" ]; then
@@ -57,7 +57,7 @@ install_webui(){
     print_msg && clear_msg && return 0
   else
     ok_msg "Moonraker service found!"
-    status_msg "Initializing $INTERFACE installation ..."
+    status_msg "Initializing $IF_NAME1 installation ..."
   fi
 
   ### check for other enabled web interfaces
@@ -68,7 +68,7 @@ install_webui(){
   $1_port_check
 
   ### ask user to install the recommended webinterface macros
-  get_user_selection_kiauh_macros "$INTERFACE     "
+  get_user_selection_kiauh_macros "$IF_NAME2"
 
   ### creating the mainsail/fluidd nginx cfg
   set_nginx_cfg "$1"
