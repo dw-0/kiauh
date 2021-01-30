@@ -213,7 +213,7 @@ EOF
 
 create_single_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
-  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/24"
+  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
 
   /bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker.conf" << MOONRAKERCONF
 [server]
@@ -255,7 +255,7 @@ MOONRAKERCONF
 
 create_multi_moonraker_conf(){
   HOSTNAME=$(hostname -I | cut -d" " -f1)
-  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-3).0/16"
+  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
 
   /bin/sh -c "cat > $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf" << MOONRAKERCONF
 [server]
