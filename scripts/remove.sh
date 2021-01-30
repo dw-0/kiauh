@@ -1,4 +1,36 @@
 remove_klipper(){
+  ### ask the user if he wants to uninstall moonraker too.
+  ###? currently usefull if the user wants to switch from single-instance to multi-instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker*.")" ]; then
+    while true; do
+      unset REM_MR
+      top_border
+      echo -e "| Do you want to remove Moonraker afterwards?           |"
+      echo -e "|                                                       |"
+      echo -e "| This is useful in case you want to switch from a      |"
+      echo -e "| single-instance to a multi-instance installation,     |"
+      echo -e "| which makes a re-installation of Moonraker necessary. |"
+      echo -e "|                                                       |"
+      echo -e "| If for any other reason you only want to uninstall    |"
+      echo -e "| Klipper, please select 'No' and continue.             |"
+      bottom_border
+      read -p "${cyan}###### Remove Moonraker afterwards? (y/N):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes)
+          echo -e "###### > Yes"
+          REM_MR="true"
+          break;;
+        N|n|No|no|"")
+          echo -e "###### > No"
+          REM_MR="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+    esac
+    done
+  fi
+
   ### remove "legacy" klipper init.d service
   if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
     status_msg "Removing Klipper Service ..."
@@ -78,7 +110,11 @@ remove_klipper(){
     rm -rf $KLIPPY_ENV && ok_msg "Directory removed!"
   fi
 
-  CONFIRM_MSG=" Klipper was successfully removed!"
+  CONFIRM_MSG=" Klipper was successfully removed!" && print_msg && clear_msg
+
+  if [ "$REM_MR" == "true" ]; then
+    remove_moonraker
+  fi
 }
 
 #############################################################
