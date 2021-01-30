@@ -86,17 +86,6 @@ install_kiauh_macros(){
   if [ "$ADD_KIAUH_MACROS" = "true" ]; then
     ### create a backup of the config folder
     backup_klipper_config_dir
-
-    ### handle single printer.cfg
-    if [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/kiauh_macros.cfg ]; then
-      ### copy kiauh_macros.cfg to config location
-      cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $klipper_cfg_loc
-      ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
-
-      ### write the include to the very first line of the printer.cfg
-      sed -i "1 i [include kiauh_macros.cfg]" $klipper_cfg_loc/printer.cfg
-    fi
-
     ### handle multi printer.cfg
     if ls $klipper_cfg_loc/printer_*  2>/dev/null 1>&2; then
       for config in $(find $klipper_cfg_loc/printer_*/printer.cfg); do
@@ -105,13 +94,18 @@ install_kiauh_macros(){
           ### copy kiauh_macros.cfg to config location
           cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $path
           ok_msg "$path/kiauh_macros.cfg created!"
-
           ### write the include to the very first line of the printer.cfg
           sed -i "1 i [include kiauh_macros.cfg]" $path/printer.cfg
         fi
       done
+    ### handle single printer.cfg
+    elif [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/kiauh_macros.cfg ]; then
+      ### copy kiauh_macros.cfg to config location
+      cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $klipper_cfg_loc
+      ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
+      ### write the include to the very first line of the printer.cfg
+      sed -i "1 i [include kiauh_macros.cfg]" $klipper_cfg_loc/printer.cfg
     fi
-
     ### restart klipper service to parse the modified printer.cfg
     klipper_service "restart"
   fi
