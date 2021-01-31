@@ -17,10 +17,12 @@ klipper_status(){
     $KLIPPER_DIR
     $KLIPPY_ENV_DIR
   )
+
+  ### count amount of klipper service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "klipper" | wc -l)
+
   ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
-    unset klipper_data[0]
-  fi
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipper_data[0]
 
   ### count+1 for each found data-item from array
   for kd in "${klipper_data[@]}"
@@ -30,16 +32,9 @@ klipper_status(){
     fi
   done
 
-  ### count amount of klipper services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
-    instances=1
-  else
-    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
-  fi
-
   ### display status
   if [ "$kcount" == "${#klipper_data[*]}" ]; then
-    KLIPPER_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
+    KLIPPER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$kcount" == 0 ]; then
     KLIPPER_STATUS="${red}Not installed!${default}  "
   else
@@ -49,34 +44,29 @@ klipper_status(){
 
 dwc2_status(){
   dcount=0
-  dwc2_data=(
+  dwc_data=(
     SERVICE
     $DWC2_DIR
     $DWC2FK_DIR
     $DWC_ENV_DIR
   )
-  ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "dwc.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc-[[:digit:]].service")" ]; then
-    unset dwc2_data[0]
-  fi
+
+  ### count amount of dwc service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "dwc" | wc -l)
+
+  ### remove the "SERVICE" entry from the dwc_data array if a dwc service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset dwc_data[0]
 
   #count+1 for each found data-item from array
-  for dd in "${dwc2_data[@]}"
+  for dd in "${dwc_data[@]}"
   do
     if [ -e $dd ]; then
       dcount=$(expr $dcount + 1)
     fi
   done
 
-  ### count amount of klipper services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
-    instances=1
-  else
-    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
-  fi
-
-  if [ "$dcount" == "${#dwc2_data[*]}" ]; then
-    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
+  if [ "$dcount" == "${#dwc_data[*]}" ]; then
+    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$dcount" == 0 ]; then
     DWC2_STATUS="${red}Not installed!${default}  "
   else
@@ -91,10 +81,12 @@ moonraker_status(){
     $MOONRAKER_DIR
     $MOONRAKER_ENV_DIR
   )
-  #remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
-    unset moonraker_data[0]
-  fi
+
+  ### count amount of moonraker service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker" | wc -l)
+
+  ### remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset moonraker_data[0]
 
   ### count+1 for each found data-item from array
   for mrd in "${moonraker_data[@]}"
@@ -104,16 +96,9 @@ moonraker_status(){
     fi
   done
 
-  ### count amount of moonraker services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
-    instances=1
-  else
-    instances=$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service" | wc -l)
-  fi
-
   ### display status
   if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
-    MOONRAKER_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
+    MOONRAKER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$mrcount" == 0 ]; then
     MOONRAKER_STATUS="${red}Not installed!${default}  "
   else
@@ -173,13 +158,11 @@ octoprint_status(){
     SERVICE
     $OCTOPRINT_DIR
   )
-  #remove the "SERVICE" entry from the octoprint array if an octoprint service is installed
-  if systemctl list-unit-files | grep -E "octoprint.*" &>/dev/null; then
-    unset octoprint_data[0]
-  fi
+  ### count amount of octoprint service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "octoprint" | wc -l)
 
-  ### count amount of octoprint services
-  instances=$(systemctl list-unit-files | grep -E "octoprint.*" | wc -l)
+  ### remove the "SERVICE" entry from the octoprint_data array if a octoprint service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset octoprint_data[0]
 
   #count+1 for each found data-item from array
   for op in "${octoprint_data[@]}"
@@ -191,7 +174,7 @@ octoprint_status(){
 
   ### display status
   if [ "$ocount" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $instances)"
+    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$ocount" == 0 ]; then
     OCTOPRINT_STATUS="${red}Not installed!${default}  "
   else
@@ -206,8 +189,13 @@ klipperscreen_status(){
     $KLIPPERSCREEN_DIR
     $KLIPPERSCREEN_ENV_DIR
   )
-  #remove the "SERVICE" entry from the klipperscreen_data array if a klipperscreen service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "KlipperScreen.service")" ] && unset klipperscreen_data[0]
+
+  ### count amount of klipperscreen_data service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "KlipperScreen" | wc -l)
+
+  ### remove the "SERVICE" entry from the klipperscreen_data array if a KlipperScreen service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipperscreen_data[0]
+
   #count+1 for each found data-item from array
   for klscd in "${klipperscreen_data[@]}"
   do
