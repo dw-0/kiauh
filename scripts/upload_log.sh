@@ -37,44 +37,56 @@ accept_upload_conditions(){
 }
 
 upload_selection(){
-  source_ini
+  source_kiauh_ini
   [ "$logupload_accepted" = "false" ] && accept_upload_conditions
-  KLIPPY_LOG=/tmp/klippy.log
-  MOONRAKER_LOG=/tmp/moonraker.log
-  DWC2_LOG=/tmp/dwc2.log
+
+  ### find all suitable logfiles for klipper
+  logfiles=()
+  if ls /tmp/klippy*.log 2>/dev/null 1>&2; then
+    for kl_log in $(find /tmp/klippy*.log); do
+      logfiles+=($kl_log)
+    done
+  fi
+  if ls /tmp/moonraker*.log 2>/dev/null 1>&2; then
+    for mr_log in $(find /tmp/moonraker*.log); do
+      logfiles+=($mr_log)
+    done
+  fi
+  if ls /tmp/dwc2*.log 2>/dev/null 1>&2; then
+    for dwc_log in $(find /tmp/dwc2*.log); do
+      logfiles+=($dwc_log)
+    done
+  fi
+
+  ### draw interface
+  i=0
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~~~ [ Log Upload ] ~~~~~~~~~~~~~~${default}     |"
   hr
   echo -e "|  You can choose the following files for uploading:    |"
-  echo -e "|  1) klippy.log                                        |"
-  echo -e "|  2) moonraker.log                                     |"
-  echo -e "|  3) dwc2.log                                          |"
+  for log in ${logfiles[@]}; do
+    printf "|  $i) %-50s|\n" "${logfiles[$i]}"
+    i=$((i + 1))
+  done
   quit_footer
   while true; do
     read -p "${cyan}Please select:${default} " choice
-    case "$choice" in
-    1)
-      clear && print_header
-      upload_log "$KLIPPY_LOG"
+    if [ $choice = "q" ] || [ $choice = "Q" ]; then
+      clear && main_menu && break
+    elif [ $choice -le ${#logfiles[@]} ]; then
+      upload_log "${logfiles[$choice]}"
       upload_selection
-      ;;
-    2)
+    else
       clear && print_header
-      upload_log "$MOONRAKER_LOG"
+      ERROR_MSG="File not found!" && print_msg && clear_msg
       upload_selection
-      ;;
-    3)
-      clear && print_header
-      upload_log "$DWC2_LOG"
-      upload_selection
-      ;;
-    q | Q) clear; main_menu; break;;
-    esac
+    fi
   done
 }
 
 upload_log(){
   if [ -f "$1" ]; then
+    clear && print_header
     status_msg "Uploading $1 ..."
     LINK=$(curl -s --upload-file $1 'http://paste.c-net.org/')
     [ ! -z "$LINK" ] && ok_msg "$1 upload successfull!"
@@ -83,7 +95,7 @@ upload_log(){
     unset LINK
   else
     clear && print_header
-    ERROR_MSG="$1 not found!" && print_msg && clear_msg
+    ERROR_MSG="File not found!" && print_msg && clear_msg
     upload_selection
   fi
 }

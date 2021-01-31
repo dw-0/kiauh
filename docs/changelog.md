@@ -2,6 +2,60 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-01-31
+
+* **This is a big one... KIAUH v3.0 is out.**\
+With this update you can now install multiple instances of Klipper, Moonraker, Duet Web Control or Octoprint on the same Pi. This was quite a big rework of the whole script. So bugs can appear but with the help of some testers, i think there shouldn't be any critical ones anymore. In this regards thanks to @lixxbox and @zellneralex for testing.
+
+* Important changes to how installations are set up now: All components get installed as systemd services. Installation via init.d was dropped completely! This shouldn't affect you at all, since the common linux distributions like RaspberryPi OS or custom distributions like MainsailOS, FluiddPi or OctoPi support both ways of installing services. I just wanted to mention it here.
+
+* Now with KIAUH v3.0 and multi-instance installation capabilities, there are some things to point out. You will now need to tell KIAUH where your printers configurations are located when installing Klipper for the first time. Even though it is not recommended, you can change this location with the help of KIAUH and rewrite Klipper and Moonraker to use the new location.
+
+* When setting up a multi-instance system, the folder structure will only change slightly. The goal was to keep it as compatible as possible with the custom distributions like mainsailOS and FluiddPi. This should help converting a single-instance setup of mainsailOS/FluiddPi to a multi-instance setup in no time, but keeping single-instance backwards compatibility if needed at a later point in time.
+
+* The folder structure is as follows when setting up multi-instances:\
+Each printer instance will get its own folder within your configuration location. The decision to this specific structure was made to make it as painless and easy as possible to convert to a multi-instance setup.
+Here is an example:
+    ```shell
+    /home/<username>
+              └── klipper_config
+                  ├── printer_1
+                  │   ├── printer.cfg
+                  │   └── moonraker.conf
+                  ├── printer_2
+                  │   ├── printer.cfg
+                  │   └── moonraker.conf
+                  └── printer_n
+                      ├── printer.cfg
+                      └── moonraker.conf
+    ```
+* Also when setting up multi-instances of each service, the name of each service slightly changes.
+Each service gets its corresponding instance added to the service filename.
+
+    **This only applies to multi-instances! Single instance installations with KIAUH will keep their original names!**
+
+    Corresponding to the filetree example from above that would mean:
+    ```
+    Klipper services:
+            --> klipper-1.service
+            --> klipper-2.service
+            --> klipper-n.service
+
+    Moonraker services:
+            --> moonraker-1.service
+            --> moonraker-2.service
+            --> moonraker-n.service
+    ```
+* The same service file rules from above apply to DWC and OctoPrint even though only Klipper and Moonraker are shown in this example.
+
+* You can start, stop and restart all Klipper, Moonraker, DWC and OctoPrint instances from the KIAUH main menu. For doing this, just type "stop klipper", "start moonraker", "restart octoprint" and so on.
+
+* KIAUH v3.0 relocated its ini-file. It is now a hidden file in the users home-directory calles `.kiauh.ini`. This has the benefit of keeping all values in that file between possible re-installations of KIAUH. Otherwise that file would be lost.
+
+* The option of adding more trusted clients to the moonraker.conf file was dropped. Since you can edit this file right inside of Mainsail or Fluidd, only some basic entries are made which get you running.
+
+* I bet i have missed mentioning other stuff as well because it took me quite some time to re-write many functions. So i just hope you like the new version 😄
+
 ### 2020-11-28
 
 * KIAUH now supports the installation, update and removal of [KlipperScreen](https://github.com/jordanruthe/KlipperScreen). This feature was was provided by [jordanruthe](https://github.com/jordanruthe)! Thank you!

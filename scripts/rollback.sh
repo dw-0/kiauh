@@ -1,5 +1,5 @@
 save_klipper_state(){
-  source_ini
+  source_kiauh_ini
   #read current klipper state
   cd $KLIPPER_DIR
   COMMIT_STATE=$(git rev-parse --short HEAD)
@@ -19,7 +19,7 @@ save_klipper_state(){
 }
 
 load_klipper_state(){
-  source_ini
+  source_kiauh_ini
   print_branch
   cd $KLIPPER_DIR
   CURRENT_COMMIT=$(git rev-parse --short=8 HEAD)

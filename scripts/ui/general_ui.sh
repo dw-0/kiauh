@@ -38,3 +38,24 @@ kiauh_update_msg(){
   echo -e "|  ${yellow}either to the script or the installable components!${default}  | "
   bottom_border
 }
+
+##############################################################################################
+#********************************************************************************************#
+##############################################################################################
+### TODO: rework other menus to make use of the following functions too and make them more readable
+
+do_action(){
+  clear && print_header
+  ### $1 is the action the user wants to fire
+  $1
+  print_msg && clear_msg
+  ### $2 is the menu the user usually gets directed back to after an action is completed
+  $2
+}
+
+deny_action(){
+  clear && print_header
+  print_unkown_cmd
+  print_msg && clear_msg
+  $1
+}

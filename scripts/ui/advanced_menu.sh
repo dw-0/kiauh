@@ -12,16 +12,14 @@ advanced_ui(){
   echo -e "|  Firmware:                |  7) [Shell Command]       | "
   echo -e "|  3) [Build only]          |                           | "
   echo -e "|  4) [Build + Flash MCU]   |                           | "
-  echo -e "|  5) [Get Printer-USB]     |                           | "
+  echo -e "|  5) [Get MCU ID]          |                           | "
   echo -e "|                           |                           | "
 quit_footer
 }
 
 advanced_menu(){
-  print_header
-  print_msg && clear_msg
   read_octoprint_service_status
-  advanced_ui
+  do_action "" "advanced_ui"
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
@@ -33,41 +31,23 @@ advanced_menu(){
         print_msg && clear_msg
         advanced_ui;;
       1)
-        clear
-        print_header
-        switch_menu
-        print_msg && clear_msg
-        advanced_ui;;
+        do_action "switch_menu" "advanced_ui";;
       2)
-        clear
-        print_header
-        load_klipper_state
-        print_msg && clear_msg
-        advanced_ui;;
+        do_action "load_klipper_state" "advanced_ui";;
       3)
-        clear
-        print_header
-        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
-        build_fw
-        print_msg && clear_msg
-        advanced_ui;;
+        do_action "build_fw" "advanced_ui";;
       4)
         clear
         print_header
-        unset FLASH_FIRMWARE && FLASH_FIRMWARE="true"
         flash_routine
-        unset BUILD_FIRMWARE && BUILD_FIRMWARE="true"
-        build_fw
-        unset CONFIRM_FLASHING && CONFIRM_FLASHING="true"
+        ### build in a sleep to give the user a chance to have a look at the
+        ### MCU IDs before directly starting to build the klipper firmware
+        status_msg "Please wait..." && sleep 10 && build_fw
         flash_mcu
         print_msg && clear_msg
         advanced_ui;;
       5)
-        clear
-        print_header
-        get_printer_usb
-        print_msg && clear_msg
-        advanced_ui;;
+        do_action "get_mcu_id" "advanced_ui";;
       6)
         clear
         print_header
@@ -75,19 +55,11 @@ advanced_menu(){
         print_msg && clear_msg
         advanced_ui;;
       7)
-        clear
-        print_header
-        setup_gcode_shell_command
-        print_msg && clear_msg
-        advanced_ui;;
+        do_action "setup_gcode_shell_command" "advanced_ui";;
       Q|q)
         clear; main_menu; break;;
       *)
-        clear
-        print_header
-        print_unkown_cmd
-        print_msg && clear_msg
-        advanced_ui;;
+        deny_action "advanced_ui";;
     esac
   done
   advanced_menu
@@ -117,8 +89,7 @@ switch_ui(){
 switch_menu(){
   if [ -d $KLIPPER_DIR ]; then
     read_branch
-    print_msg && clear_msg
-    switch_ui
+    do_action "" "switch_ui"
     while true; do
       read -p "${cyan}Perform action:${default} " action; echo
       case "$action" in
@@ -153,11 +124,7 @@ switch_menu(){
         Q|q)
           clear; advanced_menu; break;;
         *)
-          clear
-          print_header
-          print_unkown_cmd
-          print_msg && clear_msg
-          switch_ui;;
+          deny_action "switch_ui";;
       esac
     done
   else

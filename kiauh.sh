@@ -17,19 +17,14 @@ for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . $script; done
 ### set important directories
 #klipper
 KLIPPER_DIR=${HOME}/klipper
-KLIPPY_ENV_DIR=${HOME}/klippy-env
-KLIPPER_SERVICE1=/etc/init.d/klipper
-KLIPPER_SERVICE2=/etc/default/klipper
-KLIPPER_SERVICE3=/etc/systemd/system/klipper.service
+KLIPPY_ENV=${HOME}/klippy-env
 #nginx
 NGINX_SA=/etc/nginx/sites-available
 NGINX_SE=/etc/nginx/sites-enabled
 NGINX_CONFD=/etc/nginx/conf.d
 #moonraker
 MOONRAKER_DIR=${HOME}/moonraker
-MOONRAKER_ENV_DIR=${HOME}/moonraker-env
-MOONRAKER_SERVICE1=/etc/init.d/moonraker
-MOONRAKER_SERVICE2=/etc/default/moonraker
+MOONRAKER_ENV=${HOME}/moonraker-env
 #mainsail
 MAINSAIL_DIR=${HOME}/mainsail
 #fluidd
@@ -37,17 +32,14 @@ FLUIDD_DIR=${HOME}/fluidd
 #dwc2
 DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
 DWC_ENV_DIR=${HOME}/dwc-env
-DWC2_DIR=${HOME}/sdcard/web
+DWC2_DIR=${HOME}/duetwebcontrol
 #octoprint
 OCTOPRINT_DIR=${HOME}/OctoPrint
-OCTOPRINT_CFG_DIR=${HOME}/.octoprint
-OCTOPRINT_SERVICE1=/etc/init.d/octoprint
-OCTOPRINT_SERVICE2=/etc/default/octoprint
 #KlipperScreen
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
 #misc
-INI_FILE=${SRCDIR}/kiauh/kiauh.ini
+INI_FILE=${HOME}/.kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
 
 ### set github repos
@@ -75,7 +67,7 @@ title_msg(){
   echo -e "${cyan}$1${default}"
 }
 get_date(){
-  current_date=$(date +"%Y-%m-%d_%H-%M")
+  current_date=$(date +"%y%m%d-%H%M")
 }
 print_unkown_cmd(){
   ERROR_MSG="Invalid command!"

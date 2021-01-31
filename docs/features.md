@@ -17,11 +17,6 @@ That means:
   - set the behavior to "Cancel any ongoing prints but stay connected to the printer"
 - **Enable/Disable OctoPrint Service:**\
 Usefull when using DWC2/Mainsail/Fluidd and OctoPrint at the same time to prevent them interfering with each other
-- **Set up reverse proxy for DWC2, Mainsail, Fluidd and OctoPrint and changing the hostname:**
-  - The script can install and configure Nginx for the selected webinterface
-  - It also allows you to make your webinterface reachable over an URL like `<hostname>.local` via avahi
-    - Example: If you name the host "my-printer", type `my-printer.local` in your webbrowser to open the installed webinterface
-    - If there is more than one webinterface installed, you have to append the port to that adress
 
 - **Installing a G-Code Shell Command extension:**\
 For further information about that extension please see the  [G-Code Shell Command Extension Doc](gcode_shell_command.md)

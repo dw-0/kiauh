@@ -1,8 +1,8 @@
 kiauh_status(){
   if [ -d "${SRCDIR}/kiauh/.git" ]; then
-    cd ${HOME}/kiauh
-    git fetch -q
+    cd ${SRCDIR}/kiauh
     if git branch -a | grep "* master" -q; then
+      git fetch -q
       if [[ "$(git rev-parse --short=8 origin/master)" != "$(git rev-parse --short=8 HEAD)" ]]; then
         KIAUH_UPDATE_AVAIL="true"
       fi
@@ -17,17 +17,24 @@ klipper_status(){
     $KLIPPER_DIR
     $KLIPPY_ENV_DIR
   )
-  #remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && unset klipper_data[0]
-  #count+1 for each found data-item from array
+
+  ### count amount of klipper service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "klipper" | wc -l)
+
+  ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipper_data[0]
+
+  ### count+1 for each found data-item from array
   for kd in "${klipper_data[@]}"
   do
     if [ -e $kd ]; then
       kcount=$(expr $kcount + 1)
     fi
   done
+
+  ### display status
   if [ "$kcount" == "${#klipper_data[*]}" ]; then
-    KLIPPER_STATUS="${green}Installed!${default}      "
+    KLIPPER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$kcount" == 0 ]; then
     KLIPPER_STATUS="${red}Not installed!${default}  "
   else
@@ -37,20 +44,29 @@ klipper_status(){
 
 dwc2_status(){
   dcount=0
-  dwc2_data=(
+  dwc_data=(
+    SERVICE
+    $DWC2_DIR
     $DWC2FK_DIR
     $DWC_ENV_DIR
-    $DWC2_DIR
   )
+
+  ### count amount of dwc service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "dwc" | wc -l)
+
+  ### remove the "SERVICE" entry from the dwc_data array if a dwc service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset dwc_data[0]
+
   #count+1 for each found data-item from array
-  for dd in "${dwc2_data[@]}"
+  for dd in "${dwc_data[@]}"
   do
     if [ -e $dd ]; then
       dcount=$(expr $dcount + 1)
     fi
   done
-  if [ "$dcount" == "${#dwc2_data[*]}" ]; then
-    DWC2_STATUS="${green}Installed!${default}      "
+
+  if [ "$dcount" == "${#dwc_data[*]}" ]; then
+    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$dcount" == 0 ]; then
     DWC2_STATUS="${red}Not installed!${default}  "
   else
@@ -64,20 +80,25 @@ moonraker_status(){
     SERVICE
     $MOONRAKER_DIR
     $MOONRAKER_ENV_DIR
-    $NGINX_CONFD/upstreams.conf
-    $NGINX_CONFD/common_vars.conf
   )
-  #remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] && unset moonraker_data[0]
-  #count+1 for each found data-item from array
+
+  ### count amount of moonraker service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker" | wc -l)
+
+  ### remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset moonraker_data[0]
+
+  ### count+1 for each found data-item from array
   for mrd in "${moonraker_data[@]}"
   do
     if [ -e $mrd ]; then
       mrcount=$(expr $mrcount + 1)
     fi
   done
+
+  ### display status
   if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
-    MOONRAKER_STATUS="${green}Installed!${default}      "
+    MOONRAKER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$mrcount" == 0 ]; then
     MOONRAKER_STATUS="${red}Not installed!${default}  "
   else
@@ -134,11 +155,15 @@ fluidd_status(){
 octoprint_status(){
   ocount=0
   octoprint_data=(
+    SERVICE
     $OCTOPRINT_DIR
-    $OCTOPRINT_CFG_DIR
-    $OCTOPRINT_SERVICE1
-    $OCTOPRINT_SERVICE2
   )
+  ### count amount of octoprint service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "octoprint" | wc -l)
+
+  ### remove the "SERVICE" entry from the octoprint_data array if a octoprint service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset octoprint_data[0]
+
   #count+1 for each found data-item from array
   for op in "${octoprint_data[@]}"
   do
@@ -146,8 +171,10 @@ octoprint_status(){
       ocount=$(expr $ocount + 1)
     fi
   done
+
+  ### display status
   if [ "$ocount" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="${green}Installed!${default}      "
+    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$ocount" == 0 ]; then
     OCTOPRINT_STATUS="${red}Not installed!${default}  "
   else
@@ -162,8 +189,13 @@ klipperscreen_status(){
     $KLIPPERSCREEN_DIR
     $KLIPPERSCREEN_ENV_DIR
   )
-  #remove the "SERVICE" entry from the klipperscreen_data array if a klipperscreen service is installed
-  [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "KlipperScreen.service")" ] && unset klipperscreen_data[0]
+
+  ### count amount of klipperscreen_data service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "KlipperScreen" | wc -l)
+
+  ### remove the "SERVICE" entry from the klipperscreen_data array if a KlipperScreen service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipperscreen_data[0]
+
   #count+1 for each found data-item from array
   for klscd in "${klipperscreen_data[@]}"
   do
@@ -297,9 +329,9 @@ compare_dwc2fk_versions(){
 
 read_local_dwc2_version(){
   unset DWC2_VER_FOUND
-  if [ -e $DWC2_DIR/version ]; then
+  if [ -e $DWC2_DIR/.version ]; then
     DWC2_VER_FOUND="true"
-    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/version)
+    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/.version)
   else
     DWC2_VER_FOUND="false" && unset DWC2_LOCAL_VER
   fi
@@ -310,7 +342,7 @@ read_remote_dwc2_version(){
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
     DWC2_REMOTE_VER=$NONE
   else
-    get_dwc2_ver
+    get_dwc_ver
     DWC2_REMOTE_VER=$DWC2_VERSION
   fi
 }
@@ -366,10 +398,9 @@ compare_moonraker_versions(){
 
 read_local_mainsail_version(){
   unset MAINSAIL_VER_FOUND
-  MAINSAIL_APP_FILE=$(find $MAINSAIL_DIR/js -name "app.*.js" 2>/dev/null)
-  if [ ! -z $MAINSAIL_APP_FILE ]; then
-    MAINSAIL_LOCAL_VER=$(grep -o -E 'state:{packageVersion:.+' $MAINSAIL_APP_FILE | cut -d'"' -f2)
+  if [ -e $MAINSAIL_DIR/.version ]; then
     MAINSAIL_VER_FOUND="true"
+    MAINSAIL_LOCAL_VER=$(head -n 1 $MAINSAIL_DIR/.version)
   else
     MAINSAIL_VER_FOUND="false" && unset MAINSAIL_LOCAL_VER
   fi
@@ -390,26 +421,25 @@ compare_mainsail_versions(){
   read_local_mainsail_version && read_remote_mainsail_version
   if [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER == $MAINSAIL_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    MAINSAIL_LOCAL_VER="${green}$(printf "v%-11s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
   elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
-    MAINSAIL_LOCAL_VER="${yellow}$(printf "v%-11s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
     # set flag for the multi update function
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
     MAINSAIL_LOCAL_VER=$NONE
-    MAINSAIL_REMOTE_VER="${green}$(printf "v%-11s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
 
 read_local_fluidd_version(){
   unset FLUIDD_VER_FOUND
-  FLUIDD_APP_FILE=$(find $FLUIDD_DIR/js -name "app.*.js" 2>/dev/null)
-  if [ ! -z $FLUIDD_APP_FILE ]; then
-    FLUIDD_LOCAL_VER=$(grep -o -E '"version/setVersion",".+"' $FLUIDD_APP_FILE | cut -d'"' -f4)
+  if [ -e $FLUIDD_DIR/.version ]; then
     FLUIDD_VER_FOUND="true"
+    FLUIDD_LOCAL_VER=$(head -n 1 $FLUIDD_DIR/.version)
   else
     FLUIDD_VER_FOUND="false" && unset FLUIDD_LOCAL_VER
   fi
@@ -430,16 +460,16 @@ compare_fluidd_versions(){
   read_local_fluidd_version && read_remote_fluidd_version
   if [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER == $FLUIDD_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    FLUIDD_LOCAL_VER="${green}$(printf "v%-11s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_LOCAL_VER="${green}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
   elif [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER != $FLUIDD_REMOTE_VER ]]; then
-    FLUIDD_LOCAL_VER="${yellow}$(printf "v%-11s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_LOCAL_VER="${yellow}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
     # set flag for the multi update function
     FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
     FLUIDD_LOCAL_VER=$NONE
-    FLUIDD_REMOTE_VER="${green}$(printf "v%-11s" "$FLUIDD_REMOTE_VER")${default}"
+    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
 }

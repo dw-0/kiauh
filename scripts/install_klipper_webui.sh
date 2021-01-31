@@ -1,36 +1,41 @@
 check_moonraker(){
   status_msg "Checking for Moonraker service ..."
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
-    ok_msg "Moonraker service found!"; echo
-    MOONRAKER_SERVICE_FOUND="true"
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+    moonraker_chk_ok="true"
   else
-    warn_msg "Moonraker service not found!"
-    warn_msg "Please install Moonraker first!"; echo
-    MOONRAKER_SERVICE_FOUND="false"
+    moonraker_chk_ok="false"
   fi
 }
 
-get_user_selection_webui(){
+get_user_selection_kiauh_macros(){
   #ask user for webui default macros
   while true; do
-    unset ADD_WEBUI_MACROS
+    unset ADD_KIAUH_MACROS
     echo
     top_border
-    echo -e "| It is recommended to have some important macros to    |"
-    echo -e "| have full functionality of the web interface.         |"
+    echo -e "| It is recommended to have some important macros set   |"
+    echo -e "| up in your printer configuration to have $1|"
+    echo -e "| fully functional and working.                         |"
     blank_line
-    echo -e "| If you do not have such macros, you can choose to     |"
-    echo -e "| install the suggested default macros now.             |"
+    echo -e "| Those macros are:                                     |"
+    echo -e "| ${cyan}● [gcode_macro PAUSE]${default}                                 |"
+    echo -e "| ${cyan}● [gcode_macro RESUME]${default}                                |"
+    echo -e "| ${cyan}● [gcode_macro CANCEL_PRINT]${default}                          |"
+    blank_line
+    echo -e "| If you already have these macros in your config file  |"
+    echo -e "| you can skip this step and choose 'no'.               |"
+    echo -e "| Otherwise you should consider to answer with 'yes' to |"
+    echo -e "| add the recommended example macros to your config.    |"
     bottom_border
     read -p "${cyan}###### Add the recommended macros? (Y/n):${default} " yn
     case "$yn" in
       Y|y|Yes|yes|"")
         echo -e "###### > Yes"
-        ADD_WEBUI_MACROS="true"
+        ADD_KIAUH_MACROS="true"
         break;;
       N|n|No|no)
         echo -e "###### > No"
-        ADD_WEBUI_MACROS="false"
+        ADD_KIAUH_MACROS="false"
         break;;
       *)
         print_unkown_cmd
@@ -39,56 +44,71 @@ get_user_selection_webui(){
   done
 }
 
-install_mainsail(){
-  get_user_selection_webui
-  #check if moonraker is already installed
+install_webui(){
+  ### check if moonraker is already installed
   check_moonraker
-  if [ "$MOONRAKER_SERVICE_FOUND" = "true" ]; then
-    #check for other enabled web interfaces
-    unset SET_LISTEN_PORT
-    detect_enabled_sites
-    #check if another site already listens to port 80
-    mainsail_port_check
-    #creating the mainsail nginx cfg
-    set_nginx_cfg "mainsail"
-    #test_nginx "$SET_LISTEN_PORT"
-    locate_printer_cfg && read_printer_cfg "mainsail"
-    install_webui_macros
-    mainsail_setup
+
+  [ $1 == "mainsail" ] && IF_NAME1="Mainsail" && IF_NAME2="Mainsail     "
+  [ $1 == "fluidd" ] && IF_NAME1="Fluidd" && IF_NAME2="Fluidd       "
+
+  ### exit mainsail/fluidd setup if moonraker not found
+  if [ $moonraker_chk_ok = "false" ]; then
+    ERROR_MSG="Moonraker service not found!\n Please install Moonraker first!"
+    print_msg && clear_msg && return 0
+  else
+    ok_msg "Moonraker service found!"
+    status_msg "Initializing $IF_NAME1 installation ..."
   fi
+
+  ### check for other enabled web interfaces
+  unset SET_LISTEN_PORT
+  detect_enabled_sites
+
+  ### check if another site already listens to port 80
+  $1_port_check
+
+  ### ask user to install the recommended webinterface macros
+  get_user_selection_kiauh_macros "$IF_NAME2"
+
+  ### creating the mainsail/fluidd nginx cfg
+  set_nginx_cfg "$1"
+
+  ### copy the kiauh_macros.cfg to the config location
+  install_kiauh_macros
+
+  ### install mainsail/fluidd
+  $1_setup
 }
 
-install_fluidd(){
-  get_user_selection_webui
-  #check if moonraker is already installed
-  check_moonraker
-  if [ "$MOONRAKER_SERVICE_FOUND" = "true" ]; then
-    #check for other enabled web interfaces
-    unset SET_LISTEN_PORT
-    detect_enabled_sites
-    #check if another site already listens to port 80
-    fluidd_port_check
-    #creating the fluidd nginx cfg
-    set_nginx_cfg "fluidd"
-    #test_nginx "$SET_LISTEN_PORT"
-    locate_printer_cfg && read_printer_cfg "fluidd"
-    install_webui_macros
-    fluidd_setup
-  fi
-}
-
-install_webui_macros(){
-  #copy webui_macros.cfg
-  if [ "$ADD_WEBUI_MACROS" = "true" ]; then
-    status_msg "Create webui_macros.cfg ..."
-    if [ ! -f ${HOME}/klipper_config/webui_macros.cfg ]; then
-      cp ${HOME}/kiauh/resources/webui_macros.cfg ${HOME}/klipper_config
-      ok_msg "File created!"
-    else
-      warn_msg "File already exists! Skipping ..."
+install_kiauh_macros(){
+  source_kiauh_ini
+  ### copy kiauh_macros.cfg
+  if [ "$ADD_KIAUH_MACROS" = "true" ]; then
+    ### create a backup of the config folder
+    backup_klipper_config_dir
+    ### handle multi printer.cfg
+    if ls $klipper_cfg_loc/printer_*  2>/dev/null 1>&2; then
+      for config in $(find $klipper_cfg_loc/printer_*/printer.cfg); do
+        path=$(echo $config | rev | cut -d"/" -f2- | rev)
+        if [ ! -f $path/kiauh_macros.cfg ]; then
+          ### copy kiauh_macros.cfg to config location
+          cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $path
+          ok_msg "$path/kiauh_macros.cfg created!"
+          ### write the include to the very first line of the printer.cfg
+          sed -i "1 i [include kiauh_macros.cfg]" $path/printer.cfg
+        fi
+      done
+    ### handle single printer.cfg
+    elif [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/kiauh_macros.cfg ]; then
+      ### copy kiauh_macros.cfg to config location
+      cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $klipper_cfg_loc
+      ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
+      ### write the include to the very first line of the printer.cfg
+      sed -i "1 i [include kiauh_macros.cfg]" $klipper_cfg_loc/printer.cfg
     fi
+    ### restart klipper service to parse the modified printer.cfg
+    klipper_service "restart"
   fi
-  write_printer_cfg
 }
 
 mainsail_port_check(){
@@ -103,7 +123,7 @@ mainsail_port_check(){
         select_mainsail_port
       fi
     else
-      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/mainsail_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
       SET_LISTEN_PORT=$DEFAULT_PORT
     fi
     SET_NGINX_CFG="true"
@@ -124,7 +144,7 @@ fluidd_port_check(){
         select_fluidd_port
       fi
     else
-      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/fluidd_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
       SET_LISTEN_PORT=$DEFAULT_PORT
     fi
     SET_NGINX_CFG="true"
@@ -146,7 +166,8 @@ select_mainsail_port(){
     [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                               |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other web interfaces!          |"
+    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
+    echo -e "| use ports in the range of 4750 or above!              |"
     blank_line
     echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
@@ -177,7 +198,8 @@ select_fluidd_port(){
     [ "$DWC2_PORT" = "80" ] && echo "|  ● DWC2                                               |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other web interfaces!          |"
+    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
+    echo -e "| use ports in the range of 4750 or above!              |"
     blank_line
     echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
@@ -196,83 +218,60 @@ select_fluidd_port(){
 }
 
 get_mainsail_ver(){
-  MAINSAIL_VERSION=$(curl -s https://api.github.com/repositories/240875926/releases | grep tag_name | cut -d'"' -f4 | cut -d"v" -f2 | head -1)
+  MAINSAIL_VERSION=$(curl -s https://api.github.com/repositories/240875926/releases | grep tag_name | cut -d'"' -f4 | head -1)
 }
 
 get_fluidd_ver(){
-  FLUIDD_VERSION=$(curl -s https://api.github.com/repositories/295836951/releases | grep tag_name | cut -d'"' -f4 | cut -d"v" -f2 | head -1)
+  FLUIDD_VERSION=$(curl -s https://api.github.com/repositories/295836951/releases | grep tag_name | cut -d'"' -f4 | head -1)
 }
 
 mainsail_setup(){
-  #get mainsail download url
+  ### get mainsail download url
   MAINSAIL_DL_URL=$(curl -s https://api.github.com/repositories/240875926/releases | grep browser_download_url | cut -d'"' -f4 | head -1)
-  #clean up an existing mainsail folder
+
+  ### remove existing and create fresh mainsail folder, then download mainsail
   [ -d $MAINSAIL_DIR ] && rm -rf $MAINSAIL_DIR
-  #create fresh mainsail folder and download mainsail
   mkdir $MAINSAIL_DIR && cd $MAINSAIL_DIR
   status_msg "Downloading Mainsail $MAINSAIL_VERSION ..."
   wget $MAINSAIL_DL_URL && ok_msg "Download complete!"
-  #extract archive
+
+  ### extract archive
   status_msg "Extracting archive ..."
   unzip -q -o *.zip && ok_msg "Done!"
-  #delete downloaded zip
+
+  ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
-  rm -rf *.zip && ok_msg "Done!" && ok_msg "Mainsail installation complete!"
-  echo
+  rm -rf *.zip && ok_msg "Done!"
+
+  ### check for moonraker multi-instance and if multi-instance was found, enable mainsails remoteMode
+  if [ $(ls /etc/systemd/system/moonraker* | wc -l) -gt 1 ]; then
+    enable_mainsail_remotemode
+  fi
+
+  ok_msg "Mainsail installation complete!\n"
+}
+
+enable_mainsail_remotemode(){
+  rm -f $MAINSAIL_DIR/config.json
+  echo -e "{\n    \"remoteMode\":true\n}" >> $MAINSAIL_DIR/config.json
 }
 
 fluidd_setup(){
-  #get fluidd download url
+  ### get fluidd download url
   FLUIDD_DL_URL=$(curl -s https://api.github.com/repositories/295836951/releases/latest | grep browser_download_url | cut -d'"' -f4)
-  #clean up an existing fluidd folder
+
+  ### remove existing and create fresh fluidd folder, then download fluidd
   [ -d $FLUIDD_DIR ] && rm -rf $FLUIDD_DIR
-  #create fresh fluidd folder and download fluidd
   mkdir $FLUIDD_DIR && cd $FLUIDD_DIR
   status_msg "Downloading Fluidd $FLUIDD_VERSION ..."
   wget $FLUIDD_DL_URL && ok_msg "Download complete!"
-  #extract archive
+
+  ### extract archive
   status_msg "Extracting archive ..."
   unzip -q -o *.zip && ok_msg "Done!"
-  #patch moonraker.conf to apply cors domains if needed
-  backup_moonraker_conf
-  patch_moonraker
-  #delete downloaded zip
+
+  ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!" && ok_msg "Fluidd installation complete!"
   echo
-}
-
-patch_moonraker(){
-  status_msg "Patching moonraker.conf ..."
-  mr_conf=${HOME}/moonraker.conf
-  # remove the now deprecated enable_cors option from moonraker.conf if it still exists
-  if [ "$(grep "^enable_cors:" $mr_conf)" ]; then
-    line="$(grep -n "^enable_cors:" ~/moonraker.conf | cut -d":" -f1)d"
-    sed -i "$line" $mr_conf && mr_restart="true"
-  fi
-  # looking for a cors_domain entry in moonraker.conf
-  if [ ! "$(grep "^cors_domains:$" $mr_conf)" ]; then
-    #find trusted_clients line number and subtract one, to insert cors_domains later
-    line="$(grep -n "^trusted_clients:$" $mr_conf | cut -d":" -f1)i"
-    sed -i "$line cors_domains:" $mr_conf && mr_restart="true"
-  fi
-  if [ "$(grep "^cors_domains:$" $mr_conf)" ]; then
-    hostname=$(hostname -I | cut -d" " -f1)
-    url1="\ \ \ \ http://*.local"
-    url2="\ \ \ \ http://app.fluidd.xyz"
-    url3="\ \ \ \ https://app.fluidd.xyz"
-    url4="\ \ \ \ http://$hostname:*"
-    #find cors_domains line number and add one, to insert urls later
-    line="$(expr $(grep -n "cors_domains:" $mr_conf | cut -d":" -f1) + 1)i"
-    [ ! "$(grep -E '^\s+http:\/\/\*\.local$' $mr_conf)" ] && sed -i "$line $url1" $mr_conf && mr_restart="true"
-    [ ! "$(grep -E '^\s+http:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url2" $mr_conf && mr_restart="true"
-    [ ! "$(grep -E '^\s+https:\/\/app\.fluidd\.xyz$' $mr_conf)" ] && sed -i "$line $url3" $mr_conf && mr_restart="true"
-    [ ! "$(grep -E '^\s+http:\/\/([0-9]{1,3}\.){3}[0-9]{1,3}' $mr_conf)" ] && sed -i "$line $url4" $mr_conf && mr_restart="true"
-  fi
-  #restart moonraker service if mr_restart was set to true
-  if [[ $mr_restart == "true" ]]; then
-    ok_msg "Patching done!" && restart_moonraker
-  else
-    ok_msg "No patching was needed!"
-  fi
 }

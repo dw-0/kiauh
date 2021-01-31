@@ -1,40 +1,119 @@
 remove_klipper(){
-  data_arr=(
-  /etc/init.d/klipper
-  /etc/default/klipper
-  /etc/systemd/system/klipper.service
-  $KLIPPER_DIR
-  $KLIPPY_ENV_DIR
-  ${HOME}/klippy.log
-  )
-  print_error "Klipper" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    stop_klipper
-    if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
-      status_msg "Removing Klipper Service ..."
-      sudo rm -rf /etc/init.d/klipper /etc/default/klipper
-      sudo update-rc.d -f klipper remove
-      sudo systemctl disable klipper
-      sudo systemctl daemon-reload
-      ok_msg "Klipper Service removed!"
-    fi
-    if [ -e /etc/systemd/system/klipper.service ]; then
-      status_msg "Removing Klipper Service ..."
-      sudo rm -rf /etc/systemd/system/klipper.service
-      sudo update-rc.d -f klipper remove
-      sudo systemctl disable klipper
-      sudo systemctl daemon-reload
-      ok_msg "Klipper Service removed!"
-    fi
-    if [[ -d $KLIPPER_DIR || -d $KLIPPY_ENV_DIR ]]; then
-      status_msg "Removing Klipper and klippy-env directory ..."
-      rm -rf $KLIPPER_DIR $KLIPPY_ENV_DIR && ok_msg "Directories removed!"
-    fi
-    if [[ -L ${HOME}/klippy.log || -e /tmp/klippy.log ]]; then
-      status_msg "Removing klippy.log Symlink ..."
-      rm -rf ${HOME}/klippy.log /tmp/klippy.log && ok_msg "Symlink removed!"
-    fi
-    CONFIRM_MSG=" Klipper successfully removed!"
+  ### ask the user if he wants to uninstall moonraker too.
+  ###? currently usefull if the user wants to switch from single-instance to multi-instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker*.")" ]; then
+    while true; do
+      unset REM_MR
+      top_border
+      echo -e "| Do you want to remove Moonraker afterwards?           |"
+      echo -e "|                                                       |"
+      echo -e "| This is useful in case you want to switch from a      |"
+      echo -e "| single-instance to a multi-instance installation,     |"
+      echo -e "| which makes a re-installation of Moonraker necessary. |"
+      echo -e "|                                                       |"
+      echo -e "| If for any other reason you only want to uninstall    |"
+      echo -e "| Klipper, please select 'No' and continue.             |"
+      bottom_border
+      read -p "${cyan}###### Remove Moonraker afterwards? (y/N):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes)
+          echo -e "###### > Yes"
+          REM_MR="true"
+          break;;
+        N|n|No|no|"")
+          echo -e "###### > No"
+          REM_MR="false"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+    esac
+    done
+  fi
+
+  ### remove "legacy" klipper init.d service
+  if [[ -e /etc/init.d/klipper || -e /etc/default/klipper ]]; then
+    status_msg "Removing Klipper Service ..."
+    sudo systemctl stop klipper
+    sudo systemctl disable klipper
+    sudo rm -rf /etc/init.d/klipper /etc/default/klipper
+    sudo update-rc.d -f klipper remove
+    sudo systemctl daemon-reload
+    ok_msg "Klipper Service removed!"
+  fi
+
+  ###remove single instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+    status_msg "Removing Klipper Service ..."
+    sudo systemctl stop klipper
+    sudo systemctl disable klipper
+    sudo rm -f $SYSTEMDDIR/klipper.service
+    ok_msg "Klipper Service removed!"
+  fi
+  if [ -f /tmp/klippy.log ]; then
+    status_msg "Removing /tmp/klippy.log ..." && rm -f /tmp/klippy.log && ok_msg "Done!"
+  fi
+  if [ -e /tmp/klippy_uds ]; then
+    status_msg "Removing /tmp/klippy_uds ..." && rm -f /tmp/klippy_uds && ok_msg "Done!"
+  fi
+  if [ -h /tmp/printer ]; then
+    status_msg "Removing /tmp/printer ..." && rm -f /tmp/printer && ok_msg "Done!"
+  fi
+
+  ###remove multi instance services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+    status_msg "Removing Klipper Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "klipper-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+  fi
+
+  ###remove multi instance logfiles
+  if [ "$(find /tmp -maxdepth 1 -name "klippy-*.log")" ]; then
+    for logfile in $(find /tmp -maxdepth 1 -name "klippy-*.log")
+    do
+      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+    done
+  fi
+
+  ###remove multi instance UDS
+  if [ "$(find /tmp -maxdepth 1 -name "klippy_uds-*")" ]; then
+    for uds in $(find /tmp -maxdepth 1 -name "klippy_uds-*")
+    do
+      status_msg "Removing $uds ..." && rm -f $uds && ok_msg "Done!"
+    done
+  fi
+
+  ###remove multi instance tmp-printer
+  if [ "$(find /tmp -maxdepth 1 -name "printer-*")" ]; then
+    for tmp_printer in $(find /tmp -maxdepth 1 -name "printer-*")
+    do
+      status_msg "Removing $tmp_printer ..." && rm -f $tmp_printer && ok_msg "Done!"
+    done
+  fi
+
+  ###reloading units
+  sudo systemctl daemon-reload
+
+  ###removing klipper and klippy-env folders
+  if [ -d $KLIPPER_DIR ]; then
+    status_msg "Removing Klipper directory ..."
+    rm -rf $KLIPPER_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $KLIPPY_ENV ]; then
+    status_msg "Removing klippy-env directory ..."
+    rm -rf $KLIPPY_ENV && ok_msg "Directory removed!"
+  fi
+
+  CONFIRM_MSG=" Klipper was successfully removed!" && print_msg && clear_msg
+
+  if [ "$REM_MR" == "true" ]; then
+    remove_moonraker
   fi
 }
 
@@ -42,249 +121,244 @@ remove_klipper(){
 #############################################################
 
 remove_dwc2(){
-  data_arr=(
-  /etc/init.d/dwc
-  /etc/default/dwc
-  /etc/systemd/system/dwc.service
-  $DWC2FK_DIR
-  $DWC_ENV_DIR
-  $DWC2_DIR
-  /etc/nginx/sites-available/dwc2
-  /etc/nginx/sites-enabled/dwc2
-  )
-  print_error "DWC2-for-Klipper-Socket &\n DWC2 Web UI" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    if systemctl is-active dwc -q; then
-      status_msg "Stopping DWC2-for-Klipper-Socket Service ..."
-      sudo systemctl stop dwc && sudo systemctl disable dwc
-      ok_msg "Service stopped!"
-    fi
-    #remove if init.d service
-    if [[ -e /etc/init.d/dwc || -e /etc/default/dwc ]]; then
-      status_msg "Init.d Service found ..."
-      status_msg "Removing DWC2-for-Klipper-Socket Service ..."
-      sudo rm -rf /etc/init.d/dwc /etc/default/dwc
-      sudo update-rc.d -f dwc remove
-      ok_msg "DWC2-for-Klipper-Socket Service removed!"
-    fi
-    #remove if systemd service
-    if [ -e /etc/systemd/system/dwc.service ]; then
-      status_msg "Systemd Service found ..."
-      status_msg "Removing DWC2-for-Klipper-Socket Service ..."
-      sudo rm -rf /etc/systemd/system/dwc.service
-      ok_msg "DWC2-for-Klipper-Socket Service removed!"
-    fi
-    if [ -d $DWC2FK_DIR ]; then
-      status_msg "Removing DWC2-for-Klipper-Socket directory ..."
-      rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
-    fi
-    if [ -d $DWC_ENV_DIR ]; then
-      status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
-      rm -rf $DWC_ENV_DIR && ok_msg "File removed!"
-    fi
-    if [ -d $DWC2_DIR ]; then
-      status_msg "Removing DWC2 directory ..."
-      rm -rf $DWC2_DIR && ok_msg "Directory removed!"
-    fi
-    #remove dwc2 config for nginx
-    if [ -e /etc/nginx/sites-available/dwc2 ]; then
-      status_msg "Removing DWC2 configuration for Nginx ..."
-      sudo rm /etc/nginx/sites-available/dwc2 && ok_msg "File removed!"
-    fi
-    #remove dwc2 symlink for nginx
-    if [ -L /etc/nginx/sites-enabled/dwc2 ]; then
-      status_msg "Removing DWC2 Symlink for Nginx ..."
-      sudo rm /etc/nginx/sites-enabled/dwc2 && ok_msg "File removed!"
-    fi
-    CONFIRM_MSG=" DWC2-for-Klipper-Socket & DWC2 successfully removed!"
+  ### remove "legacy" init.d service
+  if [[ -e /etc/init.d/dwc || -e /etc/default/dwc ]]; then
+    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
+    sudo systemctl stop dwc
+    sudo systemctl disable dwc
+    sudo rm -rf /etc/init.d/dwc /etc/default/dwc
+    sudo update-rc.d -f dwc remove
+    sudo systemctl daemon-reload
+    ok_msg "DWC2-for-Klipper-Socket Service removed!"
   fi
+
+  ### remove single instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "dwc.service")" ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
+    sudo systemctl stop dwc
+    sudo systemctl disable dwc
+    sudo rm -f $SYSTEMDDIR/dwc.service
+    ok_msg "DWC2-for-Klipper-Socket Service removed!"
+  fi
+  if [ -f /tmp/dwc.log ]; then
+    status_msg "Removing /tmp/dwc.log ..." && rm -f /tmp/dwc.log && ok_msg "Done!"
+  fi
+
+  ### remove multi instance services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc-[[:digit:]].service")" ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "dwc-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+  fi
+
+  ### remove multi instance logfiles
+  if [ "$(find /tmp -maxdepth 1 -name "dwc-*.log")" ]; then
+    for logfile in $(find /tmp -maxdepth 1 -name "dwc-*.log")
+    do
+      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+    done
+  fi
+
+  ### reloading units
+  sudo systemctl daemon-reload
+
+  ### removing the rest of the folders
+  if [ -d $DWC2FK_DIR ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket directory ..."
+    rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $DWC_ENV_DIR ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
+    rm -rf $DWC_ENV_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $DWC2_DIR ]; then
+    status_msg "Removing DWC2 directory ..."
+    rm -rf $DWC2_DIR && ok_msg "Directory removed!"
+  fi
+
+  CONFIRM_MSG=" DWC2-for-Klipper-Socket was successfully removed!"
 }
 
 #############################################################
 #############################################################
 
 remove_moonraker(){
-  data_arr=(
-  $MOONRAKER_SERVICE1
-  $MOONRAKER_SERVICE2
-  $MOONRAKER_DIR
-  $MOONRAKER_ENV_DIR
-  $NGINX_CONFD/upstreams.conf
-  $NGINX_CONFD/common_vars.conf
-  ${HOME}/moonraker.conf
-  ${HOME}/moonraker.log
-  ${HOME}/klipper_config/moonraker.log
-  ${HOME}/klipper_config/klippy.log
-  ${HOME}/.klippy_api_key
-  ${HOME}/.moonraker_api_key
-  )
-  print_error "Moonraker" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    if [ -e ${HOME}/moonraker.conf ]; then
-      unset REMOVE_MOONRAKER_CONF
-      while true; do
-        echo
-        read -p "${cyan}###### Delete moonraker.conf? (y/N):${default} " yn
-        case "$yn" in
-          Y|y|Yes|yes)
-            echo -e "###### > Yes"
-            REMOVE_MOONRAKER_CONF="true"
-            break;;
-          N|n|No|no|"")
-            echo -e "###### > No"
-            REMOVE_MOONRAKER_CONF="false"
-            break;;
-          *)
-            print_unkown_cmd
-            print_msg && clear_msg;;
-        esac
-      done
-    fi
-    status_msg "Processing ..."
-    stop_moonraker
-    #remove moonraker services
-    if [[ -e /etc/init.d/moonraker || -e /etc/default/moonraker ]]; then
-      status_msg "Removing Moonraker Service ..."
-      sudo update-rc.d -f moonraker remove
-      sudo rm -rf /etc/init.d/moonraker /etc/default/moonraker && ok_msg "Moonraker Service removed!"
-    fi
-    #remove moonraker and moonraker-env dir
-    if [[ -d $MOONRAKER_DIR || -d $MOONRAKER_ENV_DIR ]]; then
-      status_msg "Removing Moonraker and moonraker-env directory ..."
-      rm -rf $MOONRAKER_DIR $MOONRAKER_ENV_DIR && ok_msg "Directories removed!"
-    fi
-    #remove moonraker.conf
-    if [ "$REMOVE_MOONRAKER_CONF" = "true" ]; then
-      status_msg "Removing moonraker.conf ..."
-      rm -rf ${HOME}/moonraker.conf && ok_msg "File removed!"
-    fi
-    #remove moonraker.log and symlink
-    if [[ -L ${HOME}/moonraker.log || -L ${HOME}/klipper_config/moonraker.log || -L ${HOME}/klipper_config/klippy.log || -e /tmp/moonraker.log ]]; then
-      status_msg "Removing Logs and Symlinks ..."
-      rm -rf ${HOME}/moonraker.log ${HOME}/klipper_config/moonraker.log ${HOME}/klipper_config/klippy.log /tmp/moonraker.log
-      ok_msg "Files removed!"
-    fi
-    #remove moonraker nginx config
-    if [[ -e $NGINX_CONFD/upstreams.conf || -e $NGINX_CONFD/common_vars.conf ]]; then
-      status_msg "Removing Moonraker NGINX configuration ..."
-      sudo rm -f $NGINX_CONFD/upstreams.conf $NGINX_CONFD/common_vars.conf && ok_msg "Moonraker NGINX configuration removed!"
-    fi
-    #remove legacy api key
-    if [ -e ${HOME}/.klippy_api_key ]; then
-      status_msg "Removing legacy API Key ..."
-      rm ${HOME}/.klippy_api_key && ok_msg "Done!"
-    fi
-    #remove api key
-    if [ -e ${HOME}/.moonraker_api_key ]; then
-      status_msg "Removing API Key ..."
-      rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
-    fi
-    CONFIRM_MSG="Moonraker successfully removed!"
+  ### remove "legacy" moonraker init.d service
+  if [[ -e /etc/init.d/moonraker || -e /etc/default/moonraker ]]; then
+    status_msg "Removing Moonraker Service ..."
+    sudo systemctl stop moonraker
+    sudo systemctl disable moonraker
+    sudo rm -rf /etc/init.d/moonraker /etc/default/moonraker
+    sudo update-rc.d -f moonraker remove
+    sudo systemctl daemon-reload
+    ok_msg "Moonraker Service removed!"
   fi
+
+  ###remove single instance
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
+    status_msg "Removing Moonraker Service ..."
+    sudo systemctl stop moonraker
+    sudo systemctl disable moonraker
+    sudo rm -f $SYSTEMDDIR/moonraker.service
+    ok_msg "Moonraker Service removed!"
+  fi
+  if [ -f /tmp/moonraker.log ]; then
+    status_msg "Removing /tmp/moonraker.log ..." && rm -f /tmp/moonraker.log && ok_msg "Done!"
+  fi
+
+  ###remove multi instance services
+  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+    status_msg "Removing Moonraker Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "moonraker-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+  fi
+  ###remove multi instance logfiles
+  if [ "$(find /tmp -maxdepth 1 -name "moonraker-*.log")" ]; then
+    for logfile in $(find /tmp -maxdepth 1 -name "moonraker-*.log")
+    do
+      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+    done
+  fi
+
+  ###reloading units
+  sudo systemctl daemon-reload
+
+  #remove moonraker nginx config
+  if [[ -e $NGINX_CONFD/upstreams.conf || -e $NGINX_CONFD/common_vars.conf ]]; then
+    status_msg "Removing Moonraker NGINX configuration ..."
+    sudo rm -f $NGINX_CONFD/upstreams.conf $NGINX_CONFD/common_vars.conf && ok_msg "Moonraker NGINX configuration removed!"
+  fi
+
+  #remove legacy api key
+  if [ -e ${HOME}/.klippy_api_key ]; then
+    status_msg "Removing legacy API Key ..." && rm ${HOME}/.klippy_api_key && ok_msg "Done!"
+  fi
+  #remove api key
+  if [ -e ${HOME}/.moonraker_api_key ]; then
+    status_msg "Removing API Key ..." && rm ${HOME}/.moonraker_api_key && ok_msg "Done!"
+  fi
+
+  ###removing moonraker and moonraker-env folder
+  if [ -d $MOONRAKER_DIR ]; then
+    status_msg "Removing Moonraker directory ..."
+    rm -rf $MOONRAKER_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $MOONRAKER_ENV ]; then
+    status_msg "Removing moonraker-env directory ..."
+    rm -rf $MOONRAKER_ENV && ok_msg "Directory removed!"
+  fi
+
+  CONFIRM_MSG=" Moonraker was successfully removed!"
 }
 
 #############################################################
 #############################################################
 
 remove_mainsail(){
-  data_arr=(
-  $MAINSAIL_DIR
-  /etc/nginx/sites-available/mainsail
-  /etc/nginx/sites-enabled/mainsail
-  )
-  print_error "Mainsail" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    #remove mainsail dir
-    if [ -d $MAINSAIL_DIR ]; then
-      status_msg "Removing Mainsail directory ..."
-      rm -rf $MAINSAIL_DIR && ok_msg "Directory removed!"
-    fi
-    #remove mainsail config for nginx
-    if [ -e /etc/nginx/sites-available/mainsail ]; then
-      status_msg "Removing Mainsail configuration for Nginx ..."
-      sudo rm /etc/nginx/sites-available/mainsail && ok_msg "File removed!"
-    fi
-    #remove mainsail symlink for nginx
-    if [ -L /etc/nginx/sites-enabled/mainsail ]; then
-      status_msg "Removing Mainsail Symlink for Nginx ..."
-      sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
-    fi
-    CONFIRM_MSG="Mainsail successfully removed!"
+  ### remove mainsail dir
+  if [ -d $MAINSAIL_DIR ]; then
+    status_msg "Removing Mainsail directory ..."
+    rm -rf $MAINSAIL_DIR && ok_msg "Directory removed!"
   fi
+
+  ### remove mainsail config for nginx
+  if [ -e /etc/nginx/sites-available/mainsail ]; then
+    status_msg "Removing Mainsail configuration for Nginx ..."
+    sudo rm /etc/nginx/sites-available/mainsail && ok_msg "File removed!"
+  fi
+
+  ### remove mainsail symlink for nginx
+  if [ -L /etc/nginx/sites-enabled/mainsail ]; then
+    status_msg "Removing Mainsail Symlink for Nginx ..."
+    sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
+  fi
+
+  CONFIRM_MSG="Mainsail successfully removed!"
 }
 
 remove_fluidd(){
-  data_arr=(
-  $FLUIDD_DIR
-  /etc/nginx/sites-available/fluidd
-  /etc/nginx/sites-enabled/fluidd
-  )
-  print_error "Fluidd" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    #remove fluidd dir
-    if [ -d $FLUIDD_DIR ]; then
-      status_msg "Removing Fluidd directory ..."
-      rm -rf $FLUIDD_DIR && ok_msg "Directory removed!"
-    fi
-    #remove fluidd config for nginx
-    if [ -e /etc/nginx/sites-available/fluidd ]; then
-      status_msg "Removing Fluidd configuration for Nginx ..."
-      sudo rm /etc/nginx/sites-available/fluidd && ok_msg "File removed!"
-    fi
-    #remove fluidd symlink for nginx
-    if [ -L /etc/nginx/sites-enabled/fluidd ]; then
-      status_msg "Removing Fluidd Symlink for Nginx ..."
-      sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
-    fi
-    CONFIRM_MSG="Fluidd successfully removed!"
+  ### remove fluidd dir
+  if [ -d $FLUIDD_DIR ]; then
+    status_msg "Removing Fluidd directory ..."
+    rm -rf $FLUIDD_DIR && ok_msg "Directory removed!"
   fi
+
+  ### remove fluidd config for nginx
+  if [ -e /etc/nginx/sites-available/fluidd ]; then
+    status_msg "Removing Fluidd configuration for Nginx ..."
+    sudo rm /etc/nginx/sites-available/fluidd && ok_msg "File removed!"
+  fi
+
+  ### remove fluidd symlink for nginx
+  if [ -L /etc/nginx/sites-enabled/fluidd ]; then
+    status_msg "Removing Fluidd Symlink for Nginx ..."
+    sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
+  fi
+
+  CONFIRM_MSG="Fluidd successfully removed!"
 }
 
 #############################################################
 #############################################################
 
 remove_octoprint(){
-  data_arr=(
-  $OCTOPRINT_SERVICE1
-  $OCTOPRINT_SERVICE2
-  $OCTOPRINT_DIR
-  $OCTOPRINT_CFG_DIR
-  ${HOME}/octoprint.log
-  /etc/sudoers.d/octoprint-shutdown
-  /etc/nginx/sites-available/octoprint
-  /etc/nginx/sites-enabled/octoprint
-  )
-  print_error "OctoPrint" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    stop_octoprint
-    if [[ -e $OCTOPRINT_SERVICE1 || -e $OCTOPRINT_SERVICE2 ]]; then
-      status_msg "Removing OctoPrint Service ..."
-      sudo update-rc.d -f octoprint remove
-      sudo rm -rf $OCTOPRINT_SERVICE1 $OCTOPRINT_SERVICE2 && ok_msg "OctoPrint Service removed!"
-    fi
-    if [[ -d $OCTOPRINT_DIR || -d $OCTOPRINT_CFG_DIR ]]; then
-      status_msg "Removing OctoPrint and .octoprint directory ..."
-      rm -rf $OCTOPRINT_DIR $OCTOPRINT_CFG_DIR && ok_msg "Directories removed!"
-    fi
-    if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
-      sudo rm -rf /etc/sudoers.d/octoprint-shutdown
-    fi
-    if [ -L ${HOME}/octoprint.log ]; then
-      status_msg "Removing octoprint.log Symlink ..."
-      rm -rf ${HOME}/octoprint.log && ok_msg "Symlink removed!"
-    fi
-    #remove octoprint config for nginx
-    if [ -e /etc/nginx/sites-available/octoprint ]; then
-      status_msg "Removing OctoPrint configuration for Nginx ..."
-      sudo rm /etc/nginx/sites-available/octoprint && ok_msg "File removed!"
-    fi
-    #remove octoprint symlink for nginx
-    if [ -L /etc/nginx/sites-enabled/octoprint ]; then
-      status_msg "Removing OctoPrint Symlink for Nginx ..."
-      sudo rm /etc/nginx/sites-enabled/octoprint && ok_msg "File removed!"
-    fi
-    CONFIRM_MSG=" OctoPrint successfully removed!"
+  ###remove single instance
+  if [ "$(systemctl list-unit-files | grep -F "octoprint.service")" ]; then
+    status_msg "Removing OctoPrint Service ..."
+    sudo systemctl stop octoprint
+    sudo systemctl disable octoprint
+    sudo rm -f $SYSTEMDDIR/octoprint.service
+    ok_msg "OctoPrint Service removed!"
   fi
+
+  ###remove multi instance services
+  if [ "$(systemctl list-unit-files | grep -E "octoprint-[[:digit:]].service")" ]; then
+    status_msg "Removing OctoPrint Services ..."
+    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "octoprint-*.service" | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "OctoPrint Service removed!"
+    done
+  fi
+
+  ###reloading units
+  sudo systemctl daemon-reload
+
+  ### remove sudoers file
+  if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
+    sudo rm -rf /etc/sudoers.d/octoprint-shutdown
+  fi
+
+  ### remove OctoPrint directory
+  if [ -d ${HOME}/OctoPrint ]; then
+    status_msg "Removing OctoPrint directory ..."
+    rm -rf ${HOME}/OctoPrint && ok_msg "Directory removed!"
+  fi
+
+  ###remove .octoprint directories
+  if [ "$(find ${HOME} -maxdepth 1 -name ".octoprint*")" ]; then
+    for folder in $(find ${HOME} -maxdepth 1 -name ".octoprint*")
+    do
+      status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
+    done
+  fi
+
+  CONFIRM_MSG=" OctoPrint successfully removed!"
 }
 
 #############################################################
@@ -307,27 +381,23 @@ remove_nginx(){
 }
 
 remove_klipperscreen(){
-  data_arr=(
-  $KLIPPERSCREEN_DIR
-  $KLIPPERSCREEN_ENV_DIR
-  /etc/systemd/system/KlipperScreen.service
-  )
-  print_error "KlipperScreen" && data_count=()
-  if [ "$ERROR_MSG" = "" ]; then
-    #remove KlipperScreen dir
-    if [ -d $KLIPPERSCREEN_DIR ]; then
-      status_msg "Removing KlipperScreen directory ..."
-      rm -rf $KLIPPERSCREEN_DIR && ok_msg "Directory removed!"
-    fi
-    if [ -d $KLIPPERSCREEN_ENV_DIR ]; then
-      status_msg "Removing KlipperScreen VENV directory ..."
-      rm -rf $KLIPPERSCREEN_ENV_DIR && ok_msg "Directory removed!"
-    fi
-    #remove KlipperScreen systemd file
-    if [ -e /etc/systemd/system/KlipperScreen.service ]; then
-      status_msg "Removing KlipperScreen Service ..."
-      sudo rm /etc/systemd/system/KlipperScreen.service && ok_msg "File removed!"
-    fi
-    CONFIRM_MSG="KlipperScreen successfully removed!"
+  ### remove KlipperScreen dir
+  if [ -d $KLIPPERSCREEN_DIR ]; then
+    status_msg "Removing KlipperScreen directory ..."
+    rm -rf $KLIPPERSCREEN_DIR && ok_msg "Directory removed!"
   fi
+
+  ### remove KlipperScreen VENV dir
+  if [ -d $KLIPPERSCREEN_ENV_DIR ]; then
+    status_msg "Removing KlipperScreen VENV directory ..."
+    rm -rf $KLIPPERSCREEN_ENV_DIR && ok_msg "Directory removed!"
+  fi
+
+  ### remove KlipperScreen systemd file
+  if [ -e /etc/systemd/system/KlipperScreen.service ]; then
+    status_msg "Removing KlipperScreen Service ..."
+    sudo rm /etc/systemd/system/KlipperScreen.service && ok_msg "File removed!"
+  fi
+
+  CONFIRM_MSG="KlipperScreen successfully removed!"
 }
