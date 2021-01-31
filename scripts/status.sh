@@ -21,6 +21,11 @@ klipper_status(){
   ### count amount of klipper service files in /etc/systemd/system
   SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "klipper" | wc -l)
 
+  ### a fix to detect an existing "legacy" klipper init.d installation
+  if [ -f /etc/init.d/klipper ] && [ -f /etc/init.d/klipper ]; then
+    SERVICE_FILE_COUNT=1
+  fi
+
   ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipper_data[0]
 
