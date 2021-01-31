@@ -44,29 +44,29 @@ main_menu(){
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
       "start klipper")
-        clear && print_header
-        klipper_service "start"
-        main_ui;;
+        do_action "klipper_service start" "main_ui";;
       "stop klipper")
-        clear && print_header
-        klipper_service "stop"
-        main_ui;;
+        do_action "klipper_service stop" "main_ui";;
       "restart klipper")
-        clear && print_header
-        klipper_service "restart"
-        main_ui;;
+        do_action "klipper_service restart" "main_ui";;
       "start moonraker")
-        clear && print_header
-        moonraker_service "start"
-        main_ui;;
+        do_action "moonraker_service start" "main_ui";;
       "stop moonraker")
-        clear && print_header
-        moonraker_service "stop"
-        main_ui;;
+        do_action "moonraker_service stop" "main_ui";;
       "restart moonraker")
-        clear && print_header
-        moonraker_service "restart"
-        main_ui;;
+        do_action "moonraker_service restart" "main_ui";;
+      "start dwc")
+        do_action "dwc_service start" "main_ui";;
+      "stop dwc")
+        do_action "dwc_service stop" "main_ui";;
+      "restart dwc")
+        do_action "dwc_service restart" "main_ui";;
+      "start octoprint")
+        do_action "octoprint_service start" "main_ui";;
+      "stop octoprint")
+        do_action "octoprint_service stop" "main_ui";;
+      "restart octoprint")
+        do_action "octoprint_service restart" "main_ui";;
       update)
         do_action "update_kiauh" "main_ui";;
       0)

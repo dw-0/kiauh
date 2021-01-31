@@ -45,8 +45,7 @@ kiauh_update_msg(){
 ### TODO: rework other menus to make use of the following functions too and make them more readable
 
 do_action(){
-  clear
-  print_header
+  clear && print_header
   ### $1 is the action the user wants to fire
   $1
   print_msg && clear_msg
@@ -55,8 +54,7 @@ do_action(){
 }
 
 deny_action(){
-  clear
-  print_header
+  clear && print_header
   print_unkown_cmd
   print_msg && clear_msg
   $1
