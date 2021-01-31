@@ -1,7 +1,7 @@
 update_kiauh(){
   if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
     status_msg "Updating KIAUH ..."
-    cd ${HOME}/kiauh
+    cd ${SRCDIR}/kiauh
     ### force reset kiauh before updating
     git reset --hard
     git pull && ok_msg "Update complete! Please restart KIAUH."

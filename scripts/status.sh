@@ -1,8 +1,8 @@
 kiauh_status(){
   if [ -d "${SRCDIR}/kiauh/.git" ]; then
-    cd ${HOME}/kiauh
-    git fetch -q
+    cd ${SRCDIR}/kiauh
     if git branch -a | grep "* master" -q; then
+      git fetch -q
       if [[ "$(git rev-parse --short=8 origin/master)" != "$(git rev-parse --short=8 HEAD)" ]]; then
         KIAUH_UPDATE_AVAIL="true"
       fi
