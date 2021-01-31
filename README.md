@@ -1,6 +1,6 @@
 # **KIAUH - Klipper Installation And Update Helper**
 
-![main_menu](resources/screenshots/main.png)
+![main_menu](resources/screenshots/main_v3.png)
 
 ---
 
