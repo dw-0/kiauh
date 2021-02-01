@@ -40,10 +40,12 @@ advanced_menu(){
         clear
         print_header
         flash_routine
-        ### build in a sleep to give the user a chance to have a look at the
-        ### MCU IDs before directly starting to build the klipper firmware
-        status_msg "Please wait..." && sleep 10 && build_fw
-        flash_mcu
+        if [ $FLASH_FIRMWARE = "true" ]; then
+          ### build in a sleep to give the user a chance to have a look at the
+          ### MCU IDs before directly starting to build the klipper firmware
+          status_msg "Please wait..." && sleep 10 && build_fw
+          flash_mcu
+        fi
         print_msg && clear_msg
         advanced_ui;;
       5)

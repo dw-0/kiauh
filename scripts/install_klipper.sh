@@ -254,10 +254,12 @@ flash_routine(){
     case "$yn" in
       Y|y|Yes|yes|"")
         echo -e "###### > Yes"
+        FLASH_FIRMWARE="true"
         get_mcu_id
         break;;
       N|n|No|no)
         echo -e "###### > No"
+        FLASH_FIRMWARE="false"
         break;;
       *)
         print_unkown_cmd
