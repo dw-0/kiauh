@@ -333,10 +333,8 @@ setup_gcode_shell_command(){
       Y|y|Yes|yes|"")
         if [ -d $KLIPPER_DIR/klippy/extras ]; then
           status_msg "Installing gcode shell command extension ..."
-          status_msg "Copy gcode_shell_command.py to '$KLIPPER_DIR/klippy/extras' ..."
           if [ -f $KLIPPER_DIR/klippy/extras/gcode_shell_command.py ]; then
-            warn_msg "There is already a file named 'gcode_shell_command.py'"
-            warn_msg "in the destination location!"
+            warn_msg "There is already a file named 'gcode_shell_command.py'\nin the destination location!"
             while true; do
               read -p "${cyan}###### Do you want to overwrite it? (Y/n):${default} " yn
               case "$yn" in
@@ -366,10 +364,10 @@ setup_gcode_shell_command(){
 
 install_gcode_shell_command(){
   klipper_service "stop"
-  status_msg "Copy 'gcode_shell_command.py' to $KLIPPER_DIR/klippy/extras"
+  status_msg "Copy 'gcode_shell_command.py' to '$KLIPPER_DIR/klippy/extras' ..."
   cp ${SRCDIR}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
-  echo
   while true; do
+    echo
     read -p "${cyan}###### Do you want to create the example shell command? (Y/n):${default} " yn
     case "$yn" in
       Y|y|Yes|yes|"")
