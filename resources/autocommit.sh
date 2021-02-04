@@ -40,13 +40,11 @@ grab_version(){
     cd ..
   fi
   if [ ! -z "$mainsail_folder" ]; then
-    mainsail_file=$(find $mainsail_folder/js -name "app.*.js" 2>/dev/null)
-    mainsail_ver=$(grep -o -E 'state:{packageVersion:.+' $mainsail_file | cut -d'"' -f2)
+    mainsail_ver=$(head -n 1 $mainsail_folder/.version)
     m3="Mainsail version: $mainsail_ver"
   fi
   if [ ! -z "$fluidd_folder" ]; then
-    fluidd_file=$(find $fluidd_folder/js -name "app.*.js" 2>/dev/null)
-    fluidd_ver=$(grep -o -E '"setVersion",".+"' $fluidd_file | cut -d'"' -f4)
+    fluidd_ver=$(head -n 1 $fluidd_folder/.version)
     m4="Fluidd version: $fluidd_ver"
   fi
 }
