@@ -241,11 +241,10 @@ flash_routine(){
   top_border
   echo -e "|        ${red}~~~~~~~~~~~ [ ATTENTION! ] ~~~~~~~~~~~~${default}        |"
   hr
-  echo -e "| Flashing a Smoothie based board with this script will |"
-  echo -e "| certainly fail. This applies to boards like the BTT   |"
-  echo -e "| SKR V1.3 or SKR V1.4(Turbo). You have to copy the     |"
-  echo -e "| firmware file to the microSD card manually and rename |"
-  echo -e "| it to 'firmware.bin'.                                 |"
+  echo -e "| Flashing a Smoothie based board with this method will |"
+  echo -e "| certainly fail. This applies to boards like the SKR   |"
+  echo -e "| V1.3 / V1.4. You have to copy the firmware file to    |"
+  echo -e "| the SD card manually and rename it to 'firmware.bin'. |"
   hr
   echo -e "| You can find the file in: ~/klipper/out/klipper.bin   |"
   bottom_border
@@ -268,7 +267,36 @@ flash_routine(){
   done
 }
 
-flash_mcu(){
+flash_routine_sd(){
+  echo
+  top_border
+  echo -e "|        ${red}~~~~~~~~~~~ [ ATTENTION! ] ~~~~~~~~~~~~${default}        |"
+  hr
+  echo -e "| If you have a Smoothie based board with an already    |"
+  echo -e "| flashed Klipper Firmware, you can now choose to flash |"
+  echo -e "| directly from the internal SD if your control board   |"
+  echo -e "| is supported by that function.                        |"
+  bottom_border
+  while true; do
+    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        FLASH_FW_SD="true"
+        get_mcu_id
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        FLASH_FW_SD="false"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
+
+select_mcu_id(){
   if [ ${#mcu_list[@]} -ge 1 ]; then
     top_border
     echo -e "|               ${red}!!! IMPORTANT WARNING !!!${default}               |"
@@ -290,23 +318,22 @@ flash_mcu(){
     done
     while true; do
       echo
-      read -p "${cyan}###### Please select the ID for flashing:${default} " selected_id
-      mcu_index=$(echo $((selected_id - 1)))
-      echo -e "\nYou have selected to flash:\n● MCU #$selected_id: ${mcu_list[$mcu_index]}\n"
+      read -p "${cyan}###### Please select the ID for flashing:${default} " selected_index
+      mcu_index=$(echo $((selected_index - 1)))
+      selected_mcu_id="${mcu_list[$mcu_index]}"
+      echo -e "\nYou have selected to flash:\n● MCU #$selected_index: $selected_mcu_id\n"
       while true; do
         read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
         case "$yn" in
           Y|y|Yes|yes|"")
             echo -e "###### > Yes"
-            status_msg "Flashing ${mcu_list[$mcu_index]} ..."
-              klipper_service "stop"
-              if ! make flash FLASH_DEVICE="${mcu_list[$mcu_index]}" ; then
-                warn_msg "Flashing failed!"
-                warn_msg "Please read the console output above!"
-              else
-                ok_msg "Flashing successfull!"
-              fi
-              klipper_service "start"
+            status_msg "Flashing $selected_mcu_id ..."
+            if [ "$FLASH_FIRMWARE" = "true" ]; then
+              flash_mcu
+            fi
+            if [ "$FLASH_FW_SD" = "true" ]; then
+              flash_mcu_sd
+            fi
             break;;
           N|n|No|no)
             echo -e "###### > No"
@@ -321,13 +348,94 @@ flash_mcu(){
   fi
 }
 
+flash_mcu(){
+  klipper_service "stop"
+  if ! make flash FLASH_DEVICE="${mcu_list[$mcu_index]}" ; then
+    warn_msg "Flashing failed!"
+    warn_msg "Please read the console output above!"
+  else
+    ok_msg "Flashing successfull!"
+  fi
+  klipper_service "start"
+}
+
+flash_mcu_sd(){
+  klipper_service "stop"
+
+  ### write each supported board to the array to make it selectable
+  board_list=()
+  for board in $(~/klipper/scripts/flash-sdcard.sh -l | tail -n +2); do
+    board_list+=($board)
+  done
+
+  i=0
+  top_border
+  echo -e "|  Please select the type of board that corresponds to  |"
+  echo -e "|  the currently selected MCU ID you chose before.      |"
+  blank_line
+  echo -e "|  The following boards are currently supported:        |"
+  hr
+  ### display all supported boards to the user
+  for board in ${board_list[@]}; do
+    if [ $i -lt 10 ]; then
+      printf "|  $i) %-50s|\n" "${board_list[$i]}"
+    else
+      printf "|  $i) %-49s|\n" "${board_list[$i]}"
+    fi
+    i=$((i + 1))
+  done
+  quit_footer
+
+  ### make the user select one of the boards
+  while true; do
+    read -p "${cyan}###### Please select board type:${default} " choice
+    if [ $choice = "q" ] || [ $choice = "Q" ]; then
+      clear && advanced_menu && break
+    elif [ $choice -le ${#board_list[@]} ]; then
+      selected_board="${board_list[$choice]}"
+      break
+    else
+      clear && print_header
+      ERROR_MSG="Invalid choice!" && print_msg && clear_msg
+      flash_mcu_sd
+    fi
+  done
+
+  while true; do
+    top_border
+    echo -e "| If your board is flashed with firmware that connects  |"
+    echo -e "| at a custom baud rate, please change it now.          |"
+    blank_line
+    echo -e "| If you are unsure, stick to the default 250000!       |"
+    bottom_border
+    echo -e "${cyan}###### Please set the baud rate:${default} "
+    unset baud_rate
+    while [[ ! $baud_rate =~ ^[0-9]+$ ]]; do
+      read -e -i "250000" -e baud_rate
+      selected_baud_rate=$baud_rate
+      break
+    done
+  break
+  done
+
+  if ! ${HOME}/klipper/scripts/flash-sdcard.sh -b "$selected_baud_rate" "$selected_mcu_id" "$selected_board" ; then
+    warn_msg "Flashing failed!"
+    warn_msg "Please read the console output above!"
+  else
+    ok_msg "Flashing successfull!"
+  fi
+
+  klipper_service "start"
+}
+
 build_fw(){
   if [ -d $KLIPPER_DIR ]; then
     cd $KLIPPER_DIR
-    status_msg "Initializing firmware Setup ..."
+    status_msg "Initializing firmware build ..."
+    make clean
     make menuconfig
     status_msg "Building firmware ..."
-    make clean && make && ok_msg "Firmware built!"
+    make && ok_msg "Firmware built!"
   else
     warn_msg "Can not build firmware without a Klipper directory!"
   fi

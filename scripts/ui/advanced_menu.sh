@@ -6,14 +6,14 @@ advanced_ui(){
   hr
   echo -e "|                           |                           | "
   echo -e "|  Klipper:                 |  System:                  | "
-  echo -e "|  1) [Switch Version]      |  6) [Change hostname]     | "
+  echo -e "|  1) [Switch Version]      |  7) [Change hostname]     | "
   echo -e "|  2) [Rollback]            |                           | "
   echo -e "|                           |  Extensions:              | "
-  echo -e "|  Firmware:                |  7) [Shell Command]       | "
+  echo -e "|  Firmware:                |  8) [Shell Command]       | "
   echo -e "|  3) [Build only]          |                           | "
-  echo -e "|  4) [Build + Flash MCU]   |                           | "
-  echo -e "|  5) [Get MCU ID]          |                           | "
-  echo -e "|                           |                           | "
+  echo -e "|  4) [Build + Flash]       |                           | "
+  echo -e "|  5) [Build + SD Flash]    |                           | "
+  echo -e "|  6) [Get MCU ID]          |                           | "
 quit_footer
 }
 
@@ -37,26 +37,32 @@ advanced_menu(){
       3)
         do_action "build_fw" "advanced_ui";;
       4)
-        clear
-        print_header
+        clear && print_header
         flash_routine
         if [ $FLASH_FIRMWARE = "true" ]; then
-          ### build in a sleep to give the user a chance to have a look at the
-          ### MCU IDs before directly starting to build the klipper firmware
-          status_msg "Please wait..." && sleep 10 && build_fw
-          flash_mcu
+          status_msg "Please wait..." && sleep 5 && build_fw
+          select_mcu_id
         fi
         print_msg && clear_msg
         advanced_ui;;
       5)
-        do_action "get_mcu_id" "advanced_ui";;
+        clear && print_header
+        flash_routine_sd
+        if [ $FLASH_FW_SD = "true" ]; then
+          status_msg "Please wait..." && sleep 5 && build_fw
+          select_mcu_id
+        fi
+        print_msg && clear_msg
+        advanced_ui;;
       6)
+        do_action "get_mcu_id" "advanced_ui";;
+      7)
         clear
         print_header
         create_custom_hostname && set_hostname
         print_msg && clear_msg
         advanced_ui;;
-      7)
+      8)
         do_action "setup_gcode_shell_command" "advanced_ui";;
       Q|q)
         clear; main_menu; break;;
