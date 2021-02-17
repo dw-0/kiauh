@@ -381,6 +381,8 @@ remove_nginx(){
 }
 
 remove_klipperscreen(){
+  source_kiauh_ini
+
   ### remove KlipperScreen dir
   if [ -d $KLIPPERSCREEN_DIR ]; then
     status_msg "Removing KlipperScreen directory ..."
@@ -395,8 +397,21 @@ remove_klipperscreen(){
 
   ### remove KlipperScreen systemd file
   if [ -e /etc/systemd/system/KlipperScreen.service ]; then
-    status_msg "Removing KlipperScreen Service ..."
+    status_msg "Removing KlipperScreen service ..."
     sudo rm /etc/systemd/system/KlipperScreen.service && ok_msg "File removed!"
+  fi
+
+  ### remove KlipperScreen log
+  if [ -e /tmp/KlipperScreen.log ]; then
+    status_msg "Removing KlipperScreen log file ..."
+    rm -f /tmp/KlipperScreen.log && ok_msg "File removed!"
+  fi
+
+  ### remove KlipperScreen log symlink in config dir
+
+  if [ -e $klipper_cfg_loc/KlipperScreen.log ]; then
+    status_msg "Removing KlipperScreen log symlink ..."
+    rm -f $klipper_cfg_loc/KlipperScreen.log && ok_msg "File removed!"
   fi
 
   CONFIRM_MSG="KlipperScreen successfully removed!"
