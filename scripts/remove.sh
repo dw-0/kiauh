@@ -4,7 +4,7 @@ SYSTEMDDIR="/etc/systemd/system"
 remove_klipper(){
   ### ask the user if he wants to uninstall moonraker too.
   ###? currently usefull if the user wants to switch from single-instance to multi-instance
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker*.")" ]; then
+  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
     while true; do
       unset REM_MR
       top_border
@@ -44,31 +44,10 @@ remove_klipper(){
     ok_msg "Klipper Service removed!"
   fi
 
-  ### remove single instance
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
-    status_msg "Removing Klipper Service ..."
-    sudo systemctl stop klipper
-    sudo systemctl disable klipper
-    sudo rm -f $SYSTEMDDIR/klipper.service
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "Klipper Service removed!"
-  fi
-  if [ -f /tmp/klippy.log ]; then
-    status_msg "Removing /tmp/klippy.log ..." && rm -f /tmp/klippy.log && ok_msg "Done!"
-  fi
-  if [ -e /tmp/klippy_uds ]; then
-    status_msg "Removing /tmp/klippy_uds ..." && rm -f /tmp/klippy_uds && ok_msg "Done!"
-  fi
-  if [ -h /tmp/printer ]; then
-    status_msg "Removing /tmp/printer ..." && rm -f /tmp/printer && ok_msg "Done!"
-  fi
-
-  ### remove multi instance services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+  ### remove all klipper services
+  if ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
     status_msg "Removing Klipper Services ..."
-    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "klipper-*.service" | cut -d"/" -f5)
+    for service in $(ls /etc/systemd/system/klipper*.service | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -82,27 +61,33 @@ remove_klipper(){
     ok_msg "Klipper Service removed!"
   fi
 
-  ### remove multi instance logfiles
-  if [ "$(find /tmp -maxdepth 1 -name "klippy-*.log")" ]; then
-    for logfile in $(find /tmp -maxdepth 1 -name "klippy-*.log")
+  ### remove all logfiles
+  if ls /tmp/klippy*.log 2>/dev/null 1>&2; then
+    for logfile in $(ls /tmp/klippy*.log)
     do
-      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+      status_msg "Removing $logfile ..."
+      rm -f $logfile
+      ok_msg "File '$logfile' removed!"
     done
   fi
 
-  ### remove multi instance UDS
-  if [ "$(find /tmp -maxdepth 1 -name "klippy_uds-*")" ]; then
-    for uds in $(find /tmp -maxdepth 1 -name "klippy_uds-*")
+  ### remove all UDS
+  if ls /tmp/klippy_uds* 2>/dev/null 1>&2; then
+    for uds in $(ls /tmp/klippy_uds*)
     do
-      status_msg "Removing $uds ..." && rm -f $uds && ok_msg "Done!"
+      status_msg "Removing $uds ..."
+      rm -f $uds
+      ok_msg "File '$uds' removed!"
     done
   fi
 
-  ### remove multi instance tmp-printer
-  if [ "$(find /tmp -maxdepth 1 -name "printer-*")" ]; then
-    for tmp_printer in $(find /tmp -maxdepth 1 -name "printer-*")
+  ### remove all tmp-printer
+  if ls /tmp/printer* 2>/dev/null 1>&2; then
+    for tmp_printer in $(ls /tmp/printer*)
     do
-      status_msg "Removing $tmp_printer ..." && rm -f $tmp_printer && ok_msg "Done!"
+      status_msg "Removing $tmp_printer ..."
+      rm -f $tmp_printer
+      ok_msg "File '$tmp_printer' removed!"
     done
   fi
 
@@ -126,79 +111,6 @@ remove_klipper(){
 #############################################################
 #############################################################
 
-remove_dwc2(){
-  ### remove "legacy" init.d service
-  if [ -e /etc/init.d/dwc ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
-    sudo systemctl stop dwc
-    sudo update-rc.d -f dwc remove
-    sudo rm -f /etc/init.d/dwc
-    sudo rm -f /etc/default/dwc
-    ok_msg "DWC2-for-Klipper-Socket Service removed!"
-  fi
-
-  ### remove single instance
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "dwc.service")" ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
-    sudo systemctl stop dwc
-    sudo systemctl disable dwc
-    sudo rm -f $SYSTEMDDIR/dwc.service
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "DWC2-for-Klipper-Socket Service removed!"
-  fi
-
-  ### remove multi instance services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc-[[:digit:]].service")" ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket Services ..."
-    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "dwc-*.service" | cut -d"/" -f5)
-    do
-      status_msg "Removing $service ..."
-      sudo systemctl stop $service
-      sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
-      ok_msg "Done!"
-    done
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "DWC2-for-Klipper-Socket Service removed!"
-  fi
-
-  ### remove single instance logfiles
-  if [ -f /tmp/dwc.log ]; then
-    status_msg "Removing /tmp/dwc.log ..." && rm -f /tmp/dwc.log && ok_msg "Done!"
-  fi
-
-  ### remove multi instance logfiles
-  if [ "$(find /tmp -maxdepth 1 -name "dwc-*.log")" ]; then
-    for logfile in $(find /tmp -maxdepth 1 -name "dwc-*.log")
-    do
-      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
-    done
-  fi
-
-  ### removing the rest of the folders
-  if [ -d $DWC2FK_DIR ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket directory ..."
-    rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
-  fi
-  if [ -d $DWC_ENV_DIR ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
-    rm -rf $DWC_ENV_DIR && ok_msg "Directory removed!"
-  fi
-  if [ -d $DWC2_DIR ]; then
-    status_msg "Removing DWC2 directory ..."
-    rm -rf $DWC2_DIR && ok_msg "Directory removed!"
-  fi
-
-  CONFIRM_MSG=" DWC2-for-Klipper-Socket was successfully removed!"
-}
-
-#############################################################
-#############################################################
-
 remove_moonraker(){
   ### remove "legacy" moonraker init.d service
   if [ -f /etc/init.d/moonraker ]; then
@@ -210,22 +122,10 @@ remove_moonraker(){
     ok_msg "Moonraker Service removed!"
   fi
 
-  ### remove single instance
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ]; then
-    status_msg "Removing Moonraker Service ..."
-    sudo systemctl stop moonraker
-    sudo systemctl disable moonraker
-    sudo rm -f $SYSTEMDDIR/moonraker.service
-    ###reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "Moonraker Service removed!"
-  fi
-
-  ### remove multi instance services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+  ### remove all moonraker services
+  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
     status_msg "Removing Moonraker Services ..."
-    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "moonraker-*.service" | cut -d"/" -f5)
+    for service in $(ls /etc/systemd/system/moonraker*.service | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -239,16 +139,13 @@ remove_moonraker(){
     ok_msg "Moonraker Service removed!"
   fi
 
-  ### remove single instance logfiles
-  if [ -f /tmp/moonraker.log ]; then
-    status_msg "Removing /tmp/moonraker.log ..." && rm -f /tmp/moonraker.log && ok_msg "Done!"
-  fi
-
-  ### remove multi instance logfiles
-  if [ "$(find /tmp -maxdepth 1 -name "moonraker-*.log")" ]; then
-    for logfile in $(find /tmp -maxdepth 1 -name "moonraker-*.log")
+  ### remove all logfiles
+  if ls /tmp/moonraker*.log 2>/dev/null 1>&2; then
+    for logfile in $(ls /tmp/moonraker*.log)
     do
-      status_msg "Removing $logfile ..." && rm -f $logfile && ok_msg "Done!"
+      status_msg "Removing $logfile ..."
+      rm -f $logfile
+      ok_msg "File '$logfile' removed!"
     done
   fi
 
@@ -279,6 +176,64 @@ remove_moonraker(){
   fi
 
   CONFIRM_MSG=" Moonraker was successfully removed!"
+}
+
+#############################################################
+#############################################################
+
+remove_dwc2(){
+  ### remove "legacy" init.d service
+  if [ -e /etc/init.d/dwc ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
+    sudo systemctl stop dwc
+    sudo update-rc.d -f dwc remove
+    sudo rm -f /etc/init.d/dwc
+    sudo rm -f /etc/default/dwc
+    ok_msg "DWC2-for-Klipper-Socket Service removed!"
+  fi
+
+  ### remove all dwc services
+  if ls /etc/systemd/system/dwc*.service 2>/dev/null 1>&2; then
+    status_msg "Removing DWC2-for-Klipper-Socket Services ..."
+    for service in $(ls /etc/systemd/system/dwc*.service | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+    ### reloading units
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+    ok_msg "DWC2-for-Klipper-Socket Service removed!"
+  fi
+
+  ### remove all logfiles
+  if ls /tmp/dwc*.log 2>/dev/null 1>&2; then
+    for logfile in $(ls /tmp/dwc*.log)
+    do
+      status_msg "Removing $logfile ..."
+      rm -f $logfile
+      ok_msg "File '$logfile' removed!"
+    done
+  fi
+
+  ### removing the rest of the folders
+  if [ -d $DWC2FK_DIR ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket directory ..."
+    rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $DWC_ENV_DIR ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
+    rm -rf $DWC_ENV_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $DWC2_DIR ]; then
+    status_msg "Removing DWC2 directory ..."
+    rm -rf $DWC2_DIR && ok_msg "Directory removed!"
+  fi
+
+  CONFIRM_MSG=" DWC2-for-Klipper-Socket was successfully removed!"
 }
 
 #############################################################
@@ -332,22 +287,10 @@ remove_fluidd(){
 #############################################################
 
 remove_octoprint(){
-  ### remove single instance
-  if [ "$(systemctl list-unit-files | grep -F "octoprint.service")" ]; then
-    status_msg "Removing OctoPrint Service ..."
-    sudo systemctl stop octoprint
-    sudo systemctl disable octoprint
-    sudo rm -f $SYSTEMDDIR/octoprint.service
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "OctoPrint Service removed!"
-  fi
-
-  ###remove multi instance services
-  if [ "$(systemctl list-unit-files | grep -E "octoprint-[[:digit:]].service")" ]; then
+  ###remove all octoprint services
+  if ls /etc/systemd/system/octoprint*.service 2>/dev/null 1>&2; then
     status_msg "Removing OctoPrint Services ..."
-    for service in $(find $SYSTEMDDIR -maxdepth 1 -name "octoprint-*.service" | cut -d"/" -f5)
+    for service in $(ls /etc/systemd/system/octoprint*.service | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -372,8 +315,8 @@ remove_octoprint(){
   fi
 
   ###remove .octoprint directories
-  if [ "$(find ${HOME} -maxdepth 1 -name ".octoprint*")" ]; then
-    for folder in $(find ${HOME} -maxdepth 1 -name ".octoprint*")
+  if ls ${HOME}/.octoprint* 2>/dev/null 1>&2; then
+    for folder in $(ls ${HOME}/.octoprint*)
     do
       status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
     done
