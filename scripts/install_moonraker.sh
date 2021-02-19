@@ -46,12 +46,12 @@ moonraker_setup_dialog(){
   fi
 
   ### check for existing moonraker service installations
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
     ERROR_MSG="At least one Moonraker service is already installed!" && return 0
   fi
 
   ### check for existing klipper service installations
-  if [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+  if ! ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
     ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
   fi
 
