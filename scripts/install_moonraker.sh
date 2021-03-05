@@ -244,6 +244,8 @@ cors_domains:
     http://$HOSTNAME
     http://$HOSTNAME:*
 
+[octoprint_compat]
+
 [update_manager]
 
 [update_manager client mainsail]
@@ -295,6 +297,8 @@ cors_domains:
     https://app.fluidd.xyz
     http://$HOSTNAME
     http://$HOSTNAME:*
+
+[octoprint_compat]
 
 [update_manager]
 
