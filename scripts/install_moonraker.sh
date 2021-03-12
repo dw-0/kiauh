@@ -236,13 +236,9 @@ trusted_clients:
     ::1/128
     FE80::/10
 cors_domains:
-    http://*.local
-    http://my.mainsail.xyz
-    https://my.mainsail.xyz
-    http://app.fluidd.xyz
-    https://app.fluidd.xyz
-    http://$HOSTNAME
-    http://$HOSTNAME:*
+    *.local
+    *://my.mainsail.xyz
+    *://app.fluidd.xyz
 
 [octoprint_compat]
 
@@ -289,14 +285,9 @@ trusted_clients:
     ::1/128
     FE80::/10
 cors_domains:
-    http://*.local
-    https://*.local
-    http://my.mainsail.xyz
-    https://my.mainsail.xyz
-    http://app.fluidd.xyz
-    https://app.fluidd.xyz
-    http://$HOSTNAME
-    http://$HOSTNAME:*
+    *.local
+    *://my.mainsail.xyz
+    *://app.fluidd.xyz
 
 [octoprint_compat]
 
