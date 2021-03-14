@@ -240,8 +240,13 @@ cors_domains:
     *://my.mainsail.xyz
     *://app.fluidd.xyz
 
+# enables partial support of Octoprint API
 [octoprint_compat]
 
+# enables moonraker to track and store print history.
+[history]
+
+# this enables moonraker's update manager
 [update_manager]
 
 [update_manager client mainsail]
@@ -289,8 +294,13 @@ cors_domains:
     *://my.mainsail.xyz
     *://app.fluidd.xyz
 
+# enables partial support of Octoprint API
 [octoprint_compat]
 
+# enables moonraker to track and store print history.
+[history]
+
+# this enables moonraker's update manager
 [update_manager]
 
 [update_manager client mainsail]
