@@ -69,7 +69,7 @@ octoprint_setup(){
   [ ! -d $OCTOPRINT_ENV ] && mkdir -p $OCTOPRINT_ENV
   status_msg "Set up virtualenv ..."
   cd $OCTOPRINT_ENV
-  virtualenv venv
+  virtualenv --python=python3 venv
   source venv/bin/activate
 
   ### install octoprint with pip
