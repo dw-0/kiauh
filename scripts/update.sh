@@ -109,7 +109,7 @@ update_dwc2fk(){
 
 update_dwc2(){
   bb4u "dwc2"
-  download_dwc2_webui
+  download_dwc_webui
 }
 
 update_mainsail(){
