@@ -225,6 +225,7 @@ host: 0.0.0.0
 port: $PORT
 enable_debug_logging: False
 config_path: $PRINTER_CFG_LOC
+database_path: ~/.moonraker_database
 klippy_uds_address: /tmp/klippy_uds
 
 [authorization]
@@ -279,6 +280,7 @@ host: 0.0.0.0
 port: $PORT
 enable_debug_logging: False
 config_path: $PRINTER_CFG_LOC/printer_$INSTANCE
+database_path: ~/.moonraker_database_$INSTANCE
 klippy_uds_address: /tmp/klippy_uds-$INSTANCE
 
 [authorization]
