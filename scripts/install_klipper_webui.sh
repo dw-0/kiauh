@@ -7,6 +7,30 @@ check_moonraker(){
   fi
 }
 
+get_user_selection_mjpg-streamer(){
+  while true; do
+    unset INSTALL_MJPG
+    echo
+    top_border
+    echo -e "|  Install MJGP-Streamer for webcam support?            |"
+    bottom_border
+    read -p "${cyan}###### Install MJPG-Streamer? (Y/n):${default} " yn
+    case "$yn" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        INSTALL_MJPG="true"
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        INSTALL_MJPG="false"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
+
 get_user_selection_kiauh_macros(){
   #ask user for webui default macros
   while true; do
@@ -67,6 +91,9 @@ install_webui(){
   ### check if another site already listens to port 80
   $1_port_check
 
+  ### ask user to install mjpg-streamer
+  get_user_selection_mjpg-streamer
+
   ### ask user to install the recommended webinterface macros
   get_user_selection_kiauh_macros "$IF_NAME2"
 
@@ -78,6 +105,13 @@ install_webui(){
 
   ### install mainsail/fluidd
   $1_setup
+
+  ### install mjpg-streamer
+  [ "$INSTALL_MJPG" = "true" ] && install_mjpg-streamer
+
+  ### confirm message
+  CONFIRM_MSG="$IF_NAME1 has been set up!"
+  print_msg && clear_msg
 }
 
 install_kiauh_macros(){
@@ -247,8 +281,6 @@ mainsail_setup(){
   if [ $(ls /etc/systemd/system/moonraker* | wc -l) -gt 1 ]; then
     enable_mainsail_remotemode
   fi
-
-  ok_msg "Mainsail installation complete!\n"
 }
 
 enable_mainsail_remotemode(){
@@ -272,6 +304,5 @@ fluidd_setup(){
 
   ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
-  rm -rf *.zip && ok_msg "Done!" && ok_msg "Fluidd installation complete!"
-  echo
+  rm -rf *.zip && ok_msg "Done!"
 }

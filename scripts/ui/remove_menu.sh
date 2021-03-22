@@ -7,17 +7,16 @@ remove_ui(){
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
   hr
-  echo -e "|  Firmware:             |  Klipper Webinterface:       | "
-  echo -e "|  1) [Klipper]          |  3) [Mainsail]               | "
-  echo -e "|                        |  4) [Fluidd]                 | "
-  echo -e "|  Klipper API:          |                              | "
-  echo -e "|  2) [Moonraker]        |  HDMI Screen:                | "
-  echo -e "|                        |  5) [KlipperScreen]          | "
-  echo -e "|                        |                              | "
-  echo -e "|                        |  Other:                      | "
-  echo -e "|                        |  6) [Duet Web Control]       | "
-  echo -e "|                        |  7) [OctoPrint]              | "
-  echo -e "|                        |  8) [NGINX]                  | "
+  echo -e "|  Firmware:                |  Touchscreen GUI:         | "
+  echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
+  echo -e "|                           |                           | "
+  echo -e "|  Klipper API:             |  Other:                   | "
+  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
+  echo -e "|                           |  7) [OctoPrint]           | "
+  echo -e "|  Klipper Webinterface:    |  8) [NGINX]               | "
+  echo -e "|  3) [Mainsail]            |  9) [MJPG-Streamer]       | "
+  echo -e "|  4) [Fluidd]              |                           | "
+  echo -e "|                           |                           | "
   quit_footer
 }
 
@@ -42,6 +41,8 @@ remove_menu(){
         do_action "remove_octoprint" "remove_ui";;
       8)
         do_action "remove_nginx" "remove_ui";;
+      9)
+        do_action "remove_mjpg-streamer" "remove_ui";;
       Q|q)
         clear; main_menu; break;;
       *)

@@ -6,16 +6,16 @@ install_ui(){
   echo -e "|  all necessary dependencies for the various           | "
   echo -e "|  functions on a completely fresh system.              | "
   hr
-  echo -e "|  Firmware:             |  Klipper Webinterface:       | "
-  echo -e "|  1) [Klipper]          |  3) [Mainsail]               | "
-  echo -e "|                        |  4) [Fluidd]                 | "
-  echo -e "|  Klipper API:          |                              | "
-  echo -e "|  2) [Moonraker]        |  HDMI Screen:                | "
-  echo -e "|                        |  5) [KlipperScreen]          | "
-  echo -e "|                        |                              | "
-  echo -e "|                        |  Other:                      | "
-  echo -e "|                        |  6) [Duet Web Control]       | "
-  echo -e "|                        |  7) [OctoPrint]              | "
+  echo -e "|  Firmware:                |  Touchscreen GUI:         | "
+  echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
+  echo -e "|                           |                           | "
+  echo -e "|  Klipper API:             |  Other:                   | "
+  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
+  echo -e "|                           |  7) [OctoPrint]           | "
+  echo -e "|  Klipper Webinterface:    |                           | "
+  echo -e "|  3) [Mainsail]            |  Webcam:                  | "
+  echo -e "|  4) [Fluidd]              |  8) [MJPG-Streamer]       | "
+  echo -e "|                           |                           | "
   quit_footer
 }
 
@@ -38,6 +38,8 @@ install_menu(){
         do_action "dwc_setup_dialog" "install_ui";;
       7)
         do_action "octoprint_setup_dialog" "install_ui";;
+      8)
+        do_action "install_mjpg-streamer" "install_ui";;
       Q|q)
         clear; main_menu; break;;
       *)

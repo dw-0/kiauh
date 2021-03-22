@@ -386,3 +386,25 @@ remove_klipperscreen(){
 
   CONFIRM_MSG="KlipperScreen successfully removed!"
 }
+
+remove_mjpg-streamer(){
+  ### remove MJPG-Streamer service
+  if [ -e $SYSTEMDDIR/webcamd.service ]; then
+    status_msg "Removing MJPG-Streamer service ..."
+    sudo systemctl stop webcamd && sudo systemctl disable webcamd
+    sudo rm -f $SYSTEMDDIR/webcamd.service
+    ###reloading units
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+    ok_msg "MJPG-Streamer Service removed!"
+  fi
+
+  ### remove MJPG-Streamer directory
+  if [ -d ${HOME}/mjpg-streamer ]; then
+    status_msg "Removing MJPG-Streamer directory ..."
+    rm -rf ${HOME}/mjpg-streamer
+    ok_msg "MJPG-Streamer directory removed!"
+  fi
+
+  CONFIRM_MSG="MJPG-Streamer successfully removed!"
+}
