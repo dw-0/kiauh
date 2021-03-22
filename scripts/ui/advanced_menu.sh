@@ -5,14 +5,14 @@ advanced_ui(){
   echo -e "|  0) $OPRINT_SERVICE_STATUS| "
   hr
   echo -e "|                           |                           | "
-  echo -e "|  Klipper:                 |  System:                  | "
-  echo -e "|  1) [Switch Version]      |  7) [Change hostname]     | "
+  echo -e "|  Klipper:                 |  Mainsail:                | "
+  echo -e "|  1) [Switch Version]      |  7) [Theme installer]     | "
   echo -e "|  2) [Rollback]            |                           | "
-  echo -e "|                           |  Extensions:              | "
-  echo -e "|  Firmware:                |  8) [Shell Command]       | "
+  echo -e "|                           |  System:                  | "
+  echo -e "|  Firmware:                |  8) [Change hostname]     | "
   echo -e "|  3) [Build only]          |                           | "
-  echo -e "|  4) [Build + Flash]       |                           | "
-  echo -e "|  5) [Build + SD Flash]    |                           | "
+  echo -e "|  4) [Build + Flash]       |  Extensions:              | "
+  echo -e "|  5) [Build + SD Flash]    |  9) [Shell Command]       | "
   echo -e "|  6) [Get MCU ID]          |                           | "
 quit_footer
 }
@@ -31,7 +31,7 @@ advanced_menu(){
         print_msg && clear_msg
         advanced_ui;;
       1)
-        do_action "switch_menu" "advanced_ui";;
+        do_action "switch_menu";;
       2)
         do_action "load_klipper_state" "advanced_ui";;
       3)
@@ -57,12 +57,14 @@ advanced_menu(){
       6)
         do_action "get_mcu_id" "advanced_ui";;
       7)
+        do_action "ms_theme_menu";;
+      8)
         clear
         print_header
         create_custom_hostname && set_hostname
         print_msg && clear_msg
         advanced_ui;;
-      8)
+      9)
         do_action "setup_gcode_shell_command" "advanced_ui";;
       Q|q)
         clear; main_menu; break;;
