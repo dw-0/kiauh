@@ -5,15 +5,15 @@ backup_ui(){
   echo -e "|           ${yellow}Backup location: ~/kiauh-backups${default}            | "
   hr
   echo -e "|  Configuration folder: |  Klipper Webinterface:       | "
-  echo -e "|  0) [Klipper configs]  |  3) [Mainsail]               | "
-  echo -e "|                        |  4) [Fluidd]                 | "
+  echo -e "|  0) [Klipper configs]  |  4) [Mainsail]               | "
+  echo -e "|                        |  5) [Fluidd]                 | "
   echo -e "|  Firmware:             |                              | "
   echo -e "|  1) [Klipper]          |  HDMI Screen:                | "
-  echo -e "|                        |  5) [KlipperScreen]          | "
+  echo -e "|                        |  6) [KlipperScreen]          | "
   echo -e "|  Klipper API:          |                              | "
   echo -e "|  2) [Moonraker]        |  Other:                      | "
-  echo -e "|                        |  6) [Duet Web Control]       | "
-  echo -e "|                        |  7) [OctoPrint]              | "
+  echo -e "|  3) [Moonraker DB]     |  7) [Duet Web Control]       | "
+  echo -e "|                        |  8) [OctoPrint]              | "
   quit_footer
 }
 
@@ -29,14 +29,16 @@ backup_menu(){
       2)
         do_action "backup_moonraker" "backup_ui";;
       3)
-        do_action "backup_mainsail" "backup_ui";;
+        do_action "backup_moonraker_database" "backup_ui";;
       4)
-        do_action "backup_fluidd" "backup_ui";;
+        do_action "backup_mainsail" "backup_ui";;
       5)
-        do_action "backup_klipperscreen" "backup_ui";;
+        do_action "backup_fluidd" "backup_ui";;
       6)
-        do_action "backup_dwc2" "backup_ui";;
+        do_action "backup_klipperscreen" "backup_ui";;
       7)
+        do_action "backup_dwc2" "backup_ui";;
+      8)
         do_action "backup_octoprint" "backup_ui";;
       Q|q)
         clear; main_menu; break;;

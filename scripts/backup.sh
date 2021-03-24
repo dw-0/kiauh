@@ -35,9 +35,9 @@ read_bb4u_stat(){
   fi
 }
 
-##############################################################################################
-#********************************************************************************************#
-##############################################################################################
+################################################################################
+#******************************************************************************#
+################################################################################
 
 backup_printer_cfg(){
   check_for_backup_dir
@@ -68,19 +68,30 @@ backup_klipper_config_dir(){
   fi
 }
 
-
-###TODO re-evaluate if this function is still needed (just backup the full klipper_config dir instead?)
-backup_moonraker_conf(){
+backup_moonraker_database(){
   check_for_backup_dir
-  if [ -f ${HOME}/moonraker.conf ]; then
+  if ls -d ${HOME}/.moonraker_database* 2>/dev/null 1>&2; then
     get_date
     status_msg "Timestamp: $current_date"
-    status_msg "Create backup of moonraker.conf ..."
-    cp ${HOME}/moonraker.conf $BACKUP_DIR/moonraker.conf."$current_date".backup && ok_msg "Backup complete!"
+    mkdir -p "$BACKUP_DIR/mr_db_backup/$current_date"
+    for database in $(ls -d ${HOME}/.moonraker_database*)
+    do
+      status_msg "Create backup of $database ..."
+      cp -r $database "$BACKUP_DIR/mr_db_backup/$current_date"
+      ok_msg "Done!"
+    done
+    ok_msg "Backup complete!\n"
   else
-    ok_msg "No moonraker.conf found! Skipping backup ..."
+    ok_msg "No Moonraker database found! Skipping backup ..."
   fi
 }
+
+if ls -d ${HOME}/.octoprint* 2>/dev/null 1>&2; then
+    for folder in $(ls -d ${HOME}/.octoprint*)
+    do
+      status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
+    done
+  fi
 
 backup_klipper(){
   if [ -d $KLIPPER_DIR ] && [ -d $KLIPPY_ENV ]; then
