@@ -315,8 +315,8 @@ remove_octoprint(){
   fi
 
   ###remove .octoprint directories
-  if ls ${HOME}/.octoprint* 2>/dev/null 1>&2; then
-    for folder in $(ls ${HOME}/.octoprint*)
+  if ls -d ${HOME}/.octoprint* 2>/dev/null 1>&2; then
+    for folder in $(ls -d ${HOME}/.octoprint*)
     do
       status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
     done
