@@ -86,13 +86,6 @@ backup_moonraker_database(){
   fi
 }
 
-if ls -d ${HOME}/.octoprint* 2>/dev/null 1>&2; then
-    for folder in $(ls -d ${HOME}/.octoprint*)
-    do
-      status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
-    done
-  fi
-
 backup_klipper(){
   if [ -d $KLIPPER_DIR ] && [ -d $KLIPPY_ENV ]; then
     status_msg "Creating Klipper backup ..."
