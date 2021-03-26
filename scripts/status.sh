@@ -10,6 +10,17 @@ kiauh_status(){
   fi
 }
 
+check_system_updates(){
+  SYS_UPDATE=$(apt list --upgradeable 2>/dev/null | sed "1d")
+  if [ ! -z "$SYS_UPDATE" ]; then
+    SYS_UPDATE_AVAIL="true"
+    DISPLAY_SYS_UPDATE="${yellow}System upgrade available!${default}"
+  else
+    SYS_UPDATE_AVAIL="false"
+    DISPLAY_SYS_UPDATE="${green}System up to date!       ${default}"
+  fi
+}
+
 klipper_status(){
   kcount=0
   klipper_data=(
@@ -514,6 +525,7 @@ NONE="${red}$(printf "%-12s" "--------")${default}"
 
 ui_print_versions(){
   unset update_arr
+  check_system_updates
   compare_klipper_versions
   compare_dwc2fk_versions
   compare_dwc2_versions

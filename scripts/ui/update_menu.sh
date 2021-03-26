@@ -2,35 +2,38 @@ update_ui(){
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
-  echo -e "|  Check the following website for important software   | "
-  echo -e "|  changes to the config file before updating Klipper:  | "
-  echo -e "|                                                       | "
-  echo -e "|  ${yellow}https://www.klipper3d.org/Config_Changes.html${default}        | "
-  bottom_border
-  top_border
+  #echo -e "|  Check the following website for important software   | "
+  #echo -e "|  changes to the config file before updating Klipper:  | "
+  #echo -e "|                                                       | "
+  #echo -e "|  ${yellow}https://www.klipper3d.org/Config_Changes.html${default}        | "
+  #bottom_border
+  #top_border
   echo -e "|  0) $BB4U_STATUS| "
   hr
-  echo -e "|  a) [Update all]       |  Local Vers:  | Remote Vers: | "
-  echo -e "|                        |               |              | "
-  echo -e "|  Firmware:             |               |              | "
+  echo -e "|  a) [Update all]       |               |              | "
+  echo -e "|                        |  Local Vers:  | Remote Vers: | "
+  echo -e "|  Klipper/Klipper API:  |---------------|--------------| "
   echo -e "|  1) [Klipper]          |  $LOCAL_COMMIT | $REMOTE_COMMIT | "
+  echo -e "|  2) [Moonraker]        |  $LOCAL_MOONRAKER_COMMIT | $REMOTE_MOONRAKER_COMMIT | "
   echo -e "|                        |               |              | "
-  echo -e "|  Webinterface:         |---------------|--------------| "
-  echo -e "|  2) [DWC2-for-Klipper] |  $LOCAL_DWC2FK_COMMIT | $REMOTE_DWC2FK_COMMIT | "
-  echo -e "|  3) [DWC2 Web UI]      |  $DWC2_LOCAL_VER | $DWC2_REMOTE_VER | "
-  echo -e "|                        |---------------|--------------| "
-  echo -e "|  4) [Moonraker]        |  $LOCAL_MOONRAKER_COMMIT | $REMOTE_MOONRAKER_COMMIT | "
-  echo -e "|  5) [Mainsail]         |  $MAINSAIL_LOCAL_VER | $MAINSAIL_REMOTE_VER | "
-  echo -e "|  6) [Fluidd]           |  $FLUIDD_LOCAL_VER | $FLUIDD_REMOTE_VER | "
+  echo -e "|  Klipper Webinterface: |---------------|--------------| "
+  echo -e "|  3) [Mainsail]         |  $MAINSAIL_LOCAL_VER | $MAINSAIL_REMOTE_VER | "
+  echo -e "|  4) [Fluidd]           |  $FLUIDD_LOCAL_VER | $FLUIDD_REMOTE_VER | "
   echo -e "|                        |               |              | "
-  echo -e "|  HDMI Screen:          |---------------|--------------| "
-  echo -e "|  7) [KlipperScreen]    |  $LOCAL_KLIPPERSCREEN_COMMIT | $REMOTE_KLIPPERSCREEN_COMMIT | "
+  echo -e "|  Touchscreen GUI:      |---------------|--------------| "
+  echo -e "|  5) [KlipperScreen]    |  $LOCAL_KLIPPERSCREEN_COMMIT | $REMOTE_KLIPPERSCREEN_COMMIT | "
+  echo -e "|                        |               |              | "
+  echo -e "|  Other:                |---------------|--------------| "
+  echo -e "|  6) [DWC2-for-Klipper] |  $LOCAL_DWC2FK_COMMIT | $REMOTE_DWC2FK_COMMIT | "
+  echo -e "|  7) [DWC2 Web UI]      |  $DWC2_LOCAL_VER | $DWC2_REMOTE_VER | "
+  echo -e "|                        |------------------------------| "
+  echo -e "|  8) [System]           |  $DISPLAY_SYS_UPDATE   | "
   quit_footer
 }
 
 update_menu(){
   print_header
-  #compare versions
+  #check system updates and compare component versions
     ui_print_versions
   print_msg && clear_msg
   read_bb4u_stat
@@ -84,6 +87,12 @@ update_menu(){
         clear
         print_header
         update_klipperscreen && ui_print_versions
+        print_msg && clear_msg
+        update_ui;;
+      8)
+        clear
+        print_header
+        update_system && ui_print_versions
         print_msg && clear_msg
         update_ui;;
       a)
