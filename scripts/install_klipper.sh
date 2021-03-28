@@ -87,6 +87,7 @@ WantedBy=multi-user.target
 Type=simple
 User=$USER
 RemainAfterExit=yes
+Nice=-19
 ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
 Restart=always
 RestartSec=10
