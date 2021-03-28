@@ -2,6 +2,7 @@
 SYSTEMDDIR="/etc/systemd/system"
 MOONRAKER_ENV="${HOME}/moonraker-env"
 MOONRAKER_DIR="${HOME}/moonraker"
+MOONRAKER_REPO="https://github.com/Arksine/moonraker.git"
 
 system_check_moonraker(){
   ### python 3 check
@@ -101,10 +102,6 @@ moonraker_setup_dialog(){
 }
 
 moonraker_setup(){
-  ### get printer config directory
-  source_kiauh_ini
-  MOONRAKER_CONF_LOC="$klipper_cfg_loc"
-
   ### checking dependencies
   dep=(wget curl unzip dfu-util)
   ### additional deps for kiauh compatibility for armbian
@@ -124,8 +121,7 @@ moonraker_setup(){
   create_moonraker_virtualenv
 
   ### step 3: create moonraker.conf folder and moonraker.confs
-  [ ! -d $MOONRAKER_CONF_LOC ] && mkdir -p $MOONRAKER_CONF_LOC
-  moonraker_conf_creation
+  create_moonraker_conf
 
   ### step 4: set up moonrakers nginx configs
   setup_moonraker_nginx_cfg
@@ -133,22 +129,17 @@ moonraker_setup(){
   ### step 5: process possible disruptive services
   process_haproxy_lighttpd_services
 
-  ### step 6: create final moonraker instances
-  INSTANCE=1
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
-    create_single_moonraker_instance
-  else
-    create_multi_moonraker_instance
-    ### step 6.5: enable mainsails remoteMode if its already installed
-    if [ -d $MAINSAIL_DIR ]; then
-      enable_mainsail_remotemode
-    fi
-  fi
-}
+  # ### step 6: create final moonraker instances
+  create_moonraker_service
 
-##############################################################################################
-#********************************************************************************************#
-##############################################################################################
+  ### confirm message
+  CONFIRM_MSG="$INSTANCE_COUNT Moonraker instances have been set up!"
+  [ $INSTANCE_COUNT -eq 1 ] && CONFIRM_MSG="Moonraker has been set up!"
+  print_msg && clear_msg
+
+  ### display moonraker ips to the user
+  print_mr_ip_list; echo
+}
 
 install_moonraker_packages(){
   PKGLIST="python3-virtualenv python3-dev nginx libopenjp2-7 python3-libgpiod"
@@ -177,157 +168,132 @@ create_moonraker_virtualenv(){
   ${MOONRAKER_ENV}/bin/pip install -r ${MOONRAKER_DIR}/scripts/moonraker-requirements.txt
 }
 
-create_single_moonraker_startscript(){
-### create systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/moonraker.service" << EOF
-#Systemd service file for moonraker
-[Unit]
-Description=Starts Moonraker on startup
-After=network.target
-[Install]
-WantedBy=multi-user.target
-[Service]
-Type=simple
-User=${USER}
-RemainAfterExit=yes
-ExecStart=${MOONRAKER_ENV}/bin/python ${MOONRAKER_DIR}/moonraker/moonraker.py -l ${MOONRAKER_LOG} -c ${MOONRAKER_CONF}
-Restart=always
-RestartSec=10
-EOF
+create_moonraker_service(){
+  ### get config directory
+  source_kiauh_ini
+
+  ### set up default values
+  SINGLE_INST=1
+  CFG_PATH="$klipper_cfg_loc"
+  MR_ENV=$MOONRAKER_ENV
+  MR_DIR=$MOONRAKER_DIR
+  MR_LOG="/tmp/moonraker.log"
+  MR_CONF="$CFG_PATH/moonraker.conf"
+  MR_SERV_SRC="${SRCDIR}/kiauh/resources/moonraker.service"
+  MR_SERV_TARGET="$SYSTEMDDIR/moonraker.service"
+
+  write_mr_service(){
+    if [ ! -f $MR_SERV_TARGET ]; then
+      status_msg "Creating Moonraker Service $i ..."
+        sudo cp $MR_SERV_SRC $MR_SERV_TARGET
+        sudo sed -i "s|%INST%|$i|" $MR_SERV_TARGET
+        sudo sed -i "s|%USER%|${USER}|" $MR_SERV_TARGET
+        sudo sed -i "s|%MR_ENV%|$MR_ENV|" $MR_SERV_TARGET
+        sudo sed -i "s|%MR_DIR%|$MR_DIR|" $MR_SERV_TARGET
+        sudo sed -i "s|%MR_LOG%|$MR_LOG|" $MR_SERV_TARGET
+        sudo sed -i "s|%MR_CONF%|$MR_CONF|" $MR_SERV_TARGET
+    fi
+  }
+
+  if [ $SINGLE_INST -eq $INSTANCE_COUNT ]; then
+    ### write single instance service
+    write_mr_service
+    ### enable instance
+    sudo systemctl enable moonraker.service
+    ok_msg "Single Moonraker instance created!"
+    ### launching instance
+    status_msg "Launching Moonraker instance ..."
+    sudo systemctl start moonraker
+  else
+    i=1
+    while [ $i -le $INSTANCE_COUNT ]; do
+      ### rewrite default variables for multi instance cases
+      CFG_PATH="$klipper_cfg_loc/printer_$i"
+      MR_SERV_TARGET="$SYSTEMDDIR/moonraker-$i.service"
+      MR_CONF="$CFG_PATH/moonraker.conf"
+      MR_LOG="/tmp/moonraker-$i.log"
+      ### write multi instance service
+      write_mr_service
+      ### enable instance
+      sudo systemctl enable moonraker-$i.service
+      ok_msg "Moonraker instance #$i created!"
+      ### launching instance
+      status_msg "Launching Moonraker instance #$i ..."
+      sudo systemctl start moonraker-$i
+
+      ### raise values by 1
+      i=$((i+1))
+    done
+    unset i
+
+    ### enable mainsails remoteMode if mainsail is found
+    if [ -d $MAINSAIL_DIR ]; then
+      status_msg "Mainsail installation found!"
+      status_msg "Enabling Mainsail remoteMode ..."
+      enable_mainsail_remotemode
+      ok_msg "Mainsails remoteMode enabled!"
+    fi
+  fi
 }
 
-create_multi_moonraker_startscript(){
-### create multi instance systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/moonraker-$INSTANCE.service" << EOF
-#Systemd service file for moonraker
-[Unit]
-Description=Starts Moonraker instance $INSTANCE on startup
-After=network.target
-[Install]
-WantedBy=multi-user.target
-[Service]
-Type=simple
-User=${USER}
-RemainAfterExit=yes
-ExecStart=${MOONRAKER_ENV}/bin/python ${MOONRAKER_DIR}/moonraker/moonraker.py -l ${MOONRAKER_LOG} -c ${MOONRAKER_CONF}
-Restart=always
-RestartSec=10
-EOF
+create_moonraker_conf(){
+  ### get config directory
+  source_kiauh_ini
+
+  ### set up default values
+  SINGLE_INST=1
+  PORT=7125
+  CFG_PATH="$klipper_cfg_loc"
+  MR_CONF="$CFG_PATH/moonraker.conf"
+  MR_DB="~/.moonraker_database"
+  KLIPPY_UDS="/tmp/klippy_uds"
+  MR_CONF_SRC="${SRCDIR}/kiauh/resources/moonraker.conf"
+  mr_ip_list=()
+  IP=$(hostname -I | cut -d" " -f1)
+  LAN="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
+
+  write_mr_conf(){
+    [ ! -d $CFG_PATH ] && mkdir -p $CFG_PATH
+    if [ ! -f $MR_CONF ]; then
+      status_msg "Creating moonraker.conf in $CFG_PATH ..."
+        cp $MR_CONF_SRC $MR_CONF
+        sed -i "s|%PORT%|$PORT|" $MR_CONF
+        sed -i "s|%CFG%|$CFG_PATH|" $MR_CONF
+        sed -i "s|%MR_DB%|$MR_DB|" $MR_CONF
+        sed -i "s|%UDS%|$KLIPPY_UDS|" $MR_CONF
+        sed -i "s|%LAN%|$LAN|" $MR_CONF
+        sed -i "s|%USER%|${USER}|g" $MR_CONF
+      ok_msg "moonraker.conf created!"
+    else
+      warn_msg "There is already a file called 'moonraker.conf'!"
+      warn_msg "Skipping..."
+    fi
+  }
+
+  if [ $SINGLE_INST -eq $INSTANCE_COUNT ]; then
+    ### write single instance config
+    write_mr_conf
+    mr_ip_list+=("$IP:$PORT")
+  else
+    i=1
+    while [ $i -le $INSTANCE_COUNT ]; do
+      ### rewrite default variables for multi instance cases
+      CFG_PATH="$klipper_cfg_loc/printer_$i"
+      MR_CONF="$CFG_PATH/moonraker.conf"
+      MR_DB="~/.moonraker_database_$i"
+      KLIPPY_UDS="/tmp/klippy_uds-$i"
+
+      ### write multi instance config
+      write_mr_conf
+      mr_ip_list+=("$IP:$PORT")
+
+      ### raise values by 1
+      PORT=$((PORT+1))
+      i=$((i+1))
+    done
+    unset PORT && unset i
+  fi
 }
-
-create_single_moonraker_conf(){
-  HOSTNAME=$(hostname -I | cut -d" " -f1)
-  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
-
-  /bin/sh -c "cat > $MOONRAKER_CONF_LOC/moonraker.conf" << MOONRAKERCONF
-[server]
-host: 0.0.0.0
-port: $PORT
-enable_debug_logging: False
-config_path: $PRINTER_CFG_LOC
-database_path: ~/.moonraker_database
-klippy_uds_address: /tmp/klippy_uds
-
-[authorization]
-enabled: True
-api_key_file: ~/.moonraker_api_key
-trusted_clients:
-    127.0.0.1
-    $LOCAL_NETWORK
-    ::1/128
-    FE80::/10
-cors_domains:
-    *.local
-    *://my.mainsail.xyz
-    *://app.fluidd.xyz
-
-# enables partial support of Octoprint API
-[octoprint_compat]
-
-# enables moonraker to track and store print history.
-[history]
-
-# this enables moonraker's update manager
-[update_manager]
-
-[update_manager client mainsail]
-type: web
-repo: meteyou/mainsail
-path: ~/mainsail
-
-[update_manager client fluidd]
-type: web
-repo: cadriel/fluidd
-path: ~/fluidd
-
-#[update_manager client KlipperScreen]
-#type: git_repo
-#path: /home/${HOME}/KlipperScreen
-#origin: https://github.com/jordanruthe/KlipperScreen.git
-#env: /home/${HOME}/.KlipperScreen-env/bin/python
-#requirements: scripts/KlipperScreen-requirements.txt
-#install_script: scripts/KlipperScreen-install.sh
-MOONRAKERCONF
-}
-
-create_multi_moonraker_conf(){
-  HOSTNAME=$(hostname -I | cut -d" " -f1)
-  LOCAL_NETWORK="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
-
-  /bin/sh -c "cat > $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf" << MOONRAKERCONF
-[server]
-host: 0.0.0.0
-port: $PORT
-enable_debug_logging: False
-config_path: $PRINTER_CFG_LOC/printer_$INSTANCE
-database_path: ~/.moonraker_database_$INSTANCE
-klippy_uds_address: /tmp/klippy_uds-$INSTANCE
-
-[authorization]
-enabled: True
-api_key_file: ~/.moonraker_api_key
-trusted_clients:
-    127.0.0.1
-    $LOCAL_NETWORK
-    ::1/128
-    FE80::/10
-cors_domains:
-    *.local
-    *://my.mainsail.xyz
-    *://app.fluidd.xyz
-
-# enables partial support of Octoprint API
-[octoprint_compat]
-
-# enables moonraker to track and store print history.
-[history]
-
-# this enables moonraker's update manager
-[update_manager]
-
-[update_manager client mainsail]
-type: web
-repo: meteyou/mainsail
-path: ~/mainsail
-
-[update_manager client fluidd]
-type: web
-repo: cadriel/fluidd
-path: ~/fluidd
-
-#[update_manager client KlipperScreen]
-#type: git_repo
-#path: /home/${USER}/KlipperScreen
-#origin: https://github.com/jordanruthe/KlipperScreen.git
-#env: /home/${USER}/.KlipperScreen-env/bin/python
-#requirements: scripts/KlipperScreen-requirements.txt
-#install_script: scripts/KlipperScreen-install.sh
-MOONRAKERCONF
-}
-
-##############################################################################################
-#********************************************************************************************#
-##############################################################################################
 
 print_mr_ip_list(){
   i=1
@@ -335,64 +301,6 @@ print_mr_ip_list(){
     echo -e "       ${cyan}● Instance $i:${default} $ip"
     i=$((i + 1))
   done
-}
-
-create_single_moonraker_instance(){
-  status_msg "Setting up 1 Moonraker instance ..."
-
-  ### single instance variables
-  MOONRAKER_LOG=/tmp/moonraker.log
-  MOONRAKER_CONF="$MOONRAKER_CONF_LOC/moonraker.conf"
-
-  ### create instance
-  status_msg "Creating single Moonraker instance ..."
-  create_single_moonraker_startscript
-
-  ### enable instance
-  sudo systemctl enable moonraker.service
-  ok_msg "Single Moonraker instance created!"
-
-  ### launching instance
-  status_msg "Launching Moonraker instance ..."
-  sudo systemctl start moonraker
-
-  ### confirm message
-  CONFIRM_MSG="Single Moonraker instance has been set up!"
-  print_msg && clear_msg
-
-  ### display moonraker ip to the user
-  print_mr_ip_list; echo
-}
-
-create_multi_moonraker_instance(){
-  status_msg "Setting up $INSTANCE_COUNT instances of Moonraker ..."
-  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-    ### multi instance variables
-    MOONRAKER_LOG=/tmp/moonraker-$INSTANCE.log
-    MOONRAKER_CONF="$MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf"
-
-    ### create instance
-    status_msg "Creating instance #$INSTANCE ..."
-    create_multi_moonraker_startscript
-
-    ### enable instance
-    sudo systemctl enable moonraker-$INSTANCE.service
-    ok_msg "Moonraker instance $INSTANCE created!"
-
-    ### launching instance
-    status_msg "Launching Moonraker instance $INSTANCE ..."
-    sudo systemctl start moonraker-$INSTANCE
-
-    ### instance counter +1
-    INSTANCE=$(expr $INSTANCE + 1)
-  done
-
-  ### confirm message
-  CONFIRM_MSG="$INSTANCE_COUNT Moonraker instances have been set up!"
-  print_msg && clear_msg
-
-  ### display all moonraker ips to the user
-  print_mr_ip_list; echo
 }
 
 setup_moonraker_nginx_cfg(){
@@ -410,68 +318,6 @@ setup_moonraker_nginx_cfg(){
     sudo cp ${SRCDIR}/kiauh/resources/common_vars.conf $NGINX_CONFD
   fi
 }
-
-moonraker_conf_creation(){
-  ### default moonraker port
-  DEFAULT_PORT=7125
-
-  ### get printer and moonraker config directory
-  source_kiauh_ini
-  PRINTER_CFG_LOC="$klipper_cfg_loc"
-  MOONRAKER_CONF_LOC="$klipper_cfg_loc"
-
-  ### reset instances back to 1 again
-  INSTANCE=1
-
-  ### declare empty array for ips which get displayed to the user at the end of the setup
-  HOSTNAME=$(hostname -I | cut -d" " -f1)
-  mr_ip_list=()
-
-  ### create single instance moonraker.conf file
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
-    ### set port
-    PORT=$DEFAULT_PORT
-
-    ### write the ip and port to the ip list for displaying it later to the user
-    mr_ip_list+=("$HOSTNAME:$PORT")
-
-    status_msg "Creating moonraker.conf in $MOONRAKER_CONF_LOC"
-    [ ! -d $MOONRAKER_CONF_LOC ] && mkdir -p $MOONRAKER_CONF_LOC
-    if [ ! -f $MOONRAKER_CONF_LOC/moonraker.conf ]; then
-      create_single_moonraker_conf && ok_msg "moonraker.conf created!"
-    else
-      warn_msg "There is already a file called 'moonraker.conf'!"
-      warn_msg "Skipping..."
-    fi
-
-  ### create multi instance moonraker.conf files
-  else
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-      ### set each instance to its own port
-      PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
-
-      ### write the ip and port to the ip list for displaying it later to the user
-      mr_ip_list+=("$HOSTNAME:$PORT")
-
-      ### start the creation of each instance
-      status_msg "Creating moonraker.conf for instance #$INSTANCE"
-      [ ! -d $MOONRAKER_CONF_LOC/printer_$INSTANCE ] && mkdir -p $MOONRAKER_CONF_LOC/printer_$INSTANCE
-      if [ ! -f $MOONRAKER_CONF_LOC/printer_$INSTANCE/moonraker.conf ]; then
-        create_multi_moonraker_conf && ok_msg "moonraker.conf created!"
-      else
-        warn_msg "There is already a file called 'moonraker-$INSTANCE.conf'!"
-        warn_msg "Skipping..."
-      fi
-
-      ### raise instance counter by 1
-      INSTANCE=$(expr $INSTANCE + 1)
-    done
-  fi
-}
-
-##############################################################################################
-#********************************************************************************************#
-##############################################################################################
 
 process_octoprint_dialog(){
   #ask user to disable octoprint when its service was found
