@@ -1,0 +1,15 @@
+#Systemd service file for klipper
+[Unit]
+Description=Starts klipper instance %INST% on startup
+After=network.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+User=%USER%
+RemainAfterExit=yes
+ExecStart=%KL_ENV%/bin/python %KL_DIR%/klippy/klippy.py %P_CFG% -I %P_TMP% -l %KL_LOG% -a %KL_UDS%
+Restart=always
+RestartSec=10

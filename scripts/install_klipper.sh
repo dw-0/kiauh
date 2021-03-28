@@ -7,7 +7,7 @@ klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."
 
   ### check for existing klipper service installations
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+  if ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
     ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
   fi
 
@@ -74,167 +74,101 @@ create_klipper_virtualenv(){
   ${KLIPPY_ENV}/bin/pip install -r ${KLIPPER_DIR}/scripts/klippy-requirements.txt
 }
 
-create_single_klipper_startscript(){
-### create systemd service file
-sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper.service" << SINGLE_STARTSCRIPT
-#Systemd service file for klipper
-[Unit]
-Description=Starts klipper on startup
-After=network.target
-[Install]
-WantedBy=multi-user.target
-[Service]
-Type=simple
-User=$USER
-RemainAfterExit=yes
-ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
-Restart=always
-RestartSec=10
-SINGLE_STARTSCRIPT
-}
-
-create_multi_klipper_startscript(){
-### create multi instance systemd service file
-sudo /bin/sh -c "cat > $SYSTEMDDIR/klipper-$INSTANCE.service" << MULTI_STARTSCRIPT
-#Systemd service file for klipper
-[Unit]
-Description=Starts klipper instance $INSTANCE on startup
-After=network.target
-[Install]
-WantedBy=multi-user.target
-[Service]
-Type=simple
-User=$USER
-RemainAfterExit=yes
-ExecStart=${KLIPPY_ENV}/bin/python ${KLIPPER_DIR}/klippy/klippy.py ${PRINTER_CFG} -I ${TMP_PRINTER} -l ${KLIPPER_LOG} -a ${KLIPPY_UDS}
-Restart=always
-RestartSec=10
-MULTI_STARTSCRIPT
-}
-
-create_minimal_printer_cfg(){
-/bin/sh -c "cat > $1" << MINIMAL_CFG
-[mcu]
-serial: /dev/serial/by-id/<your-mcu-id>
-
-[pause_resume]
-
-[display_status]
-
-[virtual_sdcard]
-path: ~/gcode_files
-
-[printer]
-kinematics: none
-max_velocity: 1000
-max_accel: 1000
-MINIMAL_CFG
-}
-
 klipper_setup(){
-  ### get printer config directory
-  source_kiauh_ini
-  PRINTER_CFG_LOC="$klipper_cfg_loc"
-
-  ### clone klipper
-  cd ${HOME}
+  ### step 1: clone klipper
   status_msg "Downloading Klipper ..."
+  ### force remove existing klipper dir and clone into fresh klipper dir
   [ -d $KLIPPER_DIR ] && rm -rf $KLIPPER_DIR
-  git clone $KLIPPER_REPO
+  cd ${HOME} && git clone $KLIPPER_REPO
   status_msg "Download complete!"
 
-  ### install klipper dependencies and create python virtualenv
+  ### step 2: install klipper dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
   install_klipper_packages
   create_klipper_virtualenv
 
-  ### create shared gcode_files folder
+  ### step 3: create shared gcode_files folder
   [ ! -d ${HOME}/gcode_files ] && mkdir -p ${HOME}/gcode_files
-  ### create shared config folder
-  [ ! -d $PRINTER_CFG_LOC ] && mkdir -p $PRINTER_CFG_LOC
 
-  ### create klipper instances
-  INSTANCE=1
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
-    create_single_klipper_instance
-  else
-    create_multi_klipper_instance
-  fi
-}
-
-create_single_klipper_instance(){
-  status_msg "Setting up 1 Klipper instance ..."
-
-  ### single instance variables
-  KLIPPER_LOG=/tmp/klippy.log
-  KLIPPY_UDS=/tmp/klippy_uds
-  PRINTER_CFG="$PRINTER_CFG_LOC/printer.cfg"
-
-  ### create instance
-  status_msg "Creating single Klipper instance ..."
-  status_msg "Installing system start script ..."
-  create_single_klipper_startscript
-
-  ### create printer config directory if missing
-  [ ! -d $PRINTER_CFG_LOC ] && mkdir -p $PRINTER_CFG_LOC
-
-  ### create basic configs if missing
-  [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
-
-  ### enable instance
-  sudo systemctl enable klipper.service
-  ok_msg "Single Klipper instance created!"
-
-  ### launching instance
-  status_msg "Launching Klipper instance ..."
-  sudo systemctl start klipper
-
-  ### confirm message
-  CONFIRM_MSG="Single Klipper instance has been set up!"
-  print_msg && clear_msg
-}
-
-create_multi_klipper_instance(){
-  status_msg "Setting up $INSTANCE_COUNT instances of Klipper ..."
-  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-    ### multi instance variables
-    KLIPPER_LOG=/tmp/klippy-$INSTANCE.log
-    KLIPPY_UDS=/tmp/klippy_uds-$INSTANCE
-    TMP_PRINTER=/tmp/printer-$INSTANCE
-    PRINTER_CFG="$PRINTER_CFG_LOC/printer_$INSTANCE/printer.cfg"
-
-    ### create instance
-    status_msg "Creating instance #$INSTANCE ..."
-    create_multi_klipper_startscript
-
-    ### create printer config directory if missing
-    [ ! -d $PRINTER_CFG_LOC/printer_$INSTANCE ] && mkdir -p $PRINTER_CFG_LOC/printer_$INSTANCE
-
-    ### create basic configs if missing
-    [ ! -f $PRINTER_CFG ] && create_minimal_printer_cfg "$PRINTER_CFG"
-
-    ### enable instance
-    sudo systemctl enable klipper-$INSTANCE.service
-    ok_msg "Klipper instance $INSTANCE created!"
-
-    ### launching instance
-    status_msg "Launching Klipper instance $INSTANCE ..."
-    sudo systemctl start klipper-$INSTANCE
-
-    ### instance counter +1
-    INSTANCE=$(expr $INSTANCE + 1)
-  done
+  ### step 4: create klipper instances
+  create_klipper_service
 
   ### confirm message
   CONFIRM_MSG="$INSTANCE_COUNT Klipper instances have been set up!"
+  [ $INSTANCE_COUNT -eq 1 ] && CONFIRM_MSG="Klipper has been set up!"
   print_msg && clear_msg
 }
 
+create_klipper_service(){
+  ### get config directory
+  source_kiauh_ini
 
-##############################################################################################
-#********************************************************************************************#
-##############################################################################################
+  ### set up default values
+  SINGLE_INST=1
+  CFG_PATH="$klipper_cfg_loc"
+  KL_ENV=$KLIPPY_ENV
+  KL_DIR=$KLIPPER_DIR
+  KL_LOG="/tmp/klippy.log"
+  KL_UDS="/tmp/klippy_uds"
+  P_TMP="/tmp/printer"
+  P_CFG="$CFG_PATH/printer.cfg"
+  P_CFG_SRC="${SRCDIR}/kiauh/resources/printer.cfg"
+  KL_SERV_SRC="${SRCDIR}/kiauh/resources/klipper.service"
+  KL_SERV_TARGET="$SYSTEMDDIR/klipper.service"
 
+  write_kl_service(){
+    [ ! -d $CFG_PATH ] && mkdir -p $CFG_PATH
+    ### create a minimal config if there is no printer.cfg
+    [ ! -f $P_CFG ] && cp $P_CFG_SRC $P_CFG
+    ### replace placeholder
+    if [ ! -f $KL_SERV_TARGET ]; then
+      status_msg "Creating Klipper Service $i ..."
+        sudo cp $KL_SERV_SRC $KL_SERV_TARGET
+        sudo sed -i "s|%INST%|$i|" $KL_SERV_TARGET
+        sudo sed -i "s|%USER%|${USER}|" $KL_SERV_TARGET
+        sudo sed -i "s|%KL_ENV%|$KL_ENV|" $KL_SERV_TARGET
+        sudo sed -i "s|%KL_DIR%|$KL_DIR|" $KL_SERV_TARGET
+        sudo sed -i "s|%KL_LOG%|$KL_LOG|" $KL_SERV_TARGET
+        sudo sed -i "s|%P_CFG%|$P_CFG|" $KL_SERV_TARGET
+        sudo sed -i "s|%P_TMP%|$P_TMP|" $KL_SERV_TARGET
+        sudo sed -i "s|%KL_UDS%|$KL_UDS|" $KL_SERV_TARGET
+    fi
+  }
+
+  if [ $SINGLE_INST -eq $INSTANCE_COUNT ]; then
+    ### write single instance service
+    write_kl_service
+    ### enable instance
+    sudo systemctl enable klipper.service
+    ok_msg "Single Klipper instance created!"
+    ### launching instance
+    status_msg "Launching Klipper instance ..."
+    sudo systemctl start klipper
+  else
+    i=1
+    while [ $i -le $INSTANCE_COUNT ]; do
+      ### rewrite default variables for multi instance cases
+      CFG_PATH="$klipper_cfg_loc/printer_$i"
+      KL_SERV_TARGET="$SYSTEMDDIR/klipper-$i.service"
+      P_TMP="/tmp/printer-$i"
+      P_CFG="$CFG_PATH/printer.cfg"
+      KL_LOG="/tmp/klippy-$i.log"
+      KL_UDS="/tmp/klippy_uds-$i"
+      ### write multi instance service
+      write_kl_service
+      ### enable instance
+      sudo systemctl enable klipper-$i.service
+      ok_msg "Klipper instance #$i created!"
+      ### launching instance
+      status_msg "Launching Klipper instance #$i ..."
+      sudo systemctl start klipper-$i
+
+      ### raise values by 1
+      i=$((i+1))
+    done
+    unset i
+  fi
+}
 
 flash_routine(){
   echo
