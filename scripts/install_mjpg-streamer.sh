@@ -4,17 +4,19 @@ WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/m
 WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/boot/mainsail.txt"
 
 install_mjpg-streamer(){
-  ### if there is a webcamd.service -> exit
-  if [ -e $SYSTEMDDIR/webcamd.service ]; then
-    ERROR_MSG="Looks like MJPG-streamer is already installed!\n Please remove it first before you try to re-install it!"
-    print_msg && clear_msg && return 0
-  fi
-
   ### checking dependencies
   check_klipper_cfg_path
 
-  ### set path for the webcam config textfile
+  ### set default values
+  MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
+  MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
   WEBCAM_TXT="$klipper_cfg_loc/webcam.txt"
+
+  ### if there is a webcamd.service -> exit
+  if [ -f $MJPG_SERV_TARGET ]; then
+    ERROR_MSG="Looks like MJPG-streamer is already installed!\n Please remove it first before you try to re-install it!"
+    print_msg && clear_msg && return 0
+  fi
 
   ### check and install dependencies if missing
   dep=(build-essential git imagemagick libv4l-dev libjpeg-dev libjpeg62-turbo-dev cmake)
@@ -52,12 +54,8 @@ EOT
   sudo chmod +x /usr/local/bin/webcamd
 
   ### step 4: create webcam.txt config file
+  [ ! -d $klipper_cfg_loc ] && mkdir -p $klipper_cfg_loc
   if [ ! -f $WEBCAM_TXT ]; then
-    ### create the config dir if it doesn't exist
-    if [ ! -d $klipper_cfg_loc ]; then
-      status_msg "Creating $klipper_cfg_loc ..."
-      mkdir -p $klipper_cfg_loc
-    fi
     status_msg "Creating webcam.txt config file ..."
     wget $WEBCAM_TXT_SRC -O $WEBCAM_TXT
     ok_msg "Done!"
@@ -65,24 +63,8 @@ EOT
 
   ### step 5: create systemd service
   status_msg "Creating MJPG-Streamer service ..."
-  sudo /bin/sh -c "cat > ${SYSTEMDDIR}/webcamd.service" << EOF
-[Unit]
-Description=Starts mjpg-streamer on startup
-After=network.target
-
-[Install]
-WantedBy=multi-user.target
-
-[Service]
-Type=forking
-User=${USER}
-WorkingDirectory=/usr/local/bin
-StandardOutput=append:/var/log/webcamd.log
-StandardError=append:/var/log/webcamd.log
-ExecStart=/usr/local/bin/webcamd
-Restart=always
-RestartSec=10
-EOF
+  sudo cp $MJPG_SERV_SRC $MJPG_SERV_TARGET
+  sudo sed -i "s|%USER%|${USER}|" $MJPG_SERV_TARGET
 
   ### step 6: enabling and starting mjpg-streamer service
   status_msg "Starting MJPG-Streamer service ..."
