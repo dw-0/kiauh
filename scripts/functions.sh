@@ -1,3 +1,6 @@
+### base variables
+SYSTEMDDIR="/etc/systemd/system"
+
 # setting up some frequently used functions
 check_euid(){
   if [ "$EUID" -eq 0 ]
@@ -77,54 +80,55 @@ change_klipper_cfg_path(){
   done
 }
 
-###? if path was changed in 'change_klipper_cfg_path', we need to edit the service files
-###? and set the new path. after that, rename the old folder and reload service units.
-###! users shouldn't try and move the files into subfolders with this function! as the mv command will fail
-###! but the new path still gets written to the service files. if they really need to, they need to move all
-###! config files or printer folder into that subfolder (still not recommended!)
 set_klipper_cfg_path(){
   ### stop services
   klipper_service "stop" && moonraker_service "stop"
 
-  ### rename the klipper config folder
+  ### copy config files to new klipper config folder
   if [ ! -z "$old_klipper_cfg_loc" ] && [ -d "$old_klipper_cfg_loc" ]; then
-    status_msg "Renaming '$old_klipper_cfg_loc' to '$new_klipper_cfg_loc'!"; echo
-    mv -v "$old_klipper_cfg_loc" "$new_klipper_cfg_loc" && ok_msg "Done!"
+    if [ ! -d "$new_klipper_cfg_loc" ]; then
+      status_msg "Copy config files to '$new_klipper_cfg_loc' ..."
+      mkdir -p $new_klipper_cfg_loc
+      cd $old_klipper_cfg_loc
+      cp -r -v ./* $new_klipper_cfg_loc
+      ok_msg "Done!"
+    fi
   fi
 
   ### handle single klipper instance service file
-  if [ -f /etc/systemd/system/klipper.service ]; then
+  if [ -f $SYSTEMDDIR/klipper.service ]; then
     status_msg "Configuring Klipper for new path ..."
-    sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer.cfg|$new_klipper_cfg_loc/printer.cfg|" /etc/systemd/system/klipper.service
+    sudo sed -i -r "/ExecStart=/ s| (.+)\/printer.cfg| $new_klipper_cfg_loc/printer.cfg|" $SYSTEMDDIR/klipper.service
     ok_msg "OK!"
   fi
   ### handle multi klipper instance service file
-  if ls /etc/systemd/system/klipper-*.service 2>/dev/null 1>&2; then
+  if ls $SYSTEMDDIR/klipper-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Klipper for new path ..."
-    for service in $(find /etc/systemd/system/klipper-*.service); do
-      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer_|$new_klipper_cfg_loc/printer_|" $service
+    for service in $(find $SYSTEMDDIR/klipper-*.service); do
+      sudo sed -i -r "/ExecStart=/ s| (.+)\/printer_| $new_klipper_cfg_loc/printer_|" $service
     done
     ok_msg "OK!"
   fi
 
   ### handle single moonraker instance service and moonraker.conf file
-  if [ -f /etc/systemd/system/moonraker.service ]; then
+  if [ -f $SYSTEMDDIR/moonraker.service ]; then
     status_msg "Configuring Moonraker for new path ..."
-    sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/moonraker.conf|$new_klipper_cfg_loc/moonraker.conf|" /etc/systemd/system/moonraker.service
+    sudo sed -i -r "/ExecStart=/ s|-c (.+)\/moonraker\.conf|-c $new_klipper_cfg_loc/moonraker.conf|" $SYSTEMDDIR/moonraker.service
+
     ### replace old file path with new one in moonraker.conf
-    sed -i "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $new_klipper_cfg_loc/moonraker.conf
+    sed -i -r "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $new_klipper_cfg_loc/moonraker.conf
     ok_msg "OK!"
   fi
   ### handle multi moonraker instance service file
-  if ls /etc/systemd/system/moonraker-*.service 2>/dev/null 1>&2; then
+  if ls $SYSTEMDDIR/moonraker-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Moonraker for new path ..."
-    for service in $(find /etc/systemd/system/moonraker-*.service); do
-      sudo sed -i "/ExecStart=/ s|$old_klipper_cfg_loc/printer_|$new_klipper_cfg_loc/printer_|" $service
+    for service in $(find $SYSTEMDDIR/moonraker-*.service); do
+      sudo sed -i -r "/ExecStart=/ s|-c (.+)\/printer_|-c $new_klipper_cfg_loc/printer_|" $service
     done
     ### replace old file path with new one in moonraker.conf
     for moonraker_conf in $(find $new_klipper_cfg_loc/printer_*/moonraker.conf); do
       loc=$(echo "$moonraker_conf" | rev | cut -d"/" -f2- | rev)
-      sed -i "/config_path:/ s|config_path:.*|config_path: $loc|" $moonraker_conf
+      sed -i -r "/config_path:/ s|config_path:.*|config_path: $loc|" $moonraker_conf
     done
     ok_msg "OK!"
   fi

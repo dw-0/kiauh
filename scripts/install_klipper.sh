@@ -6,8 +6,8 @@ KLIPPER_DIR="${HOME}/klipper"
 klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."
 
-  ### check for existing klipper service installations
-  if ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
+  ### check for existing klipper service files
+  if $(ls /etc/init.d/klipper* 2>/dev/null 1>&2) || $(ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2); then
     ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
   fi
 

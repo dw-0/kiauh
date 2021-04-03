@@ -104,7 +104,7 @@ remove_klipper(){
   CONFIRM_MSG=" Klipper was successfully removed!" && print_msg && clear_msg
 
   if [ "$REM_MR" == "true" ]; then
-    remove_moonraker
+    remove_moonraker && unset REM_MR
   fi
 }
 
