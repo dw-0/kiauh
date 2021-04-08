@@ -1,4 +1,5 @@
 main_ui(){
+  #[ $KIAUH_UPDATE_REMIND="true" ] && kiauh_update_reminder
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
@@ -22,11 +23,26 @@ print_kiauh_version(){
   KIAUH_VER="$(printf "%-20s" "$KIAUH_VER")"
 }
 
+kiauh_update_dialog(){
+  kiauh_update_msg
+  read -p "${cyan}Do you want to update now? (Y/n):${default} " yn
+  while true; do
+    case "$yn" in
+    Y|y|Yes|yes|"")
+      do_action "update_kiauh"
+      break;;
+    N|n|No|no) break;;
+    *)
+      deny_action "kiauh_update_dialog";;
+    esac
+  done
+}
+
 main_menu(){
   print_header
   #print KIAUH update msg if update available
     if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
-      kiauh_update_msg
+      kiauh_update_dialog
     fi
   #check install status
     print_kiauh_version

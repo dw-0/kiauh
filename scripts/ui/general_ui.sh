@@ -31,17 +31,17 @@ print_header(){
 
 kiauh_update_msg(){
   top_border
-  echo -e "|  ${yellow}There is a newer version of this script available!${default}   | "
-  echo -e "|  ${yellow}Type 'update' if you want to update KIAUH now.${default}       | "
-  blank_line
-  echo -e "|  ${yellow}Check out the KIAUH changelog for important changes${default}  | "
-  echo -e "|  ${yellow}either to the script or the installable components!${default}  | "
+  echo -e "|${green}              New KIAUH update available!              ${default}| "
+  hr
+  echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${default}| "
+  echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${default}| "
+  echo -e "|${yellow}  features. Please consider updating!                  ${default}| "
   bottom_border
 }
 
-##############################################################################################
-#********************************************************************************************#
-##############################################################################################
+################################################################################
+#******************************************************************************#
+################################################################################
 ### TODO: rework other menus to make use of the following functions too and make them more readable
 
 do_action(){
