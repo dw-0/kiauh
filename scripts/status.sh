@@ -99,7 +99,7 @@ moonraker_status(){
   )
 
   ### count amount of moonraker service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker" | wc -l)
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E 'moonraker\.service|moonraker-[[:digit:]]*.service' | wc -l)
 
   ### remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset moonraker_data[0]
