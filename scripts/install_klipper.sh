@@ -7,7 +7,10 @@ klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."
 
   ### check for existing klipper service files
-  if $(ls /etc/init.d/klipper* 2>/dev/null 1>&2) || $(ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2); then
+  INITD=$(ls /etc/init.d | grep -E "^klipper(\-[[:digit:]]+)?$")
+  SYSTEMD=$(ls /etc/systemd/system | grep -E "^klipper(\-[[:digit:]]+)?\.service$")
+
+  if [ ! -z "$INITD" ] || [ ! -z "$SYSTEMD" ]; then
     ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
   fi
 
