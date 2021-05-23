@@ -387,7 +387,7 @@ get_mcu_id(){
   bottom_border
   while true; do
     echo -e "${cyan}"
-    read -p "###### Press any key to continue ... " yn
+    read -p "###### Press ENTER to continue ... " yn
     echo -e "${default}"
     case "$yn" in
       *)
