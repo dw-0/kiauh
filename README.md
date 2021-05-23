@@ -31,18 +31,11 @@ git clone https://github.com/th33xitus/kiauh.git
 ./kiauh/kiauh.sh
 ```
 
-## Additional Instructions:
-
-If you need some more detailed instructions on how to install Klipper and Mainsail with KIAUH, check out this website:\
-[Installing Klipper and Mainsail](https://3dp.tumbleweedlabs.com/firmware/klipper-firmware/installing-klipper-and-mainsail-on-your-raspberry-pi)\
-Credits for these instructions go to [@tumbleweedlabs](https://github.com/tumbleweedlabs).\
-Feel free to check out his work.
-
 ---
 
 ## **🧰 Functions and Features:**
 
-- **New in v3.0** You can now install multiple instances (Klipper/Moonraker/DWC/Octoprint) on the same Pi!
+- **New in v3.0.0:** You can now install multiple instances (Klipper/Moonraker/DWC/Octoprint) on the same Pi!
 ---
 ### **Core Functions:**
 
@@ -67,17 +60,14 @@ Feel free to check out his work.
 
 ## **📝 Notes:**
 
-- Tested **only** on Raspberry Pi OS Lite (Debian Buster)
-- ( Although similar Debian based distributions might also work... )
+- Tested **only** on Raspberry Pi OS Lite (Debian 10 Buster)
+    - Other Debian based distributions can work
+    - Reported to work on Armbian too
 - During the use of this script you might be asked for your sudo password. There are several functions involved which need sudo privileges.
 
 ---
 
 ## **🛈 Sources & Further Information**
-
-If you need some more detailed instructions on how to install Klipper and Mainsail with KIAUH, check out this website:\
-[Installing Klipper and Mainsail](https://3dp.tumbleweedlabs.com/firmware/klipper-firmware/installing-klipper-and-mainsail-on-your-raspberry-pi)\
-Credits for these instructions go to [@tumbleweedlabs](https://github.com/tumbleweedlabs).
 
 For more information or instructions to the various components KIAUH can install, please check out the corresponding repositories listed below:
 
