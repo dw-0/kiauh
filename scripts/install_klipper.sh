@@ -18,19 +18,19 @@ klipper_setup_dialog(){
   check_klipper_cfg_path
 
   ### ask for amount of instances to create
-  while true; do
+  INSTANCE_COUNT=""
+  while [[ ! ($INSTANCE_COUNT =~ ^[1-9]+$) ]]; do
+    echo
+    read -p "${cyan}###### Amount of Klipper instances to set up:${default} " INSTANCE_COUNT
+    if [[ ! ($INSTANCE_COUNT =~ ^[1-9]+$) ]]; then
+      warn_msg "Invalid Input!" && echo
+    else
       echo
-      read -p "${cyan}###### How many Klipper instances do you want to set up?:${default} " INSTANCE_COUNT
-      echo
-      if [ $INSTANCE_COUNT == 1 ]; then
-        read -p "${cyan}###### Create $INSTANCE_COUNT single instance? (Y/n):${default} " yn
-      else
-        read -p "${cyan}###### Create $INSTANCE_COUNT instances? (Y/n):${default} " yn
-      fi
+      read -p "${cyan}###### Install $INSTANCE_COUNT instance(s)? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Creating $INSTANCE_COUNT Klipper instances ..."
+          status_msg "Installing $INSTANCE_COUNT Klipper instance(s) ..."
           klipper_setup
           break;;
         N|n|No|no)
@@ -41,7 +41,8 @@ klipper_setup_dialog(){
         *)
           print_unkown_cmd
           print_msg && clear_msg;;
-    esac
+      esac
+    fi
   done
 }
 
