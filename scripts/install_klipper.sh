@@ -11,6 +11,7 @@ klipper_setup_dialog(){
   SYSTEMD=$(ls /etc/systemd/system | grep -E "^klipper(\-[[:digit:]]+)?\.service$")
 
   if [ ! -z "$INITD" ] || [ ! -z "$SYSTEMD" ]; then
+    echo "${red}$INITD${default}" && echo "${red}$SYSTEMD${default}"
     ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
   fi
 
