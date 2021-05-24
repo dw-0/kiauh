@@ -1,7 +1,7 @@
 ### base variables
 SYSTEMDDIR="/etc/systemd/system"
-WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/root/bin/webcamd"
-WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/boot/mainsail.txt"
+WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper-config/webcam.txt"
 
 install_mjpg-streamer(){
   ### checking dependencies
