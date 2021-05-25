@@ -56,3 +56,20 @@ ms_theme_dracula(){
   ok_msg "Theme installation complete!"
   ok_msg "Please remember to delete your browser cache!\n"
 }
+
+ms_theme_cyberpunk(){
+  THEME_URL="https://github.com/Dario-Ciceri/cp2077-mainsail-theme"
+
+  ### check and select printer if there is more than 1
+  check_select_printer
+
+  ### download all files
+  status_msg "Installing Cyberpunk theme ..."
+  status_msg "Please wait ..."
+
+  [ -d "$THEME_PATH/.theme" ] && rm -rf "$THEME_PATH/.theme"
+  cd $THEME_PATH && git clone "$THEME_URL" ".theme"
+
+  ok_msg "Theme installation complete!"
+  ok_msg "Please remember to delete your browser cache!\n"
+}
