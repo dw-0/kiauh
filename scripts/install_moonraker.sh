@@ -46,15 +46,19 @@ moonraker_setup_dialog(){
     print_msg && clear_msg && return 0
   fi
 
+  shopt -s extglob # enable extended globbing
   ### check for existing moonraker service installations
-  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     ERROR_MSG="At least one Moonraker service is already installed!" && return 0
   fi
 
   ### check for existing klipper service installations
-  if ! ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/klipper?(-*([0-9])).service"
+  if ! ls $FILE 2>/dev/null 1>&2; then
     ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
   fi
+  shopt -u extglob # disable extended globbing
 
   ### count amount of klipper services
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then

@@ -2,6 +2,7 @@
 SYSTEMDDIR="/etc/systemd/system"
 
 remove_klipper(){
+  shopt -s extglob # enable extended globbing
   ### ask the user if he wants to uninstall moonraker too.
   ###? currently usefull if the user wants to switch from single-instance to multi-instance
   if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
@@ -45,9 +46,10 @@ remove_klipper(){
   fi
 
   ### remove all klipper services
-  if ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDIR/klipper?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Klipper Services ..."
-    for service in $(ls /etc/systemd/system/klipper*.service | cut -d"/" -f5)
+    for service in $(ls $FILE | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -62,32 +64,32 @@ remove_klipper(){
   fi
 
   ### remove all logfiles
-  if ls /tmp/klippy*.log 2>/dev/null 1>&2; then
-    for logfile in $(ls /tmp/klippy*.log)
-    do
-      status_msg "Removing $logfile ..."
-      rm -f $logfile
-      ok_msg "File '$logfile' removed!"
+  FILE="/tmp/klippy?(-*([0-9])).log"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for log in $(ls $FILE); do
+      status_msg "Removing $log ..."
+      rm -f $log
+      ok_msg "$log removed!"
     done
   fi
 
   ### remove all UDS
-  if ls /tmp/klippy_uds* 2>/dev/null 1>&2; then
-    for uds in $(ls /tmp/klippy_uds*)
-    do
+  FILE="/tmp/klippy_uds?(-*([0-9]))"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for uds in $(ls $FILE); do
       status_msg "Removing $uds ..."
       rm -f $uds
-      ok_msg "File '$uds' removed!"
+      ok_msg "$uds removed!"
     done
   fi
 
   ### remove all tmp-printer
-  if ls /tmp/printer* 2>/dev/null 1>&2; then
-    for tmp_printer in $(ls /tmp/printer*)
-    do
+  FILE="/tmp/printer?(-*([0-9]))"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for tmp_printer in $(ls $FILE); do
       status_msg "Removing $tmp_printer ..."
       rm -f $tmp_printer
-      ok_msg "File '$tmp_printer' removed!"
+      ok_msg "$tmp_printer removed!"
     done
   fi
 
@@ -102,6 +104,7 @@ remove_klipper(){
   fi
 
   CONFIRM_MSG=" Klipper was successfully removed!" && print_msg && clear_msg
+  shopt -u extglob # enable extended globbing
 
   if [ "$REM_MR" == "true" ]; then
     remove_moonraker && unset REM_MR
@@ -112,6 +115,7 @@ remove_klipper(){
 #############################################################
 
 remove_moonraker(){
+  shopt -s extglob # enable extended globbing
   ### remove "legacy" moonraker init.d service
   if [ -f /etc/init.d/moonraker ]; then
     status_msg "Removing Moonraker Service ..."
@@ -123,9 +127,10 @@ remove_moonraker(){
   fi
 
   ### remove all moonraker services
-  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Moonraker Services ..."
-    for service in $(ls /etc/systemd/system/moonraker*.service | cut -d"/" -f5)
+    for service in $(ls $FILE | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -140,12 +145,12 @@ remove_moonraker(){
   fi
 
   ### remove all logfiles
-  if ls /tmp/moonraker*.log 2>/dev/null 1>&2; then
-    for logfile in $(ls /tmp/moonraker*.log)
-    do
-      status_msg "Removing $logfile ..."
-      rm -f $logfile
-      ok_msg "File '$logfile' removed!"
+  FILE="/tmp/moonraker?(-*([0-9])).log"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for log in $(ls $FILE); do
+      status_msg "Removing $log ..."
+      rm -f $log
+      ok_msg "$log removed!"
     done
   fi
 
@@ -176,6 +181,7 @@ remove_moonraker(){
   fi
 
   CONFIRM_MSG=" Moonraker was successfully removed!"
+  shopt -u extglob # disable extended globbing
 }
 
 #############################################################
