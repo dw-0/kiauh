@@ -49,8 +49,8 @@ install_mjpg-streamer(){
 </html>
 EOT
   sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
+  sudo sed -i "/^config_dir=/ s|=.*|=$klipper_cfg_loc|" /usr/local/bin/webcamd
   sudo sed -i "/MJPGSTREAMER_HOME/ s/pi/${USER}/" /usr/local/bin/webcamd
-  sudo sed -i "/^cfg_files+=/ s|=.*|=$WEBCAM_TXT|" /usr/local/bin/webcamd
   sudo chmod +x /usr/local/bin/webcamd
 
   ### step 4: create webcam.txt config file
