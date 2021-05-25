@@ -399,6 +399,11 @@ remove_mjpg-streamer(){
     ok_msg "MJPG-Streamer Service removed!"
   fi
 
+  ### remove webcamd from /usr/local/bin
+  if [ -e "/usr/local/bin/webcamd" ]; then
+    sudo rm -f "/usr/local/bin/webcamd"
+  fi
+
   ### remove MJPG-Streamer directory
   if [ -d ${HOME}/mjpg-streamer ]; then
     status_msg "Removing MJPG-Streamer directory ..."

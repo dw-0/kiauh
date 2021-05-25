@@ -1,7 +1,7 @@
 ### base variables
 SYSTEMDDIR="/etc/systemd/system"
-WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/root/bin/webcamd"
-WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/boot/mainsail.txt"
+WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
 
 install_mjpg-streamer(){
   ### checking dependencies
@@ -49,8 +49,8 @@ install_mjpg-streamer(){
 </html>
 EOT
   sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
+  sudo sed -i "/^config_dir=/ s|=.*|=$klipper_cfg_loc|" /usr/local/bin/webcamd
   sudo sed -i "/MJPGSTREAMER_HOME/ s/pi/${USER}/" /usr/local/bin/webcamd
-  sudo sed -i "/^cfg_files+=/ s|=.*|=$WEBCAM_TXT|" /usr/local/bin/webcamd
   sudo chmod +x /usr/local/bin/webcamd
 
   ### step 4: create webcam.txt config file
