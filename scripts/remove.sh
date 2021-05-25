@@ -46,7 +46,7 @@ remove_klipper(){
   fi
 
   ### remove all klipper services
-  FILE="$SYSTEMDIR/klipper?(-*([0-9])).service"
+  FILE="$SYSTEMDDIR/klipper?(-*([0-9])).service"
   if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Klipper Services ..."
     for service in $(ls $FILE | cut -d"/" -f5)
