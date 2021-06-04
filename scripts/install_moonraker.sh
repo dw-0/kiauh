@@ -147,6 +147,7 @@ moonraker_setup(){
 
 install_moonraker_packages(){
   PKGLIST="python3-virtualenv python3-dev nginx libopenjp2-7 python3-libgpiod"
+  PKGLIST="${PKGLIST} liblmdb0 libsodium-dev zlib1g-dev"
 
   ### Update system package info
   status_msg "Running apt-get update..."
@@ -166,7 +167,10 @@ create_moonraker_virtualenv(){
     rm -rf ${MOONRAKER_ENV}
   fi
 
-  [ ! -d ${MOONRAKER_ENV} ] && virtualenv -p /usr/bin/python3 --system-site-packages ${MOONRAKER_ENV}
+  if [ ! -d ${MOONRAKER_ENV} ]; then
+    virtualenv -p /usr/bin/python3 ${MOONRAKER_ENV}
+    ln -s /usr/lib/python3/dist-packages/gpiod* ${MOONRAKER_ENV}/lib/python*/site-packages
+  fi
 
   ### Install/update dependencies
   ${MOONRAKER_ENV}/bin/pip install -r ${MOONRAKER_DIR}/scripts/moonraker-requirements.txt
