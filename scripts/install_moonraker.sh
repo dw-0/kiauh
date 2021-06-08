@@ -146,8 +146,14 @@ moonraker_setup(){
 }
 
 install_moonraker_packages(){
-  PKGLIST="python3-virtualenv python3-dev nginx libopenjp2-7 python3-libgpiod"
-  PKGLIST="${PKGLIST} liblmdb0 libsodium-dev zlib1g-dev"
+  ### read PKGLIST from official install script
+  status_msg "Reading dependencies..."
+  install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
+  PKGLIST=$(grep "PKGLIST=" $install_script | sed 's/PKGLIST//g; s/[$={}\n"]//g')
+  ### rewrite packages into new array
+  unset PKGARR
+  for PKG in $PKGLIST; do PKGARR+=($PKG); done
+  echo "${cyan}${PKGARR[@]}${default}"
 
   ### Update system package info
   status_msg "Running apt-get update..."
@@ -155,7 +161,7 @@ install_moonraker_packages(){
 
   ### Install desired packages
   status_msg "Installing packages..."
-  sudo apt-get install --yes ${PKGLIST}
+  sudo apt-get install --yes ${PKGARR[@]}
 }
 
 create_moonraker_virtualenv(){

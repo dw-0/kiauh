@@ -48,19 +48,16 @@ klipper_setup_dialog(){
 }
 
 install_klipper_packages(){
-  ### Packages for python cffi
-  PKGLIST="python-virtualenv virtualenv python-dev libffi-dev build-essential"
-  ### kconfig requirements
-  PKGLIST="${PKGLIST} libncurses-dev"
-  ### hub-ctrl
-  PKGLIST="${PKGLIST} libusb-dev"
-  ### AVR chip installation and building
-  PKGLIST="${PKGLIST} avrdude gcc-avr binutils-avr avr-libc"
-  ### ARM chip installation and building
-  PKGLIST="${PKGLIST} stm32flash libnewlib-arm-none-eabi"
-  PKGLIST="${PKGLIST} gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0"
-  ### dbus requirement for DietPi
-  PKGLIST="${PKGLIST} dbus"
+  ### read PKGLIST from official install script
+  status_msg "Reading dependencies..."
+  install_script="${HOME}/klipper/scripts/install-octopi.sh"
+  PKGLIST=$(grep "PKGLIST=" $install_script | sed 's/PKGLIST//g; s/[$={}\n"]//g')
+  ### rewrite packages into new array
+  unset PKGARR
+  for PKG in $PKGLIST; do PKGARR+=($PKG); done
+  ### add dbus requirement for DietPi distro
+  PKGARR+=("dbus")
+  echo "${cyan}${PKGARR[@]}${default}"
 
   ### Update system package info
   status_msg "Running apt-get update..."
@@ -68,7 +65,7 @@ install_klipper_packages(){
 
   ### Install desired packages
   status_msg "Installing packages..."
-  sudo apt-get install --yes ${PKGLIST}
+  sudo apt-get install --yes ${PKGARR[@]}
 }
 
 create_klipper_virtualenv(){
