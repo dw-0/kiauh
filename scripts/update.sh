@@ -107,7 +107,7 @@ migrate_custompios(){
     WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
     MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
     MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
-    KL_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/dev-klipper-serviced/src/modules/klipper/filesystem/root/etc/systemd/system/klipper.service"
+    KL_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/klipper/filesystem/root/etc/systemd/system/klipper.service"
     # stop webcam service
     sudo systemctl stop webcamd.service
     # replace old webcamd.service
