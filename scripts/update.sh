@@ -62,6 +62,79 @@ update_all(){
   done
 }
 
+update_log_paths(){
+  ### update services to make use of moonrakers new log_path option
+  ### https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a
+  shopt -s extglob # enable extended globbing
+  LPATH="${HOME}/klipper_logs"
+  [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
+  FILE="$SYSTEMDDIR/$1?(-*([0-9])).service"
+  for file in $(ls $FILE); do
+    [ "$1" == "klipper" ] && LOG="klippy"
+    [ "$1" == "moonraker" ] && LOG="moonraker"
+    if [ ! "$(grep "\-l" $file)" ]; then
+      status_msg "Updating $file ..."
+      sudo sed -i -r "/ExecStart=/ s|$| -l $LPATH/$LOG.log|" $file
+      ok_msg "$file updated!"
+    elif [ "$(grep "\-l \/tmp\/$LOG" $file)" ]; then
+      status_msg "Updating $file ..."
+      sudo sed -i -r "/ExecStart=/ s|-l \/tmp\/$LOG|-l $LPATH/$LOG|" $file
+      ok_msg "$file updated!"
+    fi
+  done
+  sudo systemctl daemon-reload
+
+  # create symlink for mainsail and fluidd nginx logs
+  symlink_webui_nginx_log "mainsail"
+  symlink_webui_nginx_log "fluidd"
+
+  # create symlink for webcamd log
+  if [ -f "/var/log/webcamd.log" ] && [ ! -L "$LPATH/webcamd.log" ]; then
+    status_msg "Creating symlink for '/var/log/webcamd.log' ..."
+    ln -s "/var/log/webcamd.log" "$LPATH"
+    ok_msg "OK!"
+  fi
+
+  shopt -u extglob # disable extended globbing
+}
+
+migrate_custompios(){
+  ### migrate vanilla mainsailOS 0.4.0 and fluiddPI v1.13.0
+  ### and older to be in sync with their newer releases
+  if [ -f "/boot/$1.txt" ]; then
+    status_msg "Starting migration... Please wait..."
+    ### migrate webcam related stuff
+    WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+    MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
+    MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
+    KL_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/dev-klipper-serviced/src/modules/klipper/filesystem/root/etc/systemd/system/klipper.service"
+    # stop webcam service
+    sudo systemctl stop webcamd.service
+    # replace old webcamd.service
+    sudo rm -f "$SYSTEMDDIR/webcamd.service"
+    # replace old webcamd
+    sudo rm -f "/root/bin/webcamd"
+    sudo cp $MJPG_SERV_SRC $MJPG_SERV_TARGET
+    sudo sed -i "s|%USER%|pi|" $MJPG_SERV_TARGET
+    sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
+    sudo chmod +x /usr/local/bin/webcamd
+    # copy mainsail.txt or fluidd.txt to klipper_config and rename it
+    sudo mv "/boot/$1.txt" "${HOME}/klipper_config/webcam.txt"
+    sudo chown pi:pi "${HOME}/klipper_config/webcam.txt"
+    ### migrate klipper related stuff
+    sudo service klipper stop
+    # stop and remove init.d klipper service
+    sudo update-rc.d -f klipper remove
+    sudo rm -f /etc/init.d/klipper
+    sudo rm -f /etc/default/klipper
+    # create new systemd service
+    sudo wget $KL_SERV_SRC -O "/etc/systemd/system/klipper.service"
+    sudo systemctl enable klipper.service
+    sudo systemctl daemon-reload
+    ok_msg "Migration complete!"
+  fi
+}
+
 update_klipper(){
   klipper_service "stop"
   if [ ! -d $KLIPPER_DIR ]; then
@@ -98,9 +171,11 @@ update_klipper(){
       $PYTHONDIR/bin/pip install -r $KLIPPER_DIR/scripts/klippy-requirements.txt
       ok_msg "Dependencies have been installed!"
     fi
-
-    ok_msg "Update complete!"
   fi
+  migrate_custompios "mainsail"
+  migrate_custompios "fluiddpi"
+  update_log_paths "klipper"
+  ok_msg "Update complete!"
   klipper_service "restart"
 }
 
@@ -124,12 +199,14 @@ update_mainsail(){
   bb4u "mainsail"
   status_msg "Updating Mainsail ..."
   mainsail_setup
+  symlink_webui_nginx_log "mainsail"
 }
 
 update_fluidd(){
   bb4u "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
+  symlink_webui_nginx_log "fluidd"
 }
 
 update_moonraker(){
@@ -158,7 +235,7 @@ update_moonraker(){
     ${PYTHONDIR}/bin/pip install -r $MOONRAKER_DIR/scripts/moonraker-requirements.txt
     ok_msg "Dependencies have been installed!"
   fi
-
+  update_log_paths "moonraker"
   ok_msg "Update complete!"
   moonraker_service "restart"
 }

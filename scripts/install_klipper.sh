@@ -89,8 +89,9 @@ klipper_setup(){
   install_klipper_packages
   create_klipper_virtualenv
 
-  ### step 3: create shared gcode_files folder
+  ### step 3: create shared gcode_files and logs folder
   [ ! -d ${HOME}/gcode_files ] && mkdir -p ${HOME}/gcode_files
+  [ ! -d ${HOME}/klipper_logs ] && mkdir -p ${HOME}/klipper_logs
 
   ### step 4: create klipper instances
   create_klipper_service
@@ -110,7 +111,7 @@ create_klipper_service(){
   CFG_PATH="$klipper_cfg_loc"
   KL_ENV=$KLIPPY_ENV
   KL_DIR=$KLIPPER_DIR
-  KL_LOG="/tmp/klippy.log"
+  KL_LOG="${HOME}/klipper_logs/klippy.log"
   KL_UDS="/tmp/klippy_uds"
   P_TMP="/tmp/printer"
   P_CFG="$CFG_PATH/printer.cfg"
@@ -154,7 +155,7 @@ create_klipper_service(){
       KL_SERV_TARGET="$SYSTEMDDIR/klipper-$i.service"
       P_TMP="/tmp/printer-$i"
       P_CFG="$CFG_PATH/printer.cfg"
-      KL_LOG="/tmp/klippy-$i.log"
+      KL_LOG="${HOME}/klipper_logs/klippy-$i.log"
       KL_UDS="/tmp/klippy_uds-$i"
       ### write multi instance service
       write_kl_service
