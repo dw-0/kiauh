@@ -248,6 +248,9 @@ toggle_octoprint_service(){
 
 read_octoprint_service_status(){
   unset OPRINT_SERVICE_STATUS
+  if [ ! -f "/etc/systemd/system/octoprint.service" ]; then
+    return 0
+  fi
   if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
     OPRINT_SERVICE_STATUS="${red}[Disable]${default} OctoPrint Service                       "
   else

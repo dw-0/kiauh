@@ -2,9 +2,11 @@ advanced_ui(){
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${default}     | "
   hr
-  echo -e "|  0) $OPRINT_SERVICE_STATUS| "
-  hr
-  echo -e "|                           |                           | "
+  if [ ! "$OPRINT_SERVICE_STATUS" == "" ]; then
+    echo -e "|  0) $OPRINT_SERVICE_STATUS| "
+    hr
+    echo -e "|                           |                           | "
+  fi
   echo -e "|  Klipper:                 |  Mainsail:                | "
   echo -e "|  1) [Switch Branch]       |  7) [Theme installer]     | "
   echo -e "|  2) [Rollback]            |                           | "
