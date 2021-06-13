@@ -99,40 +99,106 @@ update_log_paths(){
 }
 
 migrate_custompios(){
-  ### migrate vanilla mainsailOS 0.4.0 and fluiddPI v1.13.0
-  ### and older to be in sync with their newer releases
+  ### migrate vanilla mainsailOS 0.4.0 / fluiddPI v1.13.0
+  ### and older to be in sync with newer releases
+  WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+  MJPG_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/etc/systemd/system/webcamd.service"
+  KL_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/klipper/filesystem/root/etc/systemd/system/klipper.service"
+  NGINX_CFG1="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mainsail/filesystem/root/etc/nginx/conf.d/upstreams.conf"
+  NGINX_CFG2="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mainsail/filesystem/root/etc/nginx/sites-available/mainsail"
+  LOG_ROTATE_KLIPPER="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/klipper/filesystem/root/etc/logrotate.d/klipper"
+  LOG_ROTATE_MOONRAKER="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/moonraker/filesystem/root/etc/logrotate.d/moonraker"
+  LOG_ROTATE_WEBCAMD="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/etc/logrotate.d/webcamd"
+
+  if [ "$1" == "mainsail" ]; then
+    OS_VER="MainsailOS"
+    MACRO_CFG="mainsail.cfg"
+  fi
+  if [ "$1" == "fluiddpi" ]; then
+    OS_VER="FluiddPi"
+    MACRO_CFG="client_macros.cfg"
+  fi
+  if [ ! -f "/boot/$1.txt" ] || [ ! -f "/etc/init.d/klipper" ]; then
+    # abort function if there is no sign of an old CustomPiOS anymore
+    ERROR_MSG="No vanilla $OS_VER found. Aborting..." && return 0
+  fi
+  status_msg "Starting migration of $OS_VER... Please wait..."
+  if [ -d "${HOME}/klipper_logs" ]; then
+    # delete an existing klipper_logs directory
+    # shouldn't be there in the first place if its a true vanilla CustomPiOS
+    status_msg "Recreate '~/klipper_logs' directory..."
+    rm -rf "${HOME}/klipper_logs" && mkdir "${HOME}/klipper_logs"
+    ok_msg "OK!"
+  fi
   if [ -f "/boot/$1.txt" ]; then
-    status_msg "Starting migration... Please wait..."
-    ### migrate webcam related stuff
-    WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
-    MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
-    MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
-    KL_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/klipper/filesystem/root/etc/systemd/system/klipper.service"
-    # stop webcam service
-    sudo systemctl stop webcamd.service
-    # replace old webcamd.service
-    sudo rm -f "$SYSTEMDDIR/webcamd.service"
-    # replace old webcamd
+    # replace old webcamd.service and webcamd
+    status_msg "Migrating MJPG-Streamer..."
+    sudo systemctl stop webcamd
+    sudo rm -f "/etc/systemd/system/webcamd.service"
     sudo rm -f "/root/bin/webcamd"
-    sudo cp $MJPG_SERV_SRC $MJPG_SERV_TARGET
-    sudo sed -i "s|%USER%|pi|" $MJPG_SERV_TARGET
     sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
-    sudo chmod +x /usr/local/bin/webcamd
-    # copy mainsail.txt or fluidd.txt to klipper_config and rename it
+    sudo wget $MJPG_SERV_SRC -O "/etc/systemd/system/webcamd.service"
+    sudo sed -i "s/MainsailOS/$OS_VER/" "/etc/systemd/system/webcamd.service"
+    sudo chmod +x "/usr/local/bin/webcamd"
+    # move mainsail.txt/fluiddpi.txt from boot to klipper_config and rename it
     sudo mv "/boot/$1.txt" "${HOME}/klipper_config/webcam.txt"
     sudo chown pi:pi "${HOME}/klipper_config/webcam.txt"
-    ### migrate klipper related stuff
-    sudo service klipper stop
-    # stop and remove init.d klipper service
+    sudo systemctl daemon-reload
+    sudo systemctl restart webcamd
+    ok_msg "OK!"
+  fi
+  if [ -f "/etc/init.d/klipper" ] && [ ! -f "/etc/systemd/system/klipper.service" ]; then
+    # replace klipper SysVinit service with systemd service
+    status_msg "Migrating Klipper Service..."
+    sudo systemctl stop klipper
     sudo update-rc.d -f klipper remove
-    sudo rm -f /etc/init.d/klipper
-    sudo rm -f /etc/default/klipper
-    # create new systemd service
+    sudo rm -f "/etc/init.d/klipper"
+    sudo rm -f "/etc/default/klipper"
     sudo wget $KL_SERV_SRC -O "/etc/systemd/system/klipper.service"
     sudo systemctl enable klipper.service
     sudo systemctl daemon-reload
-    ok_msg "Migration complete!"
+    sudo systemctl restart klipper
+    ok_msg "OK!"
   fi
+  if [ -f "/etc/systemd/system/moonraker.service" ]; then
+    # update new log path in existing moonraker service
+    status_msg "Updating Moonraker Service..."
+    sudo systemctl stop moonraker
+    update_log_paths "moonraker"
+    sudo systemctl restart moonraker
+    ok_msg "OK!"
+  fi
+  if [ -f "/etc/nginx/conf.d/upstreams.conf" ]; then
+    [ "$1" == "mainsail" ] && cfg="mainsail"
+    [ "$1" == "fluiddpi" ] && cfg="fluidd"
+    # update nginx upstreams.conf and mainsail/fluidd config file
+    status_msg "Updating NGINX configurations..."
+    sudo systemctl stop nginx
+    sudo rm -f "/etc/nginx/conf.d/upstreams.conf"
+    sudo rm -f "/etc/nginx/sites-available/$cfg"
+    sudo wget $NGINX_CFG1 -O "/etc/nginx/conf.d/upstreams.conf"
+    sudo wget $NGINX_CFG2 -O "/etc/nginx/sites-available/$cfg"
+    sudo sed -i "s/mainsail/$cfg/g" "/etc/nginx/sites-available/$cfg"
+    sudo systemctl restart nginx
+    ok_msg "OK!"
+  fi
+  if [ -f "${HOME}/klipper_config/$MACRO_CFG" ]; then
+    # update macro files
+    status_msg "Updating $MACRO_CFG ..."
+    MACRO_CFG_PATH="${HOME}/klipper_config/$MACRO_CFG"
+    sed -i "/SAVE_GCODE_STATE NAME=PAUSE_state/d" $MACRO_CFG_PATH
+    sed -i "/RESTORE_GCODE_STATE NAME=PAUSE_state/d" $MACRO_CFG_PATH
+    ok_msg "OK!"
+  fi
+  if [ -d "/etc/logrotate.d" ]; then
+    # download logrotate configs
+    status_msg "Setting up logrotations..."
+    sudo wget $LOG_ROTATE_KLIPPER -O "/etc/logrotate.d/klipper"
+    sudo wget $LOG_ROTATE_MOONRAKER -O "/etc/logrotate.d/moonraker"
+    sudo wget $LOG_ROTATE_WEBCAMD -O "/etc/logrotate.d/webcamd"
+    ok_msg "OK!"
+  fi
+  ok_msg "Migration done!"
 }
 
 update_klipper(){
@@ -172,8 +238,6 @@ update_klipper(){
       ok_msg "Dependencies have been installed!"
     fi
   fi
-  migrate_custompios "mainsail"
-  migrate_custompios "fluiddpi"
   update_log_paths "klipper"
   ok_msg "Update complete!"
   klipper_service "restart"
