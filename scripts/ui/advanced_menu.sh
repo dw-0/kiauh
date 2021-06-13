@@ -6,7 +6,7 @@ advanced_ui(){
   hr
   echo -e "|                           |                           | "
   echo -e "|  Klipper:                 |  Mainsail:                | "
-  echo -e "|  1) [Switch Version]      |  7) [Theme installer]     | "
+  echo -e "|  1) [Switch Branch]       |  7) [Theme installer]     | "
   echo -e "|  2) [Rollback]            |                           | "
   echo -e "|                           |  System:                  | "
   echo -e "|  Firmware:                |  8) [Change hostname]     | "
