@@ -168,7 +168,7 @@ update_klipperscreen(){
   cd $KLIPPERSCREEN_DIR
   KLIPPERSCREEN_OLDREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt | cut -d " " -f1)
   git pull origin master -q && ok_msg "Fetch successfull!"
-  git checkout -f origin/master && ok_msg "Checkout successfull"
+  git checkout -f master && ok_msg "Checkout successfull"
   #KLIPPERSCREEN_NEWREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt)
   if [[ $(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt | cut -d " " -f1) != $KLIPPERSCREEN_OLDREQ_MD5SUM ]]; then
     status_msg "New dependecies detected..."
