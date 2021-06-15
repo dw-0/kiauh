@@ -2,6 +2,35 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-06-15
+
+* Moonraker introduced an optional `log_path` which clients can make use of to show log files located in that folder to their users. More info here: https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a \
+Client developers agreed upon using `~/klipper_logs` as the new default log path.\
+That means, from now on, Klipper and Moonraker services installed with KIAUH will place their logfiles in that mentioned folder.
+* Additionally, KIAUH will now detect Klipper and Moonraker systemd services that still use the old default location of `/tmp/<service>.log` and will update them next time the user updates Klipper and/or Moonraker with the KIAUH update function.
+* Additional symlinks for the following logfiles will get created along those update procedures to make them accessible through the webinterface once its supported:
+    - webcamd.log
+    - mainsail-access.log
+    - mainsail-error.log
+    - fluidd-access.log
+    - fluidd-error.log
+* For MainsailOS and FluiddPi users:\
+MainsailOS and FluiddPi will switch the shipped Klipper service from SysVinit to systemd probably with their next release. KIAUH can already help migrate older MainsailOS (0.4.0 and below) and FluiddPi (v1.13.0) releases to match their new service-, file- and folder-structure so you don't have to re-flash the SD-Card of your Raspberry Pi.\
+In detail here is what is going to happen when you use the new "CustomPiOS Migration Helper" from the Advanced Menu `(Main Menu -> 4 -> Enter -> 10 -> Enter)` in a short summary:
+    1) The Klipper SysVinit service will get replaced by a Klipper systemd service
+    2) Klipper and Moonraker will use the new log-directory `~/klipper_logs`
+    3) The webcamd service gets updated
+    4) The webcamd script gets updated and moved from `/root/bin/webcamd` to `/usr/local/bin/webcamd`
+    5) The NGINX `upstreams.conf` gets updated to be able to configure up to 4 webcams
+    6) The `mainsail.txt` / `fluiddpi.txt` gets moved from `/boot` to `~/klipper_config` and renamed to `webcam.txt`
+    7) Symlinks for the webcamd.log and various NGINX logs get created in `~/klipper_config`
+    8) Configuration files for Klipper, Moonraker and webcamd get added to `/etc/logrotate.d`
+    9) If they still exist, two lines will be removed from the mainsail.cfg or client_macros.cfg macro configurations:\
+    `SAVE_GCODE_STATE NAME=PAUSE_state` and
+    `RESTORE_GCODE_STATE NAME=PAUSE_state`\
+* **Please note:**\
+The "CustomPiOS Migration Helper" is intended to only work on "vanilla" MainsailOS and FluiddPi systems. Do not try to migrate a modified MainsailOS or FluiddPi system (for example if you already used KIAUH to re-install services or to set up a multi-instance installation for Klipper / Moonraker). This won't work.
+
 ### 2021-01-31
 
 * **This is a big one... KIAUH v3.0 is out.**\
