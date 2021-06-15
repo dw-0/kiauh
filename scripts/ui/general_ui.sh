@@ -33,6 +33,8 @@ kiauh_update_msg(){
   top_border
   echo -e "|${green}              New KIAUH update available!              ${default}| "
   hr
+  echo -e "|${green}  View Changelog: https://git.io/JnmlX                 ${default}| "
+  blank_line
   echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${default}| "
   echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${default}| "
   echo -e "|${yellow}  features. Please consider updating!                  ${default}| "
