@@ -202,7 +202,7 @@ migrate_custompios(){
 }
 
 update_klipper(){
-  klipper_service "stop"
+  do_action_service "stop" "klipper"
   if [ ! -d $KLIPPER_DIR ]; then
     cd ${HOME} && git clone $KLIPPER_REPO
   else
@@ -240,18 +240,18 @@ update_klipper(){
   fi
   update_log_paths "klipper"
   ok_msg "Update complete!"
-  klipper_service "restart"
+  do_action_service "restart" "klipper"
 }
 
 update_dwc2fk(){
-  dwc_service "stop"
+  do_action_service "stop" "dwc"
   bb4u "dwc2"
   if [ ! -d $DWC2FK_DIR ]; then
     cd ${HOME} && git clone $DWC2FK_REPO
   else
     cd $DWC2FK_DIR && git pull
   fi
-  dwc_service "start"
+  do_action_service "start" "dwc"
 }
 
 update_dwc2(){
@@ -274,7 +274,7 @@ update_fluidd(){
 }
 
 update_moonraker(){
-  moonraker_service "stop"
+  do_action_service "stop" "moonraker"
   bb4u "moonraker"
   status_msg "Updating Moonraker ..."
   cd $MOONRAKER_DIR
@@ -301,7 +301,7 @@ update_moonraker(){
   fi
   update_log_paths "moonraker"
   ok_msg "Update complete!"
-  moonraker_service "restart"
+  do_action_service "restart" "moonraker"
 }
 
 update_klipperscreen(){

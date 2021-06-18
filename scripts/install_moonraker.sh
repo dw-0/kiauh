@@ -352,9 +352,9 @@ process_octoprint_dialog(){
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
           status_msg "Stopping OctoPrint ..."
-          octoprint_service "stop" && ok_msg "OctoPrint service stopped!"
+          do_action_service "stop" "octoprint" && ok_msg "OctoPrint service stopped!"
           status_msg "Disabling OctoPrint ..."
-          octoprint_service "disable" && ok_msg "OctoPrint service disabled!"
+          do_action_service "disable" "octoprint" && ok_msg "OctoPrint service disabled!"
           break;;
         N|n|No|no)
           echo -e "###### > No"

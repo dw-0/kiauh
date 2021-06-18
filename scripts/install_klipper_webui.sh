@@ -163,7 +163,7 @@ install_kiauh_macros(){
       ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
     fi
     ### restart klipper service to parse the modified printer.cfg
-    klipper_service "restart"
+    do_action_service "restart" "klipper"
   fi
 }
 
