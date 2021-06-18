@@ -56,7 +56,11 @@ install_klipper_packages(){
   unset PKGARR
   for PKG in $PKGLIST; do PKGARR+=($PKG); done
   ### add dbus requirement for DietPi distro
-  PKGARR+=("dbus")
+  if [ -e "/boot/dietpi" ]; then
+    PKGARR+=("dbus")
+  fi
+
+  ### display dependencies to user
   echo "${cyan}${PKGARR[@]}${default}"
 
   ### Update system package info
