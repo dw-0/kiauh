@@ -107,7 +107,7 @@ moonraker_setup_dialog(){
 
 moonraker_setup(){
   ### checking dependencies
-  dep=(wget curl unzip dfu-util)
+  dep=(wget curl unzip dfu-util virtualenv)
   ### additional deps for kiauh compatibility for armbian
   dep+=(libjpeg-dev zlib1g-dev)
   dependency_check
