@@ -162,8 +162,6 @@ do_action_service(){
       sudo systemctl $1 "$service"
       ok_msg "$service $ACTION1!"
     done
-  else
-    ERROR_MSG="Service '$2' not found!" && print_msg && clear_msg
   fi
   shopt -u extglob # disable extended globbing
 }
