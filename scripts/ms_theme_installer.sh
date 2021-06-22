@@ -73,3 +73,20 @@ ms_theme_cyberpunk(){
   ok_msg "Theme installation complete!"
   ok_msg "Please remember to delete your browser cache!\n"
 }
+
+ms_theme_voron_toolhead(){
+  THEME_URL="https://github.com/eriroh/Mainsail-x-Voron-Toolhead-Theme"
+
+  ### check and select printer if there is more than 1
+  check_select_printer
+
+  ### download all files
+  status_msg "Installing Mainsail x Voron Toolhead theme ..."
+  status_msg "Please wait ..."
+
+  [ -d "$THEME_PATH/.theme" ] && rm -rf "$THEME_PATH/.theme"
+  cd $THEME_PATH && git clone "$THEME_URL" ".theme"
+
+  ok_msg "Theme installation complete!"
+  ok_msg "Please remember to delete your browser cache!\n"
+}

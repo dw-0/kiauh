@@ -9,6 +9,7 @@ ms_theme_ui(){
   echo -e "|  Theme:                                               | "
   echo -e "|  1) [Dracula]                                         | "
   echo -e "|  2) [Cyberpunk]                                       | "
+  echo -e "|  3) [Voron Toolhead]                                  | "
   echo -e "|                                                       | "
   echo -e "|  R) [Remove Theme]                                    | "
   echo -e "|                                                       | "
@@ -22,6 +23,7 @@ ms_theme_menu(){
     case "$action" in
       1) do_action "ms_theme_dracula" "ms_theme_ui";;
       2) do_action "ms_theme_cyberpunk" "ms_theme_ui";;
+      3) do_action "ms_theme_voron_toolhead" "ms_theme_ui";;
       R|r) do_action "ms_theme_delete" "ms_theme_ui";;
       Q|q) clear; advanced_menu; break;;
       *) deny_action "ms_theme_ui";;
