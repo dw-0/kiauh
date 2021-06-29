@@ -2,6 +2,9 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-06-29
+* KIAUH will now patch the new `log_path` to existing moonraker.conf files when updating Moonraker and the entry is missing. Before that, it was necessary that the user provided that path manually to make Fluidd display the logfiles in its interface. This issue should be resolved now.
+
 ### 2021-06-15
 
 * Moonraker introduced an optional `log_path` which clients can make use of to show log files located in that folder to their users. More info here: https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a \

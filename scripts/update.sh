@@ -66,6 +66,7 @@ update_log_paths(){
   ### update services to make use of moonrakers new log_path option
   ### https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a
   shopt -s extglob # enable extended globbing
+  source_kiauh_ini
   LPATH="${HOME}/klipper_logs"
   [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
   FILE="$SYSTEMDDIR/$1?(-*([0-9])).service"
@@ -83,6 +84,17 @@ update_log_paths(){
     fi
   done
   sudo systemctl daemon-reload
+
+  # patch log_path entry if not found
+  dir1="$klipper_cfg_loc"
+  dir2="$klipper_cfg_loc/printer_*"
+  for conf in $(find $dir1 $dir2 -name "moonraker.conf" 2> /dev/null); do
+    if ! grep -q "log_path" $conf; then
+      status_msg "Patching $conf"
+      sed -i "/^config_path/a log_path: $LPATH" $conf
+      ok_msg "OK!"
+    fi
+  done
 
   # create symlink for mainsail and fluidd nginx logs
   symlink_webui_nginx_log "mainsail"
