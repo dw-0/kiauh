@@ -47,6 +47,9 @@ ms_theme_menu(){
     read -p "${cyan}Install theme:${default} " a; echo
     if [ $a = "q" ] || [ $a = "Q" ]; then
       clear && advanced_menu && break
+    elif [ $a = "r" ] || [ $a = "R" ]; then
+      ms_theme_delete
+      ms_theme_menu
     elif [ $a -le ${#t_url[@]} ]; then
       ms_theme_install "${t_auth[$a]}" "${t_url[$a]}" "${t_name[$a]}" "${t_note[$a]}"
       ms_theme_menu
