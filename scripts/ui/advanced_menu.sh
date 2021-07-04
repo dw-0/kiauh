@@ -44,7 +44,7 @@ advanced_menu(){
         clear && print_header
         flash_routine
         if [ $FLASH_FIRMWARE = "true" ]; then
-          status_msg "Please wait..." && sleep 5 && build_fw
+          status_msg "Please wait..." && sleep 3 && build_fw
           select_mcu_id
         fi
         print_msg && clear_msg
@@ -53,7 +53,7 @@ advanced_menu(){
         clear && print_header
         flash_routine_sd
         if [ $FLASH_FW_SD = "true" ]; then
-          status_msg "Please wait..." && sleep 5 && build_fw
+          status_msg "Please wait..." && sleep 3 && build_fw
           select_mcu_id
         fi
         print_msg && clear_msg

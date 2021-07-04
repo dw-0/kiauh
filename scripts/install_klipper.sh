@@ -239,52 +239,55 @@ flash_routine_sd(){
 
 select_mcu_id(){
   if [ ${#mcu_list[@]} -ge 1 ]; then
+    echo
     top_border
-    echo -e "|               ${red}!!! IMPORTANT WARNING !!!${default}               |"
+    echo -e "|                   ${red}!!! ATTENTION !!!${default}                   |"
     hr
-    echo -e "| Make sure, that you select the correct ID for the MCU |"
-    echo -e "| you have build the firmware for in the previous step! |"
-    blank_line
-    echo -e "| This is especially important if you use different MCU |"
-    echo -e "| models which each require their own firmware!         |"
-    blank_line
+    echo -e "| Make sure, to select the correct number for the MCU!  |"
     echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${default} |"
     bottom_border
-
+    echo -e "${cyan}###### List of available MCU:${default}"
     ### list all mcus
-    i=1
+    id=0
     for mcu in ${mcu_list[@]}; do
-      echo -e "$i) ${cyan}$mcu${default}"
-      i=$(expr $i + 1)
+      let id++
+      echo -e " $id) $mcu"
     done
-    while true; do
+    ### verify user input
+    sel_index=""
+    while [[ ! ($sel_index =~ ^[1-9]+$) ]] || [ $sel_index -gt $id ]; do
       echo
-      read -p "${cyan}###### Please select the ID for flashing:${default} " selected_index
-      mcu_index=$(echo $((selected_index - 1)))
+      read -p "${cyan}###### Select MCU to flash:${default} " sel_index
+      if [[ ! ($sel_index =~ ^[1-9]+$) ]]; then
+        warn_msg "Invalid input!"
+      elif [ $sel_index -lt 1 ] || [ $sel_index -gt $id ]; then
+        warn_msg "Please select a number between 1 and $id!"
+      fi
+      mcu_index=$(echo $((sel_index - 1)))
       selected_mcu_id="${mcu_list[$mcu_index]}"
-      echo -e "\nYou have selected to flash:\n● MCU #$selected_index: $selected_mcu_id\n"
-      while true; do
-        read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
-        case "$yn" in
-          Y|y|Yes|yes|"")
-            echo -e "###### > Yes"
-            status_msg "Flashing $selected_mcu_id ..."
-            if [ "$FLASH_FIRMWARE" = "true" ]; then
-              flash_mcu
-            fi
-            if [ "$FLASH_FW_SD" = "true" ]; then
-              flash_mcu_sd
-            fi
-            break;;
-          N|n|No|no)
-            echo -e "###### > No"
-            break;;
-          *)
-            print_unkown_cmd
-            print_msg && clear_msg;;
-        esac
-      done
-      break
+    done
+    ### process flashing
+    while true; do
+      echo -e "\n###### You selected:\n ● MCU #$sel_index: $selected_mcu_id\n"
+      read -p "${cyan}###### Continue? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Flashing $selected_mcu_id ..."
+          if [ "$FLASH_FIRMWARE" = "true" ]; then
+            flash_mcu
+          fi
+          if [ "$FLASH_FW_SD" = "true" ]; then
+            flash_mcu_sd
+          fi
+          break;;
+        N|n|No|no)
+          echo -e "###### > No"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
     done
   fi
 }
@@ -389,17 +392,11 @@ get_mcu_id(){
   echo -e "| Please make sure your MCU is connected to the Pi!     |"
   echo -e "| If the MCU is not connected yet, connect it now.      |"
   bottom_border
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Press ENTER to continue ... " yn
-    echo -e "${default}"
-    case "$yn" in
-      *)
-        break;;
-    esac
-  done
+  echo -e "${cyan}"
+  read -p "###### Press ANY KEY to continue ... " -n 1 -r
+  echo -e "${default}"
   status_msg "Identifying the ID of your MCU ..."
-  sleep 2
+  sleep 1
   unset MCU_ID
   ### if there are devices found, continue, else show warn message
   if ls /dev/serial/by-id/* 2>/dev/null 1>&2; then
