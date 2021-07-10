@@ -2,6 +2,9 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-07-10
+* The NGINX configuration files got updated to be in sync with MainsailOS and FluiddPi. Issues with the NGINX service not starting up due to wrong configuration should be resolved now. To get the updated configuration files, please remove Moonraker and Mainsail / Fluidd with KIAUH first and then re-install it. An automated file check for those configuration files might follow in the future which then automates updating those files if there were important changes.
+
 ### 2021-06-29
 * KIAUH will now patch the new `log_path` to existing moonraker.conf files when updating Moonraker and the entry is missing. Before that, it was necessary that the user provided that path manually to make Fluidd display the logfiles in its interface. This issue should be resolved now.
 
