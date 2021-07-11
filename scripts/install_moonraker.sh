@@ -277,7 +277,13 @@ create_moonraker_conf(){
         sed -i "s|%LOG%|$LOG_PATH|" $MR_CONF
         sed -i "s|%MR_DB%|$MR_DB|" $MR_CONF
         sed -i "s|%UDS%|$KLIPPY_UDS|" $MR_CONF
-        sed -i "s|%LAN%|$LAN|" $MR_CONF
+        # if host ip is not in the default ip ranges, replace placeholder
+        # otherwise remove placeholder from config
+        if ! grep $LAN $MR_CONF; then
+          sed -i "s|%LAN%|$LAN|" $MR_CONF
+        else
+          sed -i "/%LAN%/d" $MR_CONF
+        fi
         sed -i "s|%USER%|${USER}|g" $MR_CONF
       ok_msg "moonraker.conf created!"
     else
