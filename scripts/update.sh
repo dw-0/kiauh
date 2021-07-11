@@ -223,32 +223,17 @@ update_klipper(){
     save_klipper_state
     status_msg "Updating $GET_BRANCH"
     cd $KLIPPER_DIR
-
     if [ "$DETACHED_HEAD" == "true" ]; then
       git checkout $GET_BRANCH
       unset DETACHED_HEAD
     fi
-
-    ### get current klippy-requirements.txt md5sum
-    KLIPPER_OLDREQ_MD5SUM="$(md5sum $KLIPPER_DIR/scripts/klippy-requirements.txt | cut -d " " -f1)"
     ### pull latest files from github
     git pull
     ### read PKGLIST and install possible new dependencies
     install_klipper_packages
-    ### get possible new klippy-requirements.txt md5sum
-    KLIPPER_NEWREQ_MD5SUM="$(md5sum $KLIPPER_DIR/scripts/klippy-requirements.txt | cut -d " " -f1)"
-
-    ### check for possible new dependencies and install them
-    if [[ $KLIPPER_NEWREQ_MD5SUM != $KLIPPER_OLDREQ_MD5SUM ]]; then
-      PYTHONDIR="${HOME}/klippy-env"
-      status_msg "New dependecies detected..."
-
-      ### always rebuild the pythondir from scratch if new dependencies were detected
-      rm -rf ${PYTHONDIR}
-      virtualenv -p python2 ${PYTHONDIR}
-      $PYTHONDIR/bin/pip install -r $KLIPPER_DIR/scripts/klippy-requirements.txt
-      ok_msg "Dependencies have been installed!"
-    fi
+    ### install possible new python dependencies
+    KLIPPER_REQ_TXT="$KLIPPER_DIR/scripts/klippy-requirements.txt"
+    $KLIPPY_ENV/bin/pip install -r $KLIPPER_REQ_TXT
   fi
   update_log_paths "klipper"
   ok_msg "Update complete!"
@@ -289,28 +274,13 @@ update_moonraker(){
   do_action_service "stop" "moonraker"
   bb4u "moonraker"
   status_msg "Updating Moonraker ..."
-  cd $MOONRAKER_DIR
-
-  ### get current moonraker-requirements.txt md5sum
-  MOONRAKER_OLDREQ_MD5SUM=$(md5sum $MOONRAKER_DIR/scripts/moonraker-requirements.txt | cut -d " " -f1)
   ### pull latest files from github
-  git pull
+  cd $MOONRAKER_DIR && git pull
   ### read PKGLIST and install possible new dependencies
   install_moonraker_packages
-  ### get possible new moonraker-requirements.txt md5sum
-  MOONRAKER_NEWREQ_MD5SUM=$(md5sum $MOONRAKER_DIR/scripts/moonraker-requirements.txt | cut -d " " -f1)
-
-  ### check for possible new dependencies and install them
-  if [[ $MOONRAKER_NEWREQ_MD5SUM != $MOONRAKER_OLDREQ_MD5SUM ]]; then
-    PYTHONDIR="${HOME}/moonraker-env"
-    status_msg "New dependecies detected..."
-    ### always rebuild the pythondir from scratch if new dependencies were detected
-    rm -rf ${PYTHONDIR}
-    virtualenv -p /usr/bin/python3 ${PYTHONDIR}
-    ln -s /usr/lib/python3/dist-packages/gpiod* ${PYTHONDIR}/lib/python*/site-packages
-    ${PYTHONDIR}/bin/pip install -r $MOONRAKER_DIR/scripts/moonraker-requirements.txt
-    ok_msg "Dependencies have been installed!"
-  fi
+  ### install possible new python dependencies
+  MR_REQ_TXT="$MOONRAKER_DIR/scripts/moonraker-requirements.txt"
+  $MOONRAKER_ENV/bin/pip install -r $MR_REQ_TXT
   update_log_paths "moonraker"
   ok_msg "Update complete!"
   do_action_service "restart" "moonraker"
