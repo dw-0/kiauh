@@ -376,6 +376,8 @@ build_fw(){
   if [ -d $KLIPPER_DIR ]; then
     cd $KLIPPER_DIR
     status_msg "Initializing firmware build ..."
+    dep=(build-essential dpkg-dev make)
+    dependency_check
     make clean
     make menuconfig
     status_msg "Building firmware ..."
