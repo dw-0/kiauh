@@ -129,6 +129,12 @@ https://github.com/OctoPrint/OctoPrint
 
 ---
 
+### **🔬PrettyGCode for Klipper** by [Kragrathea](https://github.com/Kragrathea) :
+
+https://github.com/Kragrathea/pgcode
+
+---
+
 ## **❓ FAQ**
 
 **_Q: Can i use this script to install multiple instances of Klipper on the same Pi? (Multisession?)_**

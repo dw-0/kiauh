@@ -2,6 +2,9 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-08-10
+* KIAUH now supports the installation of the "PrettyGCode for Klipper" GCode-Viewer created by [Kragrathea](https://github.com/Kragrathea)! Installation, updating and removal are possible with KIAUH. For more details to this cool piece of software, please have a look here: https://github.com/Kragrathea/pgcode
+
 ### 2021-07-10
 * The NGINX configuration files got updated to be in sync with MainsailOS and FluiddPi. Issues with the NGINX service not starting up due to wrong configuration should be resolved now. To get the updated configuration files, please remove Moonraker and Mainsail / Fluidd with KIAUH first and then re-install it. An automated file check for those configuration files might follow in the future which then automates updating those files if there were important changes.
 
