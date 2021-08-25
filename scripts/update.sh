@@ -312,7 +312,7 @@ update_pgc_for_klipper(){
 
 update_system(){
   status_msg "Updating System ..."
-  sudo apt-get update && sudo apt-get upgrade -y
+  sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y
   ok_msg "Update complete! Check the log above!"
   ok_msg "KIAUH won't do any dist-upgrades!\n"
 }

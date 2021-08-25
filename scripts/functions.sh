@@ -234,7 +234,7 @@ dependency_check(){
       echo -e "${cyan}● $element ${default}"
     done
     echo
-    sudo apt-get update && sudo apt-get install ${inst[@]} -y
+    sudo apt-get update --allow-releaseinfo-change && sudo apt-get install ${inst[@]} -y
     ok_msg "Dependencies installed!"
     #clearing the array
     unset inst
