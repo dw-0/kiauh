@@ -39,6 +39,9 @@ update_all(){
     if [ "$KLIPPERSCREEN_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● KlipperScreen${default}                                      |"
     fi
+    if [ "$PGC_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● PrettyGCode for Klipper${default}                            |"
+    fi
     if [ "$SYS_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● System${default}                                             |"
     fi

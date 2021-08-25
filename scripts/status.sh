@@ -540,7 +540,7 @@ compare_pgc_versions(){
     LOCAL_PGC_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
     REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
     PGC_UPDATE_AVAIL="true"
-    update_arr+=(update_pgc)
+    update_arr+=(update_pgc_for_klipper)
   else
     LOCAL_PGC_COMMIT="${green}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
     REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
