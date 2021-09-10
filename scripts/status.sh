@@ -591,5 +591,5 @@ ui_print_versions(){
   compare_mainsail_versions
   compare_fluidd_versions
   compare_klipperscreen_versions
-  compare_MoonrakerTelegramBot
+  compare_MoonrakerTelegramBot_versions
 }
