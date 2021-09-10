@@ -38,7 +38,7 @@ OCTOPRINT_DIR=${HOME}/OctoPrint
 #KlipperScreen
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
-#moonraker-telegram-bot
+#MoonrakerTelegramBot
 MOONRAKERTELEGRAMBOT_DIR=${HOME}/moonraker-telegram-bot
 MOONRAKERTELEGRAMBOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
 #misc
