@@ -44,6 +44,8 @@ get_user_selections_MoonrakerTelegramBot(){
 }
 
 MoonrakerTelegramBot_setup(){
+  dep=(virtualenv)
+  dependency_check
   status_msg "Downloading MoonrakerTelegramBot ..."
   #force remove existing MoonrakerTelegramBot dir
   [ -d $MOONRAKERTELEGRAMBOT_DIR ] && rm -rf $MOONRAKERTELEGRAMBOT_DIR
