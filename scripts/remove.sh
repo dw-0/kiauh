@@ -406,7 +406,7 @@ remove_MoonrakerTelegramBot(){
   if [ -e /etc/systemd/system/moonraker-telegram-bot.service ]; then
     status_msg "Removing MoonrakerTelegramBot service ..."
     sudo systemctl stop moonraker-telegram-bot
-    sudo systemctl disable moonraker
+    sudo systemctl disable moonraker-telegram-bot
     sudo rm -f $SYSTEMDDIR/moonraker-telegram-bot.service
     ###reloading units
     sudo systemctl daemon-reload
