@@ -48,7 +48,7 @@ MoonrakerTelegramBot_setup(){
   #force remove existing MoonrakerTelegramBot dir
   [ -d $MOONRAKERTELEGRAMBOT_DIR ] && rm -rf $MOONRAKERTELEGRAMBOT_DIR
   #clone into fresh MoonrakerTelegramBot dir
-  cd ${HOME} && git clone $MOONRAKERTELEGRAMBOT_REPO
+  cd ${HOME} && git clone $NLEF_REPO
   ok_msg "Download complete!"
   status_msg "Installing MoonrakerTelegramBot ..."
   $MOONRAKERTELEGRAMBOT_DIR/install.sh
