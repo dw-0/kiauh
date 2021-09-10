@@ -182,11 +182,11 @@ backup_klipperscreen(){
 
 backup_klipperscreen(){
   if [ -d $MOONRAKERTELEGRAMBOT_DIR ] ; then
-    status_msg "Creating moonraker-telegram-bot backup ..."
+    status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
     get_date
     status_msg "Timestamp: $current_date"
-    mkdir -p $BACKUP_DIR/moonraker-telegram-bot-backups/"$current_date"
+    mkdir -p $BACKUP_DIR/MoonrakerTelegramBot-backups/"$current_date"
     cp -r $MOONRAKERTELEGRAMBOT_DIR $_
     ok_msg "Backup complete!"
   else

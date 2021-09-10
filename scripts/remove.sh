@@ -387,47 +387,47 @@ remove_klipperscreen(){
   CONFIRM_MSG="KlipperScreen successfully removed!"
 }
 
-remove_moonraker-telegram-bot(){
+remove_MoonrakerTelegramBot(){
   source_kiauh_ini
 
-  ### remove moonraker-telegram-bot dir
+  ### remove MoonrakerTelegramBot dir
   if [ -d $MOONRAKERTELEGRAMBOT_DIR ]; then
-    status_msg "Removing moonraker-telegram-bot directory ..."
+    status_msg "Removing MoonrakerTelegramBot directory ..."
     rm -rf $MOONRAKERTELEGRAMBOT_DIR && ok_msg "Directory removed!"
   fi
 
-  ### remove moonraker-telegram-bot VENV dir
+  ### remove MoonrakerTelegramBot VENV dir
   if [ -d $MOONRAKERTELEGRAMBOT_ENV_DIR ]; then
-    status_msg "Removing moonraker-telegram-bot VENV directory ..."
+    status_msg "Removing MoonrakerTelegramBot VENV directory ..."
     rm -rf $MOONRAKERTELEGRAMBOT_ENV_DIR && ok_msg "Directory removed!"
   fi
 
-  ### remove moonraker-telegram-bot service
-  if [ -e /etc/systemd/system/moonraker-telegram-bot.service ]; then
-    status_msg "Removing moonraker-telegram-bot service ..."
-    sudo systemctl stop moonraker-telegram-bot
+  ### remove MoonrakerTelegramBot service
+  if [ -e /etc/systemd/system/MoonrakerTelegramBot.service ]; then
+    status_msg "Removing MoonrakerTelegramBot service ..."
+    sudo systemctl stop MoonrakerTelegramBot
     sudo systemctl disable moonraker
-    sudo rm -f $SYSTEMDDIR/moonraker-telegram-bot.service
+    sudo rm -f $SYSTEMDDIR/MoonrakerTelegramBot.service
     ###reloading units
     sudo systemctl daemon-reload
     sudo systemctl reset-failed
-    ok_msg "moonraker-telegram-bot Service removed!"
+    ok_msg "MoonrakerTelegramBot Service removed!"
   fi
 
-  ### remove moonraker-telegram-bot log
+  ### remove MoonrakerTelegramBot log
   if [ -e /tmp/telegram.log ]; then
-    status_msg "Removing moonraker-telegram-bot log file ..."
+    status_msg "Removing MoonrakerTelegramBot log file ..."
     rm -f /tmp/telegram.log && ok_msg "File removed!"
   fi
 
-  ### remove moonraker-telegram-bot log symlink in config dir
+  ### remove MoonrakerTelegramBot log symlink in config dir
 
   if [ -e $klipper_cfg_loc/telegram.log ]; then
-    status_msg "Removing moonraker-telegram-bot log symlink ..."
+    status_msg "Removing MoonrakerTelegramBot log symlink ..."
     rm -f $klipper_cfg_loc/telegram.log && ok_msg "File removed!"
   fi
 
-  CONFIRM_MSG="moonraker-telegram-bot successfully removed!"
+  CONFIRM_MSG="MoonrakerTelegramBot successfully removed!"
 }
 
 remove_mjpg-streamer(){

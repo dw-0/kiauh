@@ -228,28 +228,28 @@ klipperscreen_status(){
   fi
 }
 
-moonraker-telegram-bot_status(){
+MoonrakerTelegramBot_status(){
   mtbcount=0
-  moonraker-telegram-bot_data=(
+  MoonrakerTelegramBot_data=(
     SERVICE
     $MOONRAKERTELEGRAMBOT_DIR
     $MOONRAKERTELEGRAMBOT_ENV_DIR
   )
 
-  ### count amount of moonraker-telegram-bot_data service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker-telegram-bot" | wc -l)
+  ### count amount of MoonrakerTelegramBot_data service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "MoonrakerTelegramBot" | wc -l)
 
-  ### remove the "SERVICE" entry from the moonraker-telegram-bot_data array if a moonraker-telegram-bot service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset moonraker-telegram-bot_data[0]
+  ### remove the "SERVICE" entry from the MoonrakerTelegramBot_data array if a MoonrakerTelegramBot service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset MoonrakerTelegramBot_data[0]
 
   #count+1 for each found data-item from array
-  for mtbd in "${moonraker-telegram-bot_data[@]}"
+  for mtbd in "${MoonrakerTelegramBot_data[@]}"
   do
     if [ -e $mtbd ]; then
       mtbcount=$(expr $mtbcount + 1)
     fi
   done
-  if [ "$mtbccount" == "${#moonraker-telegram-bot_data[*]}" ]; then
+  if [ "$mtbccount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
     MOONRAKERTELEGRAMBOT_STATUS="${green}Installed!${default}      "
   elif [ "$klsccount" == 0 ]; then
     MOONRAKERTELEGRAMBOT_STATUS="${red}Not installed!${default}  "
@@ -547,7 +547,7 @@ compare_klipperscreen_versions(){
   fi
 }
 
-read_moonraker-telegram-bot_versions(){
+read_MoonrakerTelegramBot_versions(){
   if [ -d $MOONRAKERTELEGRAMBOT_DIR ] && [ -d $MOONRAKERTELEGRAMBOT_DIR/.git ]; then
     cd $MOONRAKERTELEGRAMBOT_DIR
     git fetch origin master -q
@@ -559,14 +559,14 @@ read_moonraker-telegram-bot_versions(){
   fi
 }
 
-compare_moonraker-telegram-bot_versions(){
+compare_MoonrakerTelegramBot_versions(){
   unset MOONRAKERTELEGRAMBOT_UPDATE_AVAIL
-  read_moonraker-telegram-bot_versions
+  read_MoonrakerTelegramBot_versions
   if [ "$LOCAL_MOONRAKERTELEGRAMBOT_COMMIT" != "$REMOTE_MOONRAKERTELEGRAMBOT_COMMIT" ]; then
     LOCAL_MOONRAKERTELEGRAMBOT_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
     REMOTE_MOONRAKERTELEGRAMBOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
     MOONRAKERTELEGRAMBOT_UPDATE_AVAIL="true"
-    update_arr+=(update_moonraker-telegram-bot)
+    update_arr+=(update_MoonrakerTelegramBot)
   else
     LOCAL_MOONRAKERTELEGRAMBOT_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
     REMOTE_MOONRAKERTELEGRAMBOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
@@ -591,5 +591,5 @@ ui_print_versions(){
   compare_mainsail_versions
   compare_fluidd_versions
   compare_klipperscreen_versions
-  compare_moonraker-telegram-bot
+  compare_MoonrakerTelegramBot
 }

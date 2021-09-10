@@ -44,7 +44,7 @@ remove_menu(){
       9)
         do_action "remove_mjpg-streamer" "remove_ui";;
       10)
-        do_action "remove_moonraker-telegram-bot" "remove_ui";;
+        do_action "remove_MoonrakerTelegramBot" "remove_ui";;
       Q|q)
         clear; main_menu; break;;
       *)

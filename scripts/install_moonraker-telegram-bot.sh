@@ -1,17 +1,17 @@
-install_moonraker-telegram-bot(){
+install_MoonrakerTelegramBot(){
     source_kiauh_ini
-    system_check_moonraker-telegram-bot
+    system_check_MoonrakerTelegramBot
     #ask user for customization
-    get_user_selections_moonraker-telegram-bot
-    #moonraker-telegram-bot main installation
-    moonraker-telegram-bot_setup
+    get_user_selections_MoonrakerTelegramBot
+    #MoonrakerTelegramBot main installation
+    MoonrakerTelegramBot_setup
     #execute customizations
-    symlinks_moonraker-telegram-bot
+    symlinks_MoonrakerTelegramBot
     #after install actions
-    restart_moonraker-telegram-bot
+    restart_MoonrakerTelegramBot
 }
 
-system_check_moonraker-telegram-bot(){
+system_check_MoonrakerTelegramBot(){
   source_kiauh_ini
   if [ ! -e $klipper_cfg_loc/telegram.log ]; then
     MOONRAKERTELEGRAMBOT_SL_FOUND="false"
@@ -20,7 +20,7 @@ system_check_moonraker-telegram-bot(){
   fi
 }
 
-get_user_selections_moonraker-telegram-bot(){
+get_user_selections_MoonrakerTelegramBot(){
   #user selection for telegram.log symlink
   if [ "$KMOONRAKERTELEGRAMBOT_SL_FOUND" = "false" ]; then
     while true; do
@@ -43,21 +43,21 @@ get_user_selections_moonraker-telegram-bot(){
   fi
 }
 
-moonraker-telegram-bot_setup(){
+MoonrakerTelegramBot_setup(){
   dep=(wget curl unzip dfu-util)
   dependency_check
-  status_msg "Downloading moonraker-telegram-bot ..."
-  #force remove existing moonraker-telegram-bot dir
+  status_msg "Downloading MoonrakerTelegramBot ..."
+  #force remove existing MoonrakerTelegramBot dir
   [ -d $MOONRAKERTELEGRAMBOT_DIR ] && rm -rf $MOONRAKERTELEGRAMBOT_DIR
-  #clone into fresh moonraker-telegram-bot dir
+  #clone into fresh MoonrakerTelegramBot dir
   cd ${HOME} && git clone $MOONRAKERTELEGRAMBOT_REPO
   ok_msg "Download complete!"
-  status_msg "Installing moonraker-telegram-bot ..."
+  status_msg "Installing MoonrakerTelegramBot ..."
   $MOONRAKERTELEGRAMBOT_DIR/install.sh
-  echo; ok_msg "moonraker-telegram-bot successfully installed!"
+  echo; ok_msg "MoonrakerTelegramBot successfully installed!"
 }
 
-symlinks_moonraker-telegram-bot(){
+symlinks_MoonrakerTelegramBot(){
   #create a telegram.log symlink in klipper_config-dir
   if [ "$SEL_MTBLOG_SL" = "true" ] && [ ! -e $klipper_cfg_loc/telegram.log ]; then
     status_msg "Creating telegram.log symlink ..."
