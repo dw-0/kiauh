@@ -249,9 +249,9 @@ MoonrakerTelegramBot_status(){
       mtbcount=$(expr $mtbcount + 1)
     fi
   done
-  if [ "$mtbccount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
+  if [ "$mtbcount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
     MOONRAKERTELEGRAMBOT_STATUS="${green}Installed!${default}      "
-  elif [ "$klsccount" == 0 ]; then
+  elif [ "$mtbcount" == 0 ]; then
     MOONRAKERTELEGRAMBOT_STATUS="${red}Not installed!${default}  "
   else
     MOONRAKERTELEGRAMBOT_STATUS="${yellow}Incomplete!${default}     "
