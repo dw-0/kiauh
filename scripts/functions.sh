@@ -272,17 +272,17 @@ restart_klipperscreen(){
 
 start_MoonrakerTelegramBot(){
   status_msg "Starting MoonrakerTelegramBot Service ..."
-  sudo systemctl start MoonrakerTelegramBot && ok_msg "MoonrakerTelegramBot Service started!"
+  sudo systemctl start moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service started!"
 }
 
 stop_MoonrakerTelegramBot(){
   status_msg "Stopping MoonrakerTelegramBot Service ..."
-  sudo systemctl stop MoonrakerTelegramBot && ok_msg "MoonrakerTelegramBot Service stopped!"
+  sudo systemctl stop moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service stopped!"
 }
 
 restart_MoonrakerTelegramBot(){
   status_msg "Restarting MoonrakerTelegramBot Service ..."
-  sudo systemctl restart MoonrakerTelegramBot && ok_msg "MoonrakerTelegramBot Service restarted!"
+  sudo systemctl restart moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service restarted!"
 }
 
 restart_nginx(){
