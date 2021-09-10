@@ -13,10 +13,10 @@ remove_ui(){
   echo -e "|  Klipper API:             |  Other:                   | "
   echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
   echo -e "|                           |  7) [OctoPrint]           | "
-  echo -e "|  Klipper Webinterface:    |  8) [NGINX]               | "
-  echo -e "|  3) [Mainsail]            |  9) [MJPG-Streamer]       | "
+  echo -e "|  Klipper Webinterface:    |  8) [MJPG-Streamer]       | "
+  echo -e "|  3) [Mainsail]            |  9) [PrettyGCode]         | "
   echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |                           | "
+  echo -e "|                           | 10) [NGINX]               | "
   quit_footer
 }
 
@@ -40,9 +40,11 @@ remove_menu(){
       7)
         do_action "remove_octoprint" "remove_ui";;
       8)
-        do_action "remove_nginx" "remove_ui";;
-      9)
         do_action "remove_mjpg-streamer" "remove_ui";;
+      9)
+        do_action "remove_prettygcode" "remove_ui";;
+      10)
+        do_action "remove_nginx" "remove_ui";;
       Q|q)
         clear; main_menu; break;;
       *)

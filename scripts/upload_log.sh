@@ -42,13 +42,16 @@ upload_selection(){
 
   ### find all suitable logfiles for klipper
   logfiles=()
-  if ls /tmp/klippy*.log 2>/dev/null 1>&2; then
-    for kl_log in $(find /tmp/klippy*.log); do
+  klipper_logs="${HOME}/klipper_logs/klippy*.log"
+  moonraker_logs="${HOME}/klipper_logs/moonraker*.log"
+
+  if ls $klipper_logs 2>/dev/null 1>&2; then
+    for kl_log in $(find $klipper_logs); do
       logfiles+=($kl_log)
     done
   fi
-  if ls /tmp/moonraker*.log 2>/dev/null 1>&2; then
-    for mr_log in $(find /tmp/moonraker*.log); do
+  if ls $moonraker_logs 2>/dev/null 1>&2; then
+    for mr_log in $(find $moonraker_logs); do
       logfiles+=($mr_log)
     done
   fi

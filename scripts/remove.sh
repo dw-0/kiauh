@@ -2,9 +2,11 @@
 SYSTEMDDIR="/etc/systemd/system"
 
 remove_klipper(){
+  shopt -s extglob # enable extended globbing
   ### ask the user if he wants to uninstall moonraker too.
   ###? currently usefull if the user wants to switch from single-instance to multi-instance
-  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     while true; do
       unset REM_MR
       top_border
@@ -45,9 +47,10 @@ remove_klipper(){
   fi
 
   ### remove all klipper services
-  if ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/klipper?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Klipper Services ..."
-    for service in $(ls /etc/systemd/system/klipper*.service | cut -d"/" -f5)
+    for service in $(ls $FILE | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -62,32 +65,32 @@ remove_klipper(){
   fi
 
   ### remove all logfiles
-  if ls /tmp/klippy*.log 2>/dev/null 1>&2; then
-    for logfile in $(ls /tmp/klippy*.log)
-    do
-      status_msg "Removing $logfile ..."
-      rm -f $logfile
-      ok_msg "File '$logfile' removed!"
+  FILE="${HOME}/klipper_logs/klippy?(-*([0-9])).log"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for log in $(ls $FILE); do
+      status_msg "Removing $log ..."
+      rm -f $log
+      ok_msg "$log removed!"
     done
   fi
 
   ### remove all UDS
-  if ls /tmp/klippy_uds* 2>/dev/null 1>&2; then
-    for uds in $(ls /tmp/klippy_uds*)
-    do
+  FILE="/tmp/klippy_uds?(-*([0-9]))"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for uds in $(ls $FILE); do
       status_msg "Removing $uds ..."
       rm -f $uds
-      ok_msg "File '$uds' removed!"
+      ok_msg "$uds removed!"
     done
   fi
 
   ### remove all tmp-printer
-  if ls /tmp/printer* 2>/dev/null 1>&2; then
-    for tmp_printer in $(ls /tmp/printer*)
-    do
+  FILE="/tmp/printer?(-*([0-9]))"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for tmp_printer in $(ls $FILE); do
       status_msg "Removing $tmp_printer ..."
       rm -f $tmp_printer
-      ok_msg "File '$tmp_printer' removed!"
+      ok_msg "$tmp_printer removed!"
     done
   fi
 
@@ -102,6 +105,7 @@ remove_klipper(){
   fi
 
   CONFIRM_MSG=" Klipper was successfully removed!" && print_msg && clear_msg
+  shopt -u extglob # enable extended globbing
 
   if [ "$REM_MR" == "true" ]; then
     remove_moonraker && unset REM_MR
@@ -112,6 +116,7 @@ remove_klipper(){
 #############################################################
 
 remove_moonraker(){
+  shopt -s extglob # enable extended globbing
   ### remove "legacy" moonraker init.d service
   if [ -f /etc/init.d/moonraker ]; then
     status_msg "Removing Moonraker Service ..."
@@ -123,9 +128,10 @@ remove_moonraker(){
   fi
 
   ### remove all moonraker services
-  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Moonraker Services ..."
-    for service in $(ls /etc/systemd/system/moonraker*.service | cut -d"/" -f5)
+    for service in $(ls $FILE | cut -d"/" -f5)
     do
       status_msg "Removing $service ..."
       sudo systemctl stop $service
@@ -140,12 +146,12 @@ remove_moonraker(){
   fi
 
   ### remove all logfiles
-  if ls /tmp/moonraker*.log 2>/dev/null 1>&2; then
-    for logfile in $(ls /tmp/moonraker*.log)
-    do
-      status_msg "Removing $logfile ..."
-      rm -f $logfile
-      ok_msg "File '$logfile' removed!"
+  FILE="${HOME}/klipper_logs/moonraker?(-*([0-9])).log"
+  if ls $FILE 2>/dev/null 1>&2; then
+    for log in $(ls $FILE); do
+      status_msg "Removing $log ..."
+      rm -f $log
+      ok_msg "$log removed!"
     done
   fi
 
@@ -176,6 +182,7 @@ remove_moonraker(){
   fi
 
   CONFIRM_MSG=" Moonraker was successfully removed!"
+  shopt -u extglob # disable extended globbing
 }
 
 #############################################################
@@ -258,6 +265,14 @@ remove_mainsail(){
     sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
   fi
 
+  ### remove mainsail nginx logs and log symlinks
+  for log in $(find /var/log/nginx -name "mainsail*"); do
+    sudo rm -f $log
+  done
+  for log in $(find ${HOME}/klipper_logs -name "mainsail*"); do
+    rm -f $log
+  done
+
   CONFIRM_MSG="Mainsail successfully removed!"
 }
 
@@ -279,6 +294,14 @@ remove_fluidd(){
     status_msg "Removing Fluidd Symlink for Nginx ..."
     sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
   fi
+
+  ### remove mainsail nginx logs and log symlinks
+  for log in $(find /var/log/nginx -name "fluidd*"); do
+    sudo rm -f $log
+  done
+  for log in $(find ${HOME}/klipper_logs -name "fluidd*"); do
+    rm -f $log
+  done
 
   CONFIRM_MSG="Fluidd successfully removed!"
 }
@@ -399,6 +422,11 @@ remove_mjpg-streamer(){
     ok_msg "MJPG-Streamer Service removed!"
   fi
 
+  ### remove webcamd from /usr/local/bin
+  if [ -e "/usr/local/bin/webcamd" ]; then
+    sudo rm -f "/usr/local/bin/webcamd"
+  fi
+
   ### remove MJPG-Streamer directory
   if [ -d ${HOME}/mjpg-streamer ]; then
     status_msg "Removing MJPG-Streamer directory ..."
@@ -406,5 +434,24 @@ remove_mjpg-streamer(){
     ok_msg "MJPG-Streamer directory removed!"
   fi
 
+  ### remove webcamd log and symlink
+  [ -f "/var/log/webcamd.log" ] && sudo rm -f "/var/log/webcamd.log"
+  [ -L "${HOME}/klipper_logs/webcamd.log" ] && rm -f "${HOME}/klipper_logs/webcamd.log"
+
   CONFIRM_MSG="MJPG-Streamer successfully removed!"
+}
+
+remove_prettygcode(){
+  pgconf="/etc/nginx/sites-available/pgcode.local.conf"
+  pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
+  if [ -d ${HOME}/pgcode ] || [ -f $pgconf ] || [ -L $pgconfsl ]; then
+    status_msg "Removing PrettyGCode for Klipper ..."
+    rm -rf ${HOME}/pgcode
+    sudo rm -f $pgconf
+    sudo rm -f $pgconfsl
+    sudo systemctl restart nginx
+    CONFIRM_MSG="PrettyGCode for Klipper successfully removed!"
+  else
+    ERROR_MSG="PrettyGCode for Klipper not found!\n Skipping..."
+  fi
 }

@@ -174,7 +174,7 @@ install_dwc_packages()
 
     # Update system package info
     status_msg "Running apt-get update..."
-    sudo apt-get update
+    sudo apt-get update --allow-releaseinfo-change
 
     # Install desired packages
     status_msg "Installing packages..."

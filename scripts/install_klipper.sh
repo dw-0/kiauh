@@ -7,7 +7,11 @@ klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."
 
   ### check for existing klipper service files
-  if $(ls /etc/init.d/klipper* 2>/dev/null 1>&2) || $(ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2); then
+  INITD=$(ls /etc/init.d | grep -E "^klipper(\-[[:digit:]]+)?$")
+  SYSTEMD=$(ls /etc/systemd/system | grep -E "^klipper(\-[[:digit:]]+)?\.service$")
+
+  if [ ! -z "$INITD" ] || [ ! -z "$SYSTEMD" ]; then
+    echo "${red}$INITD${default}" && echo "${red}$SYSTEMD${default}"
     ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
   fi
 
@@ -15,19 +19,19 @@ klipper_setup_dialog(){
   check_klipper_cfg_path
 
   ### ask for amount of instances to create
-  while true; do
+  INSTANCE_COUNT=""
+  while [[ ! ($INSTANCE_COUNT =~ ^[1-9]+$) ]]; do
+    echo
+    read -p "${cyan}###### Number of Klipper instances to set up:${default} " INSTANCE_COUNT
+    if [[ ! ($INSTANCE_COUNT =~ ^[1-9]+$) ]]; then
+      warn_msg "Invalid Input!" && echo
+    else
       echo
-      read -p "${cyan}###### How many Klipper instances do you want to set up?:${default} " INSTANCE_COUNT
-      echo
-      if [ $INSTANCE_COUNT == 1 ]; then
-        read -p "${cyan}###### Create $INSTANCE_COUNT single instance? (Y/n):${default} " yn
-      else
-        read -p "${cyan}###### Create $INSTANCE_COUNT instances? (Y/n):${default} " yn
-      fi
+      read -p "${cyan}###### Install $INSTANCE_COUNT instance(s)? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Creating $INSTANCE_COUNT Klipper instances ..."
+          status_msg "Installing $INSTANCE_COUNT Klipper instance(s) ..."
           klipper_setup
           break;;
         N|n|No|no)
@@ -38,32 +42,34 @@ klipper_setup_dialog(){
         *)
           print_unkown_cmd
           print_msg && clear_msg;;
-    esac
+      esac
+    fi
   done
 }
 
 install_klipper_packages(){
-  ### Packages for python cffi
-  PKGLIST="python-virtualenv virtualenv python-dev libffi-dev build-essential"
-  ### kconfig requirements
-  PKGLIST="${PKGLIST} libncurses-dev"
-  ### hub-ctrl
-  PKGLIST="${PKGLIST} libusb-dev"
-  ### AVR chip installation and building
-  PKGLIST="${PKGLIST} avrdude gcc-avr binutils-avr avr-libc"
-  ### ARM chip installation and building
-  PKGLIST="${PKGLIST} stm32flash libnewlib-arm-none-eabi"
-  PKGLIST="${PKGLIST} gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0"
-  ### dbus requirement for DietPi
-  PKGLIST="${PKGLIST} dbus"
+  ### read PKGLIST from official install script
+  status_msg "Reading dependencies..."
+  install_script="${HOME}/klipper/scripts/install-octopi.sh"
+  PKGLIST=$(grep "PKGLIST=" $install_script | sed 's/PKGLIST//g; s/[$={}\n"]//g')
+  ### rewrite packages into new array
+  unset PKGARR
+  for PKG in $PKGLIST; do PKGARR+=($PKG); done
+  ### add dbus requirement for DietPi distro
+  if [ -e "/boot/dietpi" ]; then
+    PKGARR+=("dbus")
+  fi
+
+  ### display dependencies to user
+  echo "${cyan}${PKGARR[@]}${default}"
 
   ### Update system package info
   status_msg "Running apt-get update..."
-  sudo apt-get update
+  sudo apt-get update --allow-releaseinfo-change
 
   ### Install desired packages
   status_msg "Installing packages..."
-  sudo apt-get install --yes ${PKGLIST}
+  sudo apt-get install --yes ${PKGARR[@]}
 }
 
 create_klipper_virtualenv(){
@@ -87,8 +93,9 @@ klipper_setup(){
   install_klipper_packages
   create_klipper_virtualenv
 
-  ### step 3: create shared gcode_files folder
+  ### step 3: create shared gcode_files and logs folder
   [ ! -d ${HOME}/gcode_files ] && mkdir -p ${HOME}/gcode_files
+  [ ! -d ${HOME}/klipper_logs ] && mkdir -p ${HOME}/klipper_logs
 
   ### step 4: create klipper instances
   create_klipper_service
@@ -108,7 +115,7 @@ create_klipper_service(){
   CFG_PATH="$klipper_cfg_loc"
   KL_ENV=$KLIPPY_ENV
   KL_DIR=$KLIPPER_DIR
-  KL_LOG="/tmp/klippy.log"
+  KL_LOG="${HOME}/klipper_logs/klippy.log"
   KL_UDS="/tmp/klippy_uds"
   P_TMP="/tmp/printer"
   P_CFG="$CFG_PATH/printer.cfg"
@@ -152,7 +159,7 @@ create_klipper_service(){
       KL_SERV_TARGET="$SYSTEMDDIR/klipper-$i.service"
       P_TMP="/tmp/printer-$i"
       P_CFG="$CFG_PATH/printer.cfg"
-      KL_LOG="/tmp/klippy-$i.log"
+      KL_LOG="${HOME}/klipper_logs/klippy-$i.log"
       KL_UDS="/tmp/klippy_uds-$i"
       ### write multi instance service
       write_kl_service
@@ -232,69 +239,72 @@ flash_routine_sd(){
 
 select_mcu_id(){
   if [ ${#mcu_list[@]} -ge 1 ]; then
+    echo
     top_border
-    echo -e "|               ${red}!!! IMPORTANT WARNING !!!${default}               |"
+    echo -e "|                   ${red}!!! ATTENTION !!!${default}                   |"
     hr
-    echo -e "| Make sure, that you select the correct ID for the MCU |"
-    echo -e "| you have build the firmware for in the previous step! |"
-    blank_line
-    echo -e "| This is especially important if you use different MCU |"
-    echo -e "| models which each require their own firmware!         |"
-    blank_line
+    echo -e "| Make sure, to select the correct number for the MCU!  |"
     echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${default} |"
     bottom_border
-
+    echo -e "${cyan}###### List of available MCU:${default}"
     ### list all mcus
-    i=1
+    id=0
     for mcu in ${mcu_list[@]}; do
-      echo -e "$i) ${cyan}$mcu${default}"
-      i=$(expr $i + 1)
+      let id++
+      echo -e " $id) $mcu"
     done
-    while true; do
+    ### verify user input
+    sel_index=""
+    while [[ ! ($sel_index =~ ^[1-9]+$) ]] || [ $sel_index -gt $id ]; do
       echo
-      read -p "${cyan}###### Please select the ID for flashing:${default} " selected_index
-      mcu_index=$(echo $((selected_index - 1)))
+      read -p "${cyan}###### Select MCU to flash:${default} " sel_index
+      if [[ ! ($sel_index =~ ^[1-9]+$) ]]; then
+        warn_msg "Invalid input!"
+      elif [ $sel_index -lt 1 ] || [ $sel_index -gt $id ]; then
+        warn_msg "Please select a number between 1 and $id!"
+      fi
+      mcu_index=$(echo $((sel_index - 1)))
       selected_mcu_id="${mcu_list[$mcu_index]}"
-      echo -e "\nYou have selected to flash:\n● MCU #$selected_index: $selected_mcu_id\n"
-      while true; do
-        read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
-        case "$yn" in
-          Y|y|Yes|yes|"")
-            echo -e "###### > Yes"
-            status_msg "Flashing $selected_mcu_id ..."
-            if [ "$FLASH_FIRMWARE" = "true" ]; then
-              flash_mcu
-            fi
-            if [ "$FLASH_FW_SD" = "true" ]; then
-              flash_mcu_sd
-            fi
-            break;;
-          N|n|No|no)
-            echo -e "###### > No"
-            break;;
-          *)
-            print_unkown_cmd
-            print_msg && clear_msg;;
-        esac
-      done
-      break
+    done
+    ### process flashing
+    while true; do
+      echo -e "\n###### You selected:\n ● MCU #$sel_index: $selected_mcu_id\n"
+      read -p "${cyan}###### Continue? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Flashing $selected_mcu_id ..."
+          if [ "$FLASH_FIRMWARE" = "true" ]; then
+            flash_mcu
+          fi
+          if [ "$FLASH_FW_SD" = "true" ]; then
+            flash_mcu_sd
+          fi
+          break;;
+        N|n|No|no)
+          echo -e "###### > No"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
     done
   fi
 }
 
 flash_mcu(){
-  klipper_service "stop"
+  do_action_service "stop" "klipper"
   if ! make flash FLASH_DEVICE="${mcu_list[$mcu_index]}" ; then
     warn_msg "Flashing failed!"
     warn_msg "Please read the console output above!"
   else
     ok_msg "Flashing successfull!"
   fi
-  klipper_service "start"
+  do_action_service "start" "klipper"
 }
 
 flash_mcu_sd(){
-  klipper_service "stop"
+  do_action_service "stop" "klipper"
 
   ### write each supported board to the array to make it selectable
   board_list=()
@@ -359,13 +369,15 @@ flash_mcu_sd(){
     ok_msg "Flashing successfull!"
   fi
 
-  klipper_service "start"
+  do_action_service "start" "klipper"
 }
 
 build_fw(){
   if [ -d $KLIPPER_DIR ]; then
     cd $KLIPPER_DIR
     status_msg "Initializing firmware build ..."
+    dep=(build-essential dpkg-dev make)
+    dependency_check
     make clean
     make menuconfig
     status_msg "Building firmware ..."
@@ -382,17 +394,11 @@ get_mcu_id(){
   echo -e "| Please make sure your MCU is connected to the Pi!     |"
   echo -e "| If the MCU is not connected yet, connect it now.      |"
   bottom_border
-  while true; do
-    echo -e "${cyan}"
-    read -p "###### Press any key to continue ... " yn
-    echo -e "${default}"
-    case "$yn" in
-      *)
-        break;;
-    esac
-  done
+  echo -e "${cyan}"
+  read -p "###### Press ANY KEY to continue ... " -n 1 -r
+  echo -e "${default}"
   status_msg "Identifying the ID of your MCU ..."
-  sleep 2
+  sleep 1
   unset MCU_ID
   ### if there are devices found, continue, else show warn message
   if ls /dev/serial/by-id/* 2>/dev/null 1>&2; then

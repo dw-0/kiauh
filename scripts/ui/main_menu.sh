@@ -59,46 +59,26 @@ main_menu(){
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
     case "$action" in
-      "start klipper")
-        do_action "klipper_service start" "main_ui";;
-      "stop klipper")
-        do_action "klipper_service stop" "main_ui";;
-      "restart klipper")
-        do_action "klipper_service restart" "main_ui";;
-      "start moonraker")
-        do_action "moonraker_service start" "main_ui";;
-      "stop moonraker")
-        do_action "moonraker_service stop" "main_ui";;
-      "restart moonraker")
-        do_action "moonraker_service restart" "main_ui";;
-      "start dwc")
-        do_action "dwc_service start" "main_ui";;
-      "stop dwc")
-        do_action "dwc_service stop" "main_ui";;
-      "restart dwc")
-        do_action "dwc_service restart" "main_ui";;
-      "start octoprint")
-        do_action "octoprint_service start" "main_ui";;
-      "stop octoprint")
-        do_action "octoprint_service stop" "main_ui";;
-      "restart octoprint")
-        do_action "octoprint_service restart" "main_ui";;
-      update)
-        do_action "update_kiauh" "main_ui";;
-      0)
-        do_action "upload_selection" "main_ui";;
-      1)
-        clear && install_menu && break;;
-      2)
-        clear && update_menu && break;;
-      3)
-        clear && remove_menu && break;;
-      4)
-        clear && advanced_menu && break;;
-      5)
-        clear && backup_menu && break;;
-      6)
-        clear && settings_menu && break;;
+      "start klipper") do_action_service "start" "klipper"; main_ui;;
+      "stop klipper") do_action_service "stop" "klipper"; main_ui;;
+      "restart klipper") do_action_service "restart" "klipper"; main_ui;;
+      "start moonraker") do_action_service "start" "moonraker"; main_ui;;
+      "stop moonraker") do_action_service "stop" "moonraker"; main_ui;;
+      "restart moonraker")do_action_service "restart" "moonraker"; main_ui;;
+      "start dwc") do_action_service "start" "dwc"; main_ui;;
+      "stop dwc") do_action_service "stop" "dwc"; main_ui;;
+      "restart dwc") do_action_service "restart" "dwc"; main_ui;;
+      "start octoprint") do_action_service "start" "octoprint"; main_ui;;
+      "stop octoprint") do_action_service "stop" "octoprint"; main_ui;;
+      "restart octoprint") do_action_service "restart" "octoprint"; main_ui;;
+      update) do_action "update_kiauh" "main_ui";;
+      0) do_action "upload_selection" "main_ui";;
+      1) clear && install_menu && break;;
+      2) clear && update_menu && break;;
+      3) clear && remove_menu && break;;
+      4) clear && advanced_menu && break;;
+      5) clear && backup_menu && break;;
+      6) clear && settings_menu && break;;
       Q|q)
         echo -e "${green}###### Happy printing! ######${default}"; echo
         exit -1;;

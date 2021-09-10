@@ -82,7 +82,8 @@ change_klipper_cfg_path(){
 
 set_klipper_cfg_path(){
   ### stop services
-  klipper_service "stop" && moonraker_service "stop"
+  do_action_service "stop" "klipper"
+  do_action_service "stop" "moonraker"
 
   ### copy config files to new klipper config folder
   if [ ! -z "$old_klipper_cfg_loc" ] && [ -d "$old_klipper_cfg_loc" ]; then
@@ -137,77 +138,17 @@ set_klipper_cfg_path(){
   sudo systemctl daemon-reload
 
   ### restart services
-  klipper_service "restart" && moonraker_service "restart"
+  do_action_service "restart" "klipper"
+  do_action_service "restart" "moonraker"
 }
 
 source_kiauh_ini(){
   source $INI_FILE
 }
 
-klipper_service(){
-  ### set a variable for the ok and status messages
-  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
-  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
-  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
-
-  if ls /etc/systemd/system/klipper-*.service 2>/dev/null 1>&2; then
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
-    INSTANCE=1
-    status_msg "$ACTION2 $INSTANCE_COUNT Klipper Services ..."
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-      sudo systemctl $1 klipper-$INSTANCE && ok_msg "Klipper Service #$INSTANCE $ACTION1!"
-      ### instance counter +1
-      INSTANCE=$(expr $INSTANCE + 1)
-    done
-  elif [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper.service")" ]; then
-    status_msg "$ACTION2 Klipper Service ..."
-    sudo systemctl $1 klipper && ok_msg "Klipper Service $ACTION1!"
-  fi
-}
-
-moonraker_service(){
-  ### set a variable for the ok and status messages
-  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
-  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
-  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
-
-  if ls /etc/systemd/system/moonraker-*.service 2>/dev/null 1>&2; then
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service" | wc -l)
-    INSTANCE=1
-    status_msg "$ACTION2 $INSTANCE_COUNT Moonraker Services ..."
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-      sudo systemctl $1 moonraker-$INSTANCE && ok_msg "Moonraker Service #$INSTANCE $ACTION1!"
-      ### instance counter +1
-      INSTANCE=$(expr $INSTANCE + 1)
-    done
-  elif [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker.service")" ]; then
-    status_msg "$ACTION2 Moonraker Service ..."
-    sudo systemctl $1 moonraker && ok_msg "Moonraker Service $ACTION1!"
-  fi
-}
-
-dwc_service(){
-  ### set a variable for the ok and status messages
-  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
-  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
-  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
-
-  if ls /etc/systemd/system/dwc-*.service 2>/dev/null 1>&2; then
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc-[[:digit:]].service" | wc -l)
-    INSTANCE=1
-    status_msg "$ACTION2 $INSTANCE_COUNT DWC-for-Klipper-Socket Services ..."
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-      sudo systemctl $1 dwc-$INSTANCE && ok_msg "DWC-for-Klipper-Socket Service #$INSTANCE $ACTION1!"
-      ### instance counter +1
-      INSTANCE=$(expr $INSTANCE + 1)
-    done
-  elif [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "dwc.service")" ]; then
-    status_msg "$ACTION2 DWC-for-Klipper-Socket Service ..."
-    sudo systemctl $1 dwc && ok_msg "DWC-for-Klipper-Socket Service $ACTION1!"
-  fi
-}
-
-octoprint_service(){
+do_action_service(){
+  shopt -s extglob # enable extended globbing
+  SERVICES="$SYSTEMDDIR/$2?(-*([0-9])).service"
   ### set a variable for the ok and status messages
   [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
   [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
@@ -215,30 +156,25 @@ octoprint_service(){
   [ "$1" == "enable" ] && ACTION1="enabled" && ACTION2="Enabling"
   [ "$1" == "disable" ] && ACTION1="disabled" && ACTION2="Disabling"
 
-  if ls /etc/systemd/system/octoprint-*.service 2>/dev/null 1>&2; then
-    INSTANCE=1
-    INSTANCE_COUNT=$(systemctl list-unit-files | grep -E "octoprint.*" | wc -l)
-    status_msg "$ACTION2 $INSTANCE_COUNT OctoPrint Services ..."
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
-      sudo systemctl $1 octoprint-$INSTANCE && ok_msg "OctoPrint Service #$INSTANCE $ACTION1!"
-      ### instance counter +1
-      INSTANCE=$(expr $INSTANCE + 1)
+  if ls $SERVICES 2>/dev/null 1>&2; then
+    for service in $(ls $SERVICES | rev | cut -d"/" -f1 | rev); do
+      status_msg "$ACTION2 $service ..."
+      sudo systemctl $1 "$service"
+      ok_msg "$service $ACTION1!"
     done
-  elif [ "$(systemctl list-unit-files | grep -E "octoprint.*")" ]; then
-    status_msg "$ACTION2 OctoPrint Service ..."
-    sudo systemctl $1 octoprint && ok_msg "OctoPrint Service $ACTION1!"
   fi
+  shopt -u extglob # disable extended globbing
 }
 
 toggle_octoprint_service(){
   if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
-    octoprint_service "stop"
-    octoprint_service "disable"
+    do_action_service "stop" "octoprint"
+    do_action_service "disable" "octoprint"
     sleep 2
     CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
   elif systemctl list-unit-files | grep -E "octoprint.*" | grep "disabled" &>/dev/null; then
-    octoprint_service "enable"
-    octoprint_service "start"
+    do_action_service "enable" "octoprint"
+    do_action_service "start" "octoprint"
     sleep 2
     CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
   else
@@ -248,6 +184,9 @@ toggle_octoprint_service(){
 
 read_octoprint_service_status(){
   unset OPRINT_SERVICE_STATUS
+  if [ ! -f "/etc/systemd/system/octoprint.service" ]; then
+    return 0
+  fi
   if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
     OPRINT_SERVICE_STATUS="${red}[Disable]${default} OctoPrint Service                       "
   else
@@ -295,7 +234,7 @@ dependency_check(){
       echo -e "${cyan}● $element ${default}"
     done
     echo
-    sudo apt-get update && sudo apt-get install ${inst[@]} -y
+    sudo apt-get update --allow-releaseinfo-change && sudo apt-get install ${inst[@]} -y
     ok_msg "Dependencies installed!"
     #clearing the array
     unset inst
@@ -367,7 +306,7 @@ setup_gcode_shell_command(){
 }
 
 install_gcode_shell_command(){
-  klipper_service "stop"
+  do_action_service "stop" "klipper"
   status_msg "Copy 'gcode_shell_command.py' to '$KLIPPER_DIR/klippy/extras' ..."
   cp ${SRCDIR}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
   while true; do
@@ -409,7 +348,7 @@ install_gcode_shell_command(){
     esac
   done
   ok_msg "Shell command extension installed!"
-  klipper_service "restart"
+  do_action_service "restart" "klipper"
 }
 
 create_minimal_cfg(){

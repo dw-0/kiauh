@@ -46,15 +46,19 @@ moonraker_setup_dialog(){
     print_msg && clear_msg && return 0
   fi
 
+  shopt -s extglob # enable extended globbing
   ### check for existing moonraker service installations
-  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     ERROR_MSG="At least one Moonraker service is already installed!" && return 0
   fi
 
   ### check for existing klipper service installations
-  if ! ls /etc/systemd/system/klipper*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/klipper?(-*([0-9])).service"
+  if ! ls $FILE 2>/dev/null 1>&2; then
     ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
   fi
+  shopt -u extglob # disable extended globbing
 
   ### count amount of klipper services
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
@@ -103,7 +107,7 @@ moonraker_setup_dialog(){
 
 moonraker_setup(){
   ### checking dependencies
-  dep=(wget curl unzip dfu-util)
+  dep=(wget curl unzip dfu-util virtualenv)
   ### additional deps for kiauh compatibility for armbian
   dep+=(libjpeg-dev zlib1g-dev)
   dependency_check
@@ -142,15 +146,22 @@ moonraker_setup(){
 }
 
 install_moonraker_packages(){
-  PKGLIST="python3-virtualenv python3-dev nginx libopenjp2-7 python3-libgpiod"
+  ### read PKGLIST from official install script
+  status_msg "Reading dependencies..."
+  install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
+  PKGLIST=$(grep "PKGLIST=" $install_script | sed 's/PKGLIST//g; s/[$={}\n"]//g')
+  ### rewrite packages into new array
+  unset PKGARR
+  for PKG in $PKGLIST; do PKGARR+=($PKG); done
+  echo "${cyan}${PKGARR[@]}${default}"
 
   ### Update system package info
   status_msg "Running apt-get update..."
-  sudo apt-get update
+  sudo apt-get update --allow-releaseinfo-change
 
   ### Install desired packages
   status_msg "Installing packages..."
-  sudo apt-get install --yes ${PKGLIST}
+  sudo apt-get install --yes ${PKGARR[@]}
 }
 
 create_moonraker_virtualenv(){
@@ -162,7 +173,10 @@ create_moonraker_virtualenv(){
     rm -rf ${MOONRAKER_ENV}
   fi
 
-  [ ! -d ${MOONRAKER_ENV} ] && virtualenv -p /usr/bin/python3 --system-site-packages ${MOONRAKER_ENV}
+  if [ ! -d ${MOONRAKER_ENV} ]; then
+    virtualenv -p /usr/bin/python3 ${MOONRAKER_ENV}
+    ln -s /usr/lib/python3/dist-packages/gpiod* ${MOONRAKER_ENV}/lib/python*/site-packages
+  fi
 
   ### Install/update dependencies
   ${MOONRAKER_ENV}/bin/pip install -r ${MOONRAKER_DIR}/scripts/moonraker-requirements.txt
@@ -177,7 +191,7 @@ create_moonraker_service(){
   CFG_PATH="$klipper_cfg_loc"
   MR_ENV=$MOONRAKER_ENV
   MR_DIR=$MOONRAKER_DIR
-  MR_LOG="/tmp/moonraker.log"
+  MR_LOG="${HOME}/klipper_logs/moonraker.log"
   MR_CONF="$CFG_PATH/moonraker.conf"
   MR_SERV_SRC="${SRCDIR}/kiauh/resources/moonraker.service"
   MR_SERV_TARGET="$SYSTEMDDIR/moonraker.service"
@@ -211,7 +225,7 @@ create_moonraker_service(){
       CFG_PATH="$klipper_cfg_loc/printer_$i"
       MR_SERV_TARGET="$SYSTEMDDIR/moonraker-$i.service"
       MR_CONF="$CFG_PATH/moonraker.conf"
-      MR_LOG="/tmp/moonraker-$i.log"
+      MR_LOG="${HOME}/klipper_logs/moonraker-$i.log"
       ### write multi instance service
       write_mr_service
       ### enable instance
@@ -244,6 +258,7 @@ create_moonraker_conf(){
   SINGLE_INST=1
   PORT=7125
   CFG_PATH="$klipper_cfg_loc"
+  LOG_PATH="${HOME}/klipper_logs"
   MR_CONF="$CFG_PATH/moonraker.conf"
   MR_DB="~/.moonraker_database"
   KLIPPY_UDS="/tmp/klippy_uds"
@@ -259,9 +274,16 @@ create_moonraker_conf(){
         cp $MR_CONF_SRC $MR_CONF
         sed -i "s|%PORT%|$PORT|" $MR_CONF
         sed -i "s|%CFG%|$CFG_PATH|" $MR_CONF
+        sed -i "s|%LOG%|$LOG_PATH|" $MR_CONF
         sed -i "s|%MR_DB%|$MR_DB|" $MR_CONF
         sed -i "s|%UDS%|$KLIPPY_UDS|" $MR_CONF
-        sed -i "s|%LAN%|$LAN|" $MR_CONF
+        # if host ip is not in the default ip ranges, replace placeholder
+        # otherwise remove placeholder from config
+        if ! grep $LAN $MR_CONF; then
+          sed -i "s|%LAN%|$LAN|" $MR_CONF
+        else
+          sed -i "/%LAN%/d" $MR_CONF
+        fi
         sed -i "s|%USER%|${USER}|g" $MR_CONF
       ok_msg "moonraker.conf created!"
     else
@@ -336,9 +358,9 @@ process_octoprint_dialog(){
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
           status_msg "Stopping OctoPrint ..."
-          octoprint_service "stop" && ok_msg "OctoPrint service stopped!"
+          do_action_service "stop" "octoprint" && ok_msg "OctoPrint service stopped!"
           status_msg "Disabling OctoPrint ..."
-          octoprint_service "disable" && ok_msg "OctoPrint service disabled!"
+          do_action_service "disable" "octoprint" && ok_msg "OctoPrint service disabled!"
           break;;
         N|n|No|no)
           echo -e "###### > No"
