@@ -1,6 +1,6 @@
 remove_ui(){
   top_border
-  echo -e "|      ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}      | "
+  echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
   hr
   echo -e "|  Directories which remain untouched:                  | "
   echo -e "|  --> Your printer configuration directory             | "
