@@ -54,6 +54,7 @@ main_menu(){
     mainsail_status
     octoprint_status
     klipperscreen_status
+    MoonrakerTelegramBot_status
     print_branch
   print_msg && clear_msg
   main_ui
