@@ -237,7 +237,7 @@ MoonrakerTelegramBot_status(){
   )
 
   ### count amount of MoonrakerTelegramBot_data service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "MoonrakerTelegramBot" | wc -l)
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker-telegram-bot" | wc -l)
 
   ### remove the "SERVICE" entry from the MoonrakerTelegramBot_data array if a MoonrakerTelegramBot service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset MoonrakerTelegramBot_data[0]
