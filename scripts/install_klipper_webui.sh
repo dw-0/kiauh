@@ -100,6 +100,9 @@ install_webui(){
   ### creating the mainsail/fluidd nginx cfg
   set_nginx_cfg "$1"
 
+  ### symlink nginx log
+  symlink_webui_nginx_log "$1"
+
   ### copy the kiauh_macros.cfg to the config location
   install_kiauh_macros
 
@@ -112,6 +115,23 @@ install_webui(){
   ### confirm message
   CONFIRM_MSG="$IF_NAME1 has been set up!"
   print_msg && clear_msg
+}
+
+symlink_webui_nginx_log(){
+  LPATH="${HOME}/klipper_logs"
+  UI_ACCESS_LOG="/var/log/nginx/$1-access.log"
+  UI_ERROR_LOG="/var/log/nginx/$1-error.log"
+  [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
+  if [ -f "$UI_ACCESS_LOG" ] &&  [ ! -L "$LPATH/$1-access.log" ]; then
+    status_msg "Creating symlink for $UI_ACCESS_LOG ..."
+    ln -s $UI_ACCESS_LOG "$LPATH"
+    ok_msg "OK!"
+  fi
+  if [ -f "$UI_ERROR_LOG" ] &&  [ ! -L "$LPATH/$1-error.log" ]; then
+    status_msg "Creating symlink for $UI_ERROR_LOG ..."
+    ln -s $UI_ERROR_LOG "$LPATH"
+    ok_msg "OK!"
+  fi
 }
 
 install_kiauh_macros(){
@@ -143,7 +163,7 @@ install_kiauh_macros(){
       ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
     fi
     ### restart klipper service to parse the modified printer.cfg
-    klipper_service "restart"
+    do_action_service "restart" "klipper"
   fi
 }
 

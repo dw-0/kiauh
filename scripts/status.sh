@@ -30,7 +30,7 @@ klipper_status(){
   )
 
   ### count amount of klipper service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "klipper" | wc -l)
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^klipper(\-[[:digit:]]+)?\.service$" | wc -l)
 
   ### a fix to detect an existing "legacy" klipper init.d installation
   if [ -f /etc/init.d/klipper ] && [ -f /etc/init.d/klipper ]; then
@@ -68,7 +68,7 @@ dwc2_status(){
   )
 
   ### count amount of dwc service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "dwc" | wc -l)
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^dwc(\-[[:digit:]]+)?\.service$" | wc -l)
 
   ### remove the "SERVICE" entry from the dwc_data array if a dwc service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset dwc_data[0]
@@ -99,7 +99,7 @@ moonraker_status(){
   )
 
   ### count amount of moonraker service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E 'moonraker\.service|moonraker-[[:digit:]]*.service' | wc -l)
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^moonraker(\-[[:digit:]]+)?\.service$" | wc -l)
 
   ### remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset moonraker_data[0]
@@ -175,7 +175,7 @@ octoprint_status(){
     $OCTOPRINT_DIR
   )
   ### count amount of octoprint service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "octoprint" | wc -l)
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^octoprint(\-[[:digit:]]+)?\.service$" | wc -l)
 
   ### remove the "SERVICE" entry from the octoprint_data array if a octoprint service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset octoprint_data[0]
@@ -578,6 +578,37 @@ compare_MoonrakerTelegramBot_versions(){
 #############################################################
 #############################################################
 
+read_pgc_versions(){
+  PGC_DIR="${HOME}/pgcode"
+  if [ -d $PGC_DIR ] && [ -d $PGC_DIR/.git ]; then
+    cd $PGC_DIR
+    git fetch origin main -q
+    LOCAL_PGC_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_PGC_COMMIT=$(git describe origin/main --always --tags | cut -d "-" -f 1,2)
+  else
+    LOCAL_PGC_COMMIT=$NONE
+    REMOTE_PGC_COMMIT=$NONE
+  fi
+}
+
+compare_pgc_versions(){
+  unset PGC_UPDATE_AVAIL
+  read_pgc_versions
+  if [ "$LOCAL_PGC_COMMIT" != "$REMOTE_PGC_COMMIT" ]; then
+    LOCAL_PGC_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
+    REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
+    PGC_UPDATE_AVAIL="true"
+    update_arr+=(update_pgc_for_klipper)
+  else
+    LOCAL_PGC_COMMIT="${green}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
+    REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
+    PGC_UPDATE_AVAIL="false"
+  fi
+}
+
+#############################################################
+#############################################################
+
 #display this as placeholder if no version/commit could be fetched
 NONE="${red}$(printf "%-12s" "--------")${default}"
 
@@ -592,4 +623,5 @@ ui_print_versions(){
   compare_fluidd_versions
   compare_klipperscreen_versions
   compare_MoonrakerTelegramBot_versions
+  compare_pgc_versions
 }

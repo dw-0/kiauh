@@ -1,7 +1,7 @@
 ### base variables
 SYSTEMDDIR="/etc/systemd/system"
-WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/root/bin/webcamd"
-WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/boot/mainsail.txt"
+WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
 
 install_mjpg-streamer(){
   ### checking dependencies
@@ -49,8 +49,8 @@ install_mjpg-streamer(){
 </html>
 EOT
   sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
+  sudo sed -i "/^config_dir=/ s|=.*|=$klipper_cfg_loc|" /usr/local/bin/webcamd
   sudo sed -i "/MJPGSTREAMER_HOME/ s/pi/${USER}/" /usr/local/bin/webcamd
-  sudo sed -i "/^cfg_files+=/ s|=.*|=$WEBCAM_TXT|" /usr/local/bin/webcamd
   sudo chmod +x /usr/local/bin/webcamd
 
   ### step 4: create webcam.txt config file
@@ -65,12 +65,19 @@ EOT
   status_msg "Creating MJPG-Streamer service ..."
   sudo cp $MJPG_SERV_SRC $MJPG_SERV_TARGET
   sudo sed -i "s|%USER%|${USER}|" $MJPG_SERV_TARGET
+  ok_msg "MJPG-Streamer service created!"
 
   ### step 6: enabling and starting mjpg-streamer service
   status_msg "Starting MJPG-Streamer service ..."
   sudo systemctl enable webcamd.service
   sudo systemctl start webcamd.service
   ok_msg "MJPG-Streamer service started!"
+
+  ### step 6.1: create webcamd.log symlink
+  [ ! -d ${HOME}/klipper_logs ] && mkdir -p "${HOME}/klipper_logs"
+  if [ -f "/var/log/webcamd.log" ] && [ ! -L "${HOME}/klipper_logs/webcamd.log" ]; then
+    ln -s "/var/log/webcamd.log" "${HOME}/klipper_logs/webcamd.log"
+  fi
 
   ### confirm message
   CONFIRM_MSG="MJPG-Streamer has been set up!"
