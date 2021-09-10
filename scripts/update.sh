@@ -39,6 +39,9 @@ update_all(){
     if [ "$KLIPPERSCREEN_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● KlipperScreen${default}                                      |"
     fi
+    if [ "$MOONRAKERTELEGRAMBOT_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● moonraker-telegram-bot${default}                                      |"
+    fi
     if [ "$SYS_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● System${default}                                             |"
     fi
@@ -168,6 +171,15 @@ update_klipperscreen(){
   fi
   ok_msg "Update complete!"
   start_klipperscreen
+}
+
+update_moonraker-telegram-bot(){
+  stop_moonraker-telegram-bot
+  cd $MOONRAKERTELEGRAMBOT_DIR
+  git pull
+  ./install.sh
+  ok_msg "Update complete!"
+  start_moonraker-telegram-bot
 }
 
 update_system(){

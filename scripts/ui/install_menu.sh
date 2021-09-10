@@ -12,10 +12,10 @@ install_ui(){
   echo -e "|  Klipper API:             |  Other:                   | "
   echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
   echo -e "|                           |  7) [OctoPrint]           | "
-  echo -e "|  Klipper Webinterface:    |                           | "
-  echo -e "|  3) [Mainsail]            |  Webcam:                  | "
-  echo -e "|  4) [Fluidd]              |  8) [MJPG-Streamer]       | "
-  echo -e "|                           |                           | "
+  echo -e "|  Klipper Webinterface:    |  9) [MoonrakerTelegramBot]| "
+  echo -e "|  3) [Mainsail]            |                           | "
+  echo -e "|  4) [Fluidd]              |  Webcam:                  | "
+  echo -e "|                           |  8) [MJPG-Streamer]       | "
   quit_footer
 }
 

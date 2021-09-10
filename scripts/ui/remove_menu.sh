@@ -1,22 +1,22 @@
 remove_ui(){
   top_border
-  echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
+  echo -e "|      ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}      | "
   hr
-  echo -e "|  Directories which remain untouched:                  | "
-  echo -e "|  --> Your printer configuration directory             | "
-  echo -e "|  --> ~/kiauh-backups                                  | "
-  echo -e "|  You need remove them manually if you wish so.        | "
+  echo -e "|  Directories which remain untouched:                    | "
+  echo -e "|  --> Your printer configuration directory               | "
+  echo -e "|  --> ~/kiauh-backups                                    | "
+  echo -e "|  You need remove them manually if you wish so.          | "
   hr
-  echo -e "|  Firmware:                |  Touchscreen GUI:         | "
-  echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
-  echo -e "|                           |                           | "
-  echo -e "|  Klipper API:             |  Other:                   | "
-  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
-  echo -e "|                           |  7) [OctoPrint]           | "
-  echo -e "|  Klipper Webinterface:    |  8) [NGINX]               | "
-  echo -e "|  3) [Mainsail]            |  9) [MJPG-Streamer]       | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |                           | "
+  echo -e "|  Firmware:                |  Touchscreen GUI:           | "
+  echo -e "|  1) [Klipper]             |  5) [KlipperScreen]         | "
+  echo -e "|                           |                             | "
+  echo -e "|  Klipper API:             |  Other:                     | "
+  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]      | "
+  echo -e "|                           |  7) [OctoPrint]             | "
+  echo -e "|  Klipper Webinterface:    |  8) [NGINX]                 | "
+  echo -e "|  3) [Mainsail]            |  9) [MJPG-Streamer]         | "
+  echo -e "|  4) [Fluidd]              |  10) [MoonrakerTelegramBot] | "
+  echo -e "|                           |                             | "
   quit_footer
 }
 
@@ -43,6 +43,8 @@ remove_menu(){
         do_action "remove_nginx" "remove_ui";;
       9)
         do_action "remove_mjpg-streamer" "remove_ui";;
+      10)
+        do_action "remove_moonraker-telegram-bot" "remove_ui";;
       Q|q)
         clear; main_menu; break;;
       *)

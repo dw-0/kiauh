@@ -21,6 +21,7 @@ update_ui(){
   echo -e "|  Other:                |---------------|--------------| "
   echo -e "|  6) [DWC2-for-Klipper] |  $LOCAL_DWC2FK_COMMIT | $REMOTE_DWC2FK_COMMIT | "
   echo -e "|  7) [DWC2 Web UI]      |  $DWC2_LOCAL_VER | $DWC2_REMOTE_VER | "
+  echo -e "|  5) [MTelegramBot]     |  $LOCAL_MOONRAKERTELEGRAMBOT_COMMIT | $REMOTE_MOONRAKERTELEGRAMBOT_COMMIT | "
   echo -e "|                        |------------------------------| "
   echo -e "|  8) [System]           |  $DISPLAY_SYS_UPDATE   | "
   quit_footer

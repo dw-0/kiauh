@@ -270,6 +270,21 @@ restart_klipperscreen(){
   sudo systemctl restart KlipperScreen && ok_msg "KlipperScreen Service restarted!"
 }
 
+start_moonraker-telegram-bot(){
+  status_msg "Starting moonraker-telegram-bot Service ..."
+  sudo systemctl start moonraker-telegram-bot && ok_msg "moonraker-telegram-bot Service started!"
+}
+
+stop_moonraker-telegram-bot(){
+  status_msg "Stopping moonraker-telegram-bot Service ..."
+  sudo systemctl stop moonraker-telegram-bot && ok_msg "moonraker-telegram-bot Service stopped!"
+}
+
+restart_moonraker-telegram-bot(){
+  status_msg "Restarting moonraker-telegram-bot Service ..."
+  sudo systemctl restart moonraker-telegram-bot && ok_msg "moonraker-telegram-bot Service restarted!"
+}
+
 restart_nginx(){
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "nginx.service")" ]; then
     status_msg "Restarting NGINX Service ..."
