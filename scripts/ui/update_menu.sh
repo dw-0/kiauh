@@ -24,7 +24,7 @@ update_ui(){
   echo -e "|  8) [PrettyGCode]      |  $LOCAL_PGC_COMMIT | $REMOTE_PGC_COMMIT | "
   echo -e "|  9) [MTelegramBot]     |  $LOCAL_MOONRAKERTELEGRAMBOT_COMMIT | $REMOTE_MOONRAKERTELEGRAMBOT_COMMIT | "
   echo -e "|                        |------------------------------| "
-  echo -e "|  10) [System]           |  $DISPLAY_SYS_UPDATE   | "
+  echo -e "|  10) [System]          |  $DISPLAY_SYS_UPDATE   | "
   quit_footer
 }
 
