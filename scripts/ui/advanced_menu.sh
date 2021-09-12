@@ -18,7 +18,7 @@ advanced_ui(){
   echo -e "|  6) [Get MCU ID]          |                           | "
   echo -e "|                           |  CustomPiOS:              | "
   echo -e "|                           |  10) [Migration Helper]   | "
-quit_footer
+back_footer
 }
 
 advanced_menu(){
@@ -72,7 +72,7 @@ advanced_menu(){
         do_action "setup_gcode_shell_command" "advanced_ui";;
       10)
         do_action "migration_menu";;
-      Q|q)
+      B|b)
         clear; main_menu; break;;
       *)
         deny_action "advanced_ui";;
@@ -99,7 +99,7 @@ switch_ui(){
   echo -e "|  dmbutyugin:                                          | "
   echo -e "|  2) [--> scurve-shaping]                              | "
   echo -e "|  3) [--> scurve-smoothing]                            | "
-  quit_footer
+  back_footer
 }
 
 switch_menu(){
@@ -137,7 +137,7 @@ switch_menu(){
           read_branch
           print_msg && clear_msg
           switch_ui;;
-        Q|q)
+        B|b)
           clear; advanced_menu; break;;
         *)
           deny_action "switch_ui";;
@@ -167,7 +167,7 @@ rollback_ui(){
   hr
   echo -e "|  Commit last updated from:                            | "
   echo -e "|  $PREV_UI                             | "
-  quit_footer
+  back_footer
 }
 
 #############################################################
@@ -190,7 +190,7 @@ migration_ui(){
   echo -e "|  1) [Migrate MainsailOS]                              | "
   echo -e "|  2) [Migrate FluiddPi]                                | "
   echo -e "|                                                       | "
-  quit_footer
+  back_footer
 }
 
 migration_menu(){
@@ -201,7 +201,7 @@ migration_menu(){
     case "$action" in
       1) migrate_custompios "mainsail"; migration_menu;;
       2) migrate_custompios "fluiddpi"; migration_menu;;
-      Q|q) clear; advanced_menu; break;;
+      B|b) clear; advanced_menu; break;;
       *) print_unkown_cmd; migration_menu;;
     esac
   done
