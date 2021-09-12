@@ -74,7 +74,7 @@ upload_selection(){
   back_footer
   while true; do
     read -p "${cyan}Please select:${default} " choice
-    if [ $choice = "q" ] || [ $choice = "Q" ]; then
+    if [ $choice = "b" ] || [ $choice = "B" ]; then
       clear && main_menu && break
     elif [ $choice -le ${#logfiles[@]} ]; then
       upload_log "${logfiles[$choice]}"

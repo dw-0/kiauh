@@ -38,14 +38,14 @@ ms_theme_ui(){
   echo -e "|                                                       | "
   echo -e "|  R) [Remove Theme]                                    | "
   #echo -e "|                                                       | "
-  quit_footer
+  back_footer
 }
 
 ms_theme_menu(){
   ms_theme_ui
   while true; do
     read -p "${cyan}Install theme:${default} " a; echo
-    if [ $a = "q" ] || [ $a = "Q" ]; then
+    if [ $a = "b" ] || [ $a = "B" ]; then
       clear && advanced_menu && break
     elif [ $a = "r" ] || [ $a = "R" ]; then
       ms_theme_delete

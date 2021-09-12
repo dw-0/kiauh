@@ -151,28 +151,6 @@ switch_menu(){
 #############################################################
 #############################################################
 
-rollback_ui(){
-  top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     | "
-  hr
-  echo -e "|  If serious errors occured after updating Klipper,    | "
-  echo -e "|  you can use this menu to return to the previously    | "
-  echo -e "|  used commit from which you have updated.             | "
-  bottom_border
-  top_border
-  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                      | "
-  hr
-  echo -e "|  Currently on commit:                                 | "
-  echo -e "|  $CURR_UI                             | "
-  hr
-  echo -e "|  Commit last updated from:                            | "
-  echo -e "|  $PREV_UI                             | "
-  back_footer
-}
-
-#############################################################
-#############################################################
-
 migration_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~ [ CustomPiOS Migration ] ~~~~~~~~~~")     | "
