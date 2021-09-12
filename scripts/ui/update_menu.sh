@@ -24,7 +24,7 @@ update_ui(){
   echo -e "|  8) [PrettyGCode]      |  $LOCAL_PGC_COMMIT | $REMOTE_PGC_COMMIT | "
   echo -e "|                        |------------------------------| "
   echo -e "|  9) [System]           |  $DISPLAY_SYS_UPDATE   | "
-  quit_footer
+  back_footer
 }
 
 update_menu(){
@@ -55,7 +55,7 @@ update_menu(){
         do_action "update_system" "update_ui";;
       a)
         do_action "update_all" "update_ui";;
-      Q|q)
+      B|b)
         clear; main_menu; break;;
       *)
         deny_action "update_ui";;

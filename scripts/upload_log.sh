@@ -71,7 +71,7 @@ upload_selection(){
     printf "|  $i) %-50s|\n" "${logfiles[$i]}"
     i=$((i + 1))
   done
-  quit_footer
+  back_footer
   while true; do
     read -p "${cyan}Please select:${default} " choice
     if [ $choice = "q" ] || [ $choice = "Q" ]; then

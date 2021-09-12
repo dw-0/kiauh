@@ -21,6 +21,12 @@ quit_footer(){
   bottom_border
 }
 
+back_footer(){
+  hr
+  echo -e "|                        ${green}B) Back${default}                        | "
+  bottom_border
+}
+
 print_header(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~~~ [ KIAUH ] ~~~~~~~~~~~~~~~~~")     |"

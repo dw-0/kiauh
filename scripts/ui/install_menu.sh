@@ -17,7 +17,7 @@ install_ui(){
   echo -e "|  4) [Fluidd]              |  Webcam:                  | "
   echo -e "|                           |  9) [MJPG-Streamer]       | "
   echo -e "|                           |                           | "
-  quit_footer
+  back_footer
 }
 
 install_menu(){
@@ -43,7 +43,7 @@ install_menu(){
         do_action "install_pgc_for_klipper" "install_ui";;
       9)
         do_action "install_mjpg-streamer" "install_ui";;
-      Q|q)
+      B|b)
         clear; main_menu; break;;
       *)
         deny_action "install_ui";;

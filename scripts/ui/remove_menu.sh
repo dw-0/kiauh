@@ -17,7 +17,7 @@ remove_ui(){
   echo -e "|  3) [Mainsail]            |  9) [PrettyGCode]         | "
   echo -e "|  4) [Fluidd]              |                           | "
   echo -e "|                           | 10) [NGINX]               | "
-  quit_footer
+  back_footer
 }
 
 remove_menu(){
@@ -45,7 +45,7 @@ remove_menu(){
         do_action "remove_prettygcode" "remove_ui";;
       10)
         do_action "remove_nginx" "remove_ui";;
-      Q|q)
+      B|b)
         clear; main_menu; break;;
       *)
         deny_action "remove_ui";;
