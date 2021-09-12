@@ -1,6 +1,6 @@
 #ui total width = 57 chars
 top_border(){
-  echo -e "/=======================================================\ "
+  echo -e "/=======================================================\\"
 }
 
 bottom_border(){
@@ -8,7 +8,7 @@ bottom_border(){
 }
 
 blank_line(){
-  echo -e "|                                                       | "
+  echo -e "|                                                       |"
 }
 
 hr(){
@@ -17,13 +17,19 @@ hr(){
 
 quit_footer(){
   hr
-  echo -e "|                        ${red}Q) Quit${default}                        | "
+  echo -e "|                        ${red}Q) Quit${default}                        |"
   bottom_border
 }
 
 back_footer(){
   hr
-  echo -e "|                        ${green}B) Back${default}                        | "
+  echo -e "|                       ${green}B) « Back${default}                       |"
+  bottom_border
+}
+
+back_help_footer(){
+  hr
+  echo -e "|         ${green}B) « Back${default}         |        ${yellow}H) Help [?]${default}        |"
   bottom_border
 }
 

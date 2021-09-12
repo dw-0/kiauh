@@ -13,8 +13,8 @@ advanced_ui(){
   echo -e "|                           |  System:                  | "
   echo -e "|  Firmware:                |  8) [Change hostname]     | "
   echo -e "|  3) [Build only]          |                           | "
-  echo -e "|  4) [Build + Flash]       |  Extensions:              | "
-  echo -e "|  5) [Build + SD Flash]    |  9) [Shell Command]       | "
+  echo -e "|  4) [Flash only]          |  Extensions:              | "
+  echo -e "|  5) [Build + Flash]       |  9) [Shell Command]       | "
   echo -e "|  6) [Get MCU ID]          |                           | "
   echo -e "|                           |  CustomPiOS:              | "
   echo -e "|                           |  10) [Migration Helper]   | "
@@ -41,25 +41,16 @@ advanced_menu(){
       3)
         do_action "build_fw" "advanced_ui";;
       4)
-        clear && print_header
-        flash_routine
-        if [ $FLASH_FIRMWARE = "true" ]; then
-          status_msg "Please wait..." && sleep 3 && build_fw
-          select_mcu_id
-        fi
-        print_msg && clear_msg
-        advanced_ui;;
+        do_action "select_flash_method" "advanced_ui";;
       5)
         clear && print_header
-        flash_routine_sd
-        if [ $FLASH_FW_SD = "true" ]; then
-          status_msg "Please wait..." && sleep 3 && build_fw
-          select_mcu_id
-        fi
+        status_msg "Please wait..."
+        build_fw
+        select_flash_method
         print_msg && clear_msg
         advanced_ui;;
       6)
-        do_action "get_mcu_id" "advanced_ui";;
+        do_action "select_mcu_connection" "advanced_ui";;
       7)
         do_action "ms_theme_menu";;
       8)
