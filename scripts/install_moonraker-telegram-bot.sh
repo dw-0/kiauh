@@ -19,12 +19,3 @@ MoonrakerTelegramBot_setup(){
   $MOONRAKERTELEGRAMBOT_DIR/scripts/install.sh 
   echo; ok_msg "MoonrakerTelegramBot successfully installed!"
 }
-
-symlinks_MoonrakerTelegramBot(){
-  #create a telegram.log symlink in klipper_config-dir
-  if [ "$SEL_MTBLOG_SL" = "true" ] && [ ! -e $klipper_cfg_loc/telegram.log ]; then
-    status_msg "Creating telegram.log symlink ..."
-    ln -s /tmp/telegram.log $klipper_cfg_loc
-    ok_msg "Symlink created!"
-  fi
-}
