@@ -17,7 +17,7 @@ remove_ui(){
   echo -e "|  4) [Fluidd]              |  10) [MTelegramBot]       | "
   echo -e "|                           |                           | "
   echo -e "|                           |  11) [NGINX]              | "
-  quit_footer
+  back_footer
 }
 
 remove_menu(){
@@ -47,7 +47,7 @@ remove_menu(){
         do_action "remove_MoonrakerTelegramBot" "remove_ui";;
       11)
         do_action "remove_nginx" "remove_ui";;
-      Q|q)
+      B|b)
         clear; main_menu; break;;
       *)
         deny_action "remove_ui";;

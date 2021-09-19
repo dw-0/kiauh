@@ -20,7 +20,7 @@ settings_ui(){
   else
   echo -e "|  1) Change config folder                              | "
   fi
-  quit_footer
+  back_footer
 }
 
 settings_menu(){
@@ -34,7 +34,7 @@ settings_menu(){
         else
           deny_action "settings_ui"
         fi;;
-      Q|q)
+      B|b)
         clear; main_menu; break;;
       *)
         deny_action "settings_ui";;
