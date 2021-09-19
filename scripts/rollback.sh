@@ -50,6 +50,25 @@ load_klipper_state(){
   rollback_klipper
 }
 
+rollback_ui(){
+  top_border
+  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     | "
+  hr
+  echo -e "|  If serious errors occured after updating Klipper,    | "
+  echo -e "|  you can use this menu to return to the previously    | "
+  echo -e "|  used commit from which you have updated.             | "
+  bottom_border
+  top_border
+  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                      | "
+  hr
+  echo -e "|  Currently on commit:                                 | "
+  echo -e "|  $CURR_UI                             | "
+  hr
+  echo -e "|  Commit last updated from:                            | "
+  echo -e "|  $PREV_UI                             | "
+  back_footer
+}
+
 rollback_klipper(){
   if [ "$PREVIOUS_COMMIT" != "0" ] && [ "$CURRENT_COMMIT" != "$PREVIOUS_COMMIT" ]; then
     while true; do
@@ -66,7 +85,7 @@ rollback_klipper(){
             load_klipper_state
             break;;
           N|n|No|no) clear; advanced_menu; break;;
-          Q|q) clear; advanced_menu; break;;
+          B|b) clear; advanced_menu; break;;
           *)
             print_unkown_cmd
             print_msg && clear_msg;;
