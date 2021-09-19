@@ -39,8 +39,8 @@ OCTOPRINT_DIR=${HOME}/OctoPrint
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
 #MoonrakerTelegramBot
-MOONRAKERTELEGRAMBOT_DIR=${HOME}/moonraker-telegram-bot
-MOONRAKERTELEGRAMBOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
+MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
+MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
 #misc
 INI_FILE=${HOME}/.kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups

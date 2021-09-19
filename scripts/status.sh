@@ -232,8 +232,8 @@ MoonrakerTelegramBot_status(){
   mtbcount=0
   MoonrakerTelegramBot_data=(
     SERVICE
-    $MOONRAKERTELEGRAMBOT_DIR
-    $MOONRAKERTELEGRAMBOT_ENV_DIR
+    $MOONRAKER_TELEGRAM_BOT_DIR
+    $MOONRAKER_TELEGRAM_BOT_ENV_DIR
   )
 
   ### count amount of MoonrakerTelegramBot_data service files in /etc/systemd/system
@@ -250,11 +250,11 @@ MoonrakerTelegramBot_status(){
     fi
   done
   if [ "$mtbcount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
-    MOONRAKERTELEGRAMBOT_STATUS="${green}Installed!${default}      "
+    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${default}      "
   elif [ "$mtbcount" == 0 ]; then
-    MOONRAKERTELEGRAMBOT_STATUS="${red}Not installed!${default}  "
+    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${default}  "
   else
-    MOONRAKERTELEGRAMBOT_STATUS="${yellow}Incomplete!${default}     "
+    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
 
@@ -548,29 +548,29 @@ compare_klipperscreen_versions(){
 }
 
 read_MoonrakerTelegramBot_versions(){
-  if [ -d $MOONRAKERTELEGRAMBOT_DIR ] && [ -d $MOONRAKERTELEGRAMBOT_DIR/.git ]; then
-    cd $MOONRAKERTELEGRAMBOT_DIR
+  if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] && [ -d $MOONRAKER_TELEGRAM_BOT_DIR/.git ]; then
+    cd $MOONRAKER_TELEGRAM_BOT_DIR
     git fetch origin master -q
-    LOCAL_MOONRAKERTELEGRAMBOT_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_MOONRAKERTELEGRAMBOT_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   else
-    LOCAL_MOONRAKERTELEGRAMBOT_COMMIT=$NONE
-    REMOTE_MOONRAKERTELEGRAMBOT_COMMIT=$NONE
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$NONE
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$NONE
   fi
 }
 
 compare_MoonrakerTelegramBot_versions(){
-  unset MOONRAKERTELEGRAMBOT_UPDATE_AVAIL
+  unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
   read_MoonrakerTelegramBot_versions
-  if [ "$LOCAL_MOONRAKERTELEGRAMBOT_COMMIT" != "$REMOTE_MOONRAKERTELEGRAMBOT_COMMIT" ]; then
-    LOCAL_MOONRAKERTELEGRAMBOT_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
-    REMOTE_MOONRAKERTELEGRAMBOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
-    MOONRAKERTELEGRAMBOT_UPDATE_AVAIL="true"
+  if [ "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT" != "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT" ]; then
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true"
     update_arr+=(update_MoonrakerTelegramBot)
   else
-    LOCAL_MOONRAKERTELEGRAMBOT_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
-    REMOTE_MOONRAKERTELEGRAMBOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKERTELEGRAMBOT_COMMIT")${default}"
-    MOONRAKERTELEGRAMBOT_UPDATE_AVAIL="false"
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="false"
   fi
 }
 

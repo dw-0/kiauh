@@ -42,7 +42,7 @@ update_all(){
     if [ "$PGC_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● PrettyGCode for Klipper${default}                            |"
     fi
-    if [ "$MOONRAKERTELEGRAMBOT_UPDATE_AVAIL" = "true" ]; then
+    if [ "$MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● MoonrakerTelegramBot${default}                               |"
     fi
     if [ "$SYS_UPDATE_AVAIL" = "true" ]; then
@@ -318,7 +318,7 @@ update_pgc_for_klipper(){
 
 update_MoonrakerTelegramBot(){
   stop_MoonrakerTelegramBot
-  cd $MOONRAKERTELEGRAMBOT_DIR
+  cd $MOONRAKER_TELEGRAM_BOT_DIR
   git pull
   ./install.sh
   ok_msg "Update complete!"

@@ -181,13 +181,13 @@ backup_klipperscreen(){
 }
 
 backup_klipperscreen(){
-  if [ -d $MOONRAKERTELEGRAMBOT_DIR ] ; then
+  if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
     get_date
     status_msg "Timestamp: $current_date"
     mkdir -p $BACKUP_DIR/MoonrakerTelegramBot-backups/"$current_date"
-    cp -r $MOONRAKERTELEGRAMBOT_DIR $_
+    cp -r $MOONRAKER_TELEGRAM_BOT_DIR $_
     ok_msg "Backup complete!"
   else
     ERROR_MSG=" Can't backup KlipperScreen directory!\n Not found!"

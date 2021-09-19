@@ -414,15 +414,15 @@ remove_MoonrakerTelegramBot(){
   source_kiauh_ini
 
   ### remove MoonrakerTelegramBot dir
-  if [ -d $MOONRAKERTELEGRAMBOT_DIR ]; then
+  if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ]; then
     status_msg "Removing MoonrakerTelegramBot directory ..."
-    rm -rf $MOONRAKERTELEGRAMBOT_DIR && ok_msg "Directory removed!"
+    rm -rf $MOONRAKER_TELEGRAM_BOT_DIR && ok_msg "Directory removed!"
   fi
 
   ### remove MoonrakerTelegramBot VENV dir
-  if [ -d $MOONRAKERTELEGRAMBOT_ENV_DIR ]; then
+  if [ -d $MOONRAKER_TELEGRAM_BOT_ENV_DIR ]; then
     status_msg "Removing MoonrakerTelegramBot VENV directory ..."
-    rm -rf $MOONRAKERTELEGRAMBOT_ENV_DIR && ok_msg "Directory removed!"
+    rm -rf $MOONRAKER_TELEGRAM_BOT_ENV_DIR && ok_msg "Directory removed!"
   fi
 
   ### remove MoonrakerTelegramBot service
