@@ -6,7 +6,6 @@ remove_ui(){
   echo -e "|  --> Your printer configuration directory             | "
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
-  hr
   echo -e "|  Firmware:                |  Touchscreen GUI:         | "
   echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
   echo -e "|                           |                           | "
@@ -15,8 +14,9 @@ remove_ui(){
   echo -e "|                           |  7) [OctoPrint]           | "
   echo -e "|  Klipper Webinterface:    |  8) [MJPG-Streamer]       | "
   echo -e "|  3) [Mainsail]            |  9) [PrettyGCode]         | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           | 10) [NGINX]               | "
+  echo -e "|  4) [Fluidd]              |  10) [MTelegramBot]       | "
+  echo -e "|                           |                           | "
+  echo -e "|                           |  11) [NGINX]              | "
   back_footer
 }
 
@@ -44,6 +44,8 @@ remove_menu(){
       9)
         do_action "remove_prettygcode" "remove_ui";;
       10)
+        do_action "remove_MoonrakerTelegramBot" "remove_ui";;
+      11)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;

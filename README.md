@@ -135,6 +135,12 @@ https://github.com/Kragrathea/pgcode
 
 ---
 
+### **🤖Telegram bot for Moonraker** by [nlef](https://github.com/nlef) :
+
+https://github.com/nlef/moonraker-telegram-bot
+
+---
+
 ## **❓ FAQ**
 
 **_Q: Can i use this script to install multiple instances of Klipper on the same Pi? (Multisession?)_**
