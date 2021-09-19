@@ -1,8 +1,5 @@
 install_MoonrakerTelegramBot(){
     source_kiauh_ini
-    system_check_MoonrakerTelegramBot
-    #ask user for customization
-    get_user_selections_MoonrakerTelegramBot
     #MoonrakerTelegramBot main installation
     MoonrakerTelegramBot_setup
     #after install actions
