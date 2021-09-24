@@ -2,6 +2,11 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-09-24
+* The flashing function got adjusted a bit. It is now possible to also flash controllers which are connected over UART and thus accessible via `/dev/ttyAMA0`. You now have to select a connection methop prior flashing which is either USB or UART.
+* Due to several requests over time I have now created a Ko-fi account for those who want to support this project and my work with a small donation. Many thanks in advance to all future donors. You can support me on Ko-fi with this link: https://ko-fi.com/th33xitus
+* As usual, if you find any bugs or issues please report them. I tested the little rework i did with the hardware i have available and haven't encountered any malfunctions of flashing them yet.
+
 ### 2021-08-10
 * KIAUH now supports the installation of the "PrettyGCode for Klipper" GCode-Viewer created by [Kragrathea](https://github.com/Kragrathea)! Installation, updating and removal are possible with KIAUH. For more details to this cool piece of software, please have a look here: https://github.com/Kragrathea/pgcode
 
