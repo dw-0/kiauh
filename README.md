@@ -75,7 +75,7 @@ For more information or instructions to the various components KIAUH can install
 
 ### **⛵Klipper** by [KevinOConnor](https://github.com/KevinOConnor) :
 
-https://github.com/KevinOConnor/klipper
+https://github.com/Klipper3d/klipper
 
 ---
 
