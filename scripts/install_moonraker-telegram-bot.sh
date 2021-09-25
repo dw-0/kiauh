@@ -16,6 +16,6 @@ MoonrakerTelegramBot_setup(){
   cd ${HOME} && git clone $NLEF_REPO
   ok_msg "Download complete!"
   status_msg "Installing MoonrakerTelegramBot ..."
-  $MOONRAKER_TELEGRAM_BOT_DIR/scripts/install.sh 
+  source $MOONRAKER_TELEGRAM_BOT_DIR/scripts/install.sh 
   echo; ok_msg "MoonrakerTelegramBot successfully installed!"
 }
