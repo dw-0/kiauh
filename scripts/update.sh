@@ -317,6 +317,7 @@ update_pgc_for_klipper(){
 }
 
 update_MoonrakerTelegramBot(){
+  source_kiauh_ini
   stop_MoonrakerTelegramBot
   cd $MOONRAKER_TELEGRAM_BOT_DIR
   git pull
