@@ -320,7 +320,7 @@ update_MoonrakerTelegramBot(){
   stop_MoonrakerTelegramBot
   cd $MOONRAKER_TELEGRAM_BOT_DIR
   git pull
-  ./install.sh
+  ./scripts/install.sh
   ok_msg "Update complete!"
   start_MoonrakerTelegramBot
 }

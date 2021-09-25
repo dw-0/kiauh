@@ -10,12 +10,12 @@ MoonrakerTelegramBot_setup(){
   dep=(virtualenv)
   dependency_check
   status_msg "Downloading MoonrakerTelegramBot ..."
-  #force remove existing MoonrakerTelegramBot dir
+  #force remove existing MoonrakerTelegramBot dir 
   [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] && rm -rf $MOONRAKER_TELEGRAM_BOT_DIR
   #clone into fresh MoonrakerTelegramBot dir
   cd ${HOME} && git clone $NLEF_REPO
   ok_msg "Download complete!"
   status_msg "Installing MoonrakerTelegramBot ..."
-  source $MOONRAKER_TELEGRAM_BOT_DIR/scripts/install.sh 
+  $MOONRAKER_TELEGRAM_BOT_DIR/scripts/install.sh 
   echo; ok_msg "MoonrakerTelegramBot successfully installed!"
 }
