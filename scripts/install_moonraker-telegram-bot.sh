@@ -7,6 +7,8 @@ install_MoonrakerTelegramBot(){
 }
 
 MoonrakerTelegramBot_setup(){
+  source_kiauh_ini
+  export klipper_cfg_loc
   dep=(virtualenv)
   dependency_check
   status_msg "Downloading MoonrakerTelegramBot ..."
