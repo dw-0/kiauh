@@ -180,7 +180,7 @@ backup_klipperscreen(){
   fi
 }
 
-backup_MoonrakerTelegramBot()){
+backup_MoonrakerTelegramBot(){
   if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
