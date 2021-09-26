@@ -180,7 +180,7 @@ backup_klipperscreen(){
   fi
 }
 
-backup_klipperscreen(){
+backup_MoonrakerTelegramBot){
   if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
@@ -190,6 +190,6 @@ backup_klipperscreen(){
     cp -r $MOONRAKER_TELEGRAM_BOT_DIR $_
     ok_msg "Backup complete!"
   else
-    ERROR_MSG=" Can't backup KlipperScreen directory!\n Not found!"
+    ERROR_MSG=" Can't backup MoonrakerTelegramBot directory!\n Not found!"
   fi
 }
