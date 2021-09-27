@@ -266,6 +266,7 @@ update_mainsail(){
   bb4u "mainsail"
   status_msg "Updating Mainsail ..."
   mainsail_setup
+  match_nginx_configs
   symlink_webui_nginx_log "mainsail"
 }
 
@@ -273,6 +274,7 @@ update_fluidd(){
   bb4u "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
+  match_nginx_configs
   symlink_webui_nginx_log "fluidd"
 }
 

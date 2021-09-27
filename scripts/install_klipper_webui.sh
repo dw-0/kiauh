@@ -336,13 +336,66 @@ fetch_webui_ports(){
   ### and write them to ~/.kiauh.ini
   WEBIFS=(mainsail fluidd octoprint dwc2)
   for interface in "${WEBIFS[@]}"; do
-    if [ -f "/etc/nginx/sites-enabled/${interface}" ]; then
+    if [ -f "/etc/nginx/sites-available/${interface}" ]; then
+      port=$(grep -E "listen" /etc/nginx/sites-available/$interface | sed -e 's/^[[:space:]]*//' | sed -e 's/;$//' | cut -d" " -f2)
       if [ ! -n "$(grep -E "${interface}_port" $INI_FILE)" ]; then
-        port=$(grep -E "listen" /etc/nginx/sites-available/$interface | sed -e 's/^[[:space:]]*//' | sed -e 's/;$//' | cut -d" " -f2)
+        sed -i '$a'"${interface}_port=${port}" $INI_FILE
+      else
+        sed -i "/^${interface}_port/d" $INI_FILE
         sed -i '$a'"${interface}_port=${port}" $INI_FILE
       fi
     else
         sed -i "/^${interface}_port/d" $INI_FILE
     fi
   done
+}
+
+match_nginx_configs(){
+  ### reinstall nginx configs if the amount of upstreams don't match anymore
+  source_kiauh_ini
+  cfg_updated="false"
+  mainsail_nginx_cfg="/etc/nginx/sites-available/mainsail"
+  fluidd_nginx_cfg="/etc/nginx/sites-available/fluidd"
+  upstreams_webcams=$(grep -E "mjpgstreamer" /etc/nginx/conf.d/upstreams.conf | wc -l)
+  status_msg "Checking validity of NGINX configurations ..."
+  if [ -e "$mainsail_nginx_cfg" ]; then
+    mainsail_webcams=$(grep -E "mjpgstreamer" "$mainsail_nginx_cfg" | wc -l)
+  fi
+  if [ -e "$fluidd_nginx_cfg" ]; then
+    fluidd_webcams=$(grep -E "mjpgstreamer" "$fluidd_nginx_cfg" | wc -l)
+  fi
+  ### check for outdated upstreams.conf
+  if [[ "$upstreams_webcams" -lt "$mainsail_webcams" ]] || [[ "$upstreams_webcams" -lt "$fluidd_webcams" ]]; then
+    status_msg "Outdated upstreams.conf found! Updating ..."
+    setup_moonraker_nginx_cfg
+    cfg_updated="true"
+  fi
+  ### check for outdated mainsail config
+  if [ -e "$mainsail_nginx_cfg" ]; then
+    if [[ "$upstreams_webcams" -gt "$mainsail_webcams" ]]; then
+      status_msg "Outdated Mainsail config found! Updating ..."
+      sudo rm -f "$mainsail_nginx_cfg"
+      sudo cp "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" "$mainsail_nginx_cfg"
+      sudo sed -i "s/<<UI>>/mainsail/g" "$mainsail_nginx_cfg"
+      sudo sed -i "/root/s/pi/${USER}/" "$mainsail_nginx_cfg"
+      sudo sed -i "s/listen 80;/listen $mainsail_port;/" "$mainsail_nginx_cfg"
+      cfg_updated="true" && ok_msg "Done!"
+    fi
+  fi
+  ### check for outdated fluidd config
+  if [ -e "$fluidd_nginx_cfg" ]; then
+    if [[ "$upstreams_webcams" -gt "$fluidd_webcams" ]]; then
+      status_msg "Outdated Fluidd config found! Updating ..."
+      sudo rm -f "$fluidd_nginx_cfg"
+      sudo cp "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" "$fluidd_nginx_cfg"
+      sudo sed -i "s/<<UI>>/fluidd/g" "$fluidd_nginx_cfg"
+      sudo sed -i "/root/s/pi/${USER}/" "$fluidd_nginx_cfg"
+      sudo sed -i "s/listen 80;/listen $fluidd_port;/" "$fluidd_nginx_cfg"
+      cfg_updated="true" && ok_msg "Done!"
+    fi
+  fi
+  ### only restart nginx if configs were updated
+  if [ "$cfg_updated" == "true" ]; then
+    restart_nginx && unset cfg_updated
+  fi
 }
