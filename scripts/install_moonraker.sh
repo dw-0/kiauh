@@ -327,17 +327,18 @@ print_mr_ip_list(){
 
 setup_moonraker_nginx_cfg(){
   get_date
-
   ### backup existing nginx configs
-  [ -f $NGINX_CONFD/upstreams.conf ] && sudo mv $NGINX_CONFD/upstreams.conf $NGINX_CONFD/$current_date_upstreams.conf
-  [ -f $NGINX_CONFD/common_vars.conf ] && sudo mv $NGINX_CONFD/common_vars.conf $NGINX_CONFD/$current_date_common_vars.conf
-
+  [ ! -d "$BACKUP_DIR/nginx_cfg" ] && mkdir -p "$BACKUP_DIR/nginx_cfg"
+  [ -f "$NGINX_CONFD/upstreams.conf" ] && sudo mv "$NGINX_CONFD/upstreams.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_upstreams.conf"
+  [ -f "$NGINX_CONFD/common_vars.conf" ] && sudo mv "$NGINX_CONFD/common_vars.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_common_vars.conf"
+  ### transfer ownership of backed up files from root to ${USER}
+  sudo chown ${USER} "$BACKUP_DIR/nginx_cfg/*"
   ### copy nginx configs to target destination
-  if [ ! -f $NGINX_CONFD/upstreams.conf ]; then
-    sudo cp ${SRCDIR}/kiauh/resources/upstreams.conf $NGINX_CONFD
+  if [ ! -f "$NGINX_CONFD/upstreams.conf" ]; then
+    sudo cp "${SRCDIR}/kiauh/resources/upstreams.conf" "$NGINX_CONFD"
   fi
-  if [ ! -f $NGINX_CONFD/common_vars.conf ]; then
-    sudo cp ${SRCDIR}/kiauh/resources/common_vars.conf $NGINX_CONFD
+  if [ ! -f "$NGINX_CONFD/common_vars.conf" ]; then
+    sudo cp "${SRCDIR}/kiauh/resources/common_vars.conf" "$NGINX_CONFD"
   fi
 }
 
