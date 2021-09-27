@@ -6,6 +6,7 @@ remove_ui(){
   echo -e "|  --> Your printer configuration directory             | "
   echo -e "|  --> ~/kiauh-backups                                  | "
   echo -e "|  You need remove them manually if you wish so.        | "
+  hr
   echo -e "|  Firmware:                |  Touchscreen GUI:         | "
   echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
   echo -e "|                           |                           | "
