@@ -40,6 +40,8 @@ class ShellCommand:
             split = data.rfind('\n') + 1
             self.partial_output = data[split:]
             data = data[:split]
+        else:
+            self.partial_output = ""
         self.gcode.respond_info(data)
 
     cmd_RUN_SHELL_COMMAND_help = "Run a linux shell command"
