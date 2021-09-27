@@ -112,6 +112,8 @@ install_webui(){
   ### install mjpg-streamer
   [ "$INSTALL_MJPG" = "true" ] && install_mjpg-streamer
 
+  fetch_webui_ports #WIP
+
   ### confirm message
   CONFIRM_MSG="$IF_NAME1 has been set up!"
   print_msg && clear_msg
@@ -327,4 +329,20 @@ fluidd_setup(){
   ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!"
+}
+
+fetch_webui_ports(){
+  ### read listen ports from possible installed interfaces
+  ### and write them to ~/.kiauh.ini
+  WEBIFS=(mainsail fluidd octoprint dwc2)
+  for interface in "${WEBIFS[@]}"; do
+    if [ -f "/etc/nginx/sites-enabled/${interface}" ]; then
+      if [ ! -n "$(grep -E "${interface}_port" $INI_FILE)" ]; then
+        port=$(grep -E "listen" /etc/nginx/sites-available/$interface | sed -e 's/^[[:space:]]*//' | sed -e 's/;$//' | cut -d" " -f2)
+        sed -i '$a'"${interface}_port=${port}" $INI_FILE
+      fi
+    else
+        sed -i "/^${interface}_port/d" $INI_FILE
+    fi
+  done
 }

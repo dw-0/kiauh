@@ -240,6 +240,9 @@ remove_dwc2(){
     rm -rf $DWC2_DIR && ok_msg "Directory removed!"
   fi
 
+  ### remove dwc2_port from ~/.kiauh.ini
+  sed -i "/^dwc2_port=/d" $INI_FILE
+
   CONFIRM_MSG=" DWC2-for-Klipper-Socket was successfully removed!"
 }
 
@@ -273,6 +276,9 @@ remove_mainsail(){
     rm -f $log
   done
 
+  ### remove mainsail_port from ~/.kiauh.ini
+  sed -i "/^mainsail_port=/d" $INI_FILE
+
   CONFIRM_MSG="Mainsail successfully removed!"
 }
 
@@ -302,6 +308,9 @@ remove_fluidd(){
   for log in $(find ${HOME}/klipper_logs -name "fluidd*"); do
     rm -f $log
   done
+
+  ### remove fluidd_port from ~/.kiauh.ini
+  sed -i "/^fluidd_port=/d" $INI_FILE
 
   CONFIRM_MSG="Fluidd successfully removed!"
 }
@@ -344,6 +353,9 @@ remove_octoprint(){
       status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
     done
   fi
+
+  ### remove octoprint_port from ~/.kiauh.ini
+  sed -i "/^octoprint_port=/d" $INI_FILE
 
   CONFIRM_MSG=" OctoPrint successfully removed!"
 }

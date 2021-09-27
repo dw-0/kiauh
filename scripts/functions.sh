@@ -457,4 +457,5 @@ init_ini(){
   if [ ! $(grep -E "^klipper_cfg_loc=" $INI_FILE) ]; then
     echo -e "\nklipper_cfg_loc=\c" >> $INI_FILE
   fi
+  fetch_webui_ports
 }
