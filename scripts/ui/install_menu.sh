@@ -13,7 +13,7 @@ install_ui(){
   echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
   echo -e "|                           |  7) [OctoPrint]           | "
   echo -e "|  Klipper Webinterface:    |  8) [PrettyGCode]         | "
-  echo -e "|  3) [Mainsail]            |  9) [MoonrakerTelegramBot]| "
+  echo -e "|  3) [Mainsail]            |  9) [Telegram Bot]        | "
   echo -e "|  4) [Fluidd]              |                           | "
   echo -e "|                           |  Webcam:                  | "
   echo -e "|                           |  10) [MJPG-Streamer]      | "
