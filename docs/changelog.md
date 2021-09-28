@@ -2,6 +2,11 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-09-28
+* New Feature! Added an installer for the Telegram Bot for Moonraker by [nlef](https://github.com/nlef).
+Checkout his project! Remember to report all issues and/or bugs regarding that project in its corresponding repo and not here 😛.\
+You can find it here: https://github.com/nlef/moonraker-telegram-bot
+
 ### 2021-09-24
 * The flashing function got adjusted a bit. It is now possible to also flash controllers which are connected over UART and thus accessible via `/dev/ttyAMA0`. You now have to select a connection methop prior flashing which is either USB or UART.
 * Due to several requests over time I have now created a Ko-fi account for those who want to support this project and my work with a small donation. Many thanks in advance to all future donors. You can support me on Ko-fi with this link: https://ko-fi.com/th33xitus

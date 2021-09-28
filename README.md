@@ -135,7 +135,7 @@ https://github.com/Kragrathea/pgcode
 
 ---
 
-### **🤖Telegram bot for Moonraker** by [nlef](https://github.com/nlef) :
+### **🤖Telegram Bot for Moonraker** by [nlef](https://github.com/nlef) :
 
 https://github.com/nlef/moonraker-telegram-bot
 
