@@ -42,6 +42,9 @@ update_all(){
     if [ "$PGC_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● PrettyGCode for Klipper${default}                            |"
     fi
+    if [ "$MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● MoonrakerTelegramBot${default}                               |"
+    fi
     if [ "$SYS_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● System${default}                                             |"
     fi
@@ -311,6 +314,17 @@ update_pgc_for_klipper(){
   status_msg "Updating PrettyGCode for Klipper ..."
   cd $PGC_DIR && git pull
   ok_msg "Update complete!"
+}
+
+update_MoonrakerTelegramBot(){
+  source_kiauh_ini
+  export klipper_cfg_loc
+  stop_MoonrakerTelegramBot
+  cd $MOONRAKER_TELEGRAM_BOT_DIR
+  git pull
+  ./scripts/install.sh
+  ok_msg "Update complete!"
+  start_MoonrakerTelegramBot
 }
 
 update_system(){

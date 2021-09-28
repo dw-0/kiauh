@@ -38,6 +38,9 @@ OCTOPRINT_DIR=${HOME}/OctoPrint
 #KlipperScreen
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
+#MoonrakerTelegramBot
+MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
+MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
 #misc
 INI_FILE=${HOME}/.kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
@@ -48,6 +51,7 @@ ARKSINE_REPO=https://github.com/Arksine/klipper.git
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
 DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
 KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
+NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
 #branches
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping

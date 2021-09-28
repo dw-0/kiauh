@@ -11,7 +11,8 @@ main_ui(){
   echo -e "|  4) [Advanced]       |      Mainsail: $MAINSAIL_STATUS|"
   echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
   echo -e "|                      | KlipperScreen: $KLIPPERSCREEN_STATUS|"
-  echo -e "|  6) [Settings]       |                                |"
+  echo -e "|  6) [Settings]       |  MTelegramBot: $MOONRAKER_TELEGRAM_BOT_STATUS|"
+  echo -e "|                      |                                |"
   echo -e "|                      |          DWC2: $DWC2_STATUS|"
   echo -e "|  ${cyan}$KIAUH_VER${default}|     Octoprint: $OCTOPRINT_STATUS|"
   quit_footer
@@ -53,6 +54,7 @@ main_menu(){
     mainsail_status
     octoprint_status
     klipperscreen_status
+    MoonrakerTelegramBot_status
     print_branch
   print_msg && clear_msg
   main_ui

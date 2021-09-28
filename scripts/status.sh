@@ -228,6 +228,36 @@ klipperscreen_status(){
   fi
 }
 
+MoonrakerTelegramBot_status(){
+  mtbcount=0
+  MoonrakerTelegramBot_data=(
+    SERVICE
+    $MOONRAKER_TELEGRAM_BOT_DIR
+    $MOONRAKER_TELEGRAM_BOT_ENV_DIR
+  )
+
+  ### count amount of MoonrakerTelegramBot_data service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker-telegram-bot" | wc -l)
+
+  ### remove the "SERVICE" entry from the MoonrakerTelegramBot_data array if a MoonrakerTelegramBot service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset MoonrakerTelegramBot_data[0]
+
+  #count+1 for each found data-item from array
+  for mtbd in "${MoonrakerTelegramBot_data[@]}"
+  do
+    if [ -e $mtbd ]; then
+      mtbcount=$(expr $mtbcount + 1)
+    fi
+  done
+  if [ "$mtbcount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
+    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${default}      "
+  elif [ "$mtbcount" == 0 ]; then
+    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${default}  "
+  else
+    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${default}     "
+  fi
+}
+
 #############################################################
 #############################################################
 
@@ -517,6 +547,34 @@ compare_klipperscreen_versions(){
   fi
 }
 
+read_MoonrakerTelegramBot_versions(){
+  if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] && [ -d $MOONRAKER_TELEGRAM_BOT_DIR/.git ]; then
+    cd $MOONRAKER_TELEGRAM_BOT_DIR
+    git fetch origin master -q
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  else
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$NONE
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$NONE
+  fi
+}
+
+compare_MoonrakerTelegramBot_versions(){
+  unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
+  read_MoonrakerTelegramBot_versions
+  if [ "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT" != "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT" ]; then
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true"
+    update_arr+=(update_MoonrakerTelegramBot)
+  else
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
+    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="false"
+  fi
+}
+
+
 #############################################################
 #############################################################
 
@@ -564,5 +622,6 @@ ui_print_versions(){
   compare_mainsail_versions
   compare_fluidd_versions
   compare_klipperscreen_versions
+  compare_MoonrakerTelegramBot_versions
   compare_pgc_versions
 }
