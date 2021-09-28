@@ -438,9 +438,9 @@ remove_MoonrakerTelegramBot(){
   fi
 
   ### remove MoonrakerTelegramBot log
-  if [ -e /tmp/telegram.log ]; then
+  if [ -e /tmp/telegram.log ] || [ -e ${HOME}/klipper_logs/telegram.log ]; then
     status_msg "Removing MoonrakerTelegramBot log file ..."
-    rm -f /tmp/telegram.log && ok_msg "File removed!"
+    rm -f "/tmp/telegram.log" "${HOME}/klipper_logs/telegram.log"  && ok_msg "File removed!"
   fi
 
   ### remove MoonrakerTelegramBot log symlink in config dir
