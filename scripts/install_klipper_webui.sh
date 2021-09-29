@@ -337,7 +337,7 @@ fetch_webui_ports(){
   WEBIFS=(mainsail fluidd octoprint dwc2)
   for interface in "${WEBIFS[@]}"; do
     if [ -f "/etc/nginx/sites-available/${interface}" ]; then
-      port=$(grep -E "listen" /etc/nginx/sites-available/$interface | sed -e 's/^[[:space:]]*//' | sed -e 's/;$//' | cut -d" " -f2)
+      port=$(grep -E "listen" /etc/nginx/sites-available/$interface | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)
       if [ ! -n "$(grep -E "${interface}_port" $INI_FILE)" ]; then
         sed -i '$a'"${interface}_port=${port}" $INI_FILE
       else
@@ -378,7 +378,8 @@ match_nginx_configs(){
       sudo cp "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" "$mainsail_nginx_cfg"
       sudo sed -i "s/<<UI>>/mainsail/g" "$mainsail_nginx_cfg"
       sudo sed -i "/root/s/pi/${USER}/" "$mainsail_nginx_cfg"
-      sudo sed -i "s/listen 80;/listen $mainsail_port;/" "$mainsail_nginx_cfg"
+      sudo sed -i "s/listen\s[0-9]*;/listen $mainsail_port;/" "$mainsail_nginx_cfg"
+      sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:$mainsail_port;/" "$mainsail_nginx_cfg"
       cfg_updated="true" && ok_msg "Done!"
     fi
   fi
@@ -390,7 +391,8 @@ match_nginx_configs(){
       sudo cp "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" "$fluidd_nginx_cfg"
       sudo sed -i "s/<<UI>>/fluidd/g" "$fluidd_nginx_cfg"
       sudo sed -i "/root/s/pi/${USER}/" "$fluidd_nginx_cfg"
-      sudo sed -i "s/listen 80;/listen $fluidd_port;/" "$fluidd_nginx_cfg"
+      sudo sed -i "s/listen\s[0-9]*;/listen $fluidd_port;/" "$fluidd_nginx_cfg"
+      sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:$fluidd_port;/" "$fluidd_nginx_cfg"
       cfg_updated="true" && ok_msg "Done!"
     fi
   fi
