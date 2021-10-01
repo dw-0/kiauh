@@ -1,9 +1,24 @@
-check_moonraker(){
-  status_msg "Checking for Moonraker service ..."
+system_check_webui(){
+  ### check system for installed moonraker service
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
     moonraker_chk_ok="true"
   else
     moonraker_chk_ok="false"
+  fi
+
+  ### check system for an installed and enabled octoprint service
+  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
+    OCTOPRINT_ENABLED="true"
+  fi
+
+  ### check system for an installed haproxy service
+  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
+    HAPROXY_FOUND="true"
+  fi
+
+  ### check system for an installed lighttpd service
+  if [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]]; then
+    LIGHTTPD_FOUND="true"
   fi
 }
 
@@ -70,8 +85,16 @@ get_user_selection_kiauh_macros(){
 
 install_webui(){
   source_kiauh_ini
+  ### checking dependencies
+  dep=(nginx)
+  dependency_check
   ### check if moonraker is already installed
-  check_moonraker
+  system_check_webui
+  ### ask user how to handle OctoPrint, Haproxy and Lighttpd if found
+  process_octoprint_dialog
+  process_haproxy_lighttpd_dialog
+  ### process possible disruptive services
+  process_haproxy_lighttpd_services
 
   [ $1 == "mainsail" ] && IF_NAME1="Mainsail" && IF_NAME2="Mainsail     "
   [ $1 == "fluidd" ] && IF_NAME1="Fluidd" && IF_NAME2="Fluidd       "
@@ -80,11 +103,9 @@ install_webui(){
   if [ $moonraker_chk_ok = "false" ]; then
     ERROR_MSG="Moonraker service not found!\n Please install Moonraker first!"
     print_msg && clear_msg && return 0
-  else
-    ok_msg "Moonraker service found!"
-    status_msg "Initializing $IF_NAME1 installation ..."
   fi
 
+  status_msg "Initializing $IF_NAME1 installation ..."
   ### check for other enabled web interfaces
   unset SET_LISTEN_PORT
   detect_enabled_sites
@@ -335,6 +356,25 @@ fluidd_setup(){
   rm -rf *.zip && ok_msg "Done!"
 }
 
+set_upstream_nginx_cfg(){
+  get_date
+  ### backup existing nginx configs
+  [ ! -d "$BACKUP_DIR/nginx_cfg" ] && mkdir -p "$BACKUP_DIR/nginx_cfg"
+  [ -f "$NGINX_CONFD/upstreams.conf" ] && sudo mv "$NGINX_CONFD/upstreams.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_upstreams.conf"
+  [ -f "$NGINX_CONFD/common_vars.conf" ] && sudo mv "$NGINX_CONFD/common_vars.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_common_vars.conf"
+  ### transfer ownership of backed up files from root to ${USER}
+  for log in $(ls "$BACKUP_DIR/nginx_cfg"); do
+    sudo chown ${USER} "$BACKUP_DIR/nginx_cfg/$log"
+  done
+  ### copy nginx configs to target destination
+  if [ ! -f "$NGINX_CONFD/upstreams.conf" ]; then
+    sudo cp "${SRCDIR}/kiauh/resources/upstreams.conf" "$NGINX_CONFD"
+  fi
+  if [ ! -f "$NGINX_CONFD/common_vars.conf" ]; then
+    sudo cp "${SRCDIR}/kiauh/resources/common_vars.conf" "$NGINX_CONFD"
+  fi
+}
+
 fetch_webui_ports(){
   ### read listen ports from possible installed interfaces
   ### and write them to ~/.kiauh.ini
@@ -371,7 +411,7 @@ match_nginx_configs(){
   ### check for outdated upstreams.conf
   if [[ "$upstreams_webcams" -lt "$mainsail_webcams" ]] || [[ "$upstreams_webcams" -lt "$fluidd_webcams" ]]; then
     status_msg "Outdated upstreams.conf found! Updating ..."
-    setup_moonraker_nginx_cfg
+    set_upstream_nginx_cfg
     cfg_updated="true"
   fi
   ### check for outdated mainsail config
@@ -403,5 +443,136 @@ match_nginx_configs(){
   ### only restart nginx if configs were updated
   if [ "$cfg_updated" == "true" ]; then
     restart_nginx && unset cfg_updated
+  fi
+}
+
+process_octoprint_dialog(){
+  #ask user to disable octoprint when its service was found
+  if [ "$OCTOPRINT_ENABLED" = "true" ]; then
+    while true; do
+      echo
+      top_border
+      echo -e "|       ${red}!!! WARNING - OctoPrint service found !!!${default}       |"
+      hr
+      echo -e "|  You might consider disabling the OctoPrint service,  |"
+      echo -e "|  since an active OctoPrint service may lead to unex-  |"
+      echo -e "|  pected behavior of the Klipper Webinterfaces.        |"
+      bottom_border
+      read -p "${cyan}###### Do you want to disable OctoPrint now? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Stopping OctoPrint ..."
+          do_action_service "stop" "octoprint" && ok_msg "OctoPrint service stopped!"
+          status_msg "Disabling OctoPrint ..."
+          do_action_service "disable" "octoprint" && ok_msg "OctoPrint service disabled!"
+          break;;
+        N|n|No|no)
+          echo -e "###### > No"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
+    done
+  fi
+}
+
+process_haproxy_lighttpd_services(){
+  #handle haproxy service
+  if [ "$DISABLE_HAPROXY" = "true" ] || [ "$REMOVE_HAPROXY" = "true" ]; then
+    if systemctl is-active haproxy -q; then
+      status_msg "Stopping haproxy service ..."
+      sudo systemctl stop haproxy && ok_msg "Service stopped!"
+    fi
+
+    ### disable haproxy
+    if [ "$DISABLE_HAPROXY" = "true" ]; then
+      status_msg "Disabling haproxy ..."
+      sudo systemctl disable haproxy && ok_msg "Haproxy service disabled!"
+
+      ### remove haproxy
+      if [ "$REMOVE_HAPROXY" = "true" ]; then
+        status_msg "Removing haproxy ..."
+        sudo apt-get remove haproxy -y && sudo update-rc.d -f haproxy remove && ok_msg "Haproxy removed!"
+      fi
+    fi
+  fi
+
+  ### handle lighttpd service
+  if [ "$DISABLE_LIGHTTPD" = "true" ] || [ "$REMOVE_LIGHTTPD" = "true" ]; then
+    if systemctl is-active lighttpd -q; then
+      status_msg "Stopping lighttpd service ..."
+      sudo systemctl stop lighttpd && ok_msg "Service stopped!"
+    fi
+
+    ### disable lighttpd
+    if [ "$DISABLE_LIGHTTPD" = "true" ]; then
+      status_msg "Disabling lighttpd ..."
+      sudo systemctl disable lighttpd && ok_msg "Lighttpd service disabled!"
+
+      ### remove lighttpd
+      if [ "$REMOVE_LIGHTTPD" = "true" ]; then
+        status_msg "Removing lighttpd ..."
+        sudo apt-get remove lighttpd -y && sudo update-rc.d -f lighttpd remove && ok_msg "Lighttpd removed!"
+      fi
+    fi
+  fi
+}
+
+process_haproxy_lighttpd_dialog(){
+  #notify user about haproxy or lighttpd services found and possible issues
+  if [ "$HAPROXY_FOUND" = "true" ] || [ "$LIGHTTPD_FOUND" = "true" ]; then
+    while true; do
+      echo
+      top_border
+      echo -e "| ${red}Possibly disruptive/incompatible services found!${default}      |"
+      hr
+      if [ "$HAPROXY_FOUND" = "true" ]; then
+        echo -e "| ● haproxy                                             |"
+      fi
+      if [ "$LIGHTTPD_FOUND" = "true" ]; then
+        echo -e "| ● lighttpd                                            |"
+      fi
+      hr
+      echo -e "| Having those packages installed can lead to unwanted  |"
+      echo -e "| behaviour. It is recommend to remove those packages.  |"
+      echo -e "|                                                       |"
+      echo -e "| 1) Remove packages (recommend)                        |"
+      echo -e "| 2) Disable only (may cause issues)                    |"
+      echo -e "| ${red}3) Skip this step (not recommended)${default}                   |"
+      bottom_border
+      read -p "${cyan}###### Please choose:${default} " action
+      case "$action" in
+        1)
+          echo -e "###### > Remove packages"
+          if [ "$HAPROXY_FOUND" = "true" ]; then
+            DISABLE_HAPROXY="true"
+            REMOVE_HAPROXY="true"
+          fi
+          if [ "$LIGHTTPD_FOUND" = "true" ]; then
+            DISABLE_LIGHTTPD="true"
+            REMOVE_LIGHTTPD="true"
+          fi
+          break;;
+        2)
+          echo -e "###### > Disable only"
+          if [ "$HAPROXY_FOUND" = "true" ]; then
+            DISABLE_HAPROXY="true"
+            REMOVE_HAPROXY="false"
+          fi
+          if [ "$LIGHTTPD_FOUND" = "true" ]; then
+            DISABLE_LIGHTTPD="true"
+            REMOVE_LIGHTTPD="false"
+          fi
+          break;;
+        3)
+          echo -e "###### > Skip"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
+    done
   fi
 }
