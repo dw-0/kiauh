@@ -69,6 +69,7 @@ get_user_selection_kiauh_macros(){
 }
 
 install_webui(){
+  source_kiauh_ini
   ### check if moonraker is already installed
   check_moonraker
 
@@ -92,11 +93,14 @@ install_webui(){
   $1_port_check
 
   ### ask user to install mjpg-streamer
-  get_user_selection_mjpg-streamer
+  if [[ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "webcamd.service")" ]]; then
+    get_user_selection_mjpg-streamer
+  fi
 
   ### ask user to install the recommended webinterface macros
-  get_user_selection_kiauh_macros "$IF_NAME2"
-
+  if [[ ! -n $(ls $klipper_cfg_loc/kiauh_macros.cfg) ]] || [[ ! -n $(ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg) ]]; then
+    get_user_selection_kiauh_macros "$IF_NAME2"
+  fi
   ### creating the mainsail/fluidd nginx cfg
   set_nginx_cfg "$1"
 
