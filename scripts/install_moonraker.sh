@@ -332,7 +332,9 @@ setup_moonraker_nginx_cfg(){
   [ -f "$NGINX_CONFD/upstreams.conf" ] && sudo mv "$NGINX_CONFD/upstreams.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_upstreams.conf"
   [ -f "$NGINX_CONFD/common_vars.conf" ] && sudo mv "$NGINX_CONFD/common_vars.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_common_vars.conf"
   ### transfer ownership of backed up files from root to ${USER}
-  sudo chown ${USER} "$BACKUP_DIR/nginx_cfg/*"
+  for log in $(ls "$BACKUP_DIR/nginx_cfg"); do
+    sudo chown ${USER} "$BACKUP_DIR/nginx_cfg/$log"
+  done
   ### copy nginx configs to target destination
   if [ ! -f "$NGINX_CONFD/upstreams.conf" ]; then
     sudo cp "${SRCDIR}/kiauh/resources/upstreams.conf" "$NGINX_CONFD"
