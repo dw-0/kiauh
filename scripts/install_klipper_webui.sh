@@ -122,7 +122,9 @@ install_webui(){
   if [[ ! -n $(ls $klipper_cfg_loc/kiauh_macros.cfg) ]] || [[ ! -n $(ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg) ]]; then
     get_user_selection_kiauh_macros "$IF_NAME2"
   fi
-  ### creating the mainsail/fluidd nginx cfg
+  ### create /etc/nginx/conf.d/upstreams.conf
+  set_upstream_nginx_cfg
+  ### create /etc/nginx/sites-available/<interface config>
   set_nginx_cfg "$1"
 
   ### symlink nginx log
