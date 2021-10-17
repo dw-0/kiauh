@@ -46,10 +46,12 @@ class ShellCommand:
 
     cmd_RUN_SHELL_COMMAND_help = "Run a linux shell command"
     def cmd_RUN_SHELL_COMMAND(self, params):
+        gcode_params = params.get('PARAMS','')
+        gcode_params = shlex.split(gcode_params)
         reactor = self.printer.get_reactor()
         try:
             proc = subprocess.Popen(
-                self.command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                self.command + gcode_params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except Exception:
             logging.exception(
                 "shell_command: Command {%s} failed" % (self.name))
