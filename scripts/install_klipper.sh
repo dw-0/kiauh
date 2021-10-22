@@ -20,10 +20,10 @@ klipper_setup_dialog(){
 
   ### ask for amount of instances to create
   INSTANCE_COUNT=""
-  while [[ ! ($INSTANCE_COUNT =~ ^[1-9]+$) ]]; do
+  while [[ ! ($INSTANCE_COUNT =~ ^[1-9]+((0)+)?$) ]]; do
     echo
     read -p "${cyan}###### Number of Klipper instances to set up:${default} " INSTANCE_COUNT
-    if [[ ! ($INSTANCE_COUNT =~ ^[1-9]+$) ]]; then
+    if [[ ! ($INSTANCE_COUNT =~ ^[1-9]+((0)+)?$) ]]; then
       warn_msg "Invalid Input!" && echo
     else
       echo

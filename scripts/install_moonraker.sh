@@ -48,7 +48,7 @@ moonraker_setup_dialog(){
   if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
     INSTANCE_COUNT=1
   else
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
+    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]]+.service" | wc -l)
   fi
 
   ### initial moonraker.conf path check
