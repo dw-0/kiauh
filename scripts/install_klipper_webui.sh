@@ -329,7 +329,7 @@ mainsail_setup(){
   rm -rf *.zip && ok_msg "Done!"
 
   ### check for moonraker multi-instance and if multi-instance was found, enable mainsails remoteMode
-  if [ $(ls /etc/systemd/system/moonraker* | wc -l) -gt 1 ]; then
+  if [ $(ls /etc/systemd/system/moonraker* | grep -E "moonraker(-\d+)?\.service" | wc -l) -gt 1 ]; then
     enable_mainsail_remotemode
   fi
 }
