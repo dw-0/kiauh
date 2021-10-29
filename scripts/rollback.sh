@@ -97,7 +97,7 @@ rollback_klipper(){
       read -p "Perform action: " action; echo
       echo -e "${default}"
       case "$action" in
-        Q|q)
+        B|b)
           clear; advanced_menu; break;;
         *)
           clear
