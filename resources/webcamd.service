@@ -13,4 +13,3 @@ StandardOutput=append:/var/log/webcamd.log
 StandardError=append:/var/log/webcamd.log
 ExecStart=/usr/local/bin/webcamd
 Restart=always
-RestartSec=10
