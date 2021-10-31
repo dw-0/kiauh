@@ -136,7 +136,9 @@ select_mcu_id(){
 
 flash_mcu(){
   do_action_service "stop" "klipper"
-  if ! make flash FLASH_DEVICE="${mcu_list[$mcu_index]}" ; then
+  make flash FLASH_DEVICE="${mcu_list[$mcu_index]}"
+  ### evaluate exit code of make flash
+  if [ ! $? -eq 0 ]; then
     warn_msg "Flashing failed!"
     warn_msg "Please read the console output above!"
   else
@@ -146,11 +148,11 @@ flash_mcu(){
 }
 
 flash_mcu_sd(){
-  do_action_service "stop" "klipper"
+  flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
 
   ### write each supported board to the array to make it selectable
   board_list=()
-  for board in $(~/klipper/scripts/flash-sdcard.sh -l | tail -n +2); do
+  for board in $("$flash_script" -l | tail -n +2); do
     board_list+=($board)
   done
 
@@ -201,16 +203,19 @@ flash_mcu_sd(){
       selected_baud_rate=$baud_rate
       break
     done
-  break
+    break
   done
 
-  if ! ${HOME}/klipper/scripts/flash-sdcard.sh -b "$selected_baud_rate" "$selected_mcu_id" "$selected_board" ; then
+  ###flash process
+  do_action_service "stop" "klipper"
+  "$flash_script" -b "$selected_baud_rate" "$selected_mcu_id" "$selected_board"
+  ### evaluate exit code of flash-sdcard.sh execution
+  if [ ! $? -eq 0 ]; then
     warn_msg "Flashing failed!"
     warn_msg "Please read the console output above!"
   else
     ok_msg "Flashing successfull!"
   fi
-
   do_action_service "start" "klipper"
 }
 
