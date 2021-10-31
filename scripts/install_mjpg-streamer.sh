@@ -79,6 +79,25 @@ EOT
     ln -s "/var/log/webcamd.log" "${HOME}/klipper_logs/webcamd.log"
   fi
 
+  ### step 6.2: add webcamd.log logrotate
+  if [ ! -f "/etc/logrotate.d/webcamd"  ]; then
+    status_msg "Create logrotate rule ..."
+    sudo /bin/sh -c "cat > /etc/logrotate.d/webcamd" << EOF
+/var/log/webcamd.log
+{
+    rotate 4
+    weekly
+    maxsize 64M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+}
+EOF
+     ok_msg "Done!"
+  fi
+
   ### confirm message
   CONFIRM_MSG="MJPG-Streamer has been set up!"
   print_msg && clear_msg
