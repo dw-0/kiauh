@@ -1,6 +1,3 @@
-### base variables
-SYSTEMDDIR="/etc/systemd/system"
-
 # setting up some frequently used functions
 check_euid(){
   if [ "$EUID" -eq 0 ]
