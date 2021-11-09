@@ -1,4 +1,8 @@
 #!/bin/bash
+
+### Gettext Configuration
+alias GETTEXT='gettext "KIAUH"'
+
 clear
 set -e
 
