@@ -3,7 +3,7 @@
 ### Gettext Configuration
 alias GETTEXT='gettext "KIAUH"'
 
-clear
+#clear
 set -e
 
 ### set color variables
@@ -41,18 +41,12 @@ print_unkown_cmd(){
 
 print_msg(){
   if [[ "$ERROR_MSG" != "" ]]; then
-    echo -e "${red}"
-    echo -e "#########################################################"
-    echo -e " $ERROR_MSG "
-    echo -e "#########################################################"
-    echo -e "${default}"
+    whiptail --title "$KIAUH_TITLE" --msgbox "$ERROR_MSG"\
+    "$KIAUH_WHIPTAIL_SINGLE_LINE_HEIGHT" "$KIAUH_WHIPTAIL_NORMAL_WIDTH"
   fi
   if [ "$CONFIRM_MSG" != "" ]; then
-    echo -e "${green}"
-    echo -e "#########################################################"
-    echo -e " $CONFIRM_MSG "
-    echo -e "#########################################################"
-    echo -e "${default}"
+    whiptail --title "$KIAUH_TITLE" --msgbox "$CONFIRM_MSG"\
+    "$KIAUH_WHIPTAIL_SINGLE_LINE_HEIGHT" "$KIAUH_WHIPTAIL_NORMAL_WIDTH"
   fi
 }
 
