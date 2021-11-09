@@ -2,11 +2,8 @@
 check_euid(){
   if [ "$EUID" -eq 0 ]
   then
-    echo -e "${red}"
-    top_border
-    echo -e "|       !!! THIS SCRIPT MUST NOT RAN AS ROOT !!!        |"
-    bottom_border
-    echo -e "${default}"
+    whiptail --title "$KIAUH_TITLE" --msgbox "!!! THIS SCRIPT MUST NOT RAN AS ROOT !!!"\
+    "$KIAUH_WHIPTAIL_HEIGHT" "$KIAUH_WHIPTAIL_WIDTH"
     exit 1
   fi
 }
