@@ -25,18 +25,22 @@ print_kiauh_version(){
 }
 
 kiauh_update_dialog(){
-  kiauh_update_msg
-  read -p "${cyan}Do you want to update now? (Y/n):${default} " yn
-  while true; do
-    case "$yn" in
-    Y|y|Yes|yes|"")
-      do_action "update_kiauh"
-      break;;
-    N|n|No|no) break;;
-    *)
-      deny_action "kiauh_update_dialog";;
-    esac
-  done
+  whiptail --title "New KIAUH update available!"\
+  --yesno \
+"View Changelog: https://git.io/JnmlX
+
+It is recommended to keep KIAUH up to date. Updates usually contain bugfixes, \
+important changes or new features. Please consider updating!
+
+Do you want to update now?" \
+  $KIAUH_WHIPTAIL_NORMAL_HEIGHT $KIAUH_WHIPTAIL_NORMAL_WIDTH
+
+  RET=$?
+  if [ $RET -eq 0 ]; then
+    do_action "update_kiauh"
+  else
+    deny_action "kiauh_update_dialog"
+  fi
 }
 
 main_menu(){
