@@ -40,8 +40,7 @@ kiauh_update_dialog(){
 }
 
 main_menu(){
-#  print_header
-  #print KIAUH update msg if update available
+    #print KIAUH update msg if update available
     if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
       kiauh_update_dialog
     fi
@@ -72,12 +71,12 @@ main_menu(){
     case "$MAIN_MENU" in
       1\ *) echo "Current status" ;;
       2\ *) install_menu ;;
-      3\ *) remove_menu ;;
-      4\ *) advanced_menu ;;
-      5\ *) backup_menu ;;
-      6\ *) settings_menu ;;
+      3\ *) update_menu ;;
+      4\ *) remove_menu ;;
+      5\ *) advanced_menu ;;
+      6\ *) backup_menu ;;
       7\ *) settings_menu ;;
-      0\ *) upload_selection;;
+      0\ *) do_action "upload_selection" && break;;
       *) echo "Unknown Command";;
     esac
   done
