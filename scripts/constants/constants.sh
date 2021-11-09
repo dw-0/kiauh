@@ -43,8 +43,8 @@ BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
 
 ###Whiptail
-KIAUH_WHIPTAIL_WIDTH=64
-KIAUH_WHIPTAIL_HEIGHT=30
+KIAUH_WHIPTAIL_WIDTH=96
+KIAUH_WHIPTAIL_HEIGHT=25
 
 #functions.sh
 ### base variables
