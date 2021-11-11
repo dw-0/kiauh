@@ -4,7 +4,8 @@
 alias GETTEXT='gettext "KIAUH"'
 
 #clear
-set -e
+# TODO set -e cause whiptail to force an exit because it use stderr, need a workaround here
+# set -e
 
 ### set color variables
 green=$(echo -en "\e[92m")
