@@ -45,10 +45,10 @@ moonraker_setup_dialog(){
   shopt -u extglob # disable extended globbing
 
   ### count amount of klipper services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+  if ls /etc/systemd/system/klipper.service 2>/dev/null; then
     INSTANCE_COUNT=1
   else
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]]+.service" | wc -l)
+    INSTANCE_COUNT=$(ls /etc/systemd/system | grep -E "klipper-[[:digit:]]+.service" | wc -l)
   fi
 
   ### initial moonraker.conf path check
