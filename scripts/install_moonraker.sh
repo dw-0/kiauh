@@ -187,11 +187,10 @@ create_moonraker_service(){
     ### write single instance service
     write_mr_service
     ### enable instance
-    sudo systemctl enable moonraker.service
+    do_action_service "enable" "moonraker"
     ok_msg "Single Moonraker instance created!"
     ### launching instance
-    status_msg "Launching Moonraker instance ..."
-    sudo systemctl start moonraker
+    do_action_service "start" "moonraker"
   else
     i=1
     while [ $i -le $INSTANCE_COUNT ]; do
@@ -203,12 +202,10 @@ create_moonraker_service(){
       ### write multi instance service
       write_mr_service
       ### enable instance
-      sudo systemctl enable moonraker-$i.service
+      do_action_service "enable" "moonraker-$i"
       ok_msg "Moonraker instance #$i created!"
       ### launching instance
-      status_msg "Launching Moonraker instance #$i ..."
-      sudo systemctl start moonraker-$i
-
+      do_action_service "start" "moonraker-$i"
       ### raise values by 1
       i=$((i+1))
     done
