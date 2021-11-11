@@ -1,6 +1,6 @@
 system_check_webui(){
   ### check system for installed moonraker service
-  if ls /etc/systemd/system/moonraker.service 2>/dev/null || ls /etc/systemd/system | grep -q -E "moonraker-[[:digit:]]+.service"; then
+  if ls /etc/systemd/system/moonraker.service 2>/dev/null 1>&2 || ls /etc/systemd/system | grep -q -E "moonraker-[[:digit:]]+.service"; then
     moonraker_chk_ok="true"
   else
     moonraker_chk_ok="false"
@@ -114,7 +114,7 @@ install_webui(){
   $1_port_check
 
   ### ask user to install mjpg-streamer
-  if [[ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "webcamd.service")" ]]; then
+  if ls /etc/systemd/system/webcamd.service 2>/dev/null 1>&2; then
     get_user_selection_mjpg-streamer
   fi
 
