@@ -1,13 +1,13 @@
 system_check_webui(){
   ### check system for installed moonraker service
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+  if ls /etc/systemd/system/moonraker.service 2>/dev/null || ls /etc/systemd/system | grep -q -E "moonraker-[[:digit:]]+.service"; then
     moonraker_chk_ok="true"
   else
     moonraker_chk_ok="false"
   fi
 
   ### check system for an installed and enabled octoprint service
-  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
+  if sudo systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
     OCTOPRINT_ENABLED="true"
   fi
 
