@@ -119,7 +119,7 @@ install_webui(){
   fi
 
   ### ask user to install the recommended webinterface macros
-  if [[ ! -n $(ls $klipper_cfg_loc/kiauh_macros.cfg) ]] || [[ ! -n $(ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg) ]]; then
+  if ! ls $klipper_cfg_loc/kiauh_macros.cfg 2>/dev/null 1>&2 || ! ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg 2>/dev/null 1>&2; then
     get_user_selection_kiauh_macros "$IF_NAME2"
   fi
   ### create /etc/nginx/conf.d/upstreams.conf
