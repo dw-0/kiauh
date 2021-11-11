@@ -225,7 +225,7 @@ restart_MoonrakerTelegramBot(){
 }
 
 restart_nginx(){
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "nginx.service")" ]; then
+  if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
     status_msg "Restarting NGINX Service ..."
     sudo systemctl restart nginx && ok_msg "NGINX Service restarted!"
   fi
