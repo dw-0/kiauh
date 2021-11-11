@@ -250,7 +250,7 @@ create_moonraker_conf(){
         sed -i "s|%UDS%|$KLIPPY_UDS|" $MR_CONF
         # if host ip is not in the default ip ranges, replace placeholder
         # otherwise remove placeholder from config
-        if ! grep $LAN $MR_CONF; then
+        if ! grep -q $LAN $MR_CONF; then
           sed -i "s|%LAN%|$LAN|" $MR_CONF
         else
           sed -i "/%LAN%/d" $MR_CONF
