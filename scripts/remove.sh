@@ -1,6 +1,3 @@
-### base variables
-SYSTEMDDIR="/etc/systemd/system"
-
 remove_klipper(){
   shopt -s extglob # enable extended globbing
   ### ask the user if he wants to uninstall moonraker too.

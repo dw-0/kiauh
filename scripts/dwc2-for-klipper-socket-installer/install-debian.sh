@@ -5,7 +5,6 @@
 # https://github.com/Stephan3/dwc2-for-klipper-socket.git
 
 PYTHONDIR="${HOME}/dwc-env"
-SYSTEMDDIR="/etc/systemd/system"
 DWC_USER=${USER}
 
 # Step 1:  Verify Klipper has been installed

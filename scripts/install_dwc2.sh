@@ -1,5 +1,4 @@
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
 DWC_ENV="${HOME}/dwc-env"
 DWC2_DIR="${HOME}/duetwebcontrol"
 

@@ -1,5 +1,4 @@
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
 OCTOPRINT_ENV="${HOME}/OctoPrint"
 
 octoprint_setup_dialog(){
