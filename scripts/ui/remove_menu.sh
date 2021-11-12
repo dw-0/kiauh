@@ -1,5 +1,3 @@
-#!/bin/bash
-
 remove_ui(){
   top_border
   echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
