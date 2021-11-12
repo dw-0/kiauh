@@ -1,5 +1,4 @@
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
 WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
 WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
 

@@ -1,5 +1,4 @@
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
 MOONRAKER_ENV="${HOME}/moonraker-env"
 MOONRAKER_DIR="${HOME}/moonraker"
 MOONRAKER_REPO="https://github.com/Arksine/moonraker.git"

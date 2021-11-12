@@ -1,5 +1,4 @@
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
 KLIPPY_ENV="${HOME}/klippy-env"
 KLIPPER_DIR="${HOME}/klipper"
 
