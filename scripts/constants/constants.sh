@@ -31,7 +31,7 @@ readonly MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
 #misc
 readonly INI_FILE=${HOME}/.kiauh.ini
 readonly BACKUP_DIR=${HOME}/kiauh-backups
-readonly SYSTEMDDIR=/etc/systemd/system
+readonly SYSTEMD_DIR=/etc/systemd/system
 
 ### set github repos
 readonly KLIPPER_REPO=https://github.com/Klipper3d/klipper.git

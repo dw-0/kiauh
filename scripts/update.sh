@@ -75,7 +75,7 @@ update_log_paths(){
   source_kiauh_ini
   LPATH="${HOME}/klipper_logs"
   [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
-  FILE="$SYSTEMDDIR/$1?(-*([0-9])).service"
+  FILE="$SYSTEMD_DIR/$1?(-*([0-9])).service"
   for file in $(ls $FILE); do
     [ "$1" == "klipper" ] && LOG="klippy"
     [ "$1" == "moonraker" ] && LOG="moonraker"

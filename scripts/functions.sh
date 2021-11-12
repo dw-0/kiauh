@@ -93,33 +93,33 @@ set_klipper_cfg_path(){
   fi
 
   ### handle single klipper instance service file
-  if [ -f $SYSTEMDDIR/klipper.service ]; then
+  if [ -f $SYSTEMD_DIR/klipper.service ]; then
     status_msg "Configuring Klipper for new path ..."
-    sudo sed -i -r "/ExecStart=/ s| (.+)\/printer.cfg| $new_klipper_cfg_loc/printer.cfg|" $SYSTEMDDIR/klipper.service
+    sudo sed -i -r "/ExecStart=/ s| (.+)\/printer.cfg| $new_klipper_cfg_loc/printer.cfg|" $SYSTEMD_DIR/klipper.service
     ok_msg "OK!"
   fi
   ### handle multi klipper instance service file
-  if ls $SYSTEMDDIR/klipper-*.service 2>/dev/null 1>&2; then
+  if ls $SYSTEMD_DIR/klipper-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Klipper for new path ..."
-    for service in $(find $SYSTEMDDIR/klipper-*.service); do
+    for service in $(find $SYSTEMD_DIR/klipper-*.service); do
       sudo sed -i -r "/ExecStart=/ s| (.+)\/printer_| $new_klipper_cfg_loc/printer_|" $service
     done
     ok_msg "OK!"
   fi
 
   ### handle single moonraker instance service and moonraker.conf file
-  if [ -f $SYSTEMDDIR/moonraker.service ]; then
+  if [ -f $SYSTEMD_DIR/moonraker.service ]; then
     status_msg "Configuring Moonraker for new path ..."
-    sudo sed -i -r "/ExecStart=/ s|-c (.+)\/moonraker\.conf|-c $new_klipper_cfg_loc/moonraker.conf|" $SYSTEMDDIR/moonraker.service
+    sudo sed -i -r "/ExecStart=/ s|-c (.+)\/moonraker\.conf|-c $new_klipper_cfg_loc/moonraker.conf|" $SYSTEMD_DIR/moonraker.service
 
     ### replace old file path with new one in moonraker.conf
     sed -i -r "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $new_klipper_cfg_loc/moonraker.conf
     ok_msg "OK!"
   fi
   ### handle multi moonraker instance service file
-  if ls $SYSTEMDDIR/moonraker-*.service 2>/dev/null 1>&2; then
+  if ls $SYSTEMD_DIR/moonraker-*.service 2>/dev/null 1>&2; then
     status_msg "Configuring Moonraker for new path ..."
-    for service in $(find $SYSTEMDDIR/moonraker-*.service); do
+    for service in $(find $SYSTEMD_DIR/moonraker-*.service); do
       sudo sed -i -r "/ExecStart=/ s|-c (.+)\/printer_|-c $new_klipper_cfg_loc/printer_|" $service
     done
     ### replace old file path with new one in moonraker.conf
@@ -144,7 +144,7 @@ source_kiauh_ini(){
 
 do_action_service(){
   shopt -s extglob # enable extended globbing
-  SERVICES="$SYSTEMDDIR/$2?(-*([0-9])).service"
+  SERVICES="$SYSTEMD_DIR/$2?(-*([0-9])).service"
   ### set a variable for the ok and status messages
   [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
   [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"

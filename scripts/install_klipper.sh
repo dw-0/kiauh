@@ -120,7 +120,7 @@ create_klipper_service(){
   P_CFG="$CFG_PATH/printer.cfg"
   P_CFG_SRC="${SRCDIR}/kiauh/resources/printer.cfg"
   KL_SERV_SRC="${SRCDIR}/kiauh/resources/klipper.service"
-  KL_SERV_TARGET="$SYSTEMDDIR/klipper.service"
+  KL_SERV_TARGET="$SYSTEMD_DIR/klipper.service"
 
   write_kl_service(){
     [ ! -d $CFG_PATH ] && mkdir -p $CFG_PATH
@@ -155,7 +155,7 @@ create_klipper_service(){
     while [ $i -le $INSTANCE_COUNT ]; do
       ### rewrite default variables for multi instance cases
       CFG_PATH="$klipper_cfg_loc/printer_$i"
-      KL_SERV_TARGET="$SYSTEMDDIR/klipper-$i.service"
+      KL_SERV_TARGET="$SYSTEMD_DIR/klipper-$i.service"
       P_TMP="/tmp/printer-$i"
       P_CFG="$CFG_PATH/printer.cfg"
       KL_LOG="${HOME}/klipper_logs/klippy-$i.log"

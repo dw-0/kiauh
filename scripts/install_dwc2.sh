@@ -193,7 +193,7 @@ create_dwc_virtualenv()
 
 create_single_dwc_startscript(){
   ### create systemd service file
-  sudo /bin/sh -c "cat > ${SYSTEMDDIR}/dwc.service" << DWC
+  sudo /bin/sh -c "cat > ${SYSTEMD_DIR}/dwc.service" << DWC
 [Unit]
 Description=DuetWebControl
 After=network.target
@@ -211,7 +211,7 @@ DWC
 
 create_multi_dwc_startscript(){
   ### create systemd service file
-  sudo /bin/sh -c "cat > ${SYSTEMDDIR}/dwc-$INSTANCE.service" << DWC
+  sudo /bin/sh -c "cat > ${SYSTEMD_DIR}/dwc-$INSTANCE.service" << DWC
 [Unit]
 Description=DuetWebControl
 After=network.target
