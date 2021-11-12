@@ -48,7 +48,7 @@ create_virtualenv()
 # Step 4: Install startup script
 install_script(){
     report_status "Installing system start script..."
-    sudo /bin/sh -c "cat > $SYSTEMDDIR/dwc.service" << EOF
+    sudo /bin/sh -c "cat > $SYSTEMD_DIR/dwc.service" << EOF
 #Systemd service file for DWC
 [Unit]
 Description=dwc_webif

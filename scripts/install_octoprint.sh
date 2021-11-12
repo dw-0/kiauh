@@ -102,7 +102,7 @@ add_to_groups(){
 
 create_single_octoprint_startscript(){
 ### create single instance systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/octoprint.service" << OCTOPRINT
+sudo /bin/sh -c "cat > ${SYSTEMD_DIR}/octoprint.service" << OCTOPRINT
 [Unit]
 Description=Starts OctoPrint on startup
 After=network-online.target
@@ -122,7 +122,7 @@ OCTOPRINT
 
 create_multi_octoprint_startscript(){
 ### create multi instance systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/octoprint-$INSTANCE.service" << OCTOPRINT
+sudo /bin/sh -c "cat > ${SYSTEMD_DIR}/octoprint-$INSTANCE.service" << OCTOPRINT
 [Unit]
 Description=Starts OctoPrint instance $INSTANCE on startup
 After=network-online.target

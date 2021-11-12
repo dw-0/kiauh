@@ -2,7 +2,7 @@ remove_klipper(){
   shopt -s extglob # enable extended globbing
   ### ask the user if he wants to uninstall moonraker too.
   ###? currently usefull if the user wants to switch from single-instance to multi-instance
-  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  FILE="$SYSTEMD_DIR/moonraker?(-*([0-9])).service"
   if ls $FILE 2>/dev/null 1>&2; then
     while true; do
       unset REM_MR
@@ -44,7 +44,7 @@ remove_klipper(){
   fi
 
   ### remove all klipper services
-  FILE="$SYSTEMDDIR/klipper?(-*([0-9])).service"
+  FILE="$SYSTEMD_DIR/klipper?(-*([0-9])).service"
   if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Klipper Services ..."
     for service in $(ls $FILE | cut -d"/" -f5)
@@ -52,7 +52,7 @@ remove_klipper(){
       status_msg "Removing $service ..."
       sudo systemctl stop $service
       sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
+      sudo rm -f $SYSTEMD_DIR/$service
       ok_msg "Done!"
     done
     ### reloading units
@@ -125,7 +125,7 @@ remove_moonraker(){
   fi
 
   ### remove all moonraker services
-  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  FILE="$SYSTEMD_DIR/moonraker?(-*([0-9])).service"
   if ls $FILE 2>/dev/null 1>&2; then
     status_msg "Removing Moonraker Services ..."
     for service in $(ls $FILE | cut -d"/" -f5)
@@ -133,7 +133,7 @@ remove_moonraker(){
       status_msg "Removing $service ..."
       sudo systemctl stop $service
       sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
+      sudo rm -f $SYSTEMD_DIR/$service
       ok_msg "Done!"
     done
     ### reloading units
@@ -204,7 +204,7 @@ remove_dwc2(){
       status_msg "Removing $service ..."
       sudo systemctl stop $service
       sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
+      sudo rm -f $SYSTEMD_DIR/$service
       ok_msg "Done!"
     done
     ### reloading units
@@ -324,7 +324,7 @@ remove_octoprint(){
       status_msg "Removing $service ..."
       sudo systemctl stop $service
       sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
+      sudo rm -f $SYSTEMD_DIR/$service
       ok_msg "OctoPrint Service removed!"
     done
     ### reloading units
@@ -396,7 +396,7 @@ remove_klipperscreen(){
     status_msg "Removing KlipperScreen service ..."
     sudo systemctl stop KlipperScreen
     sudo systemctl disable moonraker
-    sudo rm -f $SYSTEMDDIR/KlipperScreen.service
+    sudo rm -f $SYSTEMD_DIR/KlipperScreen.service
     ###reloading units
     sudo systemctl daemon-reload
     sudo systemctl reset-failed
@@ -439,7 +439,7 @@ remove_MoonrakerTelegramBot(){
     status_msg "Removing MoonrakerTelegramBot service ..."
     sudo systemctl stop moonraker-telegram-bot
     sudo systemctl disable moonraker-telegram-bot
-    sudo rm -f $SYSTEMDDIR/moonraker-telegram-bot.service
+    sudo rm -f $SYSTEMD_DIR/moonraker-telegram-bot.service
     ###reloading units
     sudo systemctl daemon-reload
     sudo systemctl reset-failed
@@ -464,10 +464,10 @@ remove_MoonrakerTelegramBot(){
 
 remove_mjpg-streamer(){
   ### remove MJPG-Streamer service
-  if [ -e $SYSTEMDDIR/webcamd.service ]; then
+  if [ -e $SYSTEMD_DIR/webcamd.service ]; then
     status_msg "Removing MJPG-Streamer service ..."
     sudo systemctl stop webcamd && sudo systemctl disable webcamd
-    sudo rm -f $SYSTEMDDIR/webcamd.service
+    sudo rm -f $SYSTEMD_DIR/webcamd.service
     ###reloading units
     sudo systemctl daemon-reload
     sudo systemctl reset-failed

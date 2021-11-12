@@ -8,7 +8,7 @@ install_mjpg-streamer(){
 
   ### set default values
   MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
-  MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
+  MJPG_SERV_TARGET="$SYSTEMD_DIR/webcamd.service"
   WEBCAM_TXT="$klipper_cfg_loc/webcam.txt"
 
   ### if there is a webcamd.service -> exit

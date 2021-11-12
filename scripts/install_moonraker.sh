@@ -31,13 +31,13 @@ moonraker_setup_dialog(){
 
   shopt -s extglob # enable extended globbing
   ### check for existing moonraker service installations
-  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  FILE="$SYSTEMD_DIR/moonraker?(-*([0-9])).service"
   if ls $FILE 2>/dev/null 1>&2; then
     ERROR_MSG="At least one Moonraker service is already installed!" && return 0
   fi
 
   ### check for existing klipper service installations
-  FILE="$SYSTEMDDIR/klipper?(-*([0-9])).service"
+  FILE="$SYSTEMD_DIR/klipper?(-*([0-9])).service"
   if ! ls $FILE 2>/dev/null 1>&2; then
     ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
   fi
@@ -167,7 +167,7 @@ create_moonraker_service(){
   MR_LOG="${HOME}/klipper_logs/moonraker.log"
   MR_CONF="$CFG_PATH/moonraker.conf"
   MR_SERV_SRC="${SRCDIR}/kiauh/resources/moonraker.service"
-  MR_SERV_TARGET="$SYSTEMDDIR/moonraker.service"
+  MR_SERV_TARGET="$SYSTEMD_DIR/moonraker.service"
 
   write_mr_service(){
     if [ ! -f $MR_SERV_TARGET ]; then
@@ -196,7 +196,7 @@ create_moonraker_service(){
     while [ $i -le $INSTANCE_COUNT ]; do
       ### rewrite default variables for multi instance cases
       CFG_PATH="$klipper_cfg_loc/printer_$i"
-      MR_SERV_TARGET="$SYSTEMDDIR/moonraker-$i.service"
+      MR_SERV_TARGET="$SYSTEMD_DIR/moonraker-$i.service"
       MR_CONF="$CFG_PATH/moonraker.conf"
       MR_LOG="${HOME}/klipper_logs/moonraker-$i.log"
       ### write multi instance service
