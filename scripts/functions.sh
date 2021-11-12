@@ -1,9 +1,11 @@
+#!/bin/bash
 # setting up some frequently used functions
+
 check_euid(){
   if [ "$EUID" -eq 0 ]
   then
     whiptail --title "$KIAUH_TITLE" --msgbox "!!! THIS SCRIPT MUST NOT RAN AS ROOT !!!"\
-    "$KIAUH_WHIPTAIL_HEIGHT" "$KIAUH_WHIPTAIL_WIDTH"
+    "$KIAUH_WHIPTAIL_SINGLE_LINE_HEIGHT" "$KIAUH_WHIPTAIL_NORMAL_WIDTH"
     exit 1
   fi
 }
@@ -452,4 +454,10 @@ init_ini(){
     echo -e "\nklipper_cfg_loc=\c" >> $INI_FILE
   fi
   fetch_webui_ports
+}
+
+print_kiauh_version() {
+  cd ${SRCDIR}/kiauh
+  KIAUH_VER=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+  KIAUH_VER="$(printf "%-20s" "$KIAUH_VER")"
 }
