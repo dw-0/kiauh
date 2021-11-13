@@ -1,46 +1,4 @@
-### base variables
-OCTOPRINT_ENV="${HOME}/OctoPrint"
-
-octoprint_setup_dialog(){
-  status_msg "Initializing OctoPrint installation ..."
-
-  ### count amount of klipper services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
-    INSTANCE_COUNT=1
-  else
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
-  fi
-
-  ### instance confirmation dialog
-  while true; do
-      echo
-      top_border
-      if [ $INSTANCE_COUNT -gt 1 ]; then
-        printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
-      else
-        echo -e "| 1 Klipper instance was found!                         | "
-      fi
-      echo -e "| You need one OctoPrint instance per Klipper instance. | "
-      bottom_border
-      echo
-      read -p "${cyan}###### Create $INSTANCE_COUNT OctoPrint instances? (Y/n):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
-          status_msg "Creating $INSTANCE_COUNT OctoPrint instances ..."
-          octoprint_setup
-          break;;
-        N|n|No|no)
-          echo -e "###### > No"
-          warn_msg "Exiting OctoPrint setup ..."
-          echo
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-    esac
-  done
-}
+#!/bin/bash
 
 octoprint_dependencies(){
   dep=(
