@@ -1,46 +1,8 @@
 #!/bin/bash
 
-accept_upload_conditions(){
-  while true; do
-    top_border
-    echo -e "|     ${red}~~~~~~~~~~~ [ Upload Agreement ] ~~~~~~~~~~~~${default}     |"
-    hr
-    echo -e "| The following function will help to quickly upload    |"
-    echo -e "| logs for debugging purposes. With confirming this     |"
-    echo -e "| dialog, you agree that during that process your logs  |"
-    echo -e "| will be uploaded to: ${yellow}http://paste.c-net.org/${default}          |"
-    hr
-    echo -e "| ${red}PLEASE NOTE:${default}                                          |"
-    echo -e "| Be aware that logs can contain network information,   |"
-    echo -e "| private data like usernames, filenames, or other      |"
-    echo -e "| information you may not want to make public.          |"
-    blank_line
-    echo -e "| Do ${red}NOT${default} use this function if you don't agree!          |"
-    bottom_border
-    read -p "${cyan}Do you accept? (Y/n):${default} " yn
-    case "$yn" in
-      Y|y|Yes|yes|"")
-        sed -i "/logupload_accepted=/s/false/true/" $INI_FILE
-        clear && print_header && upload_selection
-        ;;
-      N|n|No|no)
-        clear
-        main_menu #TODO this is the issue causing main menu to not exit
-        break
-        ;;
-      *)
-        clear
-        print_header
-        print_unkown_cmd
-        print_msg && clear_msg
-        accept_upload_conditions;;
-    esac
-  done
-}
-
 upload_selection(){
   source_kiauh_ini
-  [ "$logupload_accepted" = "false" ] && accept_upload_conditions
+  [ "$logupload_accepted" = "false" ] && upload_yesno
 
   ### find all suitable logfiles for klipper
   logfiles=()
