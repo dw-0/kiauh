@@ -1,3 +1,5 @@
+#!/bin/bash
+
 kiauh_status(){
   if [ -d "${SRCDIR}/kiauh/.git" ]; then
     cd ${SRCDIR}/kiauh
@@ -50,11 +52,11 @@ klipper_status(){
 
   ### display status
   if [ "$kcount" == "${#klipper_data[*]}" ]; then
-    KLIPPER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
+    KLIPPER_STATUS="$(printf "Installed: %-5s" $SERVICE_FILE_COUNT)"
   elif [ "$kcount" == 0 ]; then
-    KLIPPER_STATUS="${red}Not installed!${default}  "
+    KLIPPER_STATUS="Not installed!"
   else
-    KLIPPER_STATUS="${yellow}Incomplete!${default}     "
+    KLIPPER_STATUS="Incomplete!"
   fi
 }
 
@@ -82,11 +84,11 @@ dwc2_status(){
   done
 
   if [ "$dcount" == "${#dwc_data[*]}" ]; then
-    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
+    DWC2_STATUS="$(printf "Installed: %-5s" $SERVICE_FILE_COUNT)"
   elif [ "$dcount" == 0 ]; then
-    DWC2_STATUS="${red}Not installed!${default}  "
+    DWC2_STATUS="Not installed!"
   else
-    DWC2_STATUS="${yellow}Incomplete!${default}     "
+    DWC2_STATUS="Incomplete!"
   fi
 }
 
@@ -114,11 +116,11 @@ moonraker_status(){
 
   ### display status
   if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
-    MOONRAKER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
+    MOONRAKER_STATUS="$(printf "Installed: %-5s" $SERVICE_FILE_COUNT)"
   elif [ "$mrcount" == 0 ]; then
-    MOONRAKER_STATUS="${red}Not installed!${default}  "
+    MOONRAKER_STATUS="Not installed!"
   else
-    MOONRAKER_STATUS="${yellow}Incomplete!${default}     "
+    MOONRAKER_STATUS="Incomplete!"
   fi
 }
 
@@ -137,11 +139,11 @@ mainsail_status(){
     fi
   done
   if [ "$mcount" == "${#mainsail_data[*]}" ]; then
-    MAINSAIL_STATUS="${green}Installed!${default}      "
+    MAINSAIL_STATUS="Installed!"
   elif [ "$mcount" == 0 ]; then
-    MAINSAIL_STATUS="${red}Not installed!${default}  "
+    MAINSAIL_STATUS="Not installed!"
   else
-    MAINSAIL_STATUS="${yellow}Incomplete!${default}     "
+    MAINSAIL_STATUS="Incomplete!"
   fi
 }
 
@@ -160,11 +162,11 @@ fluidd_status(){
     fi
   done
   if [ "$fcount" == "${#fluidd_data[*]}" ]; then
-    FLUIDD_STATUS="${green}Installed!${default}      "
+    FLUIDD_STATUS="Installed!"
   elif [ "$fcount" == 0 ]; then
-    FLUIDD_STATUS="${red}Not installed!${default}  "
+    FLUIDD_STATUS="Not installed!"
   else
-    FLUIDD_STATUS="${yellow}Incomplete!${default}     "
+    FLUIDD_STATUS="Incomplete!"
   fi
 }
 
@@ -190,11 +192,11 @@ octoprint_status(){
 
   ### display status
   if [ "$ocount" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
+    OCTOPRINT_STATUS="$(printf "Installed: %-5s" $SERVICE_FILE_COUNT)"
   elif [ "$ocount" == 0 ]; then
-    OCTOPRINT_STATUS="${red}Not installed!${default}  "
+    OCTOPRINT_STATUS="Not installed!"
   else
-    OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
+    OCTOPRINT_STATUS="Incomplete!"
   fi
 }
 
@@ -220,11 +222,11 @@ klipperscreen_status(){
     fi
   done
   if [ "$klsccount" == "${#klipperscreen_data[*]}" ]; then
-    KLIPPERSCREEN_STATUS="${green}Installed!${default}      "
+    KLIPPERSCREEN_STATUS="Installed!"
   elif [ "$klsccount" == 0 ]; then
-    KLIPPERSCREEN_STATUS="${red}Not installed!${default}  "
+    KLIPPERSCREEN_STATUS="Not installed!"
   else
-    KLIPPERSCREEN_STATUS="${yellow}Incomplete!${default}     "
+    KLIPPERSCREEN_STATUS="Incomplete!"
   fi
 }
 
@@ -250,11 +252,11 @@ MoonrakerTelegramBot_status(){
     fi
   done
   if [ "$mtbcount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${default}      "
+    MOONRAKER_TELEGRAM_BOT_STATUS="Installed!"
   elif [ "$mtbcount" == 0 ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${default}  "
+    MOONRAKER_TELEGRAM_BOT_STATUS="Not installed!"
   else
-    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${default}     "
+    MOONRAKER_TELEGRAM_BOT_STATUS="Incomplete!"
   fi
 }
 
@@ -293,7 +295,7 @@ print_branch(){
   if [ ! -z "$GET_BRANCH" ]; then
     PRINT_BRANCH="$(printf "%-16s" "$GET_BRANCH")"
   else
-    PRINT_BRANCH="${red}--------------${default}  "
+    PRINT_BRANCH="--------------"
   fi
 }
 
