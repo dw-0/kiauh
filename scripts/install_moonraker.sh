@@ -41,10 +41,10 @@ moonraker_setup_dialog(){
   shopt -u extglob # disable extended globbing
 
   ### count amount of klipper services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
+  if ls /etc/systemd/system/klipper.service 2>/dev/null; then
     INSTANCE_COUNT=1
   else
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]]+.service" | wc -l)
+    INSTANCE_COUNT=$(ls /etc/systemd/system | grep -E "klipper-[[:digit:]]+.service" | wc -l)
   fi
 
   ### initial moonraker.conf path check
@@ -183,11 +183,10 @@ create_moonraker_service(){
     ### write single instance service
     write_mr_service
     ### enable instance
-    sudo systemctl enable moonraker.service
+    do_action_service "enable" "moonraker"
     ok_msg "Single Moonraker instance created!"
     ### launching instance
-    status_msg "Launching Moonraker instance ..."
-    sudo systemctl start moonraker
+    do_action_service "start" "moonraker"
   else
     i=1
     while [ $i -le $INSTANCE_COUNT ]; do
@@ -199,12 +198,10 @@ create_moonraker_service(){
       ### write multi instance service
       write_mr_service
       ### enable instance
-      sudo systemctl enable moonraker-$i.service
+      do_action_service "enable" "moonraker-$i"
       ok_msg "Moonraker instance #$i created!"
       ### launching instance
-      status_msg "Launching Moonraker instance #$i ..."
-      sudo systemctl start moonraker-$i
-
+      do_action_service "start" "moonraker-$i"
       ### raise values by 1
       i=$((i+1))
     done
@@ -249,7 +246,7 @@ create_moonraker_conf(){
         sed -i "s|%UDS%|$KLIPPY_UDS|" $MR_CONF
         # if host ip is not in the default ip ranges, replace placeholder
         # otherwise remove placeholder from config
-        if ! grep $LAN $MR_CONF; then
+        if ! grep -q $LAN $MR_CONF; then
           sed -i "s|%LAN%|$LAN|" $MR_CONF
         else
           sed -i "/%LAN%/d" $MR_CONF

@@ -1,13 +1,13 @@
 system_check_webui(){
   ### check system for installed moonraker service
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "moonraker.service")" ] || [ "$(systemctl list-units --full -all -t service --no-legend | grep -E "moonraker-[[:digit:]].service")" ]; then
+  if ls /etc/systemd/system/moonraker.service 2>/dev/null 1>&2 || ls /etc/systemd/system | grep -q -E "moonraker-[[:digit:]]+.service"; then
     moonraker_chk_ok="true"
   else
     moonraker_chk_ok="false"
   fi
 
   ### check system for an installed and enabled octoprint service
-  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
+  if sudo systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
     OCTOPRINT_ENABLED="true"
   fi
 
@@ -114,12 +114,12 @@ install_webui(){
   $1_port_check
 
   ### ask user to install mjpg-streamer
-  if [[ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "webcamd.service")" ]]; then
+  if ls /etc/systemd/system/webcamd.service 2>/dev/null 1>&2; then
     get_user_selection_mjpg-streamer
   fi
 
   ### ask user to install the recommended webinterface macros
-  if [[ ! -n $(ls $klipper_cfg_loc/kiauh_macros.cfg) ]] || [[ ! -n $(ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg) ]]; then
+  if ! ls $klipper_cfg_loc/kiauh_macros.cfg 2>/dev/null 1>&2 || ! ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg 2>/dev/null 1>&2; then
     get_user_selection_kiauh_macros "$IF_NAME2"
   fi
   ### create /etc/nginx/conf.d/upstreams.conf
