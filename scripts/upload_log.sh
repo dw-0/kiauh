@@ -1,3 +1,5 @@
+#!/bin/bash
+
 accept_upload_conditions(){
   while true; do
     top_border
@@ -23,7 +25,7 @@ accept_upload_conditions(){
         ;;
       N|n|No|no)
         clear
-        main_menu
+        main_menu #TODO this is the issue causing main menu to not exit
         break
         ;;
       *)
