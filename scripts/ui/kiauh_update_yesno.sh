@@ -7,7 +7,7 @@
 # Arguments:
 #  None
 #######################################
-kiauh_update_dialog() {
+kiauh_update_yesno() {
   whiptail --title "New KIAUH update available!" \
     --yesno \
     "View Changelog: https://git.io/JnmlX
@@ -22,6 +22,6 @@ Do you want to update now?" \
   if [ $out -eq 0 ]; then
     do_action "update_kiauh"
   else
-    deny_action "kiauh_update_dialog"
+    return
   fi
 }
