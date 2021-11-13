@@ -1,3 +1,4 @@
+#!/bin/bash
 check_for_backup_dir(){
   if [ ! -d $BACKUP_DIR ]; then
     status_msg "Create KIAUH backup directory ..."

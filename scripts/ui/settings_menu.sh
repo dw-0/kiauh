@@ -1,3 +1,5 @@
+#!/bin/bash
+
 settings_ui(){
   source_kiauh_ini
   top_border

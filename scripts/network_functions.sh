@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set_nginx_cfg(){
   if [ "$SET_NGINX_CFG" = "true" ]; then
     #check for dependencies

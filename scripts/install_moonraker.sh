@@ -1,6 +1,6 @@
 #!/bin/bash
 
-system_check_moonraker(){
+system_check_moonraker() {
   ### python 3 check
   status_msg "Your Python 3 version is: $(python3 --version)"
   major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
@@ -14,7 +14,7 @@ system_check_moonraker(){
   fi
 }
 
-moonraker_setup_dialog(){
+moonraker_setup_dialog() {
   status_msg "Initializing Moonraker installation ..."
 
   ### checking system for python3.7+
@@ -52,36 +52,39 @@ moonraker_setup_dialog(){
 
   ### instance confirmation dialog
   while true; do
-      echo
-      top_border
-      if [ $INSTANCE_COUNT -gt 1 ]; then
-        printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
-      else
-        echo -e "| 1 Klipper instance was found!                         | "
-      fi
-      echo -e "| You need one Moonraker instance per Klipper instance. | "
-      bottom_border
-      echo
-      read -p "${cyan}###### Create $INSTANCE_COUNT Moonraker instances? (Y/n):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
-          status_msg "Creating $INSTANCE_COUNT Moonraker instances ..."
-          moonraker_setup
-          break;;
-        N|n|No|no)
-          echo -e "###### > No"
-          warn_msg "Exiting Moonraker setup ..."
-          echo
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
+    echo
+    top_border
+    if [ $INSTANCE_COUNT -gt 1 ]; then
+      printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
+    else
+      echo -e "| 1 Klipper instance was found!                         | "
+    fi
+    echo -e "| You need one Moonraker instance per Klipper instance. | "
+    bottom_border
+    echo
+    read -p "${cyan}###### Create $INSTANCE_COUNT Moonraker instances? (Y/n):${default} " yn
+    case "$yn" in
+      Y | y | Yes | yes | "")
+        echo -e "###### > Yes"
+        status_msg "Creating $INSTANCE_COUNT Moonraker instances ..."
+        moonraker_setup
+        break
+        ;;
+      N | n | No | no)
+        echo -e "###### > No"
+        warn_msg "Exiting Moonraker setup ..."
+        echo
+        break
+        ;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg
+        ;;
     esac
   done
 }
 
-moonraker_setup(){
+moonraker_setup() {
   ### checking dependencies
   dep=(wget curl unzip dfu-util virtualenv)
   ### additional deps for kiauh compatibility for armbian
@@ -112,10 +115,11 @@ moonraker_setup(){
   print_msg && clear_msg
 
   ### display moonraker ips to the user
-  print_mr_ip_list; echo
+  print_mr_ip_list
+  echo
 }
 
-install_moonraker_packages(){
+install_moonraker_packages() {
   ### read PKGLIST from official install script
   status_msg "Reading dependencies..."
   install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
@@ -134,13 +138,13 @@ install_moonraker_packages(){
   sudo apt-get install --yes ${PKGARR[@]}
 }
 
-create_moonraker_virtualenv(){
+create_moonraker_virtualenv() {
   status_msg "Installing python virtual environment..."
 
   ### If venv exists and user prompts a rebuild, then do so
-  if [ -d ${MOONRAKER_ENV} ] && [ $REBUILD_ENV = "y" ]; then
+  if [ -d "${MOONRAKER_ENV}" ] && [ $REBUILD_ENV = "y" ]; then
     status_msg "Removing old virtualenv"
-    rm -rf ${MOONRAKER_ENV}
+    rm -rf "${MOONRAKER_ENV}"
   fi
 
   if [ ! -d ${MOONRAKER_ENV} ]; then
@@ -152,7 +156,7 @@ create_moonraker_virtualenv(){
   ${MOONRAKER_ENV}/bin/pip install -r ${MOONRAKER_DIR}/scripts/moonraker-requirements.txt
 }
 
-create_moonraker_service(){
+create_moonraker_service() {
   ### get config directory
   source_kiauh_ini
 
@@ -166,16 +170,16 @@ create_moonraker_service(){
   MR_SERV_SRC="${SRCDIR}/kiauh/resources/moonraker.service"
   MR_SERV_TARGET="$SYSTEMD_DIR/moonraker.service"
 
-  write_mr_service(){
+  write_mr_service() {
     if [ ! -f $MR_SERV_TARGET ]; then
       status_msg "Creating Moonraker Service $i ..."
-        sudo cp $MR_SERV_SRC $MR_SERV_TARGET
-        sudo sed -i "s|%INST%|$i|" $MR_SERV_TARGET
-        sudo sed -i "s|%USER%|${USER}|" $MR_SERV_TARGET
-        sudo sed -i "s|%MR_ENV%|$MR_ENV|" $MR_SERV_TARGET
-        sudo sed -i "s|%MR_DIR%|$MR_DIR|" $MR_SERV_TARGET
-        sudo sed -i "s|%MR_LOG%|$MR_LOG|" $MR_SERV_TARGET
-        sudo sed -i "s|%MR_CONF%|$MR_CONF|" $MR_SERV_TARGET
+      sudo cp $MR_SERV_SRC $MR_SERV_TARGET
+      sudo sed -i "s|%INST%|$i|" $MR_SERV_TARGET
+      sudo sed -i "s|%USER%|${USER}|" $MR_SERV_TARGET
+      sudo sed -i "s|%MR_ENV%|$MR_ENV|" $MR_SERV_TARGET
+      sudo sed -i "s|%MR_DIR%|$MR_DIR|" $MR_SERV_TARGET
+      sudo sed -i "s|%MR_LOG%|$MR_LOG|" $MR_SERV_TARGET
+      sudo sed -i "s|%MR_CONF%|$MR_CONF|" $MR_SERV_TARGET
     fi
   }
 
@@ -203,7 +207,7 @@ create_moonraker_service(){
       ### launching instance
       do_action_service "start" "moonraker-$i"
       ### raise values by 1
-      i=$((i+1))
+      i=$((i + 1))
     done
     unset i
 
@@ -217,7 +221,7 @@ create_moonraker_service(){
   fi
 }
 
-create_moonraker_conf(){
+create_moonraker_conf() {
   ### get config directory
   source_kiauh_ini
 
@@ -234,7 +238,7 @@ create_moonraker_conf(){
   IP=$(hostname -I | cut -d" " -f1)
   LAN="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
 
-  write_mr_conf(){
+  write_mr_conf() {
     [ ! -d $CFG_PATH ] && mkdir -p $CFG_PATH
     if [ ! -f $MR_CONF ]; then
       status_msg "Creating moonraker.conf in $CFG_PATH ..."
@@ -277,14 +281,14 @@ create_moonraker_conf(){
       mr_ip_list+=("$IP:$PORT")
 
       ### raise values by 1
-      PORT=$((PORT+1))
-      i=$((i+1))
+      PORT=$((PORT + 1))
+      i=$((i + 1))
     done
     unset PORT && unset i
   fi
 }
 
-print_mr_ip_list(){
+print_mr_ip_list() {
   i=1
   for ip in ${mr_ip_list[@]}; do
     echo -e "       ${cyan}● Instance $i:${default} $ip"

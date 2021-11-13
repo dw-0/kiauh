@@ -230,7 +230,7 @@ klipperscreen_status(){
   fi
 }
 
-MoonrakerTelegramBot_status(){
+update_moonraker_telegram_bot_status(){
   mtbcount=0
   MoonrakerTelegramBot_data=(
     SERVICE
@@ -290,7 +290,7 @@ read_branch(){
 }
 
 #prints the current klipper branch in the main menu
-print_branch(){
+get_branch(){
   read_branch
   if [ ! -z "$GET_BRANCH" ]; then
     PRINT_BRANCH="$(printf "%-16s" "$GET_BRANCH")"

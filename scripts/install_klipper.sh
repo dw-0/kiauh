@@ -1,6 +1,4 @@
-### base variables
-KLIPPY_ENV="${HOME}/klippy-env"
-KLIPPER_DIR="${HOME}/klipper"
+#!/bin/bash
 
 klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."

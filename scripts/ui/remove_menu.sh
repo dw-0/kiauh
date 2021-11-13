@@ -1,26 +1,4 @@
 #!/bin/bash
-remove_ui(){
-  top_border
-  echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
-  hr
-  echo -e "|  Directories which remain untouched:                  | "
-  echo -e "|  --> Your printer configuration directory             | "
-  echo -e "|  --> ~/kiauh-backups                                  | "
-  echo -e "|  You need remove them manually if you wish so.        | "
-  hr
-  echo -e "|  Firmware:                |  Touchscreen GUI:         | "
-  echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
-  echo -e "|                           |                           | "
-  echo -e "|  Klipper API:             |  Other:                   | "
-  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
-  echo -e "|                           |  7) [OctoPrint]           | "
-  echo -e "|  Klipper Webinterface:    |  8) [PrettyGCode]         | "
-  echo -e "|  3) [Mainsail]            |  9) [Telegram Bot]        | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |  10) [MJPG-Streamer]      | "
-  echo -e "|                           |  11) [NGINX]              | "
-  back_footer
-}
 
 remove_menu(){
 	#TODO Currently it's a "dumb" remove page, looking for a "smart" one

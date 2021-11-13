@@ -1,8 +1,6 @@
-### base variables
-WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
-WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
+#!/bin/bash
 
-install_mjpg-streamer(){
+install_mjpg_streamer(){
   ### checking dependencies
   check_klipper_cfg_path
 

@@ -3,22 +3,25 @@
 main_menu() {
   #print KIAUH update msg if update available
   local menu_options=(
-			"1" "Install"\
-			"2" "Update"\
-			"3" "Remove"\
-			"4" "Advanced Settings"\
-			"5" "Backup"\
-			"6" "Settings"\
-			"7" "Upload Log"\
-			"8" "Service")
+			"1" "Install"
+			"2" "Update"
+			"3" "Remove"
+			"4" "Advanced Settings"
+			"5" "Backup"
+			"6" "Settings"
+			"7" "Upload Log"
+			"8" "Service"
+			)
 
+	# Ask for update only once
   if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
-    kiauh_update_dialog
+    kiauh_update_yesno
   fi
 
 	while true; do
 		#check install status
-		print_kiauh_version
+		#TODO it is install status, introduce a "service status" for service menu is probably a good idea, refactor required
+		check_kiauh_version
 		klipper_status
 		moonraker_status
 		dwc2_status
@@ -26,8 +29,8 @@ main_menu() {
 		mainsail_status
 		octoprint_status
 		klipperscreen_status
-		MoonrakerTelegramBot_status
-		print_branch
+		update_moonraker_telegram_bot_status
+		get_branch
 		print_msg && clear_msg
 
     local menu_str="Klipper: $KLIPPER_STATUS Branch: $PRINT_BRANCH\n
@@ -35,6 +38,7 @@ Moonraker: $MOONRAKER_STATUS\n
 Mainsail: $MAINSAIL_STATUS Fluidd: $FLUIDD_STATUS
 KlipperScreen: $KLIPPERSCREEN_STATUS Telegram Bot: $MOONRAKER_TELEGRAM_BOT_STATUS
 DWC2: $DWC2_STATUS OctoPrint: $OCTOPRINT_STATUS"
+
     local menu
     menu=$(whiptail --title "$KIAUH_TITLE $KIAUH_VER" --cancel-button "Finish" --notags --menu "$menu_str\n\nChoose an option:" \
       "$KIAUH_WHIPTAIL_NORMAL_HEIGHT" "$KIAUH_WHIPTAIL_NORMAL_WIDTH" 8 "${menu_options[@]}" 3>&1 1>&2 2>&3)

@@ -22,6 +22,7 @@ readonly DWC_ENV_DIR=${HOME}/dwc-env
 readonly DWC2_DIR=${HOME}/duetwebcontrol
 #octoprint
 readonly OCTOPRINT_DIR=${HOME}/OctoPrint
+readonly OCTOPRINT_ENV_DIR=${HOME}/OctoPrint/env
 #KlipperScreen
 readonly KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 readonly KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
@@ -43,6 +44,10 @@ readonly NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
 #branches
 readonly BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 readonly BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
+
+### Webcam
+readonly WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+readonly WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
 
 ###Whiptail
 readonly KIAUH_WHIPTAIL_NORMAL_WIDTH=70

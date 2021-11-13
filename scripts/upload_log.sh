@@ -2,6 +2,7 @@
 
 upload_selection(){
   source_kiauh_ini
+  # TODO Whiptail probably changed logic here
   [ "$logupload_accepted" = "false" ] && upload_yesno
 
   ### find all suitable logfiles for klipper

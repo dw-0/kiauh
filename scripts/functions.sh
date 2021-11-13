@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # setting up some frequently used functions
 
 check_euid(){
@@ -456,7 +457,7 @@ init_ini(){
   fetch_webui_ports
 }
 
-print_kiauh_version() {
+check_kiauh_version() {
   cd ${SRCDIR}/kiauh
   KIAUH_VER=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
   KIAUH_VER="$(printf "%-20s" "$KIAUH_VER")"

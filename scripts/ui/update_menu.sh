@@ -1,4 +1,7 @@
+#!/bin/bash
+
 update_ui(){
+	# TODO Try to match the width so we can use the menu text to show local and remote version
   ui_print_versions
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${default}     | "

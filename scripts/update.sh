@@ -1,3 +1,5 @@
+#!/bin/bash
+
 update_kiauh(){
   if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
     status_msg "Updating KIAUH ..."

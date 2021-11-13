@@ -1,3 +1,5 @@
+#!/bin/bash
+
 switch_to_master(){
   cd $KLIPPER_DIR
   status_msg "Switching...Please wait ..."; echo

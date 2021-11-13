@@ -23,9 +23,9 @@ octoprint_setup(){
   add_reboot_permission
 
   ### create and activate the virtualenv
-  [ ! -d $OCTOPRINT_ENV ] && mkdir -p $OCTOPRINT_ENV
+  [ ! -d $OCTOPRINT_DIR ] && mkdir -p $OCTOPRINT_DIR
   status_msg "Set up virtualenv ..."
-  cd $OCTOPRINT_ENV
+  cd $OCTOPRINT_DIR
   virtualenv --python=python3 venv
   source venv/bin/activate
 
@@ -71,7 +71,7 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 Type=simple
 User=$USER
-ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
+ExecStart=${OCTOPRINT_DIR}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
 
 [Install]
 WantedBy=multi-user.target
@@ -91,7 +91,7 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 Type=simple
 User=$USER
-ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
+ExecStart=${OCTOPRINT_DIR}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
 
 [Install]
 WantedBy=multi-user.target

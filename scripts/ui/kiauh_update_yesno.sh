@@ -1,3 +1,4 @@
+#!/bin/bash
 #######################################
 # description Advise user to update KIAUH
 # Globals:

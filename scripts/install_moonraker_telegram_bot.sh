@@ -1,4 +1,6 @@
-install_MoonrakerTelegramBot(){
+#!/bin/bash
+
+install_moonraker_telegram_bot(){
     source_kiauh_ini
     #MoonrakerTelegramBot main installation
     MoonrakerTelegramBot_setup
