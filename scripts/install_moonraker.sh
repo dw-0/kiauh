@@ -1,7 +1,4 @@
-### base variables
-MOONRAKER_ENV="${HOME}/moonraker-env"
-MOONRAKER_DIR="${HOME}/moonraker"
-MOONRAKER_REPO="https://github.com/Arksine/moonraker.git"
+#!/bin/bash
 
 system_check_moonraker(){
   ### python 3 check

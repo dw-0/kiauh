@@ -1,8 +1,7 @@
 #!/bin/bash
 ### set important directories
 
-#kiauh.sh
-#klipper
+# klipper
 readonly KLIPPER_DIR=${HOME}/klipper
 readonly KLIPPY_ENV=${HOME}/klippy-env
 #nginx
@@ -12,6 +11,7 @@ readonly NGINX_CONFD=/etc/nginx/conf.d
 #moonraker
 readonly MOONRAKER_DIR=${HOME}/moonraker
 readonly MOONRAKER_ENV=${HOME}/moonraker-env
+readonly MOONRAKER_REPO="https://github.com/Arksine/moonraker.git"
 #mainsail
 readonly MAINSAIL_DIR=${HOME}/mainsail
 #fluidd
