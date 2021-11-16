@@ -14,4 +14,5 @@ remove_moonraker_yesno(){
     REM_MR="true"
   else
     REM_MR="false"
+  fi
 }
