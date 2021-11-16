@@ -1,6 +1,3 @@
-### base variables
-DWC_ENV="${HOME}/dwc-env"
-DWC2_DIR="${HOME}/duetwebcontrol"
 
 system_check_dwc(){
   ### check system for an installed octoprint service
