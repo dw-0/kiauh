@@ -1,4 +1,4 @@
-### base variables
+#!/bin/bash
 
 get_theme_list(){
   theme_csv_url="https://raw.githubusercontent.com/meteyou/mainsail/develop/docs/_data/themes.csv"
@@ -18,47 +18,6 @@ get_theme_list(){
     fi
     let i++
   done <<< $theme_csv
-}
-
-ms_theme_ui(){
-  top_border
-  echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${default}     | "
-  hr
-  echo -e "|  ${green}A preview of each Mainsail theme can be found here:${default}  | "
-  echo -e "|  https://docs.mainsail.xyz/theming/themes             | "
-  blank_line
-  echo -e "|  ${yellow}Important note:${default}                                      | "
-  echo -e "|  Installing a theme from this menu will overwrite an  | "
-  echo -e "|  already installed theme or modified custom.css file! | "
-  hr
-  #echo -e "|  Theme:                                               | "
-  # dynamically generate the themelist from a csv file
-  get_theme_list
-  echo -e "|                                                       | "
-  echo -e "|  R) [Remove Theme]                                    | "
-  #echo -e "|                                                       | "
-  back_footer
-}
-
-ms_theme_menu(){
-  ms_theme_ui
-  while true; do
-    read -p "${cyan}Install theme:${default} " a; echo
-    if [ $a = "b" ] || [ $a = "B" ]; then
-      clear && advanced_menu && break
-    elif [ $a = "r" ] || [ $a = "R" ]; then
-      ms_theme_delete
-      ms_theme_menu
-    elif [ $a -le ${#t_url[@]} ]; then
-      ms_theme_install "${t_auth[$a]}" "${t_url[$a]}" "${t_name[$a]}" "${t_note[$a]}"
-      ms_theme_menu
-    else
-      clear && print_header
-      ERROR_MSG="Invalid command!" && print_msg && clear_msg
-      ms_theme_menu
-    fi
-  done
-  ms_theme_menu
 }
 
 check_select_printer(){
