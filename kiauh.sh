@@ -35,6 +35,7 @@ DWC_ENV_DIR=${HOME}/dwc-env
 DWC2_DIR=${HOME}/duetwebcontrol
 #octoprint
 OCTOPRINT_DIR=${HOME}/OctoPrint
+OCTOPRINT_CFG_DIR=${HOME}/.octoprint
 #KlipperScreen
 KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
 KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
