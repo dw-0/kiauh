@@ -1,5 +1,5 @@
-MAINSAIL_REPO_API="https://api.github.com/repos/mainsail-crew/mainsail/releases/latest"
-FLUIDD_REPO_API="https://api.github.com/repos/fluidd-core/fluidd/releases/latest"
+MAINSAIL_REPO_API="https://api.github.com/repos/mainsail-crew/mainsail/releases"
+FLUIDD_REPO_API="https://api.github.com/repos/fluidd-core/fluidd/releases"
 
 system_check_webui(){
   ### check system for installed moonraker service
@@ -306,16 +306,16 @@ select_fluidd_port(){
 }
 
 get_mainsail_ver(){
-  MAINSAIL_VERSION=$(curl -s $MAINSAIL_REPO_API | grep tag_name | cut -d'"' -f4)
+  MAINSAIL_VERSION=$(curl -s $MAINSAIL_REPO_API | grep tag_name | cut -d'"' -f4 | head -1)
 }
 
 get_fluidd_ver(){
-  FLUIDD_VERSION=$(curl -s $FLUIDD_REPO_API | grep tag_name | cut -d'"' -f4)
+  FLUIDD_VERSION=$(curl -s $FLUIDD_REPO_API | grep tag_name | cut -d'"' -f4 | head -1)
 }
 
 mainsail_setup(){
   ### get mainsail download url
-  MAINSAIL_DL_URL=$(curl -s $MAINSAIL_REPO_API | grep browser_download_url | cut -d'"' -f4)
+  MAINSAIL_DL_URL=$(curl -s $MAINSAIL_REPO_API | grep browser_download_url | cut -d'"' -f4 | head -1)
 
   ### remove existing and create fresh mainsail folder, then download mainsail
   [ -d $MAINSAIL_DIR ] && rm -rf $MAINSAIL_DIR
@@ -344,7 +344,7 @@ enable_mainsail_remotemode(){
 
 fluidd_setup(){
   ### get fluidd download url
-  FLUIDD_DL_URL=$(curl -s $FLUIDD_REPO_API | grep browser_download_url | cut -d'"' -f4)
+  FLUIDD_DL_URL=$(curl -s $FLUIDD_REPO_API | grep browser_download_url | cut -d'"' -f4 | head -1)
 
   ### remove existing and create fresh fluidd folder, then download fluidd
   [ -d $FLUIDD_DIR ] && rm -rf $FLUIDD_DIR
