@@ -62,13 +62,13 @@ select_flash_method(){
         echo -e "###### > Regular flashing method"
         select_mcu_connection
         select_mcu_id
-        [ CONFIRM_FLASH ] && flash_mcu
+        [[ "$CONFIRM_FLASH" == true ]] && flash_mcu
         break;;
       2)
         echo -e "###### > SD-Card Update"
         select_mcu_connection
         select_mcu_id
-        [ CONFIRM_FLASH ] && flash_mcu_sd
+        [[ "$CONFIRM_FLASH" == true ]] && flash_mcu_sd
         break;;
       B|b)
         advanced_menu
@@ -120,11 +120,11 @@ select_mcu_id(){
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
           status_msg "Flashing $selected_mcu_id ..."
-          CONFIRM_FLASH="true"
+          CONFIRM_FLASH=true
           break;;
         N|n|No|no)
           echo -e "###### > No"
-          CONFIRM_FLASH="false"
+          CONFIRM_FLASH=false
           break;;
         *)
           print_unkown_cmd
