@@ -101,12 +101,12 @@ select_mcu_id(){
     done
     ### verify user input
     sel_index=""
-    while [[ ! ($sel_index =~ ^[1-9]+$) ]] || [ $sel_index -gt $id ]; do
+    while [[ ! ($sel_index =~ ^[1-9]+$) ]] || [ "$sel_index" -gt "$id" ]; do
       echo
       read -p "${cyan}###### Select MCU to flash:${default} " sel_index
       if [[ ! ($sel_index =~ ^[1-9]+$) ]]; then
         warn_msg "Invalid input!"
-      elif [ $sel_index -lt 1 ] || [ $sel_index -gt $id ]; then
+      elif [ "$sel_index" -lt 1 ] || [ "$sel_index" -gt "$id" ]; then
         warn_msg "Please select a number between 1 and $id!"
       fi
       mcu_index=$(echo $((sel_index - 1)))
@@ -177,9 +177,9 @@ flash_mcu_sd(){
   ### make the user select one of the boards
   while true; do
     read -p "${cyan}###### Please select board type:${default} " choice
-    if [ $choice = "q" ] || [ $choice = "Q" ]; then
+    if [ "$choice" = "q" ] || [ "$choice" = "Q" ]; then
       clear && advanced_menu && break
-    elif [ $choice -le ${#board_list[@]} ]; then
+    elif [ "$choice" -le ${#board_list[@]} ]; then
       selected_board="${board_list[$choice]}"
       break
     else
@@ -220,8 +220,8 @@ flash_mcu_sd(){
 }
 
 build_fw(){
-  if [ -d $KLIPPER_DIR ]; then
-    cd $KLIPPER_DIR
+  if [ -d "$KLIPPER_DIR" ]; then
+    cd "$KLIPPER_DIR"
     status_msg "Initializing firmware build ..."
     dep=(build-essential dpkg-dev make)
     dependency_check
