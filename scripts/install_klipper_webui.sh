@@ -117,7 +117,7 @@ install_webui(){
   $1_port_check
 
   ### ask user to install mjpg-streamer
-  if ls /etc/systemd/system/webcamd.service 2>/dev/null 1>&2; then
+  if ! ls /etc/systemd/system/webcamd.service 2>/dev/null 1>&2; then
     get_user_selection_mjpg-streamer
   fi
 
