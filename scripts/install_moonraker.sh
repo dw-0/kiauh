@@ -66,13 +66,12 @@ moonraker_setup_dialog(){
       warn_msg "Invalid Input!\n"
     else
       echo
-      INSTANCE_COUNT=$count
-      read -p "${cyan}###### Install $INSTANCE_COUNT instance(s)? (Y/n):${default} " yn
+      read -p "${cyan}###### Install $count instance(s)? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
           status_msg "Installing Moonraker ...\n"
-          moonraker_setup
+          moonraker_setup "$count"
           break;;
         N|n|No|no)
           echo -e "###### > No"
@@ -87,6 +86,7 @@ moonraker_setup_dialog(){
 }
 
 moonraker_setup(){
+  INSTANCE_COUNT=$1
   ### checking dependencies
   dep=(wget curl unzip dfu-util virtualenv)
   ### additional deps for kiauh compatibility for armbian
