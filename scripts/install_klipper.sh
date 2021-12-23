@@ -2,12 +2,15 @@
 SYSTEMDDIR="/etc/systemd/system"
 KLIPPY_ENV="${HOME}/klippy-env"
 KLIPPER_DIR="${HOME}/klipper"
+KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
 
 klipper_setup_dialog(){
-  ### check for existing moonraker service installations
-  INITD_SERVICE_FILES=$(find "/etc/init.d" -regextype posix-extended -regex "/etc/init.d/klipper(-[^0])?[0-9]*" -print)
-  SYSTEMD_SERVICE_FILES=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/klipper(-[^0])?[0-9]*.service" -print)
-  SERVICE_FILES="${INITD_SERVICE_FILES} ${SYSTEMD_SERVICE_FILES}"
+  ### check for existing klipper service installations
+  SERVICE_FILES=""
+  INITD_SERVICE_FILES=$(find "/etc/init.d" -regextype posix-extended -regex "/etc/init.d/klipper(-[^0])?[0-9]*")
+  SYSTEMD_SERVICE_FILES=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/klipper(-[^0])?[0-9]*.service")
+  [ -n "$INITD_SERVICE_FILES" ] && SERVICE_FILES+="${INITD_SERVICE_FILES}"
+  [ -n "$SYSTEMD_SERVICE_FILES" ] && SERVICE_FILES+=" ${SYSTEMD_SERVICE_FILES}"
   if [ -n "$SERVICE_FILES" ]; then
     ERROR_MSG="At least one Klipper service is already installed:"
     for service in $SERVICE_FILES; do
@@ -21,20 +24,27 @@ klipper_setup_dialog(){
   check_klipper_cfg_path
 
   ### ask for amount of instances to create
-  INSTANCE_COUNT=""
-  while [[ ! ($INSTANCE_COUNT =~ ^[1-9]+((0)+)?$) ]]; do
-    echo
-    read -p "${cyan}###### Number of Klipper instances to set up:${default} " INSTANCE_COUNT
-    if [[ ! ($INSTANCE_COUNT =~ ^[1-9]+((0)+)?$) ]]; then
+  top_border
+  echo -e "| Please select the number of Klipper instances to set  |"
+  echo -e "| up. The number of Klipper instances will determine    |"
+  echo -e "| the amount of printers you can run from this machine. |"
+  blank_line
+  echo -e "| ${yellow}WARNING: There is no limit on the number of instances${default} |"
+  echo -e "| ${yellow}you can set up with this script.${default}                      |"
+  bottom_border
+  count=""
+  while [[ ! ($count =~ ^[1-9]+((0)+)?$) ]]; do
+    read -p "${cyan}###### Number of Klipper instances to set up:${default} " count
+    if [[ ! ($count =~ ^[1-9]+((0)+)?$) ]]; then
       warn_msg "Invalid Input!" && echo
     else
       echo
-      read -p "${cyan}###### Install $INSTANCE_COUNT instance(s)? (Y/n):${default} " yn
+      read -p "${cyan}###### Install $count instance(s)? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Installing $INSTANCE_COUNT Klipper instance(s) ..."
-          klipper_setup
+          status_msg "Installing $count Klipper instance(s) ..."
+          klipper_setup "$count"
           break;;
         N|n|No|no)
           echo -e "###### > No"
@@ -53,17 +63,15 @@ install_klipper_packages(){
   ### read PKGLIST from official install script
   status_msg "Reading dependencies..."
   install_script="${HOME}/klipper/scripts/install-octopi.sh"
-  PKGLIST=$(grep "PKGLIST=" $install_script | sed 's/PKGLIST//g; s/[$={}\n"]//g')
-  ### rewrite packages into new array
-  unset PKGARR
-  for PKG in $PKGLIST; do PKGARR+=($PKG); done
+  #PKGLIST=$(grep "PKGLIST=" $install_script | sed 's/PKGLIST//g; s/[$={}\n"]//g')
+  PKGLIST=$(grep "PKGLIST=" "$install_script" | sed 's/PKGLIST//g; s/[$"{}=]//g; s/\s\s*/ /g' | tr -d '\n')
   ### add dbus requirement for DietPi distro
-  if [ -e "/boot/dietpi" ]; then
-    PKGARR+=("dbus")
-  fi
+  [ -e "/boot/dietpi/.version" ] && PKGLIST+=" dbus"
 
-  ### display dependencies to user
-  echo "${cyan}${PKGARR[@]}${default}"
+  for pkg in $PKGLIST; do
+    echo "${cyan}$pkg${default}"
+  done
+  read -r -a PKGLIST <<< "$PKGLIST"
 
   ### Update system package info
   status_msg "Running apt-get update..."
@@ -71,23 +79,28 @@ install_klipper_packages(){
 
   ### Install desired packages
   status_msg "Installing packages..."
-  sudo apt-get install --yes ${PKGARR[@]}
+  sudo apt-get install --yes "${PKGLIST[@]}"
 }
 
 create_klipper_virtualenv(){
   status_msg "Installing python virtual environment..."
   # Create virtualenv if it doesn't already exist
-  [ ! -d ${KLIPPY_ENV} ] && virtualenv -p python2 ${KLIPPY_ENV}
+  [ ! -d "${KLIPPY_ENV}" ] && virtualenv -p python2 "${KLIPPY_ENV}"
   # Install/update dependencies
-  ${KLIPPY_ENV}/bin/pip install -r ${KLIPPER_DIR}/scripts/klippy-requirements.txt
+  "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
 }
 
 klipper_setup(){
+  INSTANCE_COUNT=$1
+  ### checking dependencies
+  dep=(git)
+  dependency_check
+
   ### step 1: clone klipper
   status_msg "Downloading Klipper ..."
   ### force remove existing klipper dir and clone into fresh klipper dir
-  [ -d $KLIPPER_DIR ] && rm -rf $KLIPPER_DIR
-  cd ${HOME} && git clone $KLIPPER_REPO
+  [ -d "$KLIPPER_DIR" ] && rm -rf "$KLIPPER_DIR"
+  cd "${HOME}" && git clone "$KLIPPER_REPO"
   status_msg "Download complete!"
 
   ### step 2: install klipper dependencies and create python virtualenv
@@ -96,16 +109,18 @@ klipper_setup(){
   create_klipper_virtualenv
 
   ### step 3: create shared gcode_files and logs folder
-  [ ! -d ${HOME}/gcode_files ] && mkdir -p ${HOME}/gcode_files
-  [ ! -d ${HOME}/klipper_logs ] && mkdir -p ${HOME}/klipper_logs
+  [ ! -d "${HOME}"/gcode_files ] && mkdir -p "${HOME}"/gcode_files
+  [ ! -d "${HOME}"/klipper_logs ] && mkdir -p "${HOME}"/klipper_logs
 
   ### step 4: create klipper instances
   create_klipper_service
 
   ### confirm message
-  CONFIRM_MSG="$INSTANCE_COUNT Klipper instances have been set up!"
-  [ $INSTANCE_COUNT -eq 1 ] && CONFIRM_MSG="Klipper has been set up!"
-  print_msg && clear_msg
+  if [[ $INSTANCE_COUNT -eq 1 ]]; then
+    CONFIRM_MSG="Klipper has been set up!"
+  elif [[ $INSTANCE_COUNT -gt 1 ]]; then
+    CONFIRM_MSG="$INSTANCE_COUNT Klipper instances have been set up!"
+  fi && print_msg && clear_msg
 }
 
 create_klipper_service(){
@@ -126,13 +141,13 @@ create_klipper_service(){
   KL_SERV_TARGET="$SYSTEMDDIR/klipper.service"
 
   write_kl_service(){
-    [ ! -d $CFG_PATH ] && mkdir -p $CFG_PATH
+    [ ! -d "$CFG_PATH" ] && mkdir -p "$CFG_PATH"
     ### create a minimal config if there is no printer.cfg
-    [ ! -f $P_CFG ] && cp $P_CFG_SRC $P_CFG
+    [ ! -f "$P_CFG" ] && cp "$P_CFG_SRC" "$P_CFG"
     ### replace placeholder
     if [ ! -f $KL_SERV_TARGET ]; then
       status_msg "Creating Klipper Service $i ..."
-        sudo cp $KL_SERV_SRC $KL_SERV_TARGET
+        sudo cp "$KL_SERV_SRC" $KL_SERV_TARGET
         sudo sed -i "s|%INST%|$i|" $KL_SERV_TARGET
         sudo sed -i "s|%USER%|${USER}|" $KL_SERV_TARGET
         sudo sed -i "s|%KL_ENV%|$KL_ENV|" $KL_SERV_TARGET
@@ -144,7 +159,7 @@ create_klipper_service(){
     fi
   }
 
-  if [ $SINGLE_INST -eq $INSTANCE_COUNT ]; then
+  if [[ $SINGLE_INST -eq $INSTANCE_COUNT ]]; then
     ### write single instance service
     write_kl_service
     ### enable instance
@@ -155,7 +170,7 @@ create_klipper_service(){
     sudo systemctl start klipper
   else
     i=1
-    while [ $i -le $INSTANCE_COUNT ]; do
+    while [[ $i -le $INSTANCE_COUNT ]]; do
       ### rewrite default variables for multi instance cases
       CFG_PATH="$klipper_cfg_loc/printer_$i"
       KL_SERV_TARGET="$SYSTEMDDIR/klipper-$i.service"
