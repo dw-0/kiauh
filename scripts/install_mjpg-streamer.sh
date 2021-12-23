@@ -15,26 +15,31 @@ install_mjpg-streamer(){
   ### if there is a webcamd.service -> exit
   if [ -f $MJPG_SERV_TARGET ]; then
     ERROR_MSG="Looks like MJPG-streamer is already installed!\n Please remove it first before you try to re-install it!"
-    print_msg && clear_msg && return 0
+    print_msg && clear_msg && return
   fi
 
   ### check and install dependencies if missing
-  dep=(build-essential git imagemagick libv4l-dev libjpeg-dev libjpeg62-turbo-dev cmake)
+  dep=(git cmake build-essential imagemagick libv4l-dev ffmpeg)
+  if apt-cache search libjpeg62-turbo-dev | grep -Eq "^libjpeg62-turbo-dev "; then
+    dep+=(libjpeg62-turbo-dev)
+  elif apt-cache search libjpeg8-dev | grep -Eq "^libjpeg8-dev "; then
+    dep+=(libjpeg8-dev)
+  fi
   dependency_check
 
   ### step 1: clone moonraker
   status_msg "Downloading MJPG-Streamer ..."
-  cd ${HOME} && git clone https://github.com/jacksonliam/mjpg-streamer.git
+  cd "${HOME}" && git clone https://github.com/jacksonliam/mjpg-streamer.git
   ok_msg "Download complete!"
 
   ### step 2: compiling mjpg-streamer
   status_msg "Compiling MJPG-Streamer ..."
-  cd ${HOME}/mjpg-streamer/mjpg-streamer-experimental && make
+  cd "${HOME}"/mjpg-streamer/mjpg-streamer-experimental && make
   ok_msg "Compiling complete!"
 
   #step 3: install mjpg-streamer
   status_msg "Installing MJPG-Streamer ..."
-  cd ${HOME}/mjpg-streamer && mv mjpg-streamer-experimental/* .
+  cd "${HOME}"/mjpg-streamer && mv mjpg-streamer-experimental/* .
   mkdir www-mjpgstreamer
   cat <<EOT >> ./www-mjpgstreamer/index.html
 <html>
@@ -54,16 +59,16 @@ EOT
   sudo chmod +x /usr/local/bin/webcamd
 
   ### step 4: create webcam.txt config file
-  [ ! -d $klipper_cfg_loc ] && mkdir -p $klipper_cfg_loc
-  if [ ! -f $WEBCAM_TXT ]; then
+  [ ! -d "$klipper_cfg_loc" ] && mkdir -p "$klipper_cfg_loc"
+  if [ ! -f "$WEBCAM_TXT" ]; then
     status_msg "Creating webcam.txt config file ..."
-    wget $WEBCAM_TXT_SRC -O $WEBCAM_TXT
+    wget $WEBCAM_TXT_SRC -O "$WEBCAM_TXT"
     ok_msg "Done!"
   fi
 
   ### step 5: create systemd service
   status_msg "Creating MJPG-Streamer service ..."
-  sudo cp $MJPG_SERV_SRC $MJPG_SERV_TARGET
+  sudo cp "$MJPG_SERV_SRC" $MJPG_SERV_TARGET
   sudo sed -i "s|%USER%|${USER}|" $MJPG_SERV_TARGET
   ok_msg "MJPG-Streamer service created!"
 
@@ -74,7 +79,7 @@ EOT
   ok_msg "MJPG-Streamer service started!"
 
   ### step 6.1: create webcamd.log symlink
-  [ ! -d ${HOME}/klipper_logs ] && mkdir -p "${HOME}/klipper_logs"
+  [ ! -d "${HOME}/klipper_logs" ] && mkdir -p "${HOME}/klipper_logs"
   if [ -f "/var/log/webcamd.log" ] && [ ! -L "${HOME}/klipper_logs/webcamd.log" ]; then
     ln -s "/var/log/webcamd.log" "${HOME}/klipper_logs/webcamd.log"
   fi
