@@ -4,16 +4,18 @@ KLIPPY_ENV="${HOME}/klippy-env"
 KLIPPER_DIR="${HOME}/klipper"
 
 klipper_setup_dialog(){
-  status_msg "Initializing Klipper installation ..."
-
-  ### check for existing klipper service files
-  INITD=$(ls /etc/init.d | grep -E "^klipper(\-[[:digit:]]+)?$")
-  SYSTEMD=$(ls /etc/systemd/system | grep -E "^klipper(\-[[:digit:]]+)?\.service$")
-
-  if [ ! -z "$INITD" ] || [ ! -z "$SYSTEMD" ]; then
-    echo "${red}$INITD${default}" && echo "${red}$SYSTEMD${default}"
-    ERROR_MSG="At least one Klipper service is already installed!\n Please remove Klipper first, before installing it again." && return 0
+  ### check for existing moonraker service installations
+  INITD_SERVICE_FILES=$(find "/etc/init.d" -regextype posix-extended -regex "/etc/init.d/klipper(-[^0])?[0-9]*" -print)
+  SYSTEMD_SERVICE_FILES=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/klipper(-[^0])?[0-9]*.service" -print)
+  SERVICE_FILES="${INITD_SERVICE_FILES} ${SYSTEMD_SERVICE_FILES}"
+  if [ -n "$SERVICE_FILES" ]; then
+    ERROR_MSG="At least one Klipper service is already installed:"
+    for service in $SERVICE_FILES; do
+      ERROR_MSG="${ERROR_MSG}\n ➔ $service"
+    done && return
   fi
+
+  status_msg "Initializing Klipper installation ..."
 
   ### initial printer.cfg path check
   check_klipper_cfg_path
