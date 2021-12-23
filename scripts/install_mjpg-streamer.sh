@@ -4,8 +4,8 @@ WEBCAMD_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/s
 WEBCAM_TXT_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
 
 install_mjpg-streamer(){
-  ### checking dependencies
   check_klipper_cfg_path
+  source_kiauh_ini
 
   ### set default values
   MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
