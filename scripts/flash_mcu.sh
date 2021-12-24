@@ -229,7 +229,8 @@ build_fw(){
     status_msg "Building firmware ..."
     make && ok_msg "Firmware built!"
   else
-    warn_msg "Can not build firmware without a Klipper directory!"
+    ERROR_MSG="Klipper was not found!\n Can not build firmware without Klipper!"
+    print_msg && clear_msg && return 1
   fi
 }
 
