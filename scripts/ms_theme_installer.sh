@@ -32,12 +32,9 @@ ms_theme_ui(){
   echo -e "|  Installing a theme from this menu will overwrite an  | "
   echo -e "|  already installed theme or modified custom.css file! | "
   hr
-  #echo -e "|  Theme:                                               | "
-  # dynamically generate the themelist from a csv file
-  get_theme_list
+  get_theme_list # dynamically generate the themelist from a csv file
   echo -e "|                                                       | "
   echo -e "|  R) [Remove Theme]                                    | "
-  #echo -e "|                                                       | "
   back_footer
 }
 
