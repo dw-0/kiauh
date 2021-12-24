@@ -282,3 +282,37 @@ retrieve_id(){
     done
   fi 2>/dev/null
 }
+
+check_usergroup_dialout(){
+  USER_IN_DIALOUT_GROUP=$(groups "${USER}" | grep "dialout")
+  if [ -z "$USER_IN_DIALOUT_GROUP" ]; then
+    top_border
+    echo -e "| ${yellow}WARNING: Your current user is not in group 'dialout'!${default} |"
+    blank_line
+    echo -e "| It is very likely that you won't be able to flash the |"
+    echo -e "| MCU without your user being a member of this group.   |"
+    blank_line
+    echo -e "| Answer 'Yes' if you want to add your current user to  |"
+    echo -e "| the group 'dialout' now. You need to relog or restart |"
+    echo -e "| to apply that change to take effect.                  |"
+    bottom_border
+    while true; do
+      read -p "${cyan}###### Add user '${USER}' to group 'dialout' now? (Y/n):${default} " yn
+      case "$yn" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Adding user ${USER} to group 'dialout' ..."
+          sudo usermod -a -G dialout "${USER}" && ok_msg "Done!"
+          ok_msg "You need to relog/restart for the group to be applied!" && exit 0;;
+        N|n|No|no)
+          echo -e "###### > No"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
+    done
+  else
+    ok_msg "User ${USER} already in group 'dialout'!"
+  fi
+}
