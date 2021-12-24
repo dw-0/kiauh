@@ -71,8 +71,8 @@ check_select_printer(){
 
   ### check if there is more than one moonraker instance and if yes
   ### ask the user to select the printer he wants to install/remove the theme
-  printer_count=$(ls /etc/systemd/system/moonraker*.service | wc -l)
-  if [ $printer_count -gt 1 ]; then
+  MR_SERVICE_COUNT=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/moonraker(-[^0])?[0-9]*.service" | wc -l)
+  if [[ $MR_SERVICE_COUNT -gt 1 ]]; then
     top_border
     echo -e "|  More than one printer was found on this system!      | "
     echo -e "|  Please select the printer to which you want to       | "
