@@ -285,8 +285,7 @@ retrieve_id(){
 }
 
 check_usergroup_dialout(){
-  USER_IN_DIALOUT_GROUP=$(groups "${USER}" | grep "dialout")
-  if [ -z "$USER_IN_DIALOUT_GROUP" ]; then
+  if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     top_border
     echo -e "| ${yellow}WARNING: Your current user is not in group 'dialout'!${default} |"
     blank_line
@@ -302,7 +301,7 @@ check_usergroup_dialout(){
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Adding user ${USER} to group 'dialout' ..."
+          status_msg "Adding user '${USER}' to group 'dialout' ..."
           sudo usermod -a -G dialout "${USER}" && ok_msg "Done!"
           ok_msg "You need to relog/restart for the group to be applied!" && exit 0;;
         N|n|No|no)
@@ -313,7 +312,5 @@ check_usergroup_dialout(){
           print_msg && clear_msg;;
       esac
     done
-  else
-    ok_msg "User ${USER} already in group 'dialout'!"
   fi
 }
