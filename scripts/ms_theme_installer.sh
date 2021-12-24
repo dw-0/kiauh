@@ -17,8 +17,8 @@ get_theme_list(){
     if [ ! "$col1" == "name" ]; then
       printf "|  $i) %-50s|\n" "[$col1]"
     fi
-    let i++
-  done <<< $theme_csv
+    i=$((i+1))
+  done <<< "$theme_csv"
 }
 
 ms_theme_ui(){
@@ -42,12 +42,12 @@ ms_theme_menu(){
   ms_theme_ui
   while true; do
     read -p "${cyan}Install theme:${default} " a; echo
-    if [ $a = "b" ] || [ $a = "B" ]; then
+    if [ "$a" = "b" ] || [ "$a" = "B" ]; then
       clear && advanced_menu && break
-    elif [ $a = "r" ] || [ $a = "R" ]; then
+    elif [ "$a" = "r" ] || [ "$a" = "R" ]; then
       ms_theme_delete
       ms_theme_menu
-    elif [ $a -le ${#t_url[@]} ]; then
+    elif [ "$a" -le ${#t_url[@]} ]; then
       ms_theme_install "${t_auth[$a]}" "${t_url[$a]}" "${t_name[$a]}" "${t_note[$a]}"
       ms_theme_menu
     else
@@ -82,7 +82,7 @@ check_select_printer(){
   fi
 
   ### create the cfg folder if there is none yet
-  [ ! -d $THEME_PATH ] && mkdir -p $THEME_PATH
+  [ ! -d "$THEME_PATH" ] && mkdir -p "$THEME_PATH"
 }
 
 ms_theme_install(){
@@ -96,18 +96,15 @@ ms_theme_install(){
   status_msg "Please wait ..."
 
   [ -d "$THEME_PATH/.theme" ] && rm -rf "$THEME_PATH/.theme"
-  cd $THEME_PATH && git clone "$THEME_URL" ".theme"
+  cd "$THEME_PATH" && git clone "$THEME_URL" ".theme"
 
   ok_msg "Theme installation complete!"
-  [ ! -z "$4" ] && echo "${yellow}###### Theme Info: $4${default}"
+  [ -n "$4" ] && echo "${yellow}###### Theme Info: $4${default}"
   ok_msg "Please remember to delete your browser cache!\n"
 }
 
 ms_theme_delete(){
-  ### check and select printer if there is more than 1
   check_select_printer
-
-  ### remove .theme folder
   if [ -d "$THEME_PATH/.theme" ]; then
     status_msg "Removing Theme ..."
     rm -rf "$THEME_PATH/.theme" && ok_msg "Theme removed!\n"
