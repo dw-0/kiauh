@@ -286,24 +286,42 @@ retrieve_id(){
 
 check_usergroup_dialout(){
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
+    group_dialout=false
+  else
+    group_dialout=true
+  fi
+  if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
+    group_tty=false
+  else
+    group_tty=true
+  fi
+  if [ "$group_dialout" == "false" ] || [ "$group_tty" == "false" ] ; then
     top_border
-    echo -e "| ${yellow}WARNING: Your current user is not in group 'dialout'!${default} |"
+    echo -e "| ${yellow}WARNING: Your current user is not in group:${default}           |"
+    [ "$group_tty" == "false" ] && echo -e "| ${yellow}● tty${default}                                                 |"
+    [ "$group_dialout" == "false" ] && echo -e "| ${yellow}● dialout${default}                                             |"
     blank_line
-    echo -e "| It is very likely that you won't be able to flash the |"
-    echo -e "| MCU without your user being a member of this group.   |"
+    echo -e "| It is possible that you won't be able to successfully |"
+    echo -e "| flash without your user being a member of that group. |"
+    echo -e "| If you want to add the current user to the group(s)   |"
+    echo -e "| listed above, answer with 'Y'. Else skip with 'n'.    |"
     blank_line
-    echo -e "| Answer 'Yes' if you want to add your current user to  |"
-    echo -e "| the group 'dialout' now. You need to relog or restart |"
-    echo -e "| to apply that change to take effect.                  |"
+    echo -e "| ${yellow}INFO:${default}                                                 |"
+    echo -e "| ${yellow}Relog required for group assignments to take effect!${default}  |"
     bottom_border
     while true; do
-      read -p "${cyan}###### Add user '${USER}' to group 'dialout' now? (Y/n):${default} " yn
+      read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Adding user '${USER}' to group 'dialout' ..."
-          sudo usermod -a -G dialout "${USER}" && ok_msg "Done!"
-          ok_msg "You need to relog/restart for the group to be applied!" && exit 0;;
+          status_msg "Adding user '${USER}' to group(s) ..."
+          if [ "$group_tty" == "false" ]; then
+            sudo usermod -a -G tty "${USER}" && ok_msg "Group 'tty' assigned!"
+          fi
+          if [ "$group_dialout" == "false" ]; then
+            sudo usermod -a -G dialout "${USER}" && ok_msg "Group 'dialout' assigned!"
+          fi
+          ok_msg "You need to relog/restart for the group(s) to be applied!" && exit 0;;
         N|n|No|no)
           echo -e "###### > No"
           break;;
