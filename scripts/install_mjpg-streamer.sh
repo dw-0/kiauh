@@ -103,8 +103,23 @@ EOF
      ok_msg "Done!"
   fi
 
+  ### step 7: check if user is in group "video"
+  usergroup_changed=false
+  USER_IN_VIDEO_GROUP=$(groups "${USER}" | grep "video")
+  if [ -z "$USER_IN_VIDEO_GROUP" ]; then
+    warn_msg "Adding user ${USER} to group 'video' ..."
+    sudo usermod -a -G video "${USER}" && ok_msg "Done!"
+    usergroup_changed=true
+  else
+    ok_msg "User ${USER} already in group 'video'!"
+  fi
+
   ### confirm message
   CONFIRM_MSG="MJPG-Streamer has been set up!"
+  if [ "$usergroup_changed" == true ]; then
+    CONFIRM_MSG="${CONFIRM_MSG}\n${yellow}Your User was added to a new group!${green}"
+    CONFIRM_MSG="${CONFIRM_MSG}\n${yellow}You need to relog/restart for the group to be applied!${green}"
+  fi
   print_msg && clear_msg
 
   ### print webcam ip adress/url
