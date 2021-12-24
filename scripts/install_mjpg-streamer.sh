@@ -107,7 +107,7 @@ EOF
   usergroup_changed=false
   USER_IN_VIDEO_GROUP=$(groups "${USER}" | grep "video")
   if [ -z "$USER_IN_VIDEO_GROUP" ]; then
-    warn_msg "Adding user ${USER} to group 'video' ..."
+    status_msg "Adding user ${USER} to group 'video' ..."
     sudo usermod -a -G video "${USER}" && ok_msg "Done!"
     usergroup_changed=true
   else
