@@ -117,8 +117,8 @@ EOF
   ### confirm message
   CONFIRM_MSG="MJPG-Streamer has been set up!"
   if [ "$usergroup_changed" == true ]; then
-    CONFIRM_MSG="${CONFIRM_MSG}\n${yellow}Your User was added to a new group!${green}"
-    CONFIRM_MSG="${CONFIRM_MSG}\n${yellow}You need to relog/restart for the group to be applied!${green}"
+    CONFIRM_MSG="${CONFIRM_MSG}\n ${yellow}INFO: Your User was added to a new group!${green}"
+    CONFIRM_MSG="${CONFIRM_MSG}\n ${yellow}You need to relog/restart for the group to be applied!${green}"
   fi
   print_msg && clear_msg
 
