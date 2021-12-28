@@ -5,11 +5,11 @@
 install_interface_menu(){
 
 	local menu_options=(
-		"1" "Mainsail - lightweight & responsive web interface for Klipper"
-		"2" "Fluidd - a free and open-source Klipper web interface for managing your 3d printer"
-		"3" "KlipperScreen - a touchscreen GUI that interfaces with Klipper via Moonraker"
-		"4" "Duet Web Control - a fully-responsive HTML5-based web interface for RepRapFirmware"
-		"5" "OctoPrint - a snappy web interface for controlling consumer 3D printers."
+		"1" "Mainsail - lightweight & responsive web interface"
+		"2" "Fluidd - Klipper web interface"
+		"3" "KlipperScreen - a touchscreen GUI"
+		"4" "Duet Web Control - Duet web interface"
+		"5" "OctoPrint - a snappy web interface"
 	)
   local menu_str="Select an interface to install, you can install multiple interfaces."
 
