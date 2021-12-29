@@ -33,8 +33,7 @@ readonly MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
 readonly INI_FILE=${HOME}/.kiauh.ini
 readonly BACKUP_DIR=${HOME}/kiauh-backups
 readonly SYSTEMD_DIR=/etc/systemd/system
-
-### set github repos
+#set github repos
 readonly KLIPPER_REPO=https://github.com/Klipper3d/klipper.git
 readonly ARKSINE_REPO=https://github.com/Arksine/klipper.git
 readonly DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
@@ -44,12 +43,10 @@ readonly NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
 #branches
 readonly BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 readonly BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
-
-### Webcam
+#Webcam
 readonly WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
 readonly WEBCAM_TXT_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
-
-###Whiptail
+#Whiptail
 readonly KIAUH_WHIPTAIL_NORMAL_WIDTH=70
 readonly KIAUH_WHIPTAIL_NORMAL_HEIGHT=24
 readonly KIAUH_WHIPTAIL_SINGLE_LINE_HEIGHT=7
