@@ -1,12 +1,20 @@
 name: Bug report
 description: Create a report to help us improve
-labels: ["bug", "triage"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
         This issue form is for reporting bugs only!
         If you have a feature request, please use [feature_request](/new?template=feature_request.yml)
+  - type: textarea
+    id: distro
+    attributes:
+      label: Linux Distribution
+      description: >-
+        The linux distribution the issue occured on
+    validation:
+      required: true
   - type: textarea
     id: what-happened
     attributes:
