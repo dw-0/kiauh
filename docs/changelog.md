@@ -2,6 +2,17 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-12-30
+* Updated the doc for the usage of the [G-Code Shell Command Extension](docs/gcode_shell_command.md)
+* It became apparent, that some user groups are missing on some systems. A missing video group \
+membership for example caused issues when installing mjpg-streamer while not using the default pi user. \
+Other issues could occur when trying to flash an MCU on Debian or Ubuntu distributions where a user might not be part
+of the dialout group by default. A check for the tty group is also done. The tty group is needed for setting
+up a linux MCU (currently not yet supported by KIAUH).
+* There is an issue when trying to install Mainsail or Fluidd on Ubuntu 21.10. Permissions on that distro seem to have seen a rework 
+ in comparison to 20.04 and users will be greeted with an "Error 403 - Permission denied" message after installing one of Klippers webinterfaces.
+I still have to figure out a viable solution for that.
+
 ### 2021-09-28
 * New Feature! Added an installer for the Telegram Bot for Moonraker by [nlef](https://github.com/nlef).
 Checkout his project! Remember to report all issues and/or bugs regarding that project in its corresponding repo and not here 😛.\
