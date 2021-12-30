@@ -13,7 +13,7 @@ body:
       label: Linux Distribution
       description: >-
         The linux distribution the issue occured on
-    validation:
+    validations:
       required: true
   - type: textarea
     id: what-happened
