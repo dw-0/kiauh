@@ -1,44 +1,44 @@
-settings_ui(){
-  source_kiauh_ini
-  top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     | "
-  hr
-  echo -e "| ${red}Caution:${default}                                              | "
-  echo -e "| When you change the config folder, be aware that ALL  | "
-  echo -e "| Klipper and Moonraker services will be STOPPED,       | "
-  echo -e "| reconfigured and then restarted again.                | "
-  blank_line
-  echo -e "| ${red}DO NOT change the folder during printing!${default}             | "
-  hr
-  blank_line
-  echo -e "|  ${cyan}● Current Klipper config folder:${default}                     | "
-  printf "|%-55s|\n" "    $klipper_cfg_loc"
-  blank_line
-  hr
-  if [ -z $klipper_cfg_loc ]; then
-  echo -e "|  ${red}N/A) Install Klipper with KIAUH first to unlock!${default}     | "
-  else
-  echo -e "|  1) Change config folder                              | "
-  fi
-  back_footer
-}
-
+#!/bin/bash
 settings_menu(){
-  do_action "" "settings_ui"
-  while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
-    case "$action" in
-      1)
-        if [ ! -z $klipper_cfg_loc ]; then
-          do_action "change_klipper_cfg_path" "settings_ui"
-        else
-          deny_action "settings_ui"
-        fi;;
-      B|b)
-        clear; main_menu; break;;
-      *)
-        deny_action "settings_ui";;
-    esac
-  done
-  settings_ui
+  source_kiauh_ini
+  if [ -z $klipper_cfg_loc ]; then
+    local warn="Install Klipper with KIAUH first to unlock!"
+    local ok="Back"
+    local go_back="true"
+  else
+    local warn="When you change the config folder, be aware that ALL Klipper and Moonraker \
+services will be STOPPED, \
+reconfigured and then restarted again.
+
+DO NOT change the folder during printing!
+
+Current Klipper config folder:
+$klipper_cfg_loc"
+    local ok="I understand"
+    local go_back="false"
+  fi
+
+  whiptail --title "WARNING:" --ok-button "$ok" --msgbox "$warn" 12 $KIAUH_WHIPTAIL_NORMAL_WIDTH
+  if [ $go_back == "false" ]; then
+    while true; do
+      source_kiauh_ini
+      local menu=( "1" "Change config folder" )
+
+      menu=$(whiptail --title "Kiauh Settings" --cancel-button "Back" --ok-button "$ok" --notags --menu "$warn" \
+        20 "$KIAUH_WHIPTAIL_NORMAL_WIDTH" 6 "${menu[@]}" 3>&1 1>&2 2>&3)
+
+      local out=$?
+
+      if [ $out -eq 1 ]; then
+        break
+      elif [ $out -eq 0 ]; then
+        case "$menu" in
+          "1") do_action "change_klipper_cfg_path";;
+        esac
+      else
+          # Unexpected event, no clue what happened
+        exit 1
+      fi
+    done
+  fi
 }
