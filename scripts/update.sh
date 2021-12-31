@@ -1,3 +1,5 @@
+#!/bin/bash
+
 update_kiauh(){
   if [ "$KIAUH_UPDATE_AVAIL" = "true" ]; then
     status_msg "Updating KIAUH ..."
@@ -10,61 +12,8 @@ update_kiauh(){
 }
 
 update_all(){
-  while true; do
-    if [ "${#update_arr[@]}" = "0" ]; then
-      CONFIRM_MSG="Everything is already up to date!"
-      echo; break
-    fi
-    echo
-    top_border
-    echo -e "|  The following installations will be updated:         |"
-    if [ "$KLIPPER_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Klipper${default}                                            |"
-    fi
-    if [ "$DWC2FK_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● DWC2-for-Klipper-Socket${default}                            |"
-    fi
-    if [ "$DWC2_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Duet Web Control${default}                                   |"
-    fi
-    if [ "$MOONRAKER_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Moonraker${default}                                          |"
-    fi
-    if [ "$MAINSAIL_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Mainsail${default}                                           |"
-    fi
-    if [ "$FLUIDD_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Fluidd${default}                                             |"
-    fi
-    if [ "$KLIPPERSCREEN_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● KlipperScreen${default}                                      |"
-    fi
-    if [ "$PGC_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● PrettyGCode for Klipper${default}                            |"
-    fi
-    if [ "$MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● MoonrakerTelegramBot${default}                               |"
-    fi
-    if [ "$SYS_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● System${default}                                             |"
-    fi
-    bottom_border
-    if [ "${#update_arr[@]}" != "0" ]; then
-      read -p "${cyan}###### Do you want to proceed? (Y/n):${default} " yn
-      case "$yn" in
-        Y|y|Yes|yes|"")
-          for update in ${update_arr[@]}
-          do
-            $update
-          done
-          break;;
-        N|n|No|no)
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-      esac
-    fi
+  for update in ${update_arr[@]}; do
+    $update
   done
 }
 
