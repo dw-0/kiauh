@@ -1,3 +1,4 @@
+#!/bin/bash
 check_for_backup_dir(){
   if [ ! -d $BACKUP_DIR ]; then
     status_msg "Create KIAUH backup directory ..."
@@ -9,12 +10,12 @@ toggle_backups(){
   source_kiauh_ini
   if [ "$backup_before_update" = "true" ]; then
     sed -i '/backup_before_update=/s/true/false/' $INI_FILE
-    BB4U_STATUS="${green}[Enable]${default} backups before updating                  "
+    BB4U_STATUS="[Enable] backups before updating "
     CONFIRM_MSG=" Backups before updates are now >>> DISABLED <<< !"
   fi
   if [ "$backup_before_update" = "false" ]; then
     sed -i '/backup_before_update=/s/false/true/' $INI_FILE
-    BB4U_STATUS="${red}[Disable]${default} backups before updating                 "
+    BB4U_STATUS="[Disable]backups before updating"
     CONFIRM_MSG=" Backups before updates are now >>> ENABLED <<< !"
   fi
 }
@@ -29,9 +30,9 @@ bb4u(){
 read_bb4u_stat(){
   source_kiauh_ini
   if [ ! "$backup_before_update" = "true" ]; then
-    BB4U_STATUS="${green}[Enable]${default} backups before updating                  "
+    BB4U_STATUS="[Enable] backups before updating                  "
   else
-    BB4U_STATUS="${red}[Disable]${default} backups before updating                 "
+    BB4U_STATUS="[Disable] backups before updating                 "
   fi
 }
 
