@@ -40,7 +40,7 @@ octoprint_setup(){
 
   ### set up instances
   INSTANCE=1
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+  if [ $SERVICE_COUNT -eq $INSTANCE ]; then
     create_single_octoprint_instance
   else
     create_multi_octoprint_instance
@@ -71,7 +71,7 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 Type=simple
 User=$USER
-ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
+ExecStart=${OCTOPRINT_DIR}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
 
 [Install]
 WantedBy=multi-user.target
@@ -91,7 +91,7 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 Type=simple
 User=$USER
-ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
+ExecStart=${OCTOPRINT_DIR}/venv/bin/octoprint --basedir ${BASEDIR} --config ${CONFIG_YAML} --port=${PORT} serve
 
 [Install]
 WantedBy=multi-user.target
@@ -158,7 +158,7 @@ create_single_octoprint_instance(){
 }
 
 create_multi_octoprint_instance(){
-  status_msg "Setting up $INSTANCE_COUNT instances of OctoPrint ..."
+  status_msg "Setting up $SERVICE_COUNT instances of OctoPrint ..."
 
   ### declare empty array for ips which get displayed to the user at the end of the setup
   HOSTNAME=$(hostname -I | cut -d" " -f1)
@@ -167,7 +167,7 @@ create_multi_octoprint_instance(){
   ### default port
   PORT=5000
 
-  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+  while [ $INSTANCE -le $SERVICE_COUNT ]; do
     ### multi instance variables
     BASEDIR="${HOME}/.octoprint-$INSTANCE"
     TMP_PRINTER="/tmp/printer-$INSTANCE"
@@ -203,7 +203,7 @@ create_multi_octoprint_instance(){
   done
 
   ### confirm message
-  CONFIRM_MSG="$INSTANCE_COUNT OctoPrint instances have been set up!"
+  CONFIRM_MSG="$SERVICE_COUNT OctoPrint instances have been set up!"
   print_msg && clear_msg
 
   ### display all moonraker ips to the user

@@ -13,16 +13,13 @@ dwc_setup_dialog(){
   system_check_dwc
 
   ### check for existing klipper service installations
-  if [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ] && [ ! "$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service")" ]; then
+  count_klipper_services
+  if [ $SERVICE_COUNT -eq 0]; then
     ERROR_MSG="Klipper service not found, please install Klipper first!" && return 0
   fi
 
   ### count amount of klipper services
-  if [ "$(systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
-    INSTANCE_COUNT=1
-  else
-    INSTANCE_COUNT=$(systemctl list-units --full -all -t service --no-legend | grep -E "klipper-[[:digit:]].service" | wc -l)
-  fi
+  count_klipper_services
 
   ### initial config path check
   check_klipper_cfg_path
@@ -35,19 +32,19 @@ dwc_setup_dialog(){
   while true; do
       echo
       top_border
-      if [ $INSTANCE_COUNT -gt 1 ]; then
-        printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
+      if [ $SERVICE_COUNT -gt 1 ]; then
+        printf "|%-55s|\n" " $SERVICE_COUNT Klipper instances were found!"
       else
         echo -e "| 1 Klipper instance was found!                         | "
       fi
       echo -e "| You need one DWC instance per Klipper instance.       | "
       bottom_border
       echo
-      read -p "${cyan}###### Create $INSTANCE_COUNT DWC instances? (Y/n):${default} " yn
+      read -p "${cyan}###### Create $SERVICE_COUNT DWC instances? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Creating $INSTANCE_COUNT DWC instances ..."
+          status_msg "Creating $SERVICE_COUNT DWC instances ..."
           dwc_setup
           break;;
         N|n|No|no)
@@ -131,7 +128,7 @@ dwc_setup(){
 
   ### step 5: create dwc instances
   INSTANCE=1
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+  if [ $SERVICE_COUNT -eq $INSTANCE ]; then
     create_single_dwc_instance
   else
     #create_multi_dwc_instance
@@ -298,8 +295,8 @@ create_single_dwc_instance(){
 }
 
 create_multi_dwc_instance(){
-  status_msg "Setting up $INSTANCE_COUNT instances of Duet Web Control ..."
-  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+  status_msg "Setting up $SERVICE_COUNT instances of Duet Web Control ..."
+  while [ $INSTANCE -le $SERVICE_COUNT ]; do
     ### multi instance variables
     DWC_LOG=/tmp/dwc-$INSTANCE.log
     DWC_CFG="$DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg"
@@ -321,7 +318,7 @@ create_multi_dwc_instance(){
   done
 
   ### confirm message
-  CONFIRM_MSG="$INSTANCE_COUNT DWC instances has been set up!"
+  CONFIRM_MSG="$SERVICE_COUNT DWC instances has been set up!"
   print_msg && clear_msg
 
   ### display moonraker ip to the user
@@ -344,7 +341,7 @@ dwc_cfg_creation(){
   dwc_ip_list=()
 
   ### create single instance dwc2.cfg file
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+  if [ $SERVICE_COUNT -eq $INSTANCE ]; then
     ### set port
     PORT=$DEFAULT_PORT
 
@@ -362,7 +359,7 @@ dwc_cfg_creation(){
 
   ### create multi instance moonraker.conf files
   else
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+    while [ $INSTANCE -le $SERVICE_COUNT ]; do
       ### set each instance to its own port
       PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
 

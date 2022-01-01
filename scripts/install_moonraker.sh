@@ -41,11 +41,7 @@ moonraker_setup_dialog(){
   shopt -u extglob # disable extended globbing
 
   ### count amount of klipper services
-  if ls /etc/systemd/system/klipper.service 2>/dev/null; then
-    INSTANCE_COUNT=1
-  else
-    INSTANCE_COUNT=$(ls /etc/systemd/system | grep -E "klipper-[[:digit:]]+.service" | wc -l)
-  fi
+  count_klipper_services
 
   ### initial moonraker.conf path check
   check_klipper_cfg_path
@@ -107,8 +103,8 @@ moonraker_setup(){
   create_moonraker_service
 
   ### confirm message
-  CONFIRM_MSG="$INSTANCE_COUNT Moonraker instances have been set up!"
-  [ $INSTANCE_COUNT -eq 1 ] && CONFIRM_MSG="Moonraker has been set up!"
+  CONFIRM_MSG="$SERVICE_COUNT Moonraker instances have been set up!"
+  [ $SERVICE_COUNT -eq 1 ] && CONFIRM_MSG="Moonraker has been set up!"
   print_msg && clear_msg
 
   ### display moonraker ips to the user
@@ -138,9 +134,9 @@ create_moonraker_virtualenv(){
   status_msg "Installing python virtual environment..."
 
   ### If venv exists and user prompts a rebuild, then do so
-  if [ -d ${MOONRAKER_ENV} ] && [ $REBUILD_ENV = "y" ]; then
+  if [ -d "${MOONRAKER_ENV}" ] && [ $REBUILD_ENV = "y" ]; then
     status_msg "Removing old virtualenv"
-    rm -rf ${MOONRAKER_ENV}
+    rm -rf "${MOONRAKER_ENV}"
   fi
 
   if [ ! -d ${MOONRAKER_ENV} ]; then
@@ -179,7 +175,7 @@ create_moonraker_service(){
     fi
   }
 
-  if [ $SINGLE_INST -eq $INSTANCE_COUNT ]; then
+  if [ $SINGLE_INST -eq $SERVICE_COUNT ]; then
     ### write single instance service
     write_mr_service
     ### enable instance
@@ -189,7 +185,7 @@ create_moonraker_service(){
     do_action_service "start" "moonraker"
   else
     i=1
-    while [ $i -le $INSTANCE_COUNT ]; do
+    while [ $i -le $SERVICE_COUNT ]; do
       ### rewrite default variables for multi instance cases
       CFG_PATH="$klipper_cfg_loc/printer_$i"
       MR_SERV_TARGET="$SYSTEMD_DIR/moonraker-$i.service"
@@ -259,13 +255,13 @@ create_moonraker_conf(){
     fi
   }
 
-  if [ $SINGLE_INST -eq $INSTANCE_COUNT ]; then
+  if [ $SINGLE_INST -eq $SERVICE_COUNT ]; then
     ### write single instance config
     write_mr_conf
     mr_ip_list+=("$IP:$PORT")
   else
     i=1
-    while [ $i -le $INSTANCE_COUNT ]; do
+    while [ $i -le $SERVICE_COUNT ]; do
       ### rewrite default variables for multi instance cases
       CFG_PATH="$klipper_cfg_loc/printer_$i"
       MR_CONF="$CFG_PATH/moonraker.conf"

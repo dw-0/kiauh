@@ -1,12 +1,7 @@
-### base variables
-PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
-PGC_DIR="${HOME}/pgcode"
+#!/bin/bash
+
 
 install_pgc_for_klipper(){
-  pgconfsrc="$PGC_DIR/pgcode.local.conf"
-  pgconf="/etc/nginx/sites-available/pgcode.local.conf"
-  pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
-  pgc_default_port="7136"
 
   status_msg "Installing PrettyGCode for Klipper ..."
   ### let the user decide which port is used

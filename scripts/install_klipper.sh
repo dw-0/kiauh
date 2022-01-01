@@ -100,8 +100,9 @@ klipper_setup(){
   create_klipper_service
 
   ### confirm message
-  CONFIRM_MSG="$INSTANCE_COUNT Klipper instances have been set up!"
-  [ $INSTANCE_COUNT -eq 1 ] && CONFIRM_MSG="Klipper has been set up!"
+  count_klipper_services # this will actually represent the num of instances
+  CONFIRM_MSG="$SERVICE_COUNT Klipper instances have been set up!"
+  [ $SERVICE_COUNT -eq 1 ] && CONFIRM_MSG="Klipper has been set up!"
   print_msg && clear_msg
 }
 
