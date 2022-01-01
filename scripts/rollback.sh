@@ -1,3 +1,5 @@
+#!/bin/bash
+
 save_klipper_state(){
   source_kiauh_ini
   #read current klipper state
@@ -20,7 +22,7 @@ save_klipper_state(){
 
 load_klipper_state(){
   source_kiauh_ini
-  print_branch
+  get_branch
   cd $KLIPPER_DIR
   CURRENT_COMMIT=$(git rev-parse --short=8 HEAD)
   if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
