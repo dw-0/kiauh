@@ -1,9 +1,11 @@
 #!/bin/bash
 
 advanced_menu(){
+	while true; do
+	read_octoprint_service_status
 
 	local menu_options=(
-			"1" " "
+			"1" "Current OctoPrint Status: $OPRINT_SERVICE_STATUS"
 			"2" "Switch Klipper Branch"
 			"3" "Rollback Klipper"
 			"4" "Build Firmware"
@@ -15,11 +17,6 @@ advanced_menu(){
 			"10" "Run Shell Command"
 			"11" "CustomPiOS Migration Helper"
 			)
-
-  while true; do
-		read_octoprint_service_status
-		menu_options[2]="Current OctoPrint Status: $OPRINT_SERVICE_STATUS"
-
   	if [ ! "$OPRINT_SERVICE_STATUS" == "" ]; then
 			local menu
 			menu=$(whiptail --title "Advanced Menu" --cancel-button "Back" --notags --menu "Perform Action:"\
@@ -35,23 +32,21 @@ advanced_menu(){
 				break
 		elif [ $out -eq 0 ]; then
 			case "$menu" in
-			1) clear
-					print_header
-					toggle_octoprint_service
-					read_octoprint_service_status
-					print_msg && clear_msg;;
+			1) toggle_octoprint_service
+				read_octoprint_service_status
+				print_msg && clear_msg;;
 			2) do_action "switch_menu" ;;
-			3) do_action "load_klipper_state";;
+			3) do_action "rollback_menu";;
 			4) do_action "build_fw" ;;
 			5) do_action "select_flash_method" ;;
-			6) clear && print_header
-					status_msg "Please wait..."
-					build_fw
-					select_flash_method
-					print_msg && clear_msg;;
+			6) status_msg "Please wait..."
+				build_fw
+				select_flash_method
+				print_msg && clear_msg;;
 			7) do_action "select_mcu_connection" ;;
-			8) do_action "select_flash_method" ;;
-			9) do_action "ms_theme_menu";;
+			8) ms_theme_menu ;;
+			9) create_custom_hostname && set_hostname
+			print_msg && clear_msg;;
 			10) do_action "setup_gcode_shell_command" ;;
 			11) migration_menu;;
 			esac

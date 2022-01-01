@@ -38,7 +38,7 @@ load_klipper_state(){
   fi
   if [ "$PREVIOUS_COMMIT" = "0" ]; then
     CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
-    PREV_UI=$(echo -e "${red}None${default}                    ")
+    PREV_UI=$(echo -e "${red}$NONE${default}                    ")
   else
     if [ "$CURRENT_COMMIT" = "$PREVIOUS_COMMIT" ]; then
       CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
@@ -48,66 +48,5 @@ load_klipper_state(){
       PREV_UI=$(echo -e "${yellow}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${default}")
     fi
   fi
-  rollback_ui
-  rollback_klipper
-}
 
-rollback_ui(){
-  top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     | "
-  hr
-  echo -e "|  If serious errors occured after updating Klipper,    | "
-  echo -e "|  you can use this menu to return to the previously    | "
-  echo -e "|  used commit from which you have updated.             | "
-  bottom_border
-  top_border
-  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                      | "
-  hr
-  echo -e "|  Currently on commit:                                 | "
-  echo -e "|  $CURR_UI                             | "
-  hr
-  echo -e "|  Commit last updated from:                            | "
-  echo -e "|  $PREV_UI                             | "
-  back_footer
-}
-
-rollback_klipper(){
-  if [ "$PREVIOUS_COMMIT" != "0" ] && [ "$CURRENT_COMMIT" != "$PREVIOUS_COMMIT" ]; then
-    while true; do
-        echo -e "${cyan}"
-        read -p "###### Do you want to rollback to $PREVIOUS_COMMIT? (Y/n): " yn
-        echo -e "${default}"
-        case "$yn" in
-          Y|y|Yes|yes|"")
-            clear
-            print_header
-              status_msg "Rolling back to $PREVIOUS_COMMIT ..."
-              git reset --hard $PREVIOUS_COMMIT -q
-              ok_msg "Rollback complete!"; echo
-            load_klipper_state
-            break;;
-          N|n|No|no) clear; advanced_menu; break;;
-          B|b) clear; advanced_menu; break;;
-          *)
-            print_unkown_cmd
-            print_msg && clear_msg;;
-      esac
-    done
-  else
-    while true; do
-      echo -e "${cyan}"
-      read -p "Perform action: " action; echo
-      echo -e "${default}"
-      case "$action" in
-        B|b)
-          clear; advanced_menu; break;;
-        *)
-          clear
-          print_header
-          print_unkown_cmd
-          print_msg && clear_msg
-          rollback_ui;;
-      esac
-    done
-  fi
 }
