@@ -1,6 +1,4 @@
-### base variables
-KLIPPY_ENV="${HOME}/klippy-env"
-KLIPPER_DIR="${HOME}/klipper"
+#!/bin/bash
 
 klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."
@@ -18,19 +16,19 @@ klipper_setup_dialog(){
   check_klipper_cfg_path
 
   ### ask for amount of instances to create
-  INSTANCE_COUNT=""
-  while [[ ! ($INSTANCE_COUNT =~ ^[1-9]+((0)+)?$) ]]; do
+  local instances_to_create=""
+  while [[ ! ($instances_to_create =~ ^[1-9]+((0)+)?$) ]]; do
     echo
-    read -p "${cyan}###### Number of Klipper instances to set up:${default} " INSTANCE_COUNT
-    if [[ ! ($INSTANCE_COUNT =~ ^[1-9]+((0)+)?$) ]]; then
+    read -p "${cyan}###### Number of Klipper instances to set up:${default} " instances_to_create
+    if [[ ! ($instances_to_create =~ ^[1-9]+((0)+)?$) ]]; then
       warn_msg "Invalid Input!" && echo
     else
       echo
-      read -p "${cyan}###### Install $INSTANCE_COUNT instance(s)? (Y/n):${default} " yn
+      read -p "${cyan}###### Install $instances_to_create instance(s)? (Y/n):${default} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Installing $INSTANCE_COUNT Klipper instance(s) ..."
+          status_msg "Installing $instances_to_create Klipper instance(s) ..."
           klipper_setup
           break;;
         N|n|No|no)
