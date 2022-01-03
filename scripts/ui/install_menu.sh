@@ -33,7 +33,7 @@ install_menu() {
         "${READABLE_NAMES["$FLUIDD"]}") do_action "install_webui fluidd" ;;
         "${READABLE_NAMES["$KLIPPERSCREEN"]}") do_action "install_klipperscreen" ;;
         "${READABLE_NAMES["$DWC"]}") do_action "dwc_setup_dialog" ;;
-        "${READABLE_NAMES["$OCTOPRINT"]}") do_action "octoprint_setup_dialog" ;;
+        "${READABLE_NAMES["$OCTOPRINT"]}") do_action "octoprint_setup_yesno" ;;
 				"${READABLE_NAMES["$PGC"]}") do_action "install_pgc_for_klipper";;
       	"${READABLE_NAMES["$MOONRAKER_TELEGRAM_BOT"]}") do_action "install_MoonrakerTelegramBot";;
       	"${READABLE_NAMES["$MJPG_STREAMER"]}") do_action "install_mjpg-streamer";;
