@@ -23,6 +23,11 @@ system_check_webui(){
   if [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]]; then
     LIGHTTPD_FOUND="true"
   fi
+
+  ### check system for an installed apache2 service
+  if [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]]; then
+    APACHE2_FOUND="true"
+  fi
 }
 
 get_user_selection_mjpg-streamer(){
@@ -93,11 +98,11 @@ install_webui(){
   dependency_check
   ### check if moonraker is already installed
   system_check_webui
-  ### ask user how to handle OctoPrint, Haproxy and Lighttpd if found
+  ### ask user how to handle OctoPrint, Haproxy, Lighttpd, Apache2 if found
   process_octoprint_dialog
-  process_haproxy_lighttpd_dialog
+  process_services_dialog
   ### process possible disruptive services
-  process_haproxy_lighttpd_services
+  process_disruptive_services
 
   [ $1 == "mainsail" ] && IF_NAME1="Mainsail" && IF_NAME2="Mainsail     "
   [ $1 == "fluidd" ] && IF_NAME1="Fluidd" && IF_NAME2="Fluidd       "
@@ -483,7 +488,7 @@ process_octoprint_dialog(){
   fi
 }
 
-process_haproxy_lighttpd_services(){
+process_disruptive_services(){
   #handle haproxy service
   if [ "$DISABLE_HAPROXY" = "true" ] || [ "$REMOVE_HAPROXY" = "true" ]; then
     if systemctl is-active haproxy -q; then
@@ -523,11 +528,31 @@ process_haproxy_lighttpd_services(){
       fi
     fi
   fi
+
+  ### handle apache2 service
+  if [ "$DISABLE_APACHE2" = "true" ] || [ "$REMOVE_APACHE2" = "true" ]; then
+    if systemctl is-active apache2 -q; then
+      status_msg "Stopping apache2 service ..."
+      sudo systemctl stop apache2 && ok_msg "Service stopped!"
+    fi
+
+    ### disable lighttpd
+    if [ "$DISABLE_APACHE2" = "true" ]; then
+      status_msg "Disabling lighttpd ..."
+      sudo systemctl disable apache2 && ok_msg "Apache2 service disabled!"
+
+      ### remove lighttpd
+      if [ "$REMOVE_APACHE2" = "true" ]; then
+        status_msg "Removing apache2 ..."
+        sudo apt-get remove apache2 -y && sudo update-rc.d -f apache2 remove && ok_msg "Apache2 removed!"
+      fi
+    fi
+  fi
 }
 
-process_haproxy_lighttpd_dialog(){
+process_services_dialog(){
   #notify user about haproxy or lighttpd services found and possible issues
-  if [ "$HAPROXY_FOUND" = "true" ] || [ "$LIGHTTPD_FOUND" = "true" ]; then
+  if [ "$HAPROXY_FOUND" = "true" ] || [ "$LIGHTTPD_FOUND" = "true" ] || [ "$APACHE2_FOUND" = "true" ]; then
     while true; do
       echo
       top_border
@@ -538,6 +563,9 @@ process_haproxy_lighttpd_dialog(){
       fi
       if [ "$LIGHTTPD_FOUND" = "true" ]; then
         echo -e "| ● lighttpd                                            |"
+      fi
+      if [ "$APACHE2_FOUND" = "true" ]; then
+        echo -e "| ● apache2                                             |"
       fi
       hr
       echo -e "| Having those packages installed can lead to unwanted  |"
@@ -551,25 +579,15 @@ process_haproxy_lighttpd_dialog(){
       case "$action" in
         1)
           echo -e "###### > Remove packages"
-          if [ "$HAPROXY_FOUND" = "true" ]; then
-            DISABLE_HAPROXY="true"
-            REMOVE_HAPROXY="true"
-          fi
-          if [ "$LIGHTTPD_FOUND" = "true" ]; then
-            DISABLE_LIGHTTPD="true"
-            REMOVE_LIGHTTPD="true"
-          fi
+          REMOVE_HAPROXY="true"
+          REMOVE_LIGHTTPD="true"
+          REMOVE_APACHE2="true"
           break;;
         2)
           echo -e "###### > Disable only"
-          if [ "$HAPROXY_FOUND" = "true" ]; then
-            DISABLE_HAPROXY="true"
-            REMOVE_HAPROXY="false"
-          fi
-          if [ "$LIGHTTPD_FOUND" = "true" ]; then
-            DISABLE_LIGHTTPD="true"
-            REMOVE_LIGHTTPD="false"
-          fi
+          DISABLE_HAPROXY="true"
+          DISABLE_LIGHTTPD="true"
+          DISABLE_APACHE2="true"
           break;;
         3)
           echo -e "###### > Skip"

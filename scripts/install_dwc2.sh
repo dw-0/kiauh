@@ -33,7 +33,7 @@ dwc_setup_dialog(){
 
   ### ask user how to handle OctoPrint, Haproxy and Lighttpd
   process_octoprint_dialog_dwc2
-  process_haproxy_lighttpd_dialog
+  process_services_dialog
 
   ### instance confirmation dialog
   while true; do
