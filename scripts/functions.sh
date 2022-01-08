@@ -387,49 +387,6 @@ EOF
   fi
 }
 
-read_printer_cfg(){
-  KIAUH_CFG="$(dirname $PRINTER_CFG)/kiauh.cfg"
-  [ ! -f $KIAUH_CFG ] && KIAUH_CFG_FOUND="false" || KIAUH_CFG_FOUND="true"
-  if [ -f $PRINTER_CFG ]; then
-    if [ "$1" = "moonraker" ]; then
-      [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false" && EDIT_CFG="true"
-      [ ! "$(grep '^\[pause_resume\]$' $PRINTER_CFG)" ] && PAUSE_RESUME="false" && EDIT_CFG="true"
-      [ ! "$(grep '^\[display_status\]$' $PRINTER_CFG)" ] && DISPLAY_STATUS="false" && EDIT_CFG="true"
-    elif [ "$1" = "mainsail" ] || [ "$1" = "fluidd" ]; then
-      [ ! "$(grep '^\[include webui_macros\.cfg\]$' $PRINTER_CFG)" ] && WEBUI_MACROS="false" && EDIT_CFG="true"
-    elif [ "$1" = "dwc2" ]; then
-      [ ! "$(grep '^\[virtual_sdcard\]$' $PRINTER_CFG)" ] && VSD="false" && EDIT_CFG="true"
-    fi
-  fi
-}
-
-write_printer_cfg(){
-  #backup printer.cfg if edits will be written
-  [ "$EDIT_CFG" = "true" ] && backup_printer_cfg
-  #create kiauh.cfg if its needed and doesn't exist
-  if [ "$KIAUH_CFG_FOUND" = "false" ] && [ "$EDIT_CFG" = "true" ]; then
-    status_msg "Creating kiauh.cfg ..."
-    echo -e "##### AUTOCREATED BY KIAUH #####" > $KIAUH_CFG
-  fi
-  #write each entry to kiauh.cfg if it doesn't exist
-  #Moonraker/DWC2 related config options
-  if [ "$VSD" = "false" ] && [[ ! $(grep '^\[virtual_sdcard\]$' $KIAUH_CFG) ]]; then
-    echo -e "\n[virtual_sdcard]\npath: ~/sdcard" >> $KIAUH_CFG
-  fi
-  if [ "$PAUSE_RESUME" = "false" ] && [[ ! $(grep '^\[pause_resume]$' $KIAUH_CFG) ]]; then
-    echo -e "\n[pause_resume]" >> $KIAUH_CFG
-  fi
-  if [ "$DISPLAY_STATUS" = "false" ] && [[ ! $(grep '^\[display_status]$' $KIAUH_CFG) ]]; then
-    echo -e "\n[display_status]" >> $KIAUH_CFG
-  fi
-  #including the kiauh.cfg into printer.cfg if not already done
-  if [ ! "$(grep '^\[include kiauh\.cfg\]$' $PRINTER_CFG)" ] && [ "$EDIT_CFG" = "true" ]; then
-    status_msg "Writing [include kiauh.cfg] to printer.cfg ..."
-    sed -i '1 i ##### AUTOCREATED BY KIAUH #####\n[include kiauh.cfg]' $PRINTER_CFG
-  fi
-  ok_msg "Done!"
-}
-
 init_ini(){
   ### copy an existing kiauh.ini to its new location to keep all possible saved values
   if [ -f ${SRCDIR}/kiauh/kiauh.ini ] && [ ! -f $INI_FILE ]; then
