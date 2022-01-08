@@ -104,8 +104,8 @@ install_webui(){
   ### process possible disruptive services
   process_disruptive_services
 
-  [ $1 == "mainsail" ] && IF_NAME1="Mainsail" && IF_NAME2="Mainsail     "
-  [ $1 == "fluidd" ] && IF_NAME1="Fluidd" && IF_NAME2="Fluidd       "
+  [ "$1" == "mainsail" ] && IF_NAME1="Mainsail" && IF_NAME2="Mainsail     "
+  [ "$1" == "fluidd" ] && IF_NAME1="Fluidd" && IF_NAME2="Fluidd       "
 
   ### exit mainsail/fluidd setup if moonraker not found
   if [ $moonraker_chk_ok = "false" ]; then
@@ -127,7 +127,7 @@ install_webui(){
   fi
 
   ### ask user to install the recommended webinterface macros
-  if ! ls $klipper_cfg_loc/kiauh_macros.cfg 2>/dev/null 1>&2 || ! ls $klipper_cfg_loc/printer_*/kiauh_macros.cfg 2>/dev/null 1>&2; then
+  if ! ls "$klipper_cfg_loc"/kiauh_macros.cfg 2>/dev/null 1>&2 || ! ls "$klipper_cfg_loc"/printer_*/kiauh_macros.cfg 2>/dev/null 1>&2; then
     get_user_selection_kiauh_macros "$IF_NAME2"
   fi
   ### create /etc/nginx/conf.d/upstreams.conf
@@ -161,12 +161,12 @@ symlink_webui_nginx_log(){
   [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
   if [ -f "$UI_ACCESS_LOG" ] &&  [ ! -L "$LPATH/$1-access.log" ]; then
     status_msg "Creating symlink for $UI_ACCESS_LOG ..."
-    ln -s $UI_ACCESS_LOG "$LPATH"
+    ln -s "$UI_ACCESS_LOG" "$LPATH"
     ok_msg "OK!"
   fi
   if [ -f "$UI_ERROR_LOG" ] &&  [ ! -L "$LPATH/$1-error.log" ]; then
     status_msg "Creating symlink for $UI_ERROR_LOG ..."
-    ln -s $UI_ERROR_LOG "$LPATH"
+    ln -s "$UI_ERROR_LOG" "$LPATH"
     ok_msg "OK!"
   fi
 }
@@ -178,25 +178,25 @@ install_kiauh_macros(){
     ### create a backup of the config folder
     backup_klipper_config_dir
     ### handle multi printer.cfg
-    if ls $klipper_cfg_loc/printer_* 2>/dev/null 1>&2; then
+    if ls "$klipper_cfg_loc"/printer_* 2>/dev/null 1>&2; then
       for config in $(find $klipper_cfg_loc/printer_*/printer.cfg); do
-        path=$(echo $config | rev | cut -d"/" -f2- | rev)
-        if [ ! -f $path/kiauh_macros.cfg ]; then
+        path=$(echo "$config" | rev | cut -d"/" -f2- | rev)
+        if [ ! -f "$path/kiauh_macros.cfg" ]; then
           ### copy kiauh_macros.cfg to config location
           status_msg "Creating macro config file ..."
-          cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $path
+          cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "$path"
           ### write the include to the very first line of the printer.cfg
-          sed -i "1 i [include kiauh_macros.cfg]" $path/printer.cfg
+          sed -i "1 i [include kiauh_macros.cfg]" "$path/printer.cfg"
           ok_msg "$path/kiauh_macros.cfg created!"
         fi
       done
     ### handle single printer.cfg
-    elif [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/kiauh_macros.cfg ]; then
+    elif [ -f "$klipper_cfg_loc/printer.cfg" ] && [ ! -f "$klipper_cfg_loc/kiauh_macros.cfg" ]; then
       ### copy kiauh_macros.cfg to config location
       status_msg "Creating macro config file ..."
-      cp ${SRCDIR}/kiauh/resources/kiauh_macros.cfg $klipper_cfg_loc
+      cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "$klipper_cfg_loc"
       ### write the include to the very first line of the printer.cfg
-      sed -i "1 i [include kiauh_macros.cfg]" $klipper_cfg_loc/printer.cfg
+      sed -i "1 i [include kiauh_macros.cfg]" "$klipper_cfg_loc/printer.cfg"
       ok_msg "$klipper_cfg_loc/kiauh_macros.cfg created!"
     fi
     ### restart klipper service to parse the modified printer.cfg
@@ -216,7 +216,7 @@ mainsail_port_check(){
         select_mainsail_port
       fi
     else
-      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      DEFAULT_PORT=$(grep listen "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
       SET_LISTEN_PORT=$DEFAULT_PORT
     fi
     SET_NGINX_CFG="true"
@@ -237,7 +237,7 @@ fluidd_port_check(){
         select_fluidd_port
       fi
     else
-      DEFAULT_PORT=$(grep listen ${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      DEFAULT_PORT=$(grep listen "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
       SET_LISTEN_PORT=$DEFAULT_PORT
     fi
     SET_NGINX_CFG="true"
@@ -323,10 +323,10 @@ mainsail_setup(){
   MAINSAIL_DL_URL=$(curl -s $MAINSAIL_REPO_API | grep browser_download_url | cut -d'"' -f4 | head -1)
 
   ### remove existing and create fresh mainsail folder, then download mainsail
-  [ -d $MAINSAIL_DIR ] && rm -rf $MAINSAIL_DIR
-  mkdir $MAINSAIL_DIR && cd $MAINSAIL_DIR
+  [ -d "$MAINSAIL_DIR" ] && rm -rf "$MAINSAIL_DIR"
+  mkdir "$MAINSAIL_DIR" && cd $MAINSAIL_DIR
   status_msg "Downloading Mainsail $MAINSAIL_VERSION ..."
-  wget $MAINSAIL_DL_URL && ok_msg "Download complete!"
+  wget "$MAINSAIL_DL_URL" && ok_msg "Download complete!"
 
   ### extract archive
   status_msg "Extracting archive ..."
@@ -343,8 +343,8 @@ mainsail_setup(){
 }
 
 enable_mainsail_remotemode(){
-  rm -f $MAINSAIL_DIR/config.json
-  echo -e "{\n    \"remoteMode\":true\n}" >> $MAINSAIL_DIR/config.json
+  rm -f "$MAINSAIL_DIR/config.json"
+  echo -e "{\n    \"remoteMode\":true\n}" >> "$MAINSAIL_DIR/config.json"
 }
 
 fluidd_setup(){
@@ -352,10 +352,10 @@ fluidd_setup(){
   FLUIDD_DL_URL=$(curl -s $FLUIDD_REPO_API | grep browser_download_url | cut -d'"' -f4 | head -1)
 
   ### remove existing and create fresh fluidd folder, then download fluidd
-  [ -d $FLUIDD_DIR ] && rm -rf $FLUIDD_DIR
-  mkdir $FLUIDD_DIR && cd $FLUIDD_DIR
+  [ -d "$FLUIDD_DIR" ] && rm -rf "$FLUIDD_DIR"
+  mkdir "$FLUIDD_DIR" && cd $FLUIDD_DIR
   status_msg "Downloading Fluidd $FLUIDD_VERSION ..."
-  wget $FLUIDD_DL_URL && ok_msg "Download complete!"
+  wget "$FLUIDD_DL_URL" && ok_msg "Download complete!"
 
   ### extract archive
   status_msg "Extracting archive ..."
@@ -374,7 +374,7 @@ set_upstream_nginx_cfg(){
   [ -f "$NGINX_CONFD/common_vars.conf" ] && sudo mv "$NGINX_CONFD/common_vars.conf" "$BACKUP_DIR/nginx_cfg/${current_date}_common_vars.conf"
   ### transfer ownership of backed up files from root to ${USER}
   for log in $(ls "$BACKUP_DIR/nginx_cfg"); do
-    sudo chown ${USER} "$BACKUP_DIR/nginx_cfg/$log"
+    sudo chown "${USER}" "$BACKUP_DIR/nginx_cfg/$log"
   done
   ### copy nginx configs to target destination
   if [ ! -f "$NGINX_CONFD/upstreams.conf" ]; then
@@ -391,15 +391,15 @@ fetch_webui_ports(){
   WEBIFS=(mainsail fluidd octoprint dwc2)
   for interface in "${WEBIFS[@]}"; do
     if [ -f "/etc/nginx/sites-available/${interface}" ]; then
-      port=$(grep -E "listen" /etc/nginx/sites-available/$interface | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)
-      if [ ! -n "$(grep -E "${interface}_port" $INI_FILE)" ]; then
-        sed -i '$a'"${interface}_port=${port}" $INI_FILE
+      port=$(grep -E "listen" "/etc/nginx/sites-available/$interface" | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)
+      if [ ! -n "$(grep -E "${interface}_port" "$INI_FILE")" ]; then
+        sed -i '$a'"${interface}_port=${port}" "$INI_FILE"
       else
-        sed -i "/^${interface}_port/d" $INI_FILE
-        sed -i '$a'"${interface}_port=${port}" $INI_FILE
+        sed -i "/^${interface}_port/d" "$INI_FILE"
+        sed -i '$a'"${interface}_port=${port}" "$INI_FILE"
       fi
     else
-        sed -i "/^${interface}_port/d" $INI_FILE
+        sed -i "/^${interface}_port/d" "$INI_FILE"
     fi
   done
 }

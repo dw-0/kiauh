@@ -39,7 +39,7 @@ dwc_setup_dialog(){
   while true; do
       echo
       top_border
-      if [ $INSTANCE_COUNT -gt 1 ]; then
+      if [ "$INSTANCE_COUNT" -gt 1 ]; then
         printf "|%-55s|\n" " $INSTANCE_COUNT Klipper instances were found!"
       else
         echo -e "| 1 Klipper instance was found!                         | "
@@ -118,7 +118,7 @@ dwc_setup(){
 
   ### step 1: get dwc2-for-klipper
   status_msg "Downloading DWC2-for-Klipper-Socket ..."
-  cd ${HOME} && git clone $DWC2FK_REPO
+  cd "${HOME}" && git clone "$DWC2FK_REPO"
   ok_msg "Download complete!"
 
   ### step 2: install dwc2 dependencies and create python virtualenv
@@ -127,7 +127,7 @@ dwc_setup(){
   create_dwc_virtualenv
 
   ### step 3: create dwc2.cfg folder and dwc2.cfg
-  [ ! -d $DWC_CONF_LOC ] && mkdir -p $DWC_CONF_LOC
+  [ ! -d "$DWC_CONF_LOC" ] && mkdir -p "$DWC_CONF_LOC"
   dwc_cfg_creation
 
   ### step 4: download Duet Web Control
@@ -135,7 +135,7 @@ dwc_setup(){
 
   ### step 5: create dwc instances
   INSTANCE=1
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+  if [ "$INSTANCE_COUNT" -eq $INSTANCE ]; then
     create_single_dwc_instance
   else
     #create_multi_dwc_instance
@@ -147,18 +147,18 @@ download_dwc_webui(){
   #get Duet Web Control
   GET_DWC2_URL=$(curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d'"' -f4)
   status_msg "Downloading DWC2 Web UI ..."
-  [ ! -d $DWC2_DIR ] && mkdir -p $DWC2_DIR
-  cd $DWC2_DIR && wget $GET_DWC2_URL
+  [ ! -d "$DWC2_DIR" ] && mkdir -p "$DWC2_DIR"
+  cd "$DWC2_DIR" && wget "$GET_DWC2_URL"
   ok_msg "Download complete!"
   status_msg "Extracting archive ..."
   unzip -q -o *.zip
   for f_ in $(find . | grep '.gz')
   do
-    gunzip -f ${f_}
+    gunzip -f "${f_}"
   done
   ok_msg "Done!"
   status_msg "Writing DWC version to file ..."
-  echo $GET_DWC2_URL | cut -d/ -f8 > $DWC2_DIR/.version
+  echo "$GET_DWC2_URL" | cut -d/ -f8 > "$DWC2_DIR/.version"
   ok_msg "Done!"
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!" && ok_msg "Duet Web Control installed!"
@@ -178,7 +178,7 @@ install_dwc_packages()
 
     # Install desired packages
     status_msg "Installing packages..."
-    sudo apt-get install --yes ${PKGLIST}
+    sudo apt-get install --yes "${PKGLIST}"
 }
 
 create_dwc_virtualenv()
@@ -186,10 +186,10 @@ create_dwc_virtualenv()
     status_msg "Installing python virtual environment..."
 
     # Create virtualenv if it doesn't already exist
-    [ ! -d ${DWC_ENV} ] && virtualenv -p /usr/bin/python3 ${DWC_ENV}
+    [ ! -d "${DWC_ENV}" ] && virtualenv -p /usr/bin/python3 "${DWC_ENV}"
 
     # Install/update dependencies
-    ${DWC_ENV}/bin/pip install tornado==6.0.4
+    "${DWC_ENV}"/bin/pip install tornado==6.0.4
 }
 
 create_single_dwc_startscript(){
@@ -303,7 +303,7 @@ create_single_dwc_instance(){
 
 create_multi_dwc_instance(){
   status_msg "Setting up $INSTANCE_COUNT instances of Duet Web Control ..."
-  while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+  while [ $INSTANCE -le "$INSTANCE_COUNT" ]; do
     ### multi instance variables
     DWC_LOG=/tmp/dwc-$INSTANCE.log
     DWC_CFG="$DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg"
@@ -348,7 +348,7 @@ dwc_cfg_creation(){
   dwc_ip_list=()
 
   ### create single instance dwc2.cfg file
-  if [ $INSTANCE_COUNT -eq $INSTANCE ]; then
+  if [ "$INSTANCE_COUNT" -eq $INSTANCE ]; then
     ### set port
     PORT=$DEFAULT_PORT
 
@@ -356,8 +356,8 @@ dwc_cfg_creation(){
     dwc_ip_list+=("$HOSTNAME:$PORT")
 
     status_msg "Creating dwc2.cfg in $DWC_CONF_LOC"
-    [ ! -d $DWC_CONF_LOC ] && mkdir -p $DWC_CONF_LOC
-    if [ ! -f $DWC_CONF_LOC/dwc2.cfg ]; then
+    [ ! -d "$DWC_CONF_LOC" ] && mkdir -p "$DWC_CONF_LOC"
+    if [ ! -f "$DWC_CONF_LOC/dwc2.cfg" ]; then
       create_single_dwcfk_cfg && ok_msg "dwc2.cfg created!"
     else
       warn_msg "There is already a file called 'dwc2.cfg'!"
@@ -366,7 +366,7 @@ dwc_cfg_creation(){
 
   ### create multi instance moonraker.conf files
   else
-    while [ $INSTANCE -le $INSTANCE_COUNT ]; do
+    while [ $INSTANCE -le "$INSTANCE_COUNT" ]; do
       ### set each instance to its own port
       PORT=$(expr $DEFAULT_PORT + $INSTANCE - 1)
 
@@ -375,8 +375,8 @@ dwc_cfg_creation(){
 
       ### start the creation of each instance
       status_msg "Creating dwc2.cfg for instance #$INSTANCE"
-      [ ! -d $DWC_CONF_LOC/printer_$INSTANCE ] && mkdir -p $DWC_CONF_LOC/printer_$INSTANCE
-      if [ ! -f $DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg ]; then
+      [ ! -d "$DWC_CONF_LOC/printer_$INSTANCE" ] && mkdir -p "$DWC_CONF_LOC/printer_$INSTANCE"
+      if [ ! -f "$DWC_CONF_LOC/printer_$INSTANCE/dwc2.cfg" ]; then
         create_multi_dwcfk_cfg && ok_msg "dwc2.cfg created!"
       else
         warn_msg "There is already a file called 'dwc2.cfg'!"
