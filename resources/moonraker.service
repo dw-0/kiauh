@@ -8,6 +8,7 @@ WantedBy=multi-user.target
 
 [Service]
 Type=simple
+SupplementaryGroups=moonraker-admin
 User=%USER%
 RemainAfterExit=yes
 ExecStart=%MR_ENV%/bin/python %MR_DIR%/moonraker/moonraker.py -l %MR_LOG% -c %MR_CONF%

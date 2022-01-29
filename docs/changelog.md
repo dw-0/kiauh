@@ -2,6 +2,13 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2022-01-29
+* Starting from the 28th of January, Moonraker can make use of PackageKit and PolicyKit.\
+More details on that can be found [here](
+https://github.com/Arksine/moonraker/issues/349) and [here](https://github.com/Arksine/moonraker/pull/346)
+* KIAUH will install Moonrakers PolicyKit rules by default when __installing__ Moonraker
+* KIAUH will also install Moonrakers PolicyKit rules when __updating__ Moonraker __via KIAUH__ as of now
+
 ### 2021-12-30
 * Updated the doc for the usage of the [G-Code Shell Command Extension](docs/gcode_shell_command.md)
 * It became apparent, that some user groups are missing on some systems. A missing video group \

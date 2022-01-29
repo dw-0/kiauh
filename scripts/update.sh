@@ -283,13 +283,17 @@ update_moonraker(){
   bb4u "moonraker"
   status_msg "Updating Moonraker ..."
   ### pull latest files from github
-  cd $MOONRAKER_DIR && git pull
+  cd "$MOONRAKER_DIR" && git pull
   ### read PKGLIST and install possible new dependencies
   install_moonraker_packages
   ### install possible new python dependencies
   MR_REQ_TXT="$MOONRAKER_DIR/scripts/moonraker-requirements.txt"
-  $MOONRAKER_ENV/bin/pip install -r $MR_REQ_TXT
+  "$MOONRAKER_ENV"/bin/pip install -r "$MR_REQ_TXT"
   update_log_paths "moonraker"
+
+  ### required due to https://github.com/Arksine/moonraker/issues/349
+  moonraker_polkit
+
   ok_msg "Update complete!"
   do_action_service "restart" "moonraker"
 }

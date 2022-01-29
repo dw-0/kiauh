@@ -111,6 +111,9 @@ moonraker_setup(){
   ### step 4: create final moonraker instances
   create_moonraker_service
 
+  ### step 5: create polkit rules for moonraker
+  moonraker_polkit
+
   ### confirm message
   if [[ $INSTANCE_COUNT -eq 1 ]]; then
     CONFIRM_MSG="Moonraker has been set up!"
@@ -296,4 +299,23 @@ print_mr_ip_list(){
     echo -e "       ${cyan}● Instance $i:${default} $ip"
     i=$((i + 1))
   done
+}
+
+### introduced due to
+### https://github.com/Arksine/moonraker/issues/349
+### https://github.com/Arksine/moonraker/pull/346
+moonraker_polkit(){
+  SYSTEMDDIR="/etc/systemd/system"
+  MOONRAKER_SERVICES=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/moonraker(-[^0])?[0-9]*.service")
+  for service in $MOONRAKER_SERVICES; do
+    HAS_SUPP="$( grep -cm1 "SupplementaryGroups=moonraker-admin" "$service" || true )"
+    if [ "$HAS_SUPP" -eq 0 ]; then
+      status_msg "Adding moonraker-admin supplementary group to $service ..."
+      sudo sed -i "/^Type=simple$/a SupplementaryGroups=moonraker-admin" "$service" \
+      && ok_msg "Adding moonraker-admin supplementary group successfull!"
+    fi
+  done
+  ### execute moonrakers policykit-rules script
+  "${HOME}"/moonraker/scripts/set-policykit-rules.sh
+  sudo systemctl daemon-reload
 }
