@@ -421,6 +421,8 @@ match_nginx_configs(){
   ### check for outdated upstreams.conf
   if [[ "$upstreams_webcams" -lt "$mainsail_webcams" ]] || [[ "$upstreams_webcams" -lt "$fluidd_webcams" ]]; then
     status_msg "Outdated upstreams.conf found! Updating ..."
+    sudo rm -f "$NGINX_CONFD/upstreams.conf"
+    sudo rm -f "$NGINX_CONFD/common_vars.conf"
     set_upstream_nginx_cfg
     cfg_updated="true"
   fi
