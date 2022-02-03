@@ -90,9 +90,9 @@ EOT
     sudo /bin/sh -c "cat > /etc/logrotate.d/webcamd" << EOF
 /var/log/webcamd.log
 {
-    rotate 4
+    rotate 2
     weekly
-    maxsize 64M
+    maxsize 32M
     missingok
     notifempty
     compress
