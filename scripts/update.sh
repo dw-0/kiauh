@@ -336,6 +336,6 @@ update_MoonrakerTelegramBot(){
 update_system(){
   status_msg "Updating System ..."
   sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y
-  ok_msg "Update complete! Check the log above!"
-  ok_msg "KIAUH won't do any dist-upgrades!\n"
+  CONFIRM_MSG="Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
+  print_msg && clear_msg
 }

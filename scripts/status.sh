@@ -13,7 +13,8 @@ kiauh_status(){
 check_system_updates(){
   SYS_UPDATE=$(apt list --upgradeable 2>/dev/null | sed "1d")
   if [ ! -z "$SYS_UPDATE" ]; then
-    SYS_UPDATE_AVAIL="true"
+    # add system updates to the update all array for the update all function in the updater
+    SYS_UPDATE_AVAIL="true" && update_arr+=(update_system)
     DISPLAY_SYS_UPDATE="${yellow}System upgrade available!${default}"
   else
     SYS_UPDATE_AVAIL="false"
@@ -330,8 +331,8 @@ compare_klipper_versions(){
   if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
     LOCAL_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
     REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
-    KLIPPER_UPDATE_AVAIL="true"
-    update_arr+=(update_klipper)
+    # add klipper to the update all array for the update all function in the updater
+    KLIPPER_UPDATE_AVAIL="true" && update_arr+=(update_klipper)
   else
     LOCAL_COMMIT="${green}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
     REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
@@ -364,8 +365,8 @@ compare_dwc2fk_versions(){
   if [ "$LOCAL_DWC2FK_COMMIT" != "$REMOTE_DWC2FK_COMMIT" ]; then
     LOCAL_DWC2FK_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
     REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
-    DWC2FK_UPDATE_AVAIL="true"
-    update_arr+=(update_dwc2fk)
+    # add dwc2fk to the update all array for the update all function in the updater
+    DWC2FK_UPDATE_AVAIL="true" && update_arr+=(update_dwc2fk)
   else
     LOCAL_DWC2FK_COMMIT="${green}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
     REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
@@ -403,7 +404,7 @@ compare_dwc2_versions(){
   elif [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER != $DWC2_REMOTE_VER ]]; then
     DWC2_LOCAL_VER="${yellow}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
     DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
-    # set flag for the multi update function
+    # add dwc to the update all array for the update all function in the updater
     DWC2_UPDATE_AVAIL="true" && update_arr+=(update_dwc2)
   else
     DWC2_LOCAL_VER=$NONE
@@ -433,8 +434,8 @@ compare_moonraker_versions(){
   if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
     LOCAL_MOONRAKER_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_COMMIT")${default}"
     REMOTE_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_COMMIT")${default}"
-    MOONRAKER_UPDATE_AVAIL="true"
-    update_arr+=(update_moonraker)
+    # add moonraker to the update all array for the update all function in the updater
+    MOONRAKER_UPDATE_AVAIL="true" && update_arr+=(update_moonraker)
   else
     LOCAL_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_COMMIT")${default}"
     REMOTE_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_COMMIT")${default}"
@@ -472,7 +473,7 @@ compare_mainsail_versions(){
   elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
     MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
     MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
-    # set flag for the multi update function
+    # add mainsail to the update all array for the update all function in the updater
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
     MAINSAIL_LOCAL_VER=$NONE
@@ -511,7 +512,7 @@ compare_fluidd_versions(){
   elif [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER != $FLUIDD_REMOTE_VER ]]; then
     FLUIDD_LOCAL_VER="${yellow}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
     FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
-    # set flag for the multi update function
+    # add fluidd to the update all array for the update all function in the updater
     FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
     FLUIDD_LOCAL_VER=$NONE
@@ -565,8 +566,8 @@ compare_MoonrakerTelegramBot_versions(){
   if [ "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT" != "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT" ]; then
     LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
     REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
-    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true"
-    update_arr+=(update_MoonrakerTelegramBot)
+    # add moonraker telegram bot to the update all array for the update all function in the updater
+    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true" && update_arr+=(update_MoonrakerTelegramBot)
   else
     LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
     REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
@@ -597,8 +598,8 @@ compare_pgc_versions(){
   if [ "$LOCAL_PGC_COMMIT" != "$REMOTE_PGC_COMMIT" ]; then
     LOCAL_PGC_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
     REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
-    PGC_UPDATE_AVAIL="true"
-    update_arr+=(update_pgc_for_klipper)
+    # add PGC to the update all array for the update all function in the updater
+    PGC_UPDATE_AVAIL="true" && update_arr+=(update_pgc_for_klipper)
   else
     LOCAL_PGC_COMMIT="${green}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
     REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
