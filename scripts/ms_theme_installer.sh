@@ -2,7 +2,7 @@
 SYSTEMDDIR="/etc/systemd/system"
 
 get_theme_list(){
-  theme_csv_url="https://raw.githubusercontent.com/meteyou/mainsail/develop/docs/_data/themes.csv"
+  theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/docs/master/_data/themes.csv"
   theme_csv=$(curl -s -L $theme_csv_url)
   unset t_name
   unset t_note
