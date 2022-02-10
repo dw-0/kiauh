@@ -3,12 +3,11 @@ rollback_menu(){
     if [ "$PREVIOUS_COMMIT" != "0" ] && [ "$CURRENT_COMMIT" != "$PREVIOUS_COMMIT" ]; then
 
         local text="If serious errors occured after updating Klipper, \
-        you can use this menu to return to the previously used commit from which you have updated.\n
-        Active branch: $PRINT_BRANCH
-        Currently on commit: $CURR_UI
-        Commit last updated from: $PREV_UI\n
-        Do you want to rollback to $PREVIOUS_COMMIT?"
-        
+you can use this menu to return to the previously used commit from which you have updated.\n
+Active branch: $PRINT_BRANCH
+Currently on commit: $CURR_UI
+Commit last updated from: $PREV_UI\n
+Do you want to rollback to $PREVIOUS_COMMIT?"
         whiptail --title "Rollback menu" --yesno \
             "$text" \
             "$KIAUH_WHIPTAIL_NORMAL_HEIGHT" "$KIAUH_WHIPTAIL_NORMAL_WIDTH"
