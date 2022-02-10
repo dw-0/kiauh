@@ -17,7 +17,7 @@ Do you accept?" \
   local out=$?
   if [ $out -eq 0 ]; then
     sed -i "/logupload_accepted=/s/false/true/" $INI_FILE
-        clear && print_header && upload_selection
+        upload_selection
   else
     return
   fi

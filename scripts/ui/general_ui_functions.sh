@@ -48,16 +48,13 @@ print_header(){
 ### TODO: rework other menus to make use of the following functions too and make them more readable
 
 do_action(){
-  clear && print_header
   $1
   print_msg && clear_msg
 }
 
 deny_action(){
-  clear && print_header
   print_unkown_cmd
   print_msg && clear_msg
   $1
 }
-
 

@@ -19,7 +19,7 @@ switch_menu(){
           break
       elif [ $out -eq 0 ]; then
         case "$menu" in
-        1) switch_klipper3h_menu;;
+        1) switch_klipper3d_menu;;
         2) switch_dmbutyugin_menu ;;
         3) switch_custom_menu ;;
         esac
@@ -33,7 +33,7 @@ switch_menu(){
   fi
 }
 
-switch_klipper3h_menu(){
+switch_klipper3d_menu(){
   while true; do
     local menu_str="Active Branch: $GET_BRANCH"
     local menu_options=(
@@ -48,9 +48,7 @@ switch_klipper3h_menu(){
 				break
 		elif [ $out -eq 0 ]; then
 			case "$menu" in
-			1) clear
-          print_header
-          switch_to_master
+			1) switch_to_master
           read_branch
           print_msg && clear_msg;;
       2) echo "Not implemented" ;;
@@ -77,14 +75,10 @@ switch_dmbutyugin_menu(){
 				break
 		elif [ $out -eq 0 ]; then
 			case "$menu" in
-			1) clear
-          print_header
-          switch_to_scurve_shaping
+			1) switch_to_scurve_shaping
           read_branch
           print_msg && clear_msg;;
-      2) clear
-          print_header
-          switch_to_scurve_smoothing
+      2) switch_to_scurve_smoothing
           read_branch
           print_msg && clear_msg;;
 			esac

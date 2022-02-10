@@ -1,9 +1,11 @@
 #!/bin/bash
 
 service_menu(){
+	#TODO Read service status
+	#TODO use start/start restart and enable/disable to improve user exp
     	local menu_options=(
-				"1" "Start Klipper"
-				"2" "Stop Klipper"
+		"1" "Start Klipper"
+		"2" "Stop Klipper"
         "3" "Restart Klipper"
         "4" "Start Moonraker"
         "5" "Stop Moonraker"
@@ -14,7 +16,7 @@ service_menu(){
         "10" "Start Octoprint"
         "11" "Stop Octoprint"
         "12" "Restart Octoprint"
-				)
+		)
 
   local menu_str="Start/stop/restart services"
 
