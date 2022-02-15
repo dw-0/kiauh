@@ -23,8 +23,9 @@ update_ui(){
   echo -e "|  7) [DWC2 Web UI]      |  $DWC2_LOCAL_VER | $DWC2_REMOTE_VER | "
   echo -e "|  8) [PrettyGCode]      |  $LOCAL_PGC_COMMIT | $REMOTE_PGC_COMMIT | "
   echo -e "|  9) [Telegram Bot]     |  $LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT | $REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT | "
+  echo -e "|  10) [MoonCord]        |  $LOCAL_MOONCORD_COMMIT | $REMOTE_MOONCORD_COMMIT | "
   echo -e "|                        |------------------------------| "
-  echo -e "|  10) [System]          |  $DISPLAY_SYS_UPDATE   | "
+  echo -e "|  11) [System]          |  $DISPLAY_SYS_UPDATE   | "
   back_footer
 }
 
@@ -55,6 +56,8 @@ update_menu(){
       9)
         do_action "update_MoonrakerTelegramBot" "update_ui";;
       10)
+        do_action "update_MoonCord" "update_ui";;
+      11)
         do_action "update_system" "update_ui";;
       a)
         do_action "update_all" "update_ui";;

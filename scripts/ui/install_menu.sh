@@ -14,9 +14,10 @@ install_ui(){
   echo -e "|                           |  7) [OctoPrint]           | "
   echo -e "|  Klipper Webinterface:    |  8) [PrettyGCode]         | "
   echo -e "|  3) [Mainsail]            |  9) [Telegram Bot]        | "
-  echo -e "|  4) [Fluidd]              |                           | "
+  echo -e "|  4) [Fluidd]              |  10) [MoonCord]           | "
+  echo -e "|                           |                           | "
   echo -e "|                           |  Webcam:                  | "
-  echo -e "|                           |  10) [MJPG-Streamer]      | "
+  echo -e "|                           |  11) [MJPG-Streamer]      | "
   back_footer
 }
 
@@ -44,6 +45,8 @@ install_menu(){
       9)
         do_action "install_MoonrakerTelegramBot" "install_ui";;
       10)
+        do_action "install_MoonCord" "install_ui";;
+      11)
         do_action "install_mjpg-streamer" "install_ui";;
       B|b)
         clear; main_menu; break;;

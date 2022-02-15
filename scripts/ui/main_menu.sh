@@ -12,7 +12,7 @@ main_ui(){
   echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
   echo -e "|                      | KlipperScreen: $KLIPPERSCREEN_STATUS|"
   echo -e "|  6) [Settings]       |  Telegram Bot: $MOONRAKER_TELEGRAM_BOT_STATUS|"
-  echo -e "|                      |                                |"
+  echo -e "|                      |      MoonCord: $MOONCORD_STATUS|"
   echo -e "|                      |          DWC2: $DWC2_STATUS|"
   echo -e "|  ${cyan}$KIAUH_VER${default}|     Octoprint: $OCTOPRINT_STATUS|"
   quit_footer
@@ -55,6 +55,7 @@ main_menu(){
     octoprint_status
     klipperscreen_status
     MoonrakerTelegramBot_status
+    MoonCord_status
     print_branch
   print_msg && clear_msg
   main_ui

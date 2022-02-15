@@ -224,6 +224,21 @@ restart_MoonrakerTelegramBot(){
   sudo systemctl restart moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service restarted!"
 }
 
+start_MoonCord(){
+  status_msg "Starting MoonCord Service ..."
+  sudo systemctl start MoonCord && ok_msg "MoonCord Service started!"
+}
+
+stop_MoonCord(){
+  status_msg "Stopping MoonCord Service ..."
+  sudo systemctl stop MoonCord && ok_msg "MoonCord Service stopped!"
+}
+
+restart_MoonCord(){
+  status_msg "Restarting MoonCord Service ..."
+  sudo systemctl restart MoonCord && ok_msg "MoonCord Service restarted!"
+}
+
 restart_nginx(){
   if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
     status_msg "Restarting NGINX Service ..."

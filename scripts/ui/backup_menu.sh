@@ -15,6 +15,7 @@ backup_ui(){
   echo -e "|  3) [Moonraker DB]     |  7) [Duet Web Control]       | "
   echo -e "|                        |  8) [OctoPrint]              | "
   echo -e "|                        |  9) [MoonrakerTelegramBot]   | "
+  echo -e "|                        |  10) [MoonCord]              | "
   back_footer
 }
 
@@ -43,6 +44,8 @@ backup_menu(){
         do_action "backup_octoprint" "backup_ui";;
       9)
         do_action "backup_MoonrakerTelegramBot" "backup_ui";;
+      10)
+        do_action "backup_MoonCord" "backup_ui";;
       B|b)
         clear; main_menu; break;;
       *)

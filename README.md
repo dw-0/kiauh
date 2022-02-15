@@ -141,6 +141,12 @@ https://github.com/nlef/moonraker-telegram-bot
 
 ---
 
+### **🤖MoonCord** by [eliteSchwein](https://github.com/eliteSchwein) :
+
+https://github.com/eliteSchwein/mooncord
+
+---
+
 ## **❓ FAQ**
 
 **_Q: Can i use this script to install multiple instances of Klipper on the same Pi? (Multisession?)_**

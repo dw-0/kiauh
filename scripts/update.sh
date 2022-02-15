@@ -45,6 +45,9 @@ update_all(){
     if [ "$MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● MoonrakerTelegramBot${default}                               |"
     fi
+    if [ "$MOONCORD_UPDATE_AVAIL" = "true" ]; then
+      echo -e "|  ${cyan}● MoonCord${default}                               |"
+    fi
     if [ "$SYS_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● System${default}                                             |"
     fi
@@ -331,6 +334,17 @@ update_MoonrakerTelegramBot(){
   ./scripts/install.sh
   ok_msg "Update complete!"
   start_MoonrakerTelegramBot
+}
+
+update_MoonCord(){
+  source_kiauh_ini
+  export klipper_cfg_loc
+  stop_MoonCord
+  cd $MOONCORD_DIR
+  git pull
+  npm ci --only=prod
+  ok_msg "Update complete!"
+  start_MoonCord
 }
 
 update_system(){

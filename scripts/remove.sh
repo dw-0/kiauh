@@ -463,6 +463,36 @@ remove_MoonrakerTelegramBot(){
   CONFIRM_MSG="MoonrakerTelegramBot successfully removed!"
 }
 
+remove_MoonCord(){
+  source_kiauh_ini
+
+  ### remove MoonrakerTelegramBot dir
+  if [ -d $MOONCORD_DIR ]; then
+    status_msg "Removing MoonCord directory ..."
+    rm -rf $MOONCORD_DIR && ok_msg "Directory removed!"
+  fi
+
+  ### remove MoonCord service
+  if [ -e /etc/systemd/system/MoonCord.service ]; then
+    status_msg "Removing MoonCord service ..."
+    sudo systemctl stop MoonCord
+    sudo systemctl disable MoonCord
+    sudo rm -f $SYSTEMDDIR/MoonCord.service
+    ###reloading units
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+    ok_msg "MoonCord Service removed!"
+  fi
+
+  ### remove MoonCord log
+  if [ -e /tmp/mooncord.log ] || [ -e ${HOME}/klipper_logs/mooncord.log ] || [ -e ${MOONCORD_DIR}/temp/log.log ]; then
+    status_msg "Removing MoonCord log file ..."
+    rm -f "/tmp/mooncord.log" "${HOME}/klipper_logs/mooncord.log" "${MOONCORD_DIR}/temp/log.log"  && ok_msg "File removed!"
+  fi
+
+  CONFIRM_MSG="MoonCord successfully removed!"
+}
+
 remove_mjpg-streamer(){
   ### remove MJPG-Streamer service
   if [ -e $SYSTEMDDIR/webcamd.service ]; then

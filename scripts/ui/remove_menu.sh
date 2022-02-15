@@ -15,9 +15,9 @@ remove_ui(){
   echo -e "|                           |  7) [OctoPrint]           | "
   echo -e "|  Klipper Webinterface:    |  8) [PrettyGCode]         | "
   echo -e "|  3) [Mainsail]            |  9) [Telegram Bot]        | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |  10) [MJPG-Streamer]      | "
-  echo -e "|                           |  11) [NGINX]              | "
+  echo -e "|  4) [Fluidd]              |  10) [MoonCord]           | "
+  echo -e "|                           |  11) [MJPG-Streamer]      | "
+  echo -e "|                           |  12) [NGINX]              | "
   back_footer
 }
 
@@ -45,8 +45,10 @@ remove_menu(){
       9)
         do_action "remove_MoonrakerTelegramBot" "remove_ui";;
       10)
-        do_action "remove_mjpg-streamer" "remove_ui";;
+        do_action "remove_MoonCord" "remove_ui";;
       11)
+        do_action "remove_mjpg-streamer" "remove_ui";;
+      12)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;

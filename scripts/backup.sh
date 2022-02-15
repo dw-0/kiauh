@@ -193,3 +193,17 @@ backup_MoonrakerTelegramBot(){
     ERROR_MSG=" Can't backup MoonrakerTelegramBot directory!\n Not found!"
   fi
 }
+
+backup_MoonCord(){
+  if [ -d $MOONCORD_DIR ] ; then
+    status_msg "Creating MoonCord backup ..."
+    check_for_backup_dir
+    get_date
+    status_msg "Timestamp: $current_date"
+    mkdir -p $BACKUP_DIR/MoonCord-backups/"$current_date"
+    cp -r $MOONCORD_DIR $_
+    ok_msg "Backup complete!"
+  else
+    ERROR_MSG=" Can't backup MoonCord directory!\n Not found!"
+  fi
+}
