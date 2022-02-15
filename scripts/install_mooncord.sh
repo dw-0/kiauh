@@ -13,6 +13,6 @@ MoonCord_setup(){
   cd ${HOME} && git clone $MOONCORD_REPO
   ok_msg "Download complete!"
   status_msg "Installing MoonCord ..."
-  $MOONCORD_DIR/scripts/install.sh --config_path="$klipper_cfg_loc"
+  bash $MOONCORD_DIR/scripts/install.sh --config_path="$klipper_cfg_loc"
   echo; ok_msg "MoonCord successfully installed!"
 }
