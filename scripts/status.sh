@@ -260,28 +260,28 @@ MoonrakerTelegramBot_status(){
 }
 
 MoonCord_status(){
-  mtbcount=0
+  mcdcount=0
   MoonCord_data=(
     SERVICE
     $MOONCORD_DIR
   )
 
-  ### count amount of MOONCORD_STATUS service files in /etc/systemd/system
+  ### count amount of MoonCord_data service files in /etc/systemd/system
   SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "MoonCord" | wc -l)
 
-  ### remove the "SERVICE" entry from the MOONCORD_STATUS array if a MoonCord service is installed
+  ### remove the "SERVICE" entry from the MoonCord_data array if a MoonCord service is installed
   [ $SERVICE_FILE_COUNT -gt 0 ] && unset MoonCord_data[0]
 
   #count+1 for each found data-item from array
   for mtbd in "${MoonCord_data[@]}"
   do
     if [ -e $mtbd ]; then
-      mtbcount=$(expr $mtbcount + 1)
+      mcdcount=$(expr mcdcount + 1)
     fi
   done
-  if [ "$mtbcount" == "${#MoonCord_data[*]}" ]; then
+  if [ "mcdcount" == "${#MoonCord_data[*]}" ]; then
     MOONCORD_STATUS="${green}Installed!${default}      "
-  elif [ "$mtbcount" == 0 ]; then
+  elif [ "mcdcount" == 0 ]; then
     MOONCORD_STATUS="${red}Not installed!${default}  "
   else
     MOONCORD_STATUS="${yellow}Incomplete!${default}     "
@@ -623,7 +623,7 @@ compare_MoonCord_versions(){
     LOCAL_MOONCORD_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONCORD_COMMIT")${default}"
     REMOTE_MOONCORD_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONCORD_COMMIT")${default}"
     # add moonraker telegram bot to the update all array for the update all function in the updater
-    MOONCORD_AVAIL="true" && update_arr+=(update_MoonrakerTelegramBot)
+    MOONCORD_UPDATE_AVAIL="true" && update_arr+=(update_MoonCord)
   else
     LOCAL_MOONCORD_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONCORD_COMMIT")${default}"
     REMOTE_MOONCORD_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONCORD_COMMIT")${default}"
