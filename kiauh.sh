@@ -42,7 +42,6 @@ KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
 #MoonrakerTelegramBot
 MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
 MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
-KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
 #MoonCord
 MOONCORD_DIR=${HOME}/mooncord
 #misc
