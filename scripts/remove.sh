@@ -466,7 +466,7 @@ remove_MoonrakerTelegramBot(){
 remove_MoonCord(){
   source_kiauh_ini
 
-  ### remove MoonrakerTelegramBot dir
+  ### remove MoonCord dir
   if [ -d $MOONCORD_DIR ]; then
     status_msg "Removing MoonCord directory ..."
     rm -rf $MOONCORD_DIR && ok_msg "Directory removed!"

@@ -1,6 +1,6 @@
 install_MoonCord(){
     source_kiauh_ini
-    #MoonrakerTelegramBot main installation
+    #MoonCord main installation
     MoonCord_setup
 }
 
