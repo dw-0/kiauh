@@ -32,7 +32,7 @@ class ShellCommand:
             data = os.read(self.proc_fd, 4096)
         except Exception:
             pass
-        data = self.partial_output + data
+        data = self.partial_output + data.decode()
         if '\n' not in data:
             self.partial_output = data
             return
