@@ -396,7 +396,7 @@ remove_klipperscreen(){
   if [ -e /etc/systemd/system/KlipperScreen.service ]; then
     status_msg "Removing KlipperScreen service ..."
     sudo systemctl stop KlipperScreen
-    sudo systemctl disable moonraker
+    sudo systemctl disable KlipperScreen
     sudo rm -f $SYSTEMDDIR/KlipperScreen.service
     ###reloading units
     sudo systemctl daemon-reload
