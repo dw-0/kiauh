@@ -1,6 +1,12 @@
-![main_menu](resources/screenshots/kiauh.png)
+![kiauh-logo](resources/screenshots/kiauh.png)
 # Klipper Installation And Update Helper
-![GitHub](https://img.shields.io/github/license/th33xitus/kiauh) ![GitHub Repo stars](https://img.shields.io/github/stars/th33xitus/kiauh) ![GitHub forks](https://img.shields.io/github/forks/th33xitus/kiauh) ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/th33xitus/kiauh) ![GitHub last commit](https://img.shields.io/github/last-commit/th33xitus/kiauh) ![GitHub contributors](https://img.shields.io/github/contributors/th33xitus/kiauh)
+![GitHub](https://img.shields.io/github/license/th33xitus/kiauh)
+![GitHub Repo stars](https://img.shields.io/github/stars/th33xitus/kiauh)
+![GitHub forks](https://img.shields.io/github/forks/th33xitus/kiauh)
+![GitHub top language](https://img.shields.io/github/languages/top/th33xitus/kiauh?logo=gnubash&logoColor=white)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/th33xitus/kiauh)
+![GitHub last commit](https://img.shields.io/github/last-commit/th33xitus/kiauh)
+![GitHub contributors](https://img.shields.io/github/contributors/th33xitus/kiauh)
 
 ### **📋 Please see the [Changelog](docs/changelog.md) for possible important information !**
 
