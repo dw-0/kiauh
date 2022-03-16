@@ -1,6 +1,14 @@
-#!/bin/bash
-clear
+#!/usr/bin/env bash
+#
+# KIAUH - Klipper Installation And Update Helper
+# https://github.com/th33xitus/kiauh
+#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>
+#
+# This file may be distributed under the terms of the GNU GPLv3 license
+
 set -e
+clear
 
 ### set color variables
 green=$(echo -en "\e[92m")
@@ -72,6 +80,7 @@ title_msg(){
 }
 get_date(){
   current_date=$(date +"%y%m%d-%H%M")
+  export current_date
 }
 print_unkown_cmd(){
   ERROR_MSG="Invalid command!"
