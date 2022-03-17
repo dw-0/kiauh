@@ -219,33 +219,6 @@ migrate_custompios(){
   ok_msg "Migration done!"
 }
 
-update_klipper(){
-  do_action_service "stop" "klipper"
-  if [ ! -d $KLIPPER_DIR ]; then
-    cd ${HOME} && git clone $KLIPPER_REPO
-  else
-    bb4u "klipper"
-    read_branch
-    save_klipper_state
-    status_msg "Updating $GET_BRANCH"
-    cd $KLIPPER_DIR
-    if [ "$DETACHED_HEAD" == "true" ]; then
-      git checkout $GET_BRANCH
-      unset DETACHED_HEAD
-    fi
-    ### pull latest files from github
-    git pull
-    ### read PKGLIST and install possible new dependencies
-    install_klipper_packages
-    ### install possible new python dependencies
-    KLIPPER_REQ_TXT="$KLIPPER_DIR/scripts/klippy-requirements.txt"
-    $KLIPPY_ENV/bin/pip install -r $KLIPPER_REQ_TXT
-  fi
-  update_log_paths "klipper"
-  ok_msg "Update complete!"
-  do_action_service "restart" "klipper"
-}
-
 update_dwc2fk(){
   do_action_service "stop" "dwc"
   bb4u "dwc2"
