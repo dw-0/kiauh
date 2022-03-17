@@ -22,43 +22,6 @@ check_system_updates(){
   fi
 }
 
-klipper_status(){
-  kcount=0
-  klipper_data=(
-    SERVICE
-    $KLIPPER_DIR
-    $KLIPPY_ENV_DIR
-  )
-
-  ### count amount of klipper service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^klipper(\-[[:digit:]]+)?\.service$" | wc -l)
-
-  ### a fix to detect an existing "legacy" klipper init.d installation
-  if [ -f /etc/init.d/klipper ] && [ -f /etc/init.d/klipper ]; then
-    SERVICE_FILE_COUNT=1
-  fi
-
-  ### remove the "SERVICE" entry from the klipper_data array if a klipper service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipper_data[0]
-
-  ### count+1 for each found data-item from array
-  for kd in "${klipper_data[@]}"
-  do
-    if [ -e $kd ]; then
-      kcount=$(expr $kcount + 1)
-    fi
-  done
-
-  ### display status
-  if [ "$kcount" == "${#klipper_data[*]}" ]; then
-    KLIPPER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
-  elif [ "$kcount" == 0 ]; then
-    KLIPPER_STATUS="${red}Not installed!${default}  "
-  else
-    KLIPPER_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
 dwc2_status(){
   dcount=0
   dwc_data=(
@@ -256,91 +219,6 @@ MoonrakerTelegramBot_status(){
     MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${default}  "
   else
     MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
-#############################################################
-#############################################################
-
-### reading the klipper branch the user is currently on
-read_branch(){
-  if [ -d $KLIPPER_DIR/.git ]; then
-    cd $KLIPPER_DIR
-    GET_BRANCH="$(git branch | grep "*" | cut -d"*" -f2 | cut -d" " -f2)"
-    ### try to fix a detached HEAD state and read the correct branch from the output you get
-    if [ "$(echo $GET_BRANCH | grep "HEAD" )" ]; then
-      DETACHED_HEAD="true"
-      GET_BRANCH=$(git branch | grep "HEAD" | rev | cut -d" " -f1 | rev | cut -d")" -f1 | cut -d"/" -f2)
-      ### try to identify the branch when the HEAD was detached at a single commit
-      ### will only work if its either master, scurve-shaping or scurve-smoothing branch
-      if [[ $GET_BRANCH =~ [[:alnum:]] ]]; then
-        if [ "$(git branch -r --contains $GET_BRANCH | grep "master")" ]; then
-          GET_BRANCH="master"
-        elif [ "$(git branch -r --contains $GET_BRANCH | grep "scurve-shaping")" ]; then
-          GET_BRANCH="scurve-shaping"
-        elif [ "$(git branch -r --contains $GET_BRANCH | grep "scurve-smoothing")" ]; then
-          GET_BRANCH="scurve-smoothing"
-        fi
-      fi
-    fi
-  else
-    GET_BRANCH=""
-  fi
-}
-
-#prints the current klipper branch in the main menu
-print_branch(){
-  read_branch
-  if [ ! -z "$GET_BRANCH" ]; then
-    PRINT_BRANCH="$(printf "%-16s" "$GET_BRANCH")"
-  else
-    PRINT_BRANCH="${red}--------------${default}  "
-  fi
-}
-
-read_local_klipper_commit(){
-  if [ -d $KLIPPER_DIR ] && [ -d $KLIPPER_DIR/.git ]; then
-    cd $KLIPPER_DIR
-    LOCAL_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_COMMIT=$NONE
-  fi
-}
-
-read_remote_klipper_commit(){
-  read_branch
-  if [ ! -z "$GET_BRANCH" ];then
-    if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
-      git fetch origin -q
-      REMOTE_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-    elif [ "$GET_BRANCH" = "scurve-shaping" ]; then
-      git fetch dmbutyugin scurve-shaping -q
-      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-shaping --always --tags | cut -d "-" -f 1,2)
-    elif [ "$GET_BRANCH" = "scurve-smoothing" ]; then
-      git fetch dmbutyugin scurve-smoothing -q
-      REMOTE_COMMIT=$(git describe dmbutyugin/scurve-smoothing --always --tags | cut -d "-" -f 1,2)
-    fi
-  else
-    REMOTE_COMMIT=$NONE
-  fi
-}
-
-compare_klipper_versions(){
-  unset KLIPPER_UPDATE_AVAIL
-  read_local_klipper_commit && read_remote_klipper_commit
-  if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
-    LOCAL_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
-    REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
-    # add klipper to the update all array for the update all function in the updater
-    KLIPPER_UPDATE_AVAIL="true" && update_arr+=(update_klipper)
-  else
-    LOCAL_COMMIT="${green}$(printf "%-12s" "$LOCAL_COMMIT")${default}"
-    REMOTE_COMMIT="${green}$(printf "%-12s" "$REMOTE_COMMIT")${default}"
-    KLIPPER_UPDATE_AVAIL="false"
-  fi
-  #if detached head was found, force the user with warn message to update klipper
-  if [ "$DETACHED_HEAD" == "true" ]; then
-    LOCAL_COMMIT="${red}$(printf "%-12s" "Need update!")${default}"
   fi
 }
 

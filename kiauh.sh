@@ -55,7 +55,6 @@ INI_FILE=${HOME}/.kiauh.ini
 BACKUP_DIR=${HOME}/kiauh-backups
 
 ### set github repos
-KLIPPER_REPO=https://github.com/Klipper3d/klipper.git
 ARKSINE_REPO=https://github.com/Arksine/klipper.git
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
 DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
@@ -87,14 +86,14 @@ print_unkown_cmd(){
 }
 
 print_msg(){
-  if [[ "$ERROR_MSG" != "" ]]; then
+  if [ -n "${ERROR_MSG}" ]; then
     echo -e "${red}"
     echo -e "#########################################################"
     echo -e " $ERROR_MSG "
     echo -e "#########################################################"
     echo -e "${default}"
   fi
-  if [ "$CONFIRM_MSG" != "" ]; then
+  if [ -n "$CONFIRM_MSG" ]; then
     echo -e "${green}"
     echo -e "#########################################################"
     echo -e " $CONFIRM_MSG "
