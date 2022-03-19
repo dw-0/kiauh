@@ -79,7 +79,7 @@ function klipper_setup_dialog(){
       case "${yn}" in
         Y|y|Yes|yes|"")
           select_msg "Yes"
-          status_msg "Installing ${count} Klipper instance(s) ..."
+          status_msg "Installing ${count} Klipper instance(s) ... \n"
           klipper_setup "${count}"
           break;;
         N|n|No|no)
