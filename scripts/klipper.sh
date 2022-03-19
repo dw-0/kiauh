@@ -111,7 +111,7 @@ function install_klipper_packages(){
   status_msg "Updating lists of packages..."
   sudo apt-get update --allow-releaseinfo-change
 
-  ### Install desired packages
+  ### Install required packages
   status_msg "Installing packages..."
   sudo apt-get install --yes "${packages[@]}"
 }
