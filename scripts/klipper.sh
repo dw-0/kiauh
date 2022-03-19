@@ -153,12 +153,11 @@ function klipper_setup(){
 
   ### confirm message
   if [[ ${instances} -eq 1 ]]; then
-    CONFIRM_MSG="Klipper has been set up!"
+    local confirm="Klipper has been set up!"
   elif [[ ${instances} -gt 1 ]]; then
-    CONFIRM_MSG="${instances} Klipper instances have been set up!"
+    local confirm="${instances} Klipper instances have been set up!"
   fi
-  export CONFIRM_MSG
-  print_confirm && return
+  print_confirm "${confirm}" && return
 }
 
 function write_klipper_service(){
@@ -305,8 +304,8 @@ function remove_klipper(){
   remove_klipper_dir
   remove_klipper_env
 
-  CONFIRM_MSG=" Klipper was successfully removed!" && print_confirm
-  export CONFIRM_MSG
+  local confirm="Klipper was successfully removed!"
+  print_confirm "${confirm}" && return
 }
 
 #================================================#
