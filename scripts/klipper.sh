@@ -364,36 +364,33 @@ function get_klipper_status(){
 }
 
 function get_local_klipper_commit(){
-  if [ -d "${KLIPPER_DIR}" ] && [ -d "${KLIPPER_DIR}"/.git ]; then
-    cd "${KLIPPER_DIR}"
-    commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
-  else
-    commit="${NONE}"
-  fi
+  [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPER_DIR}"/.git ] && return
+  cd "${KLIPPER_DIR}"
+  commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
 }
 
 function get_remote_klipper_commit(){
-  if [ -d "${KLIPPER_DIR}" ] && [ -d "${KLIPPER_DIR}"/.git ]; then
-    cd "${KLIPPER_DIR}"
-    git fetch origin -q
-    commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    commit="${NONE}"
-  fi
+  [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPER_DIR}"/.git ] && return
+  cd "${KLIPPER_DIR}" && git fetch origin -q
+  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
 }
 
 function compare_klipper_versions(){
   unset KLIPPER_UPDATE_AVAIL
-  if [ "$(get_local_klipper_commit)" != "$(get_remote_klipper_commit)" ]; then
-    LOCAL_COMMIT="${yellow}$(printf "%-12s" "$(get_local_klipper_commit)")${default}"
-    REMOTE_COMMIT="${green}$(printf "%-12s" "$(get_remote_klipper_commit)")${default}"
+  local versions local_ver remote_ver
+  local_ver="$(get_local_klipper_commit)"
+  remote_ver="$(get_remote_klipper_commit)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add klipper to the update all array for the update all function in the updater
     KLIPPER_UPDATE_AVAIL="true" && update_arr+=(update_klipper)
   else
-    LOCAL_COMMIT="${green}$(printf "%-12s" "$(get_remote_klipper_commit)")${default}"
-    REMOTE_COMMIT="${green}$(printf "%-12s" "$(get_remote_klipper_commit)")${default}"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     KLIPPER_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }

@@ -493,14 +493,18 @@ function get_remote_moonraker_commit(){
 
 function compare_moonraker_versions(){
   unset MOONRAKER_UPDATE_AVAIL
-  if [ "$(get_local_moonraker_commit)" != "$(get_remote_moonraker_commit)" ]; then
-    LOCAL_COMMIT="${yellow}$(printf "%-12s" "$(get_local_moonraker_commit)")${white}"
-    REMOTE_COMMIT="${green}$(printf "%-12s" "$(get_remotemoonrakerr_commit)")${white}"
+  local versions local_ver remote_ver
+  local_ver="$(get_local_moonraker_commit)"
+  remote_ver="$(get_remote_moonraker_commit)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add klipper to the update all array for the update all function in the updater
     MOONRAKER_UPDATE_AVAIL="true" && update_arr+=(update_moonraker)
   else
-    LOCAL_COMMIT="${green}$(printf "%-12s" "$(get_remote_moonraker_commit)")${white}"
-    REMOTE_COMMIT="${green}$(printf "%-12s" "$(get_remote_moonraker_commit)")${white}"
-    KLIPPER_UPDATE_AVAIL="false"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+    MOONRAKER_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }
