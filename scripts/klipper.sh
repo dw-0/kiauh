@@ -118,7 +118,9 @@ function install_klipper_packages(){
 
 function create_klipper_virtualenv(){
   status_msg "Installing python virtual environment..."
-  [ ! -d "${KLIPPY_ENV}" ] && virtualenv -p python2 "${KLIPPY_ENV}"
+  ### always create a clean virtualenv
+  [ -d "${KLIPPY_ENV}" ] && rm -rf "${KLIPPY_ENV}"
+  virtualenv -p python2 "${KLIPPY_ENV}"
   "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
 }
 
