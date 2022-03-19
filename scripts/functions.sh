@@ -233,24 +233,25 @@ restart_nginx(){
 }
 
 dependency_check(){
+  local dep="${1}" # dep: array
   status_msg "Checking for the following dependencies:"
   #check if package is installed, if not write name into array
-  for pkg in "${dep[@]}"
+  for pkg in ${dep}
   do
-    echo -e "${cyan}● $pkg ${default}"
-    if [[ ! $(dpkg-query -f'${Status}' --show $pkg 2>/dev/null) = *\ installed ]]; then
-      inst+=($pkg)
+    echo -e "${cyan}● ${pkg} ${default}"
+    if [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]]; then
+      inst+=("${pkg}")
     fi
   done
   #if array is not empty, install packages from array elements
-  if [ "${#inst[@]}" != "0" ]; then
+  if [ "${#inst[@]}" -ne 0 ]; then
     status_msg "Installing the following dependencies:"
-    for element in ${inst[@]}
+    for element in "${inst[@]}"
     do
-      echo -e "${cyan}● $element ${default}"
+      echo -e "${cyan}● ${element} ${default}"
     done
     echo
-    sudo apt-get update --allow-releaseinfo-change && sudo apt-get install ${inst[@]} -y
+    sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${inst[@]}" -y
     ok_msg "Dependencies installed!"
     #clearing the array
     unset inst
