@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-#
-# KIAUH - Klipper Installation And Update Helper
-# https://github.com/th33xitus/kiauh
-#
-# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>
-#
-# This file may be distributed under the terms of the GNU GPLv3 license
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
 
 set -e
 clear
@@ -16,11 +18,12 @@ yellow=$(echo -en "\e[93m")
 red=$(echo -en "\e[91m")
 cyan=$(echo -en "\e[96m")
 default=$(echo -en "\e[39m")
+white=$(echo -en "\e[39m")
 
 ### sourcing all additional scripts
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
-for script in "${SRCDIR}/kiauh/scripts/"*.sh; do . $script; done
-for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . $script; done
+for script in "${SRCDIR}/kiauh/scripts/"*.sh; do . "${script}"; done
+for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . "${script}"; done
 
 ### set important directories
 #klipper
@@ -64,18 +67,27 @@ NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
 
-### set some messages
+### format some default message types
+select_msg() {
+  echo -e "${white}>>>>>> $1"
+}
 warn_msg(){
-  echo -e "${red}<!!!!> $1${default}"
+  echo -e "${red}>>>>>> $1${white}"
 }
 status_msg(){
-  echo; echo -e "${yellow}###### $1${default}"
+  echo; echo -e "${yellow}###### $1${white}"
 }
 ok_msg(){
-  echo -e "${green}>>>>>> $1${default}"
+  echo -e "${green}>>>>>> $1${white}"
+}
+error_msg(){
+  echo -e "${red}>>>>>> $1${white}"
+}
+abort_msg(){
+  echo -e "${red}<<<<<< $1${white}"
 }
 title_msg(){
-  echo -e "${cyan}$1${default}"
+  echo -e "${cyan}$1${white}"
 }
 get_date(){
   current_date=$(date +"%y%m%d-%H%M")
@@ -84,22 +96,45 @@ get_date(){
 print_unkown_cmd(){
   ERROR_MSG="Invalid command!"
 }
+invalid_option(){
+  ERROR_MSG="Invalid command!"
+}
 
 print_msg(){
   if [ -n "${ERROR_MSG}" ]; then
     echo -e "${red}"
     echo -e "#########################################################"
-    echo -e " $ERROR_MSG "
+    echo -e " ${ERROR_MSG} "
     echo -e "#########################################################"
-    echo -e "${default}"
+    echo -e "${white}"
   fi
-  if [ -n "$CONFIRM_MSG" ]; then
+  if [ -n "${CONFIRM_MSG}" ]; then
     echo -e "${green}"
     echo -e "#########################################################"
-    echo -e " $CONFIRM_MSG "
+    echo -e " ${CONFIRM_MSG} "
     echo -e "#########################################################"
-    echo -e "${default}"
+    echo -e "${white}"
   fi
+}
+
+print_error(){
+  [ -z "${ERROR_MSG}" ] && return
+  echo -e "${red}"
+  echo -e "#########################################################"
+  echo -e " ${ERROR_MSG} "
+  echo -e "#########################################################"
+  echo -e "${white}"
+  unset ERROR_MSG
+}
+
+print_confirm(){
+  [ -z "${CONFIRM_MSG}" ] && return
+  echo -e "${green}"
+  echo -e "#########################################################"
+  echo -e " ${CONFIRM_MSG} "
+  echo -e "#########################################################"
+  echo -e "${white}"
+  unset CONFIRM_MSG
 }
 
 clear_msg(){
