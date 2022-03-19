@@ -118,23 +118,21 @@ print_msg(){
 }
 
 print_error(){
-  [ -z "${ERROR_MSG}" ] && return
+  [ -z "${1}" ] && return
   echo -e "${red}"
   echo -e "#########################################################"
-  echo -e " ${ERROR_MSG} "
+  echo -e "  ${1} "
   echo -e "#########################################################"
   echo -e "${white}"
-  unset ERROR_MSG
 }
 
 print_confirm(){
-  [ -z "${CONFIRM_MSG}" ] && return
+  [ -z "${1}" ] && return
   echo -e "${green}"
   echo -e "#########################################################"
-  echo -e " ${CONFIRM_MSG} "
+  echo -e "  ${1} "
   echo -e "#########################################################"
   echo -e "${white}"
-  unset CONFIRM_MSG
 }
 
 clear_msg(){
