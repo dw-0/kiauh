@@ -199,7 +199,7 @@ function create_klipper_service(){
     ok_msg "Single Klipper instance created!"
   elif [ "${instances}" -gt 1 ]; then
     local i=1
-    while [[ "${i}" -le "${instances}" ]]; do
+    while [ "${i}" -le "${instances}" ]; do
       local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
       local cfg="${cfg_dir}/printer.cfg"
       local log="${HOME}/klipper_logs/klippy-${i}.log"
