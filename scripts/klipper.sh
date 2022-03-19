@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #=======================================================================#
 # Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
