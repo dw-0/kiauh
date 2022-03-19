@@ -6,7 +6,7 @@ main_ui(){
   echo -e "|  0) [Upload Log]     |       Klipper: $(get_klipper_status)|"
   echo -e "|                      |                                |"
   echo -e "|  1) [Install]        |--------------------------------|"
-  echo -e "|  2) [Update]         |     Moonraker: $MOONRAKER_STATUS|"
+  echo -e "|  2) [Update]         |     Moonraker: $(get_moonraker_status)|"
   echo -e "|  3) [Remove]         |                                |"
   echo -e "|  4) [Advanced]       |      Mainsail: $MAINSAIL_STATUS|"
   echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
@@ -48,7 +48,7 @@ main_menu(){
   #check install status
     print_kiauh_version
 #    klipper_status
-    moonraker_status
+#    moonraker_status
     dwc2_status
     fluidd_status
     mainsail_status

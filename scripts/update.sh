@@ -251,26 +251,6 @@ update_fluidd(){
   symlink_webui_nginx_log "fluidd"
 }
 
-update_moonraker(){
-  do_action_service "stop" "moonraker"
-  bb4u "moonraker"
-  status_msg "Updating Moonraker ..."
-  ### pull latest files from github
-  cd "$MOONRAKER_DIR" && git pull
-  ### read PKGLIST and install possible new dependencies
-  install_moonraker_packages
-  ### install possible new python dependencies
-  MR_REQ_TXT="$MOONRAKER_DIR/scripts/moonraker-requirements.txt"
-  "$MOONRAKER_ENV"/bin/pip install -r "$MR_REQ_TXT"
-  update_log_paths "moonraker"
-
-  ### required due to https://github.com/Arksine/moonraker/issues/349
-  moonraker_polkit
-
-  ok_msg "Update complete!"
-  do_action_service "restart" "moonraker"
-}
-
 update_klipperscreen(){
   stop_klipperscreen
   cd $KLIPPERSCREEN_DIR
