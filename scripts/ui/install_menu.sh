@@ -6,17 +6,16 @@ install_ui(){
   echo -e "|  all necessary dependencies for the various           | "
   echo -e "|  functions on a completely fresh system.              | "
   hr
-  echo -e "|  Firmware:                |  Touchscreen GUI:         | "
-  echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
-  echo -e "|                           |                           | "
-  echo -e "|  Klipper API:             |  Other:                   | "
-  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
-  echo -e "|                           |  7) [OctoPrint]           | "
-  echo -e "|  Klipper Webinterface:    |  8) [PrettyGCode]         | "
-  echo -e "|  3) [Mainsail]            |  9) [Telegram Bot]        | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |  Webcam:                  | "
+  echo -e "|  Firmware & API:          |  Other:                   | "
+  echo -e "|  1) [Klipper]             |  6) [Duet Web Control]    | "
+  echo -e "|  2) [Moonraker]           |  7) [OctoPrint]           | "
+  echo -e "|                           |  8) [PrettyGCode]         | "
+  echo -e "|  Klipper Webinterface:    |  9) [Telegram Bot]        | "
+  echo -e "|  3) [Mainsail]            |                           | "
+  echo -e "|  4) [Fluidd]              |  Webcam:                  | "
   echo -e "|                           |  10) [MJPG-Streamer]      | "
+  echo -e "|  Touchscreen GUI:         |                           | "
+  echo -e "|  5) [KlipperScreen]       |                           | "
   back_footer
 }
 
