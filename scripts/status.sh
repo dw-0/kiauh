@@ -54,38 +54,6 @@ dwc2_status(){
   fi
 }
 
-moonraker_status(){
-  mrcount=0
-  moonraker_data=(
-    SERVICE
-    $MOONRAKER_DIR
-    $MOONRAKER_ENV_DIR
-  )
-
-  ### count amount of moonraker service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^moonraker(\-[[:digit:]]+)?\.service$" | wc -l)
-
-  ### remove the "SERVICE" entry from the moonraker_data array if a moonraker service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset moonraker_data[0]
-
-  ### count+1 for each found data-item from array
-  for mrd in "${moonraker_data[@]}"
-  do
-    if [ -e $mrd ]; then
-      mrcount=$(expr $mrcount + 1)
-    fi
-  done
-
-  ### display status
-  if [ "$mrcount" == "${#moonraker_data[*]}" ]; then
-    MOONRAKER_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
-  elif [ "$mrcount" == 0 ]; then
-    MOONRAKER_STATUS="${red}Not installed!${default}  "
-  else
-    MOONRAKER_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
 mainsail_status(){
   mcount=0
   mainsail_data=(
@@ -293,33 +261,6 @@ compare_dwc2_versions(){
 
 #############################################################
 #############################################################
-
-read_moonraker_versions(){
-  if [ -d $MOONRAKER_DIR ] && [ -d $MOONRAKER_DIR/.git ]; then
-    cd $MOONRAKER_DIR
-    git fetch origin master -q
-    LOCAL_MOONRAKER_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_MOONRAKER_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_MOONRAKER_COMMIT=$NONE
-    REMOTE_MOONRAKER_COMMIT=$NONE
-  fi
-}
-
-compare_moonraker_versions(){
-  unset MOONRAKER_UPDATE_AVAIL
-  read_moonraker_versions
-  if [ "$LOCAL_MOONRAKER_COMMIT" != "$REMOTE_MOONRAKER_COMMIT" ]; then
-    LOCAL_MOONRAKER_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_COMMIT")${default}"
-    REMOTE_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_COMMIT")${default}"
-    # add moonraker to the update all array for the update all function in the updater
-    MOONRAKER_UPDATE_AVAIL="true" && update_arr+=(update_moonraker)
-  else
-    LOCAL_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_COMMIT")${default}"
-    REMOTE_MOONRAKER_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_COMMIT")${default}"
-    MOONRAKER_UPDATE_AVAIL="false"
-  fi
-}
 
 read_local_mainsail_version(){
   unset MAINSAIL_VER_FOUND
