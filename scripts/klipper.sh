@@ -319,10 +319,8 @@ function update_klipper(){
     cd "${HOME}" && git clone "${KLIPPER_REPO}"
   else
     bb4u "klipper"
-    save_klipper_state
     status_msg "Updating Klipper ..."
-    cd "${KLIPPER_DIR}"
-    git pull
+    cd "${KLIPPER_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies
     install_klipper_packages
     ### install possible new python dependencies
