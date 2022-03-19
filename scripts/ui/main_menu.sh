@@ -3,9 +3,9 @@ main_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|  0) [Upload Log]     |       Klipper: $KLIPPER_STATUS|"
-  echo -e "|                      |        Branch: ${cyan}$PRINT_BRANCH${default}|"
-  echo -e "|  1) [Install]        |                                |"
+  echo -e "|  0) [Upload Log]     |       Klipper: $(get_klipper_status)|"
+  echo -e "|                      |                                |"
+  echo -e "|  1) [Install]        |--------------------------------|"
   echo -e "|  2) [Update]         |     Moonraker: $MOONRAKER_STATUS|"
   echo -e "|  3) [Remove]         |                                |"
   echo -e "|  4) [Advanced]       |      Mainsail: $MAINSAIL_STATUS|"
@@ -47,7 +47,7 @@ main_menu(){
     fi
   #check install status
     print_kiauh_version
-    klipper_status
+#    klipper_status
     moonraker_status
     dwc2_status
     fluidd_status
@@ -55,7 +55,7 @@ main_menu(){
     octoprint_status
     klipperscreen_status
     MoonrakerTelegramBot_status
-    print_branch
+#    print_branch
   print_msg && clear_msg
   main_ui
   while true; do
@@ -83,7 +83,7 @@ main_menu(){
       6) clear && settings_menu && break;;
       Q|q)
         echo -e "${green}###### Happy printing! ######${default}"; echo
-        exit -1;;
+        exit 0;;
       *)
         deny_action "main_ui";;
     esac
