@@ -349,8 +349,7 @@ function get_klipper_status(){
 
   ### count+1 for each found data-item from array
   local filecount=0
-  for data in "${data_arr[@]}"
-  do
+  for data in "${data_arr[@]}"; do
     [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
 
