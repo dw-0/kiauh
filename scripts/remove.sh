@@ -1,64 +1,6 @@
 ### base variables
 SYSTEMDDIR="/etc/systemd/system"
 
-remove_dwc2(){
-  ### remove "legacy" init.d service
-  if [ -e /etc/init.d/dwc ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
-    sudo systemctl stop dwc
-    sudo update-rc.d -f dwc remove
-    sudo rm -f /etc/init.d/dwc
-    sudo rm -f /etc/default/dwc
-    ok_msg "DWC2-for-Klipper-Socket Service removed!"
-  fi
-
-  ### remove all dwc services
-  if ls /etc/systemd/system/dwc*.service 2>/dev/null 1>&2; then
-    status_msg "Removing DWC2-for-Klipper-Socket Services ..."
-    for service in $(ls /etc/systemd/system/dwc*.service | cut -d"/" -f5)
-    do
-      status_msg "Removing $service ..."
-      sudo systemctl stop $service
-      sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
-      ok_msg "Done!"
-    done
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "DWC2-for-Klipper-Socket Service removed!"
-  fi
-
-  ### remove all logfiles
-  if ls /tmp/dwc*.log 2>/dev/null 1>&2; then
-    for logfile in $(ls /tmp/dwc*.log)
-    do
-      status_msg "Removing $logfile ..."
-      rm -f $logfile
-      ok_msg "File '$logfile' removed!"
-    done
-  fi
-
-  ### removing the rest of the folders
-  if [ -d $DWC2FK_DIR ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket directory ..."
-    rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
-  fi
-  if [ -d $DWC_ENV_DIR ]; then
-    status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
-    rm -rf $DWC_ENV_DIR && ok_msg "Directory removed!"
-  fi
-  if [ -d $DWC2_DIR ]; then
-    status_msg "Removing DWC2 directory ..."
-    rm -rf $DWC2_DIR && ok_msg "Directory removed!"
-  fi
-
-  ### remove dwc2_port from ~/.kiauh.ini
-  sed -i "/^dwc2_port=/d" $INI_FILE
-
-  CONFIRM_MSG=" DWC2-for-Klipper-Socket was successfully removed!"
-}
-
 #############################################################
 #############################################################
 

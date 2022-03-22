@@ -116,22 +116,6 @@ update_log_paths(){
   shopt -u extglob # disable extended globbing
 }
 
-update_dwc2fk(){
-  do_action_service "stop" "dwc"
-  bb4u "dwc2"
-  if [ ! -d $DWC2FK_DIR ]; then
-    cd ${HOME} && git clone $DWC2FK_REPO
-  else
-    cd $DWC2FK_DIR && git pull
-  fi
-  do_action_service "start" "dwc"
-}
-
-update_dwc2(){
-  bb4u "dwc2"
-  download_dwc_webui
-}
-
 update_mainsail(){
   bb4u "mainsail"
   status_msg "Updating Mainsail ..."
