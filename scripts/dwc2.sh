@@ -17,7 +17,6 @@ DWC_ENV_DIR=${HOME}/dwc-env
 DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
 DWC2_DIR=${HOME}/duetwebcontrol
 DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
-KLIPPER_CONFIG="${HOME}/klipper_config"
 
 #=================================================#
 #================= INSTALL DWC2 ==================#
