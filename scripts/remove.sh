@@ -70,50 +70,6 @@ remove_fluidd(){
   CONFIRM_MSG="Fluidd successfully removed!"
 }
 
-#############################################################
-#############################################################
-
-remove_octoprint(){
-  ###remove all octoprint services
-  if ls /etc/systemd/system/octoprint*.service 2>/dev/null 1>&2; then
-    status_msg "Removing OctoPrint Services ..."
-    for service in $(ls /etc/systemd/system/octoprint*.service | cut -d"/" -f5)
-    do
-      status_msg "Removing $service ..."
-      sudo systemctl stop $service
-      sudo systemctl disable $service
-      sudo rm -f $SYSTEMDDIR/$service
-      ok_msg "OctoPrint Service removed!"
-    done
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-  fi
-
-  ### remove sudoers file
-  if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
-    sudo rm -rf /etc/sudoers.d/octoprint-shutdown
-  fi
-
-  ### remove OctoPrint directory
-  if [ -d ${HOME}/OctoPrint ]; then
-    status_msg "Removing OctoPrint directory ..."
-    rm -rf ${HOME}/OctoPrint && ok_msg "Directory removed!"
-  fi
-
-  ###remove .octoprint directories
-  if ls -d ${HOME}/.octoprint* 2>/dev/null 1>&2; then
-    for folder in $(ls -d ${HOME}/.octoprint*)
-    do
-      status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
-    done
-  fi
-
-  ### remove octoprint_port from ~/.kiauh.ini
-  sed -i "/^octoprint_port=/d" $INI_FILE
-
-  CONFIRM_MSG=" OctoPrint successfully removed!"
-}
 
 #############################################################
 #############################################################

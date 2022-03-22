@@ -68,36 +68,6 @@ fluidd_status(){
   fi
 }
 
-octoprint_status(){
-  ocount=0
-  octoprint_data=(
-    SERVICE
-    $OCTOPRINT_DIR
-  )
-  ### count amount of octoprint service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^octoprint(\-[[:digit:]]+)?\.service$" | wc -l)
-
-  ### remove the "SERVICE" entry from the octoprint_data array if a octoprint service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset octoprint_data[0]
-
-  #count+1 for each found data-item from array
-  for op in "${octoprint_data[@]}"
-  do
-    if [ -e $op ]; then
-      ocount=$(expr $ocount + 1)
-    fi
-  done
-
-  ### display status
-  if [ "$ocount" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
-  elif [ "$ocount" == 0 ]; then
-    OCTOPRINT_STATUS="${red}Not installed!${default}  "
-  else
-    OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
 read_local_mainsail_version(){
   unset MAINSAIL_VER_FOUND
   if [ -e $MAINSAIL_DIR/.version ]; then
