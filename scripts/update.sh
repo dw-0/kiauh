@@ -251,39 +251,11 @@ update_fluidd(){
   symlink_webui_nginx_log "fluidd"
 }
 
-update_klipperscreen(){
-  stop_klipperscreen
-  cd $KLIPPERSCREEN_DIR
-  KLIPPERSCREEN_OLDREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt | cut -d " " -f1)
-  git pull origin master -q && ok_msg "Fetch successfull!"
-  git checkout -f master && ok_msg "Checkout successfull"
-  #KLIPPERSCREEN_NEWREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt)
-  if [[ $(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt | cut -d " " -f1) != $KLIPPERSCREEN_OLDREQ_MD5SUM ]]; then
-    status_msg "New dependecies detected..."
-    PYTHONDIR="${HOME}/.KlipperScreen-env"
-    $PYTHONDIR/bin/pip install -r $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt
-    ok_msg "Dependencies have been installed!"
-  fi
-  ok_msg "Update complete!"
-  start_klipperscreen
-}
-
 update_pgc_for_klipper(){
   PGC_DIR="${HOME}/pgcode"
   status_msg "Updating PrettyGCode for Klipper ..."
   cd $PGC_DIR && git pull
   ok_msg "Update complete!"
-}
-
-update_MoonrakerTelegramBot(){
-  source_kiauh_ini
-  export klipper_cfg_loc
-  stop_MoonrakerTelegramBot
-  cd $MOONRAKER_TELEGRAM_BOT_DIR
-  git pull
-  ./scripts/install.sh
-  ok_msg "Update complete!"
-  start_MoonrakerTelegramBot
 }
 
 update_system(){
