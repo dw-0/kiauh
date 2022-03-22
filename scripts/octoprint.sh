@@ -1,6 +1,23 @@
-### base variables
-SYSTEMDDIR="/etc/systemd/system"
+#!/bin/bash
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
+### global variables
+SYSTEMD="/etc/systemd/system"
 OCTOPRINT_ENV="${HOME}/OctoPrint"
+
+#=================================================#
+#=============== INSTALL OCTOPRINT ===============#
+#=================================================#
 
 octoprint_setup_dialog(){
   status_msg "Initializing OctoPrint installation ..."
@@ -103,7 +120,7 @@ add_to_groups(){
 
 create_single_octoprint_startscript(){
 ### create single instance systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/octoprint.service" << OCTOPRINT
+sudo /bin/sh -c "cat > ${SYSTEMD}/octoprint.service" << OCTOPRINT
 [Unit]
 Description=Starts OctoPrint on startup
 After=network-online.target
@@ -123,7 +140,7 @@ OCTOPRINT
 
 create_multi_octoprint_startscript(){
 ### create multi instance systemd service file
-sudo /bin/sh -c "cat > ${SYSTEMDDIR}/octoprint-$INSTANCE.service" << OCTOPRINT
+sudo /bin/sh -c "cat > ${SYSTEMD}/octoprint-$INSTANCE.service" << OCTOPRINT
 [Unit]
 Description=Starts OctoPrint instance $INSTANCE on startup
 After=network-online.target
@@ -273,4 +290,84 @@ print_op_ip_list(){
     echo -e "       ${cyan}● Instance $i:${default} $ip"
     i=$((i + 1))
   done
+}
+
+#=================================================#
+#=============== REMOVE OCTOPRINT ================#
+#=================================================#
+
+remove_octoprint(){
+  ###remove all octoprint services
+  if ls /etc/systemd/system/octoprint*.service 2>/dev/null 1>&2; then
+    status_msg "Removing OctoPrint Services ..."
+    for service in $(ls /etc/systemd/system/octoprint*.service | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "OctoPrint Service removed!"
+    done
+    ### reloading units
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+  fi
+
+  ### remove sudoers file
+  if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
+    sudo rm -rf /etc/sudoers.d/octoprint-shutdown
+  fi
+
+  ### remove OctoPrint directory
+  if [ -d ${HOME}/OctoPrint ]; then
+    status_msg "Removing OctoPrint directory ..."
+    rm -rf ${HOME}/OctoPrint && ok_msg "Directory removed!"
+  fi
+
+  ###remove .octoprint directories
+  if ls -d ${HOME}/.octoprint* 2>/dev/null 1>&2; then
+    for folder in $(ls -d ${HOME}/.octoprint*)
+    do
+      status_msg "Removing $folder ..." && rm -rf $folder && ok_msg "Done!"
+    done
+  fi
+
+  ### remove octoprint_port from ~/.kiauh.ini
+  sed -i "/^octoprint_port=/d" $INI_FILE
+
+  CONFIRM_MSG=" OctoPrint successfully removed!"
+}
+
+#=================================================#
+#=============== OCTOPRINT STATUS ================#
+#=================================================#
+
+octoprint_status(){
+  ocount=0
+  octoprint_data=(
+    SERVICE
+    $OCTOPRINT_DIR
+  )
+  ### count amount of octoprint service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^octoprint(\-[[:digit:]]+)?\.service$" | wc -l)
+
+  ### remove the "SERVICE" entry from the octoprint_data array if a octoprint service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset octoprint_data[0]
+
+  #count+1 for each found data-item from array
+  for op in "${octoprint_data[@]}"
+  do
+    if [ -e $op ]; then
+      ocount=$(expr $ocount + 1)
+    fi
+  done
+
+  ### display status
+  if [ "$ocount" == "${#octoprint_data[*]}" ]; then
+    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
+  elif [ "$ocount" == 0 ]; then
+    OCTOPRINT_STATUS="${red}Not installed!${default}  "
+  else
+    OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
+  fi
 }
