@@ -130,66 +130,6 @@ octoprint_status(){
   fi
 }
 
-klipperscreen_status(){
-  klsccount=0
-  klipperscreen_data=(
-    SERVICE
-    $KLIPPERSCREEN_DIR
-    $KLIPPERSCREEN_ENV_DIR
-  )
-
-  ### count amount of klipperscreen_data service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "KlipperScreen" | wc -l)
-
-  ### remove the "SERVICE" entry from the klipperscreen_data array if a KlipperScreen service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset klipperscreen_data[0]
-
-  #count+1 for each found data-item from array
-  for klscd in "${klipperscreen_data[@]}"
-  do
-    if [ -e $klscd ]; then
-      klsccount=$(expr $klsccount + 1)
-    fi
-  done
-  if [ "$klsccount" == "${#klipperscreen_data[*]}" ]; then
-    KLIPPERSCREEN_STATUS="${green}Installed!${default}      "
-  elif [ "$klsccount" == 0 ]; then
-    KLIPPERSCREEN_STATUS="${red}Not installed!${default}  "
-  else
-    KLIPPERSCREEN_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
-MoonrakerTelegramBot_status(){
-  mtbcount=0
-  MoonrakerTelegramBot_data=(
-    SERVICE
-    $MOONRAKER_TELEGRAM_BOT_DIR
-    $MOONRAKER_TELEGRAM_BOT_ENV_DIR
-  )
-
-  ### count amount of MoonrakerTelegramBot_data service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker-telegram-bot" | wc -l)
-
-  ### remove the "SERVICE" entry from the MoonrakerTelegramBot_data array if a MoonrakerTelegramBot service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset MoonrakerTelegramBot_data[0]
-
-  #count+1 for each found data-item from array
-  for mtbd in "${MoonrakerTelegramBot_data[@]}"
-  do
-    if [ -e $mtbd ]; then
-      mtbcount=$(expr $mtbcount + 1)
-    fi
-  done
-  if [ "$mtbcount" == "${#MoonrakerTelegramBot_data[*]}" ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${default}      "
-  elif [ "$mtbcount" == 0 ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${default}  "
-  else
-    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
 #############################################################
 #############################################################
 
@@ -339,61 +279,6 @@ compare_fluidd_versions(){
     FLUIDD_UPDATE_AVAIL="false"
   fi
 }
-
-read_klipperscreen_versions(){
-  if [ -d $KLIPPERSCREEN_DIR ] && [ -d $KLIPPERSCREEN_DIR/.git ]; then
-    cd $KLIPPERSCREEN_DIR
-    git fetch origin master -q
-    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_KLIPPERSCREEN_COMMIT=$NONE
-    REMOTE_KLIPPERSCREEN_COMMIT=$NONE
-  fi
-}
-
-compare_klipperscreen_versions(){
-  unset KLIPPERSCREEN_UPDATE_AVAIL
-  read_klipperscreen_versions
-  if [ "$LOCAL_KLIPPERSCREEN_COMMIT" != "$REMOTE_KLIPPERSCREEN_COMMIT" ]; then
-    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_KLIPPERSCREEN_COMMIT")${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "$REMOTE_KLIPPERSCREEN_COMMIT")${default}"
-    KLIPPERSCREEN_UPDATE_AVAIL="true"
-    update_arr+=(update_klipperscreen)
-  else
-    LOCAL_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "$LOCAL_KLIPPERSCREEN_COMMIT")${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "$REMOTE_KLIPPERSCREEN_COMMIT")${default}"
-    KLIPPERSCREEN_UPDATE_AVAIL="false"
-  fi
-}
-
-read_MoonrakerTelegramBot_versions(){
-  if [ -d $MOONRAKER_TELEGRAM_BOT_DIR ] && [ -d $MOONRAKER_TELEGRAM_BOT_DIR/.git ]; then
-    cd $MOONRAKER_TELEGRAM_BOT_DIR
-    git fetch origin master -q
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$NONE
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$NONE
-  fi
-}
-
-compare_MoonrakerTelegramBot_versions(){
-  unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
-  read_MoonrakerTelegramBot_versions
-  if [ "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT" != "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT" ]; then
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
-    # add moonraker telegram bot to the update all array for the update all function in the updater
-    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true" && update_arr+=(update_MoonrakerTelegramBot)
-  else
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "$REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT")${default}"
-    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="false"
-  fi
-}
-
 
 #############################################################
 #############################################################
