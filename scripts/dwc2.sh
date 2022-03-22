@@ -1,7 +1,27 @@
-### base variables
-SYSTEMDDIR="/etc/systemd/system"
-DWC_ENV="${HOME}/dwc-env"
-DWC2_DIR="${HOME}/duetwebcontrol"
+#!/bin/bash
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
+### global variables
+SYSTEMD="/etc/systemd/system"
+DWC_ENV_DIR=${HOME}/dwc-env
+DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
+DWC2_DIR=${HOME}/duetwebcontrol
+DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
+KLIPPER_CONFIG="${HOME}/klipper_config"
+
+#=================================================#
+#================= INSTALL DWC2 ==================#
+#=================================================#
 
 system_check_dwc(){
   ### check system for an installed octoprint service
@@ -386,5 +406,189 @@ dwc_cfg_creation(){
       ### raise instance counter by 1
       INSTANCE=$(expr $INSTANCE + 1)
     done
+  fi
+}
+
+#=================================================#
+#================= REMOVE DWC2 ===================#
+#=================================================#
+
+remove_dwc2(){
+  ### remove "legacy" init.d service
+  if [ -e /etc/init.d/dwc ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket Service ..."
+    sudo systemctl stop dwc
+    sudo update-rc.d -f dwc remove
+    sudo rm -f /etc/init.d/dwc
+    sudo rm -f /etc/default/dwc
+    ok_msg "DWC2-for-Klipper-Socket Service removed!"
+  fi
+
+  ### remove all dwc services
+  if ls /etc/systemd/system/dwc*.service 2>/dev/null 1>&2; then
+    status_msg "Removing DWC2-for-Klipper-Socket Services ..."
+    for service in $(ls /etc/systemd/system/dwc*.service | cut -d"/" -f5)
+    do
+      status_msg "Removing $service ..."
+      sudo systemctl stop $service
+      sudo systemctl disable $service
+      sudo rm -f $SYSTEMDDIR/$service
+      ok_msg "Done!"
+    done
+    ### reloading units
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+    ok_msg "DWC2-for-Klipper-Socket Service removed!"
+  fi
+
+  ### remove all logfiles
+  if ls /tmp/dwc*.log 2>/dev/null 1>&2; then
+    for logfile in $(ls /tmp/dwc*.log)
+    do
+      status_msg "Removing $logfile ..."
+      rm -f $logfile
+      ok_msg "File '$logfile' removed!"
+    done
+  fi
+
+  ### removing the rest of the folders
+  if [ -d $DWC2FK_DIR ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket directory ..."
+    rm -rf $DWC2FK_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $DWC_ENV_DIR ]; then
+    status_msg "Removing DWC2-for-Klipper-Socket virtualenv ..."
+    rm -rf $DWC_ENV_DIR && ok_msg "Directory removed!"
+  fi
+  if [ -d $DWC2_DIR ]; then
+    status_msg "Removing DWC2 directory ..."
+    rm -rf $DWC2_DIR && ok_msg "Directory removed!"
+  fi
+
+  ### remove dwc2_port from ~/.kiauh.ini
+  sed -i "/^dwc2_port=/d" $INI_FILE
+
+  CONFIRM_MSG=" DWC2-for-Klipper-Socket was successfully removed!"
+}
+
+#=================================================#
+#================= UPDATE DWC2 ===================#
+#=================================================#
+
+update_dwc2fk(){
+  do_action_service "stop" "dwc"
+  bb4u "dwc2"
+  if [ ! -d $DWC2FK_DIR ]; then
+    cd ${HOME} && git clone $DWC2FK_REPO
+  else
+    cd $DWC2FK_DIR && git pull
+  fi
+  do_action_service "start" "dwc"
+}
+
+update_dwc2(){
+  bb4u "dwc2"
+  download_dwc_webui
+}
+
+#=================================================#
+#================= DWC2 STATUS ===================#
+#=================================================#
+
+dwc2_status(){
+  dcount=0
+  dwc_data=(
+    SERVICE
+    $DWC2_DIR
+    $DWC2FK_DIR
+    $DWC_ENV_DIR
+  )
+
+  ### count amount of dwc service files in /etc/systemd/system
+  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^dwc(\-[[:digit:]]+)?\.service$" | wc -l)
+
+  ### remove the "SERVICE" entry from the dwc_data array if a dwc service is installed
+  [ $SERVICE_FILE_COUNT -gt 0 ] && unset dwc_data[0]
+
+  #count+1 for each found data-item from array
+  for dd in "${dwc_data[@]}"
+  do
+    if [ -e $dd ]; then
+      dcount=$(expr $dcount + 1)
+    fi
+  done
+
+  if [ "$dcount" == "${#dwc_data[*]}" ]; then
+    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
+  elif [ "$dcount" == 0 ]; then
+    DWC2_STATUS="${red}Not installed!${default}  "
+  else
+    DWC2_STATUS="${yellow}Incomplete!${default}     "
+  fi
+}
+
+read_dwc2fk_versions(){
+  if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
+    cd $DWC2FK_DIR
+    git fetch origin master -q
+    LOCAL_DWC2FK_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
+    REMOTE_DWC2FK_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  else
+    LOCAL_DWC2FK_COMMIT=$NONE
+    REMOTE_DWC2FK_COMMIT=$NONE
+  fi
+}
+
+compare_dwc2fk_versions(){
+  unset DWC2FK_UPDATE_AVAIL
+  read_dwc2fk_versions
+  if [ "$LOCAL_DWC2FK_COMMIT" != "$REMOTE_DWC2FK_COMMIT" ]; then
+    LOCAL_DWC2FK_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
+    REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
+    # add dwc2fk to the update all array for the update all function in the updater
+    DWC2FK_UPDATE_AVAIL="true" && update_arr+=(update_dwc2fk)
+  else
+    LOCAL_DWC2FK_COMMIT="${green}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
+    REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
+    DWC2FK_UPDATE_AVAIL="false"
+  fi
+}
+
+read_local_dwc2_version(){
+  unset DWC2_VER_FOUND
+  if [ -e $DWC2_DIR/.version ]; then
+    DWC2_VER_FOUND="true"
+    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/.version)
+  else
+    DWC2_VER_FOUND="false" && unset DWC2_LOCAL_VER
+  fi
+}
+
+read_remote_dwc2_version(){
+  #remote checks don't work without curl installed!
+  if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
+    DWC2_REMOTE_VER=$NONE
+  else
+    get_dwc_ver
+    DWC2_REMOTE_VER=$DWC2_VERSION
+  fi
+}
+
+compare_dwc2_versions(){
+  unset DWC2_UPDATE_AVAIL
+  read_local_dwc2_version && read_remote_dwc2_version
+  if [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER == $DWC2_REMOTE_VER ]]; then
+    #printf fits the string for displaying it in the ui to a total char length of 12
+    DWC2_LOCAL_VER="${green}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+  elif [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER != $DWC2_REMOTE_VER ]]; then
+    DWC2_LOCAL_VER="${yellow}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
+    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+    # add dwc to the update all array for the update all function in the updater
+    DWC2_UPDATE_AVAIL="true" && update_arr+=(update_dwc2)
+  else
+    DWC2_LOCAL_VER=$NONE
+    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
+    DWC2_UPDATE_AVAIL="false"
   fi
 }

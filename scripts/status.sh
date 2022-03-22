@@ -22,38 +22,6 @@ check_system_updates(){
   fi
 }
 
-dwc2_status(){
-  dcount=0
-  dwc_data=(
-    SERVICE
-    $DWC2_DIR
-    $DWC2FK_DIR
-    $DWC_ENV_DIR
-  )
-
-  ### count amount of dwc service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^dwc(\-[[:digit:]]+)?\.service$" | wc -l)
-
-  ### remove the "SERVICE" entry from the dwc_data array if a dwc service is installed
-  [ $SERVICE_FILE_COUNT -gt 0 ] && unset dwc_data[0]
-
-  #count+1 for each found data-item from array
-  for dd in "${dwc_data[@]}"
-  do
-    if [ -e $dd ]; then
-      dcount=$(expr $dcount + 1)
-    fi
-  done
-
-  if [ "$dcount" == "${#dwc_data[*]}" ]; then
-    DWC2_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
-  elif [ "$dcount" == 0 ]; then
-    DWC2_STATUS="${red}Not installed!${default}  "
-  else
-    DWC2_STATUS="${yellow}Incomplete!${default}     "
-  fi
-}
-
 mainsail_status(){
   mcount=0
   mainsail_data=(
@@ -129,78 +97,6 @@ octoprint_status(){
     OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
-
-#############################################################
-#############################################################
-
-read_dwc2fk_versions(){
-  if [ -d $DWC2FK_DIR ] && [ -d $DWC2FK_DIR/.git ]; then
-    cd $DWC2FK_DIR
-    git fetch origin master -q
-    LOCAL_DWC2FK_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_DWC2FK_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_DWC2FK_COMMIT=$NONE
-    REMOTE_DWC2FK_COMMIT=$NONE
-  fi
-}
-
-compare_dwc2fk_versions(){
-  unset DWC2FK_UPDATE_AVAIL
-  read_dwc2fk_versions
-  if [ "$LOCAL_DWC2FK_COMMIT" != "$REMOTE_DWC2FK_COMMIT" ]; then
-    LOCAL_DWC2FK_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
-    REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
-    # add dwc2fk to the update all array for the update all function in the updater
-    DWC2FK_UPDATE_AVAIL="true" && update_arr+=(update_dwc2fk)
-  else
-    LOCAL_DWC2FK_COMMIT="${green}$(printf "%-12s" "$LOCAL_DWC2FK_COMMIT")${default}"
-    REMOTE_DWC2FK_COMMIT="${green}$(printf "%-12s" "$REMOTE_DWC2FK_COMMIT")${default}"
-    DWC2FK_UPDATE_AVAIL="false"
-  fi
-}
-
-read_local_dwc2_version(){
-  unset DWC2_VER_FOUND
-  if [ -e $DWC2_DIR/.version ]; then
-    DWC2_VER_FOUND="true"
-    DWC2_LOCAL_VER=$(head -n 1 $DWC2_DIR/.version)
-  else
-    DWC2_VER_FOUND="false" && unset DWC2_LOCAL_VER
-  fi
-}
-
-read_remote_dwc2_version(){
-  #remote checks don't work without curl installed!
-  if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    DWC2_REMOTE_VER=$NONE
-  else
-    get_dwc_ver
-    DWC2_REMOTE_VER=$DWC2_VERSION
-  fi
-}
-
-compare_dwc2_versions(){
-  unset DWC2_UPDATE_AVAIL
-  read_local_dwc2_version && read_remote_dwc2_version
-  if [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER == $DWC2_REMOTE_VER ]]; then
-    #printf fits the string for displaying it in the ui to a total char length of 12
-    DWC2_LOCAL_VER="${green}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
-    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
-  elif [[ $DWC2_VER_FOUND = "true" ]] && [[ $DWC2_LOCAL_VER != $DWC2_REMOTE_VER ]]; then
-    DWC2_LOCAL_VER="${yellow}$(printf "%-12s" "$DWC2_LOCAL_VER")${default}"
-    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
-    # add dwc to the update all array for the update all function in the updater
-    DWC2_UPDATE_AVAIL="true" && update_arr+=(update_dwc2)
-  else
-    DWC2_LOCAL_VER=$NONE
-    DWC2_REMOTE_VER="${green}$(printf "%-12s" "$DWC2_REMOTE_VER")${default}"
-    DWC2_UPDATE_AVAIL="false"
-  fi
-}
-
-#############################################################
-#############################################################
 
 read_local_mainsail_version(){
   unset MAINSAIL_VER_FOUND
