@@ -49,12 +49,11 @@ function klipper_setup_dialog(){
 
   ### return early if klipper already exists
   if [ -n "$(klipper_exists)" ]; then
-    ERROR_MSG="At least one Klipper service is already installed:"
+    local error="At least one Klipper service is already installed:"
     for s in $(klipper_exists); do
-      ERROR_MSG="${ERROR_MSG}\n ➔ ${s}"
+      error="${error}\n ➔ ${s}"
     done
-    export ERROR_MSG
-    print_error && return
+    print_error "${error}" && return
   fi
 
   ### ask for amount of instances to create
@@ -87,7 +86,7 @@ function klipper_setup_dialog(){
           abort_msg "Exiting Klipper setup ...\n"
           break;;
         *)
-          invalid_option && print_error
+          print_error "Invalid command!"
           ;;
       esac
     fi
