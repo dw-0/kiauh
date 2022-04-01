@@ -1,10 +1,21 @@
 #!/bin/bash
 
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
 show_flash_method_help(){
   top_border
   echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
   hr
-  echo -e "| ${cyan}Regular flashing method:${default}                              |"
+  echo -e "| ${cyan}Regular flashing method:${white}                              |"
   echo -e "| The default method to flash controller boards which   |"
   echo -e "| are connected and updated over USB and not by placing |"
   echo -e "| a compiled firmware file onto an internal SD-Card.    |"
@@ -13,7 +24,7 @@ show_flash_method_help(){
   echo -e "| - Arduino Mega 2560                                   |"
   echo -e "| - Fysetc F6 / S6 (used without a Display + SD-Slot)   |"
   blank_line
-  echo -e "| ${cyan}Updating via SD-Card Update:${default}                          |"
+  echo -e "| ${cyan}Updating via SD-Card Update:${white}                          |"
   echo -e "| Many popular controller boards ship with a bootloader |"
   echo -e "| capable of updating the firmware via SD-Card.         |"
   echo -e "| Choose this method if your controller board supports  |"
@@ -29,8 +40,8 @@ show_flash_method_help(){
   blank_line
   back_footer
   while true; do
-    read -p "${cyan}###### Please select:${default} " choice
-    case "$choice" in
+    read -p "${cyan}###### Please select:${white} " choice
+    case "${choice}" in
       B|b)
         clear && print_header
         select_flash_method
@@ -56,19 +67,19 @@ select_flash_method(){
   blank_line
   back_help_footer
   while true; do
-    read -p "${cyan}###### Please select:${default} " choice
-    case "$choice" in
+    read -p "${cyan}###### Please select:${white} " choice
+    case "${choice}" in
       1)
         echo -e "###### > Regular flashing method"
         select_mcu_connection
         select_mcu_id
-        [[ "$CONFIRM_FLASH" == true ]] && flash_mcu
+        [[ "${CONFIRM_FLASH}" == true ]] && flash_mcu
         break;;
       2)
         echo -e "###### > SD-Card Update"
         select_mcu_connection
         select_mcu_id
-        [[ "$CONFIRM_FLASH" == true ]] && flash_mcu_sd
+        [[ "${CONFIRM_FLASH}" == true ]] && flash_mcu_sd
         break;;
       B|b)
         advanced_menu
@@ -87,39 +98,39 @@ select_flash_method(){
 select_mcu_id(){
   if [ ${#mcu_list[@]} -ge 1 ]; then
     top_border
-    echo -e "|                   ${red}!!! ATTENTION !!!${default}                   |"
+    echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
     hr
     echo -e "| Make sure, to select the correct MCU!                 |"
-    echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${default} |"
+    echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${white} |"
     bottom_border
-    echo -e "${cyan}###### List of available MCU:${default}"
+    echo -e "${cyan}###### List of available MCU:${white}"
     ### list all mcus
     id=0
-    for mcu in ${mcu_list[@]}; do
+    for mcu in "${mcu_list[@]}"; do
       let id++
-      echo -e " $id) $mcu"
+      echo -e " ${id}) ${mcu}"
     done
     ### verify user input
     sel_index=""
-    while [[ ! ($sel_index =~ ^[1-9]+$) ]] || [ "$sel_index" -gt "$id" ]; do
+    while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${id}" ]; do
       echo
-      read -p "${cyan}###### Select MCU to flash:${default} " sel_index
-      if [[ ! ($sel_index =~ ^[1-9]+$) ]]; then
+      read -p "${cyan}###### Select MCU to flash:${white} " sel_index
+      if [[ ! (${sel_index} =~ ^[1-9]+$) ]]; then
         warn_msg "Invalid input!"
-      elif [ "$sel_index" -lt 1 ] || [ "$sel_index" -gt "$id" ]; then
-        warn_msg "Please select a number between 1 and $id!"
+      elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${id}" ]; then
+        warn_msg "Please select a number between 1 and ${id}!"
       fi
       mcu_index=$(echo $((sel_index - 1)))
-      selected_mcu_id="${mcu_list[$mcu_index]}"
+      selected_mcu_id="${mcu_list[${mcu_index}]}"
     done
     ### confirm selection
     while true; do
-      echo -e "\n###### You selected:\n ● MCU #$sel_index: $selected_mcu_id\n"
-      read -p "${cyan}###### Continue? (Y/n):${default} " yn
+      echo -e "\n###### You selected:\n ● MCU #${sel_index}: ${selected_mcu_id}\n"
+      read -p "${cyan}###### Continue? (Y/n):${white} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
-          status_msg "Flashing $selected_mcu_id ..."
+          status_msg "Flashing ${selected_mcu_id} ..."
           CONFIRM_FLASH=true
           break;;
         N|n|No|no)
@@ -136,7 +147,7 @@ select_mcu_id(){
 
 flash_mcu(){
   do_action_service "stop" "klipper"
-  make flash FLASH_DEVICE="${mcu_list[$mcu_index]}"
+  make flash FLASH_DEVICE="${mcu_list[${mcu_index}]}"
   ### evaluate exit code of make flash
   if [ ! $? -eq 0 ]; then
     warn_msg "Flashing failed!"
@@ -152,8 +163,8 @@ flash_mcu_sd(){
 
   ### write each supported board to the array to make it selectable
   board_list=()
-  for board in $("$flash_script" -l | tail -n +2); do
-    board_list+=($board)
+  for board in $("${flash_script}" -l | tail -n +2); do
+    board_list+=("${board}")
   done
 
   i=0
@@ -164,11 +175,11 @@ flash_mcu_sd(){
   echo -e "|  The following boards are currently supported:        |"
   hr
   ### display all supported boards to the user
-  for board in ${board_list[@]}; do
-    if [ $i -lt 10 ]; then
-      printf "|  $i) %-50s|\n" "${board_list[$i]}"
+  for board in "${board_list[@]}"; do
+    if [ "${i}" -lt 10 ]; then
+      printf "|  ${i}) %-50s|\n" "${board_list[${i}]}"
     else
-      printf "|  $i) %-49s|\n" "${board_list[$i]}"
+      printf "|  ${i}) %-49s|\n" "${board_list[${i}]}"
     fi
     i=$((i + 1))
   done
@@ -176,11 +187,11 @@ flash_mcu_sd(){
 
   ### make the user select one of the boards
   while true; do
-    read -p "${cyan}###### Please select board type:${default} " choice
-    if [ "$choice" = "q" ] || [ "$choice" = "Q" ]; then
+    read -p "${cyan}###### Please select board type:${white} " choice
+    if [ "${choice}" = "q" ] || [ "${choice}" = "Q" ]; then
       clear && advanced_menu && break
-    elif [ "$choice" -le ${#board_list[@]} ]; then
-      selected_board="${board_list[$choice]}"
+    elif [ "${choice}" -le ${#board_list[@]} ]; then
+      selected_board="${board_list[${choice}]}"
       break
     else
       clear && print_header
@@ -196,11 +207,11 @@ flash_mcu_sd(){
     blank_line
     echo -e "| If you are unsure, stick to the default 250000!       |"
     bottom_border
-    echo -e "${cyan}###### Please set the baud rate:${default} "
+    echo -e "${cyan}###### Please set the baud rate:${white} "
     unset baud_rate
-    while [[ ! $baud_rate =~ ^[0-9]+$ ]]; do
+    while [[ ! ${baud_rate} =~ ^[0-9]+$ ]]; do
       read -e -i "250000" -e baud_rate
-      selected_baud_rate=$baud_rate
+      selected_baud_rate=${baud_rate}
       break
     done
     break
@@ -208,7 +219,7 @@ flash_mcu_sd(){
 
   ###flash process
   do_action_service "stop" "klipper"
-  "$flash_script" -b "$selected_baud_rate" "$selected_mcu_id" "$selected_board"
+  /bin/bash "${flash_script}" -b "${selected_baud_rate}" "${selected_mcu_id}" "${selected_board}"
   ### evaluate exit code of flash-sdcard.sh execution
   if [ ! $? -eq 0 ]; then
     warn_msg "Flashing failed!"
@@ -220,8 +231,8 @@ flash_mcu_sd(){
 }
 
 build_fw(){
-  if [ -d "$KLIPPER_DIR" ]; then
-    cd "$KLIPPER_DIR"
+  if [ -d "${KLIPPER_DIR}" ]; then
+    cd "${KLIPPER_DIR}"
     status_msg "Initializing firmware build ..."
     dep=(build-essential dpkg-dev make)
     dependency_check
@@ -237,15 +248,15 @@ build_fw(){
 select_mcu_connection(){
   echo
   top_border
-  echo -e "| ${yellow}Make sure to have the controller board connected now!${default} |"
+  echo -e "| ${yellow}Make sure to have the controller board connected now!${white} |"
   blank_line
   echo -e "| How is the controller board connected to the host?    |"
   echo -e "| 1) USB                                                |"
   echo -e "| 2) UART                                               |"
   bottom_border
   while true; do
-    read -p "${cyan}###### Connection method:${default} " choice
-    case "$choice" in
+    read -p "${cyan}###### Connection method:${white} " choice
+    case "${choice}" in
       1)
         retrieve_id "USB"
         break;;
@@ -273,12 +284,12 @@ retrieve_id(){
   mcu_count=1
   [ "$1" = "USB" ] && path="/dev/serial/by-id/*"
   [ "$1" = "UART" ] && path="/dev/ttyAMA0"
-  if [[ "$(ls $path)" != "" ]] ; then
-    for mcu in $path; do
-      declare "mcu_id_$mcu_count"="$mcu"
-      mcu_id="mcu_id_$mcu_count"
+  if [[ "$(ls "${path}")" != "" ]] ; then
+    for mcu in ${path}; do
+      declare "mcu_id_${mcu_count}"="${mcu}"
+      mcu_id="mcu_id_${mcu_count}"
       mcu_list+=("${!mcu_id}")
-      echo -e " ● ($1) MCU #$mcu_count: ${cyan}$mcu${default}\n"
+      echo -e " ● ($1) MCU #${mcu_count}: ${cyan}${mcu}${white}\n"
       let mcu_count++
     done
   fi 2>/dev/null
@@ -295,30 +306,30 @@ check_usergroup_dialout(){
   else
     group_tty=true
   fi
-  if [ "$group_dialout" == "false" ] || [ "$group_tty" == "false" ] ; then
+  if [ "${group_dialout}" == "false" ] || [ "${group_tty}" == "false" ] ; then
     top_border
-    echo -e "| ${yellow}WARNING: Your current user is not in group:${default}           |"
-    [ "$group_tty" == "false" ] && echo -e "| ${yellow}● tty${default}                                                 |"
-    [ "$group_dialout" == "false" ] && echo -e "| ${yellow}● dialout${default}                                             |"
+    echo -e "| ${yellow}WARNING: Your current user is not in group:${white}           |"
+    [ "${group_tty}" == "false" ] && echo -e "| ${yellow}● tty${white}                                                 |"
+    [ "${group_dialout}" == "false" ] && echo -e "| ${yellow}● dialout${white}                                             |"
     blank_line
     echo -e "| It is possible that you won't be able to successfully |"
     echo -e "| flash without your user being a member of that group. |"
     echo -e "| If you want to add the current user to the group(s)   |"
     echo -e "| listed above, answer with 'Y'. Else skip with 'n'.    |"
     blank_line
-    echo -e "| ${yellow}INFO:${default}                                                 |"
-    echo -e "| ${yellow}Relog required for group assignments to take effect!${default}  |"
+    echo -e "| ${yellow}INFO:${white}                                                 |"
+    echo -e "| ${yellow}Relog required for group assignments to take effect!${white}  |"
     bottom_border
     while true; do
-      read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${default} " yn
+      read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${white} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"
           status_msg "Adding user '${USER}' to group(s) ..."
-          if [ "$group_tty" == "false" ]; then
+          if [ "${group_tty}" == "false" ]; then
             sudo usermod -a -G tty "${USER}" && ok_msg "Group 'tty' assigned!"
           fi
-          if [ "$group_dialout" == "false" ]; then
+          if [ "${group_dialout}" == "false" ]; then
             sudo usermod -a -G dialout "${USER}" && ok_msg "Group 'dialout' assigned!"
           fi
           ok_msg "You need to relog/restart for the group(s) to be applied!" && exit 0;;
