@@ -190,34 +190,6 @@ do_action_service(){
   shopt -u extglob # disable extended globbing
 }
 
-toggle_octoprint_service(){
-  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
-    do_action_service "stop" "octoprint"
-    do_action_service "disable" "octoprint"
-    sleep 2
-    CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
-  elif systemctl list-unit-files | grep -E "octoprint.*" | grep "disabled" &>/dev/null; then
-    do_action_service "enable" "octoprint"
-    do_action_service "start" "octoprint"
-    sleep 2
-    CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
-  else
-    ERROR_MSG=" You cannot activate a service that does not exist!"
-  fi
-}
-
-read_octoprint_service_status(){
-  unset OPRINT_SERVICE_STATUS
-  if [ ! -f "/etc/systemd/system/octoprint.service" ]; then
-    return 0
-  fi
-  if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
-    OPRINT_SERVICE_STATUS="${red}[Disable]${white} OctoPrint Service                       "
-  else
-    OPRINT_SERVICE_STATUS="${green}[Enable]${white} OctoPrint Service                        "
-  fi
-}
-
 start_klipperscreen(){
   status_msg "Starting KlipperScreen Service ..."
   sudo systemctl start KlipperScreen && ok_msg "KlipperScreen Service started!"
@@ -374,25 +346,146 @@ install_gcode_shell_command(){
   do_action_service "restart" "klipper"
 }
 
-create_minimal_cfg(){
-  #create a minimal default config
-  if [ "${SEL_DEF_CFG}" = "true" ]; then
-		cat <<- EOF >> "${PRINTER_CFG}"
-		[mcu]
-		serial: </dev/serial/by-id/your-mcu>
-
-		[printer]
-		kinematics: none
-		max_velocity: 1
-		max_accel: 1
-
-		[virtual_sdcard]
-		path: ~/sdcard
-
-		[pause_resume]
-		[display_status]
-EOF
+function install_kiauh_macros(){
+  ### copy kiauh_macros.cfg
+  if [ "${ADD_KIAUH_MACROS}" = "true" ]; then
+    ### create a backup of the config folder
+    backup_klipper_config_dir
+    ### handle multi printer.cfg
+    if ls "${KLIPPER_CONFIG}"/printer_* 2>/dev/null 1>&2; then
+      for config in $(find ${KLIPPER_CONFIG}/printer_*/printer.cfg); do
+        path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
+        if [ ! -f "${path}/kiauh_macros.cfg" ]; then
+          ### copy kiauh_macros.cfg to config location
+          status_msg "Creating macro config file ..."
+          cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${path}"
+          ### write the include to the very first line of the printer.cfg
+          sed -i "1 i [include kiauh_macros.cfg]" "${path}/printer.cfg"
+          ok_msg "${path}/kiauh_macros.cfg created!"
+        fi
+      done
+    ### handle single printer.cfg
+    elif [ -f "${KLIPPER_CONFIG}/printer.cfg" ] && [ ! -f "${KLIPPER_CONFIG}/kiauh_macros.cfg" ]; then
+      ### copy kiauh_macros.cfg to config location
+      status_msg "Creating macro config file ..."
+      cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${KLIPPER_CONFIG}"
+      ### write the include to the very first line of the printer.cfg
+      sed -i "1 i [include kiauh_macros.cfg]" "${KLIPPER_CONFIG}/printer.cfg"
+      ok_msg "${KLIPPER_CONFIG}/kiauh_macros.cfg created!"
+    fi
+    ### restart klipper service to parse the modified printer.cfg
+    do_action_service "restart" "klipper"
   fi
+}
+
+function system_check_webui(){
+  ### check system for an installed and enabled octoprint service
+  if sudo systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
+    OCTOPRINT_ENABLED="true"
+  fi
+
+  ### check system for an installed haproxy service
+  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
+    HAPROXY_FOUND="true"
+  fi
+
+  ### check system for an installed lighttpd service
+  if [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]]; then
+    LIGHTTPD_FOUND="true"
+  fi
+
+  ### check system for an installed apache2 service
+  if [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]]; then
+    APACHE2_FOUND="true"
+  fi
+}
+
+function get_user_selection_kiauh_macros(){
+  #ask user for webui default macros
+  while true; do
+    unset ADD_KIAUH_MACROS
+    echo
+    top_border
+    echo -e "| It is recommended to have some important macros set   |"
+    echo -e "| up in your printer configuration to have $1|"
+    echo -e "| fully functional and working.                         |"
+    blank_line
+    echo -e "| Those macros are:                                     |"
+    echo -e "| ${cyan}● [gcode_macro PAUSE]${default}                                 |"
+    echo -e "| ${cyan}● [gcode_macro RESUME]${default}                                |"
+    echo -e "| ${cyan}● [gcode_macro CANCEL_PRINT]${default}                          |"
+    blank_line
+    echo -e "| If you already have these macros in your config file  |"
+    echo -e "| you can skip this step and choose 'no'.               |"
+    echo -e "| Otherwise you should consider to answer with 'yes' to |"
+    echo -e "| add the recommended example macros to your config.    |"
+    bottom_border
+    read -p "${cyan}###### Add the recommended macros? (Y/n):${default} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        ADD_KIAUH_MACROS="true"
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        ADD_KIAUH_MACROS="false"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
+
+function process_octoprint_dialog(){
+  #ask user to disable octoprint when its service was found
+  if [ "${OCTOPRINT_ENABLED}" = "true" ]; then
+    while true; do
+      echo
+      top_border
+      echo -e "|       ${red}!!! WARNING - OctoPrint service found !!!${default}       |"
+      hr
+      echo -e "|  You might consider disabling the OctoPrint service,  |"
+      echo -e "|  since an active OctoPrint service may lead to unex-  |"
+      echo -e "|  pected behavior of the Klipper Webinterfaces.        |"
+      bottom_border
+      read -p "${cyan}###### Do you want to disable OctoPrint now? (Y/n):${default} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          echo -e "###### > Yes"
+          status_msg "Stopping OctoPrint ..."
+          do_action_service "stop" "octoprint" && ok_msg "OctoPrint service stopped!"
+          status_msg "Disabling OctoPrint ..."
+          do_action_service "disable" "octoprint" && ok_msg "OctoPrint service disabled!"
+          break;;
+        N|n|No|no)
+          echo -e "###### > No"
+          break;;
+        *)
+          print_unkown_cmd
+          print_msg && clear_msg;;
+      esac
+    done
+  fi
+}
+
+function fetch_webui_ports(){
+  ### read listen ports from possible installed interfaces
+  ### and write them to ~/.kiauh.ini
+  WEBIFS=(mainsail fluidd octoprint)
+  for interface in "${WEBIFS[@]}"; do
+    if [ -f "/etc/nginx/sites-available/${interface}" ]; then
+      port=$(grep -E "listen" "/etc/nginx/sites-available/${interface}" | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)
+      if [ ! -n "$(grep -E "${interface}_port" "${INI_FILE}")" ]; then
+        sed -i '$a'"${interface}_port=${port}" "${INI_FILE}"
+      else
+        sed -i "/^${interface}_port/d" "${INI_FILE}"
+        sed -i '$a'"${interface}_port=${port}" "${INI_FILE}"
+      fi
+    else
+        sed -i "/^${interface}_port/d" "${INI_FILE}"
+    fi
+  done
 }
 
 init_ini(){
