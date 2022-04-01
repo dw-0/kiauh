@@ -149,37 +149,6 @@ compare_fluidd_versions(){
 #############################################################
 #############################################################
 
-read_pgc_versions(){
-  PGC_DIR="${HOME}/pgcode"
-  if [ -d $PGC_DIR ] && [ -d $PGC_DIR/.git ]; then
-    cd $PGC_DIR
-    git fetch origin main -q
-    LOCAL_PGC_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_PGC_COMMIT=$(git describe origin/main --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_PGC_COMMIT=$NONE
-    REMOTE_PGC_COMMIT=$NONE
-  fi
-}
-
-compare_pgc_versions(){
-  unset PGC_UPDATE_AVAIL
-  read_pgc_versions
-  if [ "$LOCAL_PGC_COMMIT" != "$REMOTE_PGC_COMMIT" ]; then
-    LOCAL_PGC_COMMIT="${yellow}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
-    REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
-    # add PGC to the update all array for the update all function in the updater
-    PGC_UPDATE_AVAIL="true" && update_arr+=(update_pgc_for_klipper)
-  else
-    LOCAL_PGC_COMMIT="${green}$(printf "%-12s" "$LOCAL_PGC_COMMIT")${default}"
-    REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "$REMOTE_PGC_COMMIT")${default}"
-    PGC_UPDATE_AVAIL="false"
-  fi
-}
-
-#############################################################
-#############################################################
-
 #display this as placeholder if no version/commit could be fetched
 NONE="${red}$(printf "%-12s" "--------")${default}"
 

@@ -132,13 +132,6 @@ update_fluidd(){
   symlink_webui_nginx_log "fluidd"
 }
 
-update_pgc_for_klipper(){
-  PGC_DIR="${HOME}/pgcode"
-  status_msg "Updating PrettyGCode for Klipper ..."
-  cd $PGC_DIR && git pull
-  ok_msg "Update complete!"
-}
-
 update_system(){
   status_msg "Updating System ..."
   sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y
