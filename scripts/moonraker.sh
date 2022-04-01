@@ -92,7 +92,7 @@ function moonraker_setup_dialog(){
           error_msg "Exiting Moonraker setup ...\n"
           break;;
         *)
-          invalid_option && print_error
+          print_error "Invalid command!"
           ;;
       esac
     fi
