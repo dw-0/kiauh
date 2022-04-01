@@ -48,9 +48,12 @@ function klipper_setup_dialog(){
   status_msg "Initializing Klipper installation ..."
 
   ### return early if klipper already exists
-  if [ -n "$(klipper_exists)" ]; then
+  local klipper_services
+  klipper_services=$(klipper_exists)
+  if [ -n "${klipper_services}" ]; then
     local error="At least one Klipper service is already installed:"
-    for s in $(klipper_exists); do
+    for s in ${klipper_services}; do
+      log "Found Klipper service: ${s}"
       error="${error}\n ➔ ${s}"
     done
     print_error "${error}" && return
