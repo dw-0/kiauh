@@ -19,7 +19,7 @@ PGC_DIR="${HOME}/pgcode"
 #================== INSTALL PGC ==================#
 #=================================================#
 
-install_pgc_for_klipper(){
+function install_pgc_for_klipper(){
   pgconfsrc="${PGC_DIR}/pgcode.local.conf"
   pgconf="/etc/nginx/sites-available/pgcode.local.conf"
   pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
@@ -57,7 +57,7 @@ install_pgc_for_klipper(){
 #=================== REMOVE PGC ==================#
 #=================================================#
 
-remove_prettygcode(){
+function remove_prettygcode(){
   pgconf="/etc/nginx/sites-available/pgcode.local.conf"
   pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
   if [ -d "${HOME}/pgcode" ] || [ -f "${pgconf}" ] || [ -L "${pgconfsl}" ]; then
@@ -76,7 +76,7 @@ remove_prettygcode(){
 #=================== UPDATE PGC ==================#
 #=================================================#
 
-update_pgc_for_klipper(){
+function update_pgc_for_klipper(){
   PGC_DIR="${HOME}/pgcode"
   status_msg "Updating PrettyGCode for Klipper ..."
   cd "${PGC_DIR}" && git pull
@@ -87,7 +87,7 @@ update_pgc_for_klipper(){
 #=================== PGC STATUS ==================#
 #=================================================#
 
-read_pgc_versions(){
+function read_pgc_versions(){
   PGC_DIR="${HOME}/pgcode"
   if [ -d "${PGC_DIR}" ] && [ -d "${PGC_DIR}/.git" ]; then
     cd "${PGC_DIR}"
@@ -100,7 +100,7 @@ read_pgc_versions(){
   fi
 }
 
-compare_pgc_versions(){
+function compare_pgc_versions(){
   unset PGC_UPDATE_AVAIL
   read_pgc_versions
   if [ "${LOCAL_PGC_COMMIT}" != "${REMOTE_PGC_COMMIT}" ]; then

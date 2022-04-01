@@ -20,7 +20,7 @@ WEBCAM_TXT_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/maste
 #============= INSTALL MJPG-STREAMER =============#
 #=================================================#
 
-install_mjpg-streamer(){
+function install_mjpg-streamer(){
   check_klipper_cfg_path
   source_kiauh_ini
 
@@ -148,11 +148,35 @@ EOF
   echo
 }
 
+function get_user_selection_mjpg-streamer(){
+  while true; do
+    unset INSTALL_MJPG
+    echo
+    top_border
+    echo -e "|  Install MJGP-Streamer for webcam support?            |"
+    bottom_border
+    read -p "${cyan}###### Install MJPG-Streamer? (Y/n):${default} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        echo -e "###### > Yes"
+        INSTALL_MJPG="true"
+        break;;
+      N|n|No|no)
+        echo -e "###### > No"
+        INSTALL_MJPG="false"
+        break;;
+      *)
+        print_unkown_cmd
+        print_msg && clear_msg;;
+    esac
+  done
+}
+
 #=================================================#
 #============== REMOVE MJPG-STREAMER =============#
 #=================================================#
 
-remove_mjpg-streamer(){
+function remove_mjpg-streamer(){
   ### remove MJPG-Streamer service
   if [ -e "${SYSTEMD}/webcamd.service" ]; then
     status_msg "Removing MJPG-Streamer service ..."

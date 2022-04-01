@@ -1,4 +1,4 @@
-set_nginx_cfg(){
+function set_nginx_cfg(){
   if [ "$SET_NGINX_CFG" = "true" ]; then
     #check for dependencies
     dep=(nginx)
@@ -36,11 +36,11 @@ set_nginx_cfg(){
   fi
 }
 
-read_listen_port(){
+function read_listen_port(){
   LISTEN_PORT=$(grep listen /etc/nginx/sites-enabled/$1 | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
 }
 
-detect_enabled_sites(){
+function detect_enabled_sites(){
   #check if there is another UI config already installed
   #and reads the port they are listening on
   if [ -e /etc/nginx/sites-enabled/mainsail ]; then
@@ -69,7 +69,7 @@ detect_enabled_sites(){
   fi
 }
 
-create_custom_hostname(){
+function create_custom_hostname(){
   echo
   top_border
   echo -e "|  You can change the hostname of this machine to use   |"
@@ -93,7 +93,7 @@ create_custom_hostname(){
   done
 }
 
-user_input_hostname(){
+function user_input_hostname(){
     unset NEW_HOSTNAME
     unset HOSTNAME_VALID
     unset HOSTENAME_CONFIRM
@@ -133,7 +133,7 @@ user_input_hostname(){
     done
 }
 
-set_hostname(){
+function set_hostname(){
   if [ "$HOSTNAME_VALID" = "true" ] && [ "$HOSTENAME_CONFIRM" = "true" ]; then
     #check for dependencies
     dep=(avahi-daemon)
