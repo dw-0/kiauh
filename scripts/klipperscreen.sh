@@ -22,7 +22,7 @@ KLIPPER_CONFIG="${HOME}/klipper_config"
 #============== INSTALL KLIPPERSCREEN ==============#
 #===================================================#
 
-install_klipperscreen(){
+function install_klipperscreen(){
   python3_check
   if [ "${py_chk_ok}" = "true" ]; then
     klipperscreen_setup
@@ -33,7 +33,7 @@ install_klipperscreen(){
   fi
 }
 
-python3_check(){
+function python3_check(){
   status_msg "Your Python 3 version is: $(python3 --version)"
   major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
   minor=$(python3 --version | cut -d"." -f2)
@@ -45,7 +45,7 @@ python3_check(){
   fi
 }
 
-klipperscreen_setup(){
+function klipperscreen_setup(){
   dep=(wget curl unzip dfu-util)
   dependency_check
   status_msg "Downloading KlipperScreen ..."
@@ -63,7 +63,7 @@ klipperscreen_setup(){
 #=============== REMOVE KLIPPERSCREEN ==============#
 #===================================================#
 
-remove_klipperscreen(){
+function remove_klipperscreen(){
   source_kiauh_ini
 
   ### remove KlipperScreen dir
@@ -110,7 +110,7 @@ remove_klipperscreen(){
 #=============== UPDATE KLIPPERSCREEN ==============#
 #===================================================#
 
-update_klipperscreen(){
+function update_klipperscreen(){
   stop_klipperscreen
   cd "${KLIPPERSCREEN_DIR}"
   KLIPPERSCREEN_OLDREQ_MD5SUM=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
@@ -131,7 +131,7 @@ update_klipperscreen(){
 #=============== KLIPPERSCREEN STATUS ==============#
 #===================================================#
 
-klipperscreen_status(){
+function klipperscreen_status(){
   klsccount=0
   klipperscreen_data=(
     SERVICE
@@ -161,7 +161,7 @@ klipperscreen_status(){
   fi
 }
 
-read_klipperscreen_versions(){
+function read_klipperscreen_versions(){
   if [ -d "${KLIPPERSCREEN_DIR}" ] && [ -d "${KLIPPERSCREEN_DIR}/.git" ]; then
     cd "${KLIPPERSCREEN_DIR}"
     git fetch origin master -q
@@ -173,7 +173,7 @@ read_klipperscreen_versions(){
   fi
 }
 
-compare_klipperscreen_versions(){
+function compare_klipperscreen_versions(){
   unset KLIPPERSCREEN_UPDATE_AVAIL
   read_klipperscreen_versions
   if [ "${LOCAL_KLIPPERSCREEN_COMMIT}" != "${REMOTE_KLIPPERSCREEN_COMMIT}" ]; then

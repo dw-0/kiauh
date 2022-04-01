@@ -22,12 +22,12 @@ KLIPPER_CONFIG="${HOME}/klipper_config"
 #=========== REMOVE MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
 
-install_MoonrakerTelegramBot(){
+function install_MoonrakerTelegramBot(){
     MoonrakerTelegramBot_setup
     restart_MoonrakerTelegramBot
 }
 
-MoonrakerTelegramBot_setup(){
+function MoonrakerTelegramBot_setup(){
   source_kiauh_ini
   export klipper_cfg_loc
   dep=(virtualenv)
@@ -48,7 +48,7 @@ MoonrakerTelegramBot_setup(){
 #=========== REMOVE MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
 
-remove_MoonrakerTelegramBot(){
+function remove_MoonrakerTelegramBot(){
   ### remove MoonrakerTelegramBot dir
   if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ]; then
     status_msg "Removing MoonrakerTelegramBot directory ..."
@@ -93,7 +93,7 @@ remove_MoonrakerTelegramBot(){
 #=========== UPDATE MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
 
-update_MoonrakerTelegramBot(){
+function update_MoonrakerTelegramBot(){
   export KLIPPER_CONFIG
   stop_MoonrakerTelegramBot
   cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
@@ -107,7 +107,7 @@ update_MoonrakerTelegramBot(){
 #=========== MOONRAKERTELEGRAMBOT STATUS ===========#
 #===================================================#
 
-MoonrakerTelegramBot_status(){
+function MoonrakerTelegramBot_status(){
   mtbcount=0
   MoonrakerTelegramBot_data=(
     SERVICE
@@ -137,7 +137,7 @@ MoonrakerTelegramBot_status(){
   fi
 }
 
-read_MoonrakerTelegramBot_versions(){
+function read_MoonrakerTelegramBot_versions(){
   if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] && [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]; then
     cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
     git fetch origin master -q
@@ -149,7 +149,7 @@ read_MoonrakerTelegramBot_versions(){
   fi
 }
 
-compare_MoonrakerTelegramBot_versions(){
+function compare_MoonrakerTelegramBot_versions(){
   unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
   read_MoonrakerTelegramBot_versions
   if [ "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}" != "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}" ]; then

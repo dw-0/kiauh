@@ -295,7 +295,7 @@ retrieve_id(){
   fi 2>/dev/null
 }
 
-check_usergroup_dialout(){
+function check_usergroup_dialout(){
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     group_dialout=false
   else
