@@ -47,20 +47,18 @@ function moonraker_setup_dialog(){
 
   ### return early if moonraker already exists
   if [ -n "$(moonraker_systemd)" ]; then
-    ERROR_MSG="At least one Moonraker service is already installed:"
+    local error="At least one Moonraker service is already installed:"
     for service in $(moonraker_systemd); do
-      ERROR_MSG="${ERROR_MSG}\n ➔ ${service}"
+      error="${error}\n ➔ ${service}"
     done
-    export ERROR_MSG
-    print_error && return
+    print_error "${error}" && return
   fi
 
   ### return early if python version check fails
   if [ "$(system_check_moonraker)" == "false" ]; then
-    ERROR_MSG="Versioncheck failed! Python 3.7 or newer required!\n"
-    ERROR_MSG="${ERROR_MSG} Please upgrade Python."
-    export ERROR_MSG
-    print_error && return
+    local error="Versioncheck failed! Python 3.7 or newer required!\n"
+    error="${error} Please upgrade Python."
+    print_error "${error}" && return
   fi
 
   top_border
@@ -164,12 +162,11 @@ function moonraker_setup(){
 
   ### confirm message
   if [[ ${instances} -eq 1 ]]; then
-    CONFIRM_MSG="Moonraker has been set up!"
+    local confirm="Moonraker has been set up!"
   elif [[ ${instances} -gt 1 ]]; then
-    CONFIRM_MSG="${instances} Moonraker instances have been set up!"
+    local confirm="${instances} Moonraker instances have been set up!"
   fi
-  export CONFIRM_MSG
-  print_confirm
+  print_confirm "${confirm}"
 
   print_mr_ip_list "${mr_ip_list}"
   return
@@ -413,7 +410,7 @@ function remove_moonraker(){
   remove_moonraker_polkit
   remove_moonraker_nginx
 
-  confirm="Moonraker was successfully removed!"
+  local confirm="Moonraker was successfully removed!"
   print_confirm "${confirm}" && return
 }
 
