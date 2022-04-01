@@ -29,10 +29,6 @@ for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . "${script}"; done
 NGINX_SA=/etc/nginx/sites-available
 NGINX_SE=/etc/nginx/sites-enabled
 NGINX_CONFD=/etc/nginx/conf.d
-#mainsail
-MAINSAIL_DIR=${HOME}/mainsail
-#fluidd
-FLUIDD_DIR=${HOME}/fluidd
 #misc
 INI_FILE=${HOME}/.kiauh.ini
 
