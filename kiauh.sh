@@ -35,7 +35,6 @@ MAINSAIL_DIR=${HOME}/mainsail
 FLUIDD_DIR=${HOME}/fluidd
 #misc
 INI_FILE=${HOME}/.kiauh.ini
-BACKUP_DIR=${HOME}/kiauh-backups
 
 ### set github repos
 DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
