@@ -87,18 +87,3 @@ remove_nginx(){
     ERROR_MSG=" Looks like Nginx was already removed!\n Skipping..."
   fi
 }
-
-remove_prettygcode(){
-  pgconf="/etc/nginx/sites-available/pgcode.local.conf"
-  pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
-  if [ -d ${HOME}/pgcode ] || [ -f $pgconf ] || [ -L $pgconfsl ]; then
-    status_msg "Removing PrettyGCode for Klipper ..."
-    rm -rf ${HOME}/pgcode
-    sudo rm -f $pgconf
-    sudo rm -f $pgconfsl
-    sudo systemctl restart nginx
-    CONFIRM_MSG="PrettyGCode for Klipper successfully removed!"
-  else
-    ERROR_MSG="PrettyGCode for Klipper not found!\n Skipping..."
-  fi
-}
