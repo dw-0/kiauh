@@ -1,26 +1,39 @@
+#!/bin/bash
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
+SYSTEMD="/etc/systemd/system"
 
 # setting up some frequently used functions
 check_euid(){
-  if [ "$EUID" -eq 0 ]
+  if [ "${EUID}" -eq 0 ]
   then
     echo -e "${red}"
     top_border
     echo -e "|       !!! THIS SCRIPT MUST NOT RAN AS ROOT !!!        |"
     bottom_border
-    echo -e "${default}"
+    echo -e "${white}"
     exit 1
   fi
 }
 
 check_klipper_cfg_path(){
   source_kiauh_ini
-  if [ -z $klipper_cfg_loc ]; then
+  if [ -z "${klipper_cfg_loc}" ]; then
     echo
     top_border
-    echo -e "|                    ${red}!!! WARNING !!!${default}                    |"
-    echo -e "|        ${red}No Klipper configuration directory set!${default}        |"
+    echo -e "|                    ${red}!!! WARNING !!!${white}                    |"
+    echo -e "|        ${red}No Klipper configuration directory set!${white}        |"
     hr
     echo -e "|  Before we can continue, KIAUH needs to know where    |"
     echo -e "|  you want your printer configuration to be.           |"
@@ -35,26 +48,26 @@ check_klipper_cfg_path(){
 
 change_klipper_cfg_path(){
   source_kiauh_ini
-  old_klipper_cfg_loc="$klipper_cfg_loc"
+  old_klipper_cfg_loc="${klipper_cfg_loc}"
   EXAMPLE_FOLDER=$(printf "%s/your_config_folder" "${HOME}")
   while true; do
     top_border
-    echo -e "|  ${red}IMPORTANT:${default}                                           |"
+    echo -e "|  ${red}IMPORTANT:${white}                                           |"
     echo -e "|  Please enter the new path in the following format:   |"
-    printf "|  ${yellow}%-51s${default}  |\n" "$EXAMPLE_FOLDER"
+    printf "|  ${yellow}%-51s${white}  |\n" "${EXAMPLE_FOLDER}"
     blank_line
     echo -e "|  By default 'klipper_config' is recommended!          |"
     bottom_border
     echo
-    echo -e "${cyan}###### Please set the Klipper config directory:${default} "
-    if [ -z "$old_klipper_cfg_loc" ]; then
+    echo -e "${cyan}###### Please set the Klipper config directory:${white} "
+    if [ -z "${old_klipper_cfg_loc}" ]; then
       read -e -i "/home/${USER}/klipper_config" -e new_klipper_cfg_loc
     else
-      read -e -i "$old_klipper_cfg_loc" -e new_klipper_cfg_loc
+      read -e -i "${old_klipper_cfg_loc}" -e new_klipper_cfg_loc
     fi
     echo
-    read -p "${cyan}###### Set config directory to '${yellow}$new_klipper_cfg_loc${cyan}' ? (Y/n):${default} " yn
-    case "$yn" in
+    read -p "${cyan}###### Set config directory to '${yellow}${new_klipper_cfg_loc}${cyan}' ? (Y/n):${white} " yn
+    case "${yn}" in
       Y|y|Yes|yes|"")
         echo -e "###### > Yes"
 
@@ -62,8 +75,8 @@ change_klipper_cfg_path(){
         backup_klipper_config_dir
 
         ### write new location to kiauh.ini
-        sed -i "s|klipper_cfg_loc=$old_klipper_cfg_loc|klipper_cfg_loc=$new_klipper_cfg_loc|" $INI_FILE
-        status_msg "Directory set to '$new_klipper_cfg_loc'!"
+        sed -i "s|klipper_cfg_loc=${old_klipper_cfg_loc}|klipper_cfg_loc=${new_klipper_cfg_loc}|" "${INI_FILE}"
+        status_msg "Directory set to '${new_klipper_cfg_loc}'!"
 
         ### write new location to klipper and moonraker service
         set_klipper_cfg_path
@@ -86,51 +99,51 @@ set_klipper_cfg_path(){
   do_action_service "stop" "moonraker"
 
   ### copy config files to new klipper config folder
-  if [ ! -z "$old_klipper_cfg_loc" ] && [ -d "$old_klipper_cfg_loc" ]; then
-    if [ ! -d "$new_klipper_cfg_loc" ]; then
-      status_msg "Copy config files to '$new_klipper_cfg_loc' ..."
-      mkdir -p "$new_klipper_cfg_loc"
-      cd $old_klipper_cfg_loc
-      cp -r -v ./* "$new_klipper_cfg_loc"
+  if [ -n "${old_klipper_cfg_loc}" ] && [ -d "${old_klipper_cfg_loc}" ]; then
+    if [ ! -d "${new_klipper_cfg_loc}" ]; then
+      status_msg "Copy config files to '${new_klipper_cfg_loc}' ..."
+      mkdir -p "${new_klipper_cfg_loc}"
+      cd "${old_klipper_cfg_loc}"
+      cp -r -v ./* "${new_klipper_cfg_loc}"
       ok_msg "Done!"
     fi
   fi
 
-  SERVICE_FILES=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/klipper(-[^0])+[0-9]*.service")
+  SERVICE_FILES=$(find "${SYSTEMD}" -regextype posix-extended -regex "${SYSTEMD}/klipper(-[^0])+[0-9]*.service")
   ### handle single klipper instance service file
-  if [ -f $SYSTEMDDIR/klipper.service ]; then
+  if [ -f "${SYSTEMD}/klipper.service" ]; then
     status_msg "Configuring Klipper for new path ..."
-    sudo sed -i -r "/ExecStart=/ s|klippy.py (.+)\/printer.cfg|klippy.py $new_klipper_cfg_loc/printer.cfg|" $SYSTEMDDIR/klipper.service
+    sudo sed -i -r "/ExecStart=/ s|klippy.py (.+)\/printer.cfg|klippy.py ${new_klipper_cfg_loc}/printer.cfg|" "${SYSTEMD}/klipper.service"
     ok_msg "OK!"
-  elif [ -n "$SERVICE_FILES" ]; then
+  elif [ -n "${SERVICE_FILES}" ]; then
     ### handle multi klipper instance service file
     status_msg "Configuring Klipper for new path ..."
-    for service in $SERVICE_FILES; do
-      sudo sed -i -r "/ExecStart=/ s|klippy.py (.+)\/printer_|klippy.py $new_klipper_cfg_loc/printer_|" "$service"
+    for service in ${SERVICE_FILES}; do
+      sudo sed -i -r "/ExecStart=/ s|klippy.py (.+)\/printer_|klippy.py ${new_klipper_cfg_loc}/printer_|" "${service}"
     done
     ok_msg "OK!"
   fi
 
-  SERVICE_FILES=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/moonraker(-[^0])+[0-9]*.service")
+  SERVICE_FILES=$(find "${SYSTEMD}" -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])+[0-9]*.service")
   ### handle single moonraker instance service and moonraker.conf file
-  if [ -f $SYSTEMDDIR/moonraker.service ]; then
+  if [ -f "${SYSTEMD}/moonraker.service" ]; then
     status_msg "Configuring Moonraker for new path ..."
-    sudo sed -i -r "/ExecStart=/ s|-c (.+)\/moonraker\.conf|-c $new_klipper_cfg_loc/moonraker.conf|" $SYSTEMDDIR/moonraker.service
+    sudo sed -i -r "/ExecStart=/ s|-c (.+)\/moonraker\.conf|-c ${new_klipper_cfg_loc}/moonraker.conf|" "${SYSTEMD}/moonraker.service"
 
     ### replace old file path with new one in moonraker.conf
-    sed -i -r "/config_path:/ s|config_path:.*|config_path: $new_klipper_cfg_loc|" $new_klipper_cfg_loc/moonraker.conf
+    sed -i -r "/config_path:/ s|config_path:.*|config_path: ${new_klipper_cfg_loc}|" "${new_klipper_cfg_loc}/moonraker.conf"
     ok_msg "OK!"
-  elif [ -n "$SERVICE_FILES" ]; then
+  elif [ -n "${SERVICE_FILES}" ]; then
     ### handle multi moonraker instance service file
     status_msg "Configuring Moonraker for new path ..."
-    for service in $SERVICE_FILES; do
-      sudo sed -i -r "/ExecStart=/ s|-c (.+)\/printer_|-c $new_klipper_cfg_loc/printer_|" "$service"
+    for service in ${SERVICE_FILES}; do
+      sudo sed -i -r "/ExecStart=/ s|-c (.+)\/printer_|-c ${new_klipper_cfg_loc}/printer_|" "${service}"
     done
-    MR_CONFS=$(find "$new_klipper_cfg_loc" -regextype posix-extended -regex "$new_klipper_cfg_loc/printer_[1-9]+/moonraker.conf")
+    MR_CONFS=$(find "${new_klipper_cfg_loc}" -regextype posix-extended -regex "${new_klipper_cfg_loc}/printer_[1-9]+/moonraker.conf")
     ### replace old file path with new one in moonraker.conf
-    for moonraker_conf in $MR_CONFS; do
-      loc=$(echo "$moonraker_conf" | rev | cut -d"/" -f2- | rev)
-      sed -i -r "/config_path:/ s|config_path:.*|config_path: $loc|" "$moonraker_conf"
+    for moonraker_conf in ${MR_CONFS}; do
+      loc=$(echo "${moonraker_conf}" | rev | cut -d"/" -f2- | rev)
+      sed -i -r "/config_path:/ s|config_path:.*|config_path: ${loc}|" "${moonraker_conf}"
     done
     ok_msg "OK!"
   fi
@@ -149,7 +162,7 @@ source_kiauh_ini(){
 
 do_action_service(){
   shopt -s extglob # enable extended globbing
-  SERVICES="$SYSTEMDDIR/$2?(-*([0-9])).service"
+  SERVICES="${SYSTEMD}/$2?(-*([0-9])).service"
   ### set a variable for the ok and status messages
   [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
   [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
@@ -157,11 +170,11 @@ do_action_service(){
   [ "$1" == "enable" ] && ACTION1="enabled" && ACTION2="Enabling"
   [ "$1" == "disable" ] && ACTION1="disabled" && ACTION2="Disabling"
 
-  if ls $SERVICES 2>/dev/null 1>&2; then
-    for service in $(ls $SERVICES | rev | cut -d"/" -f1 | rev); do
-      status_msg "$ACTION2 $service ..."
-      sudo systemctl $1 "$service"
-      ok_msg "$service $ACTION1!"
+  if ls "${SERVICES}" 2>/dev/null 1>&2; then
+    for service in $(ls "${SERVICES}" | rev | cut -d"/" -f1 | rev); do
+      status_msg "${ACTION2} ${service} ..."
+      sudo systemctl "${1}" "${service}"
+      ok_msg "${service} ${ACTION1}!"
     done
   fi
   shopt -u extglob # disable extended globbing
@@ -189,9 +202,9 @@ read_octoprint_service_status(){
     return 0
   fi
   if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
-    OPRINT_SERVICE_STATUS="${red}[Disable]${default} OctoPrint Service                       "
+    OPRINT_SERVICE_STATUS="${red}[Disable]${white} OctoPrint Service                       "
   else
-    OPRINT_SERVICE_STATUS="${green}[Enable]${default} OctoPrint Service                        "
+    OPRINT_SERVICE_STATUS="${green}[Enable]${white} OctoPrint Service                        "
   fi
 }
 
@@ -238,7 +251,7 @@ dependency_check(){
   #check if package is installed, if not write name into array
   for pkg in ${dep}
   do
-    echo -e "${cyan}● ${pkg} ${default}"
+    echo -e "${cyan}● ${pkg} ${white}"
     if [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]]; then
       inst+=("${pkg}")
     fi
@@ -248,7 +261,7 @@ dependency_check(){
     status_msg "Installing the following dependencies:"
     for element in "${inst[@]}"
     do
-      echo -e "${cyan}● ${element} ${default}"
+      echo -e "${cyan}● ${element} ${white}"
     done
     echo
     sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${inst[@]}" -y
@@ -263,14 +276,14 @@ dependency_check(){
 print_error(){
   for data in "${data_arr[@]}"
   do
-    if [ ! -e $data ]; then
+    if [ ! -e "${data}" ]; then
       data_count+=(0)
     else
       data_count+=(1)
     fi
   done
   sum=$(IFS=+; echo "$((${data_count[*]}))")
-  if [ $sum -eq 0 ]; then
+  if [ "${sum}" -eq 0 ]; then
     ERROR_MSG="Looks like $1 was already removed!\n Skipping..."
   else
     ERROR_MSG=""
@@ -285,21 +298,21 @@ setup_gcode_shell_command(){
   echo -e "| before you continue and remember that potential risks |"
   echo -e "| can be involved after installing this extension!      |"
   blank_line
-  echo -e "| ${red}You accept that you are doing this on your own risk!${default}  |"
+  echo -e "| ${red}You accept that you are doing this on your own risk!${white}  |"
   bottom_border
   while true; do
-    read -p "${cyan}###### Do you want to continue? (Y/n):${default} " yn
-    case "$yn" in
+    read -p "${cyan}###### Do you want to continue? (Y/n):${white} " yn
+    case "${yn}" in
       Y|y|Yes|yes|"")
-        if [ -d $KLIPPER_DIR/klippy/extras ]; then
+        if [ -d "${KLIPPER_DIR}/klippy/extras" ]; then
           status_msg "Installing gcode shell command extension ..."
-          if [ -f $KLIPPER_DIR/klippy/extras/gcode_shell_command.py ]; then
+          if [ -f "${KLIPPER_DIR}/klippy/extras/gcode_shell_command.py" ]; then
             warn_msg "There is already a file named 'gcode_shell_command.py'\nin the destination location!"
             while true; do
-              read -p "${cyan}###### Do you want to overwrite it? (Y/n):${default} " yn
-              case "$yn" in
+              read -p "${cyan}###### Do you want to overwrite it? (Y/n):${white} " yn
+              case "${yn}" in
                 Y|y|Yes|yes|"")
-                  rm -f $KLIPPER_DIR/klippy/extras/gcode_shell_command.py
+                  rm -f "${KLIPPER_DIR}/klippy/extras/gcode_shell_command.py"
                   install_gcode_shell_command
                   break;;
                 N|n|No|no)
@@ -324,38 +337,38 @@ setup_gcode_shell_command(){
 
 install_gcode_shell_command(){
   do_action_service "stop" "klipper"
-  status_msg "Copy 'gcode_shell_command.py' to '$KLIPPER_DIR/klippy/extras' ..."
-  cp ${SRCDIR}/kiauh/resources/gcode_shell_command.py $KLIPPER_DIR/klippy/extras
+  status_msg "Copy 'gcode_shell_command.py' to '${KLIPPER_DIR}/klippy/extras' ..."
+  cp "${SRCDIR}/kiauh/resources/gcode_shell_command.py" "${KLIPPER_DIR}/klippy/extras"
   while true; do
     echo
-    read -p "${cyan}###### Do you want to create the example shell command? (Y/n):${default} " yn
-    case "$yn" in
+    read -p "${cyan}###### Do you want to create the example shell command? (Y/n):${white} " yn
+    case "${yn}" in
       Y|y|Yes|yes|"")
         status_msg "Copy shell_command.cfg ..."
         ### create a backup of the config folder
         backup_klipper_config_dir
 
         ### handle single printer.cfg
-        if [ -f $klipper_cfg_loc/printer.cfg ] && [ ! -f $klipper_cfg_loc/shell_command.cfg ]; then
+        if [ -f "${klipper_cfg_loc}/printer.cfg" ] && [ ! -f "${klipper_cfg_loc}/shell_command.cfg" ]; then
           ### copy shell_command.cfg to config location
-          cp ${SRCDIR}/kiauh/resources/shell_command.cfg $klipper_cfg_loc
-          ok_msg "$klipper_cfg_loc/shell_command.cfg created!"
+          cp "${SRCDIR}/kiauh/resources/shell_command.cfg" "${klipper_cfg_loc}"
+          ok_msg "${klipper_cfg_loc}/shell_command.cfg created!"
 
           ### write the include to the very first line of the printer.cfg
-          sed -i "1 i [include shell_command.cfg]" $klipper_cfg_loc/printer.cfg
+          sed -i "1 i [include shell_command.cfg]" "${klipper_cfg_loc}/printer.cfg"
         fi
 
         ### handle multi printer.cfg
-        if ls $klipper_cfg_loc/printer_*  2>/dev/null 1>&2; then
-          for config in $(find $klipper_cfg_loc/printer_*/printer.cfg); do
-            path=$(echo $config | rev | cut -d"/" -f2- | rev)
-            if [ ! -f $path/shell_command.cfg ]; then
+        if ls "${klipper_cfg_loc}"/printer_*  2>/dev/null 1>&2; then
+          for config in $(find ${klipper_cfg_loc}/printer_*/printer.cfg); do
+            path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
+            if [ ! -f "${path}/shell_command.cfg" ]; then
               ### copy shell_command.cfg to config location
-              cp ${SRCDIR}/kiauh/resources/shell_command.cfg $path
-              ok_msg "$path/shell_command.cfg created!"
+              cp "${SRCDIR}/kiauh/resources/shell_command.cfg" "${path}"
+              ok_msg "${path}/shell_command.cfg created!"
 
               ### write the include to the very first line of the printer.cfg
-              sed -i "1 i [include shell_command.cfg]" $path/printer.cfg
+              sed -i "1 i [include shell_command.cfg]" "${path}/printer.cfg"
             fi
           done
         fi
@@ -370,8 +383,8 @@ install_gcode_shell_command(){
 
 create_minimal_cfg(){
   #create a minimal default config
-  if [ "$SEL_DEF_CFG" = "true" ]; then
-		cat <<- EOF >> $PRINTER_CFG
+  if [ "${SEL_DEF_CFG}" = "true" ]; then
+		cat <<- EOF >> "${PRINTER_CFG}"
 		[mcu]
 		serial: </dev/serial/by-id/your-mcu>
 
@@ -391,30 +404,30 @@ EOF
 
 init_ini(){
   ### copy an existing kiauh.ini to its new location to keep all possible saved values
-  if [ -f ${SRCDIR}/kiauh/kiauh.ini ] && [ ! -f $INI_FILE ]; then
-    cp ${SRCDIR}/kiauh/kiauh.ini $INI_FILE
+  if [ -f "${SRCDIR}/kiauh/kiauh.ini" ] && [ ! -f "${INI_FILE}" ]; then
+    cp "${SRCDIR}/kiauh/kiauh.ini" "${INI_FILE}"
   fi
-  if [ ! -f $INI_FILE ]; then
-    echo -e "#don't edit this file if you don't know what you are doing...\c" > $INI_FILE
+  if [ ! -f "${INI_FILE}" ]; then
+    echo -e "#don't edit this file if you don't know what you are doing...\c" > "${INI_FILE}"
   fi
-  if [ ! $(grep -E "^backup_before_update=." $INI_FILE) ]; then
-    echo -e "\nbackup_before_update=false\c" >> $INI_FILE
+  if [ ! $(grep -E "^backup_before_update=." "${INI_FILE}") ]; then
+    echo -e "\nbackup_before_update=false\c" >> "${INI_FILE}"
   fi
-  if [ ! $(grep -E "^previous_origin_state=[[:alnum:]]" $INI_FILE) ]; then
-    echo -e "\nprevious_origin_state=0\c" >> $INI_FILE
+  if [ ! $(grep -E "^previous_origin_state=[[:alnum:]]" "${INI_FILE}") ]; then
+    echo -e "\nprevious_origin_state=0\c" >> "${INI_FILE}"
   fi
-  if [ ! $(grep -E "^previous_smoothing_state=[[:alnum:]]" $INI_FILE) ]; then
-    echo -e "\nprevious_smoothing_state=0\c" >> $INI_FILE
+  if [ ! $(grep -E "^previous_smoothing_state=[[:alnum:]]" "${INI_FILE}") ]; then
+    echo -e "\nprevious_smoothing_state=0\c" >> "${INI_FILE}"
   fi
-  if [ ! $(grep -E "^previous_shaping_state=[[:alnum:]]" $INI_FILE) ]; then
-    echo -e "\nprevious_shaping_state=0\c" >> $INI_FILE
+  if [ ! $(grep -E "^previous_shaping_state=[[:alnum:]]" "${INI_FILE}") ]; then
+    echo -e "\nprevious_shaping_state=0\c" >> "${INI_FILE}"
   fi
-  if [ ! $(grep -E "^logupload_accepted=." $INI_FILE) ]; then
-    echo -e "\nlogupload_accepted=false\c" >> $INI_FILE
+  if [ ! $(grep -E "^logupload_accepted=." "${INI_FILE}") ]; then
+    echo -e "\nlogupload_accepted=false\c" >> "${INI_FILE}"
   fi
   ###add empty klipper config path if missing
-  if [ ! $(grep -E "^klipper_cfg_loc=" $INI_FILE) ]; then
-    echo -e "\nklipper_cfg_loc=\c" >> $INI_FILE
+  if [ ! $(grep -E "^klipper_cfg_loc=" "${INI_FILE}") ]; then
+    echo -e "\nklipper_cfg_loc=\c" >> "${INI_FILE}"
   fi
   fetch_webui_ports
 }
