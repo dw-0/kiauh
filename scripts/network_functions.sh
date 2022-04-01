@@ -59,14 +59,6 @@ detect_enabled_sites(){
   else
     FLUIDD_ENABLED="false"
   fi
-  if [ -e /etc/nginx/sites-enabled/dwc2 ]; then
-    SITE_ENABLED="true" && DWC2_ENABLED="true"
-    read_listen_port "dwc2"
-    DWC2_PORT=$LISTEN_PORT
-    #echo "debug: DWC2 listens on port: $DWC2_PORT"
-  else
-    DWC2_ENABLED="false"
-  fi
   if [ -e /etc/nginx/sites-enabled/octoprint ]; then
     SITE_ENABLED="true" && OCTOPRINT_ENABLED="true"
     read_listen_port "octoprint"
@@ -84,7 +76,7 @@ create_custom_hostname(){
   echo -e "|  that name to open the Interface in your browser.     |"
   echo -e "|                                                       |"
   echo -e "|  E.g.: If you set the hostname to 'my-printer' you    |"
-  echo -e "|        can open DWC2/Mainsail/Fluidd/Octoprint by     |"
+  echo -e "|        can open Mainsail / Fluidd / Octoprint by      |"
   echo -e "|        browsing to: http://my-printer.local           |"
   bottom_border
   while true; do

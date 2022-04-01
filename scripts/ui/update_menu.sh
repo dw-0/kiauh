@@ -1,9 +1,9 @@
 update_ui(){
   ui_print_versions
   top_border
-  echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${default}     | "
+  echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${white}     | "
   hr
-  echo -e "|  0) $BB4U_STATUS| "
+  echo -e "|  0) ${BB4U_STATUS}| "
   hr
   echo -e "|  a) [Update all]       |               |              | "
   echo -e "|                        | Installed:    | Latest:      | "
@@ -19,12 +19,10 @@ update_ui(){
   echo -e "|  5) [KlipperScreen]    |  $LOCAL_KLIPPERSCREEN_COMMIT | $REMOTE_KLIPPERSCREEN_COMMIT | "
   echo -e "|                        |               |              | "
   echo -e "|  Other:                |---------------|--------------| "
-  echo -e "|  6) [DWC2-for-Klipper] |  $LOCAL_DWC2FK_COMMIT | $REMOTE_DWC2FK_COMMIT | "
-  echo -e "|  7) [DWC2 Web UI]      |  $DWC2_LOCAL_VER | $DWC2_REMOTE_VER | "
-  echo -e "|  8) [PrettyGCode]      |  $LOCAL_PGC_COMMIT | $REMOTE_PGC_COMMIT | "
-  echo -e "|  9) [Telegram Bot]     |  $LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT | $REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT | "
+  echo -e "|  6) [PrettyGCode]      |  $LOCAL_PGC_COMMIT | $REMOTE_PGC_COMMIT | "
+  echo -e "|  7) [Telegram Bot]     |  $LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT | $REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT | "
   echo -e "|                        |------------------------------| "
-  echo -e "|  10) [System]          |  $DISPLAY_SYS_UPDATE   | "
+  echo -e "|  8) [System]           |  $DISPLAY_SYS_UPDATE   | "
   back_footer
 }
 
@@ -32,8 +30,8 @@ update_menu(){
   read_bb4u_stat
   do_action "" "update_ui"
   while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
-    case "$action" in
+    read -p "${cyan}Perform action:${white} " action; echo
+    case "${action}" in
       0)
         do_action "toggle_backups" "update_ui";;
       1)
@@ -47,14 +45,10 @@ update_menu(){
       5)
         do_action "update_klipperscreen" "update_ui";;
       6)
-        do_action "update_dwc2fk" "update_ui";;
-      7)
-        do_action "update_dwc2" "update_ui";;
-      8)
         do_action "update_pgc_for_klipper" "update_ui";;
-      9)
+      7)
         do_action "update_MoonrakerTelegramBot" "update_ui";;
-      10)
+      8)
         do_action "update_system" "update_ui";;
       a)
         do_action "update_all" "update_ui";;

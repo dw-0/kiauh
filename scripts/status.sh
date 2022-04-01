@@ -156,8 +156,6 @@ ui_print_versions(){
   unset update_arr
   check_system_updates
 #  compare_klipper_versions
-#  compare_dwc2fk_versions
-#  compare_dwc2_versions
 #  compare_moonraker_versions
 #  compare_mainsail_versions
 #  compare_fluidd_versions

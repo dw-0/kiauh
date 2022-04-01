@@ -64,8 +64,6 @@ For more information or instructions to the various components KIAUH can install
 * 🌙[Moonraker](https://github.com/Arksine/moonraker) by [Arksine](https://github.com/Arksine)
 * 💨[Mainsail](https://github.com/mainsail-crew/mainsail) by [mainsail-crew](https://github.com/mainsail-crew)
 * 🌊[Fluidd](https://github.com/fluidd-core/fluidd) by [fluidd-core](https://github.com/fluidd-core)
-* 🕸️[Duet Web Control](https://github.com/Duet3D/DuetWebControl) by [Duet3D](https://github.com/Duet3D)
-* 🕸️[DWC2-for-Klipper-Socket](https://github.com/Stephan3/dwc2-for-klipper-socket) by [Stephan3](https://github.com/Stephan3)
 * 🖥️[KlipperScreen](https://github.com/jordanruthe/KlipperScreen) by [jordanruthe](https://github.com/jordanruthe)
 * 🐙[OctoPrint](https://github.com/OctoPrint/OctoPrint) by [OctoPrint](https://github.com/OctoPrint)
 * 🔬[PrettyGCode](https://github.com/Kragrathea/pgcode) by [Kragrathea](https://github.com/Kragrathea)

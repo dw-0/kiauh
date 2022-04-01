@@ -1,6 +1,6 @@
 remove_ui(){
   top_border
-  echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${default}     | "
+  echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${white}     | "
   hr
   echo -e "|  Directories which remain untouched:                  | "
   echo -e "|  --> Your printer configuration directory             | "
@@ -11,13 +11,12 @@ remove_ui(){
   echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
   echo -e "|                           |                           | "
   echo -e "|  Klipper API:             |  Other:                   | "
-  echo -e "|  2) [Moonraker]           |  6) [Duet Web Control]    | "
-  echo -e "|                           |  7) [OctoPrint]           | "
-  echo -e "|  Klipper Webinterface:    |  8) [PrettyGCode]         | "
-  echo -e "|  3) [Mainsail]            |  9) [Telegram Bot]        | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |  10) [MJPG-Streamer]      | "
-  echo -e "|                           |  11) [NGINX]              | "
+  echo -e "|  2) [Moonraker]           |  6) [OctoPrint]           | "
+  echo -e "|                           |  7) [PrettyGCode]         | "
+  echo -e "|  Klipper Webinterface:    |  9) [Telegram Bot]        | "
+  echo -e "|  3) [Mainsail]            |                           | "
+  echo -e "|  4) [Fluidd]              |  9) [MJPG-Streamer]       | "
+  echo -e "|                           |  10) [NGINX]              | "
   back_footer
 }
 
@@ -25,7 +24,7 @@ remove_menu(){
   do_action "" "remove_ui"
   while true; do
     read -p "${cyan}Perform action:${default} " action; echo
-    case "$action" in
+    case "${action}" in
       1)
         do_action "remove_klipper" "remove_ui";;
       2)
@@ -37,16 +36,14 @@ remove_menu(){
       5)
         do_action "remove_klipperscreen" "remove_ui";;
       6)
-        do_action "remove_dwc2" "remove_ui";;
-      7)
         do_action "remove_octoprint" "remove_ui";;
-      8)
+      7)
         do_action "remove_prettygcode" "remove_ui";;
-      9)
+      8)
         do_action "remove_MoonrakerTelegramBot" "remove_ui";;
-      10)
+      9)
         do_action "remove_mjpg-streamer" "remove_ui";;
-      11)
+      10)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;

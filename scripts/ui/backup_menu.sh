@@ -12,9 +12,8 @@ backup_ui(){
   echo -e "|                        |  6) [KlipperScreen]          | "
   echo -e "|  Klipper API:          |                              | "
   echo -e "|  2) [Moonraker]        |  Other:                      | "
-  echo -e "|  3) [Moonraker DB]     |  7) [Duet Web Control]       | "
-  echo -e "|                        |  8) [OctoPrint]              | "
-  echo -e "|                        |  9) [MoonrakerTelegramBot]   | "
+  echo -e "|  3) [Moonraker DB]     |  7) [OctoPrint]              | "
+  echo -e "|                        |  8) [MoonrakerTelegramBot]   | "
   back_footer
 }
 
@@ -38,10 +37,8 @@ backup_menu(){
       6)
         do_action "backup_klipperscreen" "backup_ui";;
       7)
-        do_action "backup_dwc2" "backup_ui";;
-      8)
         do_action "backup_octoprint" "backup_ui";;
-      9)
+      8)
         do_action "backup_MoonrakerTelegramBot" "backup_ui";;
       B|b)
         clear; main_menu; break;;

@@ -223,8 +223,7 @@ mainsail_port_check(){
       status_msg "Detected other enabled interfaces:"
       [ "${OCTOPRINT_ENABLED}" = "true" ] && echo -e "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${default}"
       [ "${FLUIDD_ENABLED}" = "true" ] && echo -e "   ${cyan}● Fluidd - Port: ${FLUIDD_PORT}${default}"
-      [ "${DWC2_ENABLED}" = "true" ] && echo -e "   ${cyan}● DWC2 - Port: ${DWC2_PORT}${default}"
-      if [ "${FLUIDD_PORT}" = "80" ] || [ "${DWC2_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
+      if [ "${FLUIDD_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
         PORT_80_BLOCKED="true"
         select_mainsail_port
       fi
@@ -244,8 +243,7 @@ fluidd_port_check(){
       status_msg "Detected other enabled interfaces:"
       [ "${OCTOPRINT_ENABLED}" = "true" ] && echo "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${default}"
       [ "${MAINSAIL_ENABLED}" = "true" ] && echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${default}"
-      [ "${DWC2_ENABLED}" = "true" ] && echo "   ${cyan}● DWC2 - Port: ${DWC2_PORT}${default}"
-      if [ "${MAINSAIL_PORT}" = "80" ] || [ "${DWC2_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
+      if [ "${MAINSAIL_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
         PORT_80_BLOCKED="true"
         select_fluidd_port
       fi
@@ -269,7 +267,6 @@ select_mainsail_port(){
     blank_line
     [ "${OCTOPRINT_PORT}" = "80" ] && echo "|  ● OctoPrint                                          |"
     [ "${FLUIDD_PORT}" = "80" ] && echo "|  ● Fluidd                                             |"
-    [ "${DWC2_PORT}" = "80" ] && echo "|  ● DWC2                                               |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
     echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
@@ -280,7 +277,7 @@ select_mainsail_port(){
     bottom_border
     while true; do
       read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
-      if [ "${NEW_PORT}" != "${FLUIDD_PORT}" ] && [ "${NEW_PORT}" != "${DWC2_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
+      if [ "${NEW_PORT}" != "${FLUIDD_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
         echo "Setting port ${NEW_PORT} for Mainsail!"
         SET_LISTEN_PORT=${NEW_PORT}
         break
@@ -301,7 +298,6 @@ select_fluidd_port(){
     blank_line
     [ "${OCTOPRINT_PORT}" = "80" ] && echo "|  ● OctoPrint                                          |"
     [ "${MAINSAIL_PORT}" = "80" ] && echo "|  ● Mainsail                                           |"
-    [ "${DWC2_PORT}" = "80" ] && echo "|  ● DWC2                                               |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
     echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
@@ -312,7 +308,7 @@ select_fluidd_port(){
     bottom_border
     while true; do
       read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
-      if [ "${NEW_PORT}" != "${MAINSAIL_PORT}" ] && [ "${NEW_PORT}" != "${DWC2_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
+      if [ "${NEW_PORT}" != "${MAINSAIL_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
         echo "Setting port ${NEW_PORT} for Fluidd!"
         SET_LISTEN_PORT=${NEW_PORT}
         break
@@ -401,7 +397,7 @@ set_upstream_nginx_cfg(){
 fetch_webui_ports(){
   ### read listen ports from possible installed interfaces
   ### and write them to ~/.kiauh.ini
-  WEBIFS=(mainsail fluidd octoprint dwc2)
+  WEBIFS=(mainsail fluidd octoprint)
   for interface in "${WEBIFS[@]}"; do
     if [ -f "/etc/nginx/sites-available/${interface}" ]; then
       port=$(grep -E "listen" "/etc/nginx/sites-available/${interface}" | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)

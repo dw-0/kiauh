@@ -1,19 +1,19 @@
 install_ui(){
   top_border
-  echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${default}     | "
+  echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${white}     | "
   hr
   echo -e "|  You need this menu usually only for installing       | "
   echo -e "|  all necessary dependencies for the various           | "
   echo -e "|  functions on a completely fresh system.              | "
   hr
   echo -e "|  Firmware & API:          |  Other:                   | "
-  echo -e "|  1) [Klipper]             |  6) [Duet Web Control]    | "
-  echo -e "|  2) [Moonraker]           |  7) [OctoPrint]           | "
-  echo -e "|                           |  8) [PrettyGCode]         | "
-  echo -e "|  Klipper Webinterface:    |  9) [Telegram Bot]        | "
-  echo -e "|  3) [Mainsail]            |                           | "
-  echo -e "|  4) [Fluidd]              |  Webcam:                  | "
-  echo -e "|                           |  10) [MJPG-Streamer]      | "
+  echo -e "|  1) [Klipper]             |  6) [OctoPrint]           | "
+  echo -e "|  2) [Moonraker]           |  7) [PrettyGCode]         | "
+  echo -e "|                           |  8) [Telegram Bot]        | "
+  echo -e "|  Klipper Webinterface:    |                           | "
+  echo -e "|  3) [Mainsail]            |  Webcam:                  | "
+  echo -e "|  4) [Fluidd]              |  9) [MJPG-Streamer]       | "
+  echo -e "|                           |                           | "
   echo -e "|  Touchscreen GUI:         |                           | "
   echo -e "|  5) [KlipperScreen]       |                           | "
   back_footer
@@ -35,14 +35,12 @@ install_menu(){
       5)
         do_action "install_klipperscreen" "install_ui";;
       6)
-        do_action "dwc_setup_dialog" "install_ui";;
-      7)
         do_action "octoprint_setup_dialog" "install_ui";;
-      8)
+      7)
         do_action "install_pgc_for_klipper" "install_ui";;
-      9)
+      8)
         do_action "install_MoonrakerTelegramBot" "install_ui";;
-      10)
+      9)
         do_action "install_mjpg-streamer" "install_ui";;
       B|b)
         clear; main_menu; break;;
