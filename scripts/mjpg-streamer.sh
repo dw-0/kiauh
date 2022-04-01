@@ -1,7 +1,24 @@
+#!/bin/bash
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
 ### base variables
-SYSTEMDDIR="/etc/systemd/system"
+SYSTEMD="/etc/systemd/system"
 WEBCAMD_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
 WEBCAM_TXT_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
+
+#=================================================#
+#============= INSTALL MJPG-STREAMER =============#
+#=================================================#
 
 install_mjpg-streamer(){
   check_klipper_cfg_path
@@ -9,11 +26,11 @@ install_mjpg-streamer(){
 
   ### set default values
   MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
-  MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
-  WEBCAM_TXT="$klipper_cfg_loc/webcam.txt"
+  MJPG_SERV_TARGET="${SYSTEMD}/webcamd.service"
+  WEBCAM_TXT="${KLIPPER_CONFIG}/webcam.txt"
 
   ### if there is a webcamd.service -> exit
-  if [ -f $MJPG_SERV_TARGET ]; then
+  if [ -f "${MJPG_SERV_TARGET}" ]; then
     ERROR_MSG="Looks like MJPG-streamer is already installed!\n Please remove it first before you try to re-install it!"
     print_msg && clear_msg && return
   fi
@@ -53,23 +70,23 @@ install_mjpg-streamer(){
 </body>
 </html>
 EOT
-  sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
-  sudo sed -i "/^config_dir=/ s|=.*|=$klipper_cfg_loc|" /usr/local/bin/webcamd
+  sudo wget "${WEBCAMD_SRC}" -O "/usr/local/bin/webcamd"
+  sudo sed -i "/^config_dir=/ s|=.*|=${KLIPPER_CONFIG}|" /usr/local/bin/webcamd
   sudo sed -i "/MJPGSTREAMER_HOME/ s/pi/${USER}/" /usr/local/bin/webcamd
   sudo chmod +x /usr/local/bin/webcamd
 
   ### step 4: create webcam.txt config file
-  [ ! -d "$klipper_cfg_loc" ] && mkdir -p "$klipper_cfg_loc"
-  if [ ! -f "$WEBCAM_TXT" ]; then
+  [ ! -d "${KLIPPER_CONFIG}" ] && mkdir -p "${KLIPPER_CONFIG}"
+  if [ ! -f "${WEBCAM_TXT}" ]; then
     status_msg "Creating webcam.txt config file ..."
-    wget $WEBCAM_TXT_SRC -O "$WEBCAM_TXT"
+    wget "${WEBCAM_TXT_SRC}" -O "${WEBCAM_TXT}"
     ok_msg "Done!"
   fi
 
   ### step 5: create systemd service
   status_msg "Creating MJPG-Streamer service ..."
-  sudo cp "$MJPG_SERV_SRC" $MJPG_SERV_TARGET
-  sudo sed -i "s|%USER%|${USER}|" $MJPG_SERV_TARGET
+  sudo cp "${MJPG_SERV_SRC}" "${MJPG_SERV_TARGET}"
+  sudo sed -i "s|%USER%|${USER}|" "${MJPG_SERV_TARGET}"
   ok_msg "MJPG-Streamer service created!"
 
   ### step 6: enabling and starting mjpg-streamer service
@@ -106,7 +123,7 @@ EOF
   ### step 7: check if user is in group "video"
   usergroup_changed=false
   USER_IN_VIDEO_GROUP=$(groups "${USER}" | grep "video")
-  if [ -z "$USER_IN_VIDEO_GROUP" ]; then
+  if [ -z "${USER_IN_VIDEO_GROUP}" ]; then
     status_msg "Adding user ${USER} to group 'video' ..."
     sudo usermod -a -G video "${USER}" && ok_msg "Done!"
     usergroup_changed=true
@@ -116,7 +133,7 @@ EOF
 
   ### confirm message
   CONFIRM_MSG="MJPG-Streamer has been set up!"
-  if [ "$usergroup_changed" == true ]; then
+  if [ "${usergroup_changed}" == true ]; then
     CONFIRM_MSG="${CONFIRM_MSG}\n ${yellow}INFO: Your User was added to a new group!${green}"
     CONFIRM_MSG="${CONFIRM_MSG}\n ${yellow}You need to relog/restart for the group to be applied!${green}"
   fi
@@ -124,9 +141,44 @@ EOF
 
   ### print webcam ip adress/url
   IP=$(hostname -I | cut -d" " -f1)
-  WEBCAM_IP="http://$IP:8080/?action=stream"
-  WEBCAM_URL="http://$IP/webcam/?action=stream"
-  echo -e " ${cyan}● Webcam URL:${default} $WEBCAM_IP"
-  echo -e " ${cyan}● Webcam URL:${default} $WEBCAM_URL"
+  WEBCAM_IP="http://${IP}:8080/?action=stream"
+  WEBCAM_URL="http://${IP}/webcam/?action=stream"
+  echo -e " ${cyan}● Webcam URL:${white} ${WEBCAM_IP}"
+  echo -e " ${cyan}● Webcam URL:${white} ${WEBCAM_URL}"
   echo
+}
+
+#=================================================#
+#============== REMOVE MJPG-STREAMER =============#
+#=================================================#
+
+remove_mjpg-streamer(){
+  ### remove MJPG-Streamer service
+  if [ -e "${SYSTEMD}/webcamd.service" ]; then
+    status_msg "Removing MJPG-Streamer service ..."
+    sudo systemctl stop webcamd && sudo systemctl disable webcamd
+    sudo rm -f "${SYSTEMD}/webcamd.service"
+    ###reloading units
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+    ok_msg "MJPG-Streamer Service removed!"
+  fi
+
+  ### remove webcamd from /usr/local/bin
+  if [ -e "/usr/local/bin/webcamd" ]; then
+    sudo rm -f "/usr/local/bin/webcamd"
+  fi
+
+  ### remove MJPG-Streamer directory
+  if [ -d "${HOME}/mjpg-streamer" ]; then
+    status_msg "Removing MJPG-Streamer directory ..."
+    rm -rf "${HOME}/mjpg-streamer"
+    ok_msg "MJPG-Streamer directory removed!"
+  fi
+
+  ### remove webcamd log and symlink
+  [ -f "/var/log/webcamd.log" ] && sudo rm -f "/var/log/webcamd.log"
+  [ -L "${HOME}/klipper_logs/webcamd.log" ] && rm -f "${HOME}/klipper_logs/webcamd.log"
+
+  CONFIRM_MSG="MJPG-Streamer successfully removed!"
 }

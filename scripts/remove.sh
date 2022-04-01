@@ -88,37 +88,6 @@ remove_nginx(){
   fi
 }
 
-remove_mjpg-streamer(){
-  ### remove MJPG-Streamer service
-  if [ -e $SYSTEMDDIR/webcamd.service ]; then
-    status_msg "Removing MJPG-Streamer service ..."
-    sudo systemctl stop webcamd && sudo systemctl disable webcamd
-    sudo rm -f $SYSTEMDDIR/webcamd.service
-    ###reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "MJPG-Streamer Service removed!"
-  fi
-
-  ### remove webcamd from /usr/local/bin
-  if [ -e "/usr/local/bin/webcamd" ]; then
-    sudo rm -f "/usr/local/bin/webcamd"
-  fi
-
-  ### remove MJPG-Streamer directory
-  if [ -d ${HOME}/mjpg-streamer ]; then
-    status_msg "Removing MJPG-Streamer directory ..."
-    rm -rf ${HOME}/mjpg-streamer
-    ok_msg "MJPG-Streamer directory removed!"
-  fi
-
-  ### remove webcamd log and symlink
-  [ -f "/var/log/webcamd.log" ] && sudo rm -f "/var/log/webcamd.log"
-  [ -L "${HOME}/klipper_logs/webcamd.log" ] && rm -f "${HOME}/klipper_logs/webcamd.log"
-
-  CONFIRM_MSG="MJPG-Streamer successfully removed!"
-}
-
 remove_prettygcode(){
   pgconf="/etc/nginx/sites-available/pgcode.local.conf"
   pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
