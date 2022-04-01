@@ -21,12 +21,6 @@ update_all(){
     if [ "$KLIPPER_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● Klipper${default}                                            |"
     fi
-    if [ "$DWC2FK_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● DWC2-for-Klipper-Socket${default}                            |"
-    fi
-    if [ "$DWC2_UPDATE_AVAIL" = "true" ]; then
-      echo -e "|  ${cyan}● Duet Web Control${default}                                   |"
-    fi
     if [ "$MOONRAKER_UPDATE_AVAIL" = "true" ]; then
       echo -e "|  ${cyan}● Moonraker${default}                                          |"
     fi

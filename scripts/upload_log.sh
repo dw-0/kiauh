@@ -55,11 +55,6 @@ upload_selection(){
       logfiles+=($mr_log)
     done
   fi
-  if ls /tmp/dwc2*.log 2>/dev/null 1>&2; then
-    for dwc_log in $(find /tmp/dwc2*.log); do
-      logfiles+=($dwc_log)
-    done
-  fi
 
   ### draw interface
   i=0

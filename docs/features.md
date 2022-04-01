@@ -16,13 +16,13 @@ That means:
   - adding the serial port `/tmp/printer`
   - set the behavior to "Cancel any ongoing prints but stay connected to the printer"
 - **Enable/Disable OctoPrint Service:**\
-Usefull when using DWC2/Mainsail/Fluidd and OctoPrint at the same time to prevent them interfering with each other
+Usefull when using Mainsail/Fluidd and OctoPrint at the same time to prevent them interfering with each other
 
 - **Installing a G-Code Shell Command extension:**\
 For further information about that extension please see the  [G-Code Shell Command Extension Doc](gcode_shell_command.md)
 
 - **Uploading logfiles:**\
-You can directly upload logfiles like klippy.log, moonraker.log and dwc2.log from the KIAUH main menu for providing them for troubleshooting purposes.
+You can directly upload logfiles like klippy.log and moonraker.log from the KIAUH main menu for providing them for troubleshooting purposes.
 
 
 to be continued...

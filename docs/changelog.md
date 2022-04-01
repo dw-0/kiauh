@@ -114,9 +114,9 @@ Each service gets its corresponding instance added to the service filename.
             --> moonraker-2.service
             --> moonraker-n.service
     ```
-* The same service file rules from above apply to DWC and OctoPrint even though only Klipper and Moonraker are shown in this example.
+* The same service file rules from above apply to OctoPrint even though only Klipper and Moonraker are shown in this example.
 
-* You can start, stop and restart all Klipper, Moonraker, DWC and OctoPrint instances from the KIAUH main menu. For doing this, just type "stop klipper", "start moonraker", "restart octoprint" and so on.
+* You can start, stop and restart all Klipper, Moonraker and OctoPrint instances from the KIAUH main menu. For doing this, just type "stop klipper", "start moonraker", "restart octoprint" and so on.
 
 * KIAUH v3.0 relocated its ini-file. It is now a hidden file in the users home-directory calles `.kiauh.ini`. This has the benefit of keeping all values in that file between possible re-installations of KIAUH. Otherwise that file would be lost.
 
