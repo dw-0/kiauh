@@ -273,23 +273,6 @@ dependency_check(){
   fi
 }
 
-print_error(){
-  for data in "${data_arr[@]}"
-  do
-    if [ ! -e "${data}" ]; then
-      data_count+=(0)
-    else
-      data_count+=(1)
-    fi
-  done
-  sum=$(IFS=+; echo "$((${data_count[*]}))")
-  if [ "${sum}" -eq 0 ]; then
-    ERROR_MSG="Looks like $1 was already removed!\n Skipping..."
-  else
-    ERROR_MSG=""
-  fi
-}
-
 setup_gcode_shell_command(){
   echo
   top_border
