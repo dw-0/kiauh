@@ -371,3 +371,35 @@ octoprint_status(){
     OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
   fi
 }
+
+read_octoprint_service_status(){
+  unset OPRINT_SERVICE_STATUS
+  if [ ! -f "/etc/systemd/system/octoprint.service" ]; then
+    return 0
+  fi
+  if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
+    OPRINT_SERVICE_STATUS="${red}[Disable]${white} OctoPrint Service                       "
+  else
+    OPRINT_SERVICE_STATUS="${green}[Enable]${white} OctoPrint Service                        "
+  fi
+}
+
+#================================================#
+#=================== HELPERS ====================#
+#================================================#
+
+toggle_octoprint_service(){
+  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
+    do_action_service "stop" "octoprint"
+    do_action_service "disable" "octoprint"
+    sleep 2
+    CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
+  elif systemctl list-unit-files | grep -E "octoprint.*" | grep "disabled" &>/dev/null; then
+    do_action_service "enable" "octoprint"
+    do_action_service "start" "octoprint"
+    sleep 2
+    CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
+  else
+    ERROR_MSG=" You cannot activate a service that does not exist!"
+  fi
+}
