@@ -13,6 +13,7 @@ set -e
 
 ### base variables
 SYSTEMD="/etc/systemd/system"
+LOGFILE="/tmp/kiauh.log"
 
 # setting up some frequently used functions
 check_euid(){
@@ -25,6 +26,15 @@ check_euid(){
     echo -e "${white}"
     exit 1
   fi
+}
+
+function timestamp() {
+  date +"[%F %T]"
+}
+
+function log() {
+  local message="${1}"
+  echo -e "$(timestamp) ${message}" | tr -s " " >> "${LOGFILE}"
 }
 
 check_klipper_cfg_path(){
