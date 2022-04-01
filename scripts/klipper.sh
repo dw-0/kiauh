@@ -322,7 +322,7 @@ function update_klipper(){
     ### read PKGLIST and install possible new dependencies
     install_klipper_packages
     ### install possible new python dependencies
-    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
+    /bin/bash "${KLIPPY_ENV}/bin/pip" install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
   update_log_paths "klipper"
   ok_msg "Update complete!"
