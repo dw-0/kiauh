@@ -1,3 +1,16 @@
+#!/bin/bash
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
 install_ui(){
   top_border
   echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${white}     | "
@@ -29,9 +42,9 @@ install_menu(){
       2)
         do_action "moonraker_setup_dialog" "install_ui";;
       3)
-        do_action "install_webui mainsail" "install_ui";;
+        do_action "install_mainsail" "install_ui";;
       4)
-        do_action "install_webui fluidd" "install_ui";;
+        do_action "install_fluidd" "install_ui";;
       5)
         do_action "install_klipperscreen" "install_ui";;
       6)
