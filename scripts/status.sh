@@ -1,15 +1,3 @@
-kiauh_status(){
-  if [ -d "${SRCDIR}/kiauh/.git" ]; then
-    cd ${SRCDIR}/kiauh
-    if git branch -a | grep "* master" -q; then
-      git fetch -q
-      if [[ "$(git rev-parse --short=8 origin/master)" != "$(git rev-parse --short=8 HEAD)" ]]; then
-        KIAUH_UPDATE_AVAIL="true"
-      fi
-    fi
-  fi
-}
-
 check_system_updates(){
   SYS_UPDATE=$(apt list --upgradeable 2>/dev/null | sed "1d")
   if [ ! -z "$SYS_UPDATE" ]; then
