@@ -14,6 +14,7 @@ set -e
 ### global variables
 MAINSAIL_DIR="${HOME}/mainsail"
 MAINSAIL_REPO_API="https://api.github.com/repos/mainsail-crew/mainsail/releases"
+MAINSAIL_TAGS="https://api.github.com/repos/mainsail-crew/mainsail/tags"
 KLIPPER_CONFIG="${HOME}/klipper_config"
 
 #===================================================#
@@ -46,7 +47,7 @@ function install_mainsail(){
   mainsail_port_check
 
   ### ask user to install mjpg-streamer
-  if ! ls /etc/systemd/system/webcamd.service 2>/dev/null 1>&2; then
+  if [ ! -f "/etc/systemd/system/webcamd.service" ]; then
     get_user_selection_mjpg-streamer
   fi
 
@@ -78,25 +79,24 @@ function install_mainsail(){
 }
 
 function mainsail_setup(){
-  ### get mainsail download url
-  MAINSAIL_DL_URL=$(curl -s "${MAINSAIL_REPO_API}" | grep browser_download_url | cut -d'"' -f4 | head -1)
+  local url
+  url=$(get_mainsail_download_url)
+  status_msg "Downloading Mainsail ..."
+  if [ -d "${MAINSAIL_DIR}" ]; then
+    rm -rf "${MAINSAIL_DIR}"
+    mkdir "${MAINSAIL_DIR}"
+  fi
+  cd "${MAINSAIL_DIR}" &&  wget "${url}"
+  ok_msg "Download complete!"
 
-  ### remove existing and create fresh mainsail folder, then download mainsail
-  [ -d "${MAINSAIL_DIR}" ] && rm -rf "${MAINSAIL_DIR}"
-  mkdir "${MAINSAIL_DIR}" && cd "${MAINSAIL_DIR}"
-  status_msg "Downloading Mainsail ${MAINSAIL_VERSION} ..."
-  wget "${MAINSAIL_DL_URL}" && ok_msg "Download complete!"
-
-  ### extract archive
   status_msg "Extracting archive ..."
   unzip -q -o *.zip && ok_msg "Done!"
 
-  ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
   rm -rf *.zip && ok_msg "Done!"
 
   ### check for moonraker multi-instance and if multi-instance was found, enable mainsails remoteMode
-  if [ $(ls /etc/systemd/system/moonraker* | grep -E "moonraker(-[[:digit:]]+)?\.service" | wc -l) -gt 1 ]; then
+  if [ "$(moonraker_systemd | wc -w)" -gt 1 ]; then
     enable_mainsail_remotemode
   fi
 }
@@ -173,11 +173,11 @@ function mainsail_status(){
     fi
   done
   if [ "$mcount" == "${#mainsail_data[*]}" ]; then
-    MAINSAIL_STATUS="${green}Installed!${default}      "
+    MAINSAIL_STATUS="${green}Installed!${white}      "
   elif [ "$mcount" == 0 ]; then
-    MAINSAIL_STATUS="${red}Not installed!${default}  "
+    MAINSAIL_STATUS="${red}Not installed!${white}  "
   else
-    MAINSAIL_STATUS="${yellow}Incomplete!${default}     "
+    MAINSAIL_STATUS="${yellow}Incomplete!${white}     "
   fi
 }
 
@@ -206,16 +206,16 @@ function compare_mainsail_versions(){
   read_local_mainsail_version && read_remote_mainsail_version
   if [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER == $MAINSAIL_REMOTE_VER ]]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${white}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${white}"
   elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
-    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${default}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${white}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${white}"
     # add mainsail to the update all array for the update all function in the updater
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
     MAINSAIL_LOCAL_VER=$NONE
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${default}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${white}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
@@ -246,12 +246,12 @@ function get_theme_list(){
 
 function ms_theme_ui(){
   top_border
-  echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${default}     | "
+  echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${white}     | "
   hr
-  echo -e "|  ${green}A preview of each Mainsail theme can be found here:${default}  | "
+  echo -e "|  ${green}A preview of each Mainsail theme can be found here:${white}  | "
   echo -e "|  https://docs.mainsail.xyz/theming/themes             | "
   blank_line
-  echo -e "|  ${yellow}Important note:${default}                                      | "
+  echo -e "|  ${yellow}Important note:${white}                                      | "
   echo -e "|  Installing a theme from this menu will overwrite an  | "
   echo -e "|  already installed theme or modified custom.css file! | "
   hr
@@ -264,7 +264,7 @@ function ms_theme_ui(){
 function ms_theme_menu(){
   ms_theme_ui
   while true; do
-    read -p "${cyan}Install theme:${default} " a; echo
+    read -p "${cyan}Install theme:${white} " a; echo
     if [ "$a" = "b" ] || [ "$a" = "B" ]; then
       clear && advanced_menu && break
     elif [ "$a" = "r" ] || [ "$a" = "R" ]; then
@@ -298,7 +298,7 @@ function check_select_printer(){
     echo -e "|  Please select the printer to which you want to       | "
     echo -e "|  apply the previously selected action.                | "
     bottom_border
-    read -p "${cyan}Select printer:${default} " printer_num
+    read -p "${cyan}Select printer:${white} " printer_num
 
     ### rewrite the .theme path matching the selected printer
     THEME_PATH="$klipper_cfg_loc/printer_$printer_num"
@@ -322,7 +322,7 @@ function ms_theme_install(){
   cd "$THEME_PATH" && git clone "$THEME_URL" ".theme"
 
   ok_msg "Theme installation complete!"
-  [ -n "$4" ] && echo "${yellow}###### Theme Info: $4${default}"
+  [ -n "$4" ] && echo "${yellow}###### Theme Info: $4${white}"
   ok_msg "Please remember to delete your browser cache!\n"
 }
 
@@ -340,12 +340,34 @@ function ms_theme_delete(){
 #=================== HELPERS ====================#
 #================================================#
 
+function get_mainsail_download_url() {
+  local latest_tag latest_url stable_tag stable_url url
+  tags=$(curl -s "${MAINSAIL_TAGS}" | grep "name" | cut -d'"' -f4)
+
+  ### latest download url including pre-releases (alpha, beta, rc)
+  latest_tag=$(echo "${tags}" | head -1)
+  latest_url="https://github.com/mainsail-crew/mainsail/releases/download/${latest_tag}/mainsail.zip"
+
+  ### get stable mainsail download url
+  stable_tag=$(echo "${tags}" | grep -E "^v([0-9]+\.?){3}$" | head -1)
+  stable_url="https://github.com/mainsail-crew/mainsail/releases/download/${stable_tag}/mainsail.zip"
+
+  read_kiauh_ini
+  if [ "${mainsail_always_install_latest}" == "true" ]; then
+    url="${latest_url}"
+    echo "${url}"
+  else
+    url="${stable_url}"
+    echo "${url}"
+  fi
+}
+
 function mainsail_port_check(){
   if [ "${MAINSAIL_ENABLED}" = "false" ]; then
     if [ "${SITE_ENABLED}" = "true" ]; then
       status_msg "Detected other enabled interfaces:"
-      [ "${OCTOPRINT_ENABLED}" = "true" ] && echo -e "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${default}"
-      [ "${FLUIDD_ENABLED}" = "true" ] && echo -e "   ${cyan}● Fluidd - Port: ${FLUIDD_PORT}${default}"
+      [ "${OCTOPRINT_ENABLED}" = "true" ] && echo -e "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${white}"
+      [ "${FLUIDD_ENABLED}" = "true" ] && echo -e "   ${cyan}● Fluidd - Port: ${FLUIDD_PORT}${white}"
       if [ "${FLUIDD_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
         PORT_80_BLOCKED="true"
         select_mainsail_port
@@ -364,22 +386,22 @@ function select_mainsail_port(){
   if [ "${PORT_80_BLOCKED}" = "true" ]; then
     echo
     top_border
-    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
-    echo -e "| ${red}You need to choose a different port for Mainsail!${default}     |"
-    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
+    echo -e "|                    ${red}!!!WARNING!!!${white}                      |"
+    echo -e "| ${red}You need to choose a different port for Mainsail!${white}     |"
+    echo -e "| ${red}The following web interface is listening at port 80:${white}  |"
     blank_line
     [ "${OCTOPRINT_PORT}" = "80" ] && echo "|  ● OctoPrint                                          |"
     [ "${FLUIDD_PORT}" = "80" ] && echo "|  ● Fluidd                                             |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
+    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${white} |"
     echo -e "| use ports in the range of 4750 or above!              |"
     blank_line
-    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
+    echo -e "| Be aware: there is ${red}NO${white} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
     bottom_border
     while true; do
-      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+      read -p "${cyan}Please enter a new Port:${white} " NEW_PORT
       if [ "${NEW_PORT}" != "${FLUIDD_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
         echo "Setting port ${NEW_PORT} for Mainsail!"
         SET_LISTEN_PORT=${NEW_PORT}

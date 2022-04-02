@@ -11,47 +11,85 @@
 
 set -e
 
-settings_ui(){
-  source_kiauh_ini
-  top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     | "
-  hr
-  echo -e "| ${red}Caution:${white}                                              | "
-  echo -e "| When you change the config folder, be aware that ALL  | "
-  echo -e "| Klipper and Moonraker services will be STOPPED,       | "
-  echo -e "| reconfigured and then restarted again.                | "
-  blank_line
-  echo -e "| ${red}DO NOT change the folder during printing!${white}             | "
-  hr
-  blank_line
-  echo -e "|  ${cyan}● Current Klipper config folder:${white}                     | "
-  printf "|%-55s|\n" "    $klipper_cfg_loc"
-  blank_line
-  hr
-  if [ -z $klipper_cfg_loc ]; then
-  echo -e "|  ${red}N/A) Install Klipper with KIAUH first to unlock!${white}     | "
+### global variables
+INI_FILE="${HOME}/.kiauh.ini"
+KLIPPER_CONFIG="${HOME}/klipper_config"
+
+function settings_ui() {
+  read_kiauh_ini
+  local custom_cfg_loc="${custom_klipper_cfg_loc}"
+  local ms_pre_rls="${mainsail_always_install_latest}"
+  local fl_pre_rls="${fluidd_always_install_latest}"
+
+  if [ -z "${custom_cfg_loc}" ]; then
+    custom_cfg_loc="${cyan}${KLIPPER_CONFIG}${white}"
   else
-  echo -e "|  1) Change config folder                              | "
+    custom_cfg_loc="${cyan}${custom_cfg_loc}${white}"
   fi
-  back_footer
+  if [ "${ms_pre_rls}" == "false" ]; then
+    ms_pre_rls="${red}● ${ms_pre_rls}${white}"
+  else
+    ms_pre_rls="${green}● ${ms_pre_rls}${white}"
+  fi
+  if [ "${fl_pre_rls}" == "false" ]; then
+    fl_pre_rls="${red}● ${fl_pre_rls}${white}"
+  else
+    fl_pre_rls="${green}● ${fl_pre_rls}${white}"
+  fi
+
+  top_border
+  echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     |"
+  hr
+  echo -e "| Klipper:                                              |"
+  printf  "| Config folder: %-49s|\n" "${custom_cfg_loc}"
+  blank_line
+  echo -e "| Klipper Webinterface:                                 |"
+  printf  "| 1) Install Mainsail latest: %-38s|\n" "${ms_pre_rls}"
+  printf  "| 2) Install Fluidd latest:   %-38s|\n" "${fl_pre_rls}"
+  hr
+  blank_line
+  back_help_footer
 }
 
 settings_menu(){
   do_action "" "settings_ui"
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo
-    case "$action" in
+    case "${action}" in
       1)
-        if [ ! -z $klipper_cfg_loc ]; then
-          do_action "change_klipper_cfg_path" "settings_ui"
-        else
-          deny_action "settings_ui"
-        fi;;
+        switch_mainsail && settings_menu;;
+      2)
+        switch_fluidd && settings_menu;;
       B|b)
-        clear; main_menu; break;;
+        clear
+        main_menu
+        break;;
       *)
         deny_action "settings_ui";;
     esac
   done
-  settings_ui
+}
+
+function switch_mainsail() {
+  read_kiauh_ini
+  local state="${mainsail_always_install_latest}"
+  if [ "${state}" == "false" ]; then
+    sed -i '/mainsail_always_install_latest=/s/false/true/' "${INI_FILE}"
+    log_info "mainsail_always_install_latest changed (false -> true) "
+  else
+    sed -i '/mainsail_always_install_latest=/s/true/false/' "${INI_FILE}"
+    log_info "mainsail_always_install_latest changed (true -> false) "
+  fi
+}
+
+function switch_fluidd() {
+  read_kiauh_ini
+  local state="${fluidd_always_install_latest}"
+  if [ "${state}" == "false" ]; then
+    sed -i '/fluidd_always_install_latest=/s/false/true/' "${INI_FILE}"
+    log_info "fluidd_always_install_latest changed (false -> true) "
+  else
+    sed -i '/fluidd_always_install_latest=/s/true/false/' "${INI_FILE}"
+    log_info "fluidd_always_install_latest changed (true -> false) "
+  fi
 }
