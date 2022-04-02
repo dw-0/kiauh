@@ -38,6 +38,37 @@ DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
 
+#===================================================#
+#=================== UPDATE KIAUH ==================#
+#===================================================#
+
+function update_kiauh(){
+  status_msg "Updating KIAUH ..."
+  cd "${SRCDIR}/kiauh"
+  git reset --hard && git pull
+  ok_msg "Update complete! Please restart KIAUH."
+  exit 0
+}
+
+#===================================================#
+#=================== KIAUH STATUS ==================#
+#===================================================#
+
+function kiauh_update_avail(){
+  [ ! -d "${SRCDIR}/kiauh/.git" ] && return
+  local origin head
+  cd "${SRCDIR}/kiauh"
+  ### abort if not on master branch
+  ! git branch -a | grep -q "\* master" && return
+  ### compare commit hash
+  git fetch -q
+  origin=$(git rev-parse --short=8 origin/master)
+  head=$(git rev-parse --short=8 HEAD)
+  if [ "${origin}" != "${head}" ]; then
+    echo "true"
+  fi
+}
+
 ### format some default message types
 select_msg() {
   echo -e "${white}>>>>>> $1"
@@ -113,5 +144,5 @@ clear_msg(){
 
 check_euid
 init_ini
-kiauh_status
+kiauh_update_avail
 main_menu
