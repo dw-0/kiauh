@@ -366,9 +366,9 @@ octoprint_status(){
   if [ "$ocount" == "${#octoprint_data[*]}" ]; then
     OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" $SERVICE_FILE_COUNT)"
   elif [ "$ocount" == 0 ]; then
-    OCTOPRINT_STATUS="${red}Not installed!${default}  "
+    OCTOPRINT_STATUS="${red}Not installed!${white}  "
   else
-    OCTOPRINT_STATUS="${yellow}Incomplete!${default}     "
+    OCTOPRINT_STATUS="${yellow}Incomplete!${white}     "
   fi
 }
 
