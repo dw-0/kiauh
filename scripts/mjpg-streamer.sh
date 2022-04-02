@@ -155,7 +155,7 @@ function get_user_selection_mjpg-streamer(){
     top_border
     echo -e "|  Install MJGP-Streamer for webcam support?            |"
     bottom_border
-    read -p "${cyan}###### Install MJPG-Streamer? (Y/n):${default} " yn
+    read -p "${cyan}###### Install MJPG-Streamer? (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
         echo -e "###### > Yes"

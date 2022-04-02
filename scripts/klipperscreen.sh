@@ -153,11 +153,11 @@ function klipperscreen_status(){
     fi
   done
   if [ "${klsccount}" == "${#klipperscreen_data[*]}" ]; then
-    KLIPPERSCREEN_STATUS="${green}Installed!${default}      "
+    KLIPPERSCREEN_STATUS="${green}Installed!${white}      "
   elif [ "${klsccount}" == 0 ]; then
-    KLIPPERSCREEN_STATUS="${red}Not installed!${default}  "
+    KLIPPERSCREEN_STATUS="${red}Not installed!${white}  "
   else
-    KLIPPERSCREEN_STATUS="${yellow}Incomplete!${default}     "
+    KLIPPERSCREEN_STATUS="${yellow}Incomplete!${white}     "
   fi
 }
 
@@ -177,13 +177,13 @@ function compare_klipperscreen_versions(){
   unset KLIPPERSCREEN_UPDATE_AVAIL
   read_klipperscreen_versions
   if [ "${LOCAL_KLIPPERSCREEN_COMMIT}" != "${REMOTE_KLIPPERSCREEN_COMMIT}" ]; then
-    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_KLIPPERSCREEN_COMMIT}")${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${REMOTE_KLIPPERSCREEN_COMMIT}")${default}"
+    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_KLIPPERSCREEN_COMMIT}")${white}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${REMOTE_KLIPPERSCREEN_COMMIT}")${white}"
     KLIPPERSCREEN_UPDATE_AVAIL="true"
     update_arr+=(update_klipperscreen)
   else
-    LOCAL_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${LOCAL_KLIPPERSCREEN_COMMIT}")${default}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${REMOTE_KLIPPERSCREEN_COMMIT}")${default}"
+    LOCAL_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${LOCAL_KLIPPERSCREEN_COMMIT}")${white}"
+    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${REMOTE_KLIPPERSCREEN_COMMIT}")${white}"
     KLIPPERSCREEN_UPDATE_AVAIL="false"
   fi
 }

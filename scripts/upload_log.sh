@@ -1,21 +1,21 @@
 accept_upload_conditions(){
   while true; do
     top_border
-    echo -e "|     ${red}~~~~~~~~~~~ [ Upload Agreement ] ~~~~~~~~~~~~${default}     |"
+    echo -e "|     ${red}~~~~~~~~~~~ [ Upload Agreement ] ~~~~~~~~~~~~${white}     |"
     hr
     echo -e "| The following function will help to quickly upload    |"
     echo -e "| logs for debugging purposes. With confirming this     |"
     echo -e "| dialog, you agree that during that process your logs  |"
-    echo -e "| will be uploaded to: ${yellow}http://paste.c-net.org/${default}          |"
+    echo -e "| will be uploaded to: ${yellow}http://paste.c-net.org/${white}          |"
     hr
-    echo -e "| ${red}PLEASE NOTE:${default}                                          |"
+    echo -e "| ${red}PLEASE NOTE:${white}                                          |"
     echo -e "| Be aware that logs can contain network information,   |"
     echo -e "| private data like usernames, filenames, or other      |"
     echo -e "| information you may not want to make public.          |"
     blank_line
-    echo -e "| Do ${red}NOT${default} use this function if you don't agree!          |"
+    echo -e "| Do ${red}NOT${white} use this function if you don't agree!          |"
     bottom_border
-    read -p "${cyan}Do you accept? (Y/n):${default} " yn
+    read -p "${cyan}Do you accept? (Y/n):${white} " yn
     case "$yn" in
       Y|y|Yes|yes|"")
         sed -i "/logupload_accepted=/s/false/true/" $INI_FILE
@@ -59,7 +59,7 @@ upload_selection(){
   ### draw interface
   i=0
   top_border
-  echo -e "|     ${yellow}~~~~~~~~~~~~~~~ [ Log Upload ] ~~~~~~~~~~~~~~${default}     |"
+  echo -e "|     ${yellow}~~~~~~~~~~~~~~~ [ Log Upload ] ~~~~~~~~~~~~~~${white}     |"
   hr
   echo -e "|  You can choose the following files for uploading:    |"
   for log in ${logfiles[@]}; do
@@ -68,7 +68,7 @@ upload_selection(){
   done
   back_footer
   while true; do
-    read -p "${cyan}Please select:${default} " choice
+    read -p "${cyan}Please select:${white} " choice
     if [ $choice = "b" ] || [ $choice = "B" ]; then
       clear && main_menu && break
     elif [ $choice -le ${#logfiles[@]} ]; then
@@ -88,7 +88,7 @@ upload_log(){
     status_msg "Uploading $1 ..."
     LINK=$(curl -s --upload-file $1 'http://paste.c-net.org/')
     [ ! -z "$LINK" ] && ok_msg "$1 upload successfull!"
-    echo -e "\n${cyan}###### Here is your link:${default}"
+    echo -e "\n${cyan}###### Here is your link:${white}"
     echo -e ">>>>>> $LINK\n"
     unset LINK
   else

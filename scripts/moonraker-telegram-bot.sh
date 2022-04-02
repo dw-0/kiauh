@@ -129,11 +129,11 @@ function MoonrakerTelegramBot_status(){
     fi
   done
   if [ "${mtbcount}" == "${#MoonrakerTelegramBot_data[*]}" ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${default}      "
+    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${white}      "
   elif [ "${mtbcount}" == 0 ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${default}  "
+    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${white}  "
   else
-    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${default}     "
+    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${white}     "
   fi
 }
 
@@ -153,13 +153,13 @@ function compare_MoonrakerTelegramBot_versions(){
   unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
   read_MoonrakerTelegramBot_versions
   if [ "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}" != "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}" ]; then
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}")${default}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}")${default}"
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
     # add moonraker telegram bot to the update all array for the update all function in the updater
     MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true" && update_arr+=(update_MoonrakerTelegramBot)
   else
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}")${default}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}")${default}"
+    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
+    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
     MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="false"
   fi
 }

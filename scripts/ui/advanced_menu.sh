@@ -91,7 +91,7 @@ switch_ui(){
   echo -e "|     $(title_msg "~~~~~~~~~ [ Switch Klipper Branch ] ~~~~~~~~~")     |"
   bottom_border
   echo
-  echo -e " $(title_msg "Active Branch: ")${green}$GET_BRANCH${default}"
+  echo -e " $(title_msg "Active Branch: ")${green}$GET_BRANCH${white}"
   echo
   top_border
   echo -e "|                                                       | "
@@ -109,7 +109,7 @@ switch_menu(){
     read_branch
     do_action "" "switch_ui"
     while true; do
-      read -p "${cyan}Perform action:${default} " action; echo
+      read -p "${cyan}Perform action:${white} " action; echo
       case "$action" in
         1)
           clear

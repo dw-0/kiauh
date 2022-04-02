@@ -35,7 +35,7 @@ install_ui(){
 install_menu(){
   do_action "" "install_ui"
   while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
+    read -p "${cyan}Perform action:${white} " action; echo
     case "$action" in
       1)
         do_action "klipper_setup_dialog" "install_ui";;

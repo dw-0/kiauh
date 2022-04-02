@@ -3,10 +3,10 @@ check_system_updates(){
   if [ ! -z "$SYS_UPDATE" ]; then
     # add system updates to the update all array for the update all function in the updater
     SYS_UPDATE_AVAIL="true" && update_arr+=(update_system)
-    DISPLAY_SYS_UPDATE="${yellow}System upgrade available!${default}"
+    DISPLAY_SYS_UPDATE="${yellow}System upgrade available!${white}"
   else
     SYS_UPDATE_AVAIL="false"
-    DISPLAY_SYS_UPDATE="${green}System up to date!       ${default}"
+    DISPLAY_SYS_UPDATE="${green}System up to date!       ${white}"
   fi
 }
 

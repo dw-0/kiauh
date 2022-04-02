@@ -168,11 +168,11 @@ function fluidd_status(){
     fi
   done
   if [ "$fcount" == "${#fluidd_data[*]}" ]; then
-    FLUIDD_STATUS="${green}Installed!${default}      "
+    FLUIDD_STATUS="${green}Installed!${white}      "
   elif [ "$fcount" == 0 ]; then
-    FLUIDD_STATUS="${red}Not installed!${default}  "
+    FLUIDD_STATUS="${red}Not installed!${white}  "
   else
-    FLUIDD_STATUS="${yellow}Incomplete!${default}     "
+    FLUIDD_STATUS="${yellow}Incomplete!${white}     "
   fi
 }
 
