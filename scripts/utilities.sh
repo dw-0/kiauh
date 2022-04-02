@@ -346,38 +346,6 @@ install_gcode_shell_command(){
   do_action_service "restart" "klipper"
 }
 
-function install_kiauh_macros(){
-  ### copy kiauh_macros.cfg
-  if [ "${ADD_KIAUH_MACROS}" = "true" ]; then
-    ### create a backup of the config folder
-    backup_klipper_config_dir
-    ### handle multi printer.cfg
-    if ls "${KLIPPER_CONFIG}"/printer_* 2>/dev/null 1>&2; then
-      for config in $(find ${KLIPPER_CONFIG}/printer_*/printer.cfg); do
-        path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
-        if [ ! -f "${path}/kiauh_macros.cfg" ]; then
-          ### copy kiauh_macros.cfg to config location
-          status_msg "Creating macro config file ..."
-          cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${path}"
-          ### write the include to the very first line of the printer.cfg
-          sed -i "1 i [include kiauh_macros.cfg]" "${path}/printer.cfg"
-          ok_msg "${path}/kiauh_macros.cfg created!"
-        fi
-      done
-    ### handle single printer.cfg
-    elif [ -f "${KLIPPER_CONFIG}/printer.cfg" ] && [ ! -f "${KLIPPER_CONFIG}/kiauh_macros.cfg" ]; then
-      ### copy kiauh_macros.cfg to config location
-      status_msg "Creating macro config file ..."
-      cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${KLIPPER_CONFIG}"
-      ### write the include to the very first line of the printer.cfg
-      sed -i "1 i [include kiauh_macros.cfg]" "${KLIPPER_CONFIG}/printer.cfg"
-      ok_msg "${KLIPPER_CONFIG}/kiauh_macros.cfg created!"
-    fi
-    ### restart klipper service to parse the modified printer.cfg
-    do_action_service "restart" "klipper"
-  fi
-}
-
 function system_check_webui(){
   ### check system for an installed and enabled octoprint service
   if sudo systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
@@ -435,6 +403,38 @@ function get_user_selection_kiauh_macros(){
         print_msg && clear_msg;;
     esac
   done
+}
+
+function install_kiauh_macros(){
+  ### copy kiauh_macros.cfg
+  if [ "${ADD_KIAUH_MACROS}" = "true" ]; then
+    ### create a backup of the config folder
+    backup_klipper_config_dir
+    ### handle multi printer.cfg
+    if ls "${KLIPPER_CONFIG}"/printer_* 2>/dev/null 1>&2; then
+      for config in $(find ${KLIPPER_CONFIG}/printer_*/printer.cfg); do
+        path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
+        if [ ! -f "${path}/kiauh_macros.cfg" ]; then
+          ### copy kiauh_macros.cfg to config location
+          status_msg "Creating macro config file ..."
+          cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${path}"
+          ### write the include to the very first line of the printer.cfg
+          sed -i "1 i [include kiauh_macros.cfg]" "${path}/printer.cfg"
+          ok_msg "${path}/kiauh_macros.cfg created!"
+        fi
+      done
+    ### handle single printer.cfg
+    elif [ -f "${KLIPPER_CONFIG}/printer.cfg" ] && [ ! -f "${KLIPPER_CONFIG}/kiauh_macros.cfg" ]; then
+      ### copy kiauh_macros.cfg to config location
+      status_msg "Creating macro config file ..."
+      cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${KLIPPER_CONFIG}"
+      ### write the include to the very first line of the printer.cfg
+      sed -i "1 i [include kiauh_macros.cfg]" "${KLIPPER_CONFIG}/printer.cfg"
+      ok_msg "${KLIPPER_CONFIG}/kiauh_macros.cfg created!"
+    fi
+    ### restart klipper service to parse the modified printer.cfg
+    do_action_service "restart" "klipper"
+  fi
 }
 
 function process_octoprint_dialog(){
