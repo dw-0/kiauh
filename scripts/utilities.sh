@@ -146,6 +146,9 @@ function init_ini(){
   if ! grep -Eq "^mainsail_always_install_latest=" "${INI_FILE}"; then
     echo -e "\nmainsail_always_install_latest=false\c" >> "${INI_FILE}"
   fi
+  if ! grep -Eq "^fluidd_always_install_latest=" "${INI_FILE}"; then
+    echo -e "\nfluidd_always_install_latest=false\c" >> "${INI_FILE}"
+  fi
   fetch_webui_ports
 }
 
