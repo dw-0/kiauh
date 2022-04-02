@@ -161,20 +161,20 @@ function get_mainsail_ver(){
 function mainsail_status(){
   mcount=0
   mainsail_data=(
-    $MAINSAIL_DIR
-    $NGINX_SA/mainsail
-    $NGINX_SE/mainsail
+    "${MAINSAIL_DIR}"
+    "${NGINX_SA}/mainsail"
+    "${NGINX_SE}/mainsail"
   )
   #count+1 for each found data-item from array
   for md in "${mainsail_data[@]}"
   do
-    if [ -e $md ]; then
-      mcount=$(expr $mcount + 1)
+    if [ -e "${md}" ]; then
+      mcount=$((mcount + 1))
     fi
   done
-  if [ "$mcount" == "${#mainsail_data[*]}" ]; then
+  if [ "${mcount}" == "${#mainsail_data[*]}" ]; then
     MAINSAIL_STATUS="${green}Installed!${white}      "
-  elif [ "$mcount" == 0 ]; then
+  elif [ "${mcount}" == 0 ]; then
     MAINSAIL_STATUS="${red}Not installed!${white}  "
   else
     MAINSAIL_STATUS="${yellow}Incomplete!${white}     "
@@ -194,28 +194,28 @@ function read_local_mainsail_version(){
 function read_remote_mainsail_version(){
   #remote checks don't work without curl installed!
   if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    MAINSAIL_REMOTE_VER=$NONE
+    MAINSAIL_REMOTE_VER=${NONE}
   else
     get_mainsail_ver
-    MAINSAIL_REMOTE_VER=$MAINSAIL_VERSION
+    MAINSAIL_REMOTE_VER=${MAINSAIL_VERSION}
   fi
 }
 
 function compare_mainsail_versions(){
   unset MAINSAIL_UPDATE_AVAIL
   read_local_mainsail_version && read_remote_mainsail_version
-  if [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER == $MAINSAIL_REMOTE_VER ]]; then
+  if [ "${MAINSAIL_VER_FOUND}" = "true" ] && [ "${MAINSAIL_LOCAL_VER}" == "${MAINSAIL_REMOTE_VER}" ]; then
     #printf fits the string for displaying it in the ui to a total char length of 12
-    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${white}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${white}"
-  elif [[ $MAINSAIL_VER_FOUND = "true" ]] && [[ $MAINSAIL_LOCAL_VER != $MAINSAIL_REMOTE_VER ]]; then
-    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "$MAINSAIL_LOCAL_VER")${white}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${white}"
+    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "${MAINSAIL_LOCAL_VER}")${white}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "${MAINSAIL_REMOTE_VER}")${white}"
+  elif [ "${MAINSAIL_VER_FOUND}" = "true" ] && [ "${MAINSAIL_LOCAL_VER}" != "${MAINSAIL_REMOTE_VER}" ]; then
+    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "${MAINSAIL_LOCAL_VER}")${white}"
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "${MAINSAIL_REMOTE_VER}")${white}"
     # add mainsail to the update all array for the update all function in the updater
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
-    MAINSAIL_LOCAL_VER=$NONE
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "$MAINSAIL_REMOTE_VER")${white}"
+    MAINSAIL_LOCAL_VER=${NONE}
+    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "${MAINSAIL_REMOTE_VER}")${white}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
 }
@@ -226,22 +226,22 @@ function compare_mainsail_versions(){
 
 function get_theme_list(){
   theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/docs/master/_data/themes.csv"
-  theme_csv=$(curl -s -L $theme_csv_url)
+  theme_csv=$(curl -s -L "${theme_csv_url}")
   unset t_name
   unset t_note
   unset t_auth
   unset t_url
   i=0
   while IFS="," read -r col1 col2 col3 col4; do
-    t_name+=("$col1")
-    t_note+=("$col2")
-    t_auth+=("$col3")
-    t_url+=("$col4")
-    if [ ! "$col1" == "name" ]; then
-      printf "|  $i) %-50s|\n" "[$col1]"
+    t_name+=("${col1}")
+    t_note+=("${col2}")
+    t_auth+=("${col3}")
+    t_url+=("${col4}")
+    if [ ! "${col1}" == "name" ]; then
+      printf "|  ${i}) %-50s|\n" "[${col1}]"
     fi
     i=$((i+1))
-  done <<< "$theme_csv"
+  done <<< "${theme_csv}"
 }
 
 function ms_theme_ui(){
@@ -265,17 +265,17 @@ function ms_theme_menu(){
   ms_theme_ui
   while true; do
     read -p "${cyan}Install theme:${white} " a; echo
-    if [ "$a" = "b" ] || [ "$a" = "B" ]; then
+    if [ "${a}" = "b" ] || [ "${a}" = "B" ]; then
       clear && advanced_menu && break
-    elif [ "$a" = "r" ] || [ "$a" = "R" ]; then
+    elif [ "${a}" = "r" ] || [ "${a}" = "R" ]; then
       ms_theme_delete
       ms_theme_menu
-    elif [ "$a" -le ${#t_url[@]} ]; then
-      ms_theme_install "${t_auth[$a]}" "${t_url[$a]}" "${t_name[$a]}" "${t_note[$a]}"
+    elif [ "${a}" -le ${#t_url[@]} ]; then
+      ms_theme_install "${t_auth[${a}]}" "${t_url[${a}]}" "${t_name[${a}]}" "${t_note[${a}]}"
       ms_theme_menu
     else
       clear && print_header
-      ERROR_MSG="Invalid command!" && print_msg && clear_msg
+      print_error "Invalid command!"
       ms_theme_menu
     fi
   done
@@ -287,12 +287,12 @@ function check_select_printer(){
 
   ### get klipper cfg loc and set default .theme folder loc
   check_klipper_cfg_path
-  THEME_PATH="$klipper_cfg_loc"
+  THEME_PATH="${KLIPPER_CONFIG}"
 
   ### check if there is more than one moonraker instance and if yes
   ### ask the user to select the printer he wants to install/remove the theme
-  MR_SERVICE_COUNT=$(find "$SYSTEMDDIR" -regextype posix-extended -regex "$SYSTEMDDIR/moonraker(-[^0])?[0-9]*.service" | wc -l)
-  if [[ $MR_SERVICE_COUNT -gt 1 ]]; then
+  MR_SERVICE_COUNT=$(find "${SYSTEMD}" -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])?[0-9]*.service" | wc -l)
+  if [[ ${MR_SERVICE_COUNT} -gt 1 ]]; then
     top_border
     echo -e "|  More than one printer was found on this system!      | "
     echo -e "|  Please select the printer to which you want to       | "
@@ -301,11 +301,11 @@ function check_select_printer(){
     read -p "${cyan}Select printer:${white} " printer_num
 
     ### rewrite the .theme path matching the selected printer
-    THEME_PATH="$klipper_cfg_loc/printer_$printer_num"
+    THEME_PATH="${KLIPPER_CONFIG}/printer_${printer_num}"
   fi
 
   ### create the cfg folder if there is none yet
-  [ ! -d "$THEME_PATH" ] && mkdir -p "$THEME_PATH"
+  [ ! -d "${THEME_PATH}" ] && mkdir -p "${THEME_PATH}"
 }
 
 function ms_theme_install(){
@@ -318,8 +318,8 @@ function ms_theme_install(){
   status_msg "Installing $3 ..."
   status_msg "Please wait ..."
 
-  [ -d "$THEME_PATH/.theme" ] && rm -rf "$THEME_PATH/.theme"
-  cd "$THEME_PATH" && git clone "$THEME_URL" ".theme"
+  [ -d "${THEME_PATH}/.theme" ] && rm -rf "${THEME_PATH}/.theme"
+  cd "${THEME_PATH}" && git clone "${THEME_URL}" ".theme"
 
   ok_msg "Theme installation complete!"
   [ -n "$4" ] && echo "${yellow}###### Theme Info: $4${white}"
@@ -328,9 +328,9 @@ function ms_theme_install(){
 
 function ms_theme_delete(){
   check_select_printer
-  if [ -d "$THEME_PATH/.theme" ]; then
+  if [ -d "${THEME_PATH}/.theme" ]; then
     status_msg "Removing Theme ..."
-    rm -rf "$THEME_PATH/.theme" && ok_msg "Theme removed!\n"
+    rm -rf "${THEME_PATH}/.theme" && ok_msg "Theme removed!\n"
   else
     status_msg "No Theme installed!\n"
   fi
