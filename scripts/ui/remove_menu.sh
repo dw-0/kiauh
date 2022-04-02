@@ -15,10 +15,8 @@ remove_ui(){
   top_border
   echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${white}     | "
   hr
-  echo -e "|  Directories which remain untouched:                  | "
-  echo -e "|  --> Your printer configuration directory             | "
-  echo -e "|  --> ~/kiauh-backups                                  | "
-  echo -e "|  You need remove them manually if you wish so.        | "
+  echo -e "|  ${yellow}INFO:${white}                                                | "
+  echo -e "|  Printer configs or backups always remain untouched!  | "
   hr
   echo -e "|  Firmware:                |  Touchscreen GUI:         | "
   echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
@@ -26,17 +24,16 @@ remove_ui(){
   echo -e "|  Klipper API:             |  Other:                   | "
   echo -e "|  2) [Moonraker]           |  6) [OctoPrint]           | "
   echo -e "|                           |  7) [PrettyGCode]         | "
-  echo -e "|  Klipper Webinterface:    |  9) [Telegram Bot]        | "
-  echo -e "|  3) [Mainsail]            |                           | "
-  echo -e "|  4) [Fluidd]              |  9) [MJPG-Streamer]       | "
-  echo -e "|                           |  10) [NGINX]              | "
+  echo -e "|  Klipper Webinterface:    |  8) [Telegram Bot]        | "
+  echo -e "|  3) [Mainsail]            |  9) [MJPG-Streamer]       | "
+  echo -e "|  4) [Fluidd]              | 10) [NGINX]               | "
   back_footer
 }
 
 remove_menu(){
   do_action "" "remove_ui"
   while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
+    read -p "${cyan}Perform action:${white} " action; echo
     case "${action}" in
       1)
         do_action "remove_klipper" "remove_ui";;
