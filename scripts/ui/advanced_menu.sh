@@ -13,22 +13,22 @@ set -e
 
 advanced_ui(){
   top_border
-  echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${default}     | "
+  echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     | "
   hr
   if [ ! "$OPRINT_SERVICE_STATUS" == "" ]; then
     echo -e "|  0) $OPRINT_SERVICE_STATUS| "
     hr
     echo -e "|                           |                           | "
   fi
-  echo -e "|  Klipper:                 |  Mainsail:                | "
-  echo -e "|  1) [Switch Branch]       |  7) [Theme installer]     | "
-  echo -e "|  2) [Rollback]            |                           | "
-  echo -e "|                           |  System:                  | "
-  echo -e "|  Firmware:                |  8) [Change hostname]     | "
-  echo -e "|  3) [Build only]          |                           | "
-  echo -e "|  4) [Flash only]          |  Extensions:              | "
-  echo -e "|  5) [Build + Flash]       |  9) [Shell Command]       | "
-  echo -e "|  6) [Get MCU ID]          |                           | "
+  echo -e "|  Klipper:               | Mainsail:                   | "
+  echo -e "|  1) [Switch Branch]     | 7) [Theme installer]        | "
+  echo -e "|  2) [Rollback]          |                             | "
+  echo -e "|                         | System:                     | "
+  echo -e "|  Firmware:              | 8) [Change hostname]        | "
+  echo -e "|  3) [Build only]        |                             | "
+  echo -e "|  4) [Flash only]        | Extras:                     | "
+  echo -e "|  5) [Build + Flash]     | 9) [G-Code Shell Command]   | "
+  echo -e "|  6) [Get MCU ID]        |                             | "
 back_footer
 }
 
@@ -36,8 +36,8 @@ advanced_menu(){
   read_octoprint_service_status
   do_action "" "advanced_ui"
   while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
-    case "$action" in
+    read -p "${cyan}Perform action:${white} " action; echo
+    case "${action}" in
       0)
         clear
         print_header
