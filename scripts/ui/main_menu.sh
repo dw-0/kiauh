@@ -70,7 +70,6 @@ main_menu(){
     octoprint_status
     klipperscreen_status
     MoonrakerTelegramBot_status
-  print_msg && clear_msg
   main_ui
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo

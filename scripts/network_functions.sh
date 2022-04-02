@@ -80,7 +80,7 @@ function create_custom_hostname(){
   echo -e "|        browsing to: http://my-printer.local           |"
   bottom_border
   while true; do
-    read -p "${cyan}###### Do you want to change the hostname? (y/N):${default} " yn
+    read -p "${cyan}###### Do you want to change the hostname? (y/N):${white} " yn
     case "$yn" in
       Y|y|Yes|yes)
         user_input_hostname
@@ -99,18 +99,18 @@ function user_input_hostname(){
     unset HOSTENAME_CONFIRM
     echo
     top_border
-    echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${default}          |"
-    echo -e "|  ${red}No special characters allowed!${default}                       |"
-    echo -e "|  ${red}No leading or trailing '-' allowed!${default}                  |"
+    echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${white}          |"
+    echo -e "|  ${red}No special characters allowed!${white}                       |"
+    echo -e "|  ${red}No leading or trailing '-' allowed!${white}                  |"
     bottom_border
     while true; do
-      read -p "${cyan}###### Please set the new hostname:${default} " NEW_HOSTNAME
+      read -p "${cyan}###### Please set the new hostname:${white} " NEW_HOSTNAME
       if [[ $NEW_HOSTNAME =~ ^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$ ]]; then
         ok_msg "'$NEW_HOSTNAME' is a valid hostname!"
         HOSTNAME_VALID="true"
         while true; do
           echo
-          read -p "${cyan}###### Do you want '$NEW_HOSTNAME' to be the new hostname? (Y/n):${default} " yn
+          read -p "${cyan}###### Do you want '$NEW_HOSTNAME' to be the new hostname? (Y/n):${white} " yn
           case "$yn" in
             Y|y|Yes|yes|"")
               echo -e "###### > Yes"
@@ -118,7 +118,7 @@ function user_input_hostname(){
               break;;
             N|n|No|no)
               echo -e "###### > No"
-              echo -e "${red}Skip hostname change ...${default}"
+              echo -e "${red}Skip hostname change ...${white}"
               HOSTENAME_CONFIRM="false"
               break;;
             *)

@@ -15,7 +15,7 @@ backup_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Backup Menu ] ~~~~~~~~~~~~~~")     | "
   hr
-  echo -e "|           ${yellow}Backup location: ~/kiauh-backups${default}            | "
+  echo -e "|           ${yellow}Backup location: ~/kiauh-backups${white}            | "
   hr
   echo -e "|  Configuration folder: |  Klipper Webinterface:       | "
   echo -e "|  0) [Klipper configs]  |  4) [Mainsail]               | "
@@ -33,7 +33,7 @@ backup_ui(){
 backup_menu(){
   do_action "" "backup_ui"
   while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
+    read -p "${cyan}Perform action:${white} " action; echo
     case "$action" in
       0)
         do_action "backup_klipper_config_dir" "backup_ui";;

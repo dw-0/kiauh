@@ -63,9 +63,9 @@ function moonraker_setup_dialog(){
 
   top_border
   if [ -f "${INITD}/klipper" ] || [ -f "${SYSTEMD}/klipper.service" ]; then
-    printf "|${green}%-55s${default}|\n" " 1 Klipper instance was found!"
+    printf "|${green}%-55s${white}|\n" " 1 Klipper instance was found!"
   elif [ "$(klipper_systemd | wc -w)" -gt 1 ]; then
-    printf "|${green}%-55s${default}|\n" " $(klipper_systemd | wc -w) Klipper instances were found!"
+    printf "|${green}%-55s${white}|\n" " $(klipper_systemd | wc -w) Klipper instances were found!"
   else
     echo -e "| ${yellow}INFO: No existing Klipper installation found!${default}         |"
   fi

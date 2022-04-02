@@ -41,7 +41,7 @@ octoprint_setup_dialog(){
       echo -e "| You need one OctoPrint instance per Klipper instance. | "
       bottom_border
       echo
-      read -p "${cyan}###### Create $INSTANCE_COUNT OctoPrint instances? (Y/n):${default} " yn
+      read -p "${cyan}###### Create $INSTANCE_COUNT OctoPrint instances? (Y/n):${white} " yn
       case "$yn" in
         Y|y|Yes|yes|"")
           echo -e "###### > Yes"

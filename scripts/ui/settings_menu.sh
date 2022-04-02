@@ -16,20 +16,20 @@ settings_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     | "
   hr
-  echo -e "| ${red}Caution:${default}                                              | "
+  echo -e "| ${red}Caution:${white}                                              | "
   echo -e "| When you change the config folder, be aware that ALL  | "
   echo -e "| Klipper and Moonraker services will be STOPPED,       | "
   echo -e "| reconfigured and then restarted again.                | "
   blank_line
-  echo -e "| ${red}DO NOT change the folder during printing!${default}             | "
+  echo -e "| ${red}DO NOT change the folder during printing!${white}             | "
   hr
   blank_line
-  echo -e "|  ${cyan}● Current Klipper config folder:${default}                     | "
+  echo -e "|  ${cyan}● Current Klipper config folder:${white}                     | "
   printf "|%-55s|\n" "    $klipper_cfg_loc"
   blank_line
   hr
   if [ -z $klipper_cfg_loc ]; then
-  echo -e "|  ${red}N/A) Install Klipper with KIAUH first to unlock!${default}     | "
+  echo -e "|  ${red}N/A) Install Klipper with KIAUH first to unlock!${white}     | "
   else
   echo -e "|  1) Change config folder                              | "
   fi
@@ -39,7 +39,7 @@ settings_ui(){
 settings_menu(){
   do_action "" "settings_ui"
   while true; do
-    read -p "${cyan}Perform action:${default} " action; echo
+    read -p "${cyan}Perform action:${white} " action; echo
     case "$action" in
       1)
         if [ ! -z $klipper_cfg_loc ]; then

@@ -196,7 +196,7 @@ function process_services_dialog(){
     while true; do
       echo
       top_border
-      echo -e "| ${red}Possibly disruptive/incompatible services found!${default}      |"
+      echo -e "| ${red}Possibly disruptive/incompatible services found!${white}      |"
       hr
       if [ "${HAPROXY_FOUND}" = "true" ]; then
         echo -e "| ● haproxy                                             |"
@@ -213,9 +213,9 @@ function process_services_dialog(){
       echo -e "|                                                       |"
       echo -e "| 1) Remove packages (recommend)                        |"
       echo -e "| 2) Disable only (may cause issues)                    |"
-      echo -e "| ${red}3) Skip this step (not recommended)${default}                   |"
+      echo -e "| ${red}3) Skip this step (not recommended)${white}                   |"
       bottom_border
-      read -p "${cyan}###### Please choose:${default} " action
+      read -p "${cyan}###### Please choose:${white} " action
       case "${action}" in
         1)
           echo -e "###### > Remove packages"

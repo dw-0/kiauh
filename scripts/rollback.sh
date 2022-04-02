@@ -35,15 +35,15 @@ load_klipper_state(){
     PREVIOUS_COMMIT_DATE=$(git show -s --format=%cd --date=short $PREVIOUS_COMMIT)
   fi
   if [ "$PREVIOUS_COMMIT" = "0" ]; then
-    CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
-    PREV_UI=$(echo -e "${red}None${default}                    ")
+    CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${white}")
+    PREV_UI=$(echo -e "${red}None${white}                    ")
   else
     if [ "$CURRENT_COMMIT" = "$PREVIOUS_COMMIT" ]; then
-      CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
-      PREV_UI=$(echo -e "${green}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${default}")
+      CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${white}")
+      PREV_UI=$(echo -e "${green}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${white}")
     else
-      CURR_UI=$(echo -e "${yellow}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${default}")
-      PREV_UI=$(echo -e "${yellow}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${default}")
+      CURR_UI=$(echo -e "${yellow}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${white}")
+      PREV_UI=$(echo -e "${yellow}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${white}")
     fi
   fi
   rollback_ui
@@ -59,7 +59,7 @@ rollback_ui(){
   echo -e "|  used commit from which you have updated.             | "
   bottom_border
   top_border
-  echo -e "|  Active branch: ${green}$PRINT_BRANCH${default}                      | "
+  echo -e "|  Active branch: ${green}$PRINT_BRANCH${white}                      | "
   hr
   echo -e "|  Currently on commit:                                 | "
   echo -e "|  $CURR_UI                             | "
@@ -74,7 +74,7 @@ rollback_klipper(){
     while true; do
         echo -e "${cyan}"
         read -p "###### Do you want to rollback to $PREVIOUS_COMMIT? (Y/n): " yn
-        echo -e "${default}"
+        echo -e "${white}"
         case "$yn" in
           Y|y|Yes|yes|"")
             clear
@@ -95,7 +95,7 @@ rollback_klipper(){
     while true; do
       echo -e "${cyan}"
       read -p "Perform action: " action; echo
-      echo -e "${default}"
+      echo -e "${white}"
       case "$action" in
         B|b)
           clear; advanced_menu; break;;

@@ -30,19 +30,19 @@ hr(){
 
 quit_footer(){
   hr
-  echo -e "|                        ${red}Q) Quit${default}                        |"
+  echo -e "|                        ${red}Q) Quit${white}                        |"
   bottom_border
 }
 
 back_footer(){
   hr
-  echo -e "|                       ${green}B) « Back${default}                       |"
+  echo -e "|                       ${green}B) « Back${white}                       |"
   bottom_border
 }
 
 back_help_footer(){
   hr
-  echo -e "|         ${green}B) « Back${default}         |        ${yellow}H) Help [?]${default}        |"
+  echo -e "|         ${green}B) « Back${white}         |        ${yellow}H) Help [?]${white}        |"
   bottom_border
 }
 
