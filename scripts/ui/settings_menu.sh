@@ -51,6 +51,40 @@ function settings_ui() {
   back_help_footer
 }
 
+function show_settings_help(){
+  top_border
+  echo -e "|    ~~~~~~ < ? > Help: KIAUH Settings < ? > ~~~~~~     |"
+  hr
+  echo -e "| ${cyan}Klipper config folder:${white}                                |"
+  echo -e "| The location of your printer.cfg and all other config |"
+  echo -e "| files that gets used during installation of Klipper   |"
+  echo -e "| and all other components which need that location.    |"
+  echo -e "| Default: /home/<username>/klipper_config              |"
+  blank_line
+  echo -e "| ${cyan}Mainsail latest / Fluidd latest:${white}                      |"
+  echo -e "| If this setting is set to 'true', KIAUH will always   |"
+  echo -e "| install or update Mainsail / Fluidd to the currently  |"
+  echo -e "| latest available version. NOTE: This will include     |"
+  echo -e "| alpha, beta, and rc (release-candidate) versions!     |"
+  echo -e "| If this setting is set to 'false', KIAUH will only    |"
+  echo -e "| install the latest STABLE Mainsail version.           |"
+  echo -e "| Toggle between 'true' / 'false' by typing '1' / '2'   |"
+  echo -e "| and hit enter. Default: 'false'                       |"
+  blank_line
+  back_footer
+  while true; do
+    read -p "${cyan}###### Please select:${white} " choice
+    case "${choice}" in
+      B|b)
+        clear && print_header
+        settings_menu
+        break;;
+      *)
+        deny_action "show_settings_help";;
+    esac
+  done
+}
+
 settings_menu(){
   do_action "" "settings_ui"
   while true; do
@@ -63,6 +97,10 @@ settings_menu(){
       B|b)
         clear
         main_menu
+        break;;
+      H|h)
+        clear && print_header
+        show_settings_help
         break;;
       *)
         deny_action "settings_ui";;
