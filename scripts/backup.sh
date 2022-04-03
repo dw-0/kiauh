@@ -15,6 +15,11 @@ set -e
 BACKUP_DIR="${HOME}/kiauh-backups"
 KLIPPER_CONFIG="${HOME}/klipper_config"
 
+function get_date(){
+  current_date=$(date +"%y%m%d-%H%M")
+  echo "${current_date}"
+}
+
 function check_for_backup_dir(){
   if [ ! -d "${BACKUP_DIR}" ]; then
     status_msg "Create KIAUH backup directory ..."
@@ -23,7 +28,7 @@ function check_for_backup_dir(){
 }
 
 function toggle_backups(){
-  source_kiauh_ini
+  read_kiauh_ini
   if [ "${backup_before_update}" = "true" ]; then
     sed -i '/backup_before_update=/s/true/false/' "${INI_FILE}"
     BB4U_STATUS="${green}[Enable]${white} backups before updating                  "
@@ -37,14 +42,14 @@ function toggle_backups(){
 }
 
 function bb4u(){
-  source_kiauh_ini
+  read_kiauh_ini
   if [ "${backup_before_update}" = "true" ]; then
     backup_"${1}"
   fi
 }
 
 function read_bb4u_stat(){
-  source_kiauh_ini
+  read_kiauh_ini
   if [ ! "${backup_before_update}" = "true" ]; then
     BB4U_STATUS="${green}[Enable]${white} backups before updating                  "
   else
@@ -82,7 +87,7 @@ function backup_klipper_config_dir(){
 
 function backup_moonraker_database(){
   check_for_backup_dir
-  if ls -d ${HOME}/.moonraker_database* 2>/dev/null 1>&2; then
+  if ls -d "${HOME}"/.moonraker_database* 2>/dev/null 1>&2; then
     get_date
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/mr_db_backup/${current_date}"

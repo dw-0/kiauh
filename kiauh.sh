@@ -48,12 +48,6 @@ function kiauh_update_avail(){
   fi
 }
 
-### format some default message types
-get_date(){
-  current_date=$(date +"%y%m%d-%H%M")
-  export current_date
-}
-
 #print_unkown_cmd(){
 #  ERROR_MSG="Invalid command!"
 #}
