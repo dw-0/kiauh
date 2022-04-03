@@ -282,23 +282,16 @@ set_klipper_cfg_path(){
 }
 
 do_action_service(){
-  shopt -s extglob # enable extended globbing
-  SERVICES="${SYSTEMD}/$2?(-*([0-9])).service"
-  ### set a variable for the ok and status messages
-  [ "$1" == "start" ] && ACTION1="started" && ACTION2="Starting"
-  [ "$1" == "stop" ] && ACTION1="stopped" && ACTION2="Stopping"
-  [ "$1" == "restart" ] && ACTION1="restarted" && ACTION2="Restarting"
-  [ "$1" == "enable" ] && ACTION1="enabled" && ACTION2="Enabling"
-  [ "$1" == "disable" ] && ACTION1="disabled" && ACTION2="Disabling"
-
-  if ls "${SERVICES}" 2>/dev/null 1>&2; then
-    for service in $(ls "${SERVICES}" | rev | cut -d"/" -f1 | rev); do
-      status_msg "${ACTION2} ${service} ..."
-      sudo systemctl "${1}" "${service}"
-      ok_msg "${service} ${ACTION1}!"
+  local action=${1} service=${2}
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[^0])?[0-9]*.service")
+  if [ -n "${services}" ]; then
+    for service in ${services}; do
+      service=$(echo "${service}" | rev | cut -d"/" -f1 | rev)
+      status_msg "${action^} ${service} ..."
+      sudo systemctl "${action}" "${service}"
+      ok_msg "OK!"
     done
   fi
-  shopt -u extglob # disable extended globbing
 }
 
 start_klipperscreen(){
