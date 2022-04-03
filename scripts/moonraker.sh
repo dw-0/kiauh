@@ -93,8 +93,7 @@ function moonraker_setup_dialog(){
             error_msg "Exiting Moonraker setup ...\n"
             break;;
           *)
-            error_msg "Invalid Input!\n"
-            ;;
+            error_msg "Invalid Input!\n";;
         esac
       done
     fi

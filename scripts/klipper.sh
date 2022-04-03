@@ -77,21 +77,22 @@ function klipper_setup_dialog(){
       error_msg "Invalid input!\n"
     else
       echo
-      read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          select_msg "Yes"
-          status_msg "Installing ${count} Klipper instance(s) ... \n"
-          klipper_setup "${count}"
-          break;;
-        N|n|No|no)
-          select_msg "No"
-          abort_msg "Exiting Klipper setup ...\n"
-          break;;
-        *)
-          print_error "Invalid command!"
-          ;;
-      esac
+      while true; do
+        read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${white} " yn
+        case "${yn}" in
+          Y|y|Yes|yes|"")
+            select_msg "Yes"
+            status_msg "Installing ${count} Klipper instance(s) ... \n"
+            klipper_setup "${count}"
+            break;;
+          N|n|No|no)
+            select_msg "No"
+            abort_msg "Exiting Klipper setup ...\n"
+            break;;
+          *)
+            error_msg "Invalid Input!\n";;
+        esac
+      done
     fi
   done
 }
