@@ -375,8 +375,9 @@ function remove_moonraker_env() {
 }
 
 function remove_moonraker_polkit() {
+  [ ! -d "${MOONRAKER_DIR}" ] && return
   status_msg "Removing all Moonraker PolicyKit rules ..."
-  /bin/bash "${HOME}/moonraker/scripts/set-policykit-rules.sh" --clear
+  /bin/bash "${MOONRAKER_DIR}/scripts/set-policykit-rules.sh" --clear
   ok_msg "Done!"
 }
 
