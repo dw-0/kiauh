@@ -128,8 +128,10 @@ function download_mainsail_macros(){
         log_info "modify mainsail.cfg"
         sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/\/home\/${USER}/" "${path}/mainsail.cfg"
         ### write the include to the very first line of the printer.cfg
-        log_info "modify printer.cfg"
-        sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
+        if ! grep -Eq "^[include mainsail.cfg]$" "${path}/printer.cfg"; then
+          log_info "modify printer.cfg"
+          sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
+        fi
 
         ok_msg "Done!"
       fi
