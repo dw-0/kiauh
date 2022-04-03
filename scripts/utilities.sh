@@ -339,10 +339,10 @@ restart_nginx(){
 }
 
 dependency_check(){
-  local dep="${1}" # dep: array
+  local dep=( "${@}" ) # dep: array
   status_msg "Checking for the following dependencies:"
   #check if package is installed, if not write name into array
-  for pkg in ${dep}
+  for pkg in "${dep[@]}"
   do
     echo -e "${cyan}● ${pkg} ${white}"
     if [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]]; then
@@ -476,75 +476,6 @@ function system_check_webui(){
   ### check system for an installed apache2 service
   if [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]]; then
     APACHE2_FOUND="true"
-  fi
-}
-
-function get_user_selection_kiauh_macros(){
-  #ask user for webui default macros
-  while true; do
-    unset ADD_KIAUH_MACROS
-    echo
-    top_border
-    echo -e "| It is recommended to have some important macros set   |"
-    echo -e "| up in your printer configuration to have $1|"
-    echo -e "| fully functional and working.                         |"
-    blank_line
-    echo -e "| Those macros are:                                     |"
-    echo -e "| ${cyan}● [gcode_macro PAUSE]${white}                                 |"
-    echo -e "| ${cyan}● [gcode_macro RESUME]${white}                                |"
-    echo -e "| ${cyan}● [gcode_macro CANCEL_PRINT]${white}                          |"
-    blank_line
-    echo -e "| If you already have these macros in your config file  |"
-    echo -e "| you can skip this step and choose 'no'.               |"
-    echo -e "| Otherwise you should consider to answer with 'yes' to |"
-    echo -e "| add the recommended example macros to your config.    |"
-    bottom_border
-    read -p "${cyan}###### Add the recommended macros? (Y/n):${white} " yn
-    case "${yn}" in
-      Y|y|Yes|yes|"")
-        echo -e "###### > Yes"
-        ADD_KIAUH_MACROS="true"
-        break;;
-      N|n|No|no)
-        echo -e "###### > No"
-        ADD_KIAUH_MACROS="false"
-        break;;
-      *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
-    esac
-  done
-}
-
-function install_kiauh_macros(){
-  ### copy kiauh_macros.cfg
-  if [ "${ADD_KIAUH_MACROS}" = "true" ]; then
-    ### create a backup of the config folder
-    backup_klipper_config_dir
-    ### handle multi printer.cfg
-    if ls "${KLIPPER_CONFIG}"/printer_* 2>/dev/null 1>&2; then
-      for config in $(find ${KLIPPER_CONFIG}/printer_*/printer.cfg); do
-        path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
-        if [ ! -f "${path}/kiauh_macros.cfg" ]; then
-          ### copy kiauh_macros.cfg to config location
-          status_msg "Creating macro config file ..."
-          cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${path}"
-          ### write the include to the very first line of the printer.cfg
-          sed -i "1 i [include kiauh_macros.cfg]" "${path}/printer.cfg"
-          ok_msg "${path}/kiauh_macros.cfg created!"
-        fi
-      done
-    ### handle single printer.cfg
-    elif [ -f "${KLIPPER_CONFIG}/printer.cfg" ] && [ ! -f "${KLIPPER_CONFIG}/kiauh_macros.cfg" ]; then
-      ### copy kiauh_macros.cfg to config location
-      status_msg "Creating macro config file ..."
-      cp "${SRCDIR}/kiauh/resources/kiauh_macros.cfg" "${KLIPPER_CONFIG}"
-      ### write the include to the very first line of the printer.cfg
-      sed -i "1 i [include kiauh_macros.cfg]" "${KLIPPER_CONFIG}/printer.cfg"
-      ok_msg "${KLIPPER_CONFIG}/kiauh_macros.cfg created!"
-    fi
-    ### restart klipper service to parse the modified printer.cfg
-    do_action_service "restart" "klipper"
   fi
 }
 
