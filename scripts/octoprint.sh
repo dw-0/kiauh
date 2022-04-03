@@ -132,7 +132,7 @@ add_to_groups(){
 function create_config_yaml(){
   local base_dir=${1} tmp_printer=${2} restart_cmd=${3}
 
-  /bin/sh -c "cat > ${base_dir}/config.yaml" << CONFIGYAML
+  /bin/sh -c "cat > ${basedir}/config.yaml" << CONFIGYAML
 serial:
     additionalPorts:
     - ${tmp_printer}
@@ -150,7 +150,7 @@ function create_single_octoprint_instance(){
   local port=5000
   local base_dir="${HOME}/.octoprint"
   local tmp_printer="/tmp/printer"
-  local config_yaml="${base_dir}/config.yaml"
+  local config_yaml="${basedir}/config.yaml"
   local restart_cmd="sudo service octoprint restart"
 
   status_msg "Creating OctoPrint instance ..."
@@ -165,17 +165,17 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 Type=simple
 User=${USER}
-ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${base_dir} --config ${config_yaml} --port=${port} serve
+ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${basedir} --config ${config_yaml} --port=${port} serve
 
 [Install]
 WantedBy=multi-user.target
 OCTOPRINT
 
   ### create the config.yaml
-  if [ ! -f "${base_dir}/config.yaml" ]; then
+  if [ ! -f "${basedir}/config.yaml" ]; then
     status_msg "Creating config.yaml ..."
-    [ ! -d "${base_dir}" ] && mkdir "${base_dir}"
-    create_config_yaml "${base_dir}" "${tmp_printer}" "${restart_cmd}"
+    [ ! -d "${basedir}" ] && mkdir "${basedir}"
+    create_config_yaml "${basedir}" "${tmp_printer}" "${restart_cmd}"
     ok_msg "Config created!"
   fi
 }
@@ -186,7 +186,7 @@ function create_multi_octoprint_instance(){
     ### multi instance variables
     local base_dir="${HOME}/.octoprint-${i}"
     local tmp_printer="/tmp/printer-${i}"
-    local config_yaml="${base_dir}/config.yaml"
+    local config_yaml="${basedir}/config.yaml"
     local restart_cmd="sudo service octoprint-${i} restart"
 
     ### create instance
@@ -202,16 +202,16 @@ Environment="LC_ALL=C.UTF-8"
 Environment="LANG=C.UTF-8"
 Type=simple
 User=${USER}
-ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${base_dir} --config ${config_yaml} --port=${port} serve
+ExecStart=${OCTOPRINT_ENV}/venv/bin/octoprint --basedir ${basedir} --config ${config_yaml} --port=${port} serve
 
 [Install]
 WantedBy=multi-user.target
 OCTOPRINT
 
     ### create the config.yaml
-    if [ ! -f "${base_dir}/config.yaml" ]; then
+    if [ ! -f "${basedir}/config.yaml" ]; then
       status_msg "Creating config.yaml for instance #${i}..."
-      [ ! -d "${base_dir}" ] && mkdir "${base_dir}"
+      [ ! -d "${basedir}" ] && mkdir "${basedir}"
       create_config_yaml
       ok_msg "Config #${i} created!"
     fi
