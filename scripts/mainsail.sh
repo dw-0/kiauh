@@ -28,7 +28,7 @@ function install_mainsail(){
     print_error "${error}" && return
   fi
   ### checking dependencies
-  local dep=(nginx)
+  local dep=(wget nginx)
   dependency_check "${dep[@]}"
   ### check if moonraker is already installed
   system_check_webui
@@ -52,9 +52,8 @@ function install_mainsail(){
   fi
 
   ### ask user to install the recommended webinterface macros
-  if ! ls "${KLIPPER_CONFIG}/kiauh_macros.cfg" 2>/dev/null 1>&2 || ! ls "${KLIPPER_CONFIG}"/printer_*/kiauh_macros.cfg 2>/dev/null 1>&2; then
-    get_user_selection_kiauh_macros "Mainsail     "
-  fi
+  install_mainsail_macros
+
   ### create /etc/nginx/conf.d/upstreams.conf
   set_upstream_nginx_cfg
   ### create /etc/nginx/sites-available/<interface config>
@@ -76,6 +75,69 @@ function install_mainsail(){
 
   ### confirm message
   print_confirm "Mainsail has been set up!"
+}
+
+function install_mainsail_macros(){
+  while true; do
+    echo
+    top_border
+    echo -e "| It is recommended to have some important macros in    |"
+    echo -e "| your printer configuration to have Mainsail fully     |"
+    echo -e "| functional and working.                               |"
+    blank_line
+    echo -e "| The recommended macros can be seen here:              |"
+    echo -e "| https://docs.mainsail.xyz/configuration#macros        |"
+    blank_line
+    echo -e "| If you already have these macros in your config file, |"
+    echo -e "| skip this step and answer with 'no'.                  |"
+    echo -e "| Otherwise you should consider to answer with 'yes' to |"
+    echo -e "| add the recommended example macros to your config.    |"
+    bottom_border
+    read -p "${cyan}###### Add the recommended macros? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        download_mainsail_macros
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        break;;
+      *)
+        print_error "Invalid command!";;
+    esac
+  done
+  return
+}
+
+function download_mainsail_macros(){
+  log_info "executing: download_mainsail_macros"
+  local ms_cfg="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mainsail/filesystem/home/pi/klipper_config/mainsail.cfg"
+  local configs
+  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg")
+  if [ -n "${configs}" ]; then
+    ### create a backup of the config folder
+    backup_klipper_config_dir
+
+    for config in ${configs}; do
+      path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
+      if [ ! -f "${path}/mainsail.cfg" ]; then
+        status_msg "Downloading mainsail.cfg to ${path} ..."
+        log_info "downloading mainsail.cfg to: ${path}"
+        wget "${ms_cfg}" -O "${path}/mainsail.cfg"
+        ### replace user 'pi' with current username to prevent issues in cases where the user is not called 'pi'
+        log_info "modify mainsail.cfg"
+        sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/\/home\/${USER}/" "${path}/mainsail.cfg"
+        ### write the include to the very first line of the printer.cfg
+        log_info "modify printer.cfg"
+        sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
+
+        ok_msg "Done!"
+      fi
+    done
+  else
+    log_error "execution stopped! reason: no printer.cfg found"
+    return
+  fi
 }
 
 function mainsail_setup(){
