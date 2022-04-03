@@ -13,6 +13,7 @@ set -e
 
 ### global variables
 BACKUP_DIR="${HOME}/kiauh-backups"
+KLIPPER_CONFIG="${HOME}/klipper_config"
 
 function check_for_backup_dir(){
   if [ ! -d "${BACKUP_DIR}" ]; then
@@ -64,15 +65,14 @@ function backup_printer_cfg(){
 }
 
 function backup_klipper_config_dir(){
-  source_kiauh_ini
   check_for_backup_dir
-  if [ -d "${klipper_cfg_loc}" ]; then
+  if [ -d "${KLIPPER_CONFIG}" ]; then
     get_date
     status_msg "Timestamp: ${current_date}"
     status_msg "Create backup of the Klipper config directory ..."
-    config_folder_name="$(echo "${klipper_cfg_loc}" | rev | cut -d"/" -f1 | rev)"
+    config_folder_name="$(echo "${KLIPPER_CONFIG}" | rev | cut -d"/" -f1 | rev)"
     mkdir -p "${BACKUP_DIR}/${config_folder_name}/${current_date}"
-    cp -r "${klipper_cfg_loc}" "${_}" && ok_msg "Backup complete!"
+    cp -r "${KLIPPER_CONFIG}" "${_}" && ok_msg "Backup complete!"
     echo
   else
     ok_msg "No config directory found! Skipping backup ..."
