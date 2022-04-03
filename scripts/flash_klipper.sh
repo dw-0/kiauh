@@ -11,7 +11,7 @@
 
 set -e
 
-show_flash_method_help(){
+function show_flash_method_help(){
   top_border
   echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
   hr
@@ -47,13 +47,12 @@ show_flash_method_help(){
         select_flash_method
         break;;
       *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
+        print_error "Invalid command!";;
     esac
   done
 }
 
-select_flash_method(){
+function select_flash_method(){
   top_border
   echo -e "|        ~~~~~~~~~~~~ [ Flash MCU ] ~~~~~~~~~~~~        |"
   hr
@@ -89,13 +88,13 @@ select_flash_method(){
         show_flash_method_help
         break;;
       *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
+        print_error "Invalid command!";;
     esac
   done
 }
 
-select_mcu_id(){
+function select_mcu_id(){
+  local id=0 sel_index=0
   if [ ${#mcu_list[@]} -ge 1 ]; then
     top_border
     echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
@@ -105,47 +104,44 @@ select_mcu_id(){
     bottom_border
     echo -e "${cyan}###### List of available MCU:${white}"
     ### list all mcus
-    id=0
     for mcu in "${mcu_list[@]}"; do
-      let id++
+      id=$((id+1))
       echo -e " ${id}) ${mcu}"
     done
     ### verify user input
-    sel_index=""
     while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${id}" ]; do
       echo
       read -p "${cyan}###### Select MCU to flash:${white} " sel_index
       if [[ ! (${sel_index} =~ ^[1-9]+$) ]]; then
-        warn_msg "Invalid input!"
+        error_msg "Invalid input!"
       elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${id}" ]; then
-        warn_msg "Please select a number between 1 and ${id}!"
+        error_msg "Please select a number between 1 and ${id}!"
       fi
-      mcu_index=$(echo $((sel_index - 1)))
+      mcu_index=$((sel_index - 1))
       selected_mcu_id="${mcu_list[${mcu_index}]}"
     done
     ### confirm selection
     while true; do
       echo -e "\n###### You selected:\n ● MCU #${sel_index}: ${selected_mcu_id}\n"
       read -p "${cyan}###### Continue? (Y/n):${white} " yn
-      case "$yn" in
+      case "${yn}" in
         Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
+          select_msg "Yes"
           status_msg "Flashing ${selected_mcu_id} ..."
           CONFIRM_FLASH=true
           break;;
         N|n|No|no)
-          echo -e "###### > No"
+          select_msg "No"
           CONFIRM_FLASH=false
           break;;
         *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
+          print_error "Invalid command!";;
       esac
     done
   fi
 }
 
-flash_mcu(){
+function flash_mcu(){
   do_action_service "stop" "klipper"
   make flash FLASH_DEVICE="${mcu_list[${mcu_index}]}"
   ### evaluate exit code of make flash
@@ -158,16 +154,15 @@ flash_mcu(){
   do_action_service "start" "klipper"
 }
 
-flash_mcu_sd(){
-  flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
+function flash_mcu_sd(){
+  local i=0 board_list=()
+  local flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
 
   ### write each supported board to the array to make it selectable
-  board_list=()
-  for board in $("${flash_script}" -l | tail -n +2); do
+  for board in $(/bin/bash "${flash_script}" -l | tail -n +2); do
     board_list+=("${board}")
   done
 
-  i=0
   top_border
   echo -e "|  Please select the type of board that corresponds to  |"
   echo -e "|  the currently selected MCU ID you chose before.      |"
@@ -195,7 +190,7 @@ flash_mcu_sd(){
       break
     else
       clear && print_header
-      ERROR_MSG="Invalid choice!" && print_msg && clear_msg
+      print_error "Invalid choice!"
       flash_mcu_sd
     fi
   done
@@ -230,22 +225,22 @@ flash_mcu_sd(){
   do_action_service "start" "klipper"
 }
 
-build_fw(){
+function build_fw(){
   if [ -d "${KLIPPER_DIR}" ]; then
     cd "${KLIPPER_DIR}"
     status_msg "Initializing firmware build ..."
     dep=(build-essential dpkg-dev make)
-    dependency_check
+    dependency_check "${dep[@]}"
     make clean && make menuconfig
     status_msg "Building firmware ..."
     make && ok_msg "Firmware built!"
   else
-    ERROR_MSG="Klipper was not found!\n Can not build firmware without Klipper!"
-    print_msg && clear_msg && return 1
+    print_error "Klipper was not found!\n Can not build firmware without Klipper!"
+    return 1
   fi
 }
 
-select_mcu_connection(){
+function select_mcu_connection(){
   echo
   top_border
   echo -e "| ${yellow}Make sure to have the controller board connected now!${white} |"
@@ -277,25 +272,25 @@ select_mcu_connection(){
   fi
 }
 
-retrieve_id(){
+function retrieve_id(){
+  local mcu_list=() mcu_count=1
   status_msg "Identifying MCU ..."
   sleep 1
-  mcu_list=()
-  mcu_count=1
-  [ "$1" = "USB" ] && path="/dev/serial/by-id/*"
-  [ "$1" = "UART" ] && path="/dev/ttyAMA0"
+  [ "${1}" = "USB" ] && path="/dev/serial/by-id/*"
+  [ "${1}" = "UART" ] && path="/dev/ttyAMA0"
   if [[ "$(ls "${path}")" != "" ]] ; then
     for mcu in ${path}; do
       declare "mcu_id_${mcu_count}"="${mcu}"
       mcu_id="mcu_id_${mcu_count}"
       mcu_list+=("${!mcu_id}")
       echo -e " ● ($1) MCU #${mcu_count}: ${cyan}${mcu}${white}\n"
-      let mcu_count++
+      mcu_count=$((mcu_count+1))
     done
   fi 2>/dev/null
 }
 
 function check_usergroup_dialout(){
+  local group_dialout
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     group_dialout=false
   else
@@ -322,9 +317,9 @@ function check_usergroup_dialout(){
     bottom_border
     while true; do
       read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${white} " yn
-      case "$yn" in
+      case "${yn}" in
         Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
+          select_msg "Yes"
           status_msg "Adding user '${USER}' to group(s) ..."
           if [ "${group_tty}" == "false" ]; then
             sudo usermod -a -G tty "${USER}" && ok_msg "Group 'tty' assigned!"
@@ -334,11 +329,10 @@ function check_usergroup_dialout(){
           fi
           ok_msg "You need to relog/restart for the group(s) to be applied!" && exit 0;;
         N|n|No|no)
-          echo -e "###### > No"
+          select_msg "No"
           break;;
         *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
+          print_error "Invalid command!";;
       esac
     done
   fi
