@@ -475,6 +475,7 @@ function select_mainsail_port(){
 }
 
 function enable_mainsail_remotemode(){
+  [ ! -f "${MAINSAIL_DIR}/config.json" ] && return
   rm -f "${MAINSAIL_DIR}/config.json"
   echo -e "{\n    \"remoteMode\":true\n}" >> "${MAINSAIL_DIR}/config.json"
 }
