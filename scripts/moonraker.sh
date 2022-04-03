@@ -80,21 +80,23 @@ function moonraker_setup_dialog(){
       error_msg "Invalid Input!\n"
     else
       echo
-      read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${default} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          select_msg "Yes"
-          status_msg "Installing ${count} Moonraker instance(s) ... \n"
-          moonraker_setup "${count}"
-          break;;
-        N|n|No|no)
-          select_msg "No"
-          error_msg "Exiting Moonraker setup ...\n"
-          break;;
-        *)
-          print_error "Invalid command!"
-          ;;
-      esac
+      while true; do
+        read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${default} " yn
+        case "${yn}" in
+          Y|y|Yes|yes|"")
+            select_msg "Yes"
+            status_msg "Installing ${count} Moonraker instance(s) ... \n"
+            moonraker_setup "${count}"
+            break;;
+          N|n|No|no)
+            select_msg "No"
+            error_msg "Exiting Moonraker setup ...\n"
+            break;;
+          *)
+            error_msg "Invalid Input!\n"
+            ;;
+        esac
+      done
     fi
   done
 }
