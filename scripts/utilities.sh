@@ -143,11 +143,11 @@ function init_ini(){
   if ! grep -Eq "^custom_klipper_cfg_loc=" "${INI_FILE}"; then
     echo -e "\ncustom_klipper_cfg_loc=\c" >> "${INI_FILE}"
   fi
-  if ! grep -Eq "^mainsail_always_install_latest=" "${INI_FILE}"; then
-    echo -e "\nmainsail_always_install_latest=false\c" >> "${INI_FILE}"
+  if ! grep -Eq "^mainsail_install_unstable=" "${INI_FILE}"; then
+    echo -e "\nmainsail_install_unstable=false\c" >> "${INI_FILE}"
   fi
-  if ! grep -Eq "^fluidd_always_install_latest=" "${INI_FILE}"; then
-    echo -e "\nfluidd_always_install_latest=false\c" >> "${INI_FILE}"
+  if ! grep -Eq "^fluidd_install_unstable=" "${INI_FILE}"; then
+    echo -e "\nfluidd_install_unstable=false\c" >> "${INI_FILE}"
   fi
   fetch_webui_ports
 }

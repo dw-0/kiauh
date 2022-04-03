@@ -353,7 +353,7 @@ function get_mainsail_download_url() {
   stable_url="https://github.com/mainsail-crew/mainsail/releases/download/${stable_tag}/mainsail.zip"
 
   read_kiauh_ini
-  if [ "${mainsail_always_install_latest}" == "true" ]; then
+  if [ "${mainsail_install_unstable}" == "true" ]; then
     url="${latest_url}"
     echo "${url}"
   else

@@ -43,10 +43,9 @@ function settings_ui() {
   echo -e "| Klipper:                                              |"
   printf  "| Config folder: %-49s|\n" "${custom_cfg_loc}"
   blank_line
-  echo -e "| Klipper Webinterface:                                 |"
-  printf  "| 1) Install Mainsail latest: %-38s|\n" "${ms_pre_rls}"
-  printf  "| 2) Install Fluidd latest:   %-38s|\n" "${fl_pre_rls}"
-  hr
+  echo -e "| Install unstable releases:                            |"
+  printf  "| 1) Mainsail: %-53s|\n" "${ms_pre_rls}"
+  printf  "| 2) Fluidd:   %-53s|\n" "${fl_pre_rls}"
   blank_line
   back_help_footer
 }
@@ -59,17 +58,17 @@ function show_settings_help(){
   echo -e "| The location of your printer.cfg and all other config |"
   echo -e "| files that gets used during installation of Klipper   |"
   echo -e "| and all other components which need that location.    |"
-  echo -e "| Default: /home/<username>/klipper_config              |"
+  echo -e "| This location can not be changed from within KIAUH.   |"
+  echo -e "| Default: ${cyan}/home/<username>/klipper_config${white}              |"
   blank_line
-  echo -e "| ${cyan}Mainsail latest / Fluidd latest:${white}                      |"
-  echo -e "| If this setting is set to 'true', KIAUH will always   |"
-  echo -e "| install or update Mainsail / Fluidd to the currently  |"
-  echo -e "| latest available version. NOTE: This will include     |"
-  echo -e "| alpha, beta, and rc (release-candidate) versions!     |"
-  echo -e "| If this setting is set to 'false', KIAUH will only    |"
-  echo -e "| install the latest STABLE Mainsail version.           |"
-  echo -e "| Toggle between 'true' / 'false' by typing '1' / '2'   |"
-  echo -e "| and hit enter. Default: 'false'                       |"
+  echo -e "| ${cyan}Install unstable releases:${white}                            |"
+  echo -e "| If set to ${green}true${white}, KIAUH installs/updates the software   |"
+  echo -e "| with the latest, currently available release.         |"
+  echo -e "| ${yellow}This will include alpha, beta and rc releases!${white}        |"
+  echo -e "| If set to ${red}false${white}, KIAUH installs/updates the software  |"
+  echo -e "| with the most recent stable release.                  |"
+  echo -e "| Change this setting by typing 1 or 2 and hit ENTER.   |"
+  echo -e "| Default: ${red}false${white}                                        |"
   blank_line
   back_footer
   while true; do
@@ -91,9 +90,9 @@ settings_menu(){
     read -p "${cyan}Perform action:${white} " action; echo
     case "${action}" in
       1)
-        switch_mainsail && settings_menu;;
+        switch_mainsail_releasetype && settings_menu;;
       2)
-        switch_fluidd && settings_menu;;
+        switch_fluidd_releasetype && settings_menu;;
       B|b)
         clear
         main_menu
@@ -108,26 +107,26 @@ settings_menu(){
   done
 }
 
-function switch_mainsail() {
+function switch_mainsail_releasetype() {
   read_kiauh_ini
-  local state="${mainsail_always_install_latest}"
+  local state="${mainsail_install_unstable}"
   if [ "${state}" == "false" ]; then
-    sed -i '/mainsail_always_install_latest=/s/false/true/' "${INI_FILE}"
-    log_info "mainsail_always_install_latest changed (false -> true) "
+    sed -i '/mainsail_install_unstable=/s/false/true/' "${INI_FILE}"
+    log_info "mainsail_install_unstable changed (false -> true) "
   else
-    sed -i '/mainsail_always_install_latest=/s/true/false/' "${INI_FILE}"
-    log_info "mainsail_always_install_latest changed (true -> false) "
+    sed -i '/mainsail_install_unstable=/s/true/false/' "${INI_FILE}"
+    log_info "mainsail_install_unstable changed (true -> false) "
   fi
 }
 
-function switch_fluidd() {
+function switch_fluidd_releasetype() {
   read_kiauh_ini
-  local state="${fluidd_always_install_latest}"
+  local state="${fluidd_install_unstable}"
   if [ "${state}" == "false" ]; then
-    sed -i '/fluidd_always_install_latest=/s/false/true/' "${INI_FILE}"
-    log_info "fluidd_always_install_latest changed (false -> true) "
+    sed -i '/fluidd_install_unstable=/s/false/true/' "${INI_FILE}"
+    log_info "fluidd_install_unstable changed (false -> true) "
   else
-    sed -i '/fluidd_always_install_latest=/s/true/false/' "${INI_FILE}"
-    log_info "fluidd_always_install_latest changed (true -> false) "
+    sed -i '/fluidd_install_unstable=/s/true/false/' "${INI_FILE}"
+    log_info "fluidd_install_unstable changed (true -> false) "
   fi
 }
