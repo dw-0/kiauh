@@ -88,7 +88,7 @@ function moonraker_setup_dialog(){
           moonraker_setup "${count}"
           break;;
         N|n|No|no)
-          select_msg"No"
+          select_msg "No"
           error_msg "Exiting Moonraker setup ...\n"
           break;;
         *)
@@ -129,9 +129,9 @@ function create_moonraker_virtualenv(){
 }
 
 function moonraker_setup(){
-  local instances=${1}
+  local confirm_msg instances=${1}
   ### checking dependencies
-  dep=(wget curl unzip dfu-util virtualenv)
+  dep=(git wget curl unzip dfu-util virtualenv)
   ### additional required dependencies on armbian
   dep+=(libjpeg-dev zlib1g-dev)
   dependency_check "${dep[@]}"
@@ -161,15 +161,10 @@ function moonraker_setup(){
   do_action_service "start" "moonraker"
 
   ### confirm message
-  if [[ ${instances} -eq 1 ]]; then
-    local confirm="Moonraker has been set up!"
-  elif [[ ${instances} -gt 1 ]]; then
-    local confirm="${instances} Moonraker instances have been set up!"
-  fi
-  print_confirm "${confirm}"
-
-  print_mr_ip_list "${mr_ip_list}"
-  return
+  [ "${instances}" -eq 1 ] && confirm_msg="Moonraker has been set up!"
+  [ "${instances}" -gt 1 ] && confirm_msg="${instances} Moonraker instances have been set up!"
+  print_confirm "${confirm_msg}"
+  print_mr_ip_list "${instances}"
 }
 
 function write_moonraker_service(){
@@ -187,6 +182,59 @@ function write_moonraker_service(){
       sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
   fi
   }
+
+function create_moonraker_conf(){
+  local lan instances=${1} log="${HOME}/klipper_logs"
+  lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
+
+  if [ "${instances}" -eq 1 ]; then
+    local cfg_dir="${KLIPPER_CONFIG}"
+    local cfg="${cfg_dir}/moonraker.conf"
+    local port=7125
+    local db="${HOME}/.moonraker_database"
+    local uds="/tmp/klippy_uds"
+    ### write single instance config
+    write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
+  elif [ "${instances}" -gt 1 ]; then
+    local i=1
+    while [ "${i}" -le "${instances}" ]; do
+      local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
+      local cfg="${cfg_dir}/moonraker.conf"
+      local port=7125
+      local db="${HOME}/.moonraker_database_${i}"
+      local uds="/tmp/klippy_uds-${i}"
+      ### write multi instance config
+      write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
+      port=$((port+1))
+      i=$((i+1))
+    done && unset port i
+  else
+    return 1
+  fi
+}
+
+function write_moonraker_conf(){
+  local cfg_dir=${1} cfg=${2} port=${3} log=${4} db=${5} uds=${6} lan=${7}
+  local conf_template="${SRCDIR}/kiauh/resources/moonraker.conf"
+  [ ! -d "${cfg_dir}" ] && mkdir -p "${cfg_dir}"
+
+  if [ ! -f "${cfg}" ]; then
+    status_msg "Creating moonraker.conf in ${cfg_dir} ..."
+    cp "${conf_template}" "${cfg}"
+    sed -i "s|%USER%|${USER}|g" "${cfg}"
+    sed -i "s|%CFG%|${cfg_dir}|; s|%PORT%|${port}|; s|%LOG%|${log}|; s|%DB%|${db}|; s|%UDS%|${uds}|" "${cfg}"
+    # if host ip is not in the default ip ranges replace placeholder,
+    # otherwise remove placeholder from config
+    if ! grep -q "${lan}" "${cfg}"; then
+      sed -i "s|%LAN%|${lan}|" "${cfg}"
+    else
+      sed -i "/%LAN%/d" "${cfg}"
+    fi
+    ok_msg "moonraker.conf created!"
+  else
+    status_msg "File '${cfg_dir}/moonraker.conf' already exists!\nSkipping..."
+  fi
+}
 
 function create_moonraker_service(){
   local instances=${1}
@@ -223,73 +271,14 @@ function create_moonraker_service(){
   fi
 }
 
-function write_moonraker_conf(){
-  local cfg_dir=${1} cfg=${2} port=${3} log=${4} db=${5} uds=${6} lan=${7}
-  local conf_template="${SRCDIR}/kiauh/resources/moonraker.conf"
-  [ ! -d "${cfg_dir}" ] && mkdir -p "${cfg_dir}"
-
-  if [ ! -f "${cfg}" ]; then
-    status_msg "Creating moonraker.conf in ${cfg_dir} ..."
-    cp "${conf_template}" "${cfg}"
-    sed -i "s|%USER%|${USER}|g" "${cfg}"
-    sed -i "s|%CFG%|${cfg_dir}|; s|%PORT%|${port}|; s|%LOG%|${log}|; s|%DB%|${db}|; s|%UDS%|${uds}|" "${cfg}"
-    # if host ip is not in the default ip ranges replace placeholder,
-    # otherwise remove placeholder from config
-    if ! grep -q "${lan}" "${cfg}"; then
-      sed -i "s|%LAN%|${lan}|" "${cfg}"
-    else
-      sed -i "/%LAN%/d" "${cfg}"
-    fi
-    ok_msg "moonraker.conf created!"
-  else
-    status_msg "File '${cfg_dir}/moonraker.conf' already exists!\nSkipping..."
-  fi
-}
-
-function create_moonraker_conf(){
-  local instances=${1}
-  local log="${HOME}/klipper_logs"
-  local mr_ip_list=()
-  local ip lan
-
-  ip=$(hostname -I | cut -d" " -f1)
-  lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
-
-  if [ "${instances}" -eq 1 ]; then
-    local cfg_dir="${KLIPPER_CONFIG}"
-    local cfg="${cfg_dir}/moonraker.conf"
-    local port=7125
-    local db="${HOME}/.moonraker_database"
-    local uds="/tmp/klippy_uds"
-    ### write single instance config
-    write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
-    mr_ip_list+=("${ip}:${port}")
-  elif [ "${instances}" -gt 1 ]; then
-    local i=1
-    while [ "${i}" -le "${instances}" ]; do
-      local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
-      local cfg="${cfg_dir}/moonraker.conf"
-      local port=7125
-      local db="${HOME}/.moonraker_database_${i}"
-      local uds="/tmp/klippy_uds-${i}"
-      ### write multi instance config
-      write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
-      mr_ip_list+=("${ip}:${port}")
-      port=$((port+1))
-      i=$((i+1))
-    done && unset port i
-  else
-    return 1
-  fi
-  export mr_ip_list
-}
-
 function print_mr_ip_list(){
-  local ips=${1}
-  local i=0
-  for ip in "${ips[@]}"; do
-    echo -e "       ${cyan}● Instance $((i + 1)):${white} ${ip}"
-  done
+  local ip instances="${1}" i=1 port=7125
+  ip=$(hostname -I | cut -d" " -f1)
+  while [ "${i}" -le "${instances}" ] ; do
+    echo -e "   ${cyan}● Instance ${i}:${white} ${ip}:${port}"
+    port=$((port+1))
+    i=$((i+1))
+  done && echo
 }
 
 ### introduced due to
