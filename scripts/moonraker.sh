@@ -167,22 +167,6 @@ function moonraker_setup(){
   print_mr_ip_list "${instances}"
 }
 
-function write_moonraker_service(){
-  local i=${1} cfg_dir=${2} cfg=${3} log=${4} service=${5}
-  local service_template="${SRCDIR}/kiauh/resources/moonraker.service"
-
-  ### replace all placeholders
-  if [ ! -f "${service}" ]; then
-    status_msg "Creating Moonraker Service ${i} ..."
-      sudo cp "${service_template}" "${service}"
-
-      [ -z "${i}" ] && sudo sed -i "s|instance %INST% ||" "${service}"
-      [ -n "${i}" ] && sudo sed -i "s|%INST%|${i}|" "${service}"
-      sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
-      sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
-  fi
-  }
-
 function create_moonraker_conf(){
   local lan instances=${1} log="${HOME}/klipper_logs"
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
@@ -268,6 +252,22 @@ function create_moonraker_service(){
     fi
   else
     return 1
+  fi
+}
+
+function write_moonraker_service(){
+  local i=${1} cfg_dir=${2} cfg=${3} log=${4} service=${5}
+  local service_template="${SRCDIR}/kiauh/resources/moonraker.service"
+
+  ### replace all placeholders
+  if [ ! -f "${service}" ]; then
+    status_msg "Creating Moonraker Service ${i} ..."
+      sudo cp "${service_template}" "${service}"
+
+      [ -z "${i}" ] && sudo sed -i "s|instance %INST% ||" "${service}"
+      [ -n "${i}" ] && sudo sed -i "s|%INST%|${i}|" "${service}"
+      sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
+      sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
   fi
 }
 
