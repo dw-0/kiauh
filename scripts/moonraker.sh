@@ -180,18 +180,17 @@ function create_moonraker_conf(){
     ### write single instance config
     write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
   elif [ "${instances}" -gt 1 ]; then
-    local i=1
+    local i=1 port=7125
     while [ "${i}" -le "${instances}" ]; do
       local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
       local cfg="${cfg_dir}/moonraker.conf"
-      local port=7125
       local db="${HOME}/.moonraker_database_${i}"
       local uds="/tmp/klippy_uds-${i}"
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
       port=$((port+1))
       i=$((i+1))
-    done && unset port i
+    done
   else
     return 1
   fi
