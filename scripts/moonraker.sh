@@ -395,9 +395,9 @@ function remove_moonraker(){
   remove_moonraker_systemd
   remove_moonraker_logs
   remove_moonraker_api_key
+  remove_moonraker_polkit
   remove_moonraker_dir
   remove_moonraker_env
-  remove_moonraker_polkit
   remove_moonraker_nginx
 
   local confirm="Moonraker was successfully removed!"
