@@ -11,15 +11,6 @@
 
 set -e
 
-### global variables
-SYSTEMD="/etc/systemd/system"
-INITD="/etc/init.d"
-ETCDEF="/etc/default"
-KLIPPY_ENV="${HOME}/klippy-env"
-KLIPPER_DIR="${HOME}/klipper"
-KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
-KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
-
 #=================================================#
 #================ INSTALL KLIPPER ================#
 #=================================================#

@@ -11,10 +11,6 @@
 
 set -e
 
-### base variables
-PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
-PGC_DIR="${HOME}/pgcode"
-
 #=================================================#
 #================== INSTALL PGC ==================#
 #=================================================#

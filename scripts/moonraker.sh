@@ -11,14 +11,6 @@
 
 set -e
 
-### global variables
-SYSTEMD="/etc/systemd/system"
-INITD="/etc/init.d"
-ETCDEF="/etc/default"
-MOONRAKER_ENV="${HOME}/moonraker-env"
-MOONRAKER_DIR="${HOME}/moonraker"
-MOONRAKER_REPO="https://github.com/Arksine/moonraker.git"
-
 #===================================================#
 #================ INSTALL MOONRAKER ================#
 #===================================================#

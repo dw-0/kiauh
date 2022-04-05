@@ -11,8 +11,6 @@
 
 set -e
 
-### base variables
-SYSTEMD="/etc/systemd/system"
 WEBCAMD_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
 WEBCAM_TXT_SRC="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
 

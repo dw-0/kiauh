@@ -11,10 +11,6 @@
 
 set -e
 
-### global variables
-SYSTEMD="/etc/systemd/system"
-OCTOPRINT_ENV="${HOME}/OctoPrint"
-
 #=================================================#
 #=============== INSTALL OCTOPRINT ===============#
 #=================================================#

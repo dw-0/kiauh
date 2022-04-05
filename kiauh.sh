@@ -78,6 +78,7 @@ function kiauh_update_avail(){
 #}
 
 check_euid
+set_globals
 init_ini
 kiauh_update_avail
 main_menu
