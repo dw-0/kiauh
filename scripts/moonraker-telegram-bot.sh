@@ -16,7 +16,7 @@ SYSTEMD="/etc/systemd/system"
 MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
 MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
 NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
-KLIPPER_CONFIG="${HOME}/klipper_config"
+KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
 
 #===================================================#
 #=========== REMOVE MOONRAKERTELEGRAMBOT ===========#

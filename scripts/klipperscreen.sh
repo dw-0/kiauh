@@ -16,7 +16,7 @@ SYSTEMD="/etc/systemd/system"
 KLIPPERSCREEN_ENV_DIR="${HOME}/.KlipperScreen-env"
 KLIPPERSCREEN_DIR="${HOME}/KlipperScreen"
 KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
-KLIPPER_CONFIG="${HOME}/klipper_config"
+KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
 
 #===================================================#
 #============== INSTALL KLIPPERSCREEN ==============#

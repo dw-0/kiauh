@@ -13,7 +13,7 @@ set -e
 
 ### global variables
 BACKUP_DIR="${HOME}/kiauh-backups"
-KLIPPER_CONFIG="${HOME}/klipper_config"
+KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
 
 function get_date(){
   current_date=$(date +"%y%m%d-%H%M")
