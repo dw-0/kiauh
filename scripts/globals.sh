@@ -11,8 +11,6 @@
 
 set -e
 
-
-
 function set_globals(){
   #=================== SYSTEM ===================#
   SYSTEMD="/etc/systemd/system"
@@ -33,7 +31,7 @@ function set_globals(){
   KLIPPY_ENV="${HOME}/klippy-env"
   KLIPPER_DIR="${HOME}/klipper"
   KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
-  KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
+  KLIPPER_CONFIG="$(get_klipper_cfg_dir)" # default: ${HOME}/klipper_config
 
   #================= MOONRAKER ==================#
   MOONRAKER_ENV="${HOME}/moonraker-env"
