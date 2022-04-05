@@ -11,15 +11,11 @@
 
 set -e
 
-### global variables
-INI_FILE="${HOME}/.kiauh.ini"
-KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
-
 function settings_ui() {
   read_kiauh_ini
   local custom_cfg_loc="${custom_klipper_cfg_loc}"
-  local ms_pre_rls="${mainsail_always_install_latest}"
-  local fl_pre_rls="${fluidd_always_install_latest}"
+  local ms_pre_rls="${mainsail_install_unstable}"
+  local fl_pre_rls="${fluidd_install_unstable}"
 
   if [ -z "${custom_cfg_loc}" ]; then
     custom_cfg_loc="${cyan}${KLIPPER_CONFIG}${white}"
@@ -44,9 +40,12 @@ function settings_ui() {
   printf  "| Config folder: %-49s|\n" "${custom_cfg_loc}"
   blank_line
   echo -e "| Install unstable releases:                            |"
-  printf  "| 1) Mainsail: %-53s|\n" "${ms_pre_rls}"
-  printf  "| 2) Fluidd:   %-53s|\n" "${fl_pre_rls}"
-  blank_line
+  printf  "| Mainsail: %-56s|\n" "${ms_pre_rls}"
+  printf  "| Fluidd:   %-56s|\n" "${fl_pre_rls}"
+  hr
+  echo -e "| 1) Change Klipper config folder location              |"
+  echo -e "| 2) Allow / Disallow unstable Mainsail releases        |"
+  echo -e "| 3) Allow / Disallow unstable Fluidd releases          |"
   back_help_footer
 }
 
@@ -58,7 +57,8 @@ function show_settings_help(){
   echo -e "| The location of your printer.cfg and all other config |"
   echo -e "| files that gets used during installation of Klipper   |"
   echo -e "| and all other components which need that location.    |"
-  echo -e "| This location can not be changed from within KIAUH.   |"
+  echo -e "| It is not recommended to change this location.        |"
+  echo -e "| Be advised, that negative side effects could occur.    |"
   echo -e "| Default: ${cyan}/home/<username>/klipper_config${white}              |"
   blank_line
   echo -e "| ${cyan}Install unstable releases:${white}                            |"
@@ -67,7 +67,6 @@ function show_settings_help(){
   echo -e "| ${yellow}This will include alpha, beta and rc releases!${white}        |"
   echo -e "| If set to ${red}false${white}, KIAUH installs/updates the software  |"
   echo -e "| with the most recent stable release.                  |"
-  echo -e "| Change this setting by typing 1 or 2 and hit ENTER.   |"
   echo -e "| Default: ${red}false${white}                                        |"
   blank_line
   back_footer
@@ -90,8 +89,10 @@ settings_menu(){
     read -p "${cyan}Perform action:${white} " action; echo
     case "${action}" in
       1)
-        switch_mainsail_releasetype && settings_menu;;
+        change_klipper_cfg_folder && settings_menu;;
       2)
+        switch_mainsail_releasetype && settings_menu;;
+      3)
         switch_fluidd_releasetype && settings_menu;;
       B|b)
         clear
@@ -105,28 +106,4 @@ settings_menu(){
         deny_action "settings_ui";;
     esac
   done
-}
-
-function switch_mainsail_releasetype() {
-  read_kiauh_ini
-  local state="${mainsail_install_unstable}"
-  if [ "${state}" == "false" ]; then
-    sed -i '/mainsail_install_unstable=/s/false/true/' "${INI_FILE}"
-    log_info "mainsail_install_unstable changed (false -> true) "
-  else
-    sed -i '/mainsail_install_unstable=/s/true/false/' "${INI_FILE}"
-    log_info "mainsail_install_unstable changed (true -> false) "
-  fi
-}
-
-function switch_fluidd_releasetype() {
-  read_kiauh_ini
-  local state="${fluidd_install_unstable}"
-  if [ "${state}" == "false" ]; then
-    sed -i '/fluidd_install_unstable=/s/false/true/' "${INI_FILE}"
-    log_info "fluidd_install_unstable changed (false -> true) "
-  else
-    sed -i '/fluidd_install_unstable=/s/true/false/' "${INI_FILE}"
-    log_info "fluidd_install_unstable changed (true -> false) "
-  fi
 }
