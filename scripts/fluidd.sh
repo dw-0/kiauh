@@ -11,11 +11,6 @@
 
 set -e
 
-### global variables
-FLUIDD_DIR="${HOME}/fluidd"
-FLUIDD_REPO_API="https://api.github.com/repos/fluidd-core/fluidd/releases"
-KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
-
 #===================================================#
 #================== INSTALL FLUIDD =================#
 #===================================================#

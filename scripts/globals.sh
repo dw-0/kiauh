@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+
+
+
+function set_globals(){
+  #=================== SYSTEM ===================#
+  SYSTEMD="/etc/systemd/system"
+  INITD="/etc/init.d"
+  ETCDEF="/etc/default"
+
+  #=================== KIAUH ====================#
+  green=$(echo -en "\e[92m")
+  yellow=$(echo -en "\e[93m")
+  red=$(echo -en "\e[91m")
+  cyan=$(echo -en "\e[96m")
+  white=$(echo -en "\e[39m")
+  INI_FILE="${HOME}/.kiauh.ini"
+  LOGFILE="/tmp/kiauh.log"
+  BACKUP_DIR="${HOME}/kiauh-backups"
+
+  #================== KLIPPER ===================#
+  KLIPPY_ENV="${HOME}/klippy-env"
+  KLIPPER_DIR="${HOME}/klipper"
+  KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
+  KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
+
+  #================= MOONRAKER ==================#
+  MOONRAKER_ENV="${HOME}/moonraker-env"
+  MOONRAKER_DIR="${HOME}/moonraker"
+  MOONRAKER_REPO="https://github.com/Arksine/moonraker.git"
+
+  #================= MAINSAIL ===================#
+  MAINSAIL_DIR="${HOME}/mainsail"
+  MAINSAIL_REPO_API="https://api.github.com/repos/mainsail-crew/mainsail/releases"
+  MAINSAIL_TAGS="https://api.github.com/repos/mainsail-crew/mainsail/tags"
+
+  #================== FLUIDD ====================#
+  FLUIDD_DIR="${HOME}/fluidd"
+  FLUIDD_REPO_API="https://api.github.com/repos/fluidd-core/fluidd/releases"
+
+  #=============== KLIPPERSCREEN ================#
+  KLIPPERSCREEN_ENV_DIR="${HOME}/.KlipperScreen-env"
+  KLIPPERSCREEN_DIR="${HOME}/KlipperScreen"
+  KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
+
+  #================ OCTOPRINT ===================#
+  OCTOPRINT_ENV="${HOME}/OctoPrint"
+
+  #========== MOONRAKER-TELEGRAM-BOT ============#
+  MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
+  MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
+  NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
+
+  #=============== PRETTY-GCODE =================#
+  PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
+  PGC_DIR="${HOME}/pgcode"
+}

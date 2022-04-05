@@ -11,11 +11,6 @@
 
 set -e
 
-### global variables
-SYSTEMD="/etc/systemd/system"
-INI_FILE="${HOME}/.kiauh.ini"
-LOGFILE="/tmp/kiauh.log"
-
 #================================================#
 #=================== STARTUP ====================#
 #================================================#
@@ -35,11 +30,6 @@ function check_euid(){
 #================================================#
 #============= MESSAGE FORMATTING ===============#
 #================================================#
-green=$(echo -en "\e[92m")
-yellow=$(echo -en "\e[93m")
-red=$(echo -en "\e[91m")
-cyan=$(echo -en "\e[96m")
-white=$(echo -en "\e[39m")
 
 function select_msg() {
   echo -e "${white}>>>>>> $1"
