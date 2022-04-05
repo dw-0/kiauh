@@ -80,18 +80,18 @@ function timestamp() {
 }
 
 function log_info() {
-  local message="${1}"
-  echo -e "$(timestamp) <INFO> ${message}" | tr -s " " >> "${LOGFILE}"
+  local message="${1}" log="${LOGFILE}"
+  echo -e "$(timestamp) <INFO> ${message}" | tr -s " " >> "${log}"
 }
 
 function log_warning() {
-  local message="${1}"
-  echo -e "$(timestamp) <WARN> ${message}" | tr -s " " >> "${LOGFILE}"
+  local message="${1}" log="${LOGFILE}"
+  echo -e "$(timestamp) <WARN> ${message}" | tr -s " " >> "${log}"
 }
 
 function log_error() {
-  local message="${1}"
-  echo -e "$(timestamp) <ERR> ${message}" | tr -s " " >> "${LOGFILE}"
+  local message="${1}" log="${LOGFILE}"
+  echo -e "$(timestamp) <ERR> ${message}" | tr -s " " >> "${log}"
 }
 
 #================================================#
@@ -112,7 +112,7 @@ function init_ini(){
   if [ -f "${INI_FILE}" ] && ! grep -Eq "^# KIAUH v4\.0\.0$" "${INI_FILE}"; then
     rm "${INI_FILE}"
   fi
-  ### initialize ini file
+  ### initialize v4.0.0 ini file
   if [ ! -f "${INI_FILE}" ]; then
     {
       echo -e "# File creation date: $(date)"
