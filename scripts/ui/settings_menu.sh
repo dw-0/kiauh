@@ -13,7 +13,7 @@ set -e
 
 ### global variables
 INI_FILE="${HOME}/.kiauh.ini"
-KLIPPER_CONFIG="${HOME}/klipper_config"
+KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
 
 function settings_ui() {
   read_kiauh_ini

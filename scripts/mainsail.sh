@@ -15,7 +15,7 @@ set -e
 MAINSAIL_DIR="${HOME}/mainsail"
 MAINSAIL_REPO_API="https://api.github.com/repos/mainsail-crew/mainsail/releases"
 MAINSAIL_TAGS="https://api.github.com/repos/mainsail-crew/mainsail/tags"
-KLIPPER_CONFIG="${HOME}/klipper_config"
+KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
 
 #===================================================#
 #================= INSTALL MAINSAIL ================#

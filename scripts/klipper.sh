@@ -18,7 +18,7 @@ ETCDEF="/etc/default"
 KLIPPY_ENV="${HOME}/klippy-env"
 KLIPPER_DIR="${HOME}/klipper"
 KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
-KLIPPER_CONFIG="${HOME}/klipper_config"
+KLIPPER_CONFIG="$(get_klipper_cfg_dir)"
 
 #=================================================#
 #================ INSTALL KLIPPER ================#
@@ -396,4 +396,19 @@ function compare_klipper_versions(){
     KLIPPER_UPDATE_AVAIL="false"
   fi
   echo "${versions}"
+}
+
+#================================================#
+#=================== HELPERS ====================#
+#================================================#
+
+function get_klipper_cfg_dir() {
+  local cfg_dir
+  read_kiauh_ini
+  if [ -z "${custom_klipper_cfg_loc}" ]; then
+    cfg_dir="${HOME}/klipper_config"
+  else
+    cfg_dir="${custom_klipper_cfg_loc}"
+  fi
+  echo "${cfg_dir}"
 }
