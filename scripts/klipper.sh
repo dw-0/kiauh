@@ -145,6 +145,9 @@ function klipper_setup(){
   do_action_service "enable" "klipper"
   do_action_service "start" "klipper"
 
+  ### step 6: check for dialout group membership
+  check_usergroups
+
   ### confirm message
   if [[ ${instances} -eq 1 ]]; then
     local confirm="Klipper has been set up!"
