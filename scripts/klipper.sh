@@ -36,6 +36,7 @@ function klipper_exists() {
 }
 
 function klipper_setup_dialog(){
+  local python_version="${1}"
   status_msg "Initializing Klipper installation ..."
 
   ### return early if klipper already exists
@@ -44,7 +45,7 @@ function klipper_setup_dialog(){
   if [ -n "${klipper_services}" ]; then
     local error="At least one Klipper service is already installed:"
     for s in ${klipper_services}; do
-      log "Found Klipper service: ${s}"
+      log_info "Found Klipper service: ${s}"
       error="${error}\n ➔ ${s}"
     done
     print_error "${error}" && return
@@ -74,7 +75,7 @@ function klipper_setup_dialog(){
           Y|y|Yes|yes|"")
             select_msg "Yes"
             status_msg "Installing ${count} Klipper instance(s) ... \n"
-            klipper_setup "${count}"
+            klipper_setup "${count}" "${python_version}"
             break;;
           N|n|No|no)
             select_msg "No"
@@ -89,12 +90,14 @@ function klipper_setup_dialog(){
 }
 
 function install_klipper_packages(){
-  local packages
+  local packages python_version="${1}"
   local install_script="${HOME}/klipper/scripts/install-octopi.sh"
 
   status_msg "Reading dependencies..."
   # shellcheck disable=SC2016
-  packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
+  packages=$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')
+  ### replace python-dev with python3-dev if python3 was selected
+  [ "${python_version}" == "python3" ] && packages="${packages//python-dev/python3-dev}"
   ### add dbus requirement for DietPi distro
   [ -e "/boot/dietpi/.version" ] && packages+=" dbus"
 
@@ -111,15 +114,27 @@ function install_klipper_packages(){
 }
 
 function create_klipper_virtualenv(){
-  status_msg "Installing python virtual environment..."
-  ### always create a clean virtualenv
-  [ -d "${KLIPPY_ENV}" ] && rm -rf "${KLIPPY_ENV}"
-  virtualenv -p python2 "${KLIPPY_ENV}"
-  "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+  local python_version="${1}" py2_ver py3_ver
+  if [ "${python_version}" == "python2" ]; then
+    py2_ver=$(python2 -V)
+    status_msg "Installing ${py2_ver} virtual environment..."
+    [ -d "${KLIPPY_ENV}" ] && rm -rf "${KLIPPY_ENV}"
+    virtualenv -p python2 "${KLIPPY_ENV}"
+    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+  fi
+  if [ "${python_version}" == "python3" ]; then
+    py3_ver=$(python3 -V)
+    status_msg "Installing ${py3_ver} virtual environment..."
+    virtualenv -p python3 "${KLIPPY_ENV}"
+    ### upgrade pip
+    "${KLIPPY_ENV}"/bin/pip install -U pip
+    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+  fi
+  return
 }
 
 function klipper_setup(){
-  local instances=${1}
+  local instances=${1} python_version=${2}
   ### checking dependencies
   local dep=(git)
   dependency_check "${dep[@]}"
@@ -131,8 +146,8 @@ function klipper_setup(){
   cd "${HOME}" && git clone "${KLIPPER_REPO}"
 
   ### step 2: install klipper dependencies and create python virtualenv
-  install_klipper_packages
-  create_klipper_virtualenv
+  install_klipper_packages "${python_version}"
+  create_klipper_virtualenv "${python_version}"
 
   ### step 3: create gcode_files and logs folder
   [ ! -d "${HOME}/gcode_files" ] && mkdir -p "${HOME}/gcode_files"

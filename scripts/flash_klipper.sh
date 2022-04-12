@@ -226,17 +226,23 @@ function flash_mcu_sd(){
 }
 
 function build_fw(){
-  if [ -d "${KLIPPER_DIR}" ]; then
+  local python_version
+  if [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPY_ENV}" ]; then
+    print_error "Klipper not found!\n Cannot build firmware without Klipper!"
+    return 1
+  else
     cd "${KLIPPER_DIR}"
     status_msg "Initializing firmware build ..."
     dep=(build-essential dpkg-dev make)
     dependency_check "${dep[@]}"
+
     make clean && make menuconfig
+
     status_msg "Building firmware ..."
-    make && ok_msg "Firmware built!"
-  else
-    print_error "Klipper was not found!\n Can not build firmware without Klipper!"
-    return 1
+    python_version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
+    [ "${python_version}" == "3" ] && make PYTHON=python3
+    [ "${python_version}" == "2" ] && make
+    ok_msg "Firmware built!"
   fi
 }
 
