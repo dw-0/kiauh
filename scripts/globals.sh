@@ -46,6 +46,7 @@ function set_globals(){
   #================== FLUIDD ====================#
   FLUIDD_DIR="${HOME}/fluidd"
   FLUIDD_REPO_API="https://api.github.com/repos/fluidd-core/fluidd/releases"
+  FLUIDD_TAGS="https://api.github.com/repos/fluidd-core/fluidd/tags"
 
   #=============== KLIPPERSCREEN ================#
   KLIPPERSCREEN_ENV_DIR="${HOME}/.KlipperScreen-env"
@@ -61,6 +62,6 @@ function set_globals(){
   NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
 
   #=============== PRETTY-GCODE =================#
-  PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
   PGC_DIR="${HOME}/pgcode"
+  PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
 }

@@ -171,48 +171,63 @@ function fluidd_status(){
   fi
 }
 
-function read_local_fluidd_version(){
-  unset FLUIDD_VER_FOUND
-  if [ -e "${FLUIDD_DIR}/.version" ]; then
-    FLUIDD_VER_FOUND="true"
-    FLUIDD_LOCAL_VER=$(head -n 1 "${FLUIDD_DIR}/.version")
-  else
-    FLUIDD_VER_FOUND="false" && unset FLUIDD_LOCAL_VER
-  fi
+function get_local_fluidd_version(){
+  local version
+  [ ! -f "${FLUIDD_DIR}/.version" ] && return
+  version=$(head -n 1 "${FLUIDD_DIR}/.version")
+  echo "${version}"
 }
 
-function read_remote_fluidd_version(){
-  #remote checks don't work without curl installed!
-  if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    FLUIDD_REMOTE_VER=${NONE}
-  else
-    get_fluidd_ver
-    FLUIDD_REMOTE_VER=${FLUIDD_VERSION}
-  fi
+function get_remote_fluidd_version(){
+  local version
+  [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
+  version=$(get_fluidd_download_url | rev | cut -d"/" -f2 | rev)
+  echo "${version}"
 }
 
 function compare_fluidd_versions(){
   unset FLUIDD_UPDATE_AVAIL
-  read_local_fluidd_version && read_remote_fluidd_version
-  if [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER == $FLUIDD_REMOTE_VER ]]; then
-    #printf fits the string for displaying it in the ui to a total char length of 12
-    FLUIDD_LOCAL_VER="${green}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
-  elif [[ $FLUIDD_VER_FOUND = "true" ]] && [[ $FLUIDD_LOCAL_VER != $FLUIDD_REMOTE_VER ]]; then
-    FLUIDD_LOCAL_VER="${yellow}$(printf "%-12s" "$FLUIDD_LOCAL_VER")${default}"
-    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+  local versions local_ver remote_ver
+  local_ver="$(get_local_fluidd_version)"
+  remote_ver="$(get_remote_fluidd_version)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add fluidd to the update all array for the update all function in the updater
     FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
   else
-    FLUIDD_LOCAL_VER=$NONE
-    FLUIDD_REMOTE_VER="${green}$(printf "%-12s" "$FLUIDD_REMOTE_VER")${default}"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }
 
 #================================================#
 #=================== HELPERS ====================#
 #================================================#
+
+function get_fluidd_download_url() {
+  local latest_tag latest_url stable_tag stable_url url
+  tags=$(curl -s "${FLUIDD_TAGS}" | grep "name" | cut -d'"' -f4)
+
+  ### latest download url including pre-releases (alpha, beta, rc)
+  latest_tag=$(echo "${tags}" | head -1)
+  latest_url="https://github.com/fluidd-core/fluidd/releases/download/${latest_tag}/fluidd.zip"
+
+  ### get stable fluidd download url
+  stable_tag=$(echo "${tags}" | grep -E "^v([0-9]+\.?){3}$" | head -1)
+  stable_url="https://github.com/fluidd-core/fluidd/releases/download/${stable_tag}/fluidd.zip"
+
+  read_kiauh_ini
+  if [ "${fluidd_install_unstable}" == "true" ]; then
+    url="${latest_url}"
+    echo "${url}"
+  else
+    url="${stable_url}"
+    echo "${url}"
+  fi
+}
 
 function fluidd_port_check(){
   if [ "${FLUIDD_ENABLED}" = "false" ]; then

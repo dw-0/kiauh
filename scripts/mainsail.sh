@@ -238,43 +238,36 @@ function mainsail_status(){
   fi
 }
 
-function read_local_mainsail_version(){
-  unset MAINSAIL_VER_FOUND
-  if [ -e "${MAINSAIL_DIR}/.version" ]; then
-    MAINSAIL_VER_FOUND="true"
-    MAINSAIL_LOCAL_VER=$(head -n 1 "${MAINSAIL_DIR}/.version")
-  else
-    MAINSAIL_VER_FOUND="false" && unset MAINSAIL_LOCAL_VER
-  fi
+function get_local_mainsail_version(){
+  local version
+  [ ! -f "${MAINSAIL_DIR}/.version" ] && return
+  version=$(head -n 1 "${MAINSAIL_DIR}/.version")
+  echo "${version}"
 }
 
-function read_remote_mainsail_version(){
-  #remote checks don't work without curl installed!
-  if [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]]; then
-    MAINSAIL_REMOTE_VER=${NONE}
-  else
-    get_mainsail_ver
-    MAINSAIL_REMOTE_VER=${MAINSAIL_VERSION}
-  fi
+function get_remote_mainsail_version(){
+  local version
+  [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
+  version=$(get_mainsail_download_url | rev | cut -d"/" -f2 | rev)
+  echo "${version}"
 }
 
 function compare_mainsail_versions(){
   unset MAINSAIL_UPDATE_AVAIL
-  read_local_mainsail_version && read_remote_mainsail_version
-  if [ "${MAINSAIL_VER_FOUND}" = "true" ] && [ "${MAINSAIL_LOCAL_VER}" == "${MAINSAIL_REMOTE_VER}" ]; then
-    #printf fits the string for displaying it in the ui to a total char length of 12
-    MAINSAIL_LOCAL_VER="${green}$(printf "%-12s" "${MAINSAIL_LOCAL_VER}")${white}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "${MAINSAIL_REMOTE_VER}")${white}"
-  elif [ "${MAINSAIL_VER_FOUND}" = "true" ] && [ "${MAINSAIL_LOCAL_VER}" != "${MAINSAIL_REMOTE_VER}" ]; then
-    MAINSAIL_LOCAL_VER="${yellow}$(printf "%-12s" "${MAINSAIL_LOCAL_VER}")${white}"
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "${MAINSAIL_REMOTE_VER}")${white}"
+  local versions local_ver remote_ver
+  local_ver="$(get_local_mainsail_version)"
+  remote_ver="$(get_remote_mainsail_version)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add mainsail to the update all array for the update all function in the updater
     MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
   else
-    MAINSAIL_LOCAL_VER=${NONE}
-    MAINSAIL_REMOTE_VER="${green}$(printf "%-12s" "${MAINSAIL_REMOTE_VER}")${white}"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     MAINSAIL_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }
 
 #================================================#
