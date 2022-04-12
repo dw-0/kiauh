@@ -55,8 +55,9 @@ function read_bb4u_stat(){
 
 function backup_printer_cfg(){
   check_for_backup_dir
+  local current_date
   if [ -f "${PRINTER_CFG}" ]; then
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     status_msg "Create backup of printer.cfg ..."
     cp "${PRINTER_CFG}" "${BACKUP_DIR}/printer.cfg.${current_date}.backup" && ok_msg "Backup complete!"
@@ -67,8 +68,9 @@ function backup_printer_cfg(){
 
 function backup_klipper_config_dir(){
   check_for_backup_dir
+  local current_date
   if [ -d "${KLIPPER_CONFIG}" ]; then
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     status_msg "Create backup of the Klipper config directory ..."
     config_folder_name="$(echo "${KLIPPER_CONFIG}" | rev | cut -d"/" -f1 | rev)"
@@ -83,8 +85,9 @@ function backup_klipper_config_dir(){
 
 function backup_moonraker_database(){
   check_for_backup_dir
+  local current_date
   if ls -d "${HOME}"/.moonraker_database* 2>/dev/null 1>&2; then
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/mr_db_backup/${current_date}"
     for database in $(ls -d ${HOME}/.moonraker_database*)
@@ -100,10 +103,11 @@ function backup_moonraker_database(){
 }
 
 function backup_klipper(){
+  local current_date
   if [ -d "${KLIPPER_DIR}" ] && [ -d "${KLIPPY_ENV}" ]; then
     status_msg "Creating Klipper backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/klipper-backups/${current_date}"
     cp -r "${KLIPPER_DIR}" "${_}" && cp -r "${KLIPPY_ENV}" "${_}" && ok_msg "Backup complete!"
@@ -113,10 +117,11 @@ function backup_klipper(){
 }
 
 function backup_mainsail(){
+  local current_date
   if [ -d "${MAINSAIL_DIR}" ]; then
     status_msg "Creating Mainsail backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/mainsail-backups/${current_date}"
     cp -r "${MAINSAIL_DIR}" "${_}" && ok_msg "Backup complete!"
@@ -126,10 +131,11 @@ function backup_mainsail(){
 }
 
 function backup_fluidd(){
+  local current_date
   if [ -d "${FLUIDD_DIR}" ]; then
     status_msg "Creating Fluidd backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/fluidd-backups/${current_date}"
     cp -r "${FLUIDD_DIR}" "${_}" && ok_msg "Backup complete!"
@@ -139,10 +145,11 @@ function backup_fluidd(){
 }
 
 function backup_moonraker(){
+  local current_date
   if [ -d "${MOONRAKER_DIR}" ] && [ -d "${MOONRAKER_ENV}" ]; then
     status_msg "Creating Moonraker backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/moonraker-backups/${current_date}"
     cp -r "${MOONRAKER_DIR}" "${_}" && cp -r "${MOONRAKER_ENV}" "${_}" && ok_msg "Backup complete!"
@@ -152,10 +159,11 @@ function backup_moonraker(){
 }
 
 function backup_octoprint(){
+  local current_date
   if [ -d "${OCTOPRINT_DIR}" ] && [ -d "${OCTOPRINT_CFG_DIR}" ]; then
     status_msg "Creating OctoPrint backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/octoprint-backups/${current_date}"
     cp -r "${OCTOPRINT_DIR}" "${_}" && cp -r "${OCTOPRINT_CFG_DIR}" "${_}"
@@ -166,10 +174,11 @@ function backup_octoprint(){
 }
 
 function backup_klipperscreen(){
+  local current_date
   if [ -d "${KLIPPERSCREEN_DIR}" ] ; then
     status_msg "Creating KlipperScreen backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/klipperscreen-backups/${current_date}"
     cp -r "${KLIPPERSCREEN_DIR}" "${_}"
@@ -180,10 +189,11 @@ function backup_klipperscreen(){
 }
 
 function backup_MoonrakerTelegramBot(){
+  local current_date
   if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
-    get_date
+    current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/MoonrakerTelegramBot-backups/${current_date}"
     cp -r "${MOONRAKER_TELEGRAM_BOT_DIR}" "${_}"
