@@ -289,17 +289,13 @@ function retrieve_id(){
   fi 2>/dev/null
 }
 
-function check_usergroup_dialout(){
-  local group_dialout
+function check_usergroups(){
+  local group_dialout group_tty
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     group_dialout=false
-  else
-    group_dialout=true
   fi
   if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
     group_tty=false
-  else
-    group_tty=true
   fi
   if [ "${group_dialout}" == "false" ] || [ "${group_tty}" == "false" ] ; then
     top_border
@@ -308,7 +304,8 @@ function check_usergroup_dialout(){
     [ "${group_dialout}" == "false" ] && echo -e "| ${yellow}● dialout${white}                                             |"
     blank_line
     echo -e "| It is possible that you won't be able to successfully |"
-    echo -e "| flash without your user being a member of that group. |"
+    echo -e "| connect and/or flash the controller board without     |"
+    echo -e "| your user being a member of that group.               |"
     echo -e "| If you want to add the current user to the group(s)   |"
     echo -e "| listed above, answer with 'Y'. Else skip with 'n'.    |"
     blank_line
@@ -327,7 +324,8 @@ function check_usergroup_dialout(){
           if [ "${group_dialout}" == "false" ]; then
             sudo usermod -a -G dialout "${USER}" && ok_msg "Group 'dialout' assigned!"
           fi
-          ok_msg "You need to relog/restart for the group(s) to be applied!" && exit 0;;
+          ok_msg "Remember to relog/restart this machine for the group(s) to be applied!"
+          break;;
         N|n|No|no)
           select_msg "No"
           break;;

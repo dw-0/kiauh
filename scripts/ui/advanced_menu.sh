@@ -53,11 +53,11 @@ advanced_menu(){
         do_action "build_fw" "advanced_ui";;
       4)
         clear && print_header
-        check_usergroup_dialout
+        check_usergroups
         do_action "select_flash_method" "advanced_ui";;
       5)
         clear && print_header
-        check_usergroup_dialout
+        check_usergroups
         status_msg "Please wait..."
         build_fw && select_flash_method
         print_msg && clear_msg
