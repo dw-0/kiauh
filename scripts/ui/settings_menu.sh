@@ -50,6 +50,7 @@ function settings_ui() {
 }
 
 function show_settings_help(){
+  local default_cfg="${cyan}${HOME}/klipper_config${white}"
   top_border
   echo -e "|    ~~~~~~ < ? > Help: KIAUH Settings < ? > ~~~~~~     |"
   hr
@@ -58,15 +59,19 @@ function show_settings_help(){
   echo -e "| files that gets used during installation of Klipper   |"
   echo -e "| and all other components which need that location.    |"
   echo -e "| It is not recommended to change this location.        |"
-  echo -e "| Be advised, that negative side effects could occur.    |"
-  echo -e "| Default: ${cyan}/home/<username>/klipper_config${white}              |"
+  echo -e "| Be advised, that negative side effects could occur.   |"
   blank_line
+  printf  "| Default: %-55s|\n" "${default_cfg}"
+  blank_line
+  hr
   echo -e "| ${cyan}Install unstable releases:${white}                            |"
   echo -e "| If set to ${green}true${white}, KIAUH installs/updates the software   |"
   echo -e "| with the latest, currently available release.         |"
   echo -e "| ${yellow}This will include alpha, beta and rc releases!${white}        |"
+  blank_line
   echo -e "| If set to ${red}false${white}, KIAUH installs/updates the software  |"
   echo -e "| with the most recent stable release.                  |"
+  blank_line
   echo -e "| Default: ${red}false${white}                                        |"
   blank_line
   back_footer
@@ -84,16 +89,16 @@ function show_settings_help(){
 }
 
 settings_menu(){
-  do_action "" "settings_ui"
+  settings_ui
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo
     case "${action}" in
       1)
-        change_klipper_cfg_folder && settings_menu;;
+        change_klipper_cfg_folder && settings_ui;;
       2)
-        switch_mainsail_releasetype && settings_menu;;
+        switch_mainsail_releasetype && settings_ui;;
       3)
-        switch_fluidd_releasetype && settings_menu;;
+        switch_fluidd_releasetype && settings_ui;;
       B|b)
         clear
         main_menu
