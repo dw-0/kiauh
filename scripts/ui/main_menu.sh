@@ -84,13 +84,27 @@ main_menu(){
       "stop octoprint") do_action_service "stop" "octoprint"; main_ui;;
       "restart octoprint") do_action_service "restart" "octoprint"; main_ui;;
       update) do_action "update_kiauh" "main_ui";;
-      0) do_action "upload_selection" "main_ui";;
-      1) clear && install_menu && break;;
-      2) clear && update_menu && break;;
-      3) clear && remove_menu && break;;
-      4) clear && advanced_menu && break;;
-      5) clear && backup_menu && break;;
-      6) clear && settings_menu && break;;
+      0)clear && print_header
+        upload_selection
+        break;;
+      1)clear && print_header
+        install_menu
+        break;;
+      2) clear && print_header
+        update_menu
+        break;;
+      3) clear && print_header
+        remove_menu
+        break;;
+      4)clear && print_header
+        advanced_menu
+        break;;
+      5)clear && print_header
+        backup_menu
+        break;;
+      6)clear && print_header
+        settings_menu
+        break;;
       Q|q)
         echo -e "${green}###### Happy printing! ######${white}"; echo
         exit 0;;
