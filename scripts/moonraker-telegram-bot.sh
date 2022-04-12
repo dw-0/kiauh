@@ -130,29 +130,36 @@ function MoonrakerTelegramBot_status(){
   fi
 }
 
-function read_MoonrakerTelegramBot_versions(){
-  if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] && [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]; then
-    cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
-    git fetch origin master -q
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${NONE}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${NONE}"
-  fi
+function get_local_telegram_bot_commit(){
+  local commit
+  [ ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] || [ ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}"/.git ] && return
+  cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
+  commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
+  echo "${commit}"
 }
 
-function compare_MoonrakerTelegramBot_versions(){
+function get_remote_telegram_bot_commit(){
+  local commit
+  [ ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] || [ ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}"/.git ] && return
+  cd "${MOONRAKER_TELEGRAM_BOT_DIR}" && git fetch origin -q
+  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  echo "${commit}"
+}
+
+function compare_prettygcode_versions(){
   unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
-  read_MoonrakerTelegramBot_versions
-  if [ "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}" != "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}" ]; then
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
-    # add moonraker telegram bot to the update all array for the update all function in the updater
+  local versions local_ver remote_ver
+  local_ver="$(get_local_telegram_bot_commit)"
+  remote_ver="$(get_remote_telegram_bot_commit)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+    # add moonraker-telegram-bot to the update all array for the update all function in the updater
     MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true" && update_arr+=(update_MoonrakerTelegramBot)
   else
-    LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${LOCAL_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
-    REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT="${green}$(printf "%-12s" "${REMOTE_MOONRAKER_TELEGRAM_BOT_COMMIT}")${white}"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }

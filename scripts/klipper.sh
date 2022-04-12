@@ -358,6 +358,7 @@ function get_klipper_status(){
 }
 
 function get_local_klipper_commit(){
+  local commit
   [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPER_DIR}"/.git ] && return
   cd "${KLIPPER_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
@@ -365,6 +366,7 @@ function get_local_klipper_commit(){
 }
 
 function get_remote_klipper_commit(){
+  local commit
   [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPER_DIR}"/.git ] && return
   cd "${KLIPPER_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)

@@ -83,30 +83,36 @@ function update_pgc_for_klipper(){
 #=================== PGC STATUS ==================#
 #=================================================#
 
-function read_pgc_versions(){
-  PGC_DIR="${HOME}/pgcode"
-  if [ -d "${PGC_DIR}" ] && [ -d "${PGC_DIR}/.git" ]; then
-    cd "${PGC_DIR}"
-    git fetch origin main -q
-    LOCAL_PGC_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_PGC_COMMIT=$(git describe origin/main --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_PGC_COMMIT=${NONE}
-    REMOTE_PGC_COMMIT=${NONE}
-  fi
+function get_local_prettygcode_commit(){
+  local commit
+  [ ! -d "${PGC_DIR}" ] || [ ! -d "${PGC_DIR}"/.git ] && return
+  cd "${PGC_DIR}"
+  commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
+  echo "${commit}"
 }
 
-function compare_pgc_versions(){
+function get_remote_prettygcode_commit(){
+  local commit
+  [ ! -d "${PGC_DIR}" ] || [ ! -d "${PGC_DIR}"/.git ] && return
+  cd "${PGC_DIR}" && git fetch origin -q
+  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  echo "${commit}"
+}
+
+function compare_prettygcode_versions(){
   unset PGC_UPDATE_AVAIL
-  read_pgc_versions
-  if [ "${LOCAL_PGC_COMMIT}" != "${REMOTE_PGC_COMMIT}" ]; then
-    LOCAL_PGC_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_PGC_COMMIT}")${white}"
-    REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "${REMOTE_PGC_COMMIT}")${white}"
-    # add PGC to the update all array for the update all function in the updater
+  local versions local_ver remote_ver
+  local_ver="$(get_local_prettygcode_commit)"
+  remote_ver="$(get_remote_prettygcode_commit)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+    # add prettygcode to the update all array for the update all function in the updater
     PGC_UPDATE_AVAIL="true" && update_arr+=(update_pgc_for_klipper)
   else
-    LOCAL_PGC_COMMIT="${green}$(printf "%-12s" "${LOCAL_PGC_COMMIT}")${white}"
-    REMOTE_PGC_COMMIT="${green}$(printf "%-12s" "${REMOTE_PGC_COMMIT}")${white}"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     PGC_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }

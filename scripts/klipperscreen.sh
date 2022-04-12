@@ -154,29 +154,36 @@ function klipperscreen_status(){
   fi
 }
 
-function read_klipperscreen_versions(){
-  if [ -d "${KLIPPERSCREEN_DIR}" ] && [ -d "${KLIPPERSCREEN_DIR}/.git" ]; then
-    cd "${KLIPPERSCREEN_DIR}"
-    git fetch origin master -q
-    LOCAL_KLIPPERSCREEN_COMMIT=$(git describe HEAD --always --tags | cut -d "-" -f 1,2)
-    REMOTE_KLIPPERSCREEN_COMMIT=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  else
-    LOCAL_KLIPPERSCREEN_COMMIT="${NONE}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${NONE}"
-  fi
+function get_local_klipperscreen_commit(){
+  local commit
+  [ ! -d "${KLIPPERSCREEN_DIR}" ] || [ ! -d "${KLIPPERSCREEN_DIR}"/.git ] && return
+  cd "${KLIPPERSCREEN_DIR}"
+  commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
+  echo "${commit}"
+}
+
+function get_remote_klipperscreen_commit(){
+  local commit
+  [ ! -d "${KLIPPERSCREEN_DIR}" ] || [ ! -d "${KLIPPERSCREEN_DIR}"/.git ] && return
+  cd "${KLIPPERSCREEN_DIR}" && git fetch origin -q
+  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  echo "${commit}"
 }
 
 function compare_klipperscreen_versions(){
   unset KLIPPERSCREEN_UPDATE_AVAIL
-  read_klipperscreen_versions
-  if [ "${LOCAL_KLIPPERSCREEN_COMMIT}" != "${REMOTE_KLIPPERSCREEN_COMMIT}" ]; then
-    LOCAL_KLIPPERSCREEN_COMMIT="${yellow}$(printf "%-12s" "${LOCAL_KLIPPERSCREEN_COMMIT}")${white}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${REMOTE_KLIPPERSCREEN_COMMIT}")${white}"
-    KLIPPERSCREEN_UPDATE_AVAIL="true"
-    update_arr+=(update_klipperscreen)
+  local versions local_ver remote_ver
+  local_ver="$(get_local_klipperscreen_commit)"
+  remote_ver="$(get_remote_klipperscreen_commit)"
+  if [ "${local_ver}" != "${remote_ver}" ]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+    # add klipperscreen to the update all array for the update all function in the updater
+    KLIPPERSCREEN_UPDATE_AVAIL="true" && update_arr+=(update_klipperscreen)
   else
-    LOCAL_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${LOCAL_KLIPPERSCREEN_COMMIT}")${white}"
-    REMOTE_KLIPPERSCREEN_COMMIT="${green}$(printf "%-12s" "${REMOTE_KLIPPERSCREEN_COMMIT}")${white}"
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     KLIPPERSCREEN_UPDATE_AVAIL="false"
   fi
+  echo "${versions}"
 }
