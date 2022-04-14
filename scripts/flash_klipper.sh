@@ -11,48 +11,12 @@
 
 set -e
 
-function show_flash_method_help(){
-  top_border
-  echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
-  hr
-  echo -e "| ${cyan}Regular flashing method:${white}                              |"
-  echo -e "| The default method to flash controller boards which   |"
-  echo -e "| are connected and updated over USB and not by placing |"
-  echo -e "| a compiled firmware file onto an internal SD-Card.    |"
-  blank_line
-  echo -e "| Common controllers that get flashed that way are:     |"
-  echo -e "| - Arduino Mega 2560                                   |"
-  echo -e "| - Fysetc F6 / S6 (used without a Display + SD-Slot)   |"
-  blank_line
-  echo -e "| ${cyan}Updating via SD-Card Update:${white}                          |"
-  echo -e "| Many popular controller boards ship with a bootloader |"
-  echo -e "| capable of updating the firmware via SD-Card.         |"
-  echo -e "| Choose this method if your controller board supports  |"
-  echo -e "| this way of updating. This method ONLY works for up-  |"
-  echo -e "| grading firmware. The initial flashing procedure must |"
-  echo -e "| be done manually per the instructions that apply to   |"
-  echo -e "| your controller board.                                |"
-  blank_line
-  echo -e "| Common controllers that can be flashed that way are:  |"
-  echo -e "| - BigTreeTech SKR 1.3 / 1.4 (Turbo) / E3 / Mini E3    |"
-  echo -e "| - Fysetc F6 / S6 (used with a Display + SD-Slot)      |"
-  echo -e "| - Fysetc Spider                                       |"
-  blank_line
-  back_footer
-  while true; do
-    read -p "${cyan}###### Please select:${white} " choice
-    case "${choice}" in
-      B|b)
-        clear && print_header
-        select_flash_method
-        break;;
-      *)
-        print_error "Invalid command!";;
-    esac
-  done
-}
+function init_flash_process(){
+  local method
 
-function select_flash_method(){
+  ### step 1: check for required userhgroups (tty & dialout)
+  check_usergroups
+
   top_border
   echo -e "|        ~~~~~~~~~~~~ [ Flash MCU ] ~~~~~~~~~~~~        |"
   hr
@@ -69,16 +33,12 @@ function select_flash_method(){
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
       1)
-        echo -e "###### > Regular flashing method"
-        select_mcu_connection
-        select_mcu_id
-        [[ "${CONFIRM_FLASH}" == true ]] && flash_mcu
+        select_msg "Regular flashing method"
+        method="regular"
         break;;
       2)
-        echo -e "###### > SD-Card Update"
-        select_mcu_connection
-        select_mcu_id
-        [[ "${CONFIRM_FLASH}" == true ]] && flash_mcu_sd
+        select_msg "SD-Card Update"
+        method="sdcard"
         break;;
       B|b)
         advanced_menu
@@ -91,11 +51,61 @@ function select_flash_method(){
         print_error "Invalid command!";;
     esac
   done
+
+  ### step 2: select how the mcu is connected to the host
+  select_mcu_connection
+  ### step 3: select which detected mcu should be flashed
+  select_mcu_id "${method}"
 }
 
+#================================================#
+#=================== STEP 2 =====================#
+#================================================#
+function select_mcu_connection(){
+  echo
+  top_border
+  echo -e "| ${yellow}Make sure to have the controller board connected now!${white} |"
+  blank_line
+  echo -e "| How is the controller board connected to the host?    |"
+  echo -e "| 1) USB                                                |"
+  echo -e "| 2) UART                                               |"
+  bottom_border
+  while true; do
+    read -p "${cyan}###### Connection method:${white} " choice
+    case "${choice}" in
+      1)
+        status_msg "Identifying MCU connected via USB ...\n"
+        get_usb_id
+        break;;
+      2)
+        status_msg "Identifying MCU possibly connected via UART ...\n"
+        get_uart_id
+        break;;
+      *)
+        error_msg "Invalid input!\n";;
+    esac
+  done
+
+  if [[ "${#mcu_list[@]}" -lt 1 ]]; then
+    warn_msg "No MCU found!"
+    warn_msg "MCU not plugged in or not detectable!"
+    echo
+  else
+    local i=1
+    for mcu in "${mcu_list[@]}"; do
+      mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
+      echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
+      i=$((i+1))
+    done
+    echo
+  fi
+}
+
+#================================================#
+#=================== STEP 3 =====================#
+#================================================#
 function select_mcu_id(){
-  local id=0 sel_index=0
-  if [ ${#mcu_list[@]} -ge 1 ]; then
+  local i=1 sel_index=0 method=${1}
     top_border
     echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
     hr
@@ -105,17 +115,18 @@ function select_mcu_id(){
     echo -e "${cyan}###### List of available MCU:${white}"
     ### list all mcus
     for mcu in "${mcu_list[@]}"; do
-      id=$((id+1))
-      echo -e " ${id}) ${mcu}"
+      mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
+      echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
+      i=$((i+1))
     done
     ### verify user input
-    while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${id}" ]; do
+    while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${i}" ]; do
       echo
       read -p "${cyan}###### Select MCU to flash:${white} " sel_index
       if [[ ! (${sel_index} =~ ^[1-9]+$) ]]; then
         error_msg "Invalid input!"
-      elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${id}" ]; then
-        error_msg "Please select a number between 1 and ${id}!"
+      elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${i}" ]; then
+        error_msg "Please select a number between 1 and ${i}!"
       fi
       mcu_index=$((sel_index - 1))
       selected_mcu_id="${mcu_list[${mcu_index}]}"
@@ -128,38 +139,45 @@ function select_mcu_id(){
         Y|y|Yes|yes|"")
           select_msg "Yes"
           status_msg "Flashing ${selected_mcu_id} ..."
-          CONFIRM_FLASH=true
+          if [ "${method}" == "regular" ]; then
+            log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
+            start_flash_mcu "${selected_mcu_id}"
+          elif [ "${method}" == "sdcard" ]; then
+            log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
+            start_flash_mcu_sd "${selected_mcu_id}"
+          else
+            error_msg "No flash method set! Aborting..."
+            log_error "No flash method set!"
+            return 1
+          fi
           break;;
         N|n|No|no)
           select_msg "No"
-          CONFIRM_FLASH=false
           break;;
         *)
           print_error "Invalid command!";;
       esac
     done
-  fi
 }
 
-function flash_mcu(){
+function start_flash_mcu(){
+  local device=${1}
   do_action_service "stop" "klipper"
-  make flash FLASH_DEVICE="${mcu_list[${mcu_index}]}"
-  ### evaluate exit code of make flash
-  if [ ! $? -eq 0 ]; then
+  if make flash FLASH_DEVICE="${device}"; then
+    ok_msg "Flashing successfull!"
+  else
     warn_msg "Flashing failed!"
     warn_msg "Please read the console output above!"
-  else
-    ok_msg "Flashing successfull!"
   fi
   do_action_service "start" "klipper"
 }
 
-function flash_mcu_sd(){
-  local i=0 board_list=()
+function start_flash_mcu_sd(){
+  local i=0 board_list=() device=${1}
   local flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
 
   ### write each supported board to the array to make it selectable
-  for board in $(/bin/bash "${flash_script}" -l | tail -n +2); do
+  for board in $("${flash_script}" -l | tail -n +2); do
     board_list+=("${board}")
   done
 
@@ -214,13 +232,13 @@ function flash_mcu_sd(){
 
   ###flash process
   do_action_service "stop" "klipper"
-  /bin/bash "${flash_script}" -b "${selected_baud_rate}" "${selected_mcu_id}" "${selected_board}"
-  ### evaluate exit code of flash-sdcard.sh execution
-  if [ ! $? -eq 0 ]; then
+  if "${flash_script}" -b "${selected_baud_rate}" "${device}" "${selected_board}"; then
+    ok_msg "Flashing successfull!"
+    log_info "Flash successfull!"
+  else
     warn_msg "Flashing failed!"
     warn_msg "Please read the console output above!"
-  else
-    ok_msg "Flashing successfull!"
+    log_error "Flash failed!"
   fi
   do_action_service "start" "klipper"
 }
@@ -246,98 +264,65 @@ function build_fw(){
   fi
 }
 
-function select_mcu_connection(){
-  echo
+#================================================#
+#=================== HELPERS ====================#
+#================================================#
+
+function get_usb_id(){
+  unset mcu_list
+  sleep 1
+  mcus=$(find /dev/serial/by-id/*)
+  for mcu in ${mcus}; do
+    mcu_list+=("${mcu}")
+  done
+}
+
+function get_uart_id() {
+  unset mcu_list
+  sleep 1
+  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty[^0-9]+([0-9]+)?$")
+  for mcu in ${mcus}; do
+    mcu_list+=("${mcu}")
+  done
+}
+
+function show_flash_method_help(){
   top_border
-  echo -e "| ${yellow}Make sure to have the controller board connected now!${white} |"
+  echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
+  hr
+  echo -e "| ${cyan}Regular flashing method:${white}                              |"
+  echo -e "| The default method to flash controller boards which   |"
+  echo -e "| are connected and updated over USB and not by placing |"
+  echo -e "| a compiled firmware file onto an internal SD-Card.    |"
   blank_line
-  echo -e "| How is the controller board connected to the host?    |"
-  echo -e "| 1) USB                                                |"
-  echo -e "| 2) UART                                               |"
-  bottom_border
+  echo -e "| Common controllers that get flashed that way are:     |"
+  echo -e "| - Arduino Mega 2560                                   |"
+  echo -e "| - Fysetc F6 / S6 (used without a Display + SD-Slot)   |"
+  blank_line
+  echo -e "| ${cyan}Updating via SD-Card Update:${white}                          |"
+  echo -e "| Many popular controller boards ship with a bootloader |"
+  echo -e "| capable of updating the firmware via SD-Card.         |"
+  echo -e "| Choose this method if your controller board supports  |"
+  echo -e "| this way of updating. This method ONLY works for up-  |"
+  echo -e "| grading firmware. The initial flashing procedure must |"
+  echo -e "| be done manually per the instructions that apply to   |"
+  echo -e "| your controller board.                                |"
+  blank_line
+  echo -e "| Common controllers that can be flashed that way are:  |"
+  echo -e "| - BigTreeTech SKR 1.3 / 1.4 (Turbo) / E3 / Mini E3    |"
+  echo -e "| - Fysetc F6 / S6 (used with a Display + SD-Slot)      |"
+  echo -e "| - Fysetc Spider                                       |"
+  blank_line
+  back_footer
   while true; do
-    read -p "${cyan}###### Connection method:${white} " choice
+    read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
-      1)
-        retrieve_id "USB"
-        break;;
-      2)
-        retrieve_id "UART"
+      B|b)
+        clear && print_header
+        init_flash_process
         break;;
       *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
+        print_error "Invalid command!";;
     esac
   done
-  unset mcu_count
-
-  if [[ "${#mcu_list[@]}" -lt 1 ]]; then
-    warn_msg "No MCU found!"
-    warn_msg "MCU not plugged in or not detectable!"
-    echo
-  fi
-}
-
-function retrieve_id(){
-  local mcu_list=() mcu_count=1
-  status_msg "Identifying MCU ..."
-  sleep 1
-  [ "${1}" = "USB" ] && path="/dev/serial/by-id/*"
-  [ "${1}" = "UART" ] && path="/dev/ttyAMA0"
-  if [[ "$(ls "${path}")" != "" ]] ; then
-    for mcu in ${path}; do
-      declare "mcu_id_${mcu_count}"="${mcu}"
-      mcu_id="mcu_id_${mcu_count}"
-      mcu_list+=("${!mcu_id}")
-      echo -e " ● ($1) MCU #${mcu_count}: ${cyan}${mcu}${white}\n"
-      mcu_count=$((mcu_count+1))
-    done
-  fi 2>/dev/null
-}
-
-function check_usergroups(){
-  local group_dialout group_tty
-  if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
-    group_dialout=false
-  fi
-  if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
-    group_tty=false
-  fi
-  if [ "${group_dialout}" == "false" ] || [ "${group_tty}" == "false" ] ; then
-    top_border
-    echo -e "| ${yellow}WARNING: Your current user is not in group:${white}           |"
-    [ "${group_tty}" == "false" ] && echo -e "| ${yellow}● tty${white}                                                 |"
-    [ "${group_dialout}" == "false" ] && echo -e "| ${yellow}● dialout${white}                                             |"
-    blank_line
-    echo -e "| It is possible that you won't be able to successfully |"
-    echo -e "| connect and/or flash the controller board without     |"
-    echo -e "| your user being a member of that group.               |"
-    echo -e "| If you want to add the current user to the group(s)   |"
-    echo -e "| listed above, answer with 'Y'. Else skip with 'n'.    |"
-    blank_line
-    echo -e "| ${yellow}INFO:${white}                                                 |"
-    echo -e "| ${yellow}Relog required for group assignments to take effect!${white}  |"
-    bottom_border
-    while true; do
-      read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          select_msg "Yes"
-          status_msg "Adding user '${USER}' to group(s) ..."
-          if [ "${group_tty}" == "false" ]; then
-            sudo usermod -a -G tty "${USER}" && ok_msg "Group 'tty' assigned!"
-          fi
-          if [ "${group_dialout}" == "false" ]; then
-            sudo usermod -a -G dialout "${USER}" && ok_msg "Group 'dialout' assigned!"
-          fi
-          ok_msg "Remember to relog/restart this machine for the group(s) to be applied!"
-          break;;
-        N|n|No|no)
-          select_msg "No"
-          break;;
-        *)
-          print_error "Invalid command!";;
-      esac
-    done
-  fi
 }

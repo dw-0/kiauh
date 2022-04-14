@@ -43,7 +43,6 @@ advanced_menu(){
         print_header
         toggle_octoprint_service
         read_octoprint_service_status
-        print_msg && clear_msg
         advanced_ui;;
       1)
         do_action "switch_menu";;
@@ -53,14 +52,11 @@ advanced_menu(){
         do_action "build_fw" "advanced_ui";;
       4)
         clear && print_header
-        check_usergroups
-        do_action "select_flash_method" "advanced_ui";;
+        do_action "init_flash_process" "advanced_ui";;
       5)
         clear && print_header
-        check_usergroups
         status_msg "Please wait..."
-        build_fw && select_flash_method
-        print_msg && clear_msg
+        build_fw && init_flash_process
         advanced_ui;;
       6)
         do_action "select_mcu_connection" "advanced_ui";;
@@ -70,7 +66,6 @@ advanced_menu(){
         clear
         print_header
         create_custom_hostname && set_hostname
-        print_msg && clear_msg
         advanced_ui;;
       9)
         do_action "setup_gcode_shell_command" "advanced_ui";;
