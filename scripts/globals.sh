@@ -9,6 +9,7 @@
 # This file may be distributed under the terms of the GNU GPLv3 license #
 #=======================================================================#
 
+# shellcheck disable=SC2034
 set -e
 
 function set_globals(){
