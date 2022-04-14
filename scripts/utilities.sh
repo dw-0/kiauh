@@ -308,7 +308,7 @@ function switch_fluidd_releasetype() {
 #=============== HANDLE SERVICES ================#
 #================================================#
 
-do_action_service(){
+function do_action_service(){
   local action=${1} service=${2}
   services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[^0])?[0-9]*.service")
   if [ -n "${services}" ]; then
@@ -321,37 +321,37 @@ do_action_service(){
   fi
 }
 
-start_klipperscreen(){
+function start_klipperscreen(){
   status_msg "Starting KlipperScreen Service ..."
   sudo systemctl start KlipperScreen && ok_msg "KlipperScreen Service started!"
 }
 
-stop_klipperscreen(){
+function stop_klipperscreen(){
   status_msg "Stopping KlipperScreen Service ..."
   sudo systemctl stop KlipperScreen && ok_msg "KlipperScreen Service stopped!"
 }
 
-restart_klipperscreen(){
+function restart_klipperscreen(){
   status_msg "Restarting KlipperScreen Service ..."
   sudo systemctl restart KlipperScreen && ok_msg "KlipperScreen Service restarted!"
 }
 
-start_MoonrakerTelegramBot(){
+function start_MoonrakerTelegramBot(){
   status_msg "Starting MoonrakerTelegramBot Service ..."
   sudo systemctl start moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service started!"
 }
 
-stop_MoonrakerTelegramBot(){
+function stop_MoonrakerTelegramBot(){
   status_msg "Stopping MoonrakerTelegramBot Service ..."
   sudo systemctl stop moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service stopped!"
 }
 
-restart_MoonrakerTelegramBot(){
+function restart_MoonrakerTelegramBot(){
   status_msg "Restarting MoonrakerTelegramBot Service ..."
   sudo systemctl restart moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service restarted!"
 }
 
-restart_nginx(){
+function restart_nginx(){
   if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
     status_msg "Restarting NGINX Service ..."
     sudo systemctl restart nginx && ok_msg "NGINX Service restarted!"
@@ -362,7 +362,7 @@ restart_nginx(){
 #================ DEPENDENCIES ==================#
 #================================================#
 
-dependency_check(){
+function dependency_check(){
   local dep=( "${@}" ) # dep: array
   status_msg "Checking for the following dependencies:"
   #check if package is installed, if not write name into array
@@ -390,7 +390,7 @@ dependency_check(){
   fi
 }
 
-setup_gcode_shell_command(){
+function setup_gcode_shell_command(){
   echo
   top_border
   echo -e "| You are about to install the G-Code Shell Command     |"
@@ -435,7 +435,7 @@ setup_gcode_shell_command(){
   done
 }
 
-install_gcode_shell_command(){
+function install_gcode_shell_command(){
   do_action_service "stop" "klipper"
   status_msg "Copy 'gcode_shell_command.py' to '${KLIPPER_DIR}/klippy/extras' ..."
   cp "${SRCDIR}/kiauh/resources/gcode_shell_command.py" "${KLIPPER_DIR}/klippy/extras"
@@ -552,4 +552,55 @@ function fetch_webui_ports(){
         sed -i "/^${interface}_port/d" "${INI_FILE}"
     fi
   done
+}
+
+#================================================#
+#================= USERGROUPS ===================#
+#================================================#
+
+function check_usergroups(){
+  local group_dialout group_tty
+  if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
+    group_dialout=false
+  fi
+  if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
+    group_tty=false
+  fi
+  if [ "${group_dialout}" == "false" ] || [ "${group_tty}" == "false" ] ; then
+    top_border
+    echo -e "| ${yellow}WARNING: Your current user is not in group:${white}           |"
+    [ "${group_tty}" == "false" ] && echo -e "| ${yellow}● tty${white}                                                 |"
+    [ "${group_dialout}" == "false" ] && echo -e "| ${yellow}● dialout${white}                                             |"
+    blank_line
+    echo -e "| It is possible that you won't be able to successfully |"
+    echo -e "| connect and/or flash the controller board without     |"
+    echo -e "| your user being a member of that group.               |"
+    echo -e "| If you want to add the current user to the group(s)   |"
+    echo -e "| listed above, answer with 'Y'. Else skip with 'n'.    |"
+    blank_line
+    echo -e "| ${yellow}INFO:${white}                                                 |"
+    echo -e "| ${yellow}Relog required for group assignments to take effect!${white}  |"
+    bottom_border
+    while true; do
+      read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          status_msg "Adding user '${USER}' to group(s) ..."
+          if [ "${group_tty}" == "false" ]; then
+            sudo usermod -a -G tty "${USER}" && ok_msg "Group 'tty' assigned!"
+          fi
+          if [ "${group_dialout}" == "false" ]; then
+            sudo usermod -a -G dialout "${USER}" && ok_msg "Group 'dialout' assigned!"
+          fi
+          ok_msg "Remember to relog/restart this machine for the group(s) to be applied!"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          break;;
+        *)
+          print_error "Invalid command!";;
+      esac
+    done
+  fi
 }
