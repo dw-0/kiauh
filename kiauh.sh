@@ -48,35 +48,6 @@ function kiauh_update_avail(){
   fi
 }
 
-#print_unkown_cmd(){
-#  ERROR_MSG="Invalid command!"
-#}
-#invalid_option(){
-#  ERROR_MSG="Invalid command!"
-#}
-
-#print_msg(){
-#  if [ -n "${ERROR_MSG}" ]; then
-#    echo -e "${red}"
-#    echo -e "#########################################################"
-#    echo -e " ${ERROR_MSG} "
-#    echo -e "#########################################################"
-#    echo -e "${white}"
-#  fi
-#  if [ -n "${CONFIRM_MSG}" ]; then
-#    echo -e "${green}"
-#    echo -e "#########################################################"
-#    echo -e " ${CONFIRM_MSG} "
-#    echo -e "#########################################################"
-#    echo -e "${white}"
-#  fi
-#}
-#
-#clear_msg(){
-#  unset CONFIRM_MSG
-#  unset ERROR_MSG
-#}
-
 check_euid
 set_globals
 init_ini
