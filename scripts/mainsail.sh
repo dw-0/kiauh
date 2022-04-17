@@ -216,26 +216,25 @@ function get_mainsail_ver(){
 }
 
 function mainsail_status(){
-  mcount=0
-  mainsail_data=(
-    "${MAINSAIL_DIR}"
-    "${NGINX_SA}/mainsail"
-    "${NGINX_SE}/mainsail"
-  )
-  #count+1 for each found data-item from array
-  for md in "${mainsail_data[@]}"
-  do
-    if [ -e "${md}" ]; then
-      mcount=$((mcount + 1))
-    fi
+  local status
+
+  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
+  local data_arr=("${MAINSAIL_DIR}" "${NGINX_SA}/mainsail" "${NGINX_SE}/mainsail")
+
+  ### count+1 for each found data-item from array
+  local filecount=0
+  for data in "${data_arr[@]}"; do
+    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
-  if [ "${mcount}" == "${#mainsail_data[*]}" ]; then
-    MAINSAIL_STATUS="${green}Installed!${white}      "
-  elif [ "${mcount}" == 0 ]; then
-    MAINSAIL_STATUS="${red}Not installed!${white}  "
+
+  if [ "${filecount}" == "${#data_arr[*]}" ]; then
+    status="${green}Installed!${white}      "
+  elif [ "${filecount}" == 0 ]; then
+    status="${red}Not installed!${white}  "
   else
-    MAINSAIL_STATUS="${yellow}Incomplete!${white}     "
+    status="${yellow}Incomplete!${white}     "
   fi
+  echo "${status}"
 }
 
 function get_local_mainsail_version(){
