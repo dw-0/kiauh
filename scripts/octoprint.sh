@@ -15,6 +15,12 @@ set -e
 #=============== INSTALL OCTOPRINT ===============#
 #=================================================#
 
+function octoprint_systemd() {
+  local services
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/octoprint(-[^0])?[0-9]*.service")
+  echo "${services}"
+}
+
 function octoprint_setup_dialog(){
   status_msg "Initializing OctoPrint installation ..."
 
@@ -254,20 +260,19 @@ function print_op_ip_list(){
 
 function remove_octoprint(){
   ###remove all octoprint services
-  if ls /etc/systemd/system/octoprint*.service 2>/dev/null 1>&2; then
-    status_msg "Removing OctoPrint Services ..."
-    for service in $(ls /etc/systemd/system/octoprint*.service | cut -d"/" -f5)
-    do
-      status_msg "Removing ${service} ..."
-      sudo systemctl stop "${service}"
-      sudo systemctl disable "${service}"
-      sudo rm -f "${SYSTEMD}/${service}"
-      ok_msg "OctoPrint Service removed!"
-    done
-    ### reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-  fi
+  [ -z "$(octoprint_systemd)" ] && return
+  status_msg "Removing Moonraker Systemd Services ..."
+  for service in $(octoprint_systemd | cut -d"/" -f5)
+  do
+    status_msg "Removing ${service} ..."
+    sudo systemctl stop "${service}"
+    sudo systemctl disable "${service}"
+    sudo rm -f "${SYSTEMD}/${service}"
+    ok_msg "Done!"
+  done
+  ### reloading units
+  sudo systemctl daemon-reload
+  sudo systemctl reset-failed
 
   ### remove sudoers file
   if [ -f /etc/sudoers.d/octoprint-shutdown ]; then
@@ -299,63 +304,25 @@ function remove_octoprint(){
 #=================================================#
 
 function octoprint_status(){
-  ocount=0
-  octoprint_data=(
-    SERVICE
-    "${OCTOPRINT_DIR}"
-  )
-  ### count amount of octoprint service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "^octoprint(\-[[:digit:]]+)?\.service$" | wc -l)
+  local sf_count status
+  sf_count="$(octoprint_systemd | wc -w)"
 
-  ### remove the "SERVICE" entry from the octoprint_data array if a octoprint service is installed
-  [ "${SERVICE_FILE_COUNT}" -gt 0 ] && unset "octoprint_data[0]"
+  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
+  local data_arr=(SERVICE "${OCTOPRINT_DIR}")
+  [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
 
-  #count+1 for each found data-item from array
-  for op in "${octoprint_data[@]}"
-  do
-    if [ -e "${op}" ]; then
-      ocount=$((ocount+1))
-    fi
+  ### count+1 for each found data-item from array
+  local filecount=0
+  for data in "${data_arr[@]}"; do
+    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
 
-  ### display status
-  if [ "${ocount}" == "${#octoprint_data[*]}" ]; then
-    OCTOPRINT_STATUS="$(printf "${green}Installed: %-5s${default}" "${SERVICE_FILE_COUNT}")"
-  elif [ "${ocount}" == 0 ]; then
-    OCTOPRINT_STATUS="${red}Not installed!${white}  "
+  if [ "${filecount}" == "${#data_arr[*]}" ]; then
+    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
+  elif [ "${filecount}" == 0 ]; then
+    status="${red}Not installed!${white}  "
   else
-    OCTOPRINT_STATUS="${yellow}Incomplete!${white}     "
+    status="${yellow}Incomplete!${white}     "
   fi
-}
-
-function read_octoprint_service_status(){
-  unset OPRINT_SERVICE_STATUS
-  if [ ! -f "/etc/systemd/system/octoprint.service" ]; then
-    return 0
-  fi
-  if systemctl list-unit-files | grep -E "octoprint*" | grep "enabled" &>/dev/null; then
-    OPRINT_SERVICE_STATUS="${red}[Disable]${white} OctoPrint Service                       "
-  else
-    OPRINT_SERVICE_STATUS="${green}[Enable]${white} OctoPrint Service                        "
-  fi
-}
-
-#================================================#
-#=================== HELPERS ====================#
-#================================================#
-
-function toggle_octoprint_service(){
-  if systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
-    do_action_service "stop" "octoprint"
-    do_action_service "disable" "octoprint"
-    sleep 2
-    CONFIRM_MSG=" OctoPrint Service is now >>> DISABLED <<< !"
-  elif systemctl list-unit-files | grep -E "octoprint.*" | grep "disabled" &>/dev/null; then
-    do_action_service "enable" "octoprint"
-    do_action_service "start" "octoprint"
-    sleep 2
-    CONFIRM_MSG=" OctoPrint Service is now >>> ENABLED <<< !"
-  else
-    ERROR_MSG=" You cannot activate a service that does not exist!"
-  fi
+  echo "${status}"
 }

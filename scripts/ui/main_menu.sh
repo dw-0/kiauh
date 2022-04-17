@@ -25,7 +25,7 @@ main_ui(){
   echo -e "|                      | KlipperScreen: $(klipperscreen_status)|"
   echo -e "|  6) [Settings]       |  Telegram Bot: $(get_telegram_bot_status)|"
   echo -e "|                      |                                |"
-  echo -e "|  $(get_kiauh_version)|     Octoprint: $OCTOPRINT_STATUS|"
+  echo -e "|  $(get_kiauh_version)|     Octoprint: $(octoprint_status)|"
   quit_footer
 }
 
@@ -64,8 +64,6 @@ main_menu(){
   print_header
   #prompt for KIAUH update if update available
   kiauh_update_dialog
-  #check install status
-    octoprint_status
   main_ui
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo
