@@ -144,7 +144,7 @@ function select_mcu_id(){
             start_flash_mcu "${selected_mcu_id}"
           elif [ "${method}" == "sdcard" ]; then
             log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
-            start_flash_mcu_sd "${selected_mcu_id}"
+            start_flash_sd "${selected_mcu_id}"
           else
             error_msg "No flash method set! Aborting..."
             log_error "No flash method set!"
@@ -172,7 +172,7 @@ function start_flash_mcu(){
   do_action_service "start" "klipper"
 }
 
-function start_flash_mcu_sd(){
+function start_flash_sd(){
   local i=0 board_list=() device=${1}
   local flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
 
