@@ -134,16 +134,28 @@ function create_klipper_virtualenv(){
 }
 
 function klipper_setup(){
+  read_kiauh_ini
+  local custom_repo="${custom_klipper_repo}"
+  local custom_branch="${custom_klipper_repo_branch}"
   local instances=${1} python_version=${2}
   ### checking dependencies
   local dep=(git)
   dependency_check "${dep[@]}"
 
   ### step 1: clone klipper
-  status_msg "Downloading Klipper ..."
   ### force remove existing klipper dir and clone into fresh klipper dir
   [ -d "${KLIPPER_DIR}" ] && rm -rf "${KLIPPER_DIR}"
-  cd "${HOME}" && git clone "${KLIPPER_REPO}"
+  if [ -z "${custom_repo}" ]; then
+    status_msg "Downloading Klipper ..."
+    cd "${HOME}" && git clone "${KLIPPER_REPO}"
+  else
+    local repo_name
+    repo_name=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//" )
+    status_msg "Downloading Klipper from ${repo_name} ..."
+    cd "${HOME}" && git clone "${custom_repo}" "klipper"
+    cd "${KLIPPER_DIR}" && git checkout "${custom_branch}"
+    cd "${HOME}"
+  fi
 
   ### step 2: install klipper dependencies and create python virtualenv
   install_klipper_packages "${python_version}"
