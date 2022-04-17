@@ -14,6 +14,7 @@ set -e
 advanced_ui(){
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     | "
+  hr
   echo -e "|  Klipper:               | Mainsail:                   | "
   echo -e "|  1) [Switch Branch]     | 7) [Theme installer]        | "
   echo -e "|  2) [Rollback]          |                             | "
@@ -46,7 +47,10 @@ advanced_menu(){
         build_fw && init_flash_process
         advanced_ui;;
       6)
-        do_action "select_mcu_connection" "advanced_ui";;
+        clear && print_header
+        select_mcu_connection
+        print_detected_mcu_to_screen
+        advanced_ui;;
       7)
         do_action "ms_theme_menu";;
       8)
