@@ -134,6 +134,12 @@ function init_ini(){
   if ! grep -Eq "^custom_klipper_cfg_loc=" "${INI_FILE}"; then
     echo -e "\ncustom_klipper_cfg_loc=\c" >> "${INI_FILE}"
   fi
+  if ! grep -Eq "^custom_klipper_repo=" "${INI_FILE}"; then
+    echo -e "\ncustom_klipper_repo=\c" >> "${INI_FILE}"
+  fi
+  if ! grep -Eq "^custom_klipper_repo_branch=" "${INI_FILE}"; then
+    echo -e "\ncustom_klipper_repo_branch=\c" >> "${INI_FILE}"
+  fi
   if ! grep -Eq "^mainsail_install_unstable=" "${INI_FILE}"; then
     echo -e "\nmainsail_install_unstable=false\c" >> "${INI_FILE}"
   fi
@@ -302,6 +308,27 @@ function switch_fluidd_releasetype() {
     sed -i '/fluidd_install_unstable=/s/true/false/' "${INI_FILE}"
     log_info "fluidd_install_unstable changed (true -> false) "
   fi
+}
+
+function switch_fluidd_releasetype() {
+  read_kiauh_ini
+  local state="${fluidd_install_unstable}"
+  if [ "${state}" == "false" ]; then
+    sed -i '/fluidd_install_unstable=/s/false/true/' "${INI_FILE}"
+    log_info "fluidd_install_unstable changed (false -> true) "
+  else
+    sed -i '/fluidd_install_unstable=/s/true/false/' "${INI_FILE}"
+    log_info "fluidd_install_unstable changed (true -> false) "
+  fi
+}
+
+function set_custom_klipper_repo() {
+  read_kiauh_ini
+  local repo_url=${1} branch=${2}
+  sed -i "/^custom_klipper_repo=/d" "${INI_FILE}"
+  sed -i '$a'"custom_klipper_repo=${repo_url}" "${INI_FILE}"
+  sed -i "/^custom_klipper_repo_branch=/d" "${INI_FILE}"
+  sed -i '$a'"custom_klipper_repo_branch=${branch}" "${INI_FILE}"
 }
 
 #================================================#
