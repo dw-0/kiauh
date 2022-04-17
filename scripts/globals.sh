@@ -54,9 +54,6 @@ function set_globals(){
   KLIPPERSCREEN_DIR="${HOME}/KlipperScreen"
   KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
 
-  #================ OCTOPRINT ===================#
-  OCTOPRINT_ENV="${HOME}/OctoPrint"
-
   #========== MOONRAKER-TELEGRAM-BOT ============#
   MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
   MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
