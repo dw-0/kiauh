@@ -15,19 +15,6 @@ set -e
 #================ INSTALL MOONRAKER ================#
 #===================================================#
 
-function system_check_moonraker(){
-  local major minor
-  ### python 3 check
-  status_msg "Your Python 3 version is: $(python3 --version)"
-  major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
-  minor=$(python3 --version | cut -d"." -f2)
-  if [ "${major}" -ge 3 ] && [ "${minor}" -ge 7 ]; then
-    echo "true"
-  else
-    echo "false"
-  fi
-}
-
 function moonraker_systemd() {
   local services
   services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])?[0-9]*.service")
@@ -47,7 +34,7 @@ function moonraker_setup_dialog(){
   fi
 
   ### return early if python version check fails
-  if [ "$(system_check_moonraker)" == "false" ]; then
+  if [ "$(python3_check)" == "false" ]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
     error="${error} Please upgrade Python."
     print_error "${error}" && return

@@ -348,36 +348,6 @@ function do_action_service(){
   fi
 }
 
-function start_klipperscreen(){
-  status_msg "Starting KlipperScreen Service ..."
-  sudo systemctl start KlipperScreen && ok_msg "KlipperScreen Service started!"
-}
-
-function stop_klipperscreen(){
-  status_msg "Stopping KlipperScreen Service ..."
-  sudo systemctl stop KlipperScreen && ok_msg "KlipperScreen Service stopped!"
-}
-
-function restart_klipperscreen(){
-  status_msg "Restarting KlipperScreen Service ..."
-  sudo systemctl restart KlipperScreen && ok_msg "KlipperScreen Service restarted!"
-}
-
-function start_MoonrakerTelegramBot(){
-  status_msg "Starting MoonrakerTelegramBot Service ..."
-  sudo systemctl start moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service started!"
-}
-
-function stop_MoonrakerTelegramBot(){
-  status_msg "Stopping MoonrakerTelegramBot Service ..."
-  sudo systemctl stop moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service stopped!"
-}
-
-function restart_MoonrakerTelegramBot(){
-  status_msg "Restarting MoonrakerTelegramBot Service ..."
-  sudo systemctl restart moonraker-telegram-bot && ok_msg "MoonrakerTelegramBot Service restarted!"
-}
-
 function restart_nginx(){
   if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
     status_msg "Restarting NGINX Service ..."
@@ -388,6 +358,19 @@ function restart_nginx(){
 #================================================#
 #================ DEPENDENCIES ==================#
 #================================================#
+
+function python3_check(){
+  local major minor
+  ### python 3 check
+  status_msg "Your Python 3 version is: $(python3 --version)"
+  major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
+  minor=$(python3 --version | cut -d"." -f2)
+  if [ "${major}" -ge 3 ] && [ "${minor}" -ge 7 ]; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
 
 function dependency_check(){
   local dep=( "${@}" ) # dep: array
