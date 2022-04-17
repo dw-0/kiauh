@@ -172,7 +172,7 @@ OCTOPRINT
 }
 
 function create_multi_octoprint_instance(){
-  local i=1 port=5000 instance=${1}
+  local i=1 port=5000 instances=${1}
   while [ "${i}" -le "${instances}" ]; do
     ### multi instance variables
     local basedir="${HOME}/.octoprint-${i}"
