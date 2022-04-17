@@ -60,7 +60,7 @@ function set_globals(){
   #========== MOONRAKER-TELEGRAM-BOT ============#
   MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
   MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
-  NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
+  MOONRAKER_TELEGRAM_BOT_REPO=https://github.com/nlef/moonraker-telegram-bot.git
 
   #=============== PRETTY-GCODE =================#
   PGC_DIR="${HOME}/pgcode"

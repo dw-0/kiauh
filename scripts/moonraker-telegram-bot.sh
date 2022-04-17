@@ -12,24 +12,31 @@
 set -e
 
 #===================================================#
-#=========== REMOVE MOONRAKERTELEGRAMBOT ===========#
+#========== INSTALL MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
+
+function telegram_bot_systemd() {
+  local services
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker-telegram-bot(-[^0])?[0-9]*.service")
+  echo "${services}"
+}
 
 function install_MoonrakerTelegramBot(){
     MoonrakerTelegramBot_setup
-    restart_MoonrakerTelegramBot
+    do_action_service "restart" "moonraker-telegram-bot"
 }
 
 function MoonrakerTelegramBot_setup(){
-  source_kiauh_ini
+  local klipper_cfg_loc
+  klipper_cfg_loc="$(get_klipper_cfg_dir)"
   export klipper_cfg_loc
-  dep=(virtualenv)
-  dependency_check
+  local dep=(virtualenv)
+  dependency_check "${dep[@]}"
   status_msg "Downloading MoonrakerTelegramBot ..."
   #force remove existing MoonrakerTelegramBot dir 
   [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] && rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
   #clone into fresh MoonrakerTelegramBot dir
-  cd "${HOME}" && git clone "${NLEF_REPO}"
+  cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
   ok_msg "Download complete!"
   status_msg "Installing MoonrakerTelegramBot ..."
   /bin/bash "${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/install.sh"
@@ -57,8 +64,8 @@ function remove_MoonrakerTelegramBot(){
   ### remove MoonrakerTelegramBot service
   if [ -e "${SYSTEMD}/moonraker-telegram-bot.service" ]; then
     status_msg "Removing MoonrakerTelegramBot service ..."
-    sudo systemctl stop moonraker-telegram-bot
-    sudo systemctl disable moonraker-telegram-bot
+    do_action_service "stop" "moonraker-telegram-bot"
+    do_action_service "disable" "moonraker-telegram-bot"
     sudo rm -f "${SYSTEMD}/moonraker-telegram-bot.service"
     ###reloading units
     sudo systemctl daemon-reload
@@ -73,61 +80,54 @@ function remove_MoonrakerTelegramBot(){
   fi
 
   ### remove MoonrakerTelegramBot log symlink in config dir
-
   if [ -e "${KLIPPER_CONFIG}/telegram.log" ]; then
     status_msg "Removing MoonrakerTelegramBot log symlink ..."
     rm -f "${KLIPPER_CONFIG}/telegram.log" && ok_msg "File removed!"
   fi
 
-  CONFIRM_MSG="MoonrakerTelegramBot successfully removed!"
+  print_confirm "MoonrakerTelegramBot successfully removed!"
 }
 
 #===================================================#
 #=========== UPDATE MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
 
-function update_MoonrakerTelegramBot(){
-  export KLIPPER_CONFIG
-  stop_MoonrakerTelegramBot
-  cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
-  git pull
+function update_telegram_bot(){
+  local klipper_cfg_loc
+  klipper_cfg_loc="$(get_klipper_cfg_dir)"
+  do_action_service "stop" "moonraker-telegram-bot"
+  cd "${MOONRAKER_TELEGRAM_BOT_DIR}" && git pull
   /bin/bash "./scripts/install.sh"
+  do_action_service "start" "moonraker-telegram-bot"
   ok_msg "Update complete!"
-  start_MoonrakerTelegramBot
 }
 
 #===================================================#
 #=========== MOONRAKERTELEGRAMBOT STATUS ===========#
 #===================================================#
 
-function MoonrakerTelegramBot_status(){
-  mtbcount=0
-  MoonrakerTelegramBot_data=(
-    SERVICE
-    "${MOONRAKER_TELEGRAM_BOT_DIR}"
-    "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
-  )
+function get_telegram_bot_status(){
+  local sf_count status
+  sf_count="$(telegram_bot_systemd | wc -w)"
 
-  ### count amount of MoonrakerTelegramBot_data service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "moonraker-telegram-bot" | wc -l)
+  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
+  local data_arr=(SERVICE "${MOONRAKER_TELEGRAM_BOT_DIR}" "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}")
+  [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
 
-  ### remove the "SERVICE" entry from the MoonrakerTelegramBot_data array if a MoonrakerTelegramBot service is installed
-  [ "${SERVICE_FILE_COUNT}" -gt 0 ] && unset "MoonrakerTelegramBot_data[0]"
-
-  #count+1 for each found data-item from array
-  for mtbd in "${MoonrakerTelegramBot_data[@]}"
-  do
-    if [ -e "${mtbd}" ]; then
-      mtbcount=$((mtbcount + 1))
-    fi
+  ### count+1 for each found data-item from array
+  local filecount=0
+  for data in "${data_arr[@]}"; do
+    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
-  if [ "${mtbcount}" == "${#MoonrakerTelegramBot_data[*]}" ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${green}Installed!${white}      "
-  elif [ "${mtbcount}" == 0 ]; then
-    MOONRAKER_TELEGRAM_BOT_STATUS="${red}Not installed!${white}  "
+
+  if [ "${filecount}" == "${#data_arr[*]}" ]; then
+    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
+  elif [ "${filecount}" == 0 ]; then
+    status="${red}Not installed!${white}  "
   else
-    MOONRAKER_TELEGRAM_BOT_STATUS="${yellow}Incomplete!${white}     "
+    status="${yellow}Incomplete!${white}     "
   fi
+  echo "${status}"
 }
 
 function get_local_telegram_bot_commit(){
@@ -146,7 +146,7 @@ function get_remote_telegram_bot_commit(){
   echo "${commit}"
 }
 
-function compare_prettygcode_versions(){
+function compare_telegram_bot_versions(){
   unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_telegram_bot_commit)"
@@ -155,7 +155,7 @@ function compare_prettygcode_versions(){
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add moonraker-telegram-bot to the update all array for the update all function in the updater
-    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true" && update_arr+=(update_MoonrakerTelegramBot)
+    MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="true" && update_arr+=(update_telegram_bot)
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"

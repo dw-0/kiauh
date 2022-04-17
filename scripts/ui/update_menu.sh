@@ -33,7 +33,7 @@ update_ui(){
   echo -e "|                        |               |              | "
   echo -e "|  Other:                |---------------|--------------| "
   echo -e "|  6) [PrettyGCode]      |$(compare_prettygcode_versions)| "
-  echo -e "|  7) [Telegram Bot]     |$(compare_prettygcode_versions)| "
+  echo -e "|  7) [Telegram Bot]     |$(compare_telegram_bot_versions)| "
   echo -e "|                        |------------------------------| "
   echo -e "|  8) [System]           |  $DISPLAY_SYS_UPDATE   | "
   back_footer
@@ -60,7 +60,7 @@ update_menu(){
       6)
         do_action "update_pgc_for_klipper" "update_ui";;
       7)
-        do_action "update_MoonrakerTelegramBot" "update_ui";;
+        do_action "update_telegram_bot" "update_ui";;
       8)
         do_action "update_system" "update_ui";;
       a)
