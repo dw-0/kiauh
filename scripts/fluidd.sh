@@ -149,26 +149,25 @@ function get_fluidd_ver(){
 }
 
 function fluidd_status(){
-  fcount=0
-  fluidd_data=(
-    $FLUIDD_DIR
-    $NGINX_SA/fluidd
-    $NGINX_SE/fluidd
-  )
-  #count+1 for each found data-item from array
-  for fd in "${fluidd_data[@]}"
-  do
-    if [ -e $fd ]; then
-      fcount=$(expr $fcount + 1)
-    fi
+  local status
+
+  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
+  local data_arr=("${FLUIDD_DIR}" "${NGINX_SA}/fluidd" "${NGINX_SE}/fluidd")
+
+  ### count+1 for each found data-item from array
+  local filecount=0
+  for data in "${data_arr[@]}"; do
+    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
-  if [ "$fcount" == "${#fluidd_data[*]}" ]; then
-    FLUIDD_STATUS="${green}Installed!${white}      "
-  elif [ "$fcount" == 0 ]; then
-    FLUIDD_STATUS="${red}Not installed!${white}  "
+
+  if [ "${filecount}" == "${#data_arr[*]}" ]; then
+    status="${green}Installed!${white}      "
+  elif [ "${filecount}" == 0 ]; then
+    status="${red}Not installed!${white}  "
   else
-    FLUIDD_STATUS="${yellow}Incomplete!${white}     "
+    status="${yellow}Incomplete!${white}     "
   fi
+  echo "${status}"
 }
 
 function get_local_fluidd_version(){

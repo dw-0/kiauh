@@ -21,7 +21,7 @@ main_ui(){
   echo -e "|  2) [Update]         |     Moonraker: $(get_moonraker_status)|"
   echo -e "|  3) [Remove]         |                                |"
   echo -e "|  4) [Advanced]       |      Mainsail: $(mainsail_status)|"
-  echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
+  echo -e "|  5) [Backup]         |        Fluidd: $(fluidd_status)|"
   echo -e "|                      | KlipperScreen: $(klipperscreen_status)|"
   echo -e "|  6) [Settings]       |  Telegram Bot: $(get_telegram_bot_status)|"
   echo -e "|                      |                                |"
@@ -65,7 +65,6 @@ main_menu(){
   #prompt for KIAUH update if update available
   kiauh_update_dialog
   #check install status
-    fluidd_status
     octoprint_status
   main_ui
   while true; do
