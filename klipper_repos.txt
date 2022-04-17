@@ -1,12 +1,11 @@
 ##############################################################
 ##        DO NOT REMOVE OR EDIT THIS COMMENT BLOCK!         ##
-##                                                          ##
-##  Always add the URL and branch in this form:             ##
+##  Always add the URL and branch in a pattern like this:   ##
 ##  <URL>,<branch>                                          ##
-##  Example:                                                ##
-##  https://github.com/Klipper3d/klipper,master             ##
+##  E.g.: https://github.com/Klipper3d/klipper,master       ##
 ##                                                          ##
-## A wrong format will cause issues! You have been warned!  ##
+##  A wrong format will cause problems!                     ##
+##  Do NOT insert blank lines. Only add one entry per line! ##
 ##############################################################
-##~~~~~ Add the custom repositories below this line ~~~~~~~~##
+##~~~~~ Add the custom repositories below THIS line ~~~~~~~~##
 https://github.com/Klipper3d/klipper,master
