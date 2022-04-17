@@ -16,14 +16,13 @@ advanced_ui(){
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     | "
   hr
   echo -e "|  Klipper:               | Mainsail:                   | "
-  echo -e "|  1) [Switch Branch]     | 7) [Theme installer]        | "
-  echo -e "|  2) [Rollback]          |                             | "
-  echo -e "|                         | System:                     | "
-  echo -e "|  Firmware:              | 8) [Change hostname]        | "
-  echo -e "|  3) [Build only]        |                             | "
-  echo -e "|  4) [Flash only]        | Extras:                     | "
-  echo -e "|  5) [Build + Flash]     | 9) [G-Code Shell Command]   | "
-  echo -e "|  6) [Get MCU ID]        |                             | "
+  echo -e "|  1) [Rollback]          | 6) [Theme installer]        | "
+  echo -e "|                         |                             | "
+  echo -e "|  Firmware:              | System:                     | "
+  echo -e "|  2) [Build only]        | 7) [Change hostname]        | "
+  echo -e "|  3) [Flash only]        |                             | "
+  echo -e "|  4) [Build + Flash]     | Extras:                     | "
+  echo -e "|  5) [Get MCU ID]        | 8) [G-Code Shell Command]   | "
 back_footer
 }
 
@@ -33,32 +32,30 @@ advanced_menu(){
     read -p "${cyan}Perform action:${white} " action; echo
     case "${action}" in
       1)
-        do_action "switch_menu";;
-      2)
         do_action "load_klipper_state" "advanced_ui";;
-      3)
+      2)
         do_action "build_fw" "advanced_ui";;
-      4)
+      3)
         clear && print_header
         do_action "init_flash_process" "advanced_ui";;
-      5)
+      4)
         clear && print_header
         status_msg "Please wait..."
         build_fw && init_flash_process
         advanced_ui;;
-      6)
+      5)
         clear && print_header
         select_mcu_connection
         print_detected_mcu_to_screen
         advanced_ui;;
-      7)
+      6)
         do_action "ms_theme_menu";;
-      8)
+      7)
         clear
         print_header
         create_custom_hostname && set_hostname
         advanced_ui;;
-      9)
+      8)
         do_action "setup_gcode_shell_command" "advanced_ui";;
       B|b)
         clear; main_menu; break;;
@@ -67,71 +64,4 @@ advanced_menu(){
     esac
   done
   advanced_menu
-}
-
-#############################################################
-#############################################################
-
-switch_ui(){
-  top_border
-  echo -e "|     $(title_msg "~~~~~~~~~ [ Switch Klipper Branch ] ~~~~~~~~~")     |"
-  bottom_border
-  echo
-  echo -e " $(title_msg "Active Branch: ")${green}${GET_BRANCH}${white}"
-  echo
-  top_border
-  echo -e "|                                                       | "
-  echo -e "|  KevinOConnor:                                        | "
-  echo -e "|  1) [--> master]                                      | "
-  echo -e "|                                                       | "
-  echo -e "|  dmbutyugin:                                          | "
-  echo -e "|  2) [--> scurve-shaping]                              | "
-  echo -e "|  3) [--> scurve-smoothing]                            | "
-  back_footer
-}
-
-switch_menu(){
-  if [ -d "${KLIPPER_DIR}" ]; then
-    read_branch
-    do_action "" "switch_ui"
-    while true; do
-      read -p "${cyan}Perform action:${white} " action; echo
-      case "${action}" in
-        1)
-          clear
-          print_header
-          switch_to_master
-          read_branch
-          print_msg && clear_msg
-          switch_ui;;
-        2)
-          clear
-          print_header
-          switch_to_scurve_shaping
-          read_branch
-          print_msg && clear_msg
-          switch_ui;;
-        3)
-          clear
-          print_header
-          switch_to_scurve_smoothing
-          read_branch
-          print_msg && clear_msg
-          switch_ui;;
-        4)
-          clear
-          print_header
-          switch_to_moonraker
-          read_branch
-          print_msg && clear_msg
-          switch_ui;;
-        B|b)
-          clear; advanced_menu; break;;
-        *)
-          deny_action "switch_ui";;
-      esac
-    done
-  else
-    ERROR_MSG="No Klipper directory found! Download Klipper first!"
-  fi
 }
