@@ -48,7 +48,7 @@ function init_flash_process(){
         show_flash_method_help
         break;;
       *)
-        print_error "Invalid command!";;
+        error_msg "Invalid command!";;
     esac
   done
 
@@ -62,43 +62,56 @@ function init_flash_process(){
 #=================== STEP 2 =====================#
 #================================================#
 function select_mcu_connection(){
-  echo
   top_border
-  echo -e "| ${yellow}Make sure to have the controller board connected now!${white} |"
+  echo -e "| ${yellow}Make sure that the controller board is connected now!${white} |"
+  hr
   blank_line
   echo -e "| How is the controller board connected to the host?    |"
   echo -e "| 1) USB                                                |"
   echo -e "| 2) UART                                               |"
-  bottom_border
+  blank_line
+  back_help_footer
   while true; do
     read -p "${cyan}###### Connection method:${white} " choice
     case "${choice}" in
+      ### continue to execute script even if get_usb_id or get_uart_id returns with exit code 1
+      ### this is not critical, as the mcu_list array will be empty and that specific
+      ### case is handled later during execution of the script
       1)
         status_msg "Identifying MCU connected via USB ...\n"
-        get_usb_id
+        get_usb_id || true # continue even after exit code 1
         break;;
       2)
         status_msg "Identifying MCU possibly connected via UART ...\n"
-        get_uart_id
+        get_uart_id || true # continue even after exit code 1
+        break;;
+      B|b)
+        advanced_menu
+        break;;
+      H|h)
+        clear && print_header
+        show_mcu_connection_help
         break;;
       *)
-        error_msg "Invalid input!\n";;
+        error_msg "Invalid command!";;
     esac
   done
+}
 
-  if [[ "${#mcu_list[@]}" -lt 1 ]]; then
-    warn_msg "No MCU found!"
-    warn_msg "MCU not plugged in or not detectable!"
-    echo
-  else
-    local i=1
-    for mcu in "${mcu_list[@]}"; do
-      mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
-      echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
-      i=$((i+1))
-    done
-    echo
+function print_detected_mcu_to_screen(){
+  local i=1
+
+  if [ "${#mcu_list[@]}" -lt 1 ]; then
+    print_error "No MCU found!\n MCU eihter not connected or not detected!"
+    return
   fi
+
+  for mcu in "${mcu_list[@]}"; do
+    mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
+    echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
+    i=$((i+1))
+  done
+  echo
 }
 
 #================================================#
@@ -106,58 +119,64 @@ function select_mcu_connection(){
 #================================================#
 function select_mcu_id(){
   local i=0 sel_index=0 method=${1}
-    top_border
-    echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
-    hr
-    echo -e "| Make sure, to select the correct MCU!                 |"
-    echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${white} |"
-    bottom_border
-    echo -e "${cyan}###### List of available MCU:${white}"
-    ### list all mcus
-    for mcu in "${mcu_list[@]}"; do
-      i=$((i+1))
-      mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
-      echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
-    done
-    ### verify user input
-    while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${i}" ]; do
-      echo
-      read -p "${cyan}###### Select MCU to flash:${white} " sel_index
-      if [[ ! (${sel_index} =~ ^[1-9]+$) ]]; then
-        error_msg "Invalid input!"
-      elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${i}" ]; then
-        error_msg "Please select a number between 1 and ${i}!"
-      fi
-      mcu_index=$((sel_index - 1))
-      selected_mcu_id="${mcu_list[${mcu_index}]}"
-    done
-    ### confirm selection
-    while true; do
-      echo -e "\n###### You selected:\n ● MCU #${sel_index}: ${selected_mcu_id}\n"
-      read -p "${cyan}###### Continue? (Y/n):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          select_msg "Yes"
-          status_msg "Flashing ${selected_mcu_id} ..."
-          if [ "${method}" == "regular" ]; then
-            log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
-            start_flash_mcu "${selected_mcu_id}"
-          elif [ "${method}" == "sdcard" ]; then
-            log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
-            start_flash_sd "${selected_mcu_id}"
-          else
-            error_msg "No flash method set! Aborting..."
-            log_error "No flash method set!"
-            return 1
-          fi
-          break;;
-        N|n|No|no)
-          select_msg "No"
-          break;;
-        *)
-          print_error "Invalid command!";;
-      esac
-    done
+
+  if [ "${#mcu_list[@]}" -lt 1 ]; then
+    print_error "No MCU found!\n MCU eihter not connected or not detected!"
+    return
+  fi
+
+  top_border
+  echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
+  hr
+  echo -e "| Make sure, to select the correct MCU!                 |"
+  echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${white} |"
+  bottom_border
+  echo -e "${cyan}###### List of available MCU:${white}"
+  ### list all mcus
+  for mcu in "${mcu_list[@]}"; do
+    i=$((i+1))
+    mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
+    echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
+  done
+  ### verify user input
+  while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${i}" ]; do
+    echo
+    read -p "${cyan}###### Select MCU to flash:${white} " sel_index
+    if [[ ! (${sel_index} =~ ^[1-9]+$) ]]; then
+      error_msg "Invalid input!"
+    elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${i}" ]; then
+      error_msg "Please select a number between 1 and ${i}!"
+    fi
+    mcu_index=$((sel_index - 1))
+    selected_mcu_id="${mcu_list[${mcu_index}]}"
+  done
+  ### confirm selection
+  while true; do
+    echo -e "\n###### You selected:\n ● MCU #${sel_index}: ${selected_mcu_id}\n"
+    read -p "${cyan}###### Continue? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        status_msg "Flashing ${selected_mcu_id} ..."
+        if [ "${method}" == "regular" ]; then
+          log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
+          start_flash_mcu "${selected_mcu_id}"
+        elif [ "${method}" == "sdcard" ]; then
+          log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
+          start_flash_sd "${selected_mcu_id}"
+        else
+          print_error "No flash method set! Aborting..."
+          log_error "No flash method set!"
+          return
+        fi
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        break;;
+      *)
+        error_msg "Invalid command!";;
+    esac
+  done
 }
 
 function start_flash_mcu(){
@@ -204,16 +223,17 @@ function start_flash_sd(){
     if [ "${choice}" = "q" ] || [ "${choice}" = "Q" ]; then
       clear && advanced_menu && break
     elif [ "${choice}" -le ${#board_list[@]} ]; then
-      selected_board="${board_list[${choice}]}"
+      local selected_board="${board_list[${choice}]}"
       break
     else
       clear && print_header
-      print_error "Invalid choice!"
+      error_msg "Invalid choice!"
       flash_mcu_sd
     fi
   done
 
   while true; do
+    echo
     top_border
     echo -e "| If your board is flashed with firmware that connects  |"
     echo -e "| at a custom baud rate, please change it now.          |"
@@ -221,10 +241,9 @@ function start_flash_sd(){
     echo -e "| If you are unsure, stick to the default 250000!       |"
     bottom_border
     echo -e "${cyan}###### Please set the baud rate:${white} "
-    unset baud_rate
     while [[ ! ${baud_rate} =~ ^[0-9]+$ ]]; do
       read -e -i "250000" -e baud_rate
-      selected_baud_rate=${baud_rate}
+      local selected_baud_rate=${baud_rate}
       break
     done
     break
@@ -233,11 +252,10 @@ function start_flash_sd(){
   ###flash process
   do_action_service "stop" "klipper"
   if "${flash_script}" -b "${selected_baud_rate}" "${device}" "${selected_board}"; then
-    ok_msg "Flashing successfull!"
+    print_confirm "Flashing successfull!"
     log_info "Flash successfull!"
   else
-    warn_msg "Flashing failed!"
-    warn_msg "Please read the console output above!"
+    print_error "Flashing failed!\n Please read the console output above!"
     log_error "Flash failed!"
   fi
   do_action_service "start" "klipper"
@@ -247,7 +265,7 @@ function build_fw(){
   local python_version
   if [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPY_ENV}" ]; then
     print_error "Klipper not found!\n Cannot build firmware without Klipper!"
-    return 1
+    return
   else
     cd "${KLIPPER_DIR}"
     status_msg "Initializing firmware build ..."
@@ -271,7 +289,7 @@ function build_fw(){
 function get_usb_id(){
   unset mcu_list
   sleep 1
-  mcus=$(find /dev/serial/by-id/*)
+  mcus=$(find /dev/serial/by-id/* 2>/dev/null)
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
   done
@@ -280,7 +298,7 @@ function get_usb_id(){
 function get_uart_id() {
   unset mcu_list
   sleep 1
-  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty[^0-9]+([0-9]+)?$")
+  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty[^0-9]+([0-9]+)?$" 2>/dev/null)
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
   done
@@ -322,7 +340,41 @@ function show_flash_method_help(){
         init_flash_process
         break;;
       *)
-        print_error "Invalid command!";;
+        error_msg "Invalid command!";;
+    esac
+  done
+}
+
+function show_mcu_connection_help(){
+  top_border
+  echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
+  hr
+  echo -e "| ${cyan}USB:${white}                                                  |"
+  echo -e "| Selecting USB as the connection method will scan the  |"
+  echo -e "| USB ports for connected controller boards. This will  |"
+  echo -e "| be similar to the 'ls /dev/serial/by-id/*' command    |"
+  echo -e "| suggested by the official Klipper documentation for   |"
+  echo -e "| determining successfull USB connections!              |"
+  blank_line
+  echo -e "| ${cyan}UART:${white}                                                 |"
+  echo -e "| Selecting UART as the connection method will list all |"
+  echo -e "| possible UART serial ports. Note: This method ALWAYS  |"
+  echo -e "| returns something as it seems impossible to determine |"
+  echo -e "| if a valid Klipper controller board is connected or   |"
+  echo -e "| not. Because of that, you ${red}MUST${white} know which UART serial |"
+  echo -e "| port your controller board is connected to when using |"
+  echo -e "| this connection method.                               |"
+  blank_line
+  back_footer
+  while true; do
+    read -p "${cyan}###### Please select:${white} " choice
+    case "${choice}" in
+      B|b)
+        clear && print_header
+        select_mcu_connection
+        break;;
+      *)
+        error_msg "Invalid command!";;
     esac
   done
 }
