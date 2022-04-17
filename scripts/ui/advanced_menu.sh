@@ -14,12 +14,6 @@ set -e
 advanced_ui(){
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     | "
-  hr
-  if [ ! "$OPRINT_SERVICE_STATUS" == "" ]; then
-    echo -e "|  0) $OPRINT_SERVICE_STATUS| "
-    hr
-    echo -e "|                           |                           | "
-  fi
   echo -e "|  Klipper:               | Mainsail:                   | "
   echo -e "|  1) [Switch Branch]     | 7) [Theme installer]        | "
   echo -e "|  2) [Rollback]          |                             | "
@@ -33,17 +27,10 @@ back_footer
 }
 
 advanced_menu(){
-  read_octoprint_service_status
   do_action "" "advanced_ui"
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo
     case "${action}" in
-      0)
-        clear
-        print_header
-        toggle_octoprint_service
-        read_octoprint_service_status
-        advanced_ui;;
       1)
         do_action "switch_menu";;
       2)
@@ -86,7 +73,7 @@ switch_ui(){
   echo -e "|     $(title_msg "~~~~~~~~~ [ Switch Klipper Branch ] ~~~~~~~~~")     |"
   bottom_border
   echo
-  echo -e " $(title_msg "Active Branch: ")${green}$GET_BRANCH${white}"
+  echo -e " $(title_msg "Active Branch: ")${green}${GET_BRANCH}${white}"
   echo
   top_border
   echo -e "|                                                       | "
@@ -100,12 +87,12 @@ switch_ui(){
 }
 
 switch_menu(){
-  if [ -d $KLIPPER_DIR ]; then
+  if [ -d "${KLIPPER_DIR}" ]; then
     read_branch
     do_action "" "switch_ui"
     while true; do
       read -p "${cyan}Perform action:${white} " action; echo
-      case "$action" in
+      case "${action}" in
         1)
           clear
           print_header
