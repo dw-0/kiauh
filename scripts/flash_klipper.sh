@@ -105,7 +105,7 @@ function select_mcu_connection(){
 #=================== STEP 3 =====================#
 #================================================#
 function select_mcu_id(){
-  local i=1 sel_index=0 method=${1}
+  local i=0 sel_index=0 method=${1}
     top_border
     echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
     hr
@@ -115,9 +115,9 @@ function select_mcu_id(){
     echo -e "${cyan}###### List of available MCU:${white}"
     ### list all mcus
     for mcu in "${mcu_list[@]}"; do
+      i=$((i+1))
       mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
       echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
-      i=$((i+1))
     done
     ### verify user input
     while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${i}" ]; do
