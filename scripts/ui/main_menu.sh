@@ -23,7 +23,7 @@ main_ui(){
   echo -e "|  4) [Advanced]       |      Mainsail: $MAINSAIL_STATUS|"
   echo -e "|  5) [Backup]         |        Fluidd: $FLUIDD_STATUS|"
   echo -e "|                      | KlipperScreen: $KLIPPERSCREEN_STATUS|"
-  echo -e "|  6) [Settings]       |  Telegram Bot: $MOONRAKER_TELEGRAM_BOT_STATUS|"
+  echo -e "|  6) [Settings]       |  Telegram Bot: $(get_telegram_bot_status)|"
   echo -e "|                      |                                |"
   echo -e "|  $(get_kiauh_version)|     Octoprint: $OCTOPRINT_STATUS|"
   quit_footer
@@ -69,7 +69,6 @@ main_menu(){
     mainsail_status
     octoprint_status
     klipperscreen_status
-    MoonrakerTelegramBot_status
   main_ui
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo
