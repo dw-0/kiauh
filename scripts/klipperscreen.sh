@@ -16,31 +16,19 @@ set -e
 #===================================================#
 
 function install_klipperscreen(){
-  python3_check
-  if [ "${py_chk_ok}" = "true" ]; then
-    klipperscreen_setup
-    restart_klipperscreen
-  else
-    ERROR_MSG="Python 3.7 or above required!\n Please upgrade your Python version first."
-    print_msg && clear_msg
+  ### return early if python version check fails
+  if [ "$(python3_check)" == "false" ]; then
+    local error="Versioncheck failed! Python 3.7 or newer required!\n"
+    error="${error} Please upgrade Python."
+    print_error "${error}" && return
   fi
-}
-
-function python3_check(){
-  status_msg "Your Python 3 version is: $(python3 --version)"
-  major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
-  minor=$(python3 --version | cut -d"." -f2)
-  if [ "${major}" -ge 3 ] && [ "${minor}" -ge 7 ]; then
-    ok_msg "Python version ok!"
-    py_chk_ok="true"
-  else
-    py_chk_ok="false"
-  fi
+  klipperscreen_setup
+  do_action_service "restart" "KlipperScreen"
 }
 
 function klipperscreen_setup(){
-  dep=(wget curl unzip dfu-util)
-  dependency_check
+  local dep=(wget curl unzip dfu-util)
+  dependency_check "${dep[@]}"
   status_msg "Downloading KlipperScreen ..."
   # force remove existing KlipperScreen dir
   [ -d "${KLIPPERSCREEN_DIR}" ] && rm -rf "${KLIPPERSCREEN_DIR}"
@@ -74,8 +62,8 @@ function remove_klipperscreen(){
   ### remove KlipperScreen service
   if [ -e "${SYSTEMD}/KlipperScreen.service" ]; then
     status_msg "Removing KlipperScreen service ..."
-    sudo systemctl stop KlipperScreen
-    sudo systemctl disable KlipperScreen
+    do_action_service "stop" "KlipperScreen"
+    do_action_service "disable" "KlipperScreen"
     sudo rm -f "${SYSTEMD}/KlipperScreen.service"
     ###reloading units
     sudo systemctl daemon-reload
@@ -96,7 +84,7 @@ function remove_klipperscreen(){
     rm -f "${KLIPPER_CONFIG}/KlipperScreen.log" && ok_msg "File removed!"
   fi
 
-  CONFIRM_MSG="KlipperScreen successfully removed!"
+  print_confirm "KlipperScreen successfully removed!"
 }
 
 #===================================================#
@@ -104,7 +92,7 @@ function remove_klipperscreen(){
 #===================================================#
 
 function update_klipperscreen(){
-  stop_klipperscreen
+  do_action_service "stop" "KlipperScreen"
   cd "${KLIPPERSCREEN_DIR}"
   KLIPPERSCREEN_OLDREQ_MD5SUM=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
   git pull origin master -q && ok_msg "Fetch successfull!"
@@ -117,7 +105,7 @@ function update_klipperscreen(){
     ok_msg "Dependencies have been installed!"
   fi
   ok_msg "Update complete!"
-  start_klipperscreen
+  do_action_service "start" "KlipperScreen"
 }
 
 #===================================================#
