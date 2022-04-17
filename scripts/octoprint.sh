@@ -121,7 +121,7 @@ function install_octoprint(){
 }
 
 function create_config_yaml(){
-  local base_dir=${1} tmp_printer=${2} restart_cmd=${3}
+  local basedir=${1} tmp_printer=${2} restart_cmd=${3}
 
   /bin/sh -c "cat > ${basedir}/config.yaml" << CONFIGYAML
 serial:
@@ -139,7 +139,7 @@ CONFIGYAML
 
 function create_single_octoprint_instance(){
   local port=5000
-  local base_dir="${HOME}/.octoprint"
+  local basedir="${HOME}/.octoprint"
   local tmp_printer="/tmp/printer"
   local config_yaml="${basedir}/config.yaml"
   local restart_cmd="sudo service octoprint restart"
@@ -175,7 +175,7 @@ function create_multi_octoprint_instance(){
   local i=1 port=5000 instance=${1}
   while [ "${i}" -le "${instances}" ]; do
     ### multi instance variables
-    local base_dir="${HOME}/.octoprint-${i}"
+    local basedir="${HOME}/.octoprint-${i}"
     local tmp_printer="/tmp/printer-${i}"
     local config_yaml="${basedir}/config.yaml"
     local restart_cmd="sudo service octoprint-${i} restart"
@@ -203,7 +203,7 @@ OCTOPRINT
     if [ ! -f "${basedir}/config.yaml" ]; then
       status_msg "Creating config.yaml for instance #${i}..."
       [ ! -d "${basedir}" ] && mkdir "${basedir}"
-      create_config_yaml
+      create_config_yaml "${basedir}" "${tmp_printer}" "${restart_cmd}"
       ok_msg "Config #${i} created!"
     fi
 
