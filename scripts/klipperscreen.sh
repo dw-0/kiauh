@@ -15,6 +15,12 @@ set -e
 #============== INSTALL KLIPPERSCREEN ==============#
 #===================================================#
 
+function klipperscreen_systemd() {
+  local services
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/KlipperScreen.service")
+  echo "${services}"
+}
+
 function install_klipperscreen(){
   ### return early if python version check fails
   if [ "$(python3_check)" == "false" ]; then
@@ -45,8 +51,6 @@ function klipperscreen_setup(){
 #===================================================#
 
 function remove_klipperscreen(){
-  source_kiauh_ini
-
   ### remove KlipperScreen dir
   if [ -d "${KLIPPERSCREEN_DIR}" ]; then
     status_msg "Removing KlipperScreen directory ..."
@@ -92,13 +96,14 @@ function remove_klipperscreen(){
 #===================================================#
 
 function update_klipperscreen(){
+  local old_md5
+  old_md5=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
+
   do_action_service "stop" "KlipperScreen"
   cd "${KLIPPERSCREEN_DIR}"
-  KLIPPERSCREEN_OLDREQ_MD5SUM=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
   git pull origin master -q && ok_msg "Fetch successfull!"
   git checkout -f master && ok_msg "Checkout successfull"
-  #KLIPPERSCREEN_NEWREQ_MD5SUM=$(md5sum $KLIPPERSCREEN_DIR/scripts/KlipperScreen-requirements.txt)
-  if [[ $(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1) != "${KLIPPERSCREEN_OLDREQ_MD5SUM}" ]]; then
+  if [[ $(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
     status_msg "New dependecies detected..."
     PYTHONDIR="${HOME}/.KlipperScreen-env"
     "${PYTHONDIR}"/bin/pip install -r "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt"
@@ -113,33 +118,27 @@ function update_klipperscreen(){
 #===================================================#
 
 function klipperscreen_status(){
-  klsccount=0
-  klipperscreen_data=(
-    SERVICE
-    "${KLIPPERSCREEN_DIR}"
-    "${KLIPPERSCREEN_ENV_DIR}"
-  )
+  local sf_count status
+  sf_count="$(klipperscreen_systemd | wc -w)"
 
-  ### count amount of klipperscreen_data service files in /etc/systemd/system
-  SERVICE_FILE_COUNT=$(ls /etc/systemd/system | grep -E "KlipperScreen" | wc -l)
+  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
+  local data_arr=(SERVICE "${KLIPPERSCREEN_DIR}" "${KLIPPERSCREEN_ENV_DIR}")
+  [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
 
-  ### remove the "SERVICE" entry from the klipperscreen_data array if a KlipperScreen service is installed
-  [ "${SERVICE_FILE_COUNT}" -gt 0 ] && unset "klipperscreen_data[0]"
-
-  #count+1 for each found data-item from array
-  for klscd in "${klipperscreen_data[@]}"
-  do
-    if [ -e "${klscd}" ]; then
-      klsccount=$((klsccount + 1))
-    fi
+  ### count+1 for each found data-item from array
+  local filecount=0
+  for data in "${data_arr[@]}"; do
+    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
-  if [ "${klsccount}" == "${#klipperscreen_data[*]}" ]; then
-    KLIPPERSCREEN_STATUS="${green}Installed!${white}      "
-  elif [ "${klsccount}" == 0 ]; then
-    KLIPPERSCREEN_STATUS="${red}Not installed!${white}  "
+
+  if [ "${filecount}" == "${#data_arr[*]}" ]; then
+    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
+  elif [ "${filecount}" == 0 ]; then
+    status="${red}Not installed!${white}  "
   else
-    KLIPPERSCREEN_STATUS="${yellow}Incomplete!${white}     "
+    status="${yellow}Incomplete!${white}     "
   fi
+  echo "${status}"
 }
 
 function get_local_klipperscreen_commit(){
