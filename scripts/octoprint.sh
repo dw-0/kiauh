@@ -80,8 +80,8 @@ function octoprint_setup(){
   )
   dependency_check "${dep[@]}"
 
-  ### add user to usergroups and add reboot permissions
-  add_to_groups
+  ### check for tty and dialout usergroups and add reboot permissions
+  check_usergroups
   add_reboot_permission
 
   ### install octoprint
@@ -118,17 +118,6 @@ function install_octoprint(){
   ok_msg "Download complete!"
   ### leave virtualenv
   deactivate
-}
-
-add_to_groups(){
-  if [ ! "$(groups | grep tty)" ]; then
-    status_msg "Adding user '${USER}' to group 'tty' ..."
-    sudo usermod -a -G tty "${USER}" && ok_msg "Done!"
-  fi
-  if [ ! "$(groups | grep dialout)" ]; then
-    status_msg "Adding user '${USER}' to group 'dialout' ..."
-    sudo usermod -a -G dialout "${USER}" && ok_msg "Done!"
-  fi
 }
 
 function create_config_yaml(){
