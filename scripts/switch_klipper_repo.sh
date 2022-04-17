@@ -13,7 +13,7 @@ set -e
 
 function change_klipper_repo_menu(){
   local repo_file="${SRCDIR}/kiauh/klipper_repos.txt"
-  local url branch i=0
+  local url branch
 
   top_border
   echo -e "|     ~~~~~~~~ [ Set custom Klipper repo ] ~~~~~~~~     | "
@@ -27,52 +27,51 @@ function change_klipper_repo_menu(){
   while IFS="," read -r col1 col2; do
     url+=("${col1}")
     branch+=("${col2}")
-    i=$((i+1))
-  done < <(grep "" "${repo_file}" | tail -n "+12")
+  done < <(grep "" "${repo_file}" | tail -n "+11")
 
   while true; do
-    read -p "${cyan}Select Klipper repo:${white} " option
-    if [ "${option}" = "b" ] || [ "${option}" = "B" ]; then
-      clear && print_header
-      settings_menu
-      break
-    elif [ "${option}" = "h" ] || [ "${option}" = "H" ]; then
-      clear && print_header
-      show_custom_klipper_repo_help
-    elif [ "${option}" -le ${#url[@]} ]; then
-      if [ -d "${KLIPPER_DIR}" ]; then
-        top_border
-        echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
-        echo -e "| Existing Klipper folder found! Proceeding will remove | "
-        echo -e "| the existing Klipper folder and replace it with a     | "
-        echo -e "| clean copy of the previously selected source repo!    | "
-        bottom_border
-        while true; do
-        read -p "${cyan}###### Proceed? (Y/n):${white} " yn
-          case "${yn}" in
-            Y|y|Yes|yes|"")
-              select_msg "Yes"
-              switch_klipper_repo "${url[${option}]}" "${branch[${option}]}"
-              set_custom_klipper_repo "${url[${option}]}" "${branch[${option}]}"
-              break;;
-            N|n|No|no)
-              select_msg "No"
-              break;;
-            *)
-            error_msg "Invalid command!";;
-          esac
-        done
-      else
-        status_msg "Set custom Klipper repository to:\n       ● Repository URL: ${url[${option}]}\n       ● Branch: ${branch[${option}]}"
-        set_custom_klipper_repo "${url[${option}]}" "${branch[${option}]}"
-        ok_msg "This repo will now be used for new Klipper installations!\n"
-      fi
-      break
-    else
-      clear && print_header
-      print_error "Invalid command!"
-      change_klipper_repo_menu
-    fi
+    read -p "${cyan}Perform action:${white} " option
+    case "${option}" in
+      0 | "$((option < ${#url[@]}))")
+        if [ -d "${KLIPPER_DIR}" ]; then
+          top_border
+          echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
+          echo -e "| Existing Klipper folder found! Proceeding will remove | "
+          echo -e "| the existing Klipper folder and replace it with a     | "
+          echo -e "| clean copy of the previously selected source repo!    | "
+          bottom_border
+          while true; do
+          read -p "${cyan}###### Proceed? (Y/n):${white} " yn
+            case "${yn}" in
+              Y|y|Yes|yes|"")
+                select_msg "Yes"
+                switch_klipper_repo "${url[${option}]}" "${branch[${option}]}"
+                set_custom_klipper_repo "${url[${option}]}" "${branch[${option}]}"
+                break;;
+              N|n|No|no)
+                select_msg "No"
+                break;;
+              *)
+              error_msg "Invalid command!";;
+            esac
+          done
+        else
+          status_msg "Set custom Klipper repository to:\n       ● Repository URL: ${url[${option}]}\n       ● Branch: ${branch[${option}]}"
+          set_custom_klipper_repo "${url[${option}]}" "${branch[${option}]}"
+          ok_msg "This repo will now be used for new Klipper installations!\n"
+        fi
+        break;;
+      B|b)
+        clear && print_header
+        settings_menu
+        break;;
+      H|h)
+        clear && print_header
+        show_custom_klipper_repo_help
+        break;;
+      *)
+        error_msg "Invalid command!";;
+    esac
   done
 }
 
@@ -95,9 +94,10 @@ function switch_klipper_repo(){
   url=${1} branch=${2}
   status_msg "Switching Klipper repository..."
   do_action_service "stop" "klipper"
-  cd ~ && rm -rf "${KLIPPER_DIR}"
-  git clone "${url}" && cd "${KLIPPER_DIR}"
-  git checkout "${branch}" && cd ~
+  cd "${HOME}"
+  [ -d "${KLIPPER_DIR}" ] && rm -rf "${KLIPPER_DIR}"
+  git clone "${url}" "klipper" && cd "${KLIPPER_DIR}"
+  git checkout "${branch}" && cd "${HOME}"
   do_action_service "start" "klipper"
 }
 
