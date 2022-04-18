@@ -32,7 +32,7 @@ function octoprint_setup_dialog(){
   elif [ "${klipper_count}" -gt 1 ]; then
     printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances were found!"
   else
-    echo -e "| ${yellow}INFO: No existing Klipper installation found!${default}         |"
+    echo -e "| ${yellow}INFO: No existing Klipper installation found!${white}         |"
   fi
   echo -e "| Usually you need one OctoPrint instance per Klipper   |"
   echo -e "| instance. Though you can install as many as you wish. |"
@@ -40,13 +40,13 @@ function octoprint_setup_dialog(){
 
   local count
   while [[ ! (${count} =~ ^[1-9]+((0)+)?$) ]]; do
-    read -p "${cyan}###### Number of OctoPrint instances to set up:${default} " count
+    read -p "${cyan}###### Number of OctoPrint instances to set up:${white} " count
     if [[ ! (${count} =~ ^[1-9]+((0)+)?$) ]]; then
       error_msg "Invalid Input!\n"
     else
       echo
       while true; do
-        read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${default} " yn
+        read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${white} " yn
         case "${yn}" in
           Y|y|Yes|yes|"")
             select_msg "Yes"
@@ -284,10 +284,10 @@ function octoprint_status(){
   env_count=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[^0])?[0-9]*" | wc -w)
   dir_count=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/.octoprint(_[^0])?[0-9]*" | wc -w)
 
-  if (( sf_count == env_count)) && (( sf_count == dir_count)); then
-    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
-  elif (( sf_count == 0 )) && (( env_count == 0 )) && (( dir_count == 0 )); then
+  if (( sf_count == 0 )) && (( env_count == 0 )) && (( dir_count == 0 )); then
     status="${red}Not installed!${white}  "
+  elif (( sf_count == env_count)) && (( sf_count == dir_count)); then
+    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
   else
     status="${yellow}Incomplete!${white}     "
   fi
