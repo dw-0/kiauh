@@ -12,41 +12,41 @@
 set -e
 
 #ui total width = 57 chars
-top_border(){
+function top_border(){
   echo -e "/=======================================================\\"
 }
 
-bottom_border(){
+function bottom_border(){
   echo -e "\=======================================================/"
 }
 
-blank_line(){
+function blank_line(){
   echo -e "|                                                       |"
 }
 
-hr(){
+function hr(){
   echo -e "|-------------------------------------------------------|"
 }
 
-quit_footer(){
+function quit_footer(){
   hr
   echo -e "|                        ${red}Q) Quit${white}                        |"
   bottom_border
 }
 
-back_footer(){
+function back_footer(){
   hr
   echo -e "|                       ${green}B) « Back${white}                       |"
   bottom_border
 }
 
-back_help_footer(){
+function back_help_footer(){
   hr
   echo -e "|         ${green}B) « Back${white}         |        ${yellow}H) Help [?]${white}        |"
   bottom_border
 }
 
-print_header(){
+function print_header(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~~~ [ KIAUH ] ~~~~~~~~~~~~~~~~~")     |"
   echo -e "|     $(title_msg "   Klipper Installation And Update Helper    ")     |"
@@ -54,12 +54,7 @@ print_header(){
   bottom_border
 }
 
-################################################################################
-#******************************************************************************#
-################################################################################
-### TODO: rework other menus to make use of the following functions too and make them more readable
-
-do_action(){
+function do_action(){
   clear && print_header
   ### $1 is the action the user wants to fire
   $1
@@ -68,7 +63,7 @@ do_action(){
   $2
 }
 
-deny_action(){
+function deny_action(){
   clear && print_header
   print_error "Invalid command!"
   $1

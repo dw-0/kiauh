@@ -11,7 +11,7 @@
 
 set -e
 
-main_ui(){
+function main_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
@@ -29,14 +29,14 @@ main_ui(){
   quit_footer
 }
 
-get_kiauh_version(){
+function get_kiauh_version(){
   local version
   cd "${SRCDIR}/kiauh"
   version="$(printf "%-20s" "$(git describe HEAD --always --tags | cut -d "-" -f 1,2)")"
   echo "${cyan}${version}${white}"
 }
 
-kiauh_update_dialog(){
+function kiauh_update_dialog(){
   [ ! "$(kiauh_update_avail)" == "true" ] && return
   top_border
   echo -e "|${green}              New KIAUH update available!              ${white}| "
@@ -60,7 +60,7 @@ kiauh_update_dialog(){
   done
 }
 
-main_menu(){
+function main_menu(){
   print_header
   #prompt for KIAUH update if update available
   kiauh_update_dialog

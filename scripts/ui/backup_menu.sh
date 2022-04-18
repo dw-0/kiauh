@@ -11,7 +11,7 @@
 
 set -e
 
-backup_ui(){
+function backup_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Backup Menu ] ~~~~~~~~~~~~~~")     | "
   hr
@@ -30,11 +30,11 @@ backup_ui(){
   back_footer
 }
 
-backup_menu(){
+function backup_menu(){
   do_action "" "backup_ui"
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo
-    case "$action" in
+    case "${action}" in
       0)
         do_action "backup_klipper_config_dir" "backup_ui";;
       1)

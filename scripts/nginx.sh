@@ -20,7 +20,7 @@ NGINX_CONFD="/etc/nginx/conf.d"
 #=================== REMOVE NGINX ==================#
 #===================================================#
 
-remove_nginx(){
+function remove_nginx(){
   if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
     status_msg "Stopping Nginx service ..."
     sudo systemctl stop nginx && sudo systemctl disable nginx
@@ -237,5 +237,77 @@ function process_services_dialog(){
           print_msg && clear_msg;;
       esac
     done
+  fi
+}
+
+function set_nginx_cfg(){
+  if [ "${SET_NGINX_CFG}" = "true" ]; then
+    local cfg="${SRCDIR}/kiauh/resources/${1}"
+    #check for dependencies
+    dep=(nginx)
+    dependency_check "${dep[@]}"
+    #execute operations
+    status_msg "Creating Nginx configuration for ${1} ..."
+    #copy content from resources to the respective nginx config file
+    cat "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" > "${cfg}"
+    ##edit the nginx config file before moving it
+    sed -i "s/<<UI>>/${1}/g" "${cfg}"
+    if [ "${SET_LISTEN_PORT}" != "${DEFAULT_PORT}" ]; then
+      status_msg "Configuring port for $1 ..."
+      #set listen port ipv4
+      sed -i "s/listen\s[0-9]*;/listen ${SET_LISTEN_PORT};/" "${cfg}"
+      #set listen port ipv6
+      sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${SET_LISTEN_PORT};/" "${cfg}"
+    fi
+    #set correct user
+    if [ "${1}" = "mainsail" ] || [ "${1}" = "fluidd" ]; then
+      sudo sed -i "/root/s/pi/${USER}/" "${cfg}"
+    fi
+    #moving the config file into correct directory
+    sudo mv "${cfg}" "/etc/nginx/sites-available/${1}"
+    ok_msg "Nginx configuration for $1 was set!"
+    if [ -n "${SET_LISTEN_PORT}" ]; then
+      ok_msg "${1} listening on port ${SET_LISTEN_PORT}!"
+    else
+      ok_msg "${1} listening on default port ${DEFAULT_PORT}!"
+    fi
+    #remove nginx default config
+    [ -e "/etc/nginx/sites-enabled/default" ] && sudo rm "/etc/nginx/sites-enabled/default"
+    #create symlink for own sites
+    [ ! -e "/etc/nginx/sites-enabled/${1}" ] && sudo ln -s "/etc/nginx/sites-available/${1}" "/etc/nginx/sites-enabled/"
+    restart_nginx
+  fi
+}
+
+function read_listen_port(){
+  LISTEN_PORT=$(grep listen "/etc/nginx/sites-enabled/${1}" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+}
+
+function detect_enabled_sites(){
+  #check if there is another UI config already installed
+  #and reads the port they are listening on
+  if [ -e "/etc/nginx/sites-enabled/mainsail" ]; then
+    SITE_ENABLED="true" && MAINSAIL_ENABLED="true"
+    read_listen_port "mainsail"
+    MAINSAIL_PORT=${LISTEN_PORT}
+    #echo "debug: Mainsail listens on port: $MAINSAIL_PORT"
+  else
+    MAINSAIL_ENABLED="false"
+  fi
+  if [ -e /etc/nginx/sites-enabled/fluidd ]; then
+    SITE_ENABLED="true" && FLUIDD_ENABLED="true"
+    read_listen_port "fluidd"
+    FLUIDD_PORT=${LISTEN_PORT}
+    #echo "debug: Fluidd listens on port: $FLUIDD_PORT"
+  else
+    FLUIDD_ENABLED="false"
+  fi
+  if [ -e /etc/nginx/sites-enabled/octoprint ]; then
+    SITE_ENABLED="true" && OCTOPRINT_ENABLED="true"
+    read_listen_port "octoprint"
+    OCTOPRINT_PORT=${LISTEN_PORT}
+    #echo "debug: OctoPrint listens on port: $OCTOPRINT_PORT"
+  else
+    OCTOPRINT_ENABLED="false"
   fi
 }

@@ -132,7 +132,7 @@ function remove_fluidd(){
 #================== UPDATE FLUIDD ==================#
 #===================================================#
 
-update_fluidd(){
+function update_fluidd(){
   bb4u "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
