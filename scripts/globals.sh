@@ -52,12 +52,12 @@ function set_globals(){
   #=============== KLIPPERSCREEN ================#
   KLIPPERSCREEN_ENV_DIR="${HOME}/.KlipperScreen-env"
   KLIPPERSCREEN_DIR="${HOME}/KlipperScreen"
-  KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
+  KLIPPERSCREEN_REPO="https://github.com/jordanruthe/KlipperScreen.git"
 
   #========== MOONRAKER-TELEGRAM-BOT ============#
-  MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
-  MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
-  MOONRAKER_TELEGRAM_BOT_REPO=https://github.com/nlef/moonraker-telegram-bot.git
+  MOONRAKER_TELEGRAM_BOT_ENV_DIR="${HOME}/moonraker-telegram-bot-env"
+  MOONRAKER_TELEGRAM_BOT_DIR="${HOME}/moonraker-telegram-bot"
+  MOONRAKER_TELEGRAM_BOT_REPO="https://github.com/nlef/moonraker-telegram-bot.git"
 
   #=============== PRETTY-GCODE =================#
   PGC_DIR="${HOME}/pgcode"
