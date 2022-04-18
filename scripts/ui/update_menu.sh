@@ -11,8 +11,7 @@
 
 set -e
 
-update_ui(){
-  ui_print_versions
+function update_ui(){
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${white}     | "
   hr
@@ -39,7 +38,8 @@ update_ui(){
   back_footer
 }
 
-update_menu(){
+function update_menu(){
+  unset update_arr
   read_bb4u_stat
   do_action "" "update_ui"
   while true; do

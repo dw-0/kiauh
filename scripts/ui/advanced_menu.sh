@@ -11,7 +11,7 @@
 
 set -e
 
-advanced_ui(){
+function advanced_ui(){
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     | "
   hr
@@ -23,10 +23,10 @@ advanced_ui(){
   echo -e "|  3) [Flash only]        |                             | "
   echo -e "|  4) [Build + Flash]     | Extras:                     | "
   echo -e "|  5) [Get MCU ID]        | 8) [G-Code Shell Command]   | "
-back_footer
+  back_footer
 }
 
-advanced_menu(){
+function advanced_menu(){
   do_action "" "advanced_ui"
   while true; do
     read -p "${cyan}Perform action:${white} " action; echo

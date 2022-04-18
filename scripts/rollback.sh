@@ -11,7 +11,7 @@
 
 set -e
 
-save_klipper_state(){
+function save_klipper_state(){
   source_kiauh_ini
   #read current klipper state
   cd $KLIPPER_DIR
@@ -31,7 +31,7 @@ save_klipper_state(){
   fi
 }
 
-load_klipper_state(){
+function load_klipper_state(){
   source_kiauh_ini
   print_branch
   cd $KLIPPER_DIR
@@ -63,7 +63,7 @@ load_klipper_state(){
   rollback_klipper
 }
 
-rollback_ui(){
+function rollback_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     | "
   hr
@@ -82,7 +82,7 @@ rollback_ui(){
   back_footer
 }
 
-rollback_klipper(){
+function rollback_klipper(){
   if [ "$PREVIOUS_COMMIT" != "0" ] && [ "$CURRENT_COMMIT" != "$PREVIOUS_COMMIT" ]; then
     while true; do
         echo -e "${cyan}"

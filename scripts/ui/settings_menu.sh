@@ -117,7 +117,7 @@ function show_settings_help(){
   done
 }
 
-settings_menu(){
+function settings_menu(){
   clear && print_header
   settings_ui
   while true; do
@@ -127,7 +127,7 @@ settings_menu(){
         change_klipper_cfg_folder && settings_ui;;
       2)
         clear && print_header
-        change_klipper_repo_menu
+        change_klippefunction r_repo_menu
         settings_ui;;
       3)
         switch_mainsail_releasetype && settings_menu;;
