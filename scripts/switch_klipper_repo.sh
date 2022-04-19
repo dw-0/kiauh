@@ -52,7 +52,7 @@ function change_klipper_repo_menu(){
                 select_msg "No"
                 break;;
               *)
-              error_msg "Invalid command!";;
+                error_msg "Invalid command!";;
             esac
           done
         else
