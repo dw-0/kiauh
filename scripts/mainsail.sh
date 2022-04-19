@@ -41,8 +41,27 @@ function install_mainsail(){
   mainsail_port_check
 
   ### ask user to install mjpg-streamer
-  if [ ! -f "/etc/systemd/system/webcamd.service" ]; then
-    get_user_selection_mjpg-streamer
+  local install_mjpg_streamer
+  if [ ! -f "${SYSTEMD}/webcamd.service" ]; then
+    while true; do
+      echo
+      top_border
+      echo -e "| Install MJGP-Streamer for webcam support?             |"
+      bottom_border
+      read -p "${cyan}###### Please select (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          install_mjpg_streamer="true"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          install_mjpg_streamer="false"
+          break;;
+        *)
+          error_msg "Invalid command!";;
+      esac
+    done
   fi
 
   ### ask user to install the recommended webinterface macros
@@ -56,14 +75,11 @@ function install_mainsail(){
   ### symlink nginx log
   symlink_webui_nginx_log "mainsail"
 
-  ### copy the kiauh_macros.cfg to the config location
-  install_kiauh_macros
-
   ### install mainsail/fluidd
   mainsail_setup
 
   ### install mjpg-streamer
-  [ "${INSTALL_MJPG}" = "true" ] && install_mjpg-streamer
+  [ "${install_mjpg_streamer}" = "true" ] && install_mjpg-streamer
 
   fetch_webui_ports #WIP
 
@@ -79,7 +95,7 @@ function install_mainsail_macros(){
     echo -e "| your printer configuration to have Mainsail fully     |"
     echo -e "| functional and working.                               |"
     blank_line
-    echo -e "| The recommended macros can be seen here:              |"
+    echo -e "| The recommended macros for Mainsail can be seen here: |"
     echo -e "| https://docs.mainsail.xyz/configuration#macros        |"
     blank_line
     echo -e "| If you already have these macros in your config file, |"
@@ -162,32 +178,52 @@ function mainsail_setup(){
 #================= REMOVE MAINSAIL =================#
 #===================================================#
 
-function remove_mainsail(){
-  ### remove mainsail dir
-  if [ -d "${MAINSAIL_DIR}" ]; then
-    status_msg "Removing Mainsail directory ..."
-    rm -rf "${MAINSAIL_DIR}" && ok_msg "Directory removed!"
-  fi
+function remove_mainsail_dir(){
+  [ ! -d "${MAINSAIL_DIR}" ] && return
+  status_msg "Removing Mainsail directory ..."
+  rm -rf "${MAINSAIL_DIR}" && ok_msg "Directory removed!"
+}
 
-  ### remove mainsail config for nginx
+function remove_mainsail_config(){
   if [ -e "/etc/nginx/sites-available/mainsail" ]; then
     status_msg "Removing Mainsail configuration for Nginx ..."
     sudo rm "/etc/nginx/sites-available/mainsail" && ok_msg "File removed!"
   fi
-
-  ### remove mainsail symlink for nginx
   if [ -L "/etc/nginx/sites-enabled/mainsail" ]; then
     status_msg "Removing Mainsail Symlink for Nginx ..."
     sudo rm "/etc/nginx/sites-enabled/mainsail" && ok_msg "File removed!"
   fi
+}
 
-  ### remove mainsail nginx logs and log symlinks
-  for log in $(find /var/log/nginx -name "mainsail*"); do
-    sudo rm -f "${log}"
-  done
-  for log in $(find ${HOME}/klipper_logs -name "mainsail*"); do
-    rm -f "${log}"
-  done
+function remove_mainsail_logs(){
+  local files
+  files=$(find /var/log/nginx -name "mainsail*")
+  if [ -n "${files}" ]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      sudo rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_mainsail_log_symlinks(){
+  local files
+  files=$(find "${HOME}/klipper_logs" -name "mainsail*")
+  if [ -n "${files}" ]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_mainsail(){
+  remove_mainsail_dir
+  remove_mainsail_config
+  remove_mainsail_logs
+  remove_mainsail_log_symlinks
 
   ### remove mainsail_port from ~/.kiauh.ini
   sed -i "/^mainsail_port=/d" "${INI_FILE}"
@@ -211,14 +247,8 @@ function update_mainsail(){
 #================= MAINSAIL STATUS =================#
 #===================================================#
 
-function get_mainsail_ver(){
-  MAINSAIL_VERSION=$(curl -s "${MAINSAIL_REPO_API}" | grep tag_name | cut -d'"' -f4 | head -1)
-}
-
 function mainsail_status(){
   local status
-
-  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=("${MAINSAIL_DIR}" "${NGINX_SA}/mainsail" "${NGINX_SE}/mainsail")
 
   ### count+1 for each found data-item from array
@@ -273,27 +303,21 @@ function compare_mainsail_versions(){
 #=========== MAINSAIL THEME INSTALLER ===========#
 #================================================#
 
-function get_theme_list(){
-  theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/docs/master/_data/themes.csv"
-  theme_csv=$(curl -s -L "${theme_csv_url}")
-  unset t_name
-  unset t_note
-  unset t_auth
-  unset t_url
-  i=0
+function print_theme_list(){
+  local i=0 theme_list=${1}
   while IFS="," read -r col1 col2 col3 col4; do
-    t_name+=("${col1}")
-    t_note+=("${col2}")
-    t_auth+=("${col3}")
-    t_url+=("${col4}")
-    if [ ! "${col1}" == "name" ]; then
+    if [ "${col1}" != "name" ]; then
       printf "|  ${i}) %-50s|\n" "[${col1}]"
     fi
     i=$((i+1))
-  done <<< "${theme_csv}"
+  done <<< "${theme_list}"
 }
 
-function ms_theme_ui(){
+function ms_theme_installer_menu(){
+  local theme_author theme_repo theme_name theme_note theme_url
+  local theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/docs/master/_data/themes.csv"
+  theme_list=$(curl -s -L "${theme_csv_url}")
+
   top_border
   echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${white}     | "
   hr
@@ -304,82 +328,83 @@ function ms_theme_ui(){
   echo -e "|  Installing a theme from this menu will overwrite an  | "
   echo -e "|  already installed theme or modified custom.css file! | "
   hr
-  get_theme_list # dynamically generate the themelist from a csv file
+  print_theme_list "${theme_list}"
   echo -e "|                                                       | "
   echo -e "|  R) [Remove Theme]                                    | "
   back_footer
-}
 
-function ms_theme_menu(){
-  ms_theme_ui
+  while IFS="," read -r col1 col2 col3 col4; do
+    theme_name+=("${col1}")
+    theme_note+=("${col2}")
+    theme_author+=("${col3}")
+    theme_repo+=("${col4}")
+  done <<< "${theme_list}"
+
   while true; do
-    read -p "${cyan}Install theme:${white} " a; echo
-    if [ "${a}" = "b" ] || [ "${a}" = "B" ]; then
-      clear && advanced_menu && break
-    elif [ "${a}" = "r" ] || [ "${a}" = "R" ]; then
+    read -p "${cyan}Install theme:${white} " option
+    if ((option > 0 &&  option < ${#theme_name[@]})); then
+      theme_url="https://github.com/${theme_author[${option}]}/${theme_repo[${option}]}"
+      ms_theme_install "${theme_url}" "${theme_name[${option}]}" "${theme_note[${option}]}"
+      break
+    elif [[ "${option}" == "R" || "${option}" == "r" ]]; then
       ms_theme_delete
-      ms_theme_menu
-    elif [ "${a}" -le ${#t_url[@]} ]; then
-      ms_theme_install "${t_auth[${a}]}" "${t_url[${a}]}" "${t_name[${a}]}" "${t_note[${a}]}"
-      ms_theme_menu
+      break
+    elif [[ "${option}" == "B" || "${option}" == "b" ]]; then
+      advanced_menu
+      break
     else
-      clear && print_header
-      print_error "Invalid command!"
-      ms_theme_menu
+      error_msg "Invalid command!"
     fi
   done
-  ms_theme_menu
+  ms_theme_installer_menu
 }
 
-function check_select_printer(){
-  unset printer_num
+function ms_theme_install(){
+  local path moonraker_count theme_url=${1} theme_name theme_note
+  theme_name=${2} theme_note=${3}
 
-  ### get klipper cfg loc and set default .theme folder loc
-  check_klipper_cfg_path
-  THEME_PATH="${KLIPPER_CONFIG}"
-
-  ### check if there is more than one moonraker instance and if yes
-  ### ask the user to select the printer he wants to install/remove the theme
-  MR_SERVICE_COUNT=$(find "${SYSTEMD}" -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])?[0-9]*.service" | wc -l)
-  if [[ ${MR_SERVICE_COUNT} -gt 1 ]]; then
+  ### check and select printer if there is more than 1
+  path="$(get_klipper_cfg_dir)"
+  moonraker_count=$(moonraker_systemd | wc -w)
+  if ((moonraker_count > 1)); then
     top_border
     echo -e "|  More than one printer was found on this system!      | "
     echo -e "|  Please select the printer to which you want to       | "
     echo -e "|  apply the previously selected action.                | "
     bottom_border
-    read -p "${cyan}Select printer:${white} " printer_num
-
-    ### rewrite the .theme path matching the selected printer
-    THEME_PATH="${KLIPPER_CONFIG}/printer_${printer_num}"
+    read -p "${cyan}Select printer:${white} " printer
+    path="${path}/printer_${printer}"
   fi
 
-  ### create the cfg folder if there is none yet
-  [ ! -d "${THEME_PATH}" ] && mkdir -p "${THEME_PATH}"
-}
-
-function ms_theme_install(){
-  THEME_URL="https://github.com/$1/$2"
-
-  ### check and select printer if there is more than 1
-  check_select_printer
-
-  ### download all files
-  status_msg "Installing $3 ..."
-  status_msg "Please wait ..."
-
-  [ -d "${THEME_PATH}/.theme" ] && rm -rf "${THEME_PATH}/.theme"
-  cd "${THEME_PATH}" && git clone "${THEME_URL}" ".theme"
-
-  ok_msg "Theme installation complete!"
-  [ -n "$4" ] && echo "${yellow}###### Theme Info: $4${white}"
-  ok_msg "Please remember to delete your browser cache!\n"
+  [ ! -d "${path}" ] && mkdir -p "${path}"
+  [ -d "${path}/.theme" ] && rm -rf "${path}/.theme"
+  status_msg "Installing ${theme_name[${option}]} ..."
+  cd "${path}" &&
+  if git clone "${theme_url}" ".theme"; then
+    ok_msg "Theme installation complete!"
+    [ -n "${theme_note}" ] && echo "${yellow}###### Theme Info: ${theme_note}${white}"
+    ok_msg "Please remember to delete your browser cache!\n"
+  else
+    error_msg "Theme installation failed!\n"
+  fi
 }
 
 function ms_theme_delete(){
-  check_select_printer
-  if [ -d "${THEME_PATH}/.theme" ]; then
+  local path
+  path="$(get_klipper_cfg_dir)"
+  moonraker_count=$(moonraker_systemd | wc -w)
+  if ((moonraker_count > 1)); then
+    top_border
+    echo -e "|  More than one printer was found on this system!      | "
+    echo -e "|  Please select the printer to which you want to       | "
+    echo -e "|  apply the previously selected action.                | "
+    bottom_border
+    read -p "${cyan}Select printer:${white} " printer
+    path="${path}/printer_${printer}"
+  fi
+  if [ -d "${path}/.theme" ]; then
     status_msg "Removing Theme ..."
-    rm -rf "${THEME_PATH}/.theme" && ok_msg "Theme removed!\n"
+    rm -rf "${path}/.theme" && ok_msg "Theme removed!\n"
   else
     status_msg "No Theme installed!\n"
   fi

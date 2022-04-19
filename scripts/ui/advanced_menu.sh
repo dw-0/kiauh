@@ -49,7 +49,7 @@ function advanced_menu(){
         print_detected_mcu_to_screen
         advanced_ui;;
       6)
-        do_action "ms_theme_menu";;
+        do_action "ms_theme_installer_menu";;
       7)
         clear
         print_header
