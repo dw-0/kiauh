@@ -513,38 +513,6 @@ function system_check_webui(){
   fi
 }
 
-function process_octoprint_dialog(){
-  #ask user to disable octoprint when its service was found
-  if [ "${OCTOPRINT_ENABLED}" = "true" ]; then
-    while true; do
-      echo
-      top_border
-      echo -e "|       ${red}!!! WARNING - OctoPrint service found !!!${white}       |"
-      hr
-      echo -e "|  You might consider disabling the OctoPrint service,  |"
-      echo -e "|  since an active OctoPrint service may lead to unex-  |"
-      echo -e "|  pected behavior of the Klipper Webinterfaces.        |"
-      bottom_border
-      read -p "${cyan}###### Do you want to disable OctoPrint now? (Y/n):${default} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          echo -e "###### > Yes"
-          status_msg "Stopping OctoPrint ..."
-          do_action_service "stop" "octoprint" && ok_msg "OctoPrint service stopped!"
-          status_msg "Disabling OctoPrint ..."
-          do_action_service "disable" "octoprint" && ok_msg "OctoPrint service disabled!"
-          break;;
-        N|n|No|no)
-          echo -e "###### > No"
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-      esac
-    done
-  fi
-}
-
 function fetch_webui_ports(){
   ### read listen ports from possible installed interfaces
   ### and write them to ~/.kiauh.ini

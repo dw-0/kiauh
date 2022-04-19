@@ -26,8 +26,7 @@ function install_mainsail(){
   dependency_check "${dep[@]}"
   ### check if moonraker is already installed
   system_check_webui
-  ### ask user how to handle OctoPrint, Haproxy, Lighttpd, Apache2 if found
-  process_octoprint_dialog
+  ### ask user how to handle Haproxy, Lighttpd, Apache2 if found
   process_services_dialog
   ### process possible disruptive services
   process_disruptive_services

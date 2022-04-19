@@ -26,8 +26,7 @@ function install_fluidd(){
   dependency_check "${dep[@]}"
   ### check if moonraker is already installed
   system_check_webui
-  ### ask user how to handle OctoPrint, Haproxy, Lighttpd, Apache2 if found
-  process_octoprint_dialog
+  ### ask user how to handle Haproxy, Lighttpd, Apache2 if found
   process_services_dialog
   ### process possible disruptive services
   process_disruptive_services
@@ -324,8 +323,8 @@ function fluidd_port_check(){
   if [ "${FLUIDD_ENABLED}" = "false" ]; then
     if [ "${SITE_ENABLED}" = "true" ]; then
       status_msg "Detected other enabled interfaces:"
-      [ "${OCTOPRINT_ENABLED}" = "true" ] && echo "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${default}"
-      [ "${MAINSAIL_ENABLED}" = "true" ] && echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${default}"
+      [ "${OCTOPRINT_ENABLED}" = "true" ] && echo "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${white}"
+      [ "${MAINSAIL_ENABLED}" = "true" ] && echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${white}"
       if [ "${MAINSAIL_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
         PORT_80_BLOCKED="true"
         select_fluidd_port
@@ -344,22 +343,22 @@ function select_fluidd_port(){
   if [ "${PORT_80_BLOCKED}" = "true" ]; then
     echo
     top_border
-    echo -e "|                    ${red}!!!WARNING!!!${default}                      |"
-    echo -e "| ${red}You need to choose a different port for Fluidd!${default}       |"
-    echo -e "| ${red}The following web interface is listening at port 80:${default}  |"
+    echo -e "|                    ${red}!!!WARNING!!!${white}                      |"
+    echo -e "| ${red}You need to choose a different port for Fluidd!${white}       |"
+    echo -e "| ${red}The following web interface is listening at port 80:${white}  |"
     blank_line
     [ "${OCTOPRINT_PORT}" = "80" ] && echo "|  ● OctoPrint                                          |"
     [ "${MAINSAIL_PORT}" = "80" ] && echo "|  ● Mainsail                                           |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${default} |"
+    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${white} |"
     echo -e "| use ports in the range of 4750 or above!              |"
     blank_line
-    echo -e "| Be aware: there is ${red}NO${default} sanity check for the following  |"
+    echo -e "| Be aware: there is ${red}NO${white} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
     bottom_border
     while true; do
-      read -p "${cyan}Please enter a new Port:${default} " NEW_PORT
+      read -p "${cyan}Please enter a new Port:${white} " NEW_PORT
       if [ "${NEW_PORT}" != "${MAINSAIL_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
         echo "Setting port ${NEW_PORT} for Fluidd!"
         SET_LISTEN_PORT=${NEW_PORT}
