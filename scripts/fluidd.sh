@@ -41,14 +41,32 @@ function install_fluidd(){
   fluidd_port_check
 
   ### ask user to install mjpg-streamer
-  if ! ls /etc/systemd/system/webcamd.service 2>/dev/null 1>&2; then
-    get_user_selection_mjpg-streamer
+  local install_mjpg_streamer
+  if [ ! -f "${SYSTEMD}/webcamd.service" ]; then
+    while true; do
+      echo
+      top_border
+      echo -e "| Install MJGP-Streamer for webcam support?             |"
+      bottom_border
+      read -p "${cyan}###### Please select (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          install_mjpg_streamer="true"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          install_mjpg_streamer="false"
+          break;;
+        *)
+          error_msg "Invalid command!";;
+      esac
+    done
   fi
 
   ### ask user to install the recommended webinterface macros
-  if ! ls "${KLIPPER_CONFIG}/kiauh_macros.cfg" 2>/dev/null 1>&2 || ! ls "${KLIPPER_CONFIG}"/printer_*/kiauh_macros.cfg 2>/dev/null 1>&2; then
-    get_user_selection_kiauh_macros "Fluidd       "
-  fi
+  install_fluidd_macros
+
   ### create /etc/nginx/conf.d/upstreams.conf
   set_upstream_nginx_cfg
   ### create /etc/nginx/sites-available/<interface config>
@@ -57,14 +75,11 @@ function install_fluidd(){
   ### symlink nginx log
   symlink_webui_nginx_log "fluidd"
 
-  ### copy the kiauh_macros.cfg to the config location
-  install_kiauh_macros
-
   ### install mainsail/fluidd
   fluidd_setup
 
   ### install mjpg-streamer
-  [ "${INSTALL_MJPG}" = "true" ] && install_mjpg-streamer
+  [ "${install_mjpg_streamer}" = "true" ] && install_mjpg-streamer
 
   fetch_webui_ports #WIP
 
@@ -72,55 +87,138 @@ function install_fluidd(){
   print_confirm "Fluidd has been set up!"
 }
 
+function install_fluidd_macros(){
+  while true; do
+    echo
+    top_border
+    echo -e "| It is recommended to have some important macros in    |"
+    echo -e "| your printer configuration to have Mainsail fully     |"
+    echo -e "| functional and working.                               |"
+    blank_line
+    echo -e "| The recommended macros for Fluidd can be found here:  |"
+    echo -e "| https://docs.fluidd.xyz/configuration/initial_setup   |"
+    blank_line
+    echo -e "| If you already have these macros in your config file, |"
+    echo -e "| skip this step and answer with 'no'.                  |"
+    echo -e "| Otherwise you should consider to answer with 'yes' to |"
+    echo -e "| add the recommended example macros to your config.    |"
+    bottom_border
+    read -p "${cyan}###### Add the recommended macros? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        download_fluidd_macros
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        break;;
+      *)
+        print_error "Invalid command!";;
+    esac
+  done
+  return
+}
+
+function download_fluidd_macros(){
+  log_info "executing: download_fluidd_macros"
+  local fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
+  local configs
+  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg")
+  if [ -n "${configs}" ]; then
+    ### create a backup of the config folder
+    backup_klipper_config_dir
+
+    for config in ${configs}; do
+      path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
+      if [ ! -f "${path}/fluidd.cfg" ]; then
+        status_msg "Downloading fluidd.cfg to ${path} ..."
+        log_info "downloading fluidd.cfg to: ${path}"
+        wget "${fluidd_cfg}" -O "${path}/fluidd.cfg"
+        ### replace user 'pi' with current username to prevent issues in cases where the user is not called 'pi'
+        log_info "modify fluidd.cfg"
+        sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/\/home\/${USER}/" "${path}/fluidd.cfg"
+        ### write the include to the very first line of the printer.cfg
+        if ! grep -Eq "^[include fluidd.cfg]$" "${path}/printer.cfg"; then
+          log_info "modify printer.cfg"
+          sed -i "1 i [include fluidd.cfg]" "${path}/printer.cfg"
+        fi
+
+        ok_msg "Done!"
+      fi
+    done
+  else
+    log_error "execution stopped! reason: no printer.cfg found"
+    return
+  fi
+}
+
 function fluidd_setup(){
-  ### get fluidd download url
-  FLUIDD_DL_URL=$(curl -s "${FLUIDD_REPO_API}" | grep browser_download_url | cut -d'"' -f4 | head -1)
-
-  ### remove existing and create fresh fluidd folder, then download fluidd
-  [ -d "${FLUIDD_DIR}" ] && rm -rf "${FLUIDD_DIR}"
+  local url
+  url=$(get_fluidd_download_url)
+  status_msg "Downloading Fluidd ..."
+  if [ -d "${FLUIDD_DIR}" ]; then
+    rm -rf "${FLUIDD_DIR}"
+  fi
   mkdir "${FLUIDD_DIR}" && cd "${FLUIDD_DIR}"
-  status_msg "Downloading Fluidd ${FLUIDD_VERSION} ..."
-  wget "${FLUIDD_DL_URL}" && ok_msg "Download complete!"
+  wget "${url}" && ok_msg "Download complete!"
 
-  ### extract archive
   status_msg "Extracting archive ..."
-  unzip -q -o *.zip && ok_msg "Done!"
+  unzip -q -o ./*.zip && ok_msg "Done!"
 
-  ### delete downloaded zip
   status_msg "Remove downloaded archive ..."
-  rm -rf *.zip && ok_msg "Done!"
+  rm -rf ./*.zip && ok_msg "Done!"
 }
 
 #===================================================#
 #================== REMOVE FLUIDD ==================#
 #===================================================#
 
-function remove_fluidd(){
-  ### remove fluidd dir
-  if [ -d "${FLUIDD_DIR}" ]; then
-    status_msg "Removing Fluidd directory ..."
-    rm -rf "${FLUIDD_DIR}" && ok_msg "Directory removed!"
-  fi
+function remove_fluidd_dir(){
+  [ ! -d "${FLUIDD_DIR}" ] && return
+  status_msg "Removing Fluidd directory ..."
+  rm -rf "${FLUIDD_DIR}" && ok_msg "Directory removed!"
+}
 
-  ### remove fluidd config for nginx
+function remove_fluidd_config(){
   if [ -e "/etc/nginx/sites-available/fluidd" ]; then
     status_msg "Removing Fluidd configuration for Nginx ..."
     sudo rm "/etc/nginx/sites-available/fluidd" && ok_msg "File removed!"
   fi
-
-  ### remove fluidd symlink for nginx
-  if [ -L /etc/nginx/sites-enabled/fluidd ]; then
+  if [ -L "/etc/nginx/sites-enabled/fluidd" ]; then
     status_msg "Removing Fluidd Symlink for Nginx ..."
-    sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
+    sudo rm "/etc/nginx/sites-enabled/fluidd" && ok_msg "File removed!"
   fi
+}
 
-  ### remove mainsail nginx logs and log symlinks
-  for log in $(find /var/log/nginx -name "fluidd*"); do
-    sudo rm -f "${log}"
-  done
-  for log in $(find ${HOME}/klipper_logs -name "fluidd*"); do
-    rm -f "${log}"
-  done
+function remove_fluidd_logs(){
+  local files
+  files=$(find /var/log/nginx -name "fluidd*")
+  if [ -n "${files}" ]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      sudo rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_fluidd_log_symlinks(){
+  local files
+  files=$(find "${HOME}/klipper_logs" -name "fluidd*")
+  if [ -n "${files}" ]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_fluidd(){
+  remove_fluidd_dir
+  remove_fluidd_config
+  remove_fluidd_logs
+  remove_fluidd_log_symlinks
 
   ### remove fluidd_port from ~/.kiauh.ini
   sed -i "/^fluidd_port=/d" "${INI_FILE}"
@@ -144,14 +242,8 @@ function update_fluidd(){
 #================== FLUIDD STATUS ==================#
 #===================================================#
 
-function get_fluidd_ver(){
-  FLUIDD_VERSION=$(curl -s "${FLUIDD_REPO_API}" | grep tag_name | cut -d'"' -f4 | head -1)
-}
-
 function fluidd_status(){
   local status
-
-  ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=("${FLUIDD_DIR}" "${NGINX_SA}/fluidd" "${NGINX_SE}/fluidd")
 
   ### count+1 for each found data-item from array
