@@ -39,14 +39,15 @@ function remove_nginx(){
 #===================================================#
 
 function set_upstream_nginx_cfg(){
-  get_date
+  local current_date
+  current_date=$(get_date)
   ### backup existing nginx configs
   [ ! -d "${BACKUP_DIR}/nginx_cfg" ] && mkdir -p "${BACKUP_DIR}/nginx_cfg"
   [ -f "${NGINX_CONFD}/upstreams.conf" ] && sudo mv "${NGINX_CONFD}/upstreams.conf" "${BACKUP_DIR}/nginx_cfg/${current_date}_upstreams.conf"
   [ -f "${NGINX_CONFD}/common_vars.conf" ] && sudo mv "${NGINX_CONFD}/common_vars.conf" "${BACKUP_DIR}/nginx_cfg/${current_date}_common_vars.conf"
   ### transfer ownership of backed up files from root to ${USER}
   for log in $(ls "$BACKUP_DIR/nginx_cfg"); do
-    sudo chown "${USER}" "${BACKUP_DIR}/nginx_cfg/$log"
+    sudo chown "${USER}" "${BACKUP_DIR}/nginx_cfg/${log}"
   done
   ### copy nginx configs to target destination
   if [ ! -f "${NGINX_CONFD}/upstreams.conf" ]; then
