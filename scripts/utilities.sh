@@ -535,22 +535,26 @@ function fetch_webui_ports(){
 #================================================#
 
 function check_system_updates(){
-  SYS_UPDATE=$(apt list --upgradeable 2>/dev/null | sed "1d")
-  if [ ! -z "$SYS_UPDATE" ]; then
+  local updates_avail info_msg
+  updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
+  if [ -n "${updates_avail}" ]; then
     # add system updates to the update all array for the update all function in the updater
     SYS_UPDATE_AVAIL="true" && update_arr+=(update_system)
-    DISPLAY_SYS_UPDATE="${yellow}System upgrade available!${white}"
+    info_msg="${yellow}System upgrade available!${white}"
   else
     SYS_UPDATE_AVAIL="false"
-    DISPLAY_SYS_UPDATE="${green}System up to date!       ${white}"
+    info_msg="${green}System up to date!       ${white}"
   fi
+  echo "${info_msg}"
 }
 
 function update_system(){
   status_msg "Updating System ..."
-  sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y
-  CONFIRM_MSG="Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
-  print_msg && clear_msg
+  if sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y; then
+    print_confirm "Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
+  else
+    print_error "System update failed! Please watch for any errors printed above!"
+  fi
 }
 
 function check_usergroups(){
