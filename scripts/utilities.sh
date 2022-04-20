@@ -32,25 +32,25 @@ function check_euid(){
 #================================================#
 
 function select_msg() {
-  echo -e "${white}>>>>>> $1"
-}
-function warn_msg(){
-  echo -e "${red}>>>>>> $1${white}"
+  echo -e "${white}>>>>>> ${1}"
 }
 function status_msg(){
-  echo; echo -e "${yellow}###### $1${white}"
+  echo -e "${yellow}###### ${1}${white}"
 }
 function ok_msg(){
-  echo -e "${green}>>>>>> $1${white}"
+  echo -e "${green}>>>>>> ${1}${white}"
+}
+function warn_msg(){
+  echo -e "${yellow}>>>>>> ${1}${white}"
 }
 function error_msg(){
-  echo -e "${red}>>>>>> $1${white}"
+  echo -e "${red}>>>>>> ${1}${white}"
 }
 function abort_msg(){
-  echo -e "${red}<<<<<< $1${white}"
+  echo -e "${red}<<<<<< ${1}${white}"
 }
 function title_msg(){
-  echo -e "${cyan}$1${white}"
+  echo -e "${cyan}${1}${white}"
 }
 
 function print_error(){
@@ -342,16 +342,14 @@ function do_action_service(){
     for service in ${services}; do
       service=$(echo "${service}" | rev | cut -d"/" -f1 | rev)
       status_msg "${action^} ${service} ..."
-      sudo systemctl "${action}" "${service}"
-      ok_msg "OK!"
+      if sudo systemctl "${action}" "${service}"; then
+        log_info "${service}: ${action} > success"
+        ok_msg "${action^} ${service} successfull!"
+      else
+        log_warning "${service}: ${action} > failed"
+        warn_msg "${action^} ${service} failed!"
+      fi
     done
-  fi
-}
-
-function restart_nginx(){
-  if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
-    status_msg "Restarting NGINX Service ..."
-    sudo systemctl restart nginx && ok_msg "NGINX Service restarted!"
   fi
 }
 
