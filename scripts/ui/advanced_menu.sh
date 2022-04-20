@@ -53,7 +53,7 @@ function advanced_menu(){
       7)
         clear
         print_header
-        create_custom_hostname && set_hostname
+        set_custom_hostname
         advanced_ui;;
       8)
         do_action "setup_gcode_shell_command" "advanced_ui";;
