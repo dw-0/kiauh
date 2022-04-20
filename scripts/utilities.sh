@@ -604,11 +604,12 @@ function check_usergroups(){
   fi
 }
 
-function create_custom_hostname(){
+function set_custom_hostname(){
   echo
   top_border
-  echo -e "|  You can change the hostname of this machine to use   |"
-  echo -e "|  that name to open the Interface in your browser.     |"
+  echo -e "|  Changing the hostname of this machine allows you to  |"
+  echo -e "|  access a webinterface that is configured for port 80 |"
+  echo -e "|  by simply typing '<hostname>.local' in the browser.  |"
   echo -e "|                                                       |"
   echo -e "|  E.g.: If you set the hostname to 'my-printer' you    |"
   echo -e "|        can open Mainsail / Fluidd / Octoprint by      |"
@@ -618,20 +619,20 @@ function create_custom_hostname(){
     read -p "${cyan}###### Do you want to change the hostname? (y/N):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes)
-        user_input_hostname
+        select_msg "Yes"
+        change_hostname
         break;;
-      N|n|No|no|"") break;;
+      N|n|No|no|"")
+        select_msg "No"
+        break;;
       *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
+        error_msg "Invalid command!";;
     esac
   done
 }
 
-function user_input_hostname(){
-    unset NEW_HOSTNAME
-    unset HOSTNAME_VALID
-    unset HOSTENAME_CONFIRM
+function change_hostname(){
+    local new_hostname
     echo
     top_border
     echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${white}          |"
@@ -639,60 +640,56 @@ function user_input_hostname(){
     echo -e "|  ${red}No leading or trailing '-' allowed!${white}                  |"
     bottom_border
     while true; do
-      read -p "${cyan}###### Please set the new hostname:${white} " NEW_HOSTNAME
-      if [[ ${NEW_HOSTNAME} =~ ^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$ ]]; then
-        ok_msg "'${NEW_HOSTNAME}' is a valid hostname!"
-        HOSTNAME_VALID="true"
+      read -p "${cyan}###### Please set the new hostname:${white} " new_hostname
+      if [[ ${new_hostname} =~ ^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$ ]]; then
         while true; do
           echo
-          read -p "${cyan}###### Do you want '${NEW_HOSTNAME}' to be the new hostname? (Y/n):${white} " yn
+          read -p "${cyan}###### Do you want '${new_hostname}' to be the new hostname? (Y/n):${white} " yn
           case "${yn}" in
             Y|y|Yes|yes|"")
-              echo -e "###### > Yes"
-              HOSTENAME_CONFIRM="true"
+              select_msg "Yes"
+              set_hostname "${new_hostname}"
               break;;
             N|n|No|no)
-              echo -e "###### > No"
-              echo -e "${red}Skip hostname change ...${white}"
-              HOSTENAME_CONFIRM="false"
+              select_msg "No"
+              abort_msg "Skip hostname change ..."
               break;;
             *)
               print_error "Invalid command!";;
           esac
         done
-      break
       else
-        warn_msg "'${NEW_HOSTNAME}' is not a valid hostname!"
+        warn_msg "'${new_hostname}' is not a valid hostname!"
       fi
+      break
     done
 }
 
 function set_hostname(){
-  if [ "${HOSTNAME_VALID}" = "true" ] && [ "${HOSTENAME_CONFIRM}" = "true" ]; then
-    #check for dependencies
-    dep=(avahi-daemon)
-    dependency_check "${dep[@]}"
-    #execute operations
-    #get current hostname and write to variable
-    HOSTNAME=$(hostname)
-    #create host file if missing or create backup of existing one with current date&time
-    if [ -f /etc/hosts ]; then
-      status_msg "Creating backup of hosts file ..."
-      get_date
-      sudo cp "/etc/hosts /etc/hosts.${current_date}.bak"
-      ok_msg "Backup done!"
-      ok_msg "File:'/etc/hosts.${current_date}.bak'"
-    else
-      sudo touch /etc/hosts
-    fi
-    #set hostname in /etc/hostname
-    status_msg "Setting hostname to '${NEW_HOSTNAME}' ..."
-    status_msg "Please wait ..."
-    sudo hostnamectl set-hostname "${NEW_HOSTNAME}"
-    #write new hostname to /etc/hosts
-    status_msg "Writing new hostname to /etc/hosts ..."
-    echo "127.0.0.1       ${NEW_HOSTNAME}" | sudo tee -a /etc/hosts &>/dev/null
-    ok_msg "New hostname successfully configured!"
-    ok_msg "Remember to reboot for the changes to take effect!"
+  local new_hostname=${1} current_date
+  #check for dependencies
+  dep=(avahi-daemon)
+  dependency_check "${dep[@]}"
+
+  #create host file if missing or create backup of existing one with current date&time
+  if [ -f /etc/hosts ]; then
+    current_date=$(get_date)
+    status_msg "Creating backup of hosts file ..."
+    sudo cp "/etc/hosts /etc/hosts.${current_date}.bak"
+    ok_msg "Backup done!"
+    ok_msg "File:'/etc/hosts.${current_date}.bak'"
+  else
+    sudo touch /etc/hosts
   fi
+
+  #set new hostname in /etc/hostname
+  status_msg "Setting hostname to '${new_hostname}' ..."
+  status_msg "Please wait ..."
+  sudo hostnamectl set-hostname "${new_hostname}"
+
+  #write new hostname to /etc/hosts
+  status_msg "Writing new hostname to /etc/hosts ..."
+  echo "127.0.0.1       ${new_hostname}" | sudo tee -a /etc/hosts &>/dev/null
+  ok_msg "New hostname successfully configured!"
+  ok_msg "Remember to reboot for the changes to take effect!"
 }
