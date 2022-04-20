@@ -21,7 +21,7 @@ NGINX_CONFD="/etc/nginx/conf.d"
 #===================================================#
 
 function remove_nginx(){
-  if ls /lib/systemd/system/nginx.service 2>/dev/null 1>&2; then
+  if [ -f "${SYSTEMD}/nginx.service" ]; then
     status_msg "Stopping Nginx service ..."
     sudo systemctl stop nginx && sudo systemctl disable nginx
     ok_msg "Service stopped and disabled!"
@@ -46,8 +46,10 @@ function set_upstream_nginx_cfg(){
   [ -f "${NGINX_CONFD}/upstreams.conf" ] && sudo mv "${NGINX_CONFD}/upstreams.conf" "${BACKUP_DIR}/nginx_cfg/${current_date}_upstreams.conf"
   [ -f "${NGINX_CONFD}/common_vars.conf" ] && sudo mv "${NGINX_CONFD}/common_vars.conf" "${BACKUP_DIR}/nginx_cfg/${current_date}_common_vars.conf"
   ### transfer ownership of backed up files from root to ${USER}
-  for log in $(ls "$BACKUP_DIR/nginx_cfg"); do
-    sudo chown "${USER}" "${BACKUP_DIR}/nginx_cfg/${log}"
+  local files
+  files=$(find "${BACKUP_DIR}/nginx_cfg")
+  for file in ${files}; do
+    sudo chown "${USER}" "${BACKUP_DIR}/nginx_cfg/${file}"
   done
   ### copy nginx configs to target destination
   if [ ! -f "${NGINX_CONFD}/upstreams.conf" ]; then
@@ -59,26 +61,26 @@ function set_upstream_nginx_cfg(){
 }
 
 function symlink_webui_nginx_log(){
-  local LPATH="${HOME}/klipper_logs"
-  local UI_ACCESS_LOG="/var/log/nginx/${1}-access.log"
-  local UI_ERROR_LOG="/var/log/nginx/${1}-error.log"
-  [ ! -d "${LPATH}" ] && mkdir -p "${LPATH}"
-  if [ -f "${UI_ACCESS_LOG}" ] &&  [ ! -L "${LPATH}/${1}-access.log" ]; then
-    status_msg "Creating symlink for ${UI_ACCESS_LOG} ..."
-    ln -s "${UI_ACCESS_LOG}" "${LPATH}"
+  local path="${HOME}/klipper_logs"
+  local access_log="/var/log/nginx/${1}-access.log"
+  local error_log="/var/log/nginx/${1}-error.log"
+  [ ! -d "${path}" ] && mkdir -p "${path}"
+  if [ -f "${access_log}" ] &&  [ ! -L "${path}/${1}-access.log" ]; then
+    status_msg "Creating symlink for ${access_log} ..."
+    ln -s "${access_log}" "${path}"
     ok_msg "OK!"
   fi
-  if [ -f "${UI_ERROR_LOG}" ] &&  [ ! -L "${LPATH}/${1}-error.log" ]; then
-    status_msg "Creating symlink for ${UI_ERROR_LOG} ..."
-    ln -s "${UI_ERROR_LOG}" "${LPATH}"
+  if [ -f "${error_log}" ] &&  [ ! -L "${path}/${1}-error.log" ]; then
+    status_msg "Creating symlink for ${error_log} ..."
+    ln -s "${error_log}" "${path}"
     ok_msg "OK!"
   fi
 }
 
 function match_nginx_configs(){
+  local cfg_updated="false"
   ### reinstall nginx configs if the amount of upstreams don't match anymore
-  source_kiauh_ini
-  cfg_updated="false"
+  read_kiauh_ini
   mainsail_nginx_cfg="/etc/nginx/sites-available/mainsail"
   fluidd_nginx_cfg="/etc/nginx/sites-available/fluidd"
   upstreams_webcams=$(grep -E "mjpgstreamer" /etc/nginx/conf.d/upstreams.conf | wc -l)
@@ -124,9 +126,7 @@ function match_nginx_configs(){
     fi
   fi
   ### only restart nginx if configs were updated
-  if [ "${cfg_updated}" == "true" ]; then
-    restart_nginx && unset cfg_updated
-  fi
+  [ "${cfg_updated}" == "true" ] && do_action_service "restart" "nginx"
 }
 
 function process_disruptive_services(){
@@ -276,7 +276,8 @@ function set_nginx_cfg(){
     [ -e "/etc/nginx/sites-enabled/default" ] && sudo rm "/etc/nginx/sites-enabled/default"
     #create symlink for own sites
     [ ! -e "/etc/nginx/sites-enabled/${1}" ] && sudo ln -s "/etc/nginx/sites-available/${1}" "/etc/nginx/sites-enabled/"
-    restart_nginx
+
+    do_action_service "restart" "nginx"
   fi
 }
 
