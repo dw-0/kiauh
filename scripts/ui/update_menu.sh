@@ -34,7 +34,7 @@ function update_ui(){
   echo -e "|  6) [PrettyGCode]      |$(compare_prettygcode_versions)| "
   echo -e "|  7) [Telegram Bot]     |$(compare_telegram_bot_versions)| "
   echo -e "|                        |------------------------------| "
-  echo -e "|  8) [System]           |  $DISPLAY_SYS_UPDATE   | "
+  echo -e "|  8) [System]           |  $(check_system_updates)   | "
   back_footer
 }
 
