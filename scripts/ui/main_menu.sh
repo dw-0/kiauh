@@ -66,7 +66,7 @@ function main_menu(){
   kiauh_update_dialog
   main_ui
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       "start klipper") do_action_service "start" "klipper"; main_ui;;
       "stop klipper") do_action_service "stop" "klipper"; main_ui;;

@@ -37,7 +37,7 @@ function install_menu(){
   install_ui
 
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)clear && print_header
         select_klipper_python_version
@@ -79,7 +79,7 @@ function select_klipper_python_version(){
   echo -e "|  2) [Python 3.x]  ${yellow}(experimental)${white}                      | "
   back_footer
   while true; do
-    read -p "${cyan}###### Select Python version:${white} " action; echo
+    read -p "${cyan}###### Select Python version:${white} " action
     case "${action}" in
       1)
         select_msg "Python 2.7"
