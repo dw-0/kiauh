@@ -74,7 +74,7 @@ function install_fluidd(){
   ### symlink nginx log
   symlink_webui_nginx_log "fluidd"
 
-  ### install mainsail/fluidd
+  ### install fluidd
   fluidd_setup
 
   ### install mjpg-streamer
@@ -91,7 +91,7 @@ function install_fluidd_macros(){
     echo
     top_border
     echo -e "| It is recommended to have some important macros in    |"
-    echo -e "| your printer configuration to have Mainsail fully     |"
+    echo -e "| your printer configuration to have Fluidd fully       |"
     echo -e "| functional and working.                               |"
     blank_line
     echo -e "| The recommended macros for Fluidd can be found here:  |"
