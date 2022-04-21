@@ -189,11 +189,11 @@ function patch_klipperscreen_update_manager(){
   local moonraker_configs
   moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf")
   for conf in ${moonraker_configs}; do
-    status_msg "Adding KlipperScreen to update manager in file:\n       ${conf}"
-    ### add new line to conf if it doesn't end with one
-    [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
-    ### add KlipperScreens update manager section to moonraker.conf
-    if grep -Eq "[update_manager KlipperScreen]" "${conf}"; then
+    if ! grep -Eq "[update_manager KlipperScreen]" "${conf}"; then
+      ### add new line to conf if it doesn't end with one
+      [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+      ### add KlipperScreens update manager section to moonraker.conf
+      status_msg "Adding KlipperScreen to update manager in file:\n       ${conf}"
       /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
 
 [update_manager KlipperScreen]
