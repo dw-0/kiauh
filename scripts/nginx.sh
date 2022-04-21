@@ -49,7 +49,7 @@ function set_upstream_nginx_cfg(){
   local files
   files=$(find "${BACKUP_DIR}/nginx_cfg")
   for file in ${files}; do
-    sudo chown "${USER}" "${BACKUP_DIR}/nginx_cfg/${file}"
+    sudo chown "${USER}" "${file}"
   done
   ### copy nginx configs to target destination
   if [ ! -f "${NGINX_CONFD}/upstreams.conf" ]; then
