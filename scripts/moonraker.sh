@@ -66,7 +66,8 @@ function moonraker_setup_dialog(){
         case "${yn}" in
           Y|y|Yes|yes|"")
             select_msg "Yes"
-            status_msg "Installing ${count} Moonraker instance(s) ... \n"
+            ((count == 1)) && status_msg "Installing single Moonraker instance ..."
+            ((count > 1)) && status_msg "Installing ${count} Moonraker instances ..."
             moonraker_setup "${count}"
             break;;
           N|n|No|no)

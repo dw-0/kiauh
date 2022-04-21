@@ -28,7 +28,13 @@ function install_klipperscreen(){
     error="${error} Please upgrade Python."
     print_error "${error}" && return
   fi
+
+  ### install KlipperScreen
   klipperscreen_setup
+
+  ### add klipperscreen to the update manager in moonraker.conf
+  patch_klipperscreen_update_manager
+
   do_action_service "restart" "KlipperScreen"
 }
 
@@ -173,4 +179,31 @@ function compare_klipperscreen_versions(){
     KLIPPERSCREEN_UPDATE_AVAIL="false"
   fi
   echo "${versions}"
+}
+
+#================================================#
+#=================== HELPERS ====================#
+#================================================#
+
+function patch_klipperscreen_update_manager(){
+  local moonraker_configs
+  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf")
+  for conf in ${moonraker_configs}; do
+    status_msg "Adding KlipperScreen to update manager in file:\n       ${conf}"
+    ### add new line to conf if it doesn't end with one
+    [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+    ### add KlipperScreens update manager section to moonraker.conf
+    if grep -Eq "[update_manager KlipperScreen]" "${conf}"; then
+      /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
+
+[update_manager KlipperScreen]
+type: git_repo
+path: ${HOME}/KlipperScreen
+origin: https://github.com/jordanruthe/KlipperScreen.git
+env: ${HOME}/.KlipperScreen-env/bin/python
+requirements: scripts/KlipperScreen-requirements.txt
+install_script: scripts/KlipperScreen-install.sh
+MOONRAKER_CONF
+    fi
+  done
 }

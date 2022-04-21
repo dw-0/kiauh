@@ -77,6 +77,9 @@ function install_fluidd(){
   ### install fluidd
   fluidd_setup
 
+  ### add fluidd to the update manager in moonraker.conf
+  patch_fluidd_update_manager
+
   ### install mjpg-streamer
   [ "${install_mjpg_streamer}" = "true" ] && install_mjpg-streamer
 
@@ -368,4 +371,25 @@ function select_fluidd_port(){
       fi
     done
   fi
+}
+
+function patch_fluidd_update_manager(){
+  local moonraker_configs
+  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf")
+  for conf in ${moonraker_configs}; do
+    status_msg "Adding Fluidd to update manager in file:\n       ${conf}"
+    ### add new line to conf if it doesn't end with one
+    [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+    ### add Fluidds update manager section to moonraker.conf
+    if grep -Eq "[update_manager fluidd]" "${conf}"; then
+      /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
+
+[update_manager fluidd]
+type: web
+channel: stable
+repo: fluidd-core/fluidd
+path: ~/fluidd
+MOONRAKER_CONF
+    fi
+  done
 }
