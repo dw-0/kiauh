@@ -50,7 +50,7 @@ function remove_menu(){
       7)
         do_action "remove_prettygcode" "remove_ui";;
       8)
-        do_action "remove_MoonrakerTelegramBot" "remove_ui";;
+        do_action "remove_telegram_bot" "remove_ui";;
       9)
         do_action "remove_mjpg-streamer" "remove_ui";;
       10)

@@ -21,26 +21,26 @@ function telegram_bot_systemd() {
   echo "${services}"
 }
 
-function install_MoonrakerTelegramBot(){
-    MoonrakerTelegramBot_setup
+function install_telegram_bot(){
+    telegram_bot_setup
     do_action_service "restart" "moonraker-telegram-bot"
 }
 
-function MoonrakerTelegramBot_setup(){
+function telegram_bot_setup(){
   local klipper_cfg_loc
   klipper_cfg_loc="$(get_klipper_cfg_dir)"
   export klipper_cfg_loc
   local dep=(virtualenv)
   dependency_check "${dep[@]}"
-  status_msg "Downloading MoonrakerTelegramBot ..."
-  #force remove existing MoonrakerTelegramBot dir 
+  status_msg "Downloading Moonraker-Telegram-Bot ..."
+  #force remove existing Moonraker-Telegram-Bot dir
   [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] && rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
-  #clone into fresh MoonrakerTelegramBot dir
+  #clone into fresh Moonraker-Telegram-Bot dir
   cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
   ok_msg "Download complete!"
-  status_msg "Installing MoonrakerTelegramBot ..."
+  status_msg "Installing Moonraker-Telegram-Bot ..."
   /bin/bash "${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/install.sh"
-  echo; ok_msg "MoonrakerTelegramBot successfully installed!"
+  echo; ok_msg "Moonraker-Telegram-Bot successfully installed!"
 }
 
 
@@ -48,44 +48,44 @@ function MoonrakerTelegramBot_setup(){
 #=========== REMOVE MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
 
-function remove_MoonrakerTelegramBot(){
-  ### remove MoonrakerTelegramBot dir
+function remove_telegram_bot(){
+  ### remove Moonraker-Telegram-Bot dir
   if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ]; then
-    status_msg "Removing MoonrakerTelegramBot directory ..."
+    status_msg "Removing Moonraker-Telegram-Bot directory ..."
     rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}" && ok_msg "Directory removed!"
   fi
 
-  ### remove MoonrakerTelegramBot VENV dir
+  ### remove Moonraker-Telegram-Bot VENV dir
   if [ -d "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}" ]; then
-    status_msg "Removing MoonrakerTelegramBot VENV directory ..."
+    status_msg "Removing Moonraker-Telegram-Bot VENV directory ..."
     rm -rf "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}" && ok_msg "Directory removed!"
   fi
 
-  ### remove MoonrakerTelegramBot service
+  ### remove Moonraker-Telegram-Bot service
   if [ -e "${SYSTEMD}/moonraker-telegram-bot.service" ]; then
-    status_msg "Removing MoonrakerTelegramBot service ..."
+    status_msg "Removing Moonraker-Telegram-Bot service ..."
     do_action_service "stop" "moonraker-telegram-bot"
     do_action_service "disable" "moonraker-telegram-bot"
     sudo rm -f "${SYSTEMD}/moonraker-telegram-bot.service"
     ###reloading units
     sudo systemctl daemon-reload
     sudo systemctl reset-failed
-    ok_msg "MoonrakerTelegramBot Service removed!"
+    ok_msg "Moonraker-Telegram-Bot Service removed!"
   fi
 
-  ### remove MoonrakerTelegramBot log
+  ### remove Moonraker-Telegram-Bot log
   if [ -e "/tmp/telegram.log" ] || [ -e "${HOME}/klipper_logs/telegram.log" ]; then
-    status_msg "Removing MoonrakerTelegramBot log file ..."
+    status_msg "Removing Moonraker-Telegram-Bot log file ..."
     rm -f "/tmp/telegram.log" "${HOME}/klipper_logs/telegram.log"  && ok_msg "File removed!"
   fi
 
-  ### remove MoonrakerTelegramBot log symlink in config dir
+  ### remove Moonraker-Telegram-Bot log symlink in config dir
   if [ -e "${KLIPPER_CONFIG}/telegram.log" ]; then
-    status_msg "Removing MoonrakerTelegramBot log symlink ..."
+    status_msg "Removing Moonraker-Telegram-Bot log symlink ..."
     rm -f "${KLIPPER_CONFIG}/telegram.log" && ok_msg "File removed!"
   fi
 
-  print_confirm "MoonrakerTelegramBot successfully removed!"
+  print_confirm "Moonraker-Telegram-Bot successfully removed!"
 }
 
 #===================================================#
