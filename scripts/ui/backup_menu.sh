@@ -33,7 +33,7 @@ function backup_ui(){
 function backup_menu(){
   do_action "" "backup_ui"
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       0)
         do_action "backup_klipper_config_dir" "backup_ui";;

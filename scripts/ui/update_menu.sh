@@ -43,7 +43,7 @@ function update_menu(){
   read_bb4u_stat
   do_action "" "update_ui"
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       0)
         do_action "toggle_backups" "update_ui";;

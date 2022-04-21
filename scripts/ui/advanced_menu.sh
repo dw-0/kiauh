@@ -29,7 +29,7 @@ function advanced_ui(){
 function advanced_menu(){
   do_action "" "advanced_ui"
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
         do_action "load_klipper_state" "advanced_ui";;

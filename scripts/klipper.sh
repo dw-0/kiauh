@@ -55,11 +55,10 @@ function klipper_setup_dialog(){
   top_border
   echo -e "| Please select the number of Klipper instances to set  |"
   echo -e "| up. The number of Klipper instances will determine    |"
-  echo -e "| the amount of printers you can run from this machine. |"
+  echo -e "| the amount of printers you can run from this host.    |"
   blank_line
-  echo -e "| ${yellow}WARNING: There is no limit on the number of instances${white} |"
-  echo -e "| ${yellow}you can set up with this script. Setting up too many${white}  |"
-  echo -e "| ${yellow}Klipper instances can potentially crash your system.${white}  |"
+  echo -e "| ${yellow}WARNING:${white}                                              |"
+  echo -e "| ${yellow}Setting up too many instances may crash your system.${white}  |"
   bottom_border
 
   local count
@@ -74,7 +73,8 @@ function klipper_setup_dialog(){
         case "${yn}" in
           Y|y|Yes|yes|"")
             select_msg "Yes"
-            status_msg "Installing ${count} Klipper instance(s) ... \n"
+            ((count == 1)) && status_msg "Installing single Klipper instance ..."
+            ((count > 1)) && status_msg "Installing ${count} Klipper instances ..."
             klipper_setup "${count}" "${python_version}"
             break;;
           N|n|No|no)
@@ -82,7 +82,7 @@ function klipper_setup_dialog(){
             abort_msg "Exiting Klipper setup ...\n"
             break;;
           *)
-            error_msg "Invalid Input!\n";;
+            error_msg "Invalid Input!";;
         esac
       done
     fi

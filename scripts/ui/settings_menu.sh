@@ -121,7 +121,7 @@ function settings_menu(){
   clear && print_header
   settings_ui
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
         change_klipper_cfg_folder && settings_ui;;

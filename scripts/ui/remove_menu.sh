@@ -15,8 +15,7 @@ function remove_ui(){
   top_border
   echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${white}     | "
   hr
-  echo -e "|  ${yellow}INFO:${white}                                                | "
-  echo -e "|  Printer configs or backups always remain untouched!  | "
+  echo -e "| ${yellow}INFO: Configurations and/or any backups will be kept!${white} | "
   hr
   echo -e "|  Firmware:                |  Touchscreen GUI:         | "
   echo -e "|  1) [Klipper]             |  5) [KlipperScreen]       | "
@@ -33,7 +32,7 @@ function remove_ui(){
 function remove_menu(){
   do_action "" "remove_ui"
   while true; do
-    read -p "${cyan}Perform action:${white} " action; echo
+    read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
         do_action "remove_klipper" "remove_ui";;

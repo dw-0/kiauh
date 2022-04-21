@@ -32,13 +32,13 @@ function check_euid(){
 #================================================#
 
 function select_msg() {
-  echo -e "${white}>>>>>> ${1}"
+  echo -e "${white}   [➔] ${1}"
 }
 function status_msg(){
-  echo -e "${yellow}###### ${1}${white}"
+  echo -e "\n${magenta}###### ${1}${white}"
 }
 function ok_msg(){
-  echo -e "${green}>>>>>> ${1}${white}"
+  echo -e "${green}[✓ OK] ${1}${white}"
 }
 function warn_msg(){
   echo -e "${yellow}>>>>>> ${1}${white}"
@@ -56,18 +56,18 @@ function title_msg(){
 function print_error(){
   [ -z "${1}" ] && return
   echo -e "${red}"
-  echo -e "#########################################################"
+  echo -e "#=======================================================#"
   echo -e " ${1} "
-  echo -e "#########################################################"
+  echo -e "#=======================================================#"
   echo -e "${white}"
 }
 
 function print_confirm(){
   [ -z "${1}" ] && return
   echo -e "${green}"
-  echo -e "#########################################################"
+  echo -e "#=======================================================#"
   echo -e " ${1} "
-  echo -e "#########################################################"
+  echo -e "#=======================================================#"
   echo -e "${white}"
 }
 
@@ -371,30 +371,32 @@ function python3_check(){
 }
 
 function dependency_check(){
-  local dep=( "${@}" ) # dep: array
+  local dep=( "${@}" )
+  local packages
   status_msg "Checking for the following dependencies:"
-  #check if package is installed, if not write name into array
-  for pkg in "${dep[@]}"
-  do
+  #check if package is installed, if not write its name into array
+  for pkg in "${dep[@]}"; do
     echo -e "${cyan}● ${pkg} ${white}"
     if [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]]; then
-      inst+=("${pkg}")
+      packages+=("${pkg}")
     fi
   done
-  #if array is not empty, install packages from array elements
-  if [ "${#inst[@]}" -ne 0 ]; then
+  #if array is not empty, install packages from array
+  if (( ${#packages[@]} > 0 )); then
     status_msg "Installing the following dependencies:"
-    for element in "${inst[@]}"
-    do
-      echo -e "${cyan}● ${element} ${white}"
+    for package in "${packages[@]}"; do
+      echo -e "${cyan}● ${package} ${white}"
     done
     echo
-    sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${inst[@]}" -y
-    ok_msg "Dependencies installed!"
-    #clearing the array
-    unset inst
+    if sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${packages[@]}" -y; then
+      ok_msg "Dependencies installed!"
+    else
+      error_msg "Installing dependencies failed!"
+      return 1 # exit kiauh
+    fi
   else
-    ok_msg "Dependencies already met! Continue..."
+    ok_msg "Dependencies already met!"
+    return
   fi
 }
 
