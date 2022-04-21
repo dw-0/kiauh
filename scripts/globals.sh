@@ -21,7 +21,7 @@ function set_globals(){
   #=================== KIAUH ====================#
   green=$(echo -en "\e[92m")
   yellow=$(echo -en "\e[93m")
-  magenta=$(echo -en "\e[95m")
+  magenta=$(echo -en "\e[35m")
   red=$(echo -en "\e[91m")
   cyan=$(echo -en "\e[96m")
   white=$(echo -en "\e[39m")
