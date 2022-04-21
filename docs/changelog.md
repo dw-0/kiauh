@@ -11,6 +11,7 @@ The majority of things that have been rewritten are mainly for internal reasons 
 * feat: Multi-Instance OctoPrint installations now each have their own Virtualenv, allowing independent installation of Plugins
 * feat: Implementing the use of shellcheck during development
 * feat: Implementing a simple logging mechanic
+* feat: Log-upload function allows uploading for several, other logfiles (kiauh.log, webcamd.log etc.)
 * fix: During Klipper installation checks for group membership of `tty` and `dialout` are made
 * refactor: Support for DWC and DWC-for-Klipper has been removed
 * refactor: Switch branch function has been removed (was replaced by the custom Klipper repo feature)

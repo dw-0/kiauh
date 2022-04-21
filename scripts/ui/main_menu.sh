@@ -15,7 +15,7 @@ function main_ui(){
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|  0) [Upload Log]     |       Klipper: $(get_klipper_status)|"
+  echo -e "|  0) [Log-Upload]     |       Klipper: $(get_klipper_status)|"
   echo -e "|                      |                                |"
   echo -e "|  1) [Install]        |                                |"
   echo -e "|  2) [Update]         |     Moonraker: $(get_moonraker_status)|"
