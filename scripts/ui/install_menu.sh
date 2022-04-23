@@ -13,22 +13,22 @@ set -e
 
 function install_ui(){
   top_border
-  echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${white}     | "
+  echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${white}     |"
   hr
-  echo -e "|  You need this menu usually only for installing       | "
-  echo -e "|  all necessary dependencies for the various           | "
-  echo -e "|  functions on a completely fresh system.              | "
+  echo -e "|  You need this menu usually only for installing       |"
+  echo -e "|  all necessary dependencies for the various           |"
+  echo -e "|  functions on a completely fresh system.              |"
   hr
-  echo -e "|  Firmware & API:          |  3rd Party Webinterface:  | "
-  echo -e "|  1) [Klipper]             |  6) [OctoPrint]           | "
-  echo -e "|  2) [Moonraker]           |                           | "
-  echo -e "|                           |  Other:                   | "
-  echo -e "|  Klipper Webinterface:    |  7) [PrettyGCode]         | "
-  echo -e "|  3) [Mainsail]            |  8) [Telegram Bot]        | "
-  echo -e "|  4) [Fluidd]              |                           | "
-  echo -e "|                           |  Webcam Streamer:         | "
-  echo -e "|  Touchscreen GUI:         |  9) [MJPG-Streamer]       | "
-  echo -e "|  5) [KlipperScreen]       |                           | "
+  echo -e "| Firmware & API:           | 3rd Party Webinterface:   |"
+  echo -e "|  1) [Klipper]             |  6) [OctoPrint]           |"
+  echo -e "|  2) [Moonraker]           |                           |"
+  echo -e "|                           | Other:                    |"
+  echo -e "| Klipper Webinterface :    |  7) [PrettyGCode]         |"
+  echo -e "|  3) [Mainsail]            |  8) [Telegram Bot]        |"
+  echo -e "|  4) [Fluidd]              |                           |"
+  echo -e "|                           | Webcam Streamer:          |"
+  echo -e "| Touchscreen GUI:          |  9) [MJPG-Streamer]       |"
+  echo -e "|  5) [KlipperScreen]       |                           |"
   back_footer
 }
 
