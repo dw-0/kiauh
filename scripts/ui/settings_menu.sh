@@ -12,7 +12,7 @@
 set -e
 
 function settings_ui() {
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   local custom_cfg_loc="${custom_klipper_cfg_loc}"
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"

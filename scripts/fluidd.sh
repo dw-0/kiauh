@@ -312,7 +312,7 @@ function get_fluidd_download_url() {
   stable_tag=$(echo "${tags}" | grep -E "^v([0-9]+\.?){3}$" | head -1)
   stable_url="https://github.com/fluidd-core/fluidd/releases/download/${stable_tag}/fluidd.zip"
 
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   if [ "${fluidd_install_unstable}" == "true" ]; then
     url="${latest_url}"
     echo "${url}"

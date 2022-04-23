@@ -428,7 +428,7 @@ function get_mainsail_download_url() {
   stable_tag=$(echo "${tags}" | grep -E "^v([0-9]+\.?){3}$" | head -1)
   stable_url="https://github.com/mainsail-crew/mainsail/releases/download/${stable_tag}/mainsail.zip"
 
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   if [ "${mainsail_install_unstable}" == "true" ]; then
     url="${latest_url}"
     echo "${url}"

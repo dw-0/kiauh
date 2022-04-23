@@ -23,7 +23,7 @@ function check_for_backup_dir(){
 }
 
 function backup_before_update(){
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   # shellcheck disable=SC2154
   local state="${backup_before_update}"
   [ "${state}" = "false" ] && return

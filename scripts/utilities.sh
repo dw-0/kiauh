@@ -99,12 +99,13 @@ function log_error() {
 #================================================#
 
 function read_kiauh_ini(){
+  local func=${1}
   if [ ! -f "${INI_FILE}" ]; then
     print_error "ERROR: File '~/.kiauh.ini' not found!"
     log_error "Reading from .kiauh.ini failed! File not found!"
     return 1
   fi
-  log_info "Reading from .kiauh.ini"
+  log_info "${func}: reading from .kiauh.ini"
   source "${INI_FILE}"
 }
 
@@ -287,7 +288,7 @@ function set_klipper_cfg_path(){
 }
 
 function switch_mainsail_releasetype() {
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   local state="${mainsail_install_unstable}"
   if [ "${state}" == "false" ]; then
     sed -i '/mainsail_install_unstable=/s/false/true/' "${INI_FILE}"
@@ -299,7 +300,7 @@ function switch_mainsail_releasetype() {
 }
 
 function switch_fluidd_releasetype() {
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   local state="${fluidd_install_unstable}"
   if [ "${state}" == "false" ]; then
     sed -i '/fluidd_install_unstable=/s/false/true/' "${INI_FILE}"
@@ -311,7 +312,7 @@ function switch_fluidd_releasetype() {
 }
 
 function toggle_backup_before_update(){
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   local state="${backup_before_update}"
   if [ "${state}" = "false" ]; then
     sed -i '/backup_before_update=/s/false/true/' "${INI_FILE}"
@@ -321,7 +322,7 @@ function toggle_backup_before_update(){
 }
 
 function set_custom_klipper_repo() {
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   local repo_url=${1} branch=${2}
   sed -i "/^custom_klipper_repo=/d" "${INI_FILE}"
   sed -i '$a'"custom_klipper_repo=${repo_url}" "${INI_FILE}"
