@@ -341,7 +341,7 @@ function update_klipper(){
   if [ ! -d "${KLIPPER_DIR}" ]; then
     cd "${HOME}" && git clone "${KLIPPER_REPO}"
   else
-    bb4u "klipper"
+    backup_before_update "klipper"
     status_msg "Updating Klipper ..."
     cd "${KLIPPER_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies

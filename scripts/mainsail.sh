@@ -238,7 +238,7 @@ function remove_mainsail(){
 #===================================================#
 
 function update_mainsail(){
-  bb4u "mainsail"
+  backup_before_update "mainsail"
   status_msg "Updating Mainsail ..."
   mainsail_setup
   match_nginx_configs

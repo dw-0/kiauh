@@ -18,6 +18,7 @@ function settings_ui() {
   local custom_branch="${custom_klipper_repo_branch}"
   local ms_pre_rls="${mainsail_install_unstable}"
   local fl_pre_rls="${fluidd_install_unstable}"
+  local bbu="${backup_before_update}"
 
   ### config location
   if [ -z "${custom_cfg_loc}" ]; then
@@ -49,6 +50,12 @@ function settings_ui() {
   else
     fl_pre_rls="${green}● ${fl_pre_rls}${white}"
   fi
+  ### backup before update toggle
+  if [ "${bbu}" == "false" ]; then
+    bbu="${red}● ${bbu}${white}"
+  else
+    bbu="${green}● ${bbu}${white}"
+  fi
 
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     |"
@@ -63,6 +70,8 @@ function settings_ui() {
   printf  "|  Mainsail: %-55s|\n" "${ms_pre_rls}"
   printf  "|    Fluidd: %-55s|\n" "${fl_pre_rls}"
   hr
+  printf  "| Backup before updating: %-42s|\n" "${bbu}"
+  hr
   echo -e "| 1) Change Klipper config folder location              |"
   echo -e "| 2) Set custom Klipper repository                      |"
   if [ "${mainsail_install_unstable}" == "false" ]; then
@@ -74,6 +83,11 @@ function settings_ui() {
   echo -e "| 4) ${green}Allow${white} unstable Fluidd releases                     |"
   else
   echo -e "| 4) ${red}Disallow${white} unstable Fluidd releases                  |"
+  fi
+  if [ "${backup_before_update}" == "false" ]; then
+  echo -e "| 5) ${green}Enable${white} automatic backups before updates            |"
+  else
+  echo -e "| 5) ${red}Disable${white} automatic backups before updates           |"
   fi
   back_help_footer
 }
@@ -133,6 +147,8 @@ function settings_menu(){
         switch_mainsail_releasetype && settings_menu;;
       4)
         switch_fluidd_releasetype && settings_menu;;
+      5)
+        toggle_backup_before_update && settings_menu;;
       B|b)
         clear
         main_menu

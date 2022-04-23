@@ -310,6 +310,16 @@ function switch_fluidd_releasetype() {
   fi
 }
 
+function toggle_backup_before_update(){
+  read_kiauh_ini
+  local state="${backup_before_update}"
+  if [ "${state}" = "false" ]; then
+    sed -i '/backup_before_update=/s/false/true/' "${INI_FILE}"
+  else
+    sed -i '/backup_before_update=/s/true/false/' "${INI_FILE}"
+  fi
+}
+
 function set_custom_klipper_repo() {
   read_kiauh_ini
   local repo_url=${1} branch=${2}
