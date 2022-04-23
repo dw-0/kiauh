@@ -25,14 +25,20 @@ function main_ui(){
   echo -e "|                      | KlipperScreen: $(klipperscreen_status)|"
   echo -e "|  6) [Settings]       |  Telegram Bot: $(get_telegram_bot_status)|"
   echo -e "|                      |                                |"
-  echo -e "|  $(get_kiauh_version)|     Octoprint: $(octoprint_status)|"
+  echo -e "|  $(print_kiauh_version)|     Octoprint: $(octoprint_status)|"
   quit_footer
 }
 
 function get_kiauh_version(){
   local version
   cd "${SRCDIR}/kiauh"
-  version="$(printf "%-20s" "$(git describe HEAD --always --tags | cut -d "-" -f 1,2)")"
+  version="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
+  echo "${version}"
+}
+
+function print_kiauh_version(){
+  local version
+  version="$(printf "%-20s" "$(get_kiauh_version)")"
   echo "${cyan}${version}${white}"
 }
 

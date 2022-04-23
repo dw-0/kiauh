@@ -79,6 +79,17 @@ function timestamp() {
   date +"[%F %T]"
 }
 
+function init_logfile() {
+  local log="/tmp/kiauh.log"
+  {
+    echo -e "#================================================================#"
+    echo -e "# New KIAUH session started on: $(date) #"
+    echo -e "#================================================================#"
+    echo -e "KIAUH $(get_kiauh_version)"
+    echo -e "#================================================================#"
+  } >> "${log}"
+}
+
 function log_info() {
   local message="${1}" log="${LOGFILE}"
   echo -e "$(timestamp) <INFO> ${message}" | tr -s " " >> "${log}"
