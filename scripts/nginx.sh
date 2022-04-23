@@ -83,7 +83,7 @@ function symlink_webui_nginx_log(){
 function match_nginx_configs(){
   local cfg_updated="false"
   ### reinstall nginx configs if the amount of upstreams don't match anymore
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   mainsail_nginx_cfg="/etc/nginx/sites-available/mainsail"
   fluidd_nginx_cfg="/etc/nginx/sites-available/fluidd"
   upstreams_webcams=$(grep -E "mjpgstreamer" /etc/nginx/conf.d/upstreams.conf | wc -l)

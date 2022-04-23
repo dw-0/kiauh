@@ -33,7 +33,7 @@ function accept_upload_conditions(){
 }
 
 function upload_selection(){
-  read_kiauh_ini
+  read_kiauh_ini "${FUNCNAME[0]}"
   local upload_agreed="${logupload_accepted}"
   [ "${upload_agreed}" = "false" ] && accept_upload_conditions
 
