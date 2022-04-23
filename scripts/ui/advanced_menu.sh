@@ -13,16 +13,16 @@ set -e
 
 function advanced_ui(){
   top_border
-  echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     | "
+  echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     |"
   hr
-  echo -e "|  Klipper:               | Mainsail:                   | "
-  echo -e "|  1) [Rollback]          | 6) [Theme installer]        | "
-  echo -e "|                         |                             | "
-  echo -e "|  Firmware:              | System:                     | "
-  echo -e "|  2) [Build only]        | 7) [Change hostname]        | "
-  echo -e "|  3) [Flash only]        |                             | "
-  echo -e "|  4) [Build + Flash]     | Extras:                     | "
-  echo -e "|  5) [Get MCU ID]        | 8) [G-Code Shell Command]   | "
+  echo -e "| Klipper:                | Mainsail:                   |"
+  echo -e "|  1) [Rollback]          |  6) [Theme installer]       |"
+  echo -e "|                         |                             |"
+  echo -e "| Firmware:               | System:                     |"
+  echo -e "|  2) [Build only]        |  7) [Change hostname]       |"
+  echo -e "|  3) [Flash only]        |                             |"
+  echo -e "|  4) [Build + Flash]     | Extras:                     |"
+  echo -e "|  5) [Get MCU ID]        |  8) [G-Code Shell Command]  |"
   back_footer
 }
 

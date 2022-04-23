@@ -74,6 +74,7 @@ function settings_ui() {
   hr
   echo -e "| 1) Change Klipper config folder location              |"
   echo -e "| 2) Set custom Klipper repository                      |"
+  blank_line
   if [ "${mainsail_install_unstable}" == "false" ]; then
   echo -e "| 3) ${green}Allow${white} unstable Mainsail releases                   |"
   else
@@ -84,6 +85,7 @@ function settings_ui() {
   else
   echo -e "| 4) ${red}Disallow${white} unstable Fluidd releases                  |"
   fi
+  blank_line
   if [ "${backup_before_update}" == "false" ]; then
   echo -e "| 5) ${green}Enable${white} automatic backups before updates            |"
   else
@@ -114,6 +116,16 @@ function show_settings_help(){
   blank_line
   echo -e "| If set to ${red}false${white}, KIAUH installs/updates the software  |"
   echo -e "| with the most recent stable release.                  |"
+  blank_line
+  echo -e "| Default: ${red}false${white}                                        |"
+  blank_line
+  hr
+  echo -e "| ${cyan}Backup before updating:${white}                               |"
+  echo -e "| If set to true, KIAUH will automatically create a     |"
+  echo -e "| backup from the corresponding component you are about |"
+  echo -e "| to update before actually updating it, preserving the |"
+  echo -e "| current state of the component in a safe location.    |"
+  echo -e "| All backups are stored in '~/kiauh_backups'.          |"
   blank_line
   echo -e "| Default: ${red}false${white}                                        |"
   blank_line

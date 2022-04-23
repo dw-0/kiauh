@@ -39,13 +39,13 @@ function get_kiauh_version(){
 function kiauh_update_dialog(){
   [ ! "$(kiauh_update_avail)" == "true" ] && return
   top_border
-  echo -e "|${green}              New KIAUH update available!              ${white}| "
+  echo -e "|${green}              New KIAUH update available!              ${white}|"
   hr
-  echo -e "|${green}  View Changelog: https://git.io/JnmlX                 ${white}| "
+  echo -e "|${green}  View Changelog: https://git.io/JnmlX                 ${white}|"
   blank_line
-  echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${white}| "
-  echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${white}| "
-  echo -e "|${yellow}  features. Please consider updating!                  ${white}| "
+  echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${white}|"
+  echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${white}|"
+  echo -e "|${yellow}  features. Please consider updating!                  ${white}|"
   bottom_border
   read -p "${cyan}Do you want to update now? (Y/n):${white} " yn
   while true; do
