@@ -68,7 +68,7 @@ function octoprint_setup_dialog(){
 function octoprint_setup(){
   local instances="${1}"
   ### check and install all dependencies
-  dep=(
+  local dep=(
     git
     wget
     python3-pip

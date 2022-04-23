@@ -248,7 +248,7 @@ function set_nginx_cfg(){
   if [ "${SET_NGINX_CFG}" = "true" ]; then
     local cfg="${SRCDIR}/kiauh/resources/${1}"
     #check for dependencies
-    dep=(nginx)
+    local dep=(nginx)
     dependency_check "${dep[@]}"
     #execute operations
     status_msg "Creating Nginx configuration for ${1} ..."
