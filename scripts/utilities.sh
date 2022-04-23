@@ -310,18 +310,6 @@ function switch_fluidd_releasetype() {
   fi
 }
 
-function switch_fluidd_releasetype() {
-  read_kiauh_ini
-  local state="${fluidd_install_unstable}"
-  if [ "${state}" == "false" ]; then
-    sed -i '/fluidd_install_unstable=/s/false/true/' "${INI_FILE}"
-    log_info "fluidd_install_unstable changed (false -> true) "
-  else
-    sed -i '/fluidd_install_unstable=/s/true/false/' "${INI_FILE}"
-    log_info "fluidd_install_unstable changed (true -> false) "
-  fi
-}
-
 function set_custom_klipper_repo() {
   read_kiauh_ini
   local repo_url=${1} branch=${2}
