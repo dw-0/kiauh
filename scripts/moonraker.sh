@@ -137,7 +137,7 @@ function moonraker_setup(){
   create_moonraker_service "${instances}"
 
   ### step 5: create polkit rules for moonraker
-  moonraker_polkit
+  moonraker_polkit || true
 
   ### step 6: enable and start all instances
   do_action_service "enable" "moonraker"
