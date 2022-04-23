@@ -233,7 +233,7 @@ function remove_fluidd(){
 #===================================================#
 
 function update_fluidd(){
-  bb4u "fluidd"
+  backup_before_update "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
   match_nginx_configs

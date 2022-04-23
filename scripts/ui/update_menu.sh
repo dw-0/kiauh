@@ -15,8 +15,6 @@ function update_ui(){
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${white}     | "
   hr
-  echo -e "|  0) ${BB4U_STATUS}| "
-  hr
   echo -e "|  a) [Update all]       |               |              | "
   echo -e "|                        | Installed:    | Latest:      | "
   echo -e "|  Klipper & API:        |---------------|--------------| "
@@ -40,7 +38,6 @@ function update_ui(){
 
 function update_menu(){
   unset update_arr
-  read_bb4u_stat
   do_action "" "update_ui"
   while true; do
     read -p "${cyan}####### Perform action:${white} " action

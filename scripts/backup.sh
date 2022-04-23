@@ -23,34 +23,11 @@ function check_for_backup_dir(){
   fi
 }
 
-function toggle_backups(){
+function backup_before_update(){
   read_kiauh_ini
-  if [ "${backup_before_update}" = "true" ]; then
-    sed -i '/backup_before_update=/s/true/false/' "${INI_FILE}"
-    BB4U_STATUS="${green}[Enable]${white} backups before updating                  "
-    CONFIRM_MSG=" Backups before updates are now >>> DISABLED <<< !"
-  fi
-  if [ "${backup_before_update}" = "false" ]; then
-    sed -i '/backup_before_update=/s/false/true/' "${INI_FILE}"
-    BB4U_STATUS="${red}[Disable]${white} backups before updating                 "
-    CONFIRM_MSG=" Backups before updates are now >>> ENABLED <<< !"
-  fi
-}
-
-function bb4u(){
-  read_kiauh_ini
-  if [ "${backup_before_update}" = "true" ]; then
-    backup_"${1}"
-  fi
-}
-
-function read_bb4u_stat(){
-  read_kiauh_ini
-  if [ ! "${backup_before_update}" = "true" ]; then
-    BB4U_STATUS="${green}[Enable]${white} backups before updating                  "
-  else
-    BB4U_STATUS="${red}[Disable]${white} backups before updating                 "
-  fi
+  local state="${backup_before_update}"
+  [ "${state}" = "false" ] && return
+  backup_"${1}"
 }
 
 function backup_printer_cfg(){

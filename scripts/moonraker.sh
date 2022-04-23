@@ -395,7 +395,7 @@ function update_moonraker(){
   if [ ! -d "${MOONRAKER_DIR}" ]; then
     cd "${HOME}" && git clone "${MOONRAKER_REPO}"
   else
-    bb4u "moonraker"
+    backup_before_update "moonraker"
     status_msg "Updating Moonraker ..."
     cd "${MOONRAKER_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies
