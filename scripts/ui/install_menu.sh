@@ -19,15 +19,15 @@ function install_ui(){
   echo -e "|  all necessary dependencies for the various           | "
   echo -e "|  functions on a completely fresh system.              | "
   hr
-  echo -e "|  Firmware & API:          |  Other:                   | "
+  echo -e "|  Firmware & API:          |  3rd Party Webinterface:  | "
   echo -e "|  1) [Klipper]             |  6) [OctoPrint]           | "
-  echo -e "|  2) [Moonraker]           |  7) [PrettyGCode]         | "
-  echo -e "|                           |  8) [Telegram Bot]        | "
-  echo -e "|  Klipper Webinterface:    |                           | "
-  echo -e "|  3) [Mainsail]            |  Webcam:                  | "
-  echo -e "|  4) [Fluidd]              |  9) [MJPG-Streamer]       | "
-  echo -e "|                           |                           | "
-  echo -e "|  Touchscreen GUI:         |                           | "
+  echo -e "|  2) [Moonraker]           |                           | "
+  echo -e "|                           |  Other:                   | "
+  echo -e "|  Klipper Webinterface:    |  7) [PrettyGCode]         | "
+  echo -e "|  3) [Mainsail]            |  8) [Telegram Bot]        | "
+  echo -e "|  4) [Fluidd]              |                           | "
+  echo -e "|                           |  Webcam Streamer:         | "
+  echo -e "|  Touchscreen GUI:         |  9) [MJPG-Streamer]       | "
   echo -e "|  5) [KlipperScreen]       |                           | "
   back_footer
 }
@@ -39,9 +39,8 @@ function install_menu(){
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
-      1)clear && print_header
-        select_klipper_python_version
-        install_ui;;
+      1)
+        do_action "select_klipper_python_version" "install_ui";;
       2)
         do_action "moonraker_setup_dialog" "install_ui";;
       3)
