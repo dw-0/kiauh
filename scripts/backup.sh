@@ -76,10 +76,8 @@ function backup_klipper_config_dir(){
     config_folder_name="$(echo "${KLIPPER_CONFIG}" | rev | cut -d"/" -f1 | rev)"
     mkdir -p "${BACKUP_DIR}/${config_folder_name}/${current_date}"
     cp -r "${KLIPPER_CONFIG}" "${_}" && ok_msg "Backup complete!"
-    echo
   else
     ok_msg "No config directory found! Skipping backup ..."
-    echo
   fi
 }
 
