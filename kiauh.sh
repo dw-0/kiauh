@@ -49,6 +49,7 @@ function kiauh_update_avail(){
 }
 
 check_euid
+init_logfile
 set_globals
 init_ini
 kiauh_update_avail
