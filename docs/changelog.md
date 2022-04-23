@@ -3,19 +3,22 @@
 This document covers possible important changes to KIAUH.
 
 ### 2022-04-XX
-KIAUH is now at Version 4!\
-The majority of things that have been rewritten are mainly for internal reasons and not affecting the user at all.
+KIAUH has now reached major version 4 !
 * feat: Klipper can be installed under Python3 (consideres experimental)
 * feat: Klipper can be installed from custom repositories
 * feat: Option to only allow installation of stable builds of Mainsail and Fluidd
-* feat: Multi-Instance OctoPrint installations now each have their own Virtualenv, allowing independent installation of Plugins
+* feat: Multi-Instance OctoPrint installations now each have their own virtual python environment
+  * allows independent installation of Plugins for each instance
 * feat: Implementing the use of shellcheck during development
 * feat: Implementing a simple logging mechanic
 * feat: Log-upload function allows uploading for several, other logfiles (kiauh.log, webcamd.log etc.)
 * fix: During Klipper installation checks for group membership of `tty` and `dialout` are made
 * refactor: Support for DWC and DWC-for-Klipper has been removed
+* refactor: The backup before update settings were moved to the KIAUH settings menu
 * refactor: Switch branch function has been removed (was replaced by the custom Klipper repo feature)
 * refactor: Rewriting a lot of functions to pass shellcheck checks
+* refactor: The update manager sections for Mainsail, Fluidd and KlipperScreen were removed from the moonraker.conf template
+  * They will now be individually added during installation of the corresponding interface
 
 
 ### 2022-01-29
