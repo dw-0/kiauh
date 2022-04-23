@@ -114,7 +114,7 @@ function create_moonraker_virtualenv(){
 function moonraker_setup(){
   local confirm_msg instances=${1}
   ### checking dependencies
-  dep=(git wget curl unzip dfu-util virtualenv)
+  local dep=(git wget curl unzip dfu-util virtualenv)
   ### additional required dependencies on armbian
   dep+=(libjpeg-dev zlib1g-dev)
   dependency_check "${dep[@]}"

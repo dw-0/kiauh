@@ -26,8 +26,8 @@ function install_pgc_for_klipper(){
   echo -e "${cyan}\n###### On which port should PrettyGCode run? (Default: ${pgc_default_port})${white} "
   read -e -p "${cyan}###### Port:${white} " -i "${pgc_default_port}" pgc_custom_port
   ### check nginx dependency
-  dep=(nginx)
-  dependency_check
+  local dep=(nginx)
+  dependency_check "${dep[@]}"
   ### clone repo
   [ -d "${PGC_DIR}" ] && rm -rf "${PGC_DIR}"
   cd "${HOME}" && git clone "${PGC_FOR_KLIPPER_REPO}"

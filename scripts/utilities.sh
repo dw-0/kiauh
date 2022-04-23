@@ -577,7 +577,7 @@ function change_hostname(){
 function set_hostname(){
   local new_hostname=${1} current_date
   #check for dependencies
-  dep=(avahi-daemon)
+  local dep=(avahi-daemon)
   dependency_check "${dep[@]}"
 
   #create host file if missing or create backup of existing one with current date&time

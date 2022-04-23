@@ -269,7 +269,7 @@ function build_fw(){
   else
     cd "${KLIPPER_DIR}"
     status_msg "Initializing firmware build ..."
-    dep=(build-essential dpkg-dev make)
+    local dep=(build-essential dpkg-dev make)
     dependency_check "${dep[@]}"
 
     make clean && make menuconfig
