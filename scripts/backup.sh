@@ -17,14 +17,14 @@ function get_date(){
 }
 
 function check_for_backup_dir(){
-  if [ ! -d "${BACKUP_DIR}" ]; then
-    status_msg "Create KIAUH backup directory ..."
-    mkdir -p "${BACKUP_DIR}" && ok_msg "Directory created!"
-  fi
+  [ -d "${BACKUP_DIR}" ] && return
+  status_msg "Create KIAUH backup directory ..."
+  mkdir -p "${BACKUP_DIR}" && ok_msg "Directory created!"
 }
 
 function backup_before_update(){
   read_kiauh_ini
+  # shellcheck disable=SC2154
   local state="${backup_before_update}"
   [ "${state}" = "false" ] && return
   backup_"${1}"
@@ -52,7 +52,8 @@ function backup_klipper_config_dir(){
     status_msg "Create backup of the Klipper config directory ..."
     config_folder_name="$(echo "${KLIPPER_CONFIG}" | rev | cut -d"/" -f1 | rev)"
     mkdir -p "${BACKUP_DIR}/${config_folder_name}/${current_date}"
-    cp -r "${KLIPPER_CONFIG}" "${_}" && ok_msg "Backup complete!"
+    cp -r "${KLIPPER_CONFIG}" "${_}"
+    print_confirm "Configuration directory backup complete!"
   else
     ok_msg "No config directory found! Skipping backup ..."
   fi
@@ -60,21 +61,24 @@ function backup_klipper_config_dir(){
 
 function backup_moonraker_database(){
   check_for_backup_dir
-  local current_date
-  if ls -d "${HOME}"/.moonraker_database* 2>/dev/null 1>&2; then
+  local current_date databases target_dir
+
+  databases=$(find "${HOME}" -maxdepth 1 -type d -regextype posix-extended -regex "${HOME}/.moonraker_database(_[^0])?[0-9]*" | sort)
+  if [ -n "${databases}" ]; then
     current_date=$(get_date)
+    target_dir="${BACKUP_DIR}/moonraker_database_backup/${current_date}"
     status_msg "Timestamp: ${current_date}"
-    mkdir -p "${BACKUP_DIR}/mr_db_backup/${current_date}"
-    for database in $(ls -d ${HOME}/.moonraker_database*)
-    do
+    mkdir -p "${target_dir}"
+    for database in ${databases}; do
       status_msg "Create backup of ${database} ..."
-      cp -r "${database}" "${BACKUP_DIR}/mr_db_backup/${current_date}"
+      cp -r "${database}" "${target_dir}"
       ok_msg "Done!"
     done
-    ok_msg "Backup complete!\n"
+    print_confirm "Moonraker database backup complete!"
   else
-    ok_msg "No Moonraker database found! Skipping backup ..."
+    print_error "No Moonraker database found! Skipping backup ..."
   fi
+  return
 }
 
 function backup_klipper(){
@@ -85,7 +89,8 @@ function backup_klipper(){
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/klipper-backups/${current_date}"
-    cp -r "${KLIPPER_DIR}" "${_}" && cp -r "${KLIPPY_ENV}" "${_}" && ok_msg "Backup complete!"
+    cp -r "${KLIPPER_DIR}" "${_}" && cp -r "${KLIPPY_ENV}" "${_}"
+    print_confirm "Klipper backup complete!"
   else
     print_error "Can't backup klipper and/or klipper-env directory! Not found!"
   fi
@@ -99,7 +104,8 @@ function backup_mainsail(){
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/mainsail-backups/${current_date}"
-    cp -r "${MAINSAIL_DIR}" "${_}" && ok_msg "Backup complete!"
+    cp -r "${MAINSAIL_DIR}" "${_}"
+    print_confirm "Mainsail backup complete!"
   else
     print_error "Can't backup mainsail directory! Not found!"
   fi
@@ -113,7 +119,8 @@ function backup_fluidd(){
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/fluidd-backups/${current_date}"
-    cp -r "${FLUIDD_DIR}" "${_}" && ok_msg "Backup complete!"
+    cp -r "${FLUIDD_DIR}" "${_}"
+    print_confirm "Fluidd backup complete!"
   else
     print_error "Can't backup fluidd directory! Not found!"
   fi
@@ -127,7 +134,8 @@ function backup_moonraker(){
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/moonraker-backups/${current_date}"
-    cp -r "${MOONRAKER_DIR}" "${_}" && cp -r "${MOONRAKER_ENV}" "${_}" && ok_msg "Backup complete!"
+    cp -r "${MOONRAKER_DIR}" "${_}" && cp -r "${MOONRAKER_ENV}" "${_}"
+    print_confirm "Moonraker backup complete!"
   else
     print_error "Can't backup moonraker and/or moonraker-env directory! Not found!"
   fi
@@ -142,7 +150,7 @@ function backup_octoprint(){
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/octoprint-backups/${current_date}"
     cp -r "${OCTOPRINT_DIR}" "${_}" && cp -r "${OCTOPRINT_CFG_DIR}" "${_}"
-    ok_msg "Backup complete!"
+    print_confirm " OctoPrint backup complete!"
   else
     print_error "Can't backup OctoPrint and/or .octoprint directory!\n Not found!"
   fi
@@ -157,13 +165,13 @@ function backup_klipperscreen(){
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/klipperscreen-backups/${current_date}"
     cp -r "${KLIPPERSCREEN_DIR}" "${_}"
-    ok_msg "Backup complete!"
+    print_confirm "KlipperScreen backup complete!"
   else
     print_error "Can't backup KlipperScreen directory!\n Not found!"
   fi
 }
 
-function backup_MoonrakerTelegramBot(){
+function backup_telegram_bot(){
   local current_date
   if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
@@ -172,7 +180,7 @@ function backup_MoonrakerTelegramBot(){
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/MoonrakerTelegramBot-backups/${current_date}"
     cp -r "${MOONRAKER_TELEGRAM_BOT_DIR}" "${_}"
-    ok_msg "Backup complete!"
+    print_confirm "MoonrakerTelegramBot backup complete!"
   else
     print_error "Can't backup MoonrakerTelegramBot directory!\n Not found!"
   fi
