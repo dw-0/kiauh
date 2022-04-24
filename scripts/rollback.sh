@@ -11,114 +11,73 @@
 
 set -e
 
-function save_klipper_state(){
-  source_kiauh_ini
-  #read current klipper state
-  cd $KLIPPER_DIR
-  COMMIT_STATE=$(git rev-parse --short HEAD)
-  if [ "$GET_BRANCH" = "master" ]; then
-    ORI_OLD=$previous_origin_state
-    ORI_NEW=$COMMIT_STATE
-    sed -i "/previous_origin_state=/s/$ORI_OLD/$ORI_NEW/" $INI_FILE
-  elif [ "$GET_BRANCH" = "scurve-shaping" ]; then
-    SHA_OLD=$previous_shaping_state
-    SHA_NEW=$COMMIT_STATE
-    sed -i "/previous_shaping_state=/s/$SHA_OLD/$SHA_NEW/" $INI_FILE
-  elif [ "$GET_BRANCH" = "scurve-smoothing" ]; then
-    SMO_OLD=$previous_smoothing_state
-    SMO_NEW=$COMMIT_STATE
-    sed -i "/previous_smoothing_state=/s/$SMO_OLD/$SMO_NEW/" $INI_FILE
-  fi
-}
-
-function load_klipper_state(){
-  source_kiauh_ini
-  print_branch
-  cd $KLIPPER_DIR
-  CURRENT_COMMIT=$(git rev-parse --short=8 HEAD)
-  if [ "$GET_BRANCH" = "origin/master" ] || [ "$GET_BRANCH" = "master" ]; then
-    PREVIOUS_COMMIT=$previous_origin_state
-  elif [ "$GET_BRANCH" = "scurve-shaping" ]; then
-    PREVIOUS_COMMIT=$previous_shaping_state
-  elif [ "$GET_BRANCH" = "scurve-smoothing" ]; then
-    PREVIOUS_COMMIT=$previous_smoothing_state
-  fi
-  CURRENT_COMMIT_DATE=$(git show -s --format=%cd --date=short $CURRENT_COMMIT)
-  if [ "$PREVIOUS_COMMIT" != "0" ]; then
-    PREVIOUS_COMMIT_DATE=$(git show -s --format=%cd --date=short $PREVIOUS_COMMIT)
-  fi
-  if [ "$PREVIOUS_COMMIT" = "0" ]; then
-    CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${white}")
-    PREV_UI=$(echo -e "${red}None${white}                    ")
-  else
-    if [ "$CURRENT_COMMIT" = "$PREVIOUS_COMMIT" ]; then
-      CURR_UI=$(echo -e "${green}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${white}")
-      PREV_UI=$(echo -e "${green}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${white}")
-    else
-      CURR_UI=$(echo -e "${yellow}$CURRENT_COMMIT from $CURRENT_COMMIT_DATE${white}")
-      PREV_UI=$(echo -e "${yellow}$PREVIOUS_COMMIT from $PREVIOUS_COMMIT_DATE${white}")
-    fi
-  fi
-  rollback_ui
-  rollback_klipper
-}
-
-function rollback_ui(){
+function rollback_menu(){
   top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     | "
+  echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|  If serious errors occured after updating Klipper,    | "
-  echo -e "|  you can use this menu to return to the previously    | "
-  echo -e "|  used commit from which you have updated.             | "
-  bottom_border
-  top_border
-  echo -e "|  Active branch: ${green}$PRINT_BRANCH${white}                      | "
+  echo -e "| If serious errors occured after updating Klipper or   |"
+  echo -e "| Moonraker, you can use this menu to try and reset the |"
+  echo -e "| repository to an earlier state.                       |"
   hr
-  echo -e "|  Currently on commit:                                 | "
-  echo -e "|  $CURR_UI                             | "
-  hr
-  echo -e "|  Commit last updated from:                            | "
-  echo -e "|  $PREV_UI                             | "
+  echo -e "| 1) Rollback Klipper                                   |"
+  echo -e "| 2) Rollback Moonraker                                 |"
   back_footer
+
+  while true; do
+    read -p "${cyan}###### Perform action:${white} " action
+    case "${action}" in
+      1)
+        select_msg "Klipper"
+        rollback_component "klipper"
+        break;;
+      2)
+        select_msg "Moonraker"
+        rollback_component "moonraker"
+        break;;
+      B|b)
+        clear; advanced_menu; break;;
+      *)
+        error_msg "Invalid command!";;
+    esac
+  done
 }
 
-function rollback_klipper(){
-  if [ "$PREVIOUS_COMMIT" != "0" ] && [ "$CURRENT_COMMIT" != "$PREVIOUS_COMMIT" ]; then
-    while true; do
-        echo -e "${cyan}"
-        read -p "###### Do you want to rollback to $PREVIOUS_COMMIT? (Y/n): " yn
-        echo -e "${white}"
-        case "$yn" in
-          Y|y|Yes|yes|"")
-            clear
-            print_header
-              status_msg "Rolling back to $PREVIOUS_COMMIT ..."
-              git reset --hard $PREVIOUS_COMMIT -q
-              ok_msg "Rollback complete!"; echo
-            load_klipper_state
-            break;;
-          N|n|No|no) clear; advanced_menu; break;;
-          B|b) clear; advanced_menu; break;;
-          *)
-            print_unkown_cmd
-            print_msg && clear_msg;;
-      esac
-    done
-  else
-    while true; do
-      echo -e "${cyan}"
-      read -p "Perform action: " action; echo
-      echo -e "${white}"
-      case "$action" in
-        B|b)
-          clear; advanced_menu; break;;
-        *)
-          clear
-          print_header
-          print_unkown_cmd
-          print_msg && clear_msg
-          rollback_ui;;
-      esac
-    done
+function rollback_component() {
+  local component=${1}
+
+  if [ ! -d "${HOME}/${component}" ]; then
+    print_error "Rollback not possible! Missing installation?"
+    return
   fi
+
+  echo
+  top_border
+  echo -e "| Please select how many commits you want to revert.    |"
+  echo -e "| Consider using the information provided by the Github |"
+  echo -e "| commit history to decide how many commits to revert.  |"
+  blank_line
+  echo -e "| ${red}Warning:${white}                                              |"
+  echo -e "| ${red}Do not proceed if you are currently in the progress${white}   |"
+  echo -e "| ${red}of printing! Proceeding WILL terminate that print!${white}    |"
+  back_footer
+
+  while true; do
+    read -p "${cyan}###### Revert this amount of commits:${white} " count
+    if [ -n "${count}" ] && ((count > 0)); then
+      status_msg "Revert ${component^} by ${count} commits ..."
+      cd "${HOME}/${component}"
+      if git reset --hard HEAD~"${count}"; then
+        do_action_service "restart" "${component}"
+        print_confirm "${component^} was successfully reset!"
+      else
+        print_error "Reverting ${component^} failed! Please see the console output above."
+      fi
+      break
+    elif [[ "${count}" == "B" || "${count}" == "b" ]]; then
+      clear && print_header && break
+    else
+      error_msg "Invalid command!"
+    fi
+  done
+  rollback_menu
 }

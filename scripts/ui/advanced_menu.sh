@@ -15,7 +15,7 @@ function advanced_ui(){
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     |"
   hr
-  echo -e "| Klipper:                | Mainsail:                   |"
+  echo -e "| Klipper & API:          | Mainsail:                   |"
   echo -e "|  1) [Rollback]          |  6) [Theme installer]       |"
   echo -e "|                         |                             |"
   echo -e "| Firmware:               | System:                     |"
@@ -32,7 +32,7 @@ function advanced_menu(){
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
-        do_action "load_klipper_state" "advanced_ui";;
+        do_action "rollback_menu" "advanced_menu";;
       2)
         do_action "build_fw" "advanced_ui";;
       3)
