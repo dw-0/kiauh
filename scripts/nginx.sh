@@ -41,10 +41,16 @@ function remove_nginx(){
 function set_upstream_nginx_cfg(){
   local current_date
   current_date=$(get_date)
+  local upstreams="${NGINX_CONFD}/upstreams.conf"
+  local common_vars="${NGINX_CONFD}/common_vars.conf"
   ### backup existing nginx configs
   [ ! -d "${BACKUP_DIR}/nginx_cfg" ] && mkdir -p "${BACKUP_DIR}/nginx_cfg"
-  [ -f "${NGINX_CONFD}/upstreams.conf" ] && sudo mv "${NGINX_CONFD}/upstreams.conf" "${BACKUP_DIR}/nginx_cfg/${current_date}_upstreams.conf"
-  [ -f "${NGINX_CONFD}/common_vars.conf" ] && sudo mv "${NGINX_CONFD}/common_vars.conf" "${BACKUP_DIR}/nginx_cfg/${current_date}_common_vars.conf"
+  if [ -f "${upstreams}" ]; then
+    sudo mv "${upstreams}" "${BACKUP_DIR}/nginx_cfg/${current_date}_upstreams.conf"
+  fi
+  if [ -f "${common_vars}" ]; then
+    sudo mv "${common_vars}" "${BACKUP_DIR}/nginx_cfg/${current_date}_common_vars.conf"
+  fi
   ### transfer ownership of backed up files from root to ${USER}
   local files
   files=$(find "${BACKUP_DIR}/nginx_cfg")
@@ -55,81 +61,75 @@ function set_upstream_nginx_cfg(){
     fi
   done
   ### copy nginx configs to target destination
-  if [ ! -f "${NGINX_CONFD}/upstreams.conf" ]; then
-    sudo cp "${SRCDIR}/kiauh/resources/upstreams.conf" "${NGINX_CONFD}"
-  fi
-  if [ ! -f "${NGINX_CONFD}/common_vars.conf" ]; then
-    sudo cp "${SRCDIR}/kiauh/resources/common_vars.conf" "${NGINX_CONFD}"
-  fi
+  [ ! -f "${upstreams}" ] && sudo cp "${RESOURCES}/upstreams.conf" "${upstreams}"
+  [ ! -f "${common_vars}" ] && sudo cp "${RESOURCES}/common_vars.conf" "${common_vars}"
 }
 
 function symlink_webui_nginx_log(){
-  local path="${HOME}/klipper_logs"
-  local access_log="/var/log/nginx/${1}-access.log"
-  local error_log="/var/log/nginx/${1}-error.log"
+  local interface=${1} path="${HOME}/klipper_logs"
+  local access_log="/var/log/nginx/${interface}-access.log"
+  local error_log="/var/log/nginx/${interface}-error.log"
   [ ! -d "${path}" ] && mkdir -p "${path}"
-  if [ -f "${access_log}" ] &&  [ ! -L "${path}/${1}-access.log" ]; then
+  if [ -f "${access_log}" ] &&  [ ! -L "${path}/${interface}-access.log" ]; then
     status_msg "Creating symlink for ${access_log} ..."
     ln -s "${access_log}" "${path}"
-    ok_msg "OK!"
+    ok_msg "Done!"
   fi
-  if [ -f "${error_log}" ] &&  [ ! -L "${path}/${1}-error.log" ]; then
+  if [ -f "${error_log}" ] &&  [ ! -L "${path}/${interface}-error.log" ]; then
     status_msg "Creating symlink for ${error_log} ..."
     ln -s "${error_log}" "${path}"
-    ok_msg "OK!"
+    ok_msg "Done!"
   fi
 }
 
 function match_nginx_configs(){
-  local cfg_updated="false"
-  ### reinstall nginx configs if the amount of upstreams don't match anymore
   read_kiauh_ini "${FUNCNAME[0]}"
-  mainsail_nginx_cfg="/etc/nginx/sites-available/mainsail"
-  fluidd_nginx_cfg="/etc/nginx/sites-available/fluidd"
-  upstreams_webcams=$(grep -E "mjpgstreamer" /etc/nginx/conf.d/upstreams.conf | wc -l)
+  local require_service_restart="false"
+  local upstreams="${NGINX_CONFD}/upstreams.conf"
+  local common_vars="${NGINX_CONFD}/common_vars.conf"
+  local mainsail_nginx_cfg="/etc/nginx/sites-available/mainsail"
+  local fluidd_nginx_cfg="/etc/nginx/sites-available/fluidd"
+  local upstreams_webcams mainsail_webcams fluidd_webcams
+
+  ### reinstall nginx configs if the amount of upstreams don't match anymore
+  upstreams_webcams=$(grep -Ec "mjpgstreamer" "/etc/nginx/conf.d/upstreams.conf")
+  mainsail_webcams=$(grep -Ec "mjpgstreamer" "${mainsail_nginx_cfg}" 2>/dev/null || echo "0")
+  fluidd_webcams=$(grep -Ec "mjpgstreamer" "${fluidd_nginx_cfg}" 2>/dev/null || echo "0")
   status_msg "Checking validity of NGINX configurations ..."
-  if [ -e "${mainsail_nginx_cfg}" ]; then
-    mainsail_webcams=$(grep -E "mjpgstreamer" "${mainsail_nginx_cfg}" | wc -l)
-  fi
-  if [ -e "${fluidd_nginx_cfg}" ]; then
-    fluidd_webcams=$(grep -E "mjpgstreamer" "${fluidd_nginx_cfg}" | wc -l)
-  fi
   ### check for outdated upstreams.conf
-  if [[ "${upstreams_webcams}" -lt "${mainsail_webcams}" ]] || [[ "${upstreams_webcams}" -lt "${fluidd_webcams}" ]]; then
+  if ((upstreams_webcams < mainsail_webcams || upstreams_webcams < fluidd_webcams)); then
     status_msg "Outdated upstreams.conf found! Updating ..."
-    sudo rm -f "${NGINX_CONFD}/upstreams.conf"
-    sudo rm -f "${NGINX_CONFD}/common_vars.conf"
+    sudo rm -f "${upstreams}" "${common_vars}"
     set_upstream_nginx_cfg
-    cfg_updated="true"
+    require_service_restart="true"
+    ok_msg "Done!"
   fi
   ### check for outdated mainsail config
-  if [ -e "${mainsail_nginx_cfg}" ]; then
-    if [[ "${upstreams_webcams}" -gt "${mainsail_webcams}" ]]; then
-      status_msg "Outdated Mainsail config found! Updating ..."
-      sudo rm -f "${mainsail_nginx_cfg}"
-      sudo cp "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" "${mainsail_nginx_cfg}"
-      sudo sed -i "s/<<UI>>/mainsail/g" "${mainsail_nginx_cfg}"
-      sudo sed -i "/root/s/pi/${USER}/" "${mainsail_nginx_cfg}"
-      sudo sed -i "s/listen\s[0-9]*;/listen ${mainsail_port};/" "${mainsail_nginx_cfg}"
-      sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${mainsail_port};/" "${mainsail_nginx_cfg}"
-      cfg_updated="true" && ok_msg "Done!"
-    fi
+  if [ -e "${mainsail_nginx_cfg}" ] && ((upstreams_webcams > mainsail_webcams)); then
+    status_msg "Outdated Mainsail config found! Updating ..."
+    sudo rm -f "${mainsail_nginx_cfg}"
+    sudo cp "${RESOURCES}/klipper_webui_nginx.cfg" "${mainsail_nginx_cfg}"
+    sudo sed -i "s/<<UI>>/mainsail/g" "${mainsail_nginx_cfg}"
+    sudo sed -i "/root/s/pi/${USER}/" "${mainsail_nginx_cfg}"
+    sudo sed -i "s/listen\s[0-9]*;/listen ${mainsail_port};/" "${mainsail_nginx_cfg}"
+    sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${mainsail_port};/" "${mainsail_nginx_cfg}"
+    require_service_restart="true"
+    ok_msg "Done!"
   fi
   ### check for outdated fluidd config
-  if [ -e "${fluidd_nginx_cfg}" ]; then
-    if [[ "${upstreams_webcams}" -gt "${fluidd_webcams}" ]]; then
-      status_msg "Outdated Fluidd config found! Updating ..."
-      sudo rm -f "${fluidd_nginx_cfg}"
-      sudo cp "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" "${fluidd_nginx_cfg}"
-      sudo sed -i "s/<<UI>>/fluidd/g" "${fluidd_nginx_cfg}"
-      sudo sed -i "/root/s/pi/${USER}/" "${fluidd_nginx_cfg}"
-      sudo sed -i "s/listen\s[0-9]*;/listen ${fluidd_port};/" "${fluidd_nginx_cfg}"
-      sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${fluidd_port};/" "${fluidd_nginx_cfg}"
-      cfg_updated="true" && ok_msg "Done!"
-    fi
+  if [ -e "${fluidd_nginx_cfg}" ] && ((upstreams_webcams > fluidd_webcams)); then
+    status_msg "Outdated Fluidd config found! Updating ..."
+    sudo rm -f "${fluidd_nginx_cfg}"
+    sudo cp "${RESOURCES}/klipper_webui_nginx.cfg" "${fluidd_nginx_cfg}"
+    sudo sed -i "s/<<UI>>/fluidd/g" "${fluidd_nginx_cfg}"
+    sudo sed -i "/root/s/pi/${USER}/" "${fluidd_nginx_cfg}"
+    sudo sed -i "s/listen\s[0-9]*;/listen ${fluidd_port};/" "${fluidd_nginx_cfg}"
+    sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${fluidd_port};/" "${fluidd_nginx_cfg}"
+    require_service_restart="true"
+    ok_msg "Done!"
   fi
   ### only restart nginx if configs were updated
-  [ "${cfg_updated}" == "true" ] && do_action_service "restart" "nginx"
+  [ "${require_service_restart}" == "true" ] && sudo systemctl restart nginx.service
 }
 
 function process_disruptive_services(){
@@ -245,74 +245,69 @@ function process_services_dialog(){
 }
 
 function set_nginx_cfg(){
+  local interface=${1}
   if [ "${SET_NGINX_CFG}" = "true" ]; then
-    local cfg="${SRCDIR}/kiauh/resources/${1}"
+    local cfg="${RESOURCES}/${interface}"
     #check for dependencies
     local dep=(nginx)
     dependency_check "${dep[@]}"
     #execute operations
-    status_msg "Creating Nginx configuration for ${1} ..."
+    status_msg "Creating Nginx configuration for ${interface^} ..."
     #copy content from resources to the respective nginx config file
-    cat "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" > "${cfg}"
+    cat "${RESOURCES}/klipper_webui_nginx.cfg" > "${cfg}"
     ##edit the nginx config file before moving it
-    sed -i "s/<<UI>>/${1}/g" "${cfg}"
+    sed -i "s/<<UI>>/${interface}/g" "${cfg}"
     if [ "${SET_LISTEN_PORT}" != "${DEFAULT_PORT}" ]; then
-      status_msg "Configuring port for $1 ..."
+      status_msg "Configuring port for ${interface^} ..."
       #set listen port ipv4
       sed -i "s/listen\s[0-9]*;/listen ${SET_LISTEN_PORT};/" "${cfg}"
       #set listen port ipv6
       sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${SET_LISTEN_PORT};/" "${cfg}"
     fi
     #set correct user
-    if [ "${1}" = "mainsail" ] || [ "${1}" = "fluidd" ]; then
+    if [ "${interface}" = "mainsail" ] || [ "${interface}" = "fluidd" ]; then
       sudo sed -i "/root/s/pi/${USER}/" "${cfg}"
     fi
     #moving the config file into correct directory
-    sudo mv "${cfg}" "/etc/nginx/sites-available/${1}"
-    ok_msg "Nginx configuration for $1 was set!"
+    sudo mv "${cfg}" "/etc/nginx/sites-available/${interface}"
+    ok_msg "Nginx configuration for ${interface^} was set!"
     if [ -n "${SET_LISTEN_PORT}" ]; then
-      ok_msg "${1} listening on port ${SET_LISTEN_PORT}!"
+      ok_msg "${interface^} configured for port ${SET_LISTEN_PORT}!"
     else
-      ok_msg "${1} listening on default port ${DEFAULT_PORT}!"
+      ok_msg "${interface^} configured for default port ${DEFAULT_PORT}!"
     fi
     #remove nginx default config
-    [ -e "/etc/nginx/sites-enabled/default" ] && sudo rm "/etc/nginx/sites-enabled/default"
+    if [ -e "/etc/nginx/sites-enabled/default" ]; then
+      sudo rm "/etc/nginx/sites-enabled/default"
+    fi
     #create symlink for own sites
-    [ ! -e "/etc/nginx/sites-enabled/${1}" ] && sudo ln -s "/etc/nginx/sites-available/${1}" "/etc/nginx/sites-enabled/"
-
-    do_action_service "restart" "nginx"
+    if [ ! -e "/etc/nginx/sites-enabled/${interface}" ]; then
+      sudo ln -s "/etc/nginx/sites-available/${interface}" "/etc/nginx/sites-enabled/"
+    fi
+    sudo systemctl restart nginx.service
   fi
 }
 
 function read_listen_port(){
-  LISTEN_PORT=$(grep listen "/etc/nginx/sites-enabled/${1}" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+  local port interface=${1}
+  port=$(grep listen "/etc/nginx/sites-enabled/${interface}" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+  echo "${port}"
 }
 
 function detect_enabled_sites(){
-  #check if there is another UI config already installed
-  #and reads the port they are listening on
+  MAINSAIL_ENABLED="false" FLUIDD_ENABLED="false" OCTOPRINT_ENABLED="false"
+  #check if there is another UI config already installed and reads the port they are listening on
   if [ -e "/etc/nginx/sites-enabled/mainsail" ]; then
     SITE_ENABLED="true" && MAINSAIL_ENABLED="true"
-    read_listen_port "mainsail"
-    MAINSAIL_PORT=${LISTEN_PORT}
-    #echo "debug: Mainsail listens on port: $MAINSAIL_PORT"
-  else
-    MAINSAIL_ENABLED="false"
+    MAINSAIL_PORT=$(read_listen_port "mainsail")
   fi
-  if [ -e /etc/nginx/sites-enabled/fluidd ]; then
+  if [ -e "/etc/nginx/sites-enabled/fluidd" ]; then
     SITE_ENABLED="true" && FLUIDD_ENABLED="true"
-    read_listen_port "fluidd"
-    FLUIDD_PORT=${LISTEN_PORT}
-    #echo "debug: Fluidd listens on port: $FLUIDD_PORT"
-  else
-    FLUIDD_ENABLED="false"
+    FLUIDD_PORT=$(read_listen_port "fluidd")
+
   fi
-  if [ -e /etc/nginx/sites-enabled/octoprint ]; then
+  if [ -e "/etc/nginx/sites-enabled/octoprint" ]; then
     SITE_ENABLED="true" && OCTOPRINT_ENABLED="true"
-    read_listen_port "octoprint"
-    OCTOPRINT_PORT=${LISTEN_PORT}
-    #echo "debug: OctoPrint listens on port: $OCTOPRINT_PORT"
-  else
-    OCTOPRINT_ENABLED="false"
+    OCTOPRINT_PORT=$(read_listen_port "octoprint")
   fi
 }
