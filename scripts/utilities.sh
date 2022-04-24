@@ -92,17 +92,17 @@ function init_logfile() {
 
 function log_info() {
   local message="${1}" log="${LOGFILE}"
-  echo -e "$(timestamp) <INFO> ${message}" | tr -s " " >> "${log}"
+  echo -e "$(timestamp) [INFO]: ${message}" | tr -s " " >> "${log}"
 }
 
 function log_warning() {
   local message="${1}" log="${LOGFILE}"
-  echo -e "$(timestamp) <WARN> ${message}" | tr -s " " >> "${log}"
+  echo -e "$(timestamp) [WARN]: ${message}" | tr -s " " >> "${log}"
 }
 
 function log_error() {
   local message="${1}" log="${LOGFILE}"
-  echo -e "$(timestamp) <ERR> ${message}" | tr -s " " >> "${log}"
+  echo -e "$(timestamp) [ERR]: ${message}" | tr -s " " >> "${log}"
 }
 
 #================================================#
