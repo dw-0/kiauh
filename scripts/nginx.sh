@@ -11,11 +11,6 @@
 
 set -e
 
-### global variables
-NGINX_SA="/etc/nginx/sites-available"
-NGINX_SE="/etc/nginx/sites-enabled"
-NGINX_CONFD="/etc/nginx/conf.d"
-
 #===================================================#
 #=================== REMOVE NGINX ==================#
 #===================================================#
