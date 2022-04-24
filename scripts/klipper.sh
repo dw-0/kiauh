@@ -349,7 +349,6 @@ function update_klipper(){
     ### install possible new python dependencies
     /bin/bash "${KLIPPY_ENV}/bin/pip" install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
-  update_log_paths "klipper"
   ok_msg "Update complete!"
   do_action_service "restart" "klipper"
 }
