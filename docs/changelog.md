@@ -19,6 +19,9 @@ KIAUH has now reached major version 4 !
 * refactor: Rewriting a lot of functions to pass shellcheck checks
 * refactor: The update manager sections for Mainsail, Fluidd and KlipperScreen were removed from the moonraker.conf template
   * They will now be individually added during installation of the corresponding interface
+* refactor: The rollback function was reworked and now also allows rollbacks of Moonraker
+  * It now takes numerical inputs and reverts the corresponding repository by the given amount instead
+  * KIAUH does not save previous states to its config anymore like it did with the previous approach
 
 
 ### 2022-01-29
