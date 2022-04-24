@@ -64,4 +64,9 @@ function set_globals(){
   #=============== PRETTY-GCODE =================#
   PGC_DIR="${HOME}/pgcode"
   PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
+
+  #================== NGINX =====================#
+  NGINX_SA="/etc/nginx/sites-available"
+  NGINX_SE="/etc/nginx/sites-enabled"
+  NGINX_CONFD="/etc/nginx/conf.d"
 }
