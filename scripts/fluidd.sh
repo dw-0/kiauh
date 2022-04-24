@@ -22,7 +22,7 @@ function install_fluidd(){
     print_error "${error}" && return
   fi
   ### checking dependencies
-  local dep=(nginx)
+  local dep=(wget nginx)
   dependency_check "${dep[@]}"
   ### check if moonraker is already installed
   system_check_webui

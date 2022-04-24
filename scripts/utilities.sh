@@ -116,7 +116,7 @@ function read_kiauh_ini(){
     log_error "Reading from .kiauh.ini failed! File not found!"
     return 1
   fi
-  log_info "${func}: reading from .kiauh.ini"
+  log_info "Reading from .kiauh.ini ... (${func})"
   source "${INI_FILE}"
 }
 
@@ -411,11 +411,6 @@ function dependency_check(){
 }
 
 function system_check_webui(){
-  ### check system for an installed and enabled octoprint service
-  if sudo systemctl list-unit-files | grep -E "octoprint.*" | grep "enabled" &>/dev/null; then
-    OCTOPRINT_ENABLED="true"
-  fi
-
   ### check system for an installed haproxy service
   if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
     HAPROXY_FOUND="true"
@@ -433,13 +428,12 @@ function system_check_webui(){
 }
 
 function fetch_webui_ports(){
-  ### read listen ports from possible installed interfaces
-  ### and write them to ~/.kiauh.ini
-  WEBIFS=(mainsail fluidd octoprint)
-  for interface in "${WEBIFS[@]}"; do
+  ### read ports from possible installed interfaces and write them to ~/.kiauh.ini
+  local interfaces=("mainsail" "fluidd" "octoprint")
+  for interface in "${interfaces[@]}"; do
     if [ -f "/etc/nginx/sites-available/${interface}" ]; then
       port=$(grep -E "listen" "/etc/nginx/sites-available/${interface}" | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)
-      if [ ! -n "$(grep -E "${interface}_port" "${INI_FILE}")" ]; then
+      if ! grep -Eq "${interface}_port" "${INI_FILE}"; then
         sed -i '$a'"${interface}_port=${port}" "${INI_FILE}"
       else
         sed -i "/^${interface}_port/d" "${INI_FILE}"
@@ -481,10 +475,10 @@ function update_system(){
 function check_usergroups(){
   local group_dialout group_tty
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
-    group_dialout=false
+    group_dialout="false"
   fi
   if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
-    group_tty=false
+    group_tty="false"
   fi
   if [ "${group_dialout}" == "false" ] || [ "${group_tty}" == "false" ] ; then
     top_border
