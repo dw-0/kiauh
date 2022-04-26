@@ -244,7 +244,7 @@ function update_fluidd(){
 #================== FLUIDD STATUS ==================#
 #===================================================#
 
-function fluidd_status(){
+function get_fluidd_status(){
   local status
   local data_arr=("${FLUIDD_DIR}" "${NGINX_SA}/fluidd" "${NGINX_SE}/fluidd")
 
@@ -254,12 +254,12 @@ function fluidd_status(){
     [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
 
-  if [ "${filecount}" == "${#data_arr[*]}" ]; then
-    status="${green}Installed!${white}      "
-  elif [ "${filecount}" == 0 ]; then
-    status="${red}Not installed!${white}  "
+  if (( filecount == ${#data_arr[*]})); then
+    status="Installed!"
+  elif ((filecount == 0)); then
+    status="Not installed!"
   else
-    status="${yellow}Incomplete!${white}     "
+    status="Incomplete!"
   fi
   echo "${status}"
 }

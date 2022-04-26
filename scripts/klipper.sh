@@ -376,12 +376,12 @@ function get_klipper_status(){
     [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
 
-  if [ "${filecount}" == "${#data_arr[*]}" ]; then
-    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
-  elif [ "${filecount}" == 0 ]; then
-    status="${red}Not installed!${white}  "
+  if (( filecount == ${#data_arr[*]})); then
+    status="Installed: ${sf_count}"
+  elif ((filecount == 0)); then
+    status="Not installed!"
   else
-    status="${yellow}Incomplete!${white}     "
+    status="Incomplete!"
   fi
   echo "${status}"
 }

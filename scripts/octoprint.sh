@@ -278,18 +278,18 @@ function remove_octoprint(){
 #=============== OCTOPRINT STATUS ================#
 #=================================================#
 
-function octoprint_status(){
+function get_octoprint_status(){
   local sf_count env_count dir_count status
   sf_count="$(octoprint_systemd | wc -w)"
   env_count=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[^0])?[0-9]*" | wc -w)
   dir_count=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/.octoprint(_[^0])?[0-9]*" | wc -w)
 
   if (( sf_count == 0 )) && (( env_count == 0 )) && (( dir_count == 0 )); then
-    status="${red}Not installed!${white}  "
+    status="Not installed!"
   elif (( sf_count == env_count)) && (( sf_count == dir_count)); then
-    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
+    status="Installed: ${sf_count}"
   else
-    status="${yellow}Incomplete!${white}     "
+    status="Incomplete!"
   fi
   echo "${status}"
 }

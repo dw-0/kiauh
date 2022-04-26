@@ -123,7 +123,7 @@ function update_klipperscreen(){
 #=============== KLIPPERSCREEN STATUS ==============#
 #===================================================#
 
-function klipperscreen_status(){
+function get_klipperscreen_status(){
   local sf_count status
   sf_count="$(klipperscreen_systemd | wc -w)"
 
@@ -137,12 +137,12 @@ function klipperscreen_status(){
     [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
 
-  if [ "${filecount}" == "${#data_arr[*]}" ]; then
-    status="$(printf "${green}Installed: %-5s${white}" "${sf_count}")"
-  elif [ "${filecount}" == 0 ]; then
-    status="${red}Not installed!${white}  "
+  if (( filecount == ${#data_arr[*]})); then
+    status="Installed!"
+  elif ((filecount == 0)); then
+    status="Not installed!"
   else
-    status="${yellow}Incomplete!${white}     "
+    status="Incomplete!"
   fi
   echo "${status}"
 }
