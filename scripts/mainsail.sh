@@ -249,7 +249,7 @@ function update_mainsail(){
 #================= MAINSAIL STATUS =================#
 #===================================================#
 
-function mainsail_status(){
+function get_mainsail_status(){
   local status
   local data_arr=("${MAINSAIL_DIR}" "${NGINX_SA}/mainsail" "${NGINX_SE}/mainsail")
 
@@ -259,12 +259,12 @@ function mainsail_status(){
     [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
   done
 
-  if [ "${filecount}" == "${#data_arr[*]}" ]; then
-    status="${green}Installed!${white}      "
-  elif [ "${filecount}" == 0 ]; then
-    status="${red}Not installed!${white}  "
+  if (( filecount == ${#data_arr[*]})); then
+    status="Installed!"
+  elif ((filecount == 0)); then
+    status="Not installed!"
   else
-    status="${yellow}Incomplete!${white}     "
+    status="Incomplete!"
   fi
   echo "${status}"
 }
