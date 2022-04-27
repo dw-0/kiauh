@@ -67,8 +67,7 @@ function settings_ui() {
   printf  "|     %-70s|\n" "${custom_repo} (${custom_branch})"
   hr
   echo -e "| Install unstable releases:                            |"
-  printf  "|  Mainsail: %-55s|\n" "${ms_pre_rls}"
-  printf  "|    Fluidd: %-55s|\n" "${fl_pre_rls}"
+  printf  "|     Mainsail: %-29sFluidd: %-27s|\n" "${ms_pre_rls}" "${fl_pre_rls}"
   hr
   printf  "| Backup before updating: %-42s|\n" "${bbu}"
   hr
