@@ -70,7 +70,7 @@ function change_klipper_repo_menu(){
             esac
           done
         else
-          status_msg "Set custom Klipper repository to:\n       ● Repository URL: ${repos[${option}]}\n       ● Branch: ${branches[${option}]}"
+          status_msg "Set custom Klipper repository to:\n       ● Repository: ${repos[${option}]}\n       ● Branch: ${branches[${option}]}"
           set_custom_klipper_repo "${repos[${option}]}" "${branches[${option}]}"
           ok_msg "This repo will now be used for new Klipper installations!\n"
         fi
