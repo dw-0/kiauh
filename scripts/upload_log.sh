@@ -75,7 +75,7 @@ function upload_selection(){
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~~~ [ Log Upload ] ~~~~~~~~~~~~~~${white}     |"
   hr
-  echo -e "| You can choose the following files for uploading:     |"
+  echo -e "| You can choose the following logfiles for uploading:  |"
   blank_line
   for log in "${logfiles[@]}"; do
     log=${log//${HOME}/"~"}
@@ -86,7 +86,7 @@ function upload_selection(){
   blank_line
   back_footer
   while true; do
-    read -p "${cyan}Please select:${white} " option
+    read -p "${cyan}###### Please select:${white} " option
     if [ -n "${option}" ] && ((option < ${#logfiles[@]})); then
       upload_log "${logfiles[${option}]}"
       upload_selection
@@ -102,7 +102,7 @@ function upload_log(){
   local link
   clear && print_header
   status_msg "Uploading ${1} ..."
-  link=$(curl -s --upload-file "${1}" 'http://paste.c-net.org/')
+  link=$(curl -s -H "x-random;" --upload-file "${1}" 'http://paste.c-net.org/')
   if [ -n "${link}" ]; then
     ok_msg "${1} upload successfull!"
     echo -e "\n${cyan}###### Here is your link:${white}"
