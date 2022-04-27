@@ -87,7 +87,7 @@ function upload_selection(){
   back_footer
   while true; do
     read -p "${cyan}###### Please select:${white} " option
-    if [ -n "${option}" ] && ((option < ${#logfiles[@]})); then
+    if [[ -n "${option}" && "${option}" -ge 0 && "${option}" -lt "${#logfiles[@]}" ]]; then
       upload_log "${logfiles[${option}]}"
       upload_selection
     elif [[ "${option}" == "B" || "${option}" == "b" ]]; then
