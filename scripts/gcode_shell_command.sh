@@ -97,7 +97,7 @@ function create_example_shell_command() {
   backup_klipper_config_dir
 
   local printer_cfgs
-  printer_cfgs=$(find "$(get_klipper_cfg_dir)" -type f -name "printer.cfg")
+  printer_cfgs=$(find "$(get_klipper_cfg_dir)" -type f -name "printer.cfg" | sort)
   for cfg in ${printer_cfgs}; do
     path=$(echo "${cfg}" | rev | cut -d"/" -f2- | rev)
     if [ ! -f "${path}/shell_command.cfg" ]; then

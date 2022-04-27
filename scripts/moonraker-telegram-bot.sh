@@ -17,7 +17,7 @@ set -e
 
 function telegram_bot_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker-telegram-bot(-[^0])?[0-9]*.service")
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker-telegram-bot(-[^0])?[0-9]*.service" | sort)
   echo "${services}"
 }
 
