@@ -334,9 +334,9 @@ function toggle_backup_before_update(){
 
 function set_custom_klipper_repo() {
   read_kiauh_ini "${FUNCNAME[0]}"
-  local repo_url=${1} branch=${2}
+  local repo=${1} branch=${2}
   sed -i "/^custom_klipper_repo=/d" "${INI_FILE}"
-  sed -i '$a'"custom_klipper_repo=${repo_url}" "${INI_FILE}"
+  sed -i '$a'"custom_klipper_repo=${repo}" "${INI_FILE}"
   sed -i "/^custom_klipper_repo_branch=/d" "${INI_FILE}"
   sed -i '$a'"custom_klipper_repo_branch=${branch}" "${INI_FILE}"
 }
