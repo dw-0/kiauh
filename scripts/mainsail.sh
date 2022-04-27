@@ -125,7 +125,7 @@ function download_mainsail_macros(){
   log_info "executing: download_mainsail_macros"
   local ms_cfg="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mainsail/filesystem/home/pi/klipper_config/mainsail.cfg"
   local configs
-  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg")
+  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
   if [ -n "${configs}" ]; then
     ### create a backup of the config folder
     backup_klipper_config_dir
@@ -497,7 +497,7 @@ function enable_mainsail_remotemode(){
 
 function patch_mainsail_update_manager(){
   local moonraker_configs
-  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf")
+  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "[update_manager mainsail]" "${conf}"; then
       ### add new line to conf if it doesn't end with one

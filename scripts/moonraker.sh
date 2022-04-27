@@ -17,7 +17,7 @@ set -e
 
 function moonraker_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])?[0-9]*.service")
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])?[0-9]*.service" | sort)
   echo "${services}"
 }
 
@@ -316,7 +316,7 @@ function remove_moonraker_systemd() {
 
 function remove_moonraker_logs() {
   local files
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/moonraker(-[^0])?[0-9]*\.log(.*)?")
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/moonraker(-[^0])?[0-9]*\.log(.*)?" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."

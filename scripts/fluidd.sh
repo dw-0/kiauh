@@ -125,7 +125,7 @@ function download_fluidd_macros(){
   log_info "executing: download_fluidd_macros"
   local fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
   local configs
-  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg")
+  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
   if [ -n "${configs}" ]; then
     ### create a backup of the config folder
     backup_klipper_config_dir
@@ -375,7 +375,7 @@ function select_fluidd_port(){
 
 function patch_fluidd_update_manager(){
   local moonraker_configs
-  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf")
+  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "[update_manager fluidd]" "${conf}"; then
       ### add new line to conf if it doesn't end with one

@@ -281,7 +281,7 @@ function set_klipper_cfg_path(){
         fi
       fi
     done
-    moonraker_configs=$(find "${new_cfg_loc}" -type f -name "moonraker.conf")
+    moonraker_configs=$(find "${new_cfg_loc}" -type f -name "moonraker.conf" | sort)
     ### replace old file path with new one in moonraker.conf
     for conf in ${moonraker_configs}; do
       loc=$(echo "${conf}" | rev | cut -d"/" -f2- | rev)
@@ -347,7 +347,7 @@ function set_custom_klipper_repo() {
 
 function do_action_service(){
   local action=${1} service=${2}
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[^0])?[0-9]*.service")
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[^0])?[0-9]*.service" | sort)
   if [ -n "${services}" ]; then
     for service in ${services}; do
       service=$(echo "${service}" | rev | cut -d"/" -f1 | rev)

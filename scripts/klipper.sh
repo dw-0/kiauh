@@ -18,13 +18,13 @@ set -e
 ### check for existing klipper service installations
 function klipper_initd() {
   local services
-  services=$(find "${INITD}" -maxdepth 1 -regextype posix-extended -regex "${INITD}/klipper(-[^0])?[0-9]*")
+  services=$(find "${INITD}" -maxdepth 1 -regextype posix-extended -regex "${INITD}/klipper(-[^0])?[0-9]*" | sort)
   echo "${services}"
 }
 
 function klipper_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[^0])?[0-9]*.service")
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[^0])?[0-9]*.service" | sort)
   echo "${services}"
 }
 
@@ -271,7 +271,7 @@ function remove_klipper_systemd() {
 
 function remove_klipper_logs() {
   local files
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/klippy(-[^0])?[0-9]*\.log(.*)?")
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/klippy(-[^0])?[0-9]*\.log(.*)?" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -283,7 +283,7 @@ function remove_klipper_logs() {
 
 function remove_klipper_uds() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[^0])?[0-9]*")
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[^0])?[0-9]*" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -295,7 +295,7 @@ function remove_klipper_uds() {
 
 function remove_klipper_printer() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[^0])?[0-9]*")
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[^0])?[0-9]*" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."

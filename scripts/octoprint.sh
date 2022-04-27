@@ -17,7 +17,7 @@ set -e
 
 function octoprint_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/octoprint(-[^0])?[0-9]*.service")
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/octoprint(-[^0])?[0-9]*.service" | sort)
   echo "${services}"
 }
 
@@ -239,7 +239,7 @@ function remove_octoprint_sudoers(){
 
 function remove_octoprint_env(){
   local files
-  files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[^0])?[0-9]*")
+  files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[^0])?[0-9]*" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -251,7 +251,7 @@ function remove_octoprint_env(){
 
 function remove_octoprint_dir(){
   local files
-  files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/.octoprint(_[^0])?[0-9]*")
+  files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/.octoprint(_[^0])?[0-9]*" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
