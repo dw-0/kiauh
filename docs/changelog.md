@@ -6,6 +6,7 @@ This document covers possible important changes to KIAUH.
 KIAUH has now reached major version 4 !
 * feat: Klipper can be installed under Python3 (consideres experimental)
 * feat: Klipper can be installed from custom repositories
+* feat: Custom instance name for multi instance installations of Klipper
 * feat: Option to only allow installation of stable builds of Mainsail and Fluidd
 * feat: Multi-Instance OctoPrint installations now each have their own virtual python environment
   * allows independent installation of Plugins for each instance

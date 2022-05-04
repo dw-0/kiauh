@@ -347,7 +347,7 @@ function set_custom_klipper_repo() {
 
 function do_action_service(){
   local action=${1} service=${2}
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[^0])?[0-9]*.service" | sort)
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[0-9a-zA-Z]+)?.service" | sort)
   if [ -n "${services}" ]; then
     for service in ${services}; do
       service=$(echo "${service}" | rev | cut -d"/" -f1 | rev)

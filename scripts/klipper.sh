@@ -24,7 +24,7 @@ function klipper_initd() {
 
 function klipper_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[^0])?[0-9]*.service" | sort)
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service" | sort)
   echo "${services}"
 }
 
@@ -36,7 +36,9 @@ function klipper_exists() {
 }
 
 function klipper_setup_dialog(){
-  local python_version="${1}"
+  local python_version="${1}" user_input=()
+  user_input+=("${python_version}")
+
   status_msg "Initializing Klipper installation ..."
 
   ### return early if klipper already exists
@@ -61,32 +63,86 @@ function klipper_setup_dialog(){
   echo -e "| ${yellow}Setting up too many instances may crash your system.${white}  |"
   bottom_border
 
-  local count
-  while [[ ! (${count} =~ ^[1-9]+((0)+)?$) ]]; do
+  ### ask for amount of instances
+  local count re="^[1-9][0-9]*$"
+  while ! [[ ${count} =~ ${re} ]]; do
     read -p "${cyan}###### Number of Klipper instances to set up:${white} " count
-    if [[ ! (${count} =~ ^[1-9]+((0)+)?$) ]]; then
-      error_msg "Invalid input!\n"
+    if ! [[ ${count} =~ ${re} ]]; then
+      error_msg "Invalid input!"
     else
-      echo
-      while true; do
-        read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${white} " yn
-        case "${yn}" in
-          Y|y|Yes|yes|"")
-            select_msg "Yes"
-            ((count == 1)) && status_msg "Installing single Klipper instance ..."
-            ((count > 1)) && status_msg "Installing ${count} Klipper instances ..."
-            klipper_setup "${count}" "${python_version}"
-            break;;
-          N|n|No|no)
-            select_msg "No"
-            abort_msg "Exiting Klipper setup ...\n"
-            break;;
-          *)
-            error_msg "Invalid Input!";;
-        esac
-      done
+      select_msg "${count}"
+      user_input+=("${count}")
+      break
     fi
   done
+
+  ### confirm instance amount
+  while true; do
+    read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        abort_msg "Exiting Klipper setup ...\n"
+        return;;
+      *)
+        error_msg "Invalid Input!";;
+    esac
+  done
+
+  ### ask for custom names
+  if (( count > 1 )); then
+    local custom_names="false"
+    top_border
+    echo -e "| You can now give each instance a custom name or skip. |"
+    echo -e "| If skipped, KIAUH will automatically assign an index  |"
+    echo -e "| to each instance in ascending order, starting at '1'. |"
+    blank_line
+    echo -e "| Info:                                                 |"
+    echo -e "| Only alphanumeric characters will be allowed.         |"
+    bottom_border
+    while true; do
+      read -p "${cyan}###### Use custom names? (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          custom_names="true"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          break;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
+
+    ### get user input for custom names
+    if [[ "${custom_names}" == "true" ]]; then
+      local i=1
+      while [[ "${i}" -le "${count}" ]]; do
+        local name="" re="^[0-9a-zA-Z]+$"
+        while ! [[ ${name} =~ ${re} ]]; do
+          read -p "${cyan}###### Name for instance #${i}:${white} " name
+          if [[ ${name} =~ ${re} ]]; then
+            select_msg "Name: ${name}"
+            user_input+=("${name}")
+            break
+          else
+            error_msg "Invalid Input!"
+          fi
+        done
+        i=$(( i + 1 ))
+      done
+    fi
+  fi
+
+
+  ((count > 1)) && status_msg "Installing ${count} Klipper instances ..."
+  ((count == 1)) && status_msg "Installing single Klipper instance ..."
+
+  klipper_setup "${user_input[@]}"
 }
 
 function install_klipper_packages(){
@@ -135,9 +191,12 @@ function create_klipper_virtualenv(){
 
 function klipper_setup(){
   read_kiauh_ini "${FUNCNAME[0]}"
+  ### index 0: python version, index 1: instance count, index 2-n: instance names (optional)
+  local user_input=("${@}")
+  local python_version="${user_input[0]}" && unset "user_input[0]"
+  local instance_arr=("${user_input[@]}") && unset "user_input[@]"
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
-  local instances=${1} python_version=${2}
   ### checking dependencies
   local dep=(git)
   dependency_check "${dep[@]}"
@@ -152,7 +211,7 @@ function klipper_setup(){
     local repo_name
     repo_name=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//" )
     status_msg "Downloading Klipper from ${repo_name} ..."
-    cd "${HOME}" && git clone "${custom_repo}" "klipper"
+    cd "${HOME}" && git clone "https://github.com/${custom_repo}" "klipper"
     cd "${KLIPPER_DIR}" && git checkout "${custom_branch}"
     cd "${HOME}"
   fi
@@ -166,7 +225,7 @@ function klipper_setup(){
   [ ! -d "${HOME}/klipper_logs" ] && mkdir -p "${HOME}/klipper_logs"
 
   ### step 4: create klipper instances
-  create_klipper_service "${instances}"
+  create_klipper_service "${instance_arr[@]}"
 
   ### step 5: enable and start all instances
   do_action_service "enable" "klipper"
@@ -176,11 +235,9 @@ function klipper_setup(){
   check_usergroups
 
   ### confirm message
-  if [[ ${instances} -eq 1 ]]; then
-    local confirm="Klipper has been set up!"
-  elif [[ ${instances} -gt 1 ]]; then
-    local confirm="${instances} Klipper instances have been set up!"
-  fi
+  local confirm=""
+  (( instance_arr[0] == 1)) && confirm="Klipper has been set up!"
+  (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Klipper instances have been set up!"
   print_confirm "${confirm}" && return
 }
 
@@ -208,8 +265,11 @@ function write_klipper_service(){
 }
 
 function create_klipper_service(){
-  local instances=${1}
-  if [ "${instances}" -eq 1 ]; then
+  local input=("${@}")
+  local instances=${input[0]} && unset "input[0]"
+  local names=("${input[@]}") && unset "input[@]"
+  local cfg_dir cfg log printer uds service
+  if (( instances == 1 )); then
     local i=""
     local cfg_dir="${KLIPPER_CONFIG}"
     local cfg="${cfg_dir}/printer.cfg"
@@ -220,20 +280,33 @@ function create_klipper_service(){
     ### write single instance service
     write_klipper_service "${i}" "${cfg_dir}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
     ok_msg "Single Klipper instance created!"
-  elif [ "${instances}" -gt 1 ]; then
-    local i=1
-    while [ "${i}" -le "${instances}" ]; do
-      local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
-      local cfg="${cfg_dir}/printer.cfg"
-      local log="${HOME}/klipper_logs/klippy-${i}.log"
-      local printer="/tmp/printer-${i}"
-      local uds="/tmp/klippy_uds-${i}"
-      local service="${SYSTEMD}/klipper-${i}.service"
-      ### write multi instance service
-      write_klipper_service "${i}" "${cfg_dir}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
-      ok_msg "Klipper instance #${i} created!"
+  elif (( instances > 1 )); then
+    local i=1 j=0 cfg_dir cfg log printer uds service
+    while (( i <= instances )); do
+      if [[ ${#names[@]} -eq 0 ]]; then
+        cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
+        cfg="${cfg_dir}/printer.cfg"
+        log="${HOME}/klipper_logs/klippy-${i}.log"
+        printer="/tmp/printer-${i}"
+        uds="/tmp/klippy_uds-${i}"
+        service="${SYSTEMD}/klipper-${i}.service"
+        ### write multi instance service
+        write_klipper_service "${i}" "${cfg_dir}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
+        ok_msg "Klipper instance #${i} created!"
+      else
+        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+        cfg="${cfg_dir}/printer.cfg"
+        log="${HOME}/klipper_logs/klippy-${names[${j}]}.log"
+        printer="/tmp/printer-${names[${j}]}"
+        uds="/tmp/klippy_uds-${names[${j}]}"
+        service="${SYSTEMD}/klipper-${names[${j}]}.service"
+        ### write multi instance service
+        write_klipper_service "${i}(${names[${j}]})" "${cfg_dir}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
+        ok_msg "Klipper instance #${i}(${names[${j}]}) created!"
+      fi
       i=$((i+1))
-    done && unset i
+      j=$((j+1))
+    done && unset i j
   else
     return 1
   fi
@@ -271,7 +344,7 @@ function remove_klipper_systemd() {
 
 function remove_klipper_logs() {
   local files
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/klippy(-[^0])?[0-9]*\.log(.*)?" | sort)
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/klippy(-[0-9a-zA-Z]+)?*\.log(.*)?" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -283,7 +356,7 @@ function remove_klipper_logs() {
 
 function remove_klipper_uds() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[^0])?[0-9]*" | sort)
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -295,7 +368,7 @@ function remove_klipper_uds() {
 
 function remove_klipper_printer() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[^0])?[0-9]*" | sort)
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[0-9a-zA-Z]+)?" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
