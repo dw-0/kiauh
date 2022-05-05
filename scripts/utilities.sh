@@ -590,7 +590,7 @@ function set_hostname(){
   if [ -f /etc/hosts ]; then
     current_date=$(get_date)
     status_msg "Creating backup of hosts file ..."
-    sudo cp "/etc/hosts /etc/hosts.${current_date}.bak"
+    sudo cp "/etc/hosts" "/etc/hosts.${current_date}.bak"
     ok_msg "Backup done!"
     ok_msg "File:'/etc/hosts.${current_date}.bak'"
   else
