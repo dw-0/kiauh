@@ -272,7 +272,9 @@ function build_fw(){
     local dep=(build-essential dpkg-dev make)
     dependency_check "${dep[@]}"
 
-    make clean && make menuconfig
+    make clean
+    [ "${python_version}" == "3" ] && make PYTHON=python3 menuconfig
+    [ "${python_version}" == "2" ] && make menuconfig
 
     status_msg "Building firmware ..."
     python_version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
