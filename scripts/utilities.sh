@@ -608,3 +608,13 @@ function set_hostname(){
   ok_msg "New hostname successfully configured!"
   ok_msg "Remember to reboot for the changes to take effect!"
 }
+
+function get_instance_name() {
+  ### this function takes in the full path of a systemd service file and returns
+  ### either the instance index or the custom name
+  ### input: /etc/systemd/system/klipper-name.service
+  ### returns: name
+  local instance=${1} name
+  name=$(echo "${instance}" | rev | cut -d"/" -f1 | rev | cut -d"-" -f2 | cut -d"." -f1)
+  echo "${name}"
+}

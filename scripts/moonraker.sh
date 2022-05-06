@@ -17,72 +17,104 @@ set -e
 
 function moonraker_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[^0])?[0-9]*.service" | sort)
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[0-9a-zA-Z]+)?.service" | sort)
   echo "${services}"
 }
 
 function moonraker_setup_dialog(){
   status_msg "Initializing Moonraker installation ..."
 
-  ### return early if moonraker already exists
-  if [ -n "$(moonraker_systemd)" ]; then
-    local error="At least one Moonraker service is already installed:"
-    for service in $(moonraker_systemd); do
-      error="${error}\n ➔ ${service}"
-    done
-    print_error "${error}" && return
-  fi
-
   ### return early if python version check fails
-  if [ "$(python3_check)" == "false" ]; then
+  if [[ "$(python3_check)" == "false" ]]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
     error="${error} Please upgrade Python."
     print_error "${error}" && return
   fi
 
-  local klipper_count
-  klipper_count=$(klipper_systemd | wc -w)
-  top_border
-  if [ -f "${INITD}/klipper" ] || [ -f "${SYSTEMD}/klipper.service" ]; then
-    printf "|${green}%-55s${white}|\n" " 1 Klipper instance was found!"
-  elif [ "${klipper_count}" -gt 1 ]; then
-    printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances were found!"
-  else
-    echo -e "| ${yellow}INFO: No existing Klipper installation found!${white}         |"
+  ### return early if moonraker already exists
+  local moonraker_services
+  moonraker_services=$(moonraker_systemd)
+  if [[ -n "${moonraker_services}" ]]; then
+    local error="At least one Moonraker service is already installed:"
+    for s in ${moonraker_services}; do
+      log_info "Found Moonraker service: ${s}"
+      error="${error}\n ➔ ${s}"
+    done
+    print_error "${error}" && return
   fi
-  echo -e "| Usually you need one Moonraker instance per Klipper   |"
-  echo -e "| instance. Though you can install as many as you wish. |"
+
+  ### return early if klipper is not installed
+  local klipper_services
+  klipper_services=$(klipper_systemd)
+  if [[ -z "${klipper_services}" ]]; then
+    local error="Klipper not installed! Please install Klipper first!"
+    log_error "Moonraker setup started without Klipper being installed. Aborting setup."
+    print_error "${error}" && return
+  fi
+
+  local klipper_count user_input=() klipper_names=()
+  klipper_count=$(echo "${klipper_services}" | wc -w )
+  for service in ${klipper_services}; do
+    klipper_names+=( "$(get_instance_name "${service}")" )
+  done
+
+  top_border
+  echo -e "| Klipper instances with the following names were found:|"
+  if (( klipper_count > 1 )); then
+    for name in "${klipper_names[@]}"; do
+      printf "|${cyan}%-57s${white}|\n" " ● ${name}"
+    done
+    blank_line
+    echo -e "| The setup will apply the same names to Moonraker!     |"
+  fi
+  blank_line
+  echo -e "| Please select the number of Moonraker instances to    |"
+  echo -e "| set up. Usually you need one Moonraker instance per   |"
+  echo -e "| Klipper instance.                                     |"
   bottom_border
 
-  local count
-  while [[ ! (${count} =~ ^[1-9]+((0)+)?$) ]]; do
-    read -p "${cyan}###### Number of Moonraker instances to set up:${white} " count
-    if [[ ! (${count} =~ ^[1-9]+((0)+)?$) ]]; then
-      error_msg "Invalid Input!\n"
-    else
-      echo
-      while true; do
-        read -p "${cyan}###### Install ${count} instance(s)? (Y/n):${white} " yn
-        case "${yn}" in
-          Y|y|Yes|yes|"")
-            select_msg "Yes"
-            ((count == 1)) && status_msg "Installing single Moonraker instance ..."
-            ((count > 1)) && status_msg "Installing ${count} Moonraker instances ..."
-            moonraker_setup "${count}"
-            break;;
-          N|n|No|no)
-            select_msg "No"
-            error_msg "Exiting Moonraker setup ...\n"
-            break;;
-          *)
-            error_msg "Invalid Input!\n";;
-        esac
-      done
-    fi
+  ### ask for amount of instances
+  local moonraker_count re="^[1-9][0-9]*$"
+  while ! [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]]; do
+    read -p "${cyan}###### Number of Moonraker instances to set up:${white} " -i "${klipper_count}" -e moonraker_count
+    ### break if input is valid
+    [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]] && break
+    ### conditional error messages
+    error_msg "Invalid input:"
+    ! [[ ${moonraker_count} =~ ${re} ]] && error_msg "● Input not a number"
+    ((moonraker_count > klipper_count)) && error_msg "● Number of Moonraker instances larger than existing Klipper instances"
+  done && select_msg "${moonraker_count}"
+  user_input+=("${moonraker_count}")
+
+  ### confirm instance amount
+  while true; do
+    read -p "${cyan}###### Install ${moonraker_count} instance(s)? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        abort_msg "Exiting Moonraker setup ...\n"
+        return;;
+      *)
+        error_msg "Invalid Input!";;
+    esac
   done
+
+  ### write existing klipper names into user_input array to use them as names for moonraker
+  if (( klipper_count > 1 )); then
+    for name in "${klipper_names[@]}"; do
+      user_input+=("${name}")
+    done
+  fi
+
+  ((moonraker_count > 1)) && status_msg "Installing ${moonraker_count} Moonraker instances ..."
+  ((moonraker_count == 1)) && status_msg "Installing Moonraker ..."
+  moonraker_setup "${user_input[@]}"
 }
 
-function install_moonraker_packages(){
+function install_moonraker_dependencies(){
   local packages
   local install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
 
@@ -112,7 +144,7 @@ function create_moonraker_virtualenv(){
 }
 
 function moonraker_setup(){
-  local confirm_msg instances=${1}
+  local instance_arr=("${@}")
   ### checking dependencies
   local dep=(git wget curl unzip dfu-util virtualenv)
   ### additional required dependencies on armbian
@@ -127,14 +159,14 @@ function moonraker_setup(){
 
   ### step 2: install moonraker dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
-  install_moonraker_packages
+  install_moonraker_dependencies
   create_moonraker_virtualenv
 
   ### step 3: create moonraker.conf
-  create_moonraker_conf "${instances}"
+  create_moonraker_conf "${instance_arr[@]}"
 
   ### step 4: create moonraker instances
-  create_moonraker_service "${instances}"
+  create_moonraker_service "${instance_arr[@]}"
 
   ### step 5: create polkit rules for moonraker
   moonraker_polkit || true
@@ -144,36 +176,50 @@ function moonraker_setup(){
   do_action_service "start" "moonraker"
 
   ### confirm message
-  [ "${instances}" -eq 1 ] && confirm_msg="Moonraker has been set up!"
-  [ "${instances}" -gt 1 ] && confirm_msg="${instances} Moonraker instances have been set up!"
-  print_confirm "${confirm_msg}"
-  print_mr_ip_list "${instances}"
+  local confirm=""
+  (( instance_arr[0] == 1)) && confirm="Moonraker has been set up!"
+  (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Moonraker instances have been set up!"
+  print_confirm "${confirm}" && print_mr_ip_list "${instance_arr[0]}" && return
 }
 
 function create_moonraker_conf(){
-  local lan instances=${1} log="${HOME}/klipper_logs"
+  local input=("${@}")
+  local moonraker_count=${input[0]} && unset "input[0]"
+  local names=("${input[@]}") && unset "input[@]"
+  local log="${KLIPPER_LOGS}"
+  local lan
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
+  local port=7125 cfg_dir cfg db uds
 
-  if [ "${instances}" -eq 1 ]; then
-    local cfg_dir="${KLIPPER_CONFIG}"
-    local cfg="${cfg_dir}/moonraker.conf"
-    local port=7125
-    local db="${HOME}/.moonraker_database"
-    local uds="/tmp/klippy_uds"
+  if (( moonraker_count == 1 )); then
+    cfg_dir="${KLIPPER_CONFIG}"
+    cfg="${cfg_dir}/moonraker.conf"
+    db="${HOME}/.moonraker_database"
+    uds="/tmp/klippy_uds"
     ### write single instance config
     write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
-  elif [ "${instances}" -gt 1 ]; then
-    local i=1 port=7125
-    while [ "${i}" -le "${instances}" ]; do
-      local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
-      local cfg="${cfg_dir}/moonraker.conf"
-      local db="${HOME}/.moonraker_database_${i}"
-      local uds="/tmp/klippy_uds-${i}"
+
+  elif (( moonraker_count > 1 )); then
+    local j=0 re="^[1-9][0-9]*$"
+
+    for ((i=1; i <= moonraker_count; i++ )); do
+      ### overwrite config folder if name is only a number
+      if [[ ${names[j]} =~ ${re} ]]; then
+        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
+      else
+        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+      fi
+
+      cfg="${cfg_dir}/moonraker.conf"
+      uds="/tmp/klippy_uds-${names[${j}]}"
+      db="${HOME}/.moonraker_database_${names[${j}]}"
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
+      ok_msg "Moonraker config for instance #${i}(${names[${j}]}) created!"
       port=$((port+1))
-      i=$((i+1))
-    done
+      j=$((j+1))
+    done && unset j
+
   else
     return 1
   fi
@@ -203,35 +249,50 @@ function write_moonraker_conf(){
 }
 
 function create_moonraker_service(){
-  local instances=${1}
-  if [ "${instances}" -eq 1 ]; then
-    local i=""
-    local cfg_dir="${KLIPPER_CONFIG}"
-    local cfg="${cfg_dir}/moonraker.conf"
-    local log="${HOME}/klipper_logs/moonraker.log"
-    local service="${SYSTEMD}/moonraker.service"
+  local input=("${@}")
+  local instances=${input[0]} && unset "input[0]"
+  local names=("${input[@]}") && unset "input[@]"
+  local i j cfg_dir cfg log service
+  if (( instances == 1 )); then
+    i=""
+    cfg_dir="${KLIPPER_CONFIG}"
+    cfg="${cfg_dir}/moonraker.conf"
+    log="${HOME}/klipper_logs/moonraker.log"
+    service="${SYSTEMD}/moonraker.service"
     ### write single instance service
     write_moonraker_service "${i}" "${cfg_dir}" "${cfg}" "${log}" "${service}"
     ok_msg "Single Moonraker instance created!"
-  elif [ "${instances}" -gt 1 ]; then
-    local i=1
-    while [ "${i}" -le "${instances}" ]; do
-      local cfg_dir="${KLIPPER_CONFIG}/printer_${i}"
-      local cfg="${cfg_dir}/moonraker.conf"
-      local log="${HOME}/klipper_logs/moonraker-${i}.log"
-      local service="${SYSTEMD}/moonraker-${i}.service"
+
+  elif (( instances > 1 )); then
+    local i=1 j=0 re="^[1-9][0-9]*$"
+
+    while (( i <= instances )); do
+
+      ### overwrite config folder if name is only a number
+      if [[ ${names[j]} =~ ${re} ]]; then
+        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
+      else
+        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+      fi
+
+      cfg="${cfg_dir}/moonraker.conf"
+      log="${HOME}/klipper_logs/moonraker-${names[${j}]}.log"
+      service="${SYSTEMD}/moonraker-${names[${j}]}.service"
       ### write multi instance service
-      write_moonraker_service "${i}" "${cfg_dir}" "${cfg}" "${log}" "${service}"
-      ok_msg "Moonraker instance #${i} created!"
+      write_moonraker_service "${i}(${names[${j}]})" "${cfg_dir}" "${cfg}" "${log}" "${service}"
+      ok_msg "Moonraker instance #${i}(${names[${j}]}) created!"
       i=$((i+1))
+      j=$((j+1))
+
     done && unset i
+
     ### enable mainsails remoteMode if mainsail is found
-    if [ -d "${MAINSAIL_DIR}" ]; then
-      status_msg "Mainsail installation found!"
-      status_msg "Enabling Mainsail remoteMode ..."
+    if [[ -d "${MAINSAIL_DIR}" ]]; then
+      status_msg "Mainsail installation found! Enabling Mainsail remote mode ..."
       enable_mainsail_remotemode
-      ok_msg "Mainsails remoteMode enabled!"
+      ok_msg "Mainsails remote mode enabled!"
     fi
+
   else
     return 1
   fi
@@ -254,9 +315,9 @@ function write_moonraker_service(){
 }
 
 function print_mr_ip_list(){
-  local ip instances="${1}" i=1 port=7125
+  local ip count=${1} i=1 port=7125
   ip=$(hostname -I | cut -d" " -f1)
-  while [ "${i}" -le "${instances}" ] ; do
+  while (( i <= count )); do
     echo -e "   ${cyan}● Instance ${i}:${white} ${ip}:${port}"
     port=$((port+1))
     i=$((i+1))
@@ -316,7 +377,7 @@ function remove_moonraker_systemd() {
 
 function remove_moonraker_logs() {
   local files
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/moonraker(-[^0])?[0-9]*\.log(.*)?" | sort)
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/moonraker(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -399,7 +460,7 @@ function update_moonraker(){
     status_msg "Updating Moonraker ..."
     cd "${MOONRAKER_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies
-    install_moonraker_packages
+    install_moonraker_dependencies
     ### install possible new python dependencies
     "${MOONRAKER_ENV}"/bin/pip install -r "${MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
   fi
