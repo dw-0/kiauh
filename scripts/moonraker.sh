@@ -97,9 +97,9 @@ function moonraker_setup_dialog(){
 
   ### confirm instance amount
   while true; do
-    ((moonraker_count == 1)) && local ins="instance"
-    ((moonraker_count > 1)) && local ins="instances"
-    read -p "${cyan}###### Install ${moonraker_count} Moonraker ${ins}? (Y/n):${white} " yn
+    ((moonraker_count == 1)) && local question="Install Moonraker?"
+    ((moonraker_count > 1)) && local question="Install ${moonraker_count} Moonraker instances?"
+    read -p "${cyan}###### ${question}? (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
         select_msg "Yes"
