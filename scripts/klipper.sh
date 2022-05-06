@@ -67,14 +67,12 @@ function klipper_setup_dialog(){
   local klipper_count re="^[1-9][0-9]*$"
   while ! [[ ${klipper_count} =~ ${re} ]]; do
     read -p "${cyan}###### Number of Klipper instances to set up:${white} " -i "1" -e klipper_count
-    if ! [[ ${klipper_count} =~ ${re} ]]; then
-      error_msg "Invalid input!"
-    else
-      select_msg "${klipper_count}"
-      user_input+=("${klipper_count}")
-      break
-    fi
-  done
+    ### break if input is valid
+    [[ ${klipper_count} =~ ${re} ]] && break
+    error_msg "Invalid input:"
+    error_msg "● Input not a number"
+  done && select_msg "${klipper_count}"
+  user_input+=("${klipper_count}")
 
   ### confirm instance amount
   while true; do
