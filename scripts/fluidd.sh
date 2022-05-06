@@ -18,7 +18,7 @@ set -e
 function install_fluidd(){
   ### exit early if moonraker not found
   if [ -z "$(moonraker_systemd)" ]; then
-    local error="Moonraker service not found!\n Please install Moonraker first!"
+    local error="Moonraker not installed! Please install Moonraker first!"
     print_error "${error}" && return
   fi
   ### checking dependencies
