@@ -58,37 +58,48 @@ function moonraker_setup_dialog(){
     klipper_names+=( "$(get_instance_name "${service}")" )
   done
 
-  top_border
-  echo -e "| Klipper instances with the following names were found:|"
-  if (( klipper_count > 1 )); then
+  local moonraker_count
+  if (( klipper_count == 1 )); then
+    ok_msg "Klipper installation found!\n"
+    moonraker_count=1
+  elif (( klipper_count > 1 )); then
+    top_border
+    printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances found!"
     for name in "${klipper_names[@]}"; do
       printf "|${cyan}%-57s${white}|\n" " ● ${name}"
     done
     blank_line
     echo -e "| The setup will apply the same names to Moonraker!     |"
-  fi
-  blank_line
-  echo -e "| Please select the number of Moonraker instances to    |"
-  echo -e "| set up. Usually you need one Moonraker instance per   |"
-  echo -e "| Klipper instance.                                     |"
-  bottom_border
+    blank_line
+    echo -e "| Please select the number of Moonraker instances to    |"
+    echo -e "| install. Usually one Moonraker instance per Klipper   |"
+    echo -e "| instance is required but you may not install more     |"
+    echo -e "| Moonraker instances than available Klipper instances. |"
+    bottom_border
 
-  ### ask for amount of instances
-  local moonraker_count re="^[1-9][0-9]*$"
-  while ! [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]]; do
-    read -p "${cyan}###### Number of Moonraker instances to set up:${white} " -i "${klipper_count}" -e moonraker_count
-    ### break if input is valid
-    [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]] && break
-    ### conditional error messages
-    error_msg "Invalid input:"
-    ! [[ ${moonraker_count} =~ ${re} ]] && error_msg "● Input not a number"
-    ((moonraker_count > klipper_count)) && error_msg "● Number of Moonraker instances larger than existing Klipper instances"
-  done && select_msg "${moonraker_count}"
+    ### ask for amount of instances
+    local re="^[1-9][0-9]*$"
+    while ! [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]]; do
+      read -p "${cyan}###### Number of Moonraker instances to set up:${white} " -i "${klipper_count}" -e moonraker_count
+      ### break if input is valid
+      [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]] && break
+      ### conditional error messages
+      error_msg "Invalid input:"
+      ! [[ ${moonraker_count} =~ ${re} ]] && error_msg "● Input not a number"
+      ((moonraker_count > klipper_count)) && error_msg "● Number of Moonraker instances larger than existing Klipper instances"
+    done && select_msg "${moonraker_count}"
+  else
+    log_error "Internal error. klipper_count of '${klipper_count}' not equal or grather than one!"
+    return 1
+  fi
+
   user_input+=("${moonraker_count}")
 
   ### confirm instance amount
   while true; do
-    read -p "${cyan}###### Install ${moonraker_count} instance(s)? (Y/n):${white} " yn
+    ((moonraker_count == 1)) && local ins="instance"
+    ((moonraker_count > 1)) && local ins="instances"
+    read -p "${cyan}###### Install ${moonraker_count} Moonraker ${ins}? (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
         select_msg "Yes"
