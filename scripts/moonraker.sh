@@ -226,7 +226,6 @@ function create_moonraker_conf(){
       db="${HOME}/.moonraker_database_${names[${j}]}"
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
-      ok_msg "Moonraker config for instance #${i}(${names[${j}]}) created!"
       port=$((port+1))
       j=$((j+1))
     done && unset j
