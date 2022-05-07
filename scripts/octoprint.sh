@@ -134,32 +134,71 @@ function octoprint_setup(){
 }
 
 function install_octoprint(){
+
+  function install_octoprint_python_env() {
+    local tmp="${1}"
+    ### create and activate the virtualenv
+    status_msg "Installing python virtual environment..."
+
+    if ! [[ -d "${tmp}" ]]; then
+      mkdir -p "${tmp}"
+    else
+      error_msg "Cannot create temporary directory in ${HOME}!"
+      error_msg "Folder 'TMP_OCTO_ENV' exists and may not be empty!"
+      error_msg "Please remove/rename that folder and start again."
+      return 1
+    fi
+
+    cd "${tmp}" && virtualenv --python=python3 venv
+    ### activate virtualenv
+    source venv/bin/activate
+    pip install pip --upgrade
+    pip install --no-cache-dir octoprint
+    ### leave virtualenv
+    deactivate
+    cd "${HOME}"
+  }
+
   local input=("${@}")
   local octoprint_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
   local j=0 octo_env
+  local tmp="${HOME}/TMP_OCTO_ENV"
 
-  for ((i=1; i <= octoprint_count; i++ )); do
-    (( octoprint_count == 1 )) && octo_env="${HOME}/OctoPrint"
-    (( octoprint_count > 1 )) && octo_env="${HOME}/OctoPrint_${names[${j}]}"
+  ### handle single instance installs
+  if ((octoprint_count == 1)); then
+    if install_octoprint_python_env "${tmp}"; then
+      status_msg "Installing OctoPrint ..."
+      octo_env="${HOME}/OctoPrint"
+      ### rename the temporary directory to the correct name
+      [[ -d ${octo_env} ]] && rm -rf "${octo_env}"
+      mv "${tmp}" "${octo_env}"
+      ### replace the temporary directory name with the actual one in ${octo_env}/venv/bin/python/octoprint
+      sed -i "s|${tmp}|${octo_env}|" "${octo_env}/venv/bin/octoprint"
+    else
+      error_msg "OctoPrint installation failed!"
+      return 1
+    fi
+  fi
 
-    ### create and activate the virtualenv
-    status_msg "Installing python virtual environment..."
-    ! [[ -d "${octo_env}" ]] && mkdir -p "${octo_env}"
-    cd "${octo_env}" && virtualenv --python=python3 venv
-
-    ### activate virtualenv
-    source venv/bin/activate
-    (( octoprint_count == 1 )) && status_msg "Installing OctoPrint ..."
-    (( octoprint_count > 1 )) && status_msg "Installing OctoPrint instance ${i}(${names[${j}]}) ..."
-    pip install pip --upgrade
-    pip install --no-cache-dir octoprint
-    ok_msg "Ok!"
-
-    ### leave virtualenv
-    deactivate
-    j=$((j+1))
-  done
+  ### handle multi instance installs
+  if (( octoprint_count > 1 )); then
+    if install_octoprint_python_env "${tmp}"; then
+      for ((i=1; i <= octoprint_count; i++ )); do
+        status_msg "Installing OctoPrint instance ${i}(${names[${j}]}) ..."
+        octo_env="${HOME}/OctoPrint_${names[${j}]}"
+        ### rename the temporary directory to the correct name
+        [[ -d ${octo_env} ]] && rm -rf "${octo_env}"
+        cp -r "${tmp}" "${octo_env}"
+        ### replace the temporary directory name with the actual one in ${octo_env}/venv/bin/python/octoprint
+        sed -i "s|${tmp}|${octo_env}|" "${octo_env}/venv/bin/octoprint"
+        j=$((j+1))
+      done && rm -rf "${tmp}"
+    else
+      error_msg "OctoPrint installation failed!"
+      return 1
+    fi
+  fi
 }
 
 function create_octoprint_service(){
@@ -185,8 +224,8 @@ function create_octoprint_service(){
       config_yaml="${basedir}/config.yaml"
       restart_cmd="sudo service octoprint-${names[${j}]} restart"
     fi
-    (( octoprint_count == 1 )) && status_msg "Creating OctoPrint service ..."
-    (( octoprint_count > 1 )) && status_msg "Creating OctoPrint service ${i}(${names[${j}]}) ..."
+    (( octoprint_count == 1 )) && status_msg "Creating OctoPrint Service ..."
+    (( octoprint_count > 1 )) && status_msg "Creating OctoPrint Service ${i}(${names[${j}]}) ..."
     sudo /bin/sh -c "cat > ${service}" << OCTOPRINT
 [Unit]
 Description=Starts OctoPrint on startup
@@ -208,8 +247,8 @@ OCTOPRINT
     ok_msg "Ok!"
 
     ### create config.yaml
-    if ! [[ -f "${basedir}/config.yaml" ]]; then
-      ! [[ -d "${basedir}" ]] && mkdir "${basedir}"
+    if ! [[ -f ${basedir}/config.yaml ]]; then
+      ! [[ -d ${basedir} ]] && mkdir "${basedir}"
       (( octoprint_count == 1 )) && status_msg "Creating config.yaml ..."
       (( octoprint_count > 1 )) && status_msg "Creating config.yaml for instance ${i}(${names[${j}]}) ..."
       /bin/sh -c "cat > ${basedir}/config.yaml" << CONFIGYAML
