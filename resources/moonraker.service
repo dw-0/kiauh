@@ -1,7 +1,7 @@
 #Systemd Moonraker Service
 
 [Unit]
-Description=Starts Moonraker %INST% on startup
+Description=Systemd Moonraker Service for instance moonraker-%INST%
 Documentation=https://moonraker.readthedocs.io/
 After=network.target
 
