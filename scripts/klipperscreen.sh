@@ -48,7 +48,7 @@ function klipperscreen_setup(){
   cd "${HOME}" && git clone "${KLIPPERSCREEN_REPO}"
   ok_msg "Download complete!"
   status_msg "Installing KlipperScreen ..."
-  /bin/bash "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-install.sh"
+  "${KLIPPERSCREEN_DIR}"/scripts/KlipperScreen-install.sh
   ok_msg "KlipperScreen successfully installed!"
 }
 

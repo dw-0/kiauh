@@ -349,7 +349,7 @@ function moonraker_polkit(){
   done
   [ -z "${has_sup}" ] && echo "reloading services!!!" && sudo systemctl daemon-reload
   ### execute moonrakers policykit-rules script
-  /bin/bash "${HOME}/moonraker/scripts/set-policykit-rules.sh"
+  "${HOME}"/moonraker/scripts/set-policykit-rules.sh
 }
 
 #==================================================#
@@ -427,7 +427,7 @@ function remove_moonraker_env() {
 function remove_moonraker_polkit() {
   [ ! -d "${MOONRAKER_DIR}" ] && return
   status_msg "Removing all Moonraker PolicyKit rules ..."
-  /bin/bash "${MOONRAKER_DIR}/scripts/set-policykit-rules.sh" --clear
+  "${MOONRAKER_DIR}"/scripts/set-policykit-rules.sh --clear
   ok_msg "Done!"
 }
 

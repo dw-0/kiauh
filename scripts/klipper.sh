@@ -417,7 +417,7 @@ function update_klipper(){
     ### read PKGLIST and install possible new dependencies
     install_klipper_packages
     ### install possible new python dependencies
-    /bin/bash "${KLIPPY_ENV}/bin/pip" install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
+    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
   ok_msg "Update complete!"
   do_action_service "restart" "klipper"
