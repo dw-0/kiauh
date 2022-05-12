@@ -1,7 +1,7 @@
 #Systemd Klipper Service
 
 [Unit]
-Description=Starts Klipper instance %INST% on startup
+Description=Systemd Klipper Service for instance klipper-%INST%
 Documentation=https://www.klipper3d.org/
 After=network.target
 Wants=udev.target

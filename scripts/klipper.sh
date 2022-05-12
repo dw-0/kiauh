@@ -247,7 +247,7 @@ function write_klipper_service(){
   if [ ! -f "${service}" ]; then
     status_msg "Creating Klipper Service ${i} ..."
     sudo cp "${service_template}" "${service}"
-    [ -z "${i}" ] && sudo sed -i "s|instance %INST% ||" "${service}"
+    [ -z "${i}" ] && sudo sed -i "s| for instance klipper-%INST%||" "${service}"
     [ -n "${i}" ] && sudo sed -i "s|%INST%|${i}|" "${service}"
     sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${KLIPPY_ENV}|; s|%DIR%|${KLIPPER_DIR}|" "${service}"
     sudo sed -i "s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${service}"
@@ -269,7 +269,7 @@ function create_klipper_service(){
   local names=("${input[@]}") && unset "input[@]"
   local cfg_dir cfg log printer uds service
 
-  if (( klipper_count == 1 )); then
+  if (( klipper_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
     cfg_dir="${KLIPPER_CONFIG}"
     cfg="${cfg_dir}/printer.cfg"
     log="${KLIPPER_LOGS}/klippy.log"
@@ -279,9 +279,9 @@ function create_klipper_service(){
     ### write single instance service
     write_klipper_service "" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
     write_example_printer_cfg "${cfg_dir}" "${cfg}"
-    ok_msg "Single Klipper instance created!"
+    ok_msg "Klipper instance created!"
 
-  elif (( klipper_count > 1 )); then
+  elif (( klipper_count >= 1 )) && [[ ${#names[@]} -gt 0 ]]; then
     local j=0 re="^[1-9][0-9]*$"
 
     for ((i=1; i <= klipper_count; i++)); do
@@ -298,9 +298,9 @@ function create_klipper_service(){
       uds="/tmp/klippy_uds-${names[${j}]}"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
       ### write multi instance service
-      write_klipper_service "${i}(${names[${j}]})" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
+      write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
       write_example_printer_cfg "${cfg_dir}" "${cfg}"
-      ok_msg "Klipper instance #${i}(${names[${j}]}) created!"
+      ok_msg "Klipper instance 'klipper-${names[${j}]} created!"
       j=$((j+1))
     done && unset j
 
