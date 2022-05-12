@@ -66,7 +66,7 @@ function moonraker_setup_dialog(){
     top_border
     printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances found!"
     for name in "${klipper_names[@]}"; do
-      printf "|${cyan}%-57s${white}|\n" " ● ${name}"
+      printf "|${cyan}%-57s${white}|\n" " ● klipper-${name}"
     done
     blank_line
     echo -e "| The setup will apply the same names to Moonraker!     |"
@@ -260,24 +260,24 @@ function write_moonraker_conf(){
 
 function create_moonraker_service(){
   local input=("${@}")
-  local instances=${input[0]} && unset "input[0]"
+  local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local i j cfg_dir cfg log service
-  if (( instances == 1 )); then
+  local cfg_dir cfg log service
+
+  if (( moonraker_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
     i=""
     cfg_dir="${KLIPPER_CONFIG}"
     cfg="${cfg_dir}/moonraker.conf"
     log="${HOME}/klipper_logs/moonraker.log"
     service="${SYSTEMD}/moonraker.service"
     ### write single instance service
-    write_moonraker_service "${i}" "${cfg_dir}" "${cfg}" "${log}" "${service}"
-    ok_msg "Single Moonraker instance created!"
+    write_moonraker_service "" "${cfg_dir}" "${cfg}" "${log}" "${service}"
+    ok_msg "Moonraker instance created!"
 
-  elif (( instances > 1 )); then
-    local i=1 j=0 re="^[1-9][0-9]*$"
+  elif (( moonraker_count > 1 )) && [[ ${#names[@]} -gt 0 ]]; then
+    local j=0 re="^[1-9][0-9]*$"
 
-    while (( i <= instances )); do
-
+    for ((i=1; i <= moonraker_count; i++)); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
@@ -289,11 +289,9 @@ function create_moonraker_service(){
       log="${HOME}/klipper_logs/moonraker-${names[${j}]}.log"
       service="${SYSTEMD}/moonraker-${names[${j}]}.service"
       ### write multi instance service
-      write_moonraker_service "${i}(${names[${j}]})" "${cfg_dir}" "${cfg}" "${log}" "${service}"
-      ok_msg "Moonraker instance #${i}(${names[${j}]}) created!"
-      i=$((i+1))
+      write_moonraker_service "${names[${j}]}" "${cfg_dir}" "${cfg}" "${log}" "${service}"
+      ok_msg "Moonraker instance 'moonraker-${names[${j}]}' created!"
       j=$((j+1))
-
     done && unset i
 
     ### enable mainsails remoteMode if mainsail is found
@@ -317,7 +315,7 @@ function write_moonraker_service(){
     status_msg "Creating Moonraker Service ${i} ..."
       sudo cp "${service_template}" "${service}"
 
-      [ -z "${i}" ] && sudo sed -i "s|instance %INST% ||" "${service}"
+      [ -z "${i}" ] && sudo sed -i "s| for instance moonraker-%INST%||" "${service}"
       [ -n "${i}" ] && sudo sed -i "s|%INST%|${i}|" "${service}"
       sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
       sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
