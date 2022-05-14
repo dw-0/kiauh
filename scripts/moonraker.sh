@@ -25,7 +25,7 @@ function moonraker_setup_dialog(){
   status_msg "Initializing Moonraker installation ..."
 
   ### return early if python version check fails
-  if [[ "$(python3_check)" == "false" ]]; then
+  if [[ $(python3_check) == "false" ]]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
     error="${error} Please upgrade Python."
     print_error "${error}" && return
@@ -34,7 +34,7 @@ function moonraker_setup_dialog(){
   ### return early if moonraker already exists
   local moonraker_services
   moonraker_services=$(moonraker_systemd)
-  if [[ -n "${moonraker_services}" ]]; then
+  if [[ -n ${moonraker_services} ]]; then
     local error="At least one Moonraker service is already installed:"
     for s in ${moonraker_services}; do
       log_info "Found Moonraker service: ${s}"
@@ -46,7 +46,7 @@ function moonraker_setup_dialog(){
   ### return early if klipper is not installed
   local klipper_services
   klipper_services=$(klipper_systemd)
-  if [[ -z "${klipper_services}" ]]; then
+  if [[ -z ${klipper_services} ]]; then
     local error="Klipper not installed! Please install Klipper first!"
     log_error "Moonraker setup started without Klipper being installed. Aborting setup."
     print_error "${error}" && return
@@ -95,9 +95,10 @@ function moonraker_setup_dialog(){
   user_input+=("${moonraker_count}")
 
   ### confirm instance amount
+  local yn
   while true; do
-    ((moonraker_count == 1)) && local question="Install Moonraker?"
-    ((moonraker_count > 1)) && local question="Install ${moonraker_count} Moonraker instances?"
+    (( moonraker_count == 1 )) && local question="Install Moonraker?"
+    (( moonraker_count > 1 )) && local question="Install ${moonraker_count} Moonraker instances?"
     read -p "${cyan}###### ${question} (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
@@ -119,8 +120,8 @@ function moonraker_setup_dialog(){
     done
   fi
 
-  ((moonraker_count > 1)) && status_msg "Installing ${moonraker_count} Moonraker instances ..."
-  ((moonraker_count == 1)) && status_msg "Installing Moonraker ..."
+  (( moonraker_count > 1 )) && status_msg "Installing ${moonraker_count} Moonraker instances ..."
+  (( moonraker_count == 1 )) && status_msg "Installing Moonraker ..."
   moonraker_setup "${user_input[@]}"
 }
 
@@ -128,7 +129,7 @@ function install_moonraker_dependencies(){
   local packages
   local install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
 
-  ### read PKGLIST from official install script
+  ### read PKGLIST from official install-script
   status_msg "Reading dependencies..."
   # shellcheck disable=SC2016
   packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
@@ -166,7 +167,7 @@ function moonraker_setup(){
   ### step 1: clone moonraker
   status_msg "Downloading Moonraker ..."
   ### force remove existing moonraker dir and clone into fresh moonraker dir
-  [ -d "${MOONRAKER_DIR}" ] && rm -rf "${MOONRAKER_DIR}"
+  [[ -d ${MOONRAKER_DIR} ]] && rm -rf "${MOONRAKER_DIR}"
   cd "${HOME}" && git clone "${MOONRAKER_REPO}"
 
   ### step 2: install moonraker dependencies and create python virtualenv
@@ -189,8 +190,8 @@ function moonraker_setup(){
 
   ### confirm message
   local confirm=""
-  (( instance_arr[0] == 1)) && confirm="Moonraker has been set up!"
-  (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Moonraker instances have been set up!"
+  (( instance_arr[0] == 1 )) && confirm="Moonraker has been set up!"
+  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Moonraker instances have been set up!"
   print_confirm "${confirm}" && print_mr_ip_list "${instance_arr[0]}" && return
 }
 
@@ -214,7 +215,7 @@ function create_moonraker_conf(){
   elif (( moonraker_count > 1 )); then
     local j=0 re="^[1-9][0-9]*$"
 
-    for ((i=1; i <= moonraker_count; i++ )); do
+    for (( i=1; i <= moonraker_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
@@ -227,8 +228,8 @@ function create_moonraker_conf(){
       db="${HOME}/.moonraker_database_${names[${j}]}"
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
-      port=$((port+1))
-      j=$((j+1))
+      port=$(( port + 1 ))
+      j=$(( j + 1 ))
     done && unset j
 
   else
@@ -239,9 +240,10 @@ function create_moonraker_conf(){
 function write_moonraker_conf(){
   local cfg_dir=${1} cfg=${2} port=${3} log=${4} db=${5} uds=${6} lan=${7}
   local conf_template="${KIAUH_SRCDIR}/resources/moonraker.conf"
-  [ ! -d "${cfg_dir}" ] && mkdir -p "${cfg_dir}"
 
-  if [ ! -f "${cfg}" ]; then
+  [[ ! -d ${cfg_dir} ]] && mkdir -p "${cfg_dir}"
+
+  if [[ ! -f ${cfg} ]]; then
     status_msg "Creating moonraker.conf in ${cfg_dir} ..."
     cp "${conf_template}" "${cfg}"
     sed -i "s|%USER%|${USER}|g" "${cfg}"
@@ -272,13 +274,13 @@ function create_moonraker_service(){
     log="${HOME}/klipper_logs/moonraker.log"
     service="${SYSTEMD}/moonraker.service"
     ### write single instance service
-    write_moonraker_service "" "${cfg_dir}" "${cfg}" "${log}" "${service}"
+    write_moonraker_service "" "${cfg}" "${log}" "${service}"
     ok_msg "Moonraker instance created!"
 
   elif (( moonraker_count > 1 )) && [[ ${#names[@]} -gt 0 ]]; then
     local j=0 re="^[1-9][0-9]*$"
 
-    for ((i=1; i <= moonraker_count; i++)); do
+    for (( i=1; i <= moonraker_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
@@ -290,13 +292,13 @@ function create_moonraker_service(){
       log="${HOME}/klipper_logs/moonraker-${names[${j}]}.log"
       service="${SYSTEMD}/moonraker-${names[${j}]}.service"
       ### write multi instance service
-      write_moonraker_service "${names[${j}]}" "${cfg_dir}" "${cfg}" "${log}" "${service}"
+      write_moonraker_service "${names[${j}]}" "${cfg}" "${log}" "${service}"
       ok_msg "Moonraker instance 'moonraker-${names[${j}]}' created!"
-      j=$((j+1))
+      j=$(( j + 1 ))
     done && unset i
 
     ### enable mainsails remoteMode if mainsail is found
-    if [[ -d "${MAINSAIL_DIR}" ]]; then
+    if [[ -d ${MAINSAIL_DIR} ]]; then
       status_msg "Mainsail installation found! Enabling Mainsail remote mode ..."
       enable_mainsail_remotemode
       ok_msg "Mainsails remote mode enabled!"
@@ -308,28 +310,28 @@ function create_moonraker_service(){
 }
 
 function write_moonraker_service(){
-  local i=${1} cfg_dir=${2} cfg=${3} log=${4} service=${5}
+  local i=${1} cfg=${2} log=${3} service=${4}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker.service"
 
   ### replace all placeholders
-  if [ ! -f "${service}" ]; then
+  if [[ ! -f ${service} ]]; then
     status_msg "Creating Moonraker Service ${i} ..."
       sudo cp "${service_template}" "${service}"
 
-      [ -z "${i}" ] && sudo sed -i "s| for instance moonraker-%INST%||" "${service}"
-      [ -n "${i}" ] && sudo sed -i "s|%INST%|${i}|" "${service}"
+      [[ -z ${i} ]] && sudo sed -i "s| for instance moonraker-%INST%||" "${service}"
+      [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
       sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
       sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
   fi
 }
 
 function print_mr_ip_list(){
-  local ip count=${1} i=1 port=7125
+  local ip count=${1} port=7125
   ip=$(hostname -I | cut -d" " -f1)
-  while (( i <= count )); do
+
+  for (( i=1; i <= count; i++ )); do
     echo -e "   ${cyan}● Instance ${i}:${white} ${ip}:${port}"
-    port=$((port+1))
-    i=$((i+1))
+    port=$(( port + 1 ))
   done && echo
 }
 
@@ -338,17 +340,20 @@ function print_mr_ip_list(){
 ### https://github.com/Arksine/moonraker/pull/346
 function moonraker_polkit(){
   local has_sup
+
   ### check for required SupplementaryGroups entry in service files
   ### write it to the service if it doesn't exist
   for service in $(moonraker_systemd); do
     has_sup="$(grep "SupplementaryGroups=moonraker-admin" "${service}")"
-    if [ -z "${has_sup}" ]; then
+    if [[ -z ${has_sup} ]]; then
       status_msg "Adding moonraker-admin supplementary group to ${service} ..."
       sudo sed -i "/^Type=simple$/a SupplementaryGroups=moonraker-admin" "${service}"
       ok_msg "Adding moonraker-admin supplementary group successfull!"
     fi
   done
-  [ -z "${has_sup}" ] && echo "reloading services!!!" && sudo systemctl daemon-reload
+
+  [[ -z ${has_sup} ]] && echo "reloading services!!!" && sudo systemctl daemon-reload
+
   ### execute moonrakers policykit-rules script
   "${HOME}"/moonraker/scripts/set-policykit-rules.sh
 }
@@ -358,7 +363,7 @@ function moonraker_polkit(){
 #==================================================#
 
 function remove_moonraker_sysvinit() {
-  [ ! -e "${INITD}/moonraker" ] && return
+  [[ ! -e "${INITD}/moonraker" ]] && return
   status_msg "Removing Moonraker SysVinit service ..."
   sudo systemctl stop moonraker
   sudo update-rc.d -f moonraker remove
@@ -367,17 +372,18 @@ function remove_moonraker_sysvinit() {
 }
 
 function remove_moonraker_systemd() {
-  [ -z "$(moonraker_systemd)" ] && return
+  [[ -z $(moonraker_systemd) ]] && return
+
   status_msg "Removing Moonraker Systemd Services ..."
-  local files
-  for service in $(moonraker_systemd | cut -d"/" -f5)
-  do
+
+  for service in $(moonraker_systemd | cut -d"/" -f5); do
     status_msg "Removing ${service} ..."
     sudo systemctl stop "${service}"
     sudo systemctl disable "${service}"
     sudo rm -f "${SYSTEMD}/${service}"
     ok_msg "Done!"
   done
+
   ### reloading units
   sudo systemctl daemon-reload
   sudo systemctl reset-failed
@@ -387,7 +393,8 @@ function remove_moonraker_systemd() {
 function remove_moonraker_logs() {
   local files
   files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/moonraker(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
-  if [ -n "${files}" ]; then
+
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
@@ -398,13 +405,14 @@ function remove_moonraker_logs() {
 
 function remove_moonraker_api_key() {
   ### remove legacy api key
-  if [ -e "${HOME}/.klippy_api_key" ]; then
+  if [[ -e "${HOME}/.klippy_api_key" ]]; then
     status_msg "Removing legacy API Key ..."
     rm "${HOME}/.klippy_api_key"
     ok_msg "Done!"
   fi
+
   ### remove api key
-  if [ -e "${HOME}/.moonraker_api_key" ]; then
+  if [[ -e "${HOME}/.moonraker_api_key" ]]; then
     status_msg "Removing API Key ..."
     rm "${HOME}/.moonraker_api_key"
     ok_msg "Done!"
@@ -412,21 +420,24 @@ function remove_moonraker_api_key() {
 }
 
 function remove_moonraker_dir() {
-  [ ! -d "${MOONRAKER_DIR}" ] && return
+  [[ ! -d ${MOONRAKER_DIR} ]] && return
+
   status_msg "Removing Moonraker directory ..."
   rm -rf "${MOONRAKER_DIR}"
   ok_msg "Directory removed!"
 }
 
 function remove_moonraker_env() {
-  [ ! -d "${MOONRAKER_ENV}" ] && return
+  [[ ! -d ${MOONRAKER_ENV} ]] && return
+
   status_msg "Removing moonraker-env directory ..."
   rm -rf "${MOONRAKER_ENV}"
   ok_msg "Directory removed!"
 }
 
 function remove_moonraker_polkit() {
-  [ ! -d "${MOONRAKER_DIR}" ] && return
+  [[ ! -d ${MOONRAKER_DIR} ]] && return
+
   status_msg "Removing all Moonraker PolicyKit rules ..."
   "${MOONRAKER_DIR}"/scripts/set-policykit-rules.sh --clear
   ok_msg "Done!"
@@ -462,7 +473,8 @@ function remove_moonraker(){
 
 function update_moonraker(){
   do_action_service "stop" "moonraker"
-  if [ ! -d "${MOONRAKER_DIR}" ]; then
+
+  if [[ ! -d ${MOONRAKER_DIR} ]]; then
     cd "${HOME}" && git clone "${MOONRAKER_REPO}"
   else
     backup_before_update "moonraker"
@@ -473,6 +485,7 @@ function update_moonraker(){
     ### install possible new python dependencies
     "${MOONRAKER_ENV}"/bin/pip install -r "${MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
   fi
+
   ### required due to https://github.com/Arksine/moonraker/issues/349
   moonraker_polkit
 
@@ -490,35 +503,38 @@ function get_moonraker_status(){
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${MOONRAKER_DIR}" "${MOONRAKER_ENV}")
-  [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
+  [[ ${sf_count} -gt 0 ]] && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
+    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
   done
 
-  if (( filecount == ${#data_arr[*]})); then
+  if (( filecount == ${#data_arr[*]} )); then
     status="Installed: ${sf_count}"
-  elif ((filecount == 0)); then
+  elif (( filecount == 0 )); then
     status="Not installed!"
   else
     status="Incomplete!"
   fi
+
   echo "${status}"
 }
 
 function get_local_moonraker_commit(){
+  [[ ! -d ${MOONRAKER_DIR} || ! -d "${MOONRAKER_DIR}/.git" ]] && return
+
   local commit
-  [ ! -d "${MOONRAKER_DIR}" ] || [ ! -d "${MOONRAKER_DIR}"/.git ] && return
   cd "${MOONRAKER_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
 }
 
 function get_remote_moonraker_commit(){
+  [[ ! -d ${MOONRAKER_DIR} || ! -d "${MOONRAKER_DIR}/.git" ]] && return
+
   local commit
-  [ ! -d "${MOONRAKER_DIR}" ] || [ ! -d "${MOONRAKER_DIR}"/.git ] && return
   cd "${MOONRAKER_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
@@ -529,7 +545,8 @@ function compare_moonraker_versions(){
   local versions local_ver remote_ver
   local_ver="$(get_local_moonraker_commit)"
   remote_ver="$(get_remote_moonraker_commit)"
-  if [ "${local_ver}" != "${remote_ver}" ]; then
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add moonraker to the update all array for the update all function in the updater
@@ -539,5 +556,6 @@ function compare_moonraker_versions(){
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     MOONRAKER_UPDATE_AVAIL="false"
   fi
+
   echo "${versions}"
 }
