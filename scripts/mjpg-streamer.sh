@@ -94,9 +94,9 @@ EOT
   fi
 
   ### step 6.1: create webcamd.log symlink
-  [ ! -d "${HOME}/klipper_logs" ] && mkdir -p "${HOME}/klipper_logs"
-  if [ -f "/var/log/webcamd.log" ] && [ ! -L "${HOME}/klipper_logs/webcamd.log" ]; then
-    ln -s "/var/log/webcamd.log" "${HOME}/klipper_logs/webcamd.log"
+  [ ! -d "${KLIPPER_LOGS}" ] && mkdir -p "${KLIPPER_LOGS}"
+  if [ -f "/var/log/webcamd.log" ] && [ ! -L "${KLIPPER_LOGS}/webcamd.log" ]; then
+    ln -s "/var/log/webcamd.log" "${KLIPPER_LOGS}/webcamd.log"
   fi
 
   ### step 6.2: add webcamd.log logrotate
@@ -175,7 +175,7 @@ function remove_mjpg-streamer(){
 
   ### remove webcamd log and symlink
   [ -f "/var/log/webcamd.log" ] && sudo rm -f "/var/log/webcamd.log"
-  [ -L "${HOME}/klipper_logs/webcamd.log" ] && rm -f "${HOME}/klipper_logs/webcamd.log"
+  [ -L "${KLIPPER_LOGS}/webcamd.log" ] && rm -f "${KLIPPER_LOGS}/webcamd.log"
 
   print_confirm "MJPG-Streamer successfully removed!"
 }

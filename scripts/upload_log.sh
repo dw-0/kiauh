@@ -51,7 +51,7 @@ function upload_selection(){
   [ "${upload_agreed}" = "false" ] && accept_upload_conditions
 
   local logfiles
-  local klipper_logs="${HOME}/klipper_logs"
+  local klipper_logs="${KLIPPER_LOGS}"
   local webif_logs="/var/log/nginx"
 
   function find_logfile(){

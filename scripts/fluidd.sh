@@ -206,7 +206,7 @@ function remove_fluidd_logs(){
 
 function remove_fluidd_log_symlinks(){
   local files
-  files=$(find "${HOME}/klipper_logs" -name "fluidd*")
+  files=$(find "${KLIPPER_LOGS}" -name "fluidd*")
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."

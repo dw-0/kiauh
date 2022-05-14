@@ -315,7 +315,7 @@ function remove_telegram_bot_env() {
 
 function remove_telegram_bot_logs() {
   local files
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/telegram(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/telegram(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do

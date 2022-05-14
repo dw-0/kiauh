@@ -271,7 +271,7 @@ function create_moonraker_service(){
     i=""
     cfg_dir="${KLIPPER_CONFIG}"
     cfg="${cfg_dir}/moonraker.conf"
-    log="${HOME}/klipper_logs/moonraker.log"
+    log="${KLIPPER_LOGS}/moonraker.log"
     service="${SYSTEMD}/moonraker.service"
     ### write single instance service
     write_moonraker_service "" "${cfg}" "${log}" "${service}"
@@ -289,7 +289,7 @@ function create_moonraker_service(){
       fi
 
       cfg="${cfg_dir}/moonraker.conf"
-      log="${HOME}/klipper_logs/moonraker-${names[${j}]}.log"
+      log="${KLIPPER_LOGS}/moonraker-${names[${j}]}.log"
       service="${SYSTEMD}/moonraker-${names[${j}]}.service"
       ### write multi instance service
       write_moonraker_service "${names[${j}]}" "${cfg}" "${log}" "${service}"
@@ -392,7 +392,7 @@ function remove_moonraker_systemd() {
 
 function remove_moonraker_logs() {
   local files
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/moonraker(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/moonraker(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do

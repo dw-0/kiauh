@@ -61,7 +61,7 @@ function set_upstream_nginx_cfg(){
 }
 
 function symlink_webui_nginx_log(){
-  local interface=${1} path="${HOME}/klipper_logs"
+  local interface=${1} path="${KLIPPER_LOGS}"
   local access_log="/var/log/nginx/${interface}-access.log"
   local error_log="/var/log/nginx/${interface}-error.log"
   [ ! -d "${path}" ] && mkdir -p "${path}"
