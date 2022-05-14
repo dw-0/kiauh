@@ -94,7 +94,8 @@ function settings_ui() {
 }
 
 function show_settings_help(){
-  local default_cfg="${cyan}${HOME}/klipper_config${white}"
+  local choice default_cfg="${cyan}${HOME}/klipper_config${white}"
+
   top_border
   echo -e "|    ~~~~~~ < ? > Help: KIAUH Settings < ? > ~~~~~~     |"
   hr
@@ -129,6 +130,7 @@ function show_settings_help(){
   echo -e "| Default: ${red}false${white}                                        |"
   blank_line
   back_footer
+
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
@@ -143,23 +145,31 @@ function show_settings_help(){
 }
 
 function settings_menu(){
+  local action
+
   clear && print_header
   settings_ui
+
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
-        change_klipper_cfg_folder && settings_ui;;
+        clear && print_header
+        change_klipper_cfg_folder
+        settings_ui;;
       2)
         clear && print_header
         change_klipper_repo_menu
         settings_ui;;
       3)
-        switch_mainsail_releasetype && settings_menu;;
+        switch_mainsail_releasetype
+        settings_menu;;
       4)
-        switch_fluidd_releasetype && settings_menu;;
+        switch_fluidd_releasetype
+        settings_menu;;
       5)
-        toggle_backup_before_update && settings_menu;;
+        toggle_backup_before_update
+        settings_menu;;
       B|b)
         clear
         main_menu
