@@ -193,7 +193,7 @@ function start_flash_mcu() {
 
 function start_flash_sd() {
   local i=0 board_list=() device=${1}
-  local flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
+  local flash_script="${KLIPPER_DIR}/scripts/flash-sdcard.sh"
 
   ### write each supported board to the array to make it selectable
   for board in $("${flash_script}" -l | tail -n +2); do

@@ -127,7 +127,7 @@ function moonraker_setup_dialog() {
 
 function install_moonraker_dependencies() {
   local packages
-  local install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
+  local install_script="${MOONRAKER_DIR}/scripts/install-moonraker.sh"
 
   ### read PKGLIST from official install-script
   status_msg "Reading dependencies..."

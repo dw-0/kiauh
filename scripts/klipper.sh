@@ -150,7 +150,7 @@ function klipper_setup_dialog() {
 
 function install_klipper_packages() {
   local packages python_version="${1}"
-  local install_script="${HOME}/klipper/scripts/install-debian.sh"
+  local install_script="${KLIPPER_DIR}/scripts/install-debian.sh"
 
   status_msg "Reading dependencies..."
   # shellcheck disable=SC2016

@@ -30,7 +30,7 @@ function install_pgc_for_klipper() {
   dependency_check "${dep[@]}"
   ### clone repo
   [ -d "${PGC_DIR}" ] && rm -rf "${PGC_DIR}"
-  cd "${HOME}" && git clone "${PGC_FOR_KLIPPER_REPO}"
+  cd "${HOME}" && git clone "${PGC_REPO}"
   ### copy nginx config into destination directory
   sudo cp "${pgconfsrc}" "${pgconf}"
   ### replace default pi user in case the user is called different
@@ -56,9 +56,9 @@ function install_pgc_for_klipper() {
 function remove_prettygcode() {
   pgconf="/etc/nginx/sites-available/pgcode.local.conf"
   pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
-  if [ -d "${HOME}/pgcode" ] || [ -f "${pgconf}" ] || [ -L "${pgconfsl}" ]; then
+  if [ -d "${PGC_DIR}" ] || [ -f "${pgconf}" ] || [ -L "${pgconfsl}" ]; then
     status_msg "Removing PrettyGCode for Klipper ..."
-    rm -rf "${HOME}/pgcode"
+    rm -rf "${PGC_DIR}"
     sudo rm -f "${pgconf}"
     sudo rm -f "${pgconfsl}"
     sudo systemctl restart nginx
@@ -73,7 +73,6 @@ function remove_prettygcode() {
 #=================================================#
 
 function update_pgc_for_klipper() {
-  PGC_DIR="${HOME}/pgcode"
   status_msg "Updating PrettyGCode for Klipper ..."
   cd "${PGC_DIR}" && git pull
   ok_msg "Update complete!"

@@ -173,13 +173,13 @@ function backup_klipperscreen() {
 
 function backup_telegram_bot() {
   local current_date
-  if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] ; then
+  if [ -d "${TELEGRAM_BOT_DIR}" ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
     mkdir -p "${BACKUP_DIR}/MoonrakerTelegramBot-backups/${current_date}"
-    cp -r "${MOONRAKER_TELEGRAM_BOT_DIR}" "${_}"
+    cp -r "${TELEGRAM_BOT_DIR}" "${_}"
     print_confirm "MoonrakerTelegramBot backup complete!"
   else
     print_error "Can't backup MoonrakerTelegramBot directory!\n Not found!"

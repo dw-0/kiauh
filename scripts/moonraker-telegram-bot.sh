@@ -109,7 +109,7 @@ function telegram_bot_setup_dialog() {
 
 function install_telegram_bot_dependencies() {
   local packages
-  local install_script="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/install.sh"
+  local install_script="${TELEGRAM_BOT_DIR}/scripts/install.sh"
 
   ### read PKGLIST from official install-script
   status_msg "Reading dependencies..."
@@ -131,9 +131,9 @@ function install_telegram_bot_dependencies() {
 function create_telegram_bot_virtualenv() {
   status_msg "Installing python virtual environment..."
   ### always create a clean virtualenv
-  [[ -d ${MOONRAKER_TELEGRAM_BOT_ENV_DIR} ]] && rm -rf "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
-  virtualenv -p /usr/bin/python3 --system-site-packages "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
-  "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"/bin/pip install -r "${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/requirements.txt"
+  [[ -d ${TELEGRAM_BOT_ENV} ]] && rm -rf "${TELEGRAM_BOT_ENV}"
+  virtualenv -p /usr/bin/python3 --system-site-packages "${TELEGRAM_BOT_ENV}"
+  "${TELEGRAM_BOT_ENV}"/bin/pip install -r "${TELEGRAM_BOT_DIR}/scripts/requirements.txt"
 }
 
 function telegram_bot_setup() {
@@ -145,8 +145,8 @@ function telegram_bot_setup() {
   ### step 1: clone telegram bot
   status_msg "Downloading Moonraker-Telegram-Bot ..."
   ### force remove existing Moonraker-Telegram-Bot dir
-  [[ -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]] && rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
-  cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
+  [[ -d ${TELEGRAM_BOT_DIR} ]] && rm -rf "${TELEGRAM_BOT_DIR}"
+  cd "${HOME}" && git clone "${TELEGRAM_BOT_REPO}"
 
   ### step 2: install telegram bot dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
@@ -206,7 +206,7 @@ function create_telegram_conf() {
 
 function write_telegram_conf() {
   local cfg_dir=${1} cfg=${2} log=${3}
-  local conf_template="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/base_install_template"
+  local conf_template="${TELEGRAM_BOT_DIR}/scripts/base_install_template"
   [[ ! -d ${cfg_dir} ]] && mkdir -p "${cfg_dir}"
 
   if [[ ! -f ${cfg} ]]; then
@@ -269,7 +269,7 @@ function write_telegram_bot_service() {
     sudo cp "${service_template}" "${service}"
     [[ -z ${i} ]] && sudo sed -i "s|instance %INST% ||" "${service}"
     [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_TELEGRAM_BOT_ENV_DIR}|; s|%DIR%|${MOONRAKER_TELEGRAM_BOT_DIR}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%DIR%|${TELEGRAM_BOT_DIR}|" "${service}"
     sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
   fi
 }
@@ -298,18 +298,18 @@ function remove_telegram_bot_systemd() {
 }
 
 function remove_telegram_bot_dir() {
-  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]] && return
+  [[ ! -d ${TELEGRAM_BOT_DIR} ]] && return
 
   status_msg "Removing Moonraker-Telegram-Bot directory ..."
-  rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
+  rm -rf "${TELEGRAM_BOT_DIR}"
   ok_msg "Directory removed!"
 }
 
 function remove_telegram_bot_env() {
-  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_ENV_DIR} ]] && return
+  [[ ! -d ${TELEGRAM_BOT_ENV} ]] && return
 
   status_msg "Removing moonraker-telegram-bot-env directory ..."
-  rm -rf "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
+  rm -rf "${TELEGRAM_BOT_ENV}"
   ok_msg "Directory removed!"
 }
 
@@ -343,16 +343,16 @@ function remove_telegram_bot() {
 function update_telegram_bot() {
   do_action_service "stop" "moonraker-telegram-bot"
 
-  if [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]]; then
-    cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
+  if [[ ! -d ${TELEGRAM_BOT_DIR} ]]; then
+    cd "${HOME}" && git clone "${TELEGRAM_BOT_REPO}"
   else
     backup_before_update "moonraker-telegram-bot"
     status_msg "Updating Moonraker ..."
-    cd "${MOONRAKER_TELEGRAM_BOT_DIR}" && git pull
+    cd "${TELEGRAM_BOT_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies
     install_telegram_bot_dependencies
     ### install possible new python dependencies
-    "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"/bin/pip install -r "${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/requirements.txt"
+    "${TELEGRAM_BOT_ENV}"/bin/pip install -r "${TELEGRAM_BOT_DIR}/scripts/requirements.txt"
   fi
 
   ok_msg "Update complete!"
@@ -368,7 +368,7 @@ function get_telegram_bot_status() {
   sf_count="$(telegram_bot_systemd | wc -w)"
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
-  local data_arr=(SERVICE "${MOONRAKER_TELEGRAM_BOT_DIR}" "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}")
+  local data_arr=(SERVICE "${TELEGRAM_BOT_DIR}" "${TELEGRAM_BOT_ENV}")
   (( sf_count > 0 )) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
@@ -388,19 +388,19 @@ function get_telegram_bot_status() {
 }
 
 function get_local_telegram_bot_commit() {
-  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
+  [[ ! -d ${TELEGRAM_BOT_DIR} || ! -d "${TELEGRAM_BOT_DIR}/.git" ]] && return
 
   local commit
-  cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
+  cd "${TELEGRAM_BOT_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
 }
 
 function get_remote_telegram_bot_commit() {
-  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
+  [[ ! -d ${TELEGRAM_BOT_DIR} || ! -d "${TELEGRAM_BOT_DIR}/.git" ]] && return
 
   local commit
-  cd "${MOONRAKER_TELEGRAM_BOT_DIR}" && git fetch origin -q
+  cd "${TELEGRAM_BOT_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
 }

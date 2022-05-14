@@ -64,9 +64,9 @@ function remove_klipperscreen() {
   fi
 
   ### remove KlipperScreen VENV dir
-  if [ -d "${KLIPPERSCREEN_ENV_DIR}" ]; then
+  if [ -d "${KLIPPERSCREEN_ENV}" ]; then
     status_msg "Removing KlipperScreen VENV directory ..."
-    rm -rf "${KLIPPERSCREEN_ENV_DIR}" && ok_msg "Directory removed!"
+    rm -rf "${KLIPPERSCREEN_ENV}" && ok_msg "Directory removed!"
   fi
 
   ### remove KlipperScreen service
@@ -111,8 +111,7 @@ function update_klipperscreen() {
   git checkout -f master && ok_msg "Checkout successfull"
   if [[ $(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
     status_msg "New dependecies detected..."
-    PYTHONDIR="${HOME}/.KlipperScreen-env"
-    "${PYTHONDIR}"/bin/pip install -r "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt"
+    "${KLIPPERSCREEN_ENV}"/bin/pip install -r "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt"
     ok_msg "Dependencies have been installed!"
   fi
   ok_msg "Update complete!"
@@ -128,7 +127,7 @@ function get_klipperscreen_status() {
   sf_count="$(klipperscreen_systemd | wc -w)"
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
-  local data_arr=(SERVICE "${KLIPPERSCREEN_DIR}" "${KLIPPERSCREEN_ENV_DIR}")
+  local data_arr=(SERVICE "${KLIPPERSCREEN_DIR}" "${KLIPPERSCREEN_ENV}")
   [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array

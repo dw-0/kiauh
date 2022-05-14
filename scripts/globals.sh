@@ -53,18 +53,18 @@ function set_globals() {
   FLUIDD_TAGS="https://api.github.com/repos/fluidd-core/fluidd/tags"
 
   #=============== KLIPPERSCREEN ================#
-  KLIPPERSCREEN_ENV_DIR="${HOME}/.KlipperScreen-env"
+  KLIPPERSCREEN_ENV="${HOME}/.KlipperScreen-env"
   KLIPPERSCREEN_DIR="${HOME}/KlipperScreen"
   KLIPPERSCREEN_REPO="https://github.com/jordanruthe/KlipperScreen.git"
 
   #========== MOONRAKER-TELEGRAM-BOT ============#
-  MOONRAKER_TELEGRAM_BOT_ENV_DIR="${HOME}/moonraker-telegram-bot-env"
-  MOONRAKER_TELEGRAM_BOT_DIR="${HOME}/moonraker-telegram-bot"
-  MOONRAKER_TELEGRAM_BOT_REPO="https://github.com/nlef/moonraker-telegram-bot.git"
+  TELEGRAM_BOT_ENV="${HOME}/moonraker-telegram-bot-env"
+  TELEGRAM_BOT_DIR="${HOME}/moonraker-telegram-bot"
+  TELEGRAM_BOT_REPO="https://github.com/nlef/moonraker-telegram-bot.git"
 
   #=============== PRETTY-GCODE =================#
   PGC_DIR="${HOME}/pgcode"
-  PGC_FOR_KLIPPER_REPO="https://github.com/Kragrathea/pgcode"
+  PGC_REPO="https://github.com/Kragrathea/pgcode"
 
   #================== NGINX =====================#
   NGINX_SA="/etc/nginx/sites-available"
