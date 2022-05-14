@@ -146,15 +146,23 @@ function klipper_setup_dialog(){
 
 function install_klipper_packages(){
   local packages python_version="${1}"
-  local install_script="${HOME}/klipper/scripts/install-octopi.sh"
+  local install_script="${HOME}/klipper/scripts/install-debian.sh"
 
   status_msg "Reading dependencies..."
   # shellcheck disable=SC2016
   packages=$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')
-  ### replace python-dev with python3-dev if python3 was selected
-  [ "${python_version}" == "python3" ] && packages="${packages//python-dev/python3-dev}"
+  ### add dfu-util for octopi-images
+  packages+=" dfu-util"
   ### add dbus requirement for DietPi distro
   [ -e "/boot/dietpi/.version" ] && packages+=" dbus"
+
+  if [[ "${python_version}" == "python3" ]]; then
+    ### replace python-dev with python3-dev if python3 was selected
+    packages="${packages//python-dev/python3-dev}"
+  else
+    ### package name 'python-dev' is deprecated (-> no installation candidate) on more modern linux distros
+    packages="${packages//python-dev/python2-dev}"
+  fi
 
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
   read -r -a packages <<< "${packages}"
