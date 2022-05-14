@@ -54,21 +54,20 @@ function telegram_bot_setup_dialog(){
     blank_line
     echo -e "| Please select the number of Telegram Bot instances to |"
     echo -e "| install. Usually one Telegram Bot instance per        |"
-    echo -e "| Moonraker instance is required but you may not        |"
+    echo -e "| Moonraker instance is required, but you may not       |"
     echo -e "| install more Telegram Bot instances than available    |"
     echo -e "| Moonraker instances.                                  |"
     bottom_border
 
     ### ask for amount of instances
     local re="^[1-9][0-9]*$"
-    while ! [[ ${telegram_bot_count} =~ ${re} && ${telegram_bot_count} -le ${moonraker_count} ]]; do
+    while [[ ! ${telegram_bot_count} =~ ${re} || ${telegram_bot_count} -gt ${moonraker_count} ]]; do
       read -p "${cyan}###### Number of Telegram Bot instances to set up:${white} " -i "${moonraker_count}" -e telegram_bot_count
       ### break if input is valid
       [[ ${telegram_bot_count} =~ ${re} && ${telegram_bot_count} -le ${moonraker_count} ]] && break
       ### conditional error messages
-      error_msg "Invalid input:"
-      ! [[ ${telegram_bot_count} =~ ${re} ]] && error_msg "● Input not a number"
-      ((telegram_bot_count > moonraker_count)) && error_msg "● Number of Telegram Bot instances larger than existing Moonraker instances"
+      [[ ! ${telegram_bot_count} =~ ${re} ]] && error_msg "Input not a number"
+      (( telegram_bot_count > moonraker_count )) && error_msg "Number of Telegram Bot instances larger than existing Moonraker instances"
     done && select_msg "${telegram_bot_count}"
   else
     log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
@@ -207,9 +206,9 @@ function create_telegram_conf(){
 function write_telegram_conf(){
   local cfg_dir=${1} cfg=${2} log=${3}
   local conf_template="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/base_install_template"
-  ! [[ -d "${cfg_dir}" ]] && mkdir -p "${cfg_dir}"
+  [[ ! -d "${cfg_dir}" ]] && mkdir -p "${cfg_dir}"
 
-  if ! [[ -f "${cfg}" ]]; then
+  if [[ ! -f "${cfg}" ]]; then
     status_msg "Creating telegram.conf in ${cfg_dir} ..."
     cp "${conf_template}" "${cfg}"
     sed -i "s|some_log_path|${log}|g" "${cfg}"
@@ -263,7 +262,7 @@ function write_telegram_bot_service(){
   local service_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.service"
 
   ### replace all placeholders
-  if ! [[ -f "${service}" ]]; then
+  if [[ ! -f "${service}" ]]; then
     status_msg "Creating Telegram Bot Service ${i} ..."
     sudo cp "${service_template}" "${service}"
     [[ -z ${i} ]] && sudo sed -i "s|instance %INST% ||" "${service}"
@@ -295,14 +294,14 @@ function remove_telegram_bot_systemd() {
 }
 
 function remove_telegram_bot_dir() {
-  ! [[ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ]] && return
+  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]] && return
   status_msg "Removing Moonraker-Telegram-Bot directory ..."
   rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
   ok_msg "Directory removed!"
 }
 
 function remove_telegram_bot_env() {
-  ! [[ -d "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}" ]] && return
+  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_ENV_DIR} ]] && return
   status_msg "Removing moonraker-telegram-bot-env directory ..."
   rm -rf "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
   ok_msg "Directory removed!"
@@ -332,7 +331,7 @@ function remove_telegram_bot(){
 
 function update_telegram_bot(){
   do_action_service "stop" "moonraker-telegram-bot"
-  if ! [[ -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]]; then
+  if [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]]; then
     cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
   else
     backup_before_update "moonraker-telegram-bot"
@@ -378,7 +377,7 @@ function get_telegram_bot_status(){
 
 function get_local_telegram_bot_commit(){
   local commit
-  ! [[ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ]] || ! [[ -d "${MOONRAKER_TELEGRAM_BOT_DIR}"/.git ]] && return
+  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
   cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
@@ -386,7 +385,7 @@ function get_local_telegram_bot_commit(){
 
 function get_remote_telegram_bot_commit(){
   local commit
-  ! [[ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ]] || ! [[ -d "${MOONRAKER_TELEGRAM_BOT_DIR}"/.git ]] && return
+  [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
   cd "${MOONRAKER_TELEGRAM_BOT_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"

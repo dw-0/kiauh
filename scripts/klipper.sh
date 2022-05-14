@@ -65,12 +65,12 @@ function klipper_setup_dialog(){
 
   ### ask for amount of instances
   local klipper_count re="^[1-9][0-9]*$"
-  while ! [[ ${klipper_count} =~ ${re} ]]; do
+  while [[ ! ${klipper_count} =~ ${re} ]]; do
     read -p "${cyan}###### Number of Klipper instances to set up:${white} " -i "1" -e klipper_count
     ### break if input is valid
     [[ ${klipper_count} =~ ${re} ]] && break
-    error_msg "Invalid input:"
-    error_msg "● Input not a number"
+    ### error messages on invalid input
+    error_msg "Input not a number"
   done && select_msg "${klipper_count}"
   user_input+=("${klipper_count}")
 
@@ -120,7 +120,7 @@ function klipper_setup_dialog(){
     ### get user input for custom names
     if [[ "${custom_names}" == "true" ]]; then
       local i=1 name="" re="^[0-9a-zA-Z]+$"
-      while ! [[ ${name} =~ ${re} && ${i} -gt ${klipper_count} ]]; do
+      while [[ ! ${name} =~ ${re} && ${i} -le ${klipper_count} ]]; do
         read -p "${cyan}###### Name for instance #${i}:${white} " name
         if [[ ${name} =~ ${re} ]]; then
           select_msg "Name: ${name}"
@@ -287,13 +287,13 @@ function write_example_printer_cfg(){
   local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
 
   ### create a config directory if it doesn't exist
-  if ! [[ -d "${cfg_dir}" ]]; then
+  if [[ ! -d "${cfg_dir}" ]]; then
     status_msg "Creating '${cfg_dir}' ..."
     mkdir -p "${cfg_dir}"
   fi
 
   ### create a minimal config if there is no printer.cfg
-  if ! [[ -f "${cfg}" ]]; then
+  if [[ ! -f "${cfg}" ]]; then
     status_msg "Creating minimal example printer.cfg ..."
     cp "${cfg_template}" "${cfg}"
   fi
@@ -549,7 +549,7 @@ function get_klipper_cfg_dir() {
 
 ### returns the major python version the klippy-env was created with
 function get_klipper_python_ver() {
-  ! [[ -d ${KLIPPY_ENV} ]] && return
+  [[ ! -d ${KLIPPY_ENV} ]] && return
 
   local version
   version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)

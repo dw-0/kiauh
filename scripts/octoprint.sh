@@ -46,19 +46,18 @@ function octoprint_setup_dialog(){
     blank_line
     echo -e "| Please select the number of OctoPrint instances to    |"
     echo -e "| install. Usually one OctoPrint instance per Klipper   |"
-    echo -e "| instance is required but you may not install more     |"
+    echo -e "| instance is required, but you may not install more    |"
     echo -e "| OctoPrint instances than available Klipper instances. |"
     bottom_border
 
     local re="^[1-9][0-9]*$"
-    while ! [[ ${octoprint_count} =~ ${re} && ${octoprint_count} -le ${klipper_count} ]]; do
+    while [[ ! ${octoprint_count} =~ ${re} || ${octoprint_count} -gt ${klipper_count} ]]; do
       read -p "${cyan}###### Number of OctoPrint instances to set up:${white} " -i "${klipper_count}" -e octoprint_count
       ### break if input is valid
       [[ ${octoprint_count} =~ ${re} ]] && break
       ### conditional error messages
-      error_msg "Invalid Input:"
-      ! [[ ${octoprint_count} =~ ${re} ]] && error_msg "● Input not a number"
-      ((octoprint_count > klipper_count)) && error_msg "● Number of OctoPrint instances larger than existing Klipper instances"
+      [[ ! ${octoprint_count} =~ ${re} ]] && error_msg "Input not a number"
+      (( octoprint_count > klipper_count )) && error_msg "Number of OctoPrint instances larger than existing Klipper instances"
     done && select_msg "${octoprint_count}"
   else
     log_error "Internal error. octoprint_count of '${octoprint_count}' not equal or grather than one!"
@@ -140,7 +139,7 @@ function install_octoprint(){
     ### create and activate the virtualenv
     status_msg "Installing python virtual environment..."
 
-    if ! [[ -d "${tmp}" ]]; then
+    if [[ ! -d "${tmp}" ]]; then
       mkdir -p "${tmp}"
     else
       error_msg "Cannot create temporary directory in ${HOME}!"
@@ -247,8 +246,8 @@ OCTOPRINT
     ok_msg "Ok!"
 
     ### create config.yaml
-    if ! [[ -f ${basedir}/config.yaml ]]; then
-      ! [[ -d ${basedir} ]] && mkdir "${basedir}"
+    if [[ ! -f ${basedir}/config.yaml ]]; then
+      [[ ! -d ${basedir} ]] && mkdir "${basedir}"
       (( octoprint_count == 1 )) && status_msg "Creating config.yaml ..."
       (( octoprint_count > 1 )) && status_msg "Creating config.yaml for instance ${i}(${names[${j}]}) ..."
       /bin/sh -c "cat > ${basedir}/config.yaml" << CONFIGYAML
@@ -312,7 +311,7 @@ function remove_octoprint_service(){
 }
 
 function remove_octoprint_sudoers(){
-  ! [[ -f /etc/sudoers.d/octoprint-shutdown ]] && return
+  [[ ! -f /etc/sudoers.d/octoprint-shutdown ]] && return
   ### remove sudoers file
   sudo rm -f /etc/sudoers.d/octoprint-shutdown
 }

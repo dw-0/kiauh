@@ -73,20 +73,19 @@ function moonraker_setup_dialog(){
     blank_line
     echo -e "| Please select the number of Moonraker instances to    |"
     echo -e "| install. Usually one Moonraker instance per Klipper   |"
-    echo -e "| instance is required but you may not install more     |"
+    echo -e "| instance is required, but you may not install more    |"
     echo -e "| Moonraker instances than available Klipper instances. |"
     bottom_border
 
     ### ask for amount of instances
     local re="^[1-9][0-9]*$"
-    while ! [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]]; do
+    while [[ ! ${moonraker_count} =~ ${re} || ${moonraker_count} -gt ${klipper_count} ]]; do
       read -p "${cyan}###### Number of Moonraker instances to set up:${white} " -i "${klipper_count}" -e moonraker_count
       ### break if input is valid
       [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]] && break
       ### conditional error messages
-      error_msg "Invalid input:"
-      ! [[ ${moonraker_count} =~ ${re} ]] && error_msg "● Input not a number"
-      ((moonraker_count > klipper_count)) && error_msg "● Number of Moonraker instances larger than existing Klipper instances"
+      [[ ! ${moonraker_count} =~ ${re} ]] && error_msg "Input not a number"
+      (( moonraker_count > klipper_count )) && error_msg "Number of Moonraker instances larger than installed Klipper instances"
     done && select_msg "${moonraker_count}"
   else
     log_error "Internal error. klipper_count of '${klipper_count}' not equal or grather than one!"
