@@ -149,8 +149,10 @@ function install_moonraker_dependencies(){
 function create_moonraker_virtualenv(){
   status_msg "Installing python virtual environment..."
   ### always create a clean virtualenv
-  [ -d "${MOONRAKER_ENV}" ] && rm -rf "${MOONRAKER_ENV}"
+  [[ -d ${MOONRAKER_ENV} ]] && rm -rf "${MOONRAKER_ENV}"
   virtualenv -p /usr/bin/python3 "${MOONRAKER_ENV}"
+  ### upgrade pip
+  "${MOONRAKER_ENV}"/bin/pip install -U pip
   "${MOONRAKER_ENV}"/bin/pip install -r "${MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
 }
 
