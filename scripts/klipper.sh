@@ -154,7 +154,7 @@ function install_klipper_packages(){
   ### add dfu-util for octopi-images
   packages+=" dfu-util"
   ### add dbus requirement for DietPi distro
-  [ -e "/boot/dietpi/.version" ] && packages+=" dbus"
+  [[ -e "/boot/dietpi/.version" ]] && packages+=" dbus"
 
   if [[ "${python_version}" == "python3" ]]; then
     ### replace python-dev with python3-dev if python3 was selected
@@ -173,26 +173,45 @@ function install_klipper_packages(){
 
   ### Install required packages
   status_msg "Installing packages..."
-  sudo apt-get install --yes "${packages[@]}"
+  if ! sudo apt-get install --yes "${packages[@]}"; then
+    log_error "failure while installing klipper packages"
+    error_msg "Installing packages failed!"
+    exit 1
+  fi
 }
 
 function create_klipper_virtualenv(){
   local python_version="${1}" py2_ver py3_ver
-  if [ "${python_version}" == "python2" ]; then
+
+  if [[ ${python_version} == "python2" ]]; then
     py2_ver=$(python2 -V)
     status_msg "Installing ${py2_ver} virtual environment..."
-    [ -d "${KLIPPY_ENV}" ] && rm -rf "${KLIPPY_ENV}"
-    virtualenv -p python2 "${KLIPPY_ENV}"
-    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+
+    [[ -d ${KLIPPY_ENV} ]] && rm -rf "${KLIPPY_ENV}"
+
+    if virtualenv -p python2 "${KLIPPY_ENV}"; then
+      "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+    else
+      log_error "failure while creating python2 klippy-env"
+      error_msg "Creation of Klipper virtualenv failed!"
+      exit 1
+    fi
   fi
-  if [ "${python_version}" == "python3" ]; then
+
+  if [[ ${python_version} == "python3" ]]; then
     py3_ver=$(python3 -V)
     status_msg "Installing ${py3_ver} virtual environment..."
-    virtualenv -p python3 "${KLIPPY_ENV}"
-    ### upgrade pip
-    "${KLIPPY_ENV}"/bin/pip install -U pip
-    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+
+    if virtualenv -p python3 "${KLIPPY_ENV}"; then
+      "${KLIPPY_ENV}"/bin/pip install -U pip
+      "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+    else
+      log_error "failure while creating python3 klippy-env"
+      error_msg "Creation of Klipper virtualenv failed!"
+      exit 1
+    fi
   fi
+
   return
 }
 
