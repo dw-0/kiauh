@@ -316,12 +316,12 @@ function write_moonraker_service(){
   ### replace all placeholders
   if [[ ! -f ${service} ]]; then
     status_msg "Creating Moonraker Service ${i} ..."
-      sudo cp "${service_template}" "${service}"
+    sudo cp "${service_template}" "${service}"
 
-      [[ -z ${i} ]] && sudo sed -i "s| for instance moonraker-%INST%||" "${service}"
-      [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-      sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
-      sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
+    [[ -z ${i} ]] && sudo sed -i "s| for instance moonraker-%INST%||" "${service}"
+    [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
+    sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
   fi
 }
 
@@ -364,6 +364,7 @@ function moonraker_polkit(){
 
 function remove_moonraker_sysvinit() {
   [[ ! -e "${INITD}/moonraker" ]] && return
+
   status_msg "Removing Moonraker SysVinit service ..."
   sudo systemctl stop moonraker
   sudo update-rc.d -f moonraker remove
