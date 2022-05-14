@@ -512,3 +512,10 @@ function get_klipper_cfg_dir() {
   fi
   echo "${cfg_dir}"
 }
+
+### returns the major python version the klippy-env was created with
+function get_klipper_python_ver() {
+  local version
+  version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
+  echo "${version}"
+}

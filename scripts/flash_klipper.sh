@@ -263,25 +263,34 @@ function start_flash_sd(){
 
 function build_fw(){
   local python_version
-  if [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPY_ENV}" ]; then
+
+  if [[ ! -d ${KLIPPER_DIR} || ! -d ${KLIPPY_ENV} ]]; then
     print_error "Klipper not found!\n Cannot build firmware without Klipper!"
     return
-  else
-    cd "${KLIPPER_DIR}"
-    status_msg "Initializing firmware build ..."
-    local dep=(build-essential dpkg-dev make)
-    dependency_check "${dep[@]}"
-
-    make clean
-    [ "${python_version}" == "3" ] && make PYTHON=python3 menuconfig
-    [ "${python_version}" == "2" ] && make menuconfig
-
-    status_msg "Building firmware ..."
-    python_version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
-    [ "${python_version}" == "3" ] && make PYTHON=python3
-    [ "${python_version}" == "2" ] && make
-    ok_msg "Firmware built!"
   fi
+
+  python_version=$(get_klipper_python_ver)
+
+  cd "${KLIPPER_DIR}"
+  status_msg "Initializing firmware build ..."
+  local dep=(build-essential dpkg-dev make)
+  dependency_check "${dep[@]}"
+
+  make clean
+
+  status_msg "Building firmware ..."
+  if (( python_version == 3 )); then
+    make PYTHON=python3 menuconfig
+    make PYTHON=python3
+  elif (( python_version == 2 )); then
+    make PYTHON=python2 menuconfig
+    make PYTHON=python2
+  else
+    warn_msg "Error reading Python version!"
+    return 1
+  fi
+
+  ok_msg "Firmware built!"
 }
 
 #================================================#
