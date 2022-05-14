@@ -436,13 +436,15 @@ function update_klipper(){
 #================================================#
 
 function get_klipper_status(){
-  local sf_count status
+  local sf_count status py_ver
   sf_count="$(klipper_systemd | wc -w)"
   ### detect an existing "legacy" klipper init.d installation
   if [ "$(klipper_systemd | wc -w)" -eq 0 ] \
   && [ "$(klipper_initd | wc -w)" -ge 1 ]; then
     sf_count=1
   fi
+
+  py_ver=$(get_klipper_python_ver)
 
   ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
@@ -455,7 +457,11 @@ function get_klipper_status(){
   done
 
   if (( filecount == ${#data_arr[*]})); then
-    status="Installed: ${sf_count}"
+    if (( py_ver == 3 )); then
+      status="Installed: ${sf_count}(py${py_ver})"
+    else
+      status="Installed: ${sf_count}"
+    fi
   elif ((filecount == 0)); then
     status="Not installed!"
   else
@@ -515,6 +521,8 @@ function get_klipper_cfg_dir() {
 
 ### returns the major python version the klippy-env was created with
 function get_klipper_python_ver() {
+  ! [[ -d ${KLIPPY_ENV} ]] && return
+
   local version
   version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
   echo "${version}"
