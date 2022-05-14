@@ -11,7 +11,7 @@
 
 set -e
 
-function accept_upload_conditions(){
+function accept_upload_conditions() {
   top_border
   echo -e "|     ${red}~~~~~~~~~~~ [ Upload Agreement ] ~~~~~~~~~~~~${white}     |"
   hr
@@ -45,7 +45,7 @@ function accept_upload_conditions(){
   done
 }
 
-function upload_selection(){
+function upload_selection() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local upload_agreed="${logupload_accepted}"
   [ "${upload_agreed}" = "false" ] && accept_upload_conditions
@@ -54,7 +54,7 @@ function upload_selection(){
   local klipper_logs="${KLIPPER_LOGS}"
   local webif_logs="/var/log/nginx"
 
-  function find_logfile(){
+  function find_logfile() {
     local name=${1} location=${2}
     for log in $(find "${location}" -maxdepth 1 -type f -name "${name}" | sort -g); do
       logfiles+=("${log}")
@@ -98,7 +98,7 @@ function upload_selection(){
   done
 }
 
-function upload_log(){
+function upload_log() {
   local link
   clear && print_header
   status_msg "Uploading ${1} ..."

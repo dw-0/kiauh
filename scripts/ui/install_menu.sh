@@ -11,7 +11,7 @@
 
 set -e
 
-function install_ui(){
+function install_ui() {
   top_border
   echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${white}     |"
   hr
@@ -32,7 +32,7 @@ function install_ui(){
   back_footer
 }
 
-function install_menu(){
+function install_menu() {
   clear && print_header
   install_ui
 
@@ -66,7 +66,7 @@ function install_menu(){
   install_menu
 }
 
-function select_klipper_python_version(){
+function select_klipper_python_version() {
   top_border
   echo -e "| Please select the preferred Python version.           | "
   echo -e "| The recommended version is Python 2.7.                | "

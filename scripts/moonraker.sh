@@ -21,7 +21,7 @@ function moonraker_systemd() {
   echo "${services}"
 }
 
-function moonraker_setup_dialog(){
+function moonraker_setup_dialog() {
   status_msg "Initializing Moonraker installation ..."
 
   ### return early if python version check fails
@@ -125,7 +125,7 @@ function moonraker_setup_dialog(){
   moonraker_setup "${user_input[@]}"
 }
 
-function install_moonraker_dependencies(){
+function install_moonraker_dependencies() {
   local packages
   local install_script="${HOME}/moonraker/scripts/install-moonraker.sh"
 
@@ -146,7 +146,7 @@ function install_moonraker_dependencies(){
   sudo apt-get install --yes "${packages[@]}"
 }
 
-function create_moonraker_virtualenv(){
+function create_moonraker_virtualenv() {
   status_msg "Installing python virtual environment..."
   ### always create a clean virtualenv
   [[ -d ${MOONRAKER_ENV} ]] && rm -rf "${MOONRAKER_ENV}"
@@ -156,7 +156,7 @@ function create_moonraker_virtualenv(){
   "${MOONRAKER_ENV}"/bin/pip install -r "${MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
 }
 
-function moonraker_setup(){
+function moonraker_setup() {
   local instance_arr=("${@}")
   ### checking dependencies
   local dep=(git wget curl unzip dfu-util virtualenv)
@@ -195,7 +195,7 @@ function moonraker_setup(){
   print_confirm "${confirm}" && print_mr_ip_list "${instance_arr[0]}" && return
 }
 
-function create_moonraker_conf(){
+function create_moonraker_conf() {
   local input=("${@}")
   local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -237,7 +237,7 @@ function create_moonraker_conf(){
   fi
 }
 
-function write_moonraker_conf(){
+function write_moonraker_conf() {
   local cfg_dir=${1} cfg=${2} port=${3} log=${4} db=${5} uds=${6} lan=${7}
   local conf_template="${KIAUH_SRCDIR}/resources/moonraker.conf"
 
@@ -261,7 +261,7 @@ function write_moonraker_conf(){
   fi
 }
 
-function create_moonraker_service(){
+function create_moonraker_service() {
   local input=("${@}")
   local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -309,7 +309,7 @@ function create_moonraker_service(){
   fi
 }
 
-function write_moonraker_service(){
+function write_moonraker_service() {
   local i=${1} cfg=${2} log=${3} service=${4}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker.service"
 
@@ -325,7 +325,7 @@ function write_moonraker_service(){
   fi
 }
 
-function print_mr_ip_list(){
+function print_mr_ip_list() {
   local ip count=${1} port=7125
   ip=$(hostname -I | cut -d" " -f1)
 
@@ -338,7 +338,7 @@ function print_mr_ip_list(){
 ### introduced due to
 ### https://github.com/Arksine/moonraker/issues/349
 ### https://github.com/Arksine/moonraker/pull/346
-function moonraker_polkit(){
+function moonraker_polkit() {
   local has_sup
 
   ### check for required SupplementaryGroups entry in service files
@@ -454,7 +454,7 @@ function remove_moonraker_nginx() {
 }
 
 
-function remove_moonraker(){
+function remove_moonraker() {
   remove_moonraker_sysvinit
   remove_moonraker_systemd
   remove_moonraker_logs
@@ -472,7 +472,7 @@ function remove_moonraker(){
 #================ UPDATE MOONRAKER ================#
 #==================================================#
 
-function update_moonraker(){
+function update_moonraker() {
   do_action_service "stop" "moonraker"
 
   if [[ ! -d ${MOONRAKER_DIR} ]]; then
@@ -498,7 +498,7 @@ function update_moonraker(){
 #================ MOONRAKER STATUS ================#
 #==================================================#
 
-function get_moonraker_status(){
+function get_moonraker_status() {
   local sf_count status
   sf_count="$(moonraker_systemd | wc -w)"
 
@@ -523,7 +523,7 @@ function get_moonraker_status(){
   echo "${status}"
 }
 
-function get_local_moonraker_commit(){
+function get_local_moonraker_commit() {
   [[ ! -d ${MOONRAKER_DIR} || ! -d "${MOONRAKER_DIR}/.git" ]] && return
 
   local commit
@@ -532,7 +532,7 @@ function get_local_moonraker_commit(){
   echo "${commit}"
 }
 
-function get_remote_moonraker_commit(){
+function get_remote_moonraker_commit() {
   [[ ! -d ${MOONRAKER_DIR} || ! -d "${MOONRAKER_DIR}/.git" ]] && return
 
   local commit
@@ -541,7 +541,7 @@ function get_remote_moonraker_commit(){
   echo "${commit}"
 }
 
-function compare_moonraker_versions(){
+function compare_moonraker_versions() {
   unset MOONRAKER_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_moonraker_commit)"

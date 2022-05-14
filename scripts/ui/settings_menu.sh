@@ -93,7 +93,7 @@ function settings_ui() {
   back_help_footer
 }
 
-function show_settings_help(){
+function show_settings_help() {
   local choice default_cfg="${cyan}${HOME}/klipper_config${white}"
 
   top_border
@@ -144,7 +144,7 @@ function show_settings_help(){
   done
 }
 
-function settings_menu(){
+function settings_menu() {
   local action
 
   clear && print_header

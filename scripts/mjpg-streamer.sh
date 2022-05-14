@@ -15,7 +15,7 @@ set -e
 #============= INSTALL MJPG-STREAMER =============#
 #=================================================#
 
-function install_mjpg-streamer(){
+function install_mjpg-streamer() {
   local webcamd="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
   local webcam_txt="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
   local repo="https://github.com/jacksonliam/mjpg-streamer.git"
@@ -149,7 +149,7 @@ EOF
 #============== REMOVE MJPG-STREAMER =============#
 #=================================================#
 
-function remove_mjpg-streamer(){
+function remove_mjpg-streamer() {
   ### remove MJPG-Streamer service
   if [ -e "${SYSTEMD}/webcamd.service" ]; then
     status_msg "Removing MJPG-Streamer service ..."

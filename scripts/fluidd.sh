@@ -15,7 +15,7 @@ set -e
 #================== INSTALL FLUIDD =================#
 #===================================================#
 
-function install_fluidd(){
+function install_fluidd() {
   ### exit early if moonraker not found
   if [ -z "$(moonraker_systemd)" ]; then
     local error="Moonraker not installed! Please install Moonraker first!"
@@ -89,7 +89,7 @@ function install_fluidd(){
   print_confirm "Fluidd has been set up!"
 }
 
-function install_fluidd_macros(){
+function install_fluidd_macros() {
   while true; do
     echo
     top_border
@@ -121,7 +121,7 @@ function install_fluidd_macros(){
   return
 }
 
-function download_fluidd_macros(){
+function download_fluidd_macros() {
   log_info "executing: download_fluidd_macros"
   local fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
   local configs
@@ -154,7 +154,7 @@ function download_fluidd_macros(){
   fi
 }
 
-function fluidd_setup(){
+function fluidd_setup() {
   local url
   url=$(get_fluidd_download_url)
   status_msg "Downloading Fluidd ..."
@@ -175,13 +175,13 @@ function fluidd_setup(){
 #================== REMOVE FLUIDD ==================#
 #===================================================#
 
-function remove_fluidd_dir(){
+function remove_fluidd_dir() {
   [ ! -d "${FLUIDD_DIR}" ] && return
   status_msg "Removing Fluidd directory ..."
   rm -rf "${FLUIDD_DIR}" && ok_msg "Directory removed!"
 }
 
-function remove_fluidd_config(){
+function remove_fluidd_config() {
   if [ -e "/etc/nginx/sites-available/fluidd" ]; then
     status_msg "Removing Fluidd configuration for Nginx ..."
     sudo rm "/etc/nginx/sites-available/fluidd" && ok_msg "File removed!"
@@ -192,7 +192,7 @@ function remove_fluidd_config(){
   fi
 }
 
-function remove_fluidd_logs(){
+function remove_fluidd_logs() {
   local files
   files=$(find /var/log/nginx -name "fluidd*")
   if [ -n "${files}" ]; then
@@ -204,7 +204,7 @@ function remove_fluidd_logs(){
   fi
 }
 
-function remove_fluidd_log_symlinks(){
+function remove_fluidd_log_symlinks() {
   local files
   files=$(find "${KLIPPER_LOGS}" -name "fluidd*")
   if [ -n "${files}" ]; then
@@ -216,7 +216,7 @@ function remove_fluidd_log_symlinks(){
   fi
 }
 
-function remove_fluidd(){
+function remove_fluidd() {
   remove_fluidd_dir
   remove_fluidd_config
   remove_fluidd_logs
@@ -232,7 +232,7 @@ function remove_fluidd(){
 #================== UPDATE FLUIDD ==================#
 #===================================================#
 
-function update_fluidd(){
+function update_fluidd() {
   backup_before_update "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
@@ -244,7 +244,7 @@ function update_fluidd(){
 #================== FLUIDD STATUS ==================#
 #===================================================#
 
-function get_fluidd_status(){
+function get_fluidd_status() {
   local status
   local data_arr=("${FLUIDD_DIR}" "${NGINX_SA}/fluidd" "${NGINX_SE}/fluidd")
 
@@ -264,21 +264,21 @@ function get_fluidd_status(){
   echo "${status}"
 }
 
-function get_local_fluidd_version(){
+function get_local_fluidd_version() {
   local version
   [ ! -f "${FLUIDD_DIR}/.version" ] && return
   version=$(head -n 1 "${FLUIDD_DIR}/.version")
   echo "${version}"
 }
 
-function get_remote_fluidd_version(){
+function get_remote_fluidd_version() {
   local version
   [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
   version=$(get_fluidd_download_url | rev | cut -d"/" -f2 | rev)
   echo "${version}"
 }
 
-function compare_fluidd_versions(){
+function compare_fluidd_versions() {
   unset FLUIDD_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_fluidd_version)"
@@ -322,7 +322,7 @@ function get_fluidd_download_url() {
   fi
 }
 
-function fluidd_port_check(){
+function fluidd_port_check() {
   if [ "${FLUIDD_ENABLED}" = "false" ]; then
     if [ "${SITE_ENABLED}" = "true" ]; then
       status_msg "Detected other enabled interfaces:"
@@ -342,7 +342,7 @@ function fluidd_port_check(){
   fi
 }
 
-function select_fluidd_port(){
+function select_fluidd_port() {
   if [ "${PORT_80_BLOCKED}" = "true" ]; then
     echo
     top_border
@@ -373,7 +373,7 @@ function select_fluidd_port(){
   fi
 }
 
-function patch_fluidd_update_manager(){
+function patch_fluidd_update_manager() {
   local moonraker_configs
   moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
   for conf in ${moonraker_configs}; do

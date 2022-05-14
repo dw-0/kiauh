@@ -11,7 +11,7 @@
 
 set -e
 
-function change_klipper_repo_menu(){
+function change_klipper_repo_menu() {
   local repo_file="${KIAUH_SRCDIR}/klipper_repos.txt"
   local repo branch repos=() branches=()
 
@@ -94,7 +94,7 @@ function change_klipper_repo_menu(){
 #=================== HELPERS ====================#
 #================================================#
 
-function switch_klipper_repo(){
+function switch_klipper_repo() {
   local repo_url branch
   repo_url="https://github.com/${1}" branch=${2}
   status_msg "Switching Klipper repository..."
@@ -106,7 +106,7 @@ function switch_klipper_repo(){
   do_action_service "start" "klipper"
 }
 
-function show_custom_klipper_repo_help(){
+function show_custom_klipper_repo_help() {
   top_border
   echo -e "|   ~~~~ < ? > Help: Custom Klipper repo < ? > ~~~~     |"
   hr

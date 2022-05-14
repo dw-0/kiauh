@@ -15,7 +15,7 @@ set -e
 #=================== REMOVE NGINX ==================#
 #===================================================#
 
-function remove_nginx(){
+function remove_nginx() {
   if [ -f "${SYSTEMD}/nginx.service" ]; then
     status_msg "Stopping Nginx service ..."
     sudo systemctl stop nginx && sudo systemctl disable nginx
@@ -33,7 +33,7 @@ function remove_nginx(){
 #===================== HELPERS =====================#
 #===================================================#
 
-function set_upstream_nginx_cfg(){
+function set_upstream_nginx_cfg() {
   local current_date
   current_date=$(get_date)
   local upstreams="${NGINX_CONFD}/upstreams.conf"
@@ -60,7 +60,7 @@ function set_upstream_nginx_cfg(){
   [ ! -f "${common_vars}" ] && sudo cp "${RESOURCES}/common_vars.conf" "${common_vars}"
 }
 
-function symlink_webui_nginx_log(){
+function symlink_webui_nginx_log() {
   local interface=${1} path="${KLIPPER_LOGS}"
   local access_log="/var/log/nginx/${interface}-access.log"
   local error_log="/var/log/nginx/${interface}-error.log"
@@ -77,7 +77,7 @@ function symlink_webui_nginx_log(){
   fi
 }
 
-function match_nginx_configs(){
+function match_nginx_configs() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local require_service_restart="false"
   local upstreams="${NGINX_CONFD}/upstreams.conf"
@@ -127,7 +127,7 @@ function match_nginx_configs(){
   [ "${require_service_restart}" == "true" ] && sudo systemctl restart nginx.service
 }
 
-function process_disruptive_services(){
+function process_disruptive_services() {
   #handle haproxy service
   if [ "${DISABLE_HAPROXY}" = "true" ] || [ "${REMOVE_HAPROXY}" = "true" ]; then
     if systemctl is-active haproxy -q; then
@@ -189,7 +189,7 @@ function process_disruptive_services(){
   fi
 }
 
-function process_services_dialog(){
+function process_services_dialog() {
   #notify user about haproxy or lighttpd services found and possible issues
   if [ "${HAPROXY_FOUND}" = "true" ] || [ "${LIGHTTPD_FOUND}" = "true" ] || [ "${APACHE2_FOUND}" = "true" ]; then
     while true; do
@@ -239,7 +239,7 @@ function process_services_dialog(){
   fi
 }
 
-function set_nginx_cfg(){
+function set_nginx_cfg() {
   local interface=${1}
   if [ "${SET_NGINX_CFG}" = "true" ]; then
     local cfg="${RESOURCES}/${interface}"
@@ -283,13 +283,13 @@ function set_nginx_cfg(){
   fi
 }
 
-function read_listen_port(){
+function read_listen_port() {
   local port interface=${1}
   port=$(grep listen "/etc/nginx/sites-enabled/${interface}" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
   echo "${port}"
 }
 
-function detect_enabled_sites(){
+function detect_enabled_sites() {
   MAINSAIL_ENABLED="false" FLUIDD_ENABLED="false" OCTOPRINT_ENABLED="false"
   #check if there is another UI config already installed and reads the port they are listening on
   if [ -e "/etc/nginx/sites-enabled/mainsail" ]; then

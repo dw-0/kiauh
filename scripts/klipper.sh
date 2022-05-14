@@ -35,7 +35,7 @@ function klipper_exists() {
   echo "${services}"
 }
 
-function klipper_setup_dialog(){
+function klipper_setup_dialog() {
   status_msg "Initializing Klipper installation ..."
 
   local klipper_services
@@ -148,7 +148,7 @@ function klipper_setup_dialog(){
   klipper_setup "${user_input[@]}"
 }
 
-function install_klipper_packages(){
+function install_klipper_packages() {
   local packages python_version="${1}"
   local install_script="${HOME}/klipper/scripts/install-debian.sh"
 
@@ -184,7 +184,7 @@ function install_klipper_packages(){
   fi
 }
 
-function create_klipper_virtualenv(){
+function create_klipper_virtualenv() {
   local python_version="${1}" py2_ver py3_ver
 
   if [[ ${python_version} == "python2" ]]; then
@@ -219,7 +219,7 @@ function create_klipper_virtualenv(){
   return
 }
 
-function klipper_setup(){
+function klipper_setup() {
   read_kiauh_ini "${FUNCNAME[0]}"
   ### index 0: python version, index 1: instance count, index 2-n: instance names (optional)
   local user_input=("${@}")
@@ -273,7 +273,7 @@ function klipper_setup(){
   print_confirm "${confirm}" && return
 }
 
-function write_klipper_service(){
+function write_klipper_service() {
   local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6}
   local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
 
@@ -288,7 +288,7 @@ function write_klipper_service(){
   fi
 }
 
-function write_example_printer_cfg(){
+function write_example_printer_cfg() {
   local cfg_dir=${1} cfg=${2}
   local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
 
@@ -305,7 +305,7 @@ function write_example_printer_cfg(){
   fi
 }
 
-function create_klipper_service(){
+function create_klipper_service() {
   local input=("${@}")
   local klipper_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -438,7 +438,7 @@ function remove_klipper_env() {
   ok_msg "Directory removed!"
 }
 
-function remove_klipper(){
+function remove_klipper() {
   remove_klipper_sysvinit
   remove_klipper_systemd
   remove_klipper_logs
@@ -455,7 +455,7 @@ function remove_klipper(){
 #================ UPDATE KLIPPER ================#
 #================================================#
 
-function update_klipper(){
+function update_klipper() {
   do_action_service "stop" "klipper"
 
   if [[ ! -d ${KLIPPER_DIR} ]]; then
@@ -478,7 +478,7 @@ function update_klipper(){
 #================ KLIPPER STATUS ================#
 #================================================#
 
-function get_klipper_status(){
+function get_klipper_status() {
   local sf_count status py_ver
   sf_count="$(klipper_systemd | wc -w)"
 
@@ -515,7 +515,7 @@ function get_klipper_status(){
   echo "${status}"
 }
 
-function get_local_klipper_commit(){
+function get_local_klipper_commit() {
   [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
 
   local commit
@@ -524,7 +524,7 @@ function get_local_klipper_commit(){
   echo "${commit}"
 }
 
-function get_remote_klipper_commit(){
+function get_remote_klipper_commit() {
   [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
 
   local commit
@@ -533,7 +533,7 @@ function get_remote_klipper_commit(){
   echo "${commit}"
 }
 
-function compare_klipper_versions(){
+function compare_klipper_versions() {
   unset KLIPPER_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_klipper_commit)"

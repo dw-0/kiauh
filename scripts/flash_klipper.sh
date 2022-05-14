@@ -11,7 +11,7 @@
 
 set -e
 
-function init_flash_process(){
+function init_flash_process() {
   local method
 
   ### step 1: check for required userhgroups (tty & dialout)
@@ -61,7 +61,7 @@ function init_flash_process(){
 #================================================#
 #=================== STEP 2 =====================#
 #================================================#
-function select_mcu_connection(){
+function select_mcu_connection() {
   top_border
   echo -e "| ${yellow}Make sure that the controller board is connected now!${white} |"
   hr
@@ -98,7 +98,7 @@ function select_mcu_connection(){
   done
 }
 
-function print_detected_mcu_to_screen(){
+function print_detected_mcu_to_screen() {
   local i=1
 
   if [ "${#mcu_list[@]}" -lt 1 ]; then
@@ -117,7 +117,7 @@ function print_detected_mcu_to_screen(){
 #================================================#
 #=================== STEP 3 =====================#
 #================================================#
-function select_mcu_id(){
+function select_mcu_id() {
   local i=0 sel_index=0 method=${1}
 
   if [ "${#mcu_list[@]}" -lt 1 ]; then
@@ -179,7 +179,7 @@ function select_mcu_id(){
   done
 }
 
-function start_flash_mcu(){
+function start_flash_mcu() {
   local device=${1}
   do_action_service "stop" "klipper"
   if make flash FLASH_DEVICE="${device}"; then
@@ -191,7 +191,7 @@ function start_flash_mcu(){
   do_action_service "start" "klipper"
 }
 
-function start_flash_sd(){
+function start_flash_sd() {
   local i=0 board_list=() device=${1}
   local flash_script="${HOME}/klipper/scripts/flash-sdcard.sh"
 
@@ -261,7 +261,7 @@ function start_flash_sd(){
   do_action_service "start" "klipper"
 }
 
-function build_fw(){
+function build_fw() {
   local python_version
 
   if [[ ! -d ${KLIPPER_DIR} || ! -d ${KLIPPY_ENV} ]]; then
@@ -297,7 +297,7 @@ function build_fw(){
 #=================== HELPERS ====================#
 #================================================#
 
-function get_usb_id(){
+function get_usb_id() {
   unset mcu_list
   sleep 1
   mcus=$(find /dev/serial/by-id/* 2>/dev/null)
@@ -315,7 +315,7 @@ function get_uart_id() {
   done
 }
 
-function show_flash_method_help(){
+function show_flash_method_help() {
   top_border
   echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
   hr
@@ -356,7 +356,7 @@ function show_flash_method_help(){
   done
 }
 
-function show_mcu_connection_help(){
+function show_mcu_connection_help() {
   top_border
   echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
   hr

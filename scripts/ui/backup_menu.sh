@@ -11,7 +11,7 @@
 
 set -e
 
-function backup_ui(){
+function backup_ui() {
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~ [ Backup Menu ] ~~~~~~~~~~~~~~")     |"
   hr
@@ -29,7 +29,7 @@ function backup_ui(){
   back_footer
 }
 
-function backup_menu(){
+function backup_menu() {
   do_action "" "backup_ui"
   while true; do
     read -p "${cyan}####### Perform action:${white} " action

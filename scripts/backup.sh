@@ -11,18 +11,18 @@
 
 set -e
 
-function get_date(){
+function get_date() {
   current_date=$(date +"%y%m%d-%H%M")
   echo "${current_date}"
 }
 
-function check_for_backup_dir(){
+function check_for_backup_dir() {
   [ -d "${BACKUP_DIR}" ] && return
   status_msg "Create KIAUH backup directory ..."
   mkdir -p "${BACKUP_DIR}" && ok_msg "Directory created!"
 }
 
-function backup_before_update(){
+function backup_before_update() {
   read_kiauh_ini "${FUNCNAME[0]}"
   # shellcheck disable=SC2154
   local state="${backup_before_update}"
@@ -30,7 +30,7 @@ function backup_before_update(){
   backup_"${1}"
 }
 
-function backup_printer_cfg(){
+function backup_printer_cfg() {
   check_for_backup_dir
   local current_date
   if [ -f "${PRINTER_CFG}" ]; then
@@ -43,7 +43,7 @@ function backup_printer_cfg(){
   fi
 }
 
-function backup_klipper_config_dir(){
+function backup_klipper_config_dir() {
   check_for_backup_dir
   local current_date
   if [ -d "${KLIPPER_CONFIG}" ]; then
@@ -59,7 +59,7 @@ function backup_klipper_config_dir(){
   fi
 }
 
-function backup_moonraker_database(){
+function backup_moonraker_database() {
   check_for_backup_dir
   local current_date databases target_dir
 
@@ -81,7 +81,7 @@ function backup_moonraker_database(){
   return
 }
 
-function backup_klipper(){
+function backup_klipper() {
   local current_date
   if [ -d "${KLIPPER_DIR}" ] && [ -d "${KLIPPY_ENV}" ]; then
     status_msg "Creating Klipper backup ..."
@@ -96,7 +96,7 @@ function backup_klipper(){
   fi
 }
 
-function backup_mainsail(){
+function backup_mainsail() {
   local current_date
   if [ -d "${MAINSAIL_DIR}" ]; then
     status_msg "Creating Mainsail backup ..."
@@ -111,7 +111,7 @@ function backup_mainsail(){
   fi
 }
 
-function backup_fluidd(){
+function backup_fluidd() {
   local current_date
   if [ -d "${FLUIDD_DIR}" ]; then
     status_msg "Creating Fluidd backup ..."
@@ -126,7 +126,7 @@ function backup_fluidd(){
   fi
 }
 
-function backup_moonraker(){
+function backup_moonraker() {
   local current_date
   if [ -d "${MOONRAKER_DIR}" ] && [ -d "${MOONRAKER_ENV}" ]; then
     status_msg "Creating Moonraker backup ..."
@@ -141,7 +141,7 @@ function backup_moonraker(){
   fi
 }
 
-function backup_octoprint(){
+function backup_octoprint() {
   local current_date
   if [ -d "${OCTOPRINT_DIR}" ] && [ -d "${OCTOPRINT_CFG_DIR}" ]; then
     status_msg "Creating OctoPrint backup ..."
@@ -156,7 +156,7 @@ function backup_octoprint(){
   fi
 }
 
-function backup_klipperscreen(){
+function backup_klipperscreen() {
   local current_date
   if [ -d "${KLIPPERSCREEN_DIR}" ] ; then
     status_msg "Creating KlipperScreen backup ..."
@@ -171,7 +171,7 @@ function backup_klipperscreen(){
   fi
 }
 
-function backup_telegram_bot(){
+function backup_telegram_bot() {
   local current_date
   if [ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ] ; then
     status_msg "Creating MoonrakerTelegramBot backup ..."

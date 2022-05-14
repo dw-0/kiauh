@@ -11,7 +11,7 @@
 
 set -e
 
-function remove_ui(){
+function remove_ui() {
   top_border
   echo -e "|     ${red}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~${white}     |"
   hr
@@ -30,7 +30,7 @@ function remove_ui(){
   back_footer
 }
 
-function remove_menu(){
+function remove_menu() {
   do_action "" "remove_ui"
   while true; do
     read -p "${cyan}####### Perform action:${white} " action

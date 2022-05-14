@@ -21,7 +21,7 @@ function klipperscreen_systemd() {
   echo "${services}"
 }
 
-function install_klipperscreen(){
+function install_klipperscreen() {
   ### return early if python version check fails
   if [ "$(python3_check)" == "false" ]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
@@ -38,7 +38,7 @@ function install_klipperscreen(){
   do_action_service "restart" "KlipperScreen"
 }
 
-function klipperscreen_setup(){
+function klipperscreen_setup() {
   local dep=(wget curl unzip dfu-util)
   dependency_check "${dep[@]}"
   status_msg "Downloading KlipperScreen ..."
@@ -56,7 +56,7 @@ function klipperscreen_setup(){
 #=============== REMOVE KLIPPERSCREEN ==============#
 #===================================================#
 
-function remove_klipperscreen(){
+function remove_klipperscreen() {
   ### remove KlipperScreen dir
   if [ -d "${KLIPPERSCREEN_DIR}" ]; then
     status_msg "Removing KlipperScreen directory ..."
@@ -101,7 +101,7 @@ function remove_klipperscreen(){
 #=============== UPDATE KLIPPERSCREEN ==============#
 #===================================================#
 
-function update_klipperscreen(){
+function update_klipperscreen() {
   local old_md5
   old_md5=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
 
@@ -123,7 +123,7 @@ function update_klipperscreen(){
 #=============== KLIPPERSCREEN STATUS ==============#
 #===================================================#
 
-function get_klipperscreen_status(){
+function get_klipperscreen_status() {
   local sf_count status
   sf_count="$(klipperscreen_systemd | wc -w)"
 
@@ -147,7 +147,7 @@ function get_klipperscreen_status(){
   echo "${status}"
 }
 
-function get_local_klipperscreen_commit(){
+function get_local_klipperscreen_commit() {
   local commit
   [ ! -d "${KLIPPERSCREEN_DIR}" ] || [ ! -d "${KLIPPERSCREEN_DIR}"/.git ] && return
   cd "${KLIPPERSCREEN_DIR}"
@@ -155,7 +155,7 @@ function get_local_klipperscreen_commit(){
   echo "${commit}"
 }
 
-function get_remote_klipperscreen_commit(){
+function get_remote_klipperscreen_commit() {
   local commit
   [ ! -d "${KLIPPERSCREEN_DIR}" ] || [ ! -d "${KLIPPERSCREEN_DIR}"/.git ] && return
   cd "${KLIPPERSCREEN_DIR}" && git fetch origin -q
@@ -163,7 +163,7 @@ function get_remote_klipperscreen_commit(){
   echo "${commit}"
 }
 
-function compare_klipperscreen_versions(){
+function compare_klipperscreen_versions() {
   unset KLIPPERSCREEN_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_klipperscreen_commit)"
@@ -185,7 +185,7 @@ function compare_klipperscreen_versions(){
 #=================== HELPERS ====================#
 #================================================#
 
-function patch_klipperscreen_update_manager(){
+function patch_klipperscreen_update_manager() {
   local moonraker_configs
   moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
   for conf in ${moonraker_configs}; do

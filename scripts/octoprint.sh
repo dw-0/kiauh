@@ -21,7 +21,7 @@ function octoprint_systemd() {
   echo "${services}"
 }
 
-function octoprint_setup_dialog(){
+function octoprint_setup_dialog() {
   status_msg "Initializing OctoPrint installation ..."
 
   local klipper_services klipper_count user_input=() klipper_names=()
@@ -97,7 +97,7 @@ function octoprint_setup_dialog(){
   octoprint_setup "${user_input[@]}"
 }
 
-function octoprint_setup(){
+function octoprint_setup() {
   local instance_arr=("${@}")
   ### check and install all dependencies
   local dep=(
@@ -133,7 +133,7 @@ function octoprint_setup(){
   print_confirm "${confirm}" && print_op_ip_list "${instance_arr[0]}" && return
 }
 
-function install_octoprint(){
+function install_octoprint() {
 
   function install_octoprint_python_env() {
     local tmp="${1}"
@@ -207,7 +207,7 @@ function install_octoprint(){
   fi
 }
 
-function create_octoprint_service(){
+function create_octoprint_service() {
   local input=("${@}")
   local octoprint_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -279,7 +279,7 @@ CONFIGYAML
   done
 }
 
-function add_reboot_permission(){
+function add_reboot_permission() {
   #create a backup if file already exists
   if [[ -f /etc/sudoers.d/octoprint-shutdown ]]; then
     sudo mv /etc/sudoers.d/octoprint-shutdown /etc/sudoers.d/octoprint-shutdown.old
@@ -293,7 +293,7 @@ function add_reboot_permission(){
   ok_msg "Permission set!"
 }
 
-function print_op_ip_list(){
+function print_op_ip_list() {
   local ip octoprint_count="${1}" port=5000
   ip=$(hostname -I | cut -d" " -f1)
 
@@ -307,7 +307,7 @@ function print_op_ip_list(){
 #=============== REMOVE OCTOPRINT ================#
 #=================================================#
 
-function remove_octoprint_service(){
+function remove_octoprint_service() {
   [[ -z "$(octoprint_systemd)" ]] && return
 
   ###remove all octoprint services
@@ -326,14 +326,14 @@ function remove_octoprint_service(){
   sudo systemctl reset-failed
 }
 
-function remove_octoprint_sudoers(){
+function remove_octoprint_sudoers() {
   [[ ! -f /etc/sudoers.d/octoprint-shutdown ]] && return
 
   ### remove sudoers file
   sudo rm -f /etc/sudoers.d/octoprint-shutdown
 }
 
-function remove_octoprint_env(){
+function remove_octoprint_env() {
   local files
   files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[0-9a-zA-Z]+)?" | sort)
   if [[ -n ${files} ]]; then
@@ -345,7 +345,7 @@ function remove_octoprint_env(){
   fi
 }
 
-function remove_octoprint_dir(){
+function remove_octoprint_dir() {
   local files
   files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/.octoprint(_[0-9a-zA-Z]+)?" | sort)
   if [[ -n ${files} ]]; then
@@ -357,7 +357,7 @@ function remove_octoprint_dir(){
   fi
 }
 
-function remove_octoprint(){
+function remove_octoprint() {
   remove_octoprint_service
   remove_octoprint_sudoers
   remove_octoprint_env
@@ -374,7 +374,7 @@ function remove_octoprint(){
 #=============== OCTOPRINT STATUS ================#
 #=================================================#
 
-function get_octoprint_status(){
+function get_octoprint_status() {
   local sf_count env_count dir_count status
   sf_count="$(octoprint_systemd | wc -w)"
   env_count=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[0-9a-zA-Z]+)?" | wc -w)

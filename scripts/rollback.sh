@@ -11,7 +11,7 @@
 
 set -e
 
-function rollback_menu(){
+function rollback_menu() {
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~ [ Rollback Menu ] ~~~~~~~~~~~~~")     |"
   hr

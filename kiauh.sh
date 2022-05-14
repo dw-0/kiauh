@@ -21,7 +21,7 @@ for script in "${KIAUH_SRCDIR}/scripts/ui/"*.sh; do . "${script}"; done
 #=================== UPDATE KIAUH ==================#
 #===================================================#
 
-function update_kiauh(){
+function update_kiauh() {
   status_msg "Updating KIAUH ..."
   cd "${KIAUH_SRCDIR}"
   git reset --hard && git pull
@@ -33,7 +33,7 @@ function update_kiauh(){
 #=================== KIAUH STATUS ==================#
 #===================================================#
 
-function kiauh_update_avail(){
+function kiauh_update_avail() {
   [[ ! -d "${KIAUH_SRCDIR}/.git" ]] && return
   local origin head
   cd "${KIAUH_SRCDIR}"

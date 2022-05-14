@@ -11,7 +11,7 @@
 
 set -e
 
-function update_ui(){
+function update_ui() {
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${white}     |"
   hr
@@ -36,7 +36,7 @@ function update_ui(){
   back_footer
 }
 
-function update_menu(){
+function update_menu() {
   unset update_arr
   do_action "" "update_ui"
   while true; do
@@ -71,7 +71,7 @@ function update_menu(){
   update_menu
 }
 
-function update_all(){
+function update_all() {
   while true; do
     if [ "${#update_arr[@]}" = "0" ]; then
       CONFIRM_MSG="Everything is already up to date!"

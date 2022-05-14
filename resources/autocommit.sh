@@ -26,7 +26,7 @@
 #####################################################################
 ################ !!! DO NOT EDIT BELOW THIS LINE !!! ################
 #####################################################################
-grab_version(){
+grab_version() {
   if [ ! -z "$klipper_folder" ]; then
     cd "$klipper_folder"
     klipper_commit=$(git rev-parse --short=7 HEAD)
@@ -49,7 +49,7 @@ grab_version(){
   fi
 }
 
-push_config(){
+push_config() {
   cd $config_folder
   git pull
   git add .

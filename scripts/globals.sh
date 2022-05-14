@@ -12,7 +12,7 @@
 # shellcheck disable=SC2034
 set -e
 
-function set_globals(){
+function set_globals() {
   #=================== SYSTEM ===================#
   SYSTEMD="/etc/systemd/system"
   INITD="/etc/init.d"

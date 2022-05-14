@@ -15,7 +15,7 @@ set -e
 #================== INSTALL PGC ==================#
 #=================================================#
 
-function install_pgc_for_klipper(){
+function install_pgc_for_klipper() {
   pgconfsrc="${PGC_DIR}/pgcode.local.conf"
   pgconf="/etc/nginx/sites-available/pgcode.local.conf"
   pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
@@ -53,7 +53,7 @@ function install_pgc_for_klipper(){
 #=================== REMOVE PGC ==================#
 #=================================================#
 
-function remove_prettygcode(){
+function remove_prettygcode() {
   pgconf="/etc/nginx/sites-available/pgcode.local.conf"
   pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
   if [ -d "${HOME}/pgcode" ] || [ -f "${pgconf}" ] || [ -L "${pgconfsl}" ]; then
@@ -72,7 +72,7 @@ function remove_prettygcode(){
 #=================== UPDATE PGC ==================#
 #=================================================#
 
-function update_pgc_for_klipper(){
+function update_pgc_for_klipper() {
   PGC_DIR="${HOME}/pgcode"
   status_msg "Updating PrettyGCode for Klipper ..."
   cd "${PGC_DIR}" && git pull
@@ -83,7 +83,7 @@ function update_pgc_for_klipper(){
 #=================== PGC STATUS ==================#
 #=================================================#
 
-function get_local_prettygcode_commit(){
+function get_local_prettygcode_commit() {
   local commit
   [ ! -d "${PGC_DIR}" ] || [ ! -d "${PGC_DIR}"/.git ] && return
   cd "${PGC_DIR}"
@@ -91,7 +91,7 @@ function get_local_prettygcode_commit(){
   echo "${commit}"
 }
 
-function get_remote_prettygcode_commit(){
+function get_remote_prettygcode_commit() {
   local commit
   [ ! -d "${PGC_DIR}" ] || [ ! -d "${PGC_DIR}"/.git ] && return
   cd "${PGC_DIR}" && git fetch origin -q
@@ -99,7 +99,7 @@ function get_remote_prettygcode_commit(){
   echo "${commit}"
 }
 
-function compare_prettygcode_versions(){
+function compare_prettygcode_versions() {
   unset PGC_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_prettygcode_commit)"

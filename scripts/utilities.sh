@@ -15,7 +15,7 @@ set -e
 #=================== STARTUP ====================#
 #================================================#
 
-function check_euid(){
+function check_euid() {
   if [[ ${EUID} -eq 0 ]]
   then
     echo -e "${red}"
@@ -34,26 +34,26 @@ function check_euid(){
 function select_msg() {
   echo -e "${white}   [➔] ${1}"
 }
-function status_msg(){
+function status_msg() {
   echo -e "\n${magenta}###### ${1}${white}"
 }
-function ok_msg(){
+function ok_msg() {
   echo -e "${green}[✓ OK] ${1}${white}"
 }
-function warn_msg(){
+function warn_msg() {
   echo -e "${yellow}>>>>>> ${1}${white}"
 }
-function error_msg(){
+function error_msg() {
   echo -e "${red}>>>>>> ${1}${white}"
 }
-function abort_msg(){
+function abort_msg() {
   echo -e "${red}<<<<<< ${1}${white}"
 }
-function title_msg(){
+function title_msg() {
   echo -e "${cyan}${1}${white}"
 }
 
-function print_error(){
+function print_error() {
   [[ -z ${1} ]] && return
   echo -e "${red}"
   echo -e "#=======================================================#"
@@ -62,7 +62,7 @@ function print_error(){
   echo -e "${white}"
 }
 
-function print_confirm(){
+function print_confirm() {
   [[ -z ${1} ]] && return
   echo -e "${green}"
   echo -e "#=======================================================#"
@@ -109,7 +109,7 @@ function log_error() {
 #=============== KIAUH SETTINGS =================#
 #================================================#
 
-function read_kiauh_ini(){
+function read_kiauh_ini() {
   local func=${1}
   if [[ ! -f ${INI_FILE} ]]; then
     print_error "ERROR: File '~/.kiauh.ini' not found!"
@@ -120,7 +120,7 @@ function read_kiauh_ini(){
   source "${INI_FILE}"
 }
 
-function init_ini(){
+function init_ini() {
   ### remove pre-version 4 ini files
   if [[ -f ${INI_FILE} ]] && ! grep -Eq "^# KIAUH v4\.0\.0$" "${INI_FILE}"; then
     rm "${INI_FILE}"
@@ -161,7 +161,7 @@ function init_ini(){
   fetch_webui_ports
 }
 
-function change_klipper_cfg_folder(){
+function change_klipper_cfg_folder() {
   local current_cfg_loc example_loc recommended_loc new_cfg_loc
   current_cfg_loc="$(get_klipper_cfg_dir)"
   example_loc=$(printf "%s/<your_config_folder>" "${HOME}")
@@ -198,7 +198,7 @@ function change_klipper_cfg_folder(){
   done
 }
 
-function set_klipper_cfg_path(){
+function set_klipper_cfg_path() {
   local current_cfg_loc="${1}" new_cfg_loc="${2}"
   local instance klipper_services moonraker_services moonraker_configs
 
@@ -321,7 +321,7 @@ function switch_fluidd_releasetype() {
   fi
 }
 
-function toggle_backup_before_update(){
+function toggle_backup_before_update() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local state="${backup_before_update}"
   if [[ ${state} = "false" ]]; then
@@ -344,7 +344,7 @@ function set_custom_klipper_repo() {
 #=============== HANDLE SERVICES ================#
 #================================================#
 
-function do_action_service(){
+function do_action_service() {
   local services action=${1} service=${2}
   services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[0-9a-zA-Z]+)?.service" | sort)
   if [[ -n ${services} ]]; then
@@ -367,7 +367,7 @@ function do_action_service(){
 #================================================#
 
 ### returns 'true' if python version >= 3.7
-function python3_check(){
+function python3_check() {
   local major minor passed
 
   major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
@@ -382,7 +382,7 @@ function python3_check(){
   echo "${passed}"
 }
 
-function dependency_check(){
+function dependency_check() {
   local dep=( "${@}" )
   local packages
   status_msg "Checking for the following dependencies:"
@@ -412,7 +412,7 @@ function dependency_check(){
   fi
 }
 
-function system_check_webui(){
+function system_check_webui() {
   ### check system for an installed haproxy service
   if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
     HAPROXY_FOUND="true"
@@ -429,7 +429,7 @@ function system_check_webui(){
   fi
 }
 
-function fetch_webui_ports(){
+function fetch_webui_ports() {
   ### read ports from possible installed interfaces and write them to ~/.kiauh.ini
   local port interfaces=("mainsail" "fluidd" "octoprint")
   for interface in "${interfaces[@]}"; do
@@ -451,7 +451,7 @@ function fetch_webui_ports(){
 #=================== SYSTEM =====================#
 #================================================#
 
-function check_system_updates(){
+function check_system_updates() {
   local updates_avail info_msg
   updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
   if [[ -n ${updates_avail} ]]; then
@@ -465,7 +465,7 @@ function check_system_updates(){
   echo "${info_msg}"
 }
 
-function update_system(){
+function update_system() {
   status_msg "Updating System ..."
   if sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y; then
     print_confirm "Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
@@ -474,7 +474,7 @@ function update_system(){
   fi
 }
 
-function check_usergroups(){
+function check_usergroups() {
   local group_dialout group_tty
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     group_dialout="false"
@@ -523,7 +523,7 @@ function check_usergroups(){
   fi
 }
 
-function set_custom_hostname(){
+function set_custom_hostname() {
   echo
   top_border
   echo -e "|  Changing the hostname of this machine allows you to  |"
@@ -550,7 +550,7 @@ function set_custom_hostname(){
   done
 }
 
-function change_hostname(){
+function change_hostname() {
     local new_hostname regex="^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$"
     echo
     top_border
@@ -584,7 +584,7 @@ function change_hostname(){
     done
 }
 
-function set_hostname(){
+function set_hostname() {
   local new_hostname=${1} current_date
   #check for dependencies
   local dep=(avahi-daemon)

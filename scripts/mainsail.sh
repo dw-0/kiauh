@@ -15,7 +15,7 @@ set -e
 #================= INSTALL MAINSAIL ================#
 #===================================================#
 
-function install_mainsail(){
+function install_mainsail() {
   ### exit early if moonraker not found
   if [ -z "$(moonraker_systemd)" ]; then
     local error="Moonraker not installed! Please install Moonraker first!"
@@ -89,7 +89,7 @@ function install_mainsail(){
   print_confirm "Mainsail has been set up!"
 }
 
-function install_mainsail_macros(){
+function install_mainsail_macros() {
   while true; do
     echo
     top_border
@@ -121,7 +121,7 @@ function install_mainsail_macros(){
   return
 }
 
-function download_mainsail_macros(){
+function download_mainsail_macros() {
   log_info "executing: download_mainsail_macros"
   local ms_cfg="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mainsail/filesystem/home/pi/klipper_config/mainsail.cfg"
   local configs
@@ -154,7 +154,7 @@ function download_mainsail_macros(){
   fi
 }
 
-function mainsail_setup(){
+function mainsail_setup() {
   local url
   url=$(get_mainsail_download_url)
   status_msg "Downloading Mainsail ..."
@@ -180,13 +180,13 @@ function mainsail_setup(){
 #================= REMOVE MAINSAIL =================#
 #===================================================#
 
-function remove_mainsail_dir(){
+function remove_mainsail_dir() {
   [ ! -d "${MAINSAIL_DIR}" ] && return
   status_msg "Removing Mainsail directory ..."
   rm -rf "${MAINSAIL_DIR}" && ok_msg "Directory removed!"
 }
 
-function remove_mainsail_config(){
+function remove_mainsail_config() {
   if [ -e "/etc/nginx/sites-available/mainsail" ]; then
     status_msg "Removing Mainsail configuration for Nginx ..."
     sudo rm "/etc/nginx/sites-available/mainsail" && ok_msg "File removed!"
@@ -197,7 +197,7 @@ function remove_mainsail_config(){
   fi
 }
 
-function remove_mainsail_logs(){
+function remove_mainsail_logs() {
   local files
   files=$(find /var/log/nginx -name "mainsail*")
   if [ -n "${files}" ]; then
@@ -209,7 +209,7 @@ function remove_mainsail_logs(){
   fi
 }
 
-function remove_mainsail_log_symlinks(){
+function remove_mainsail_log_symlinks() {
   local files
   files=$(find "${KLIPPER_LOGS}" -name "mainsail*")
   if [ -n "${files}" ]; then
@@ -221,7 +221,7 @@ function remove_mainsail_log_symlinks(){
   fi
 }
 
-function remove_mainsail(){
+function remove_mainsail() {
   remove_mainsail_dir
   remove_mainsail_config
   remove_mainsail_logs
@@ -237,7 +237,7 @@ function remove_mainsail(){
 #================= UPDATE MAINSAIL =================#
 #===================================================#
 
-function update_mainsail(){
+function update_mainsail() {
   backup_before_update "mainsail"
   status_msg "Updating Mainsail ..."
   mainsail_setup
@@ -249,7 +249,7 @@ function update_mainsail(){
 #================= MAINSAIL STATUS =================#
 #===================================================#
 
-function get_mainsail_status(){
+function get_mainsail_status() {
   local status
   local data_arr=("${MAINSAIL_DIR}" "${NGINX_SA}/mainsail" "${NGINX_SE}/mainsail")
 
@@ -269,21 +269,21 @@ function get_mainsail_status(){
   echo "${status}"
 }
 
-function get_local_mainsail_version(){
+function get_local_mainsail_version() {
   local version
   [ ! -f "${MAINSAIL_DIR}/.version" ] && return
   version=$(head -n 1 "${MAINSAIL_DIR}/.version")
   echo "${version}"
 }
 
-function get_remote_mainsail_version(){
+function get_remote_mainsail_version() {
   local version
   [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
   version=$(get_mainsail_download_url | rev | cut -d"/" -f2 | rev)
   echo "${version}"
 }
 
-function compare_mainsail_versions(){
+function compare_mainsail_versions() {
   unset MAINSAIL_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_mainsail_version)"
@@ -305,7 +305,7 @@ function compare_mainsail_versions(){
 #=========== MAINSAIL THEME INSTALLER ===========#
 #================================================#
 
-function print_theme_list(){
+function print_theme_list() {
   local i=0 theme_list=${1}
   while IFS="," read -r col1 col2 col3 col4; do
     if [ "${col1}" != "name" ]; then
@@ -315,7 +315,7 @@ function print_theme_list(){
   done <<< "${theme_list}"
 }
 
-function ms_theme_installer_menu(){
+function ms_theme_installer_menu() {
   local theme_author theme_repo theme_name theme_note theme_url
   local theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/docs/master/_data/themes.csv"
   theme_list=$(curl -s -L "${theme_csv_url}")
@@ -361,7 +361,7 @@ function ms_theme_installer_menu(){
   ms_theme_installer_menu
 }
 
-function ms_theme_install(){
+function ms_theme_install() {
   local path moonraker_count theme_url=${1} theme_name theme_note
   theme_name=${2} theme_note=${3}
 
@@ -391,7 +391,7 @@ function ms_theme_install(){
   fi
 }
 
-function ms_theme_delete(){
+function ms_theme_delete() {
   local path
   path="$(get_klipper_cfg_dir)"
   moonraker_count=$(moonraker_systemd | wc -w)
@@ -438,7 +438,7 @@ function get_mainsail_download_url() {
   fi
 }
 
-function mainsail_port_check(){
+function mainsail_port_check() {
   if [ "${MAINSAIL_ENABLED}" = "false" ]; then
     if [ "${SITE_ENABLED}" = "true" ]; then
       status_msg "Detected other enabled interfaces:"
@@ -458,7 +458,7 @@ function mainsail_port_check(){
   fi
 }
 
-function select_mainsail_port(){
+function select_mainsail_port() {
   if [ "${PORT_80_BLOCKED}" = "true" ]; then
     echo
     top_border
@@ -489,13 +489,13 @@ function select_mainsail_port(){
   fi
 }
 
-function enable_mainsail_remotemode(){
+function enable_mainsail_remotemode() {
   [ ! -f "${MAINSAIL_DIR}/config.json" ] && return
   rm -f "${MAINSAIL_DIR}/config.json"
   echo -e "{\n    \"remoteMode\":true\n}" >> "${MAINSAIL_DIR}/config.json"
 }
 
-function patch_mainsail_update_manager(){
+function patch_mainsail_update_manager() {
   local moonraker_configs
   moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
   for conf in ${moonraker_configs}; do

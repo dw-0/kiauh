@@ -21,7 +21,7 @@ function telegram_bot_systemd() {
   echo "${services}"
 }
 
-function telegram_bot_setup_dialog(){
+function telegram_bot_setup_dialog() {
   status_msg "Initializing Telegram Bot installation ..."
 
   ### return early if moonraker is not installed
@@ -107,7 +107,7 @@ function telegram_bot_setup_dialog(){
   telegram_bot_setup "${user_input[@]}"
 }
 
-function install_telegram_bot_dependencies(){
+function install_telegram_bot_dependencies() {
   local packages
   local install_script="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/install.sh"
 
@@ -128,7 +128,7 @@ function install_telegram_bot_dependencies(){
   sudo apt-get install --yes "${packages[@]}"
 }
 
-function create_telegram_bot_virtualenv(){
+function create_telegram_bot_virtualenv() {
   status_msg "Installing python virtual environment..."
   ### always create a clean virtualenv
   [[ -d ${MOONRAKER_TELEGRAM_BOT_ENV_DIR} ]] && rm -rf "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
@@ -136,7 +136,7 @@ function create_telegram_bot_virtualenv(){
   "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"/bin/pip install -r "${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/requirements.txt"
 }
 
-function telegram_bot_setup(){
+function telegram_bot_setup() {
   local instance_arr=("${@}")
   ### checking dependencies
   local dep=(git virtualenv)
@@ -170,7 +170,7 @@ function telegram_bot_setup(){
   print_confirm "${confirm}" && return
 }
 
-function create_telegram_conf(){
+function create_telegram_conf() {
   local input=("${@}")
   local telegram_bot_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -204,7 +204,7 @@ function create_telegram_conf(){
   fi
 }
 
-function write_telegram_conf(){
+function write_telegram_conf() {
   local cfg_dir=${1} cfg=${2} log=${3}
   local conf_template="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/base_install_template"
   [[ ! -d ${cfg_dir} ]] && mkdir -p "${cfg_dir}"
@@ -219,7 +219,7 @@ function write_telegram_conf(){
   fi
 }
 
-function create_telegram_bot_service(){
+function create_telegram_bot_service() {
   local input=("${@}")
   local instances=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -259,7 +259,7 @@ function create_telegram_bot_service(){
   fi
 }
 
-function write_telegram_bot_service(){
+function write_telegram_bot_service() {
   local i=${1} cfg=${2} log=${3} service=${4}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.service"
 
@@ -326,7 +326,7 @@ function remove_telegram_bot_logs() {
   fi
 }
 
-function remove_telegram_bot(){
+function remove_telegram_bot() {
   remove_telegram_bot_systemd
   remove_telegram_bot_dir
   remove_telegram_bot_env
@@ -340,7 +340,7 @@ function remove_telegram_bot(){
 #=========== UPDATE MOONRAKERTELEGRAMBOT ===========#
 #===================================================#
 
-function update_telegram_bot(){
+function update_telegram_bot() {
   do_action_service "stop" "moonraker-telegram-bot"
 
   if [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]]; then
@@ -363,7 +363,7 @@ function update_telegram_bot(){
 #=========== MOONRAKERTELEGRAMBOT STATUS ===========#
 #===================================================#
 
-function get_telegram_bot_status(){
+function get_telegram_bot_status() {
   local sf_count status
   sf_count="$(telegram_bot_systemd | wc -w)"
 
@@ -387,7 +387,7 @@ function get_telegram_bot_status(){
   echo "${status}"
 }
 
-function get_local_telegram_bot_commit(){
+function get_local_telegram_bot_commit() {
   [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
 
   local commit
@@ -396,7 +396,7 @@ function get_local_telegram_bot_commit(){
   echo "${commit}"
 }
 
-function get_remote_telegram_bot_commit(){
+function get_remote_telegram_bot_commit() {
   [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
 
   local commit
@@ -405,7 +405,7 @@ function get_remote_telegram_bot_commit(){
   echo "${commit}"
 }
 
-function compare_telegram_bot_versions(){
+function compare_telegram_bot_versions() {
   unset MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_telegram_bot_commit)"

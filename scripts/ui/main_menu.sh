@@ -11,7 +11,7 @@
 
 set -e
 
-function main_ui(){
+function main_ui() {
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
@@ -29,20 +29,20 @@ function main_ui(){
   quit_footer
 }
 
-function get_kiauh_version(){
+function get_kiauh_version() {
   local version
   cd "${KIAUH_SRCDIR}"
   version="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${version}"
 }
 
-function print_kiauh_version(){
+function print_kiauh_version() {
   local version
   version="$(printf "%-18s" "$(get_kiauh_version)")"
   echo "${cyan}${version}${white}"
 }
 
-function print_status(){
+function print_status() {
   local status component="${1}"
   status=$(get_"${component}"_status)
   if [ "${status}" == "Not installed!" ]; then
@@ -55,7 +55,7 @@ function print_status(){
   printf "%-28s" "${status}"
 }
 
-function print_klipper_repo(){
+function print_klipper_repo() {
   read_kiauh_ini
   local repo klipper_status
   klipper_status=$(get_klipper_status)
@@ -71,7 +71,7 @@ function print_klipper_repo(){
   printf "%-28s" "${repo}"
 }
 
-function kiauh_update_dialog(){
+function kiauh_update_dialog() {
   [ ! "$(kiauh_update_avail)" == "true" ] && return
   top_border
   echo -e "|${green}              New KIAUH update available!              ${white}|"
@@ -95,7 +95,7 @@ function kiauh_update_dialog(){
   done
 }
 
-function main_menu(){
+function main_menu() {
   print_header
   #prompt for KIAUH update if update available
   kiauh_update_dialog

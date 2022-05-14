@@ -15,7 +15,7 @@ set -e
 #======== INSTALL GCODE_SHELL_COMMAND.PY =========#
 #=================================================#
 
-function setup_gcode_shell_command(){
+function setup_gcode_shell_command() {
   top_border
   echo -e "| You are about to install the G-Code Shell Command     |"
   echo -e "| extension. Please make sure to read the instructions  |"
@@ -65,7 +65,7 @@ function setup_gcode_shell_command(){
   done
 }
 
-function install_gcode_shell_command(){
+function install_gcode_shell_command() {
   do_action_service "stop" "klipper"
   status_msg "Copy 'gcode_shell_command.py' to '${KLIPPER_DIR}/klippy/extras' ..."
   if cp "${KIAUH_SRCDIR}/resources/gcode_shell_command.py" "${KLIPPER_DIR}/klippy/extras"; then

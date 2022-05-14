@@ -11,7 +11,7 @@
 
 set -e
 
-function advanced_ui(){
+function advanced_ui() {
   top_border
   echo -e "|     ${yellow}~~~~~~~~~~~~~ [ Advanced Menu ] ~~~~~~~~~~~~~${white}     |"
   hr
@@ -26,7 +26,7 @@ function advanced_ui(){
   back_footer
 }
 
-function advanced_menu(){
+function advanced_menu() {
   do_action "" "advanced_ui"
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
