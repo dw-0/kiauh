@@ -30,8 +30,8 @@ function klipper_systemd() {
 
 function klipper_exists() {
   local services
-  [ -n "$(klipper_initd)" ] && services+="$(klipper_initd) "
-  [ -n "$(klipper_systemd)" ] && services+="$(klipper_systemd)"
+  [[ -n $(klipper_initd) ]] && services+="$(klipper_initd) "
+  [[ -n $(klipper_systemd) ]] && services+="$(klipper_systemd)"
   echo "${services}"
 }
 
@@ -44,7 +44,7 @@ function klipper_setup_dialog(){
   ### return early if klipper already exists
   local klipper_services
   klipper_services=$(klipper_exists)
-  if [ -n "${klipper_services}" ]; then
+  if [[ -n ${klipper_services} ]]; then
     local error="At least one Klipper service is already installed:"
     for s in ${klipper_services}; do
       log_info "Found Klipper service: ${s}"
@@ -75,6 +75,7 @@ function klipper_setup_dialog(){
   user_input+=("${klipper_count}")
 
   ### confirm instance amount
+  local yn
   while true; do
     read -p "${cyan}###### Install ${klipper_count} instance(s)? (Y/n):${white} " yn
     case "${yn}" in
@@ -229,8 +230,8 @@ function klipper_setup(){
 
   ### step 1: clone klipper
   ### force remove existing klipper dir and clone into fresh klipper dir
-  [ -d "${KLIPPER_DIR}" ] && rm -rf "${KLIPPER_DIR}"
-  if [ -z "${custom_repo}" ]; then
+  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
+  if [[ -z ${custom_repo} ]]; then
     status_msg "Downloading Klipper ..."
     cd "${HOME}" && git clone "${KLIPPER_REPO}"
   else
@@ -247,8 +248,8 @@ function klipper_setup(){
   create_klipper_virtualenv "${python_version}"
 
   ### step 3: create gcode_files and logs folder
-  [ ! -d "${HOME}/gcode_files" ] && mkdir -p "${HOME}/gcode_files"
-  [ ! -d "${KLIPPER_LOGS}" ] && mkdir -p "${KLIPPER_LOGS}"
+  [[ ! -d "${HOME}/gcode_files" ]] && mkdir -p "${HOME}/gcode_files"
+  [[ ! -d ${KLIPPER_LOGS} ]] && mkdir -p "${KLIPPER_LOGS}"
 
   ### step 4: create klipper instances
   create_klipper_service "${instance_arr[@]}"
@@ -271,11 +272,11 @@ function write_klipper_service(){
   local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6}
   local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
   ### replace all placeholders
-  if [ ! -f "${service}" ]; then
+  if [[ ! -f ${service} ]]; then
     status_msg "Creating Klipper Service ${i} ..."
     sudo cp "${service_template}" "${service}"
-    [ -z "${i}" ] && sudo sed -i "s| for instance klipper-%INST%||" "${service}"
-    [ -n "${i}" ] && sudo sed -i "s|%INST%|${i}|" "${service}"
+    [[ -z ${i} ]] && sudo sed -i "s| for instance klipper-%INST%||" "${service}"
+    [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
     sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${KLIPPY_ENV}|; s|%DIR%|${KLIPPER_DIR}|" "${service}"
     sudo sed -i "s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${service}"
   fi
@@ -349,7 +350,7 @@ function create_klipper_service(){
 #================================================#
 
 function remove_klipper_sysvinit() {
-  [ ! -e "${INITD}/klipper" ] && return
+  [[ ! -e "${INITD}/klipper" ]] && return
   status_msg "Removing Klipper SysVinit service ..."
   sudo systemctl stop klipper
   sudo update-rc.d -f klipper remove
@@ -358,7 +359,7 @@ function remove_klipper_sysvinit() {
 }
 
 function remove_klipper_systemd() {
-  [ -z "$(klipper_systemd)" ] && return
+  [[ -z $(klipper_systemd) ]] && return
   status_msg "Removing Klipper Systemd Services ..."
   for service in $(klipper_systemd | cut -d"/" -f5)
   do
@@ -377,7 +378,7 @@ function remove_klipper_systemd() {
 function remove_klipper_logs() {
   local files regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
   files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
-  if [ -n "${files}" ]; then
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
@@ -389,7 +390,7 @@ function remove_klipper_logs() {
 function remove_klipper_uds() {
   local files
   files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
-  if [ -n "${files}" ]; then
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
@@ -401,7 +402,7 @@ function remove_klipper_uds() {
 function remove_klipper_printer() {
   local files
   files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[0-9a-zA-Z]+)?" | sort)
-  if [ -n "${files}" ]; then
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
@@ -411,14 +412,14 @@ function remove_klipper_printer() {
 }
 
 function remove_klipper_dir() {
-  [ ! -d "${KLIPPER_DIR}" ] && return
+  [[ ! -d ${KLIPPER_DIR} ]] && return
   status_msg "Removing Klipper directory ..."
   rm -rf "${KLIPPER_DIR}"
   ok_msg "Directory removed!"
 }
 
 function remove_klipper_env() {
-  [ ! -d "${KLIPPY_ENV}" ] && return
+  [[ ! -d ${KLIPPY_ENV} ]] && return
   status_msg "Removing klippy-env directory ..."
   rm -rf "${KLIPPY_ENV}"
   ok_msg "Directory removed!"
@@ -443,7 +444,7 @@ function remove_klipper(){
 
 function update_klipper(){
   do_action_service "stop" "klipper"
-  if [ ! -d "${KLIPPER_DIR}" ]; then
+  if [[ ! -d ${KLIPPER_DIR} ]]; then
     cd "${HOME}" && git clone "${KLIPPER_REPO}"
   else
     backup_before_update "klipper"
@@ -466,8 +467,8 @@ function get_klipper_status(){
   local sf_count status py_ver
   sf_count="$(klipper_systemd | wc -w)"
   ### detect an existing "legacy" klipper init.d installation
-  if [ "$(klipper_systemd | wc -w)" -eq 0 ] \
-  && [ "$(klipper_initd | wc -w)" -ge 1 ]; then
+  if [[ $(klipper_systemd | wc -w) -eq 0 ]] \
+  && [[ $(klipper_initd | wc -w) -ge 1 ]]; then
     sf_count=1
   fi
 
@@ -475,12 +476,12 @@ function get_klipper_status(){
 
   ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
-  [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
+  [[ ${sf_count} -gt 0 ]] && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
+    [[ -e ${data} ]] && filecount=$(("${filecount}" + 1))
   done
 
   if (( filecount == ${#data_arr[*]})); then
@@ -499,7 +500,7 @@ function get_klipper_status(){
 
 function get_local_klipper_commit(){
   local commit
-  [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPER_DIR}"/.git ] && return
+  [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
   cd "${KLIPPER_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
@@ -507,7 +508,7 @@ function get_local_klipper_commit(){
 
 function get_remote_klipper_commit(){
   local commit
-  [ ! -d "${KLIPPER_DIR}" ] || [ ! -d "${KLIPPER_DIR}"/.git ] && return
+  [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
   cd "${KLIPPER_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
@@ -518,7 +519,7 @@ function compare_klipper_versions(){
   local versions local_ver remote_ver
   local_ver="$(get_local_klipper_commit)"
   remote_ver="$(get_remote_klipper_commit)"
-  if [ "${local_ver}" != "${remote_ver}" ]; then
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add klipper to the update all array for the update all function in the updater
@@ -538,7 +539,7 @@ function compare_klipper_versions(){
 function get_klipper_cfg_dir() {
   local cfg_dir
   read_kiauh_ini "${FUNCNAME[0]}"
-  if [ -z "${custom_klipper_cfg_loc}" ]; then
+  if [[ -z ${custom_klipper_cfg_loc} ]]; then
     cfg_dir="${HOME}/klipper_config"
   else
     cfg_dir="${custom_klipper_cfg_loc}"
