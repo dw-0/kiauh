@@ -223,20 +223,21 @@ function create_telegram_bot_service(){
   local input=("${@}")
   local instances=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local cfg_dir cfg service
+  local cfg_dir cfg log service
 
   if (( instances == 1 )); then
     cfg_dir="${KLIPPER_CONFIG}"
     cfg="${cfg_dir}/telegram.conf"
+    log="${KLIPPER_LOGS}/telegram.log"
     service="${SYSTEMD}/moonraker-telegram-bot.service"
     ### write single instance service
-    write_telegram_bot_service "" "${cfg}" "${service}"
+    write_telegram_bot_service "" "${cfg}" "${log}" "${service}"
     ok_msg "Single Telegram Bot instance created!"
 
   elif (( instances > 1 )); then
     local j=0 re="^[1-9][0-9]*$"
 
-    for ((i=1; i <= instances; i++ )); do
+    for (( i=1; i <= instances; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
@@ -245,11 +246,12 @@ function create_telegram_bot_service(){
       fi
 
       cfg="${cfg_dir}/telegram.conf"
+      log="${KLIPPER_LOGS}/telegram-${names[${j}]}.log"
       service="${SYSTEMD}/moonraker-telegram-bot-${names[${j}]}.service"
       ### write multi instance service
-      write_telegram_bot_service "${i}(${names[${j}]})" "${cfg}" "${service}"
-      ok_msg "Telegram Bot instance #${i}(${names[${j}]}) created!"
-      j=$((j+1))
+      write_telegram_bot_service "${names[${j}]}" "${cfg}" "${log}" "${service}"
+      ok_msg "Telegram Bot instance moonraker-telegram-bot-${names[${j}]} created!"
+      j=$(( j + 1 ))
     done && unset j
 
   else
@@ -258,7 +260,7 @@ function create_telegram_bot_service(){
 }
 
 function write_telegram_bot_service(){
-  local i=${1} cfg=${2} service=${3}
+  local i=${1} cfg=${2} log=${3} service=${4}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.service"
 
   ### replace all placeholders
@@ -268,7 +270,7 @@ function write_telegram_bot_service(){
     [[ -z ${i} ]] && sudo sed -i "s|instance %INST% ||" "${service}"
     [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
     sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_TELEGRAM_BOT_ENV_DIR}|; s|%DIR%|${MOONRAKER_TELEGRAM_BOT_DIR}|" "${service}"
-    sudo sed -i "s|%CFG%|${cfg}|" "${service}"
+    sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
   fi
 }
 
@@ -279,6 +281,7 @@ function write_telegram_bot_service(){
 
 function remove_telegram_bot_systemd() {
   [[ -z $(telegram_bot_systemd) ]] && return
+
   status_msg "Removing Telegram Bot Systemd Services ..."
   for service in $(telegram_bot_systemd | cut -d"/" -f5); do
     status_msg "Removing ${service} ..."
@@ -287,6 +290,7 @@ function remove_telegram_bot_systemd() {
     sudo rm -f "${SYSTEMD}/${service}"
     ok_msg "Done!"
   done
+
   ### reloading units
   sudo systemctl daemon-reload
   sudo systemctl reset-failed
@@ -295,6 +299,7 @@ function remove_telegram_bot_systemd() {
 
 function remove_telegram_bot_dir() {
   [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]] && return
+
   status_msg "Removing Moonraker-Telegram-Bot directory ..."
   rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
   ok_msg "Directory removed!"
@@ -302,16 +307,22 @@ function remove_telegram_bot_dir() {
 
 function remove_telegram_bot_env() {
   [[ ! -d ${MOONRAKER_TELEGRAM_BOT_ENV_DIR} ]] && return
+
   status_msg "Removing moonraker-telegram-bot-env directory ..."
   rm -rf "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}"
   ok_msg "Directory removed!"
 }
 
 function remove_telegram_bot_logs() {
-  if [[ -f "/tmp/telegram.log"|| -f "${HOME}/klipper_logs/telegram.log" ]]; then
-    status_msg "Removing Moonraker-Telegram-Bot log file ..."
-    rm -f "/tmp/telegram.log" "${HOME}/klipper_logs/telegram.log"
-    ok_msg "File removed!"
+  local files
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/telegram(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
   fi
 }
 
@@ -331,6 +342,7 @@ function remove_telegram_bot(){
 
 function update_telegram_bot(){
   do_action_service "stop" "moonraker-telegram-bot"
+
   if [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]]; then
     cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
   else

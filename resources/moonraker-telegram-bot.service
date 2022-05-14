@@ -10,9 +10,10 @@ WantedBy=multi-user.target
 
 [Service]
 Environment=TELEGRAM_CONF=%CFG%
+Environment=TELEGRAM_LOG=%LOG%
 Type=simple
 User=%USER%
 RemainAfterExit=yes
-ExecStart=%ENV%/bin/python %DIR%/bot/main.py -c ${TELEGRAM_CONF}
+ExecStart=%ENV%/bin/python %DIR%/bot/main.py -c ${TELEGRAM_CONF} -l ${TELEGRAM_LOG}
 Restart=always
 RestartSec=10
