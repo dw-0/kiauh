@@ -27,7 +27,7 @@ function telegram_bot_setup_dialog(){
   ### return early if moonraker is not installed
   local moonraker_services
   moonraker_services=$(moonraker_systemd)
-  if [[ -z "${moonraker_services}" ]]; then
+  if [[ -z ${moonraker_services} ]]; then
     local error="Moonraker not installed! Please install Moonraker first!"
     log_error "Telegram Bot setup started without Moonraker being installed. Aborting setup."
     print_error "${error}" && return
@@ -76,10 +76,11 @@ function telegram_bot_setup_dialog(){
 
   user_input+=("${telegram_bot_count}")
 
-### confirm instance amount
+  ### confirm instance amount
+  local yn
   while true; do
-    ((telegram_bot_count == 1)) && local question="Install Telegram Bot?"
-    ((telegram_bot_count > 1)) && local question="Install ${telegram_bot_count} Telegram Bot instances?"
+    (( telegram_bot_count == 1 )) && local question="Install Telegram Bot?"
+    (( telegram_bot_count > 1 )) && local question="Install ${telegram_bot_count} Telegram Bot instances?"
     read -p "${cyan}###### ${question} (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
@@ -101,8 +102,8 @@ function telegram_bot_setup_dialog(){
     done
   fi
 
-  ((telegram_bot_count > 1)) && status_msg "Installing ${telegram_bot_count} Telegram Bot instances ..."
-  ((telegram_bot_count == 1)) && status_msg "Installing Telegram Bot ..."
+  (( telegram_bot_count > 1 )) && status_msg "Installing ${telegram_bot_count} Telegram Bot instances ..."
+  (( telegram_bot_count == 1 )) && status_msg "Installing Telegram Bot ..."
   telegram_bot_setup "${user_input[@]}"
 }
 
@@ -110,7 +111,7 @@ function install_telegram_bot_dependencies(){
   local packages
   local install_script="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/install.sh"
 
-  ### read PKGLIST from official install script
+  ### read PKGLIST from official install-script
   status_msg "Reading dependencies..."
   # shellcheck disable=SC2016
   packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
@@ -144,7 +145,7 @@ function telegram_bot_setup(){
   ### step 1: clone telegram bot
   status_msg "Downloading Moonraker-Telegram-Bot ..."
   ### force remove existing Moonraker-Telegram-Bot dir
-  [[ -d "${MOONRAKER_TELEGRAM_BOT_DIR}" ]] && rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
+  [[ -d ${MOONRAKER_TELEGRAM_BOT_DIR} ]] && rm -rf "${MOONRAKER_TELEGRAM_BOT_DIR}"
   cd "${HOME}" && git clone "${MOONRAKER_TELEGRAM_BOT_REPO}"
 
   ### step 2: install telegram bot dependencies and create python virtualenv
@@ -164,8 +165,8 @@ function telegram_bot_setup(){
 
   ### confirm message
   local confirm=""
-  (( instance_arr[0] == 1)) && confirm="Telegram Bot has been set up!"
-  (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Telegram Bot instances have been set up!"
+  (( instance_arr[0] == 1 )) && confirm="Telegram Bot has been set up!"
+  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Telegram Bot instances have been set up!"
   print_confirm "${confirm}" && return
 }
 
@@ -174,6 +175,7 @@ function create_telegram_conf(){
   local telegram_bot_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
   local log="${KLIPPER_LOGS}"
+  local cfg cfg_dir
 
   if (( telegram_bot_count == 1 )); then
     cfg_dir="${KLIPPER_CONFIG}"
@@ -194,7 +196,6 @@ function create_telegram_conf(){
 
       ### write multi instance config
       write_telegram_conf "${cfg_dir}" "${cfg}" "${log}"
-      port=$((port+1))
       j=$((j+1))
     done && unset j
 
@@ -206,9 +207,9 @@ function create_telegram_conf(){
 function write_telegram_conf(){
   local cfg_dir=${1} cfg=${2} log=${3}
   local conf_template="${MOONRAKER_TELEGRAM_BOT_DIR}/scripts/base_install_template"
-  [[ ! -d "${cfg_dir}" ]] && mkdir -p "${cfg_dir}"
+  [[ ! -d ${cfg_dir} ]] && mkdir -p "${cfg_dir}"
 
-  if [[ ! -f "${cfg}" ]]; then
+  if [[ ! -f ${cfg} ]]; then
     status_msg "Creating telegram.conf in ${cfg_dir} ..."
     cp "${conf_template}" "${cfg}"
     sed -i "s|some_log_path|${log}|g" "${cfg}"
@@ -223,6 +224,7 @@ function create_telegram_bot_service(){
   local instances=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
   local cfg_dir cfg service
+
   if (( instances == 1 )); then
     cfg_dir="${KLIPPER_CONFIG}"
     cfg="${cfg_dir}/telegram.conf"
@@ -235,7 +237,6 @@ function create_telegram_bot_service(){
     local j=0 re="^[1-9][0-9]*$"
 
     for ((i=1; i <= instances; i++ )); do
-
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
@@ -249,7 +250,6 @@ function create_telegram_bot_service(){
       write_telegram_bot_service "${i}(${names[${j}]})" "${cfg}" "${service}"
       ok_msg "Telegram Bot instance #${i}(${names[${j}]}) created!"
       j=$((j+1))
-
     done && unset j
 
   else
@@ -262,7 +262,7 @@ function write_telegram_bot_service(){
   local service_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.service"
 
   ### replace all placeholders
-  if [[ ! -f "${service}" ]]; then
+  if [[ ! -f ${service} ]]; then
     status_msg "Creating Telegram Bot Service ${i} ..."
     sudo cp "${service_template}" "${service}"
     [[ -z ${i} ]] && sudo sed -i "s|instance %INST% ||" "${service}"
@@ -278,7 +278,7 @@ function write_telegram_bot_service(){
 #===================================================#
 
 function remove_telegram_bot_systemd() {
-  [[ -z "$(telegram_bot_systemd)" ]] && return
+  [[ -z $(telegram_bot_systemd) ]] && return
   status_msg "Removing Telegram Bot Systemd Services ..."
   for service in $(telegram_bot_systemd | cut -d"/" -f5); do
     status_msg "Removing ${service} ..."
@@ -357,15 +357,15 @@ function get_telegram_bot_status(){
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${MOONRAKER_TELEGRAM_BOT_DIR}" "${MOONRAKER_TELEGRAM_BOT_ENV_DIR}")
-  ((sf_count > 0)) && unset "data_arr[0]"
+  (( sf_count > 0 )) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$((filecount + 1))
+    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
   done
 
-  if ((filecount == ${#data_arr[*]})); then
+  if (( filecount == ${#data_arr[*]} )); then
     status="Installed: ${sf_count}"
   elif ((filecount == 0)); then
     status="Not installed!"
@@ -376,16 +376,18 @@ function get_telegram_bot_status(){
 }
 
 function get_local_telegram_bot_commit(){
-  local commit
   [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
+
+  local commit
   cd "${MOONRAKER_TELEGRAM_BOT_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
 }
 
 function get_remote_telegram_bot_commit(){
-  local commit
   [[ ! -d ${MOONRAKER_TELEGRAM_BOT_DIR} || ! -d "${MOONRAKER_TELEGRAM_BOT_DIR}/.git" ]] && return
+
+  local commit
   cd "${MOONRAKER_TELEGRAM_BOT_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
@@ -396,7 +398,8 @@ function compare_telegram_bot_versions(){
   local versions local_ver remote_ver
   local_ver="$(get_local_telegram_bot_commit)"
   remote_ver="$(get_remote_telegram_bot_commit)"
-  if [[ "${local_ver}" != "${remote_ver}" ]]; then
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add moonraker-telegram-bot to the update all array for the update all function in the updater
@@ -406,5 +409,6 @@ function compare_telegram_bot_versions(){
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL="false"
   fi
+
   echo "${versions}"
 }
