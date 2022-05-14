@@ -36,20 +36,22 @@ function klipper_exists() {
 }
 
 function klipper_setup_dialog(){
-  local python_version="${1}" user_input=()
-  user_input+=("${python_version}")
-
   status_msg "Initializing Klipper installation ..."
 
-  ### return early if klipper already exists
   local klipper_services
+  local python_version="${1}" user_input=()
   klipper_services=$(klipper_exists)
+  user_input+=("${python_version}")
+
+  ### return early if klipper already exists
   if [[ -n ${klipper_services} ]]; then
     local error="At least one Klipper service is already installed:"
+
     for s in ${klipper_services}; do
       log_info "Found Klipper service: ${s}"
       error="${error}\n ➔ ${s}"
     done
+
     print_error "${error}" && return
   fi
 
@@ -72,6 +74,7 @@ function klipper_setup_dialog(){
     ### error messages on invalid input
     error_msg "Input not a number"
   done && select_msg "${klipper_count}"
+
   user_input+=("${klipper_count}")
 
   ### confirm instance amount
@@ -118,7 +121,7 @@ function klipper_setup_dialog(){
     done
 
     ### get user input for custom names
-    if [[ "${custom_names}" == "true" ]]; then
+    if [[ ${custom_names} == "true" ]]; then
       local i=1 name="" re="^[0-9a-zA-Z]+$"
       while [[ ! ${name} =~ ${re} && ${i} -le ${klipper_count} ]]; do
         read -p "${cyan}###### Name for instance #${i}:${white} " name
@@ -132,15 +135,15 @@ function klipper_setup_dialog(){
       done
     else
       ### if no custom names are used, add the respective amount of indices to the user_input array
-      for ((i=1; i <= klipper_count; i++)); do
+      for (( i=1; i <= klipper_count; i++ )); do
         user_input+=("${i}")
       done
     fi
   fi
 
 
-  ((klipper_count > 1)) && status_msg "Installing ${klipper_count} Klipper instances ..."
-  ((klipper_count == 1)) && status_msg "Installing single Klipper instance ..."
+  (( klipper_count > 1 )) && status_msg "Installing ${klipper_count} Klipper instances ..."
+  (( klipper_count == 1 )) && status_msg "Installing single Klipper instance ..."
 
   klipper_setup "${user_input[@]}"
 }
@@ -157,7 +160,7 @@ function install_klipper_packages(){
   ### add dbus requirement for DietPi distro
   [[ -e "/boot/dietpi/.version" ]] && packages+=" dbus"
 
-  if [[ "${python_version}" == "python3" ]]; then
+  if [[ ${python_version} == "python3" ]]; then
     ### replace python-dev with python3-dev if python3 was selected
     packages="${packages//python-dev/python3-dev}"
   else
@@ -231,6 +234,7 @@ function klipper_setup(){
   ### step 1: clone klipper
   ### force remove existing klipper dir and clone into fresh klipper dir
   [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
+
   if [[ -z ${custom_repo} ]]; then
     status_msg "Downloading Klipper ..."
     cd "${HOME}" && git clone "${KLIPPER_REPO}"
@@ -265,12 +269,14 @@ function klipper_setup(){
   local confirm=""
   (( instance_arr[0] == 1)) && confirm="Klipper has been set up!"
   (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Klipper instances have been set up!"
+
   print_confirm "${confirm}" && return
 }
 
 function write_klipper_service(){
   local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6}
   local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
+
   ### replace all placeholders
   if [[ ! -f ${service} ]]; then
     status_msg "Creating Klipper Service ${i} ..."
@@ -287,13 +293,13 @@ function write_example_printer_cfg(){
   local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
 
   ### create a config directory if it doesn't exist
-  if [[ ! -d "${cfg_dir}" ]]; then
+  if [[ ! -d ${cfg_dir} ]]; then
     status_msg "Creating '${cfg_dir}' ..."
     mkdir -p "${cfg_dir}"
   fi
 
   ### create a minimal config if there is no printer.cfg
-  if [[ ! -f "${cfg}" ]]; then
+  if [[ ! -f ${cfg} ]]; then
     status_msg "Creating minimal example printer.cfg ..."
     cp "${cfg_template}" "${cfg}"
   fi
@@ -337,7 +343,7 @@ function create_klipper_service(){
       write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
       write_example_printer_cfg "${cfg_dir}" "${cfg}"
       ok_msg "Klipper instance 'klipper-${names[${j}]} created!"
-      j=$((j+1))
+      j=$(( j + 1 ))
     done && unset j
 
   else
@@ -351,6 +357,7 @@ function create_klipper_service(){
 
 function remove_klipper_sysvinit() {
   [[ ! -e "${INITD}/klipper" ]] && return
+
   status_msg "Removing Klipper SysVinit service ..."
   sudo systemctl stop klipper
   sudo update-rc.d -f klipper remove
@@ -360,15 +367,16 @@ function remove_klipper_sysvinit() {
 
 function remove_klipper_systemd() {
   [[ -z $(klipper_systemd) ]] && return
+
   status_msg "Removing Klipper Systemd Services ..."
-  for service in $(klipper_systemd | cut -d"/" -f5)
-  do
+  for service in $(klipper_systemd | cut -d"/" -f5); do
     status_msg "Removing ${service} ..."
     sudo systemctl stop "${service}"
     sudo systemctl disable "${service}"
     sudo rm -f "${SYSTEMD}/${service}"
     ok_msg "Done!"
   done
+
   ### reloading units
   sudo systemctl daemon-reload
   sudo systemctl reset-failed
@@ -378,6 +386,7 @@ function remove_klipper_systemd() {
 function remove_klipper_logs() {
   local files regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
   files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
+
   if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -390,6 +399,7 @@ function remove_klipper_logs() {
 function remove_klipper_uds() {
   local files
   files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
+
   if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -401,6 +411,7 @@ function remove_klipper_uds() {
 
 function remove_klipper_printer() {
   local files
+
   files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[0-9a-zA-Z]+)?" | sort)
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -413,6 +424,7 @@ function remove_klipper_printer() {
 
 function remove_klipper_dir() {
   [[ ! -d ${KLIPPER_DIR} ]] && return
+
   status_msg "Removing Klipper directory ..."
   rm -rf "${KLIPPER_DIR}"
   ok_msg "Directory removed!"
@@ -420,6 +432,7 @@ function remove_klipper_dir() {
 
 function remove_klipper_env() {
   [[ ! -d ${KLIPPY_ENV} ]] && return
+
   status_msg "Removing klippy-env directory ..."
   rm -rf "${KLIPPY_ENV}"
   ok_msg "Directory removed!"
@@ -444,6 +457,7 @@ function remove_klipper(){
 
 function update_klipper(){
   do_action_service "stop" "klipper"
+
   if [[ ! -d ${KLIPPER_DIR} ]]; then
     cd "${HOME}" && git clone "${KLIPPER_REPO}"
   else
@@ -455,6 +469,7 @@ function update_klipper(){
     ### install possible new python dependencies
     "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
+
   ok_msg "Update complete!"
   do_action_service "restart" "klipper"
 }
@@ -466,6 +481,7 @@ function update_klipper(){
 function get_klipper_status(){
   local sf_count status py_ver
   sf_count="$(klipper_systemd | wc -w)"
+
   ### detect an existing "legacy" klipper init.d installation
   if [[ $(klipper_systemd | wc -w) -eq 0 ]] \
   && [[ $(klipper_initd | wc -w) -ge 1 ]]; then
@@ -495,20 +511,23 @@ function get_klipper_status(){
   else
     status="Incomplete!"
   fi
+
   echo "${status}"
 }
 
 function get_local_klipper_commit(){
-  local commit
   [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
+
+  local commit
   cd "${KLIPPER_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
 }
 
 function get_remote_klipper_commit(){
-  local commit
   [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
+
+  local commit
   cd "${KLIPPER_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
@@ -519,6 +538,7 @@ function compare_klipper_versions(){
   local versions local_ver remote_ver
   local_ver="$(get_local_klipper_commit)"
   remote_ver="$(get_remote_klipper_commit)"
+
   if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
@@ -529,6 +549,7 @@ function compare_klipper_versions(){
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     KLIPPER_UPDATE_AVAIL="false"
   fi
+
   echo "${versions}"
 }
 
@@ -539,11 +560,13 @@ function compare_klipper_versions(){
 function get_klipper_cfg_dir() {
   local cfg_dir
   read_kiauh_ini "${FUNCNAME[0]}"
+
   if [[ -z ${custom_klipper_cfg_loc} ]]; then
     cfg_dir="${HOME}/klipper_config"
   else
     cfg_dir="${custom_klipper_cfg_loc}"
   fi
+
   echo "${cfg_dir}"
 }
 
