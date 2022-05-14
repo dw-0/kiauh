@@ -265,10 +265,18 @@ function write_klipper_service(){
 function write_example_printer_cfg(){
   local cfg_dir=${1} cfg=${2}
   local cfg_template="${SRCDIR}/kiauh/resources/printer.cfg"
+
   ### create a config directory if it doesn't exist
-  [ ! -d "${cfg_dir}" ] && mkdir -p "${cfg_dir}"
+  if ! [[ -d "${cfg_dir}" ]]; then
+    status_msg "Creating '${cfg_dir}' ..."
+    mkdir -p "${cfg_dir}"
+  fi
+
   ### create a minimal config if there is no printer.cfg
-  [ ! -f "${cfg}" ] && cp "${cfg_template}" "${cfg}"
+  if ! [[ -f "${cfg}" ]]; then
+    status_msg "Creating minimal example printer.cfg ..."
+    cp "${cfg_template}" "${cfg}"
+  fi
 }
 
 function create_klipper_service(){
