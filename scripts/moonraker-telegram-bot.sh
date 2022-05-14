@@ -260,7 +260,7 @@ function create_telegram_bot_service(){
 
 function write_telegram_bot_service(){
   local i=${1} cfg=${2} service=${3}
-  local service_template="${SRCDIR}/kiauh/resources/moonraker-telegram-bot.service"
+  local service_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.service"
 
   ### replace all placeholders
   if ! [[ -f "${service}" ]]; then

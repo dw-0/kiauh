@@ -31,7 +31,7 @@ function main_ui(){
 
 function get_kiauh_version(){
   local version
-  cd "${SRCDIR}/kiauh"
+  cd "${KIAUH_SRCDIR}"
   version="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${version}"
 }

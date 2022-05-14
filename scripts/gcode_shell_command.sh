@@ -68,7 +68,7 @@ function setup_gcode_shell_command(){
 function install_gcode_shell_command(){
   do_action_service "stop" "klipper"
   status_msg "Copy 'gcode_shell_command.py' to '${KLIPPER_DIR}/klippy/extras' ..."
-  if cp "${SRCDIR}/kiauh/resources/gcode_shell_command.py" "${KLIPPER_DIR}/klippy/extras"; then
+  if cp "${KIAUH_SRCDIR}/resources/gcode_shell_command.py" "${KLIPPER_DIR}/klippy/extras"; then
     ok_msg "Done!"
   else
     error_msg "Cannot copy file to target destination...Exiting!"
@@ -102,7 +102,7 @@ function create_example_shell_command() {
     path=$(echo "${cfg}" | rev | cut -d"/" -f2- | rev)
     if [ ! -f "${path}/shell_command.cfg" ]; then
       status_msg "Copy shell_command.cfg to ${path} ..."
-      cp "${SRCDIR}/kiauh/resources/shell_command.cfg" "${path}"
+      cp "${KIAUH_SRCDIR}/resources/shell_command.cfg" "${path}"
       ok_msg "${path}/shell_command.cfg created!"
       ### write the include to the very first line of the printer.cfg
       sed -i "1 i [include shell_command.cfg]" "${cfg}"

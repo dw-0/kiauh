@@ -27,7 +27,7 @@ function set_globals(){
   white=$(echo -en "\e[39m")
   INI_FILE="${HOME}/.kiauh.ini"
   LOGFILE="/tmp/kiauh.log"
-  RESOURCES="${SRCDIR}/kiauh/resources"
+  RESOURCES="${KIAUH_SRCDIR}/resources"
   BACKUP_DIR="${HOME}/kiauh-backups"
 
   #================== KLIPPER ===================#

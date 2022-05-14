@@ -333,7 +333,7 @@ function fluidd_port_check(){
         select_fluidd_port
       fi
     else
-      DEFAULT_PORT=$(grep listen "${SRCDIR}/kiauh/resources/klipper_webui_nginx.cfg" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
+      DEFAULT_PORT=$(grep listen "${KIAUH_SRCDIR}/resources/klipper_webui_nginx.cfg" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
       SET_LISTEN_PORT=${DEFAULT_PORT}
     fi
     SET_NGINX_CFG="true"

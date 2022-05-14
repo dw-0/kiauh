@@ -239,7 +239,7 @@ function create_moonraker_conf(){
 
 function write_moonraker_conf(){
   local cfg_dir=${1} cfg=${2} port=${3} log=${4} db=${5} uds=${6} lan=${7}
-  local conf_template="${SRCDIR}/kiauh/resources/moonraker.conf"
+  local conf_template="${KIAUH_SRCDIR}/resources/moonraker.conf"
   [ ! -d "${cfg_dir}" ] && mkdir -p "${cfg_dir}"
 
   if [ ! -f "${cfg}" ]; then
@@ -310,7 +310,7 @@ function create_moonraker_service(){
 
 function write_moonraker_service(){
   local i=${1} cfg_dir=${2} cfg=${3} log=${4} service=${5}
-  local service_template="${SRCDIR}/kiauh/resources/moonraker.service"
+  local service_template="${KIAUH_SRCDIR}/resources/moonraker.service"
 
   ### replace all placeholders
   if [ ! -f "${service}" ]; then

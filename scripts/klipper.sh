@@ -250,7 +250,7 @@ function klipper_setup(){
 
 function write_klipper_service(){
   local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6}
-  local service_template="${SRCDIR}/kiauh/resources/klipper.service"
+  local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
   ### replace all placeholders
   if [ ! -f "${service}" ]; then
     status_msg "Creating Klipper Service ${i} ..."
@@ -264,7 +264,7 @@ function write_klipper_service(){
 
 function write_example_printer_cfg(){
   local cfg_dir=${1} cfg=${2}
-  local cfg_template="${SRCDIR}/kiauh/resources/printer.cfg"
+  local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
 
   ### create a config directory if it doesn't exist
   if ! [[ -d "${cfg_dir}" ]]; then

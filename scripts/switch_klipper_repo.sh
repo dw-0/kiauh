@@ -12,11 +12,11 @@
 set -e
 
 function change_klipper_repo_menu(){
-  local repo_file="${SRCDIR}/kiauh/klipper_repos.txt"
+  local repo_file="${KIAUH_SRCDIR}/klipper_repos.txt"
   local repo branch repos=() branches=()
 
   if [[ ! -f ${repo_file} ]]; then
-    print_error "File not found:\n '${SRCDIR}/kiauh/klipper_repos.txt'"
+    print_error "File not found:\n '${KIAUH_SRCDIR}/klipper_repos.txt'"
     return
   fi
 
