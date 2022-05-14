@@ -32,10 +32,10 @@ function octoprint_setup_dialog(){
   done
 
   local octoprint_count
-  if ((klipper_count == 1)); then
+  if (( klipper_count == 1 )); then
     ok_msg "Klipper installation found!\n"
     octoprint_count=1
-  elif ((klipper_count > 1)); then
+  elif (( klipper_count > 1 )); then
     top_border
     printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances found!"
     for name in "${klipper_names[@]}"; do
@@ -67,9 +67,10 @@ function octoprint_setup_dialog(){
   user_input+=("${octoprint_count}")
 
   ### confirm instance amount
+  local yn
   while true; do
-    ((octoprint_count == 1)) && local question="Install OctoPrint?"
-    ((octoprint_count > 1)) && local question="Install ${octoprint_count} OctoPrint instances?"
+    (( octoprint_count == 1 )) && local question="Install OctoPrint?"
+    (( octoprint_count > 1 )) && local question="Install ${octoprint_count} OctoPrint instances?"
     read -p "${cyan}###### ${question} (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
@@ -91,8 +92,8 @@ function octoprint_setup_dialog(){
     done
   fi
 
-  ((octoprint_count > 1)) && status_msg "Installing ${octoprint_count} OctoPrint instances ..."
-  ((octoprint_count == 1)) && status_msg "Installing OctoPrint ..."
+  (( octoprint_count > 1 )) && status_msg "Installing ${octoprint_count} OctoPrint instances ..."
+  (( octoprint_count == 1 )) && status_msg "Installing OctoPrint ..."
   octoprint_setup "${user_input[@]}"
 }
 
@@ -127,8 +128,8 @@ function octoprint_setup(){
 
   ### confirm message
   local confirm=""
-  (( instance_arr[0] == 1)) && confirm="OctoPrint has been set up!"
-  (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} OctoPrint instances have been set up!"
+  (( instance_arr[0] == 1 )) && confirm="OctoPrint has been set up!"
+  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} OctoPrint instances have been set up!"
   print_confirm "${confirm}" && print_op_ip_list "${instance_arr[0]}" && return
 }
 
@@ -139,7 +140,7 @@ function install_octoprint(){
     ### create and activate the virtualenv
     status_msg "Installing python virtual environment..."
 
-    if [[ ! -d "${tmp}" ]]; then
+    if [[ ! -d ${tmp} ]]; then
       mkdir -p "${tmp}"
     else
       error_msg "Cannot create temporary directory in ${HOME}!"
@@ -149,10 +150,12 @@ function install_octoprint(){
     fi
 
     cd "${tmp}" && virtualenv --python=python3 venv
+
     ### activate virtualenv
     source venv/bin/activate
     pip install pip --upgrade
     pip install --no-cache-dir octoprint
+
     ### leave virtualenv
     deactivate
     cd "${HOME}"
@@ -165,13 +168,15 @@ function install_octoprint(){
   local tmp="${HOME}/TMP_OCTO_ENV"
 
   ### handle single instance installs
-  if ((octoprint_count == 1)); then
+  if (( octoprint_count == 1 )); then
     if install_octoprint_python_env "${tmp}"; then
       status_msg "Installing OctoPrint ..."
       octo_env="${HOME}/OctoPrint"
+
       ### rename the temporary directory to the correct name
       [[ -d ${octo_env} ]] && rm -rf "${octo_env}"
       mv "${tmp}" "${octo_env}"
+
       ### replace the temporary directory name with the actual one in ${octo_env}/venv/bin/python/octoprint
       sed -i "s|${tmp}|${octo_env}|" "${octo_env}/venv/bin/octoprint"
     else
@@ -183,15 +188,17 @@ function install_octoprint(){
   ### handle multi instance installs
   if (( octoprint_count > 1 )); then
     if install_octoprint_python_env "${tmp}"; then
-      for ((i=1; i <= octoprint_count; i++ )); do
+      for (( i=1; i <= octoprint_count; i++ )); do
         status_msg "Installing OctoPrint instance ${i}(${names[${j}]}) ..."
         octo_env="${HOME}/OctoPrint_${names[${j}]}"
+
         ### rename the temporary directory to the correct name
         [[ -d ${octo_env} ]] && rm -rf "${octo_env}"
         cp -r "${tmp}" "${octo_env}"
+
         ### replace the temporary directory name with the actual one in ${octo_env}/venv/bin/python/octoprint
         sed -i "s|${tmp}|${octo_env}|" "${octo_env}/venv/bin/octoprint"
-        j=$((j+1))
+        j=$(( j + 1 ))
       done && rm -rf "${tmp}"
     else
       error_msg "OctoPrint installation failed!"
@@ -207,7 +214,7 @@ function create_octoprint_service(){
   local j=0 port=5000
   local octo_env service basedir tmp_printer config_yaml restart_cmd
 
-  for ((i=1; i <= octoprint_count; i++)); do
+  for (( i=1; i <= octoprint_count; i++ )); do
     if (( octoprint_count == 1 )); then
       octo_env="${HOME}/OctoPrint"
       service="${SYSTEMD}/octoprint.service"
@@ -223,8 +230,10 @@ function create_octoprint_service(){
       config_yaml="${basedir}/config.yaml"
       restart_cmd="sudo service octoprint-${names[${j}]} restart"
     fi
+
     (( octoprint_count == 1 )) && status_msg "Creating OctoPrint Service ..."
     (( octoprint_count > 1 )) && status_msg "Creating OctoPrint Service ${i}(${names[${j}]}) ..."
+
     sudo /bin/sh -c "cat > ${service}" << OCTOPRINT
 [Unit]
 Description=Starts OctoPrint on startup
@@ -241,15 +250,18 @@ ExecStart=${octo_env}/venv/bin/octoprint --basedir ${basedir} --config ${config_
 [Install]
 WantedBy=multi-user.target
 OCTOPRINT
-    port=$((port+1))
-    j=$((j+1))
+
+    port=$(( port + 1 ))
+    j=$(( j + 1 ))
     ok_msg "Ok!"
 
     ### create config.yaml
     if [[ ! -f ${basedir}/config.yaml ]]; then
       [[ ! -d ${basedir} ]] && mkdir "${basedir}"
+
       (( octoprint_count == 1 )) && status_msg "Creating config.yaml ..."
       (( octoprint_count > 1 )) && status_msg "Creating config.yaml for instance ${i}(${names[${j}]}) ..."
+
       /bin/sh -c "cat > ${basedir}/config.yaml" << CONFIGYAML
 serial:
     additionalPorts:
@@ -272,6 +284,7 @@ function add_reboot_permission(){
   if [[ -f /etc/sudoers.d/octoprint-shutdown ]]; then
     sudo mv /etc/sudoers.d/octoprint-shutdown /etc/sudoers.d/octoprint-shutdown.old
   fi
+
   #create new permission file
   status_msg "Add reboot permission to user '${USER}' ..."
   cd "${HOME}" && echo "${USER} ALL=NOPASSWD: /sbin/shutdown" > octoprint-shutdown
@@ -283,9 +296,10 @@ function add_reboot_permission(){
 function print_op_ip_list(){
   local ip octoprint_count="${1}" port=5000
   ip=$(hostname -I | cut -d" " -f1)
-  for ((i=1; i <= octoprint_count; i++)); do
+
+  for (( i=1; i <= octoprint_count; i++ )); do
     echo -e "   ${cyan}● Instance ${i}:${white} ${ip}:${port}"
-    port=$((port+1))
+    port=$(( port + 1 ))
   done && echo
 }
 
@@ -294,8 +308,9 @@ function print_op_ip_list(){
 #=================================================#
 
 function remove_octoprint_service(){
-  ###remove all octoprint services
   [[ -z "$(octoprint_systemd)" ]] && return
+
+  ###remove all octoprint services
   status_msg "Removing OctoPrint Systemd Services ..."
   for service in $(octoprint_systemd | cut -d"/" -f5)
   do
@@ -305,6 +320,7 @@ function remove_octoprint_service(){
     sudo rm -f "${SYSTEMD}/${service}"
     ok_msg "Done!"
   done
+
   ### reloading units
   sudo systemctl daemon-reload
   sudo systemctl reset-failed
@@ -312,6 +328,7 @@ function remove_octoprint_service(){
 
 function remove_octoprint_sudoers(){
   [[ ! -f /etc/sudoers.d/octoprint-shutdown ]] && return
+
   ### remove sudoers file
   sudo rm -f /etc/sudoers.d/octoprint-shutdown
 }
@@ -365,10 +382,11 @@ function get_octoprint_status(){
 
   if (( sf_count == 0 )) && (( env_count == 0 )) && (( dir_count == 0 )); then
     status="Not installed!"
-  elif (( sf_count == env_count)) && (( sf_count == dir_count)); then
+  elif (( sf_count == env_count)) && (( sf_count == dir_count )); then
     status="Installed: ${sf_count}"
   else
     status="Incomplete!"
   fi
+
   echo "${status}"
 }
