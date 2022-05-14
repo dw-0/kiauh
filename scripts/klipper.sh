@@ -348,8 +348,8 @@ function remove_klipper_systemd() {
 }
 
 function remove_klipper_logs() {
-  local files
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/klippy(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
+  local files regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
   if [ -n "${files}" ]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
