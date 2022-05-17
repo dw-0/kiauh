@@ -211,8 +211,8 @@ function remove_mainsail_logs() {
 
 function remove_mainsail_log_symlinks() {
   local files
-  files=$(find "${KLIPPER_LOGS}" -name "mainsail*")
-  if [ -n "${files}" ]; then
+  files=$(find "${KLIPPER_LOGS}" -name "mainsail*" 2> /dev/null | sort)
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
