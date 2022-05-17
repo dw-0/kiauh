@@ -392,8 +392,8 @@ function remove_moonraker_systemd() {
 }
 
 function remove_moonraker_logs() {
-  local files
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/moonraker(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
+  local files regex="moonraker(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
