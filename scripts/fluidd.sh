@@ -17,10 +17,11 @@ set -e
 
 function install_fluidd() {
   ### exit early if moonraker not found
-  if [ -z "$(moonraker_systemd)" ]; then
+  if [[ -z $(moonraker_systemd) ]]; then
     local error="Moonraker not installed! Please install Moonraker first!"
     print_error "${error}" && return
   fi
+
   ### checking dependencies
   local dep=(wget nginx)
   dependency_check "${dep[@]}"
@@ -41,7 +42,7 @@ function install_fluidd() {
 
   ### ask user to install mjpg-streamer
   local install_mjpg_streamer
-  if [ ! -f "${SYSTEMD}/webcamd.service" ]; then
+  if [[ ! -f "${SYSTEMD}/webcamd.service" ]]; then
     while true; do
       echo
       top_border
@@ -81,7 +82,7 @@ function install_fluidd() {
   patch_fluidd_update_manager
 
   ### install mjpg-streamer
-  [ "${install_mjpg_streamer}" = "true" ] && install_mjpg-streamer
+  [[ ${install_mjpg_streamer} == "true" ]] && install_mjpg-streamer
 
   fetch_webui_ports #WIP
 
@@ -122,29 +123,30 @@ function install_fluidd_macros() {
 }
 
 function download_fluidd_macros() {
-  log_info "executing: download_fluidd_macros"
   local fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
-  local configs
+  local configs path
   configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
-  if [ -n "${configs}" ]; then
+
+  if [[ -n ${configs} ]]; then
     ### create a backup of the config folder
     backup_klipper_config_dir
 
     for config in ${configs}; do
       path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
-      if [ ! -f "${path}/fluidd.cfg" ]; then
+      if [[ ! -f "${path}/fluidd.cfg" ]]; then
         status_msg "Downloading fluidd.cfg to ${path} ..."
         log_info "downloading fluidd.cfg to: ${path}"
         wget "${fluidd_cfg}" -O "${path}/fluidd.cfg"
+
         ### replace user 'pi' with current username to prevent issues in cases where the user is not called 'pi'
         log_info "modify fluidd.cfg"
         sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/\/home\/${USER}/" "${path}/fluidd.cfg"
-        ### write the include to the very first line of the printer.cfg
+
+        ### write include to the very first line of the printer.cfg
         if ! grep -Eq "^[include fluidd.cfg]$" "${path}/printer.cfg"; then
           log_info "modify printer.cfg"
           sed -i "1 i [include fluidd.cfg]" "${path}/printer.cfg"
         fi
-
         ok_msg "Done!"
       fi
     done
@@ -157,16 +159,17 @@ function download_fluidd_macros() {
 function fluidd_setup() {
   local url
   url=$(get_fluidd_download_url)
+
   status_msg "Downloading Fluidd ..."
-  if [ -d "${FLUIDD_DIR}" ]; then
+
+  if [[ -d ${FLUIDD_DIR} ]]; then
     rm -rf "${FLUIDD_DIR}"
   fi
+
   mkdir "${FLUIDD_DIR}" && cd "${FLUIDD_DIR}"
   wget "${url}" && ok_msg "Download complete!"
-
   status_msg "Extracting archive ..."
   unzip -q -o ./*.zip && ok_msg "Done!"
-
   status_msg "Remove downloaded archive ..."
   rm -rf ./*.zip && ok_msg "Done!"
 }
@@ -176,17 +179,18 @@ function fluidd_setup() {
 #===================================================#
 
 function remove_fluidd_dir() {
-  [ ! -d "${FLUIDD_DIR}" ] && return
+  [[ ! -d ${FLUIDD_DIR} ]] && return
+
   status_msg "Removing Fluidd directory ..."
   rm -rf "${FLUIDD_DIR}" && ok_msg "Directory removed!"
 }
 
 function remove_fluidd_config() {
-  if [ -e "/etc/nginx/sites-available/fluidd" ]; then
+  if [[ -e "/etc/nginx/sites-available/fluidd" ]]; then
     status_msg "Removing Fluidd configuration for Nginx ..."
     sudo rm "/etc/nginx/sites-available/fluidd" && ok_msg "File removed!"
   fi
-  if [ -L "/etc/nginx/sites-enabled/fluidd" ]; then
+  if [[ -L "/etc/nginx/sites-enabled/fluidd" ]]; then
     status_msg "Removing Fluidd Symlink for Nginx ..."
     sudo rm "/etc/nginx/sites-enabled/fluidd" && ok_msg "File removed!"
   fi
@@ -195,7 +199,8 @@ function remove_fluidd_config() {
 function remove_fluidd_logs() {
   local files
   files=$(find /var/log/nginx -name "fluidd*")
-  if [ -n "${files}" ]; then
+
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       sudo rm -f "${file}"
@@ -206,8 +211,9 @@ function remove_fluidd_logs() {
 
 function remove_fluidd_log_symlinks() {
   local files
-  files=$(find "${KLIPPER_LOGS}" -name "fluidd*")
-  if [ -n "${files}" ]; then
+  files=$(find "${KLIPPER_LOGS}" -name "fluidd*" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
@@ -251,10 +257,10 @@ function get_fluidd_status() {
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
+    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
   done
 
-  if (( filecount == ${#data_arr[*]})); then
+  if (( filecount == ${#data_arr[*]} )); then
     status="Installed!"
   elif ((filecount == 0)); then
     status="Not installed!"
@@ -265,15 +271,17 @@ function get_fluidd_status() {
 }
 
 function get_local_fluidd_version() {
+  [[ ! -f "${FLUIDD_DIR}/.version" ]] && return
+
   local version
-  [ ! -f "${FLUIDD_DIR}/.version" ] && return
   version=$(head -n 1 "${FLUIDD_DIR}/.version")
   echo "${version}"
 }
 
 function get_remote_fluidd_version() {
-  local version
   [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
+
+  local version
   version=$(get_fluidd_download_url | rev | cut -d"/" -f2 | rev)
   echo "${version}"
 }
@@ -283,7 +291,8 @@ function compare_fluidd_versions() {
   local versions local_ver remote_ver
   local_ver="$(get_local_fluidd_version)"
   remote_ver="$(get_remote_fluidd_version)"
-  if [ "${local_ver}" != "${remote_ver}" ]; then
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add fluidd to the update all array for the update all function in the updater
@@ -293,6 +302,7 @@ function compare_fluidd_versions() {
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     FLUIDD_UPDATE_AVAIL="false"
   fi
+
   echo "${versions}"
 }
 
@@ -301,7 +311,7 @@ function compare_fluidd_versions() {
 #================================================#
 
 function get_fluidd_download_url() {
-  local latest_tag latest_url stable_tag stable_url url
+  local tags latest_tag latest_url stable_tag stable_url url
   tags=$(curl -s "${FLUIDD_TAGS}" | grep "name" | cut -d'"' -f4)
 
   ### latest download url including pre-releases (alpha, beta, rc)
@@ -313,7 +323,7 @@ function get_fluidd_download_url() {
   stable_url="https://github.com/fluidd-core/fluidd/releases/download/${stable_tag}/fluidd.zip"
 
   read_kiauh_ini "${FUNCNAME[0]}"
-  if [ "${fluidd_install_unstable}" == "true" ]; then
+  if [[ ${fluidd_install_unstable} == "true" ]]; then
     url="${latest_url}"
     echo "${url}"
   else
@@ -323,12 +333,18 @@ function get_fluidd_download_url() {
 }
 
 function fluidd_port_check() {
-  if [ "${FLUIDD_ENABLED}" = "false" ]; then
-    if [ "${SITE_ENABLED}" = "true" ]; then
+  if [[ ${FLUIDD_ENABLED} == "false" ]]; then
+
+    if [[ ${SITE_ENABLED} == "true" ]]; then
       status_msg "Detected other enabled interfaces:"
-      [ "${OCTOPRINT_ENABLED}" = "true" ] && echo "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${white}"
-      [ "${MAINSAIL_ENABLED}" = "true" ] && echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${white}"
-      if [ "${MAINSAIL_PORT}" = "80" ] || [ "${OCTOPRINT_PORT}" = "80" ]; then
+
+      [[ ${OCTOPRINT_ENABLED} == "true" ]] && \
+      echo "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${white}"
+
+      [[ ${MAINSAIL_ENABLED} == "true" ]] && \
+      echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${white}"
+
+      if [[ ${MAINSAIL_PORT} == "80" ]] || [[ ${OCTOPRINT_PORT} == "80" ]]; then
         PORT_80_BLOCKED="true"
         select_fluidd_port
       fi
@@ -337,21 +353,23 @@ function fluidd_port_check() {
       SET_LISTEN_PORT=${DEFAULT_PORT}
     fi
     SET_NGINX_CFG="true"
+
   else
     SET_NGINX_CFG="false"
   fi
 }
 
 function select_fluidd_port() {
-  if [ "${PORT_80_BLOCKED}" = "true" ]; then
+  local new_port
+  if [[ ${PORT_80_BLOCKED} == "true" ]]; then
     echo
     top_border
     echo -e "|                    ${red}!!!WARNING!!!${white}                      |"
     echo -e "| ${red}You need to choose a different port for Fluidd!${white}       |"
     echo -e "| ${red}The following web interface is listening at port 80:${white}  |"
     blank_line
-    [ "${OCTOPRINT_PORT}" = "80" ] && echo "|  ● OctoPrint                                          |"
-    [ "${MAINSAIL_PORT}" = "80" ] && echo "|  ● Mainsail                                           |"
+    [[ ${OCTOPRINT_PORT} == "80" ]] && echo "|  ● OctoPrint                                          |"
+    [[ ${MAINSAIL_PORT} == "80" ]] && echo "|  ● Mainsail                                           |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
     echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${white} |"
@@ -361,10 +379,11 @@ function select_fluidd_port() {
     echo -e "| input. So make sure to choose a valid port!           |"
     bottom_border
     while true; do
-      read -p "${cyan}Please enter a new Port:${white} " NEW_PORT
-      if [ "${NEW_PORT}" != "${MAINSAIL_PORT}" ] && [ "${NEW_PORT}" != "${OCTOPRINT_PORT}" ]; then
-        echo "Setting port ${NEW_PORT} for Fluidd!"
-        SET_LISTEN_PORT=${NEW_PORT}
+      #TODO implement regex input validation for numbers only
+      read -p "${cyan}Please enter a new Port:${white} " new_port
+      if [[ ${new_port} != "${MAINSAIL_PORT}" ]] && [[ ${new_port} != "${OCTOPRINT_PORT}" ]]; then
+        echo "Setting port ${new_port} for Mainsail!"
+        SET_LISTEN_PORT=${new_port}
         break
       else
         echo "That port is already taken! Select a different one!"
@@ -376,10 +395,12 @@ function select_fluidd_port() {
 function patch_fluidd_update_manager() {
   local moonraker_configs
   moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
+
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "[update_manager fluidd]" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+
       ### add Fluidds update manager section to moonraker.conf
       status_msg "Adding Fluidd to update manager in file:\n       ${conf}"
       /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
@@ -390,6 +411,7 @@ channel: stable
 repo: fluidd-core/fluidd
 path: ~/fluidd
 MOONRAKER_CONF
+
     fi
   done
 }
