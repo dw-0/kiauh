@@ -27,6 +27,7 @@ function octoprint_setup_dialog() {
   local klipper_services klipper_count user_input=() klipper_names=()
   klipper_services=$(klipper_systemd)
   klipper_count=$(echo "${klipper_services}" | wc -w )
+
   for service in ${klipper_services}; do
     klipper_names+=( "$(get_instance_name "${service}")" )
   done
@@ -35,6 +36,7 @@ function octoprint_setup_dialog() {
   if (( klipper_count == 1 )); then
     ok_msg "Klipper installation found!\n"
     octoprint_count=1
+
   elif (( klipper_count > 1 )); then
     top_border
     printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances found!"
@@ -59,6 +61,7 @@ function octoprint_setup_dialog() {
       [[ ! ${octoprint_count} =~ ${re} ]] && error_msg "Input not a number"
       (( octoprint_count > klipper_count )) && error_msg "Number of OctoPrint instances larger than existing Klipper instances"
     done && select_msg "${octoprint_count}"
+
   else
     log_error "Internal error. octoprint_count of '${octoprint_count}' not equal or grather than one!"
     return 1
@@ -308,12 +311,12 @@ function print_op_ip_list() {
 #=================================================#
 
 function remove_octoprint_service() {
-  [[ -z "$(octoprint_systemd)" ]] && return
+  [[ -z $(octoprint_systemd) ]] && return
 
   ###remove all octoprint services
   status_msg "Removing OctoPrint Systemd Services ..."
-  for service in $(octoprint_systemd | cut -d"/" -f5)
-  do
+
+  for service in $(octoprint_systemd | cut -d"/" -f5); do
     status_msg "Removing ${service} ..."
     sudo systemctl stop "${service}"
     sudo systemctl disable "${service}"
@@ -336,6 +339,7 @@ function remove_octoprint_sudoers() {
 function remove_octoprint_env() {
   local files
   files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/OctoPrint(_[0-9a-zA-Z]+)?" | sort)
+
   if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -348,6 +352,7 @@ function remove_octoprint_env() {
 function remove_octoprint_dir() {
   local files
   files=$(find "${HOME}" -maxdepth 1 -regextype posix-extended -regex "${HOME}/.octoprint(_[0-9a-zA-Z]+)?" | sort)
+
   if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -367,6 +372,7 @@ function remove_octoprint() {
   sed -i "/^octoprint_port=/d" "${INI_FILE}"
 
   local confirm="OctoPrint was successfully removed!"
+
   print_confirm "${confirm}" && return
 }
 

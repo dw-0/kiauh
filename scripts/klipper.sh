@@ -492,7 +492,7 @@ function get_klipper_status() {
 
   ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
-  [[ ${sf_count} -gt 0 ]] && unset "data_arr[0]"
+  (( sf_count > 0 )) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0

@@ -36,6 +36,7 @@ function install_menu() {
   clear && print_header
   install_ui
 
+  local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in

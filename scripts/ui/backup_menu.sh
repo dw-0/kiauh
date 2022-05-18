@@ -31,6 +31,8 @@ function backup_ui() {
 
 function backup_menu() {
   do_action "" "backup_ui"
+
+  local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in

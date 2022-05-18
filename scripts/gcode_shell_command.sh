@@ -17,28 +17,33 @@ set -e
 
 function setup_gcode_shell_command() {
   top_border
-  echo -e "| You are about to install the G-Code Shell Command     |"
+  echo -e "| You are about to install the 'G-Code Shell Command'   |"
   echo -e "| extension. Please make sure to read the instructions  |"
   echo -e "| before you continue and remember that potential risks |"
   echo -e "| can be involved after installing this extension!      |"
   blank_line
   echo -e "| ${red}You accept that you are doing this on your own risk!${white}  |"
   bottom_border
+
+  local yn
   while true; do
     read -p "${cyan}###### Do you want to continue? (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
         select_msg "Yes"
-        if [ ! -d "${KLIPPER_DIR}/klippy/extras" ]; then
+
+        if [[ ! -d "${KLIPPER_DIR}/klippy/extras" ]]; then
           print_error "Folder ~/klipper/klippy/extras not found!\n      Klipper not installed yet?"
           return
         fi
 
         status_msg "Installing gcode shell command extension ..."
-        if [ ! -f "${KLIPPER_DIR}/klippy/extras/gcode_shell_command.py" ]; then
+
+        if [[ ! -f "${KLIPPER_DIR}/klippy/extras/gcode_shell_command.py" ]]; then
           install_gcode_shell_command
         else
           echo; warn_msg "File 'gcode_shell_command.py' already exists in the destination location!"
+
           while true; do
             read -p "${cyan}###### Do you want to overwrite it? (Y/n):${white} " yn
             case "${yn}" in
@@ -68,12 +73,15 @@ function setup_gcode_shell_command() {
 function install_gcode_shell_command() {
   do_action_service "stop" "klipper"
   status_msg "Copy 'gcode_shell_command.py' to '${KLIPPER_DIR}/klippy/extras' ..."
+
   if cp "${KIAUH_SRCDIR}/resources/gcode_shell_command.py" "${KLIPPER_DIR}/klippy/extras"; then
     ok_msg "Done!"
   else
     error_msg "Cannot copy file to target destination...Exiting!"
     return 1
   fi
+
+  local yn
   while true; do
     echo
     read -p "${cyan}###### Create an example shell command? (Y/n):${white} " yn
@@ -87,6 +95,7 @@ function install_gcode_shell_command() {
         break;;
     esac
   done
+
   do_action_service "restart" "klipper"
   print_confirm "Shell command extension installed!"
   return
@@ -96,15 +105,17 @@ function create_example_shell_command() {
   ### create a backup of the config folder
   backup_klipper_config_dir
 
-  local printer_cfgs
+  local printer_cfgs path
   printer_cfgs=$(find "$(get_klipper_cfg_dir)" -type f -name "printer.cfg" | sort)
+
   for cfg in ${printer_cfgs}; do
     path=$(echo "${cfg}" | rev | cut -d"/" -f2- | rev)
-    if [ ! -f "${path}/shell_command.cfg" ]; then
+
+    if [[ ! -f "${path}/shell_command.cfg" ]]; then
       status_msg "Copy shell_command.cfg to ${path} ..."
       cp "${KIAUH_SRCDIR}/resources/shell_command.cfg" "${path}"
       ok_msg "${path}/shell_command.cfg created!"
-      ### write the include to the very first line of the printer.cfg
+      ### write include to the very first line of the printer.cfg
       sed -i "1 i [include shell_command.cfg]" "${cfg}"
     fi
   done

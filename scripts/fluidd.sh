@@ -262,7 +262,7 @@ function get_fluidd_status() {
 
   if (( filecount == ${#data_arr[*]} )); then
     status="Installed!"
-  elif ((filecount == 0)); then
+  elif (( filecount == 0 )); then
     status="Not installed!"
   else
     status="Incomplete!"

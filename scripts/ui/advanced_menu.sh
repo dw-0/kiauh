@@ -28,6 +28,8 @@ function advanced_ui() {
 
 function advanced_menu() {
   do_action "" "advanced_ui"
+
+  local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in

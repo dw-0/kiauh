@@ -16,34 +16,33 @@ set -e
 #=================================================#
 
 function install_pgc_for_klipper() {
-  pgconfsrc="${PGC_DIR}/pgcode.local.conf"
-  pgconf="/etc/nginx/sites-available/pgcode.local.conf"
-  pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
-  pgc_default_port="7136"
+  local pgconfsrc="${PGC_DIR}/pgcode.local.conf"
+  local pgconf="/etc/nginx/sites-available/pgcode.local.conf"
+  local pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
+  local pgc_uri pgc_custom_port pgc_default_port="7136"
 
   status_msg "Installing PrettyGCode for Klipper ..."
-  ### let the user decide which port is used
   echo -e "${cyan}\n###### On which port should PrettyGCode run? (Default: ${pgc_default_port})${white} "
   read -e -p "${cyan}###### Port:${white} " -i "${pgc_default_port}" pgc_custom_port
+
   ### check nginx dependency
   local dep=(nginx)
   dependency_check "${dep[@]}"
-  ### clone repo
-  [ -d "${PGC_DIR}" ] && rm -rf "${PGC_DIR}"
+
+  [[ -d ${PGC_DIR} ]] && rm -rf "${PGC_DIR}"
   cd "${HOME}" && git clone "${PGC_REPO}"
-  ### copy nginx config into destination directory
   sudo cp "${pgconfsrc}" "${pgconf}"
-  ### replace default pi user in case the user is called different
   sudo sed -i "s|/home/pi/pgcode;|/home/${USER}/pgcode;|" "${pgconf}"
+
   ### replace default port
-  if [ "${pgc_custom_port}" != "${pgc_default_port}" ]; then
+  if (( pgc_custom_port != pgc_default_port )); then
     sudo sed -i "s|listen ${pgc_default_port};|listen ${pgc_custom_port};|" "${pgconf}"
     sudo sed -i "s|listen \[::\]:${pgc_default_port};|listen \[::\]:${pgc_custom_port};|" "${pgconf}"
   fi
-  ### create symlink
-  [ ! -L "${pgconfsl}" ] && sudo ln -s "${pgconf}" "${pgconfsl}"
+
+  [[ ! -L ${pgconfsl} ]] && sudo ln -s "${pgconf}" "${pgconfsl}"
   sudo systemctl restart nginx
-  ### show URI
+
   pgc_uri="http://$(hostname -I | cut -d" " -f1):${pgc_custom_port}"
   echo -e "${cyan}\n● Accessible via:${white} ${pgc_uri}"
   ok_msg "PrettyGCode for Klipper installed!\n"
@@ -54,17 +53,18 @@ function install_pgc_for_klipper() {
 #=================================================#
 
 function remove_prettygcode() {
-  pgconf="/etc/nginx/sites-available/pgcode.local.conf"
-  pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
-  if [ -d "${PGC_DIR}" ] || [ -f "${pgconf}" ] || [ -L "${pgconfsl}" ]; then
+  local pgconf="/etc/nginx/sites-available/pgcode.local.conf"
+  local pgconfsl="/etc/nginx/sites-enabled/pgcode.local.conf"
+
+  if [[ -d ${PGC_DIR} || -f ${pgconf} || -L ${pgconfsl} ]]; then
     status_msg "Removing PrettyGCode for Klipper ..."
     rm -rf "${PGC_DIR}"
     sudo rm -f "${pgconf}"
     sudo rm -f "${pgconfsl}"
     sudo systemctl restart nginx
-    CONFIRM_MSG="PrettyGCode for Klipper successfully removed!"
+    print_confirm "PrettyGCode for Klipper successfully removed!"
   else
-    ERROR_MSG="PrettyGCode for Klipper not found!\n Skipping..."
+    print_error "PrettyGCode for Klipper not found!\n Skipping..."
   fi
 }
 
@@ -73,6 +73,8 @@ function remove_prettygcode() {
 #=================================================#
 
 function update_pgc_for_klipper() {
+  [[ ! -d ${PGC_DIR} ]] && return
+
   status_msg "Updating PrettyGCode for Klipper ..."
   cd "${PGC_DIR}" && git pull
   ok_msg "Update complete!"
@@ -84,7 +86,8 @@ function update_pgc_for_klipper() {
 
 function get_local_prettygcode_commit() {
   local commit
-  [ ! -d "${PGC_DIR}" ] || [ ! -d "${PGC_DIR}"/.git ] && return
+
+  [[ ! -d ${PGC_DIR} || ! -d "${PGC_DIR}/.git" ]] && return
   cd "${PGC_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
@@ -92,7 +95,8 @@ function get_local_prettygcode_commit() {
 
 function get_remote_prettygcode_commit() {
   local commit
-  [ ! -d "${PGC_DIR}" ] || [ ! -d "${PGC_DIR}"/.git ] && return
+
+  [[ ! -d ${PGC_DIR} || ! -d "${PGC_DIR}/.git" ]] && return
   cd "${PGC_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
@@ -103,7 +107,8 @@ function compare_prettygcode_versions() {
   local versions local_ver remote_ver
   local_ver="$(get_local_prettygcode_commit)"
   remote_ver="$(get_remote_prettygcode_commit)"
-  if [ "${local_ver}" != "${remote_ver}" ]; then
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add prettygcode to the update all array for the update all function in the updater
@@ -113,5 +118,6 @@ function compare_prettygcode_versions() {
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     PGC_UPDATE_AVAIL="false"
   fi
+
   echo "${versions}"
 }

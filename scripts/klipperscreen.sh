@@ -23,7 +23,7 @@ function klipperscreen_systemd() {
 
 function install_klipperscreen() {
   ### return early if python version check fails
-  if [ "$(python3_check)" == "false" ]; then
+  if [[ $(python3_check) == "false" ]]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
     error="${error} Please upgrade Python."
     print_error "${error}" && return
@@ -42,8 +42,10 @@ function klipperscreen_setup() {
   local dep=(wget curl unzip dfu-util)
   dependency_check "${dep[@]}"
   status_msg "Downloading KlipperScreen ..."
+
   # force remove existing KlipperScreen dir
-  [ -d "${KLIPPERSCREEN_DIR}" ] && rm -rf "${KLIPPERSCREEN_DIR}"
+  [[ -d ${KLIPPERSCREEN_DIR} ]] && rm -rf "${KLIPPERSCREEN_DIR}"
+
   # clone into fresh KlipperScreen dir
   cd "${HOME}" && git clone "${KLIPPERSCREEN_REPO}"
   ok_msg "Download complete!"
@@ -58,23 +60,24 @@ function klipperscreen_setup() {
 
 function remove_klipperscreen() {
   ### remove KlipperScreen dir
-  if [ -d "${KLIPPERSCREEN_DIR}" ]; then
+  if [[ -d ${KLIPPERSCREEN_DIR} ]]; then
     status_msg "Removing KlipperScreen directory ..."
     rm -rf "${KLIPPERSCREEN_DIR}" && ok_msg "Directory removed!"
   fi
 
   ### remove KlipperScreen VENV dir
-  if [ -d "${KLIPPERSCREEN_ENV}" ]; then
+  if [[ -d ${KLIPPERSCREEN_ENV} ]]; then
     status_msg "Removing KlipperScreen VENV directory ..."
     rm -rf "${KLIPPERSCREEN_ENV}" && ok_msg "Directory removed!"
   fi
 
   ### remove KlipperScreen service
-  if [ -e "${SYSTEMD}/KlipperScreen.service" ]; then
+  if [[ -e "${SYSTEMD}/KlipperScreen.service" ]]; then
     status_msg "Removing KlipperScreen service ..."
     do_action_service "stop" "KlipperScreen"
     do_action_service "disable" "KlipperScreen"
     sudo rm -f "${SYSTEMD}/KlipperScreen.service"
+
     ###reloading units
     sudo systemctl daemon-reload
     sudo systemctl reset-failed
@@ -82,14 +85,13 @@ function remove_klipperscreen() {
   fi
 
   ### remove KlipperScreen log
-  if [ -e "/tmp/KlipperScreen.log" ]; then
+  if [[ -e "/tmp/KlipperScreen.log" ]]; then
     status_msg "Removing KlipperScreen log file ..."
     rm -f "/tmp/KlipperScreen.log" && ok_msg "File removed!"
   fi
 
   ### remove KlipperScreen log symlink in config dir
-
-  if [ -e "${KLIPPER_CONFIG}/KlipperScreen.log" ]; then
+  if [[ -e "${KLIPPER_CONFIG}/KlipperScreen.log" ]]; then
     status_msg "Removing KlipperScreen log symlink ..."
     rm -f "${KLIPPER_CONFIG}/KlipperScreen.log" && ok_msg "File removed!"
   fi
@@ -109,11 +111,13 @@ function update_klipperscreen() {
   cd "${KLIPPERSCREEN_DIR}"
   git pull origin master -q && ok_msg "Fetch successfull!"
   git checkout -f master && ok_msg "Checkout successfull"
+
   if [[ $(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
     status_msg "New dependecies detected..."
     "${KLIPPERSCREEN_ENV}"/bin/pip install -r "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt"
     ok_msg "Dependencies have been installed!"
   fi
+
   ok_msg "Update complete!"
   do_action_service "start" "KlipperScreen"
 }
@@ -128,17 +132,17 @@ function get_klipperscreen_status() {
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${KLIPPERSCREEN_DIR}" "${KLIPPERSCREEN_ENV}")
-  [ "${sf_count}" -gt 0 ] && unset "data_arr[0]"
+  (( sf_count > 0)) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [ -e "${data}" ] && filecount=$(("${filecount}" + 1))
+    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
   done
 
-  if (( filecount == ${#data_arr[*]})); then
+  if (( filecount == ${#data_arr[*]} )); then
     status="Installed!"
-  elif ((filecount == 0)); then
+  elif (( filecount == 0 )); then
     status="Not installed!"
   else
     status="Incomplete!"
@@ -147,16 +151,18 @@ function get_klipperscreen_status() {
 }
 
 function get_local_klipperscreen_commit() {
+  [[ ! -d ${KLIPPERSCREEN_DIR} || ! -d "${KLIPPERSCREEN_DIR}/.git" ]] && return
+
   local commit
-  [ ! -d "${KLIPPERSCREEN_DIR}" ] || [ ! -d "${KLIPPERSCREEN_DIR}"/.git ] && return
   cd "${KLIPPERSCREEN_DIR}"
   commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
   echo "${commit}"
 }
 
 function get_remote_klipperscreen_commit() {
+  [[ ! -d ${KLIPPERSCREEN_DIR} || ! -d "${KLIPPERSCREEN_DIR}/.git" ]] && return
+
   local commit
-  [ ! -d "${KLIPPERSCREEN_DIR}" ] || [ ! -d "${KLIPPERSCREEN_DIR}"/.git ] && return
   cd "${KLIPPERSCREEN_DIR}" && git fetch origin -q
   commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
@@ -167,7 +173,8 @@ function compare_klipperscreen_versions() {
   local versions local_ver remote_ver
   local_ver="$(get_local_klipperscreen_commit)"
   remote_ver="$(get_remote_klipperscreen_commit)"
-  if [ "${local_ver}" != "${remote_ver}" ]; then
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     # add klipperscreen to the update all array for the update all function in the updater
@@ -177,6 +184,7 @@ function compare_klipperscreen_versions() {
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
     KLIPPERSCREEN_UPDATE_AVAIL="false"
   fi
+
   echo "${versions}"
 }
 
@@ -187,10 +195,12 @@ function compare_klipperscreen_versions() {
 function patch_klipperscreen_update_manager() {
   local moonraker_configs
   moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
+
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "[update_manager KlipperScreen]" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+
       ### add KlipperScreens update manager section to moonraker.conf
       status_msg "Adding KlipperScreen to update manager in file:\n       ${conf}"
       /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
@@ -203,6 +213,7 @@ env: ${HOME}/.KlipperScreen-env/bin/python
 requirements: scripts/KlipperScreen-requirements.txt
 install_script: scripts/KlipperScreen-install.sh
 MOONRAKER_CONF
+
     fi
   done
 }

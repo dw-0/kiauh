@@ -45,34 +45,39 @@ function print_kiauh_version() {
 function print_status() {
   local status component="${1}"
   status=$(get_"${component}"_status)
-  if [ "${status}" == "Not installed!" ]; then
+
+  if [[ ${status} == "Not installed!" ]]; then
     status="${red}${status}${white}"
-  elif [ "${status}" == "Incomplete!" ]; then
+  elif [[ ${status} == "Incomplete!" ]]; then
     status="${yellow}${status}${white}"
   else
     status="${green}${status}${white}"
   fi
+
   printf "%-28s" "${status}"
 }
 
 function print_klipper_repo() {
   read_kiauh_ini
+
   local repo klipper_status
   klipper_status=$(get_klipper_status)
-  repo=$(echo ${custom_klipper_repo} | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
+  repo=$(echo "${custom_klipper_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
   repo="${repo^^}"
-  if [[ "${klipper_status}" == "Not installed!" ]]; then
+
+  if [[ ${klipper_status} == "Not installed!" ]]; then
     repo="${red}-${white}"
-  elif [[ -n "${repo}" && "${repo}" != "KLIPPER3D/KLIPPER"  ]]; then
+  elif [[ -n ${repo} && ${repo} != "KLIPPER3D/KLIPPER"  ]]; then
     repo="${cyan}custom${white}"
   else
     repo="${cyan}Klipper3d/klipper${white}"
   fi
+
   printf "%-28s" "${repo}"
 }
 
 function kiauh_update_dialog() {
-  [ ! "$(kiauh_update_avail)" == "true" ] && return
+  [[ ! $(kiauh_update_avail) == "true" ]] && return
   top_border
   echo -e "|${green}              New KIAUH update available!              ${white}|"
   hr
@@ -82,15 +87,18 @@ function kiauh_update_dialog() {
   echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${white}|"
   echo -e "|${yellow}  features. Please consider updating!                  ${white}|"
   bottom_border
+
+  local yn
   read -p "${cyan}Do you want to update now? (Y/n):${white} " yn
   while true; do
     case "${yn}" in
-    Y|y|Yes|yes|"")
-      do_action "update_kiauh"
-      break;;
-    N|n|No|no) break;;
-    *)
-      deny_action "kiauh_update_dialog";;
+      Y|y|Yes|yes|"")
+        do_action "update_kiauh"
+        break;;
+      N|n|No|no)
+        break;;
+      *)
+        deny_action "kiauh_update_dialog";;
     esac
   done
 }
@@ -100,6 +108,8 @@ function main_menu() {
   #prompt for KIAUH update if update available
   kiauh_update_dialog
   main_ui
+
+  local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in

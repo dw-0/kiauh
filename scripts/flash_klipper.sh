@@ -12,8 +12,6 @@
 set -e
 
 function init_flash_process() {
-  local method
-
   ### step 1: check for required userhgroups (tty & dialout)
   check_usergroups
 
@@ -29,6 +27,8 @@ function init_flash_process() {
   echo -e "| 2) Updating via SD-Card Update                        |"
   blank_line
   back_help_footer
+
+  local choice method
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
@@ -54,6 +54,7 @@ function init_flash_process() {
 
   ### step 2: select how the mcu is connected to the host
   select_mcu_connection
+
   ### step 3: select which detected mcu should be flashed
   select_mcu_id "${method}"
 }
@@ -71,12 +72,11 @@ function select_mcu_connection() {
   echo -e "| 2) UART                                               |"
   blank_line
   back_help_footer
+
+  local choice
   while true; do
     read -p "${cyan}###### Connection method:${white} " choice
     case "${choice}" in
-      ### continue to execute script even if get_usb_id or get_uart_id returns with exit code 1
-      ### this is not critical, as the mcu_list array will be empty and that specific
-      ### case is handled later during execution of the script
       1)
         status_msg "Identifying MCU connected via USB ...\n"
         get_usb_id || true # continue even after exit code 1
@@ -101,7 +101,7 @@ function select_mcu_connection() {
 function print_detected_mcu_to_screen() {
   local i=1
 
-  if [ "${#mcu_list[@]}" -lt 1 ]; then
+  if (( ${#mcu_list[@]} < 1 )); then
     print_error "No MCU found!\n MCU eihter not connected or not detected!"
     return
   fi
@@ -109,7 +109,7 @@ function print_detected_mcu_to_screen() {
   for mcu in "${mcu_list[@]}"; do
     mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
     echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
-    i=$((i+1))
+    i=$(( i + 1 ))
   done
   echo
 }
@@ -120,7 +120,7 @@ function print_detected_mcu_to_screen() {
 function select_mcu_id() {
   local i=0 sel_index=0 method=${1}
 
-  if [ "${#mcu_list[@]}" -lt 1 ]; then
+  if (( ${#mcu_list[@]} < 1 )); then
     print_error "No MCU found!\n MCU eihter not connected or not detected!"
     return
   fi
@@ -132,25 +132,32 @@ function select_mcu_id() {
   echo -e "| ${red}ONLY flash a firmware created for the respective MCU!${white} |"
   bottom_border
   echo -e "${cyan}###### List of available MCU:${white}"
+
   ### list all mcus
   for mcu in "${mcu_list[@]}"; do
-    i=$((i+1))
+    i=$(( i + 1 ))
     mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
     echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
   done
+
   ### verify user input
-  while [[ ! (${sel_index} =~ ^[1-9]+$) ]] || [ "${sel_index}" -gt "${i}" ]; do
+  local regex="^[1-9]+$"
+  while [[ ! ${sel_index} =~ ${regex} ]] || [[ ${sel_index} -gt ${i} ]]; do
     echo
     read -p "${cyan}###### Select MCU to flash:${white} " sel_index
-    if [[ ! (${sel_index} =~ ^[1-9]+$) ]]; then
+
+    if [[ ! ${sel_index} =~ ${regex} ]]; then
       error_msg "Invalid input!"
-    elif [ "${sel_index}" -lt 1 ] || [ "${sel_index}" -gt "${i}" ]; then
+    elif [[ ${sel_index} -lt 1 ]] || [[ ${sel_index} -gt ${i} ]]; then
       error_msg "Please select a number between 1 and ${i}!"
     fi
-    mcu_index=$((sel_index - 1))
-    selected_mcu_id="${mcu_list[${mcu_index}]}"
+
+    local mcu_index=$(( sel_index - 1 ))
+    local selected_mcu_id="${mcu_list[${mcu_index}]}"
   done
+
   ### confirm selection
+  local yn
   while true; do
     echo -e "\n###### You selected:\n ● MCU #${sel_index}: ${selected_mcu_id}\n"
     read -p "${cyan}###### Continue? (Y/n):${white} " yn
@@ -158,10 +165,10 @@ function select_mcu_id() {
       Y|y|Yes|yes|"")
         select_msg "Yes"
         status_msg "Flashing ${selected_mcu_id} ..."
-        if [ "${method}" == "regular" ]; then
+        if [[ ${method} == "regular" ]]; then
           log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
           start_flash_mcu "${selected_mcu_id}"
-        elif [ "${method}" == "sdcard" ]; then
+        elif [[ ${method} == "sdcard" ]]; then
           log_info "Flashing device '${selected_mcu_id}' with method '${method}'"
           start_flash_sd "${selected_mcu_id}"
         else
@@ -182,12 +189,14 @@ function select_mcu_id() {
 function start_flash_mcu() {
   local device=${1}
   do_action_service "stop" "klipper"
+
   if make flash FLASH_DEVICE="${device}"; then
     ok_msg "Flashing successfull!"
   else
     warn_msg "Flashing failed!"
     warn_msg "Please read the console output above!"
   fi
+
   do_action_service "start" "klipper"
 }
 
@@ -208,7 +217,7 @@ function start_flash_sd() {
   hr
   ### display all supported boards to the user
   for board in "${board_list[@]}"; do
-    if [ "${i}" -lt 10 ]; then
+    if [[ ${i} -lt 10 ]]; then
       printf "|  ${i}) %-50s|\n" "${board_list[${i}]}"
     else
       printf "|  ${i}) %-49s|\n" "${board_list[${i}]}"
@@ -218,11 +227,12 @@ function start_flash_sd() {
   quit_footer
 
   ### make the user select one of the boards
+  local choice
   while true; do
     read -p "${cyan}###### Please select board type:${white} " choice
-    if [ "${choice}" = "q" ] || [ "${choice}" = "Q" ]; then
+    if [[ ${choice} = "q" || ${choice} = "Q" ]]; then
       clear && advanced_menu && break
-    elif [ "${choice}" -le ${#board_list[@]} ]; then
+    elif [[ ${choice} -le ${#board_list[@]} ]]; then
       local selected_board="${board_list[${choice}]}"
       break
     else
@@ -240,8 +250,10 @@ function start_flash_sd() {
     blank_line
     echo -e "| If you are unsure, stick to the default 250000!       |"
     bottom_border
+
+    local baud_rate regex="^[0-9]+$"
     echo -e "${cyan}###### Please set the baud rate:${white} "
-    while [[ ! ${baud_rate} =~ ^[0-9]+$ ]]; do
+    while [[ ! ${baud_rate} =~ ${regex} ]]; do
       read -e -i "250000" -e baud_rate
       local selected_baud_rate=${baud_rate}
       break
@@ -301,6 +313,7 @@ function get_usb_id() {
   unset mcu_list
   sleep 1
   mcus=$(find /dev/serial/by-id/* 2>/dev/null)
+
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
   done
@@ -310,6 +323,7 @@ function get_uart_id() {
   unset mcu_list
   sleep 1
   mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty[^0-9]+([0-9]+)?$" 2>/dev/null)
+
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
   done
@@ -343,6 +357,8 @@ function show_flash_method_help() {
   echo -e "| - Fysetc Spider                                       |"
   blank_line
   back_footer
+
+  local choice
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
@@ -377,6 +393,8 @@ function show_mcu_connection_help() {
   echo -e "| this connection method.                               |"
   blank_line
   back_footer
+
+  local choice
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in

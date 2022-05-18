@@ -322,7 +322,7 @@ function print_theme_list() {
     if [[ ${col1} != "name" ]]; then
       printf "|  ${i}) %-50s|\n" "[${col1}]"
     fi
-    i=$((i+1))
+    i=$(( i + 1 ))
   done <<< "${theme_list}"
 }
 

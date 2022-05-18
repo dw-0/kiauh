@@ -25,7 +25,7 @@ function change_klipper_repo_menu() {
     repo=$(echo "${repo}" | sed -r "s/^http(s)?:\/\/github.com\///" | sed "s/\.git$//" )
     repos+=("${repo}")
     ### if branch is not given, default to 'master'
-    [ -z "${branch}" ] && branch="master"
+    [[ -z ${branch} ]] && branch="master"
     branches+=("${branch}")
   done < <(grep -E "^[^#]" "${repo_file}")
 
@@ -37,23 +37,26 @@ function change_klipper_repo_menu() {
   local i=0
   for _ in "${repos[@]}"; do
     printf "| %s) %-63s|\n" "${i}" "${yellow}${repos[${i}]}${white} → ${branches[${i}]}"
-    i=$((i+1))
+    i=$(( i + 1 ))
   done
   blank_line
   back_help_footer
 
+  local option
   while true; do
     read -p "${cyan}###### Perform action:${white} " option
     case "${option}" in
-      0 | "$((option < ${#repos[@]}))")
+      0 | "$(( option < ${#repos[@]} ))")
         select_msg "Repo: ${repos[option]} Branch: ${branches[option]}"
-        if [ -d "${KLIPPER_DIR}" ]; then
+        if [[ -d ${KLIPPER_DIR} ]]; then
           top_border
           echo -e "|                   ${red}!!! ATTENTION !!!${white}                   |"
           echo -e "| Existing Klipper folder found! Proceeding will remove | "
           echo -e "| the existing Klipper folder and replace it with a     | "
           echo -e "| clean copy of the previously selected source repo!    | "
           bottom_border
+
+          local yn
           while true; do
           read -p "${cyan}###### Proceed? (Y/n):${white} " yn
             case "${yn}" in
@@ -97,12 +100,15 @@ function change_klipper_repo_menu() {
 function switch_klipper_repo() {
   local repo_url branch
   repo_url="https://github.com/${1}" branch=${2}
+
   status_msg "Switching Klipper repository..."
   do_action_service "stop" "klipper"
+
   cd "${HOME}"
-  [ -d "${KLIPPER_DIR}" ] && rm -rf "${KLIPPER_DIR}"
+  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
   git clone "${repo_url}" "klipper" && cd "${KLIPPER_DIR}"
   git checkout "${branch}" && cd "${HOME}"
+
   do_action_service "start" "klipper"
 }
 
@@ -119,6 +125,8 @@ function show_custom_klipper_repo_help() {
   echo -e "| An example file is provided at the same location.     |"
   blank_line
   back_footer
+
+  local choice
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in

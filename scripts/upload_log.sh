@@ -27,6 +27,8 @@ function accept_upload_conditions() {
   blank_line
   echo -e "| Do ${red}NOT${white} use this function if you don't agree!          |"
   bottom_border
+
+  local yn
   while true; do
     read -p "${cyan}Do you accept? (Y/n):${white} " yn
     case "${yn}" in
@@ -47,11 +49,12 @@ function accept_upload_conditions() {
 
 function upload_selection() {
   read_kiauh_ini "${FUNCNAME[0]}"
+
   local upload_agreed="${logupload_accepted}"
-  [ "${upload_agreed}" = "false" ] && accept_upload_conditions
+  [[ ${upload_agreed} == "false" ]] && accept_upload_conditions
 
   local logfiles
-  local klipper_logs="${KLIPPER_LOGS}"
+  local logs_dir="${KLIPPER_LOGS}"
   local webif_logs="/var/log/nginx"
 
   function find_logfile() {
@@ -62,9 +65,9 @@ function upload_selection() {
   }
 
   find_logfile "kiauh.log" "/tmp"
-  find_logfile "klippy*.log" "${klipper_logs}"
-  find_logfile "moonraker*.log" "${klipper_logs}"
-  find_logfile "telegram*.log" "${klipper_logs}"
+  find_logfile "klippy*.log" "${logs_dir}"
+  find_logfile "moonraker*.log" "${logs_dir}"
+  find_logfile "telegram*.log" "${logs_dir}"
   find_logfile "mainsail*" "${webif_logs}"
   find_logfile "fluidd*" "${webif_logs}"
   find_logfile "KlipperScreen.log" "/tmp"
@@ -77,20 +80,25 @@ function upload_selection() {
   hr
   echo -e "| You can choose the following logfiles for uploading:  |"
   blank_line
+
   for log in "${logfiles[@]}"; do
     log=${log//${HOME}/"~"}
-     ((i < 10)) && printf "|  ${i}) %-50s|\n" "${log}"
-    ((i >= 10)) && printf "| ${i}) %-50s|\n" "${log}"
-    i=$((i + 1))
+    (( i < 10 )) && printf "|  ${i}) %-50s|\n" "${log}"
+    (( i >= 10 )) && printf "| ${i}) %-50s|\n" "${log}"
+    i=$(( i + 1 ))
   done
+
   blank_line
   back_footer
+
+  local option
   while true; do
     read -p "${cyan}###### Please select:${white} " option
-    if [[ -n "${option}" && "${option}" -ge 0 && "${option}" -lt "${#logfiles[@]}" ]]; then
+
+    if [[ -n ${option} && ${option} -ge 0 && ${option} -lt ${#logfiles[@]} ]]; then
       upload_log "${logfiles[${option}]}"
       upload_selection
-    elif [[ "${option}" == "B" || "${option}" == "b" ]]; then
+    elif [[ ${option} == "B" || ${option} == "b" ]]; then
       return
     else
       error_msg "Invalid command!"
@@ -103,7 +111,8 @@ function upload_log() {
   clear && print_header
   status_msg "Uploading ${1} ..."
   link=$(curl -s -H "x-random;" --upload-file "${1}" 'http://paste.c-net.org/')
-  if [ -n "${link}" ]; then
+
+  if [[ -n ${link} ]]; then
     ok_msg "${1} upload successfull!"
     echo -e "\n${cyan}###### Here is your link:${white}"
     echo -e ">>>>>> ${link}\n"

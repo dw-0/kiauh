@@ -32,6 +32,8 @@ function remove_ui() {
 
 function remove_menu() {
   do_action "" "remove_ui"
+
+  local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in

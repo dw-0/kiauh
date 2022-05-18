@@ -16,8 +16,7 @@ set -e
 #================================================#
 
 function check_euid() {
-  if [[ ${EUID} -eq 0 ]]
-  then
+  if [[ ${EUID} -eq 0 ]]; then
     echo -e "${red}"
     top_border
     echo -e "|       !!! THIS SCRIPT MUST NOT RUN AS ROOT !!!        |"
@@ -55,6 +54,7 @@ function title_msg() {
 
 function print_error() {
   [[ -z ${1} ]] && return
+
   echo -e "${red}"
   echo -e "#=======================================================#"
   echo -e " ${1} "
@@ -64,6 +64,7 @@ function print_error() {
 
 function print_confirm() {
   [[ -z ${1} ]] && return
+
   echo -e "${green}"
   echo -e "#=======================================================#"
   echo -e " ${1} "
@@ -111,11 +112,13 @@ function log_error() {
 
 function read_kiauh_ini() {
   local func=${1}
+
   if [[ ! -f ${INI_FILE} ]]; then
     print_error "ERROR: File '~/.kiauh.ini' not found!"
     log_error "Reading from .kiauh.ini failed! File not found!"
     return 1
   fi
+
   log_info "Reading from .kiauh.ini ... (${func})"
   source "${INI_FILE}"
 }
@@ -125,6 +128,7 @@ function init_ini() {
   if [[ -f ${INI_FILE} ]] && ! grep -Eq "^# KIAUH v4\.0\.0$" "${INI_FILE}"; then
     rm "${INI_FILE}"
   fi
+
   ### initialize v4.0.0 ini file
   if [[ ! -f ${INI_FILE} ]]; then
     {
@@ -137,27 +141,35 @@ function init_ini() {
       echo -e "# KIAUH v4.0.0"
     } >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^backup_before_update=." "${INI_FILE}"; then
     echo -e "\nbackup_before_update=false\c" >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^logupload_accepted=." "${INI_FILE}"; then
     echo -e "\nlogupload_accepted=false\c" >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^custom_klipper_cfg_loc=" "${INI_FILE}"; then
     echo -e "\ncustom_klipper_cfg_loc=\c" >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^custom_klipper_repo=" "${INI_FILE}"; then
     echo -e "\ncustom_klipper_repo=\c" >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^custom_klipper_repo_branch=" "${INI_FILE}"; then
     echo -e "\ncustom_klipper_repo_branch=\c" >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^mainsail_install_unstable=" "${INI_FILE}"; then
     echo -e "\nmainsail_install_unstable=false\c" >> "${INI_FILE}"
   fi
+
   if ! grep -Eq "^fluidd_install_unstable=" "${INI_FILE}"; then
     echo -e "\nfluidd_install_unstable=false\c" >> "${INI_FILE}"
   fi
+
   fetch_webui_ports
 }
 
@@ -166,6 +178,8 @@ function change_klipper_cfg_folder() {
   current_cfg_loc="$(get_klipper_cfg_dir)"
   example_loc=$(printf "%s/<your_config_folder>" "${HOME}")
   recommended_loc=$(printf "%s/klipper_config" "${HOME}")
+
+  local yn
   while true; do
     top_border
     echo -e "|  ${yellow}IMPORTANT:${white}                                           |"
@@ -217,7 +231,8 @@ function set_klipper_cfg_path() {
   ### copy config files to new klipper config folder
   if [[ -n ${current_cfg_loc} && -d ${current_cfg_loc} ]]; then
     status_msg "Copy config files to '${new_cfg_loc}' ..."
-    if [ ! -d "${new_cfg_loc}" ]; then
+
+    if [[ ! -d ${new_cfg_loc} ]]; then
       log_info "Copy process started"
       mkdir -p "${new_cfg_loc}"
       cd "${current_cfg_loc}"
@@ -230,10 +245,13 @@ function set_klipper_cfg_path() {
   fi
 
   klipper_services=$(klipper_systemd)
+
   if [[ -n ${klipper_services} ]]; then
     status_msg "Re-writing Klipper services to use new config file location ..."
+
     for service in ${klipper_services}; do
       if [[ ${service} = "/etc/systemd/system/klipper.service" ]]; then
+
         if grep "Environment=KLIPPER_CONFIG=" "${service}"; then
           ### single instance klipper service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/KLIPPER_CONFIG=/ s|CONFIG=(.+)\/printer\.cfg|CONFIG=${new_cfg_loc}/printer\.cfg|" "${service}"
@@ -241,8 +259,10 @@ function set_klipper_cfg_path() {
           ### single instance klipper service installed by kiauh v3
           sudo sed -i -r "/ExecStart=/ s|klippy\.py (.+)\/printer\.cfg|klippy\.py ${new_cfg_loc}\/printer\.cfg|" "${service}"
         fi
+
       else
         instance=$(echo "${service}" | cut -d"-" -f2 | cut -d"." -f1)
+
         if grep "Environment=KLIPPER_CONFIG=" "${service}"; then
           ### multi instance klipper service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/KLIPPER_CONFIG=/ s|CONFIG=(.+)\/printer_${instance}\/printer\.cfg|CONFIG=${new_cfg_loc}\/printer_${instance}\/printer\.cfg|" "${service}"
@@ -256,11 +276,14 @@ function set_klipper_cfg_path() {
   fi
 
   moonraker_services=$(moonraker_systemd)
+
   if [[ -n ${moonraker_services} ]]; then
     ### handle multi moonraker instance service file
     status_msg "Re-writing Moonraker services to use new config file location ..."
+
     for service in ${moonraker_services}; do
       if [[ ${service} = "/etc/systemd/system/moonraker.service" ]]; then
+
         if grep "Environment=MOONRAKER_CONF=" "${service}"; then
           ### single instance moonraker service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/MOONRAKER_CONF=/ s|_CONF=(.+)\/moonraker\.conf|_CONF=${new_cfg_loc}\/moonraker\.conf|" "${service}"
@@ -268,8 +291,10 @@ function set_klipper_cfg_path() {
           ### single instance moonraker service installed by kiauh v3
           sudo sed -i -r "/ExecStart=/ s| -c (.+)\/moonraker\.conf| -c ${new_cfg_loc}\/moonraker\.conf|" "${service}"
         fi
+
       else
         instance=$(echo "${service}" | cut -d"-" -f2 | cut -d"." -f1)
+
         if grep "Environment=MOONRAKER_CONF=" "${service}"; then
           ### multi instance moonraker service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/MOONRAKER_CONF=/ s|_CONF=(.+)\/printer_${instance}\/moonraker\.conf|_CONF=${new_cfg_loc}\/printer_${instance}\/moonraker\.conf|" "${service}"
@@ -279,7 +304,9 @@ function set_klipper_cfg_path() {
         fi
       fi
     done
+
     moonraker_configs=$(find "${new_cfg_loc}" -type f -name "moonraker.conf" | sort)
+
     ### replace old file path with new one in moonraker.conf
     local loc
     for conf in ${moonraker_configs}; do
@@ -300,6 +327,7 @@ function set_klipper_cfg_path() {
 function switch_mainsail_releasetype() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local state="${mainsail_install_unstable}"
+
   if [[ ${state} == "false" ]]; then
     sed -i '/mainsail_install_unstable=/s/false/true/' "${INI_FILE}"
     log_info "mainsail_install_unstable changed (false -> true) "
@@ -312,6 +340,7 @@ function switch_mainsail_releasetype() {
 function switch_fluidd_releasetype() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local state="${fluidd_install_unstable}"
+
   if [[ ${state} == "false" ]]; then
     sed -i '/fluidd_install_unstable=/s/false/true/' "${INI_FILE}"
     log_info "fluidd_install_unstable changed (false -> true) "
@@ -324,6 +353,7 @@ function switch_fluidd_releasetype() {
 function toggle_backup_before_update() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local state="${backup_before_update}"
+
   if [[ ${state} = "false" ]]; then
     sed -i '/backup_before_update=/s/false/true/' "${INI_FILE}"
   else
@@ -334,6 +364,7 @@ function toggle_backup_before_update() {
 function set_custom_klipper_repo() {
   read_kiauh_ini "${FUNCNAME[0]}"
   local repo=${1} branch=${2}
+
   sed -i "/^custom_klipper_repo=/d" "${INI_FILE}"
   sed -i '$a'"custom_klipper_repo=${repo}" "${INI_FILE}"
   sed -i "/^custom_klipper_repo_branch=/d" "${INI_FILE}"
@@ -347,10 +378,12 @@ function set_custom_klipper_repo() {
 function do_action_service() {
   local services action=${1} service=${2}
   services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[0-9a-zA-Z]+)?.service" | sort)
+
   if [[ -n ${services} ]]; then
     for service in ${services}; do
       service=$(echo "${service}" | rev | cut -d"/" -f1 | rev)
       status_msg "${action^} ${service} ..."
+
       if sudo systemctl "${action}" "${service}"; then
         log_info "${service}: ${action} > success"
         ok_msg "${action^} ${service} successfull!"
@@ -386,13 +419,14 @@ function dependency_check() {
   local dep=( "${@}" )
   local packages
   status_msg "Checking for the following dependencies:"
+
   #check if package is installed, if not write its name into array
   for pkg in "${dep[@]}"; do
     echo -e "${cyan}● ${pkg} ${white}"
-    if [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]]; then
-      packages+=("${pkg}")
-    fi
+    [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]] && \
+    packages+=("${pkg}")
   done
+
   #if array is not empty, install packages from array
   if (( ${#packages[@]} > 0 )); then
     status_msg "Installing the following dependencies:"
@@ -400,6 +434,7 @@ function dependency_check() {
       echo -e "${cyan}● ${package} ${white}"
     done
     echo
+
     if sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${packages[@]}" -y; then
       ok_msg "Dependencies installed!"
     else
@@ -414,24 +449,22 @@ function dependency_check() {
 
 function system_check_webui() {
   ### check system for an installed haproxy service
-  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
-    HAPROXY_FOUND="true"
-  fi
+  [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]] && \
+  HAPROXY_FOUND="true"
 
   ### check system for an installed lighttpd service
-  if [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]]; then
-    LIGHTTPD_FOUND="true"
-  fi
+  [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]] && \
+  LIGHTTPD_FOUND="true"
 
   ### check system for an installed apache2 service
-  if [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]]; then
-    APACHE2_FOUND="true"
-  fi
+  [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]] && \
+  APACHE2_FOUND="true"
 }
 
 function fetch_webui_ports() {
-  ### read ports from possible installed interfaces and write them to ~/.kiauh.ini
   local port interfaces=("mainsail" "fluidd" "octoprint")
+
+  ### read ports from possible installed interfaces and write them to ~/.kiauh.ini
   for interface in "${interfaces[@]}"; do
     if [[ -f "/etc/nginx/sites-available/${interface}" ]]; then
       port=$(grep -E "listen" "/etc/nginx/sites-available/${interface}" | head -1 | sed 's/^\s*//' | sed 's/;$//' | cut -d" " -f2)
@@ -454,6 +487,7 @@ function fetch_webui_ports() {
 function check_system_updates() {
   local updates_avail info_msg
   updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
+
   if [[ -n ${updates_avail} ]]; then
     # add system updates to the update all array for the update all function in the updater
     SYS_UPDATE_AVAIL="true" && update_arr+=(update_system)
@@ -462,6 +496,7 @@ function check_system_updates() {
     SYS_UPDATE_AVAIL="false"
     info_msg="${green}System up to date!       ${white}"
   fi
+
   echo "${info_msg}"
 }
 
@@ -476,12 +511,15 @@ function update_system() {
 
 function check_usergroups() {
   local group_dialout group_tty
+
   if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     group_dialout="false"
   fi
+
   if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
     group_tty="false"
   fi
+
   if [[ ${group_dialout} == "false" || ${group_tty} == "false" ]] ; then
     top_border
     echo -e "| ${yellow}WARNING: Your current user is not in group:${white}           |"
@@ -499,6 +537,8 @@ function check_usergroups() {
     echo -e "| ${yellow}INFO:${white}                                                 |"
     echo -e "| ${yellow}Relog required for group assignments to take effect!${white}  |"
     bottom_border
+
+    local yn
     while true; do
       read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${white} " yn
       case "${yn}" in
@@ -534,6 +574,8 @@ function set_custom_hostname() {
   echo -e "|        can open Mainsail / Fluidd / Octoprint by      |"
   echo -e "|        browsing to: http://my-printer.local           |"
   bottom_border
+
+  local yn
   while true; do
     read -p "${cyan}###### Do you want to change the hostname? (y/N):${white} " yn
     case "${yn}" in
@@ -558,9 +600,12 @@ function change_hostname() {
     echo -e "|  ${red}No special characters allowed!${white}                       |"
     echo -e "|  ${red}No leading or trailing '-' allowed!${white}                  |"
     bottom_border
+
     while true; do
       read -p "${cyan}###### Please set the new hostname:${white} " new_hostname
+
       if [[ ${new_hostname} =~ ${regex} ]]; then
+        local yn
         while true; do
           echo
           read -p "${cyan}###### Do you want '${new_hostname}' to be the new hostname? (Y/n):${white} " yn

@@ -23,6 +23,7 @@ function rollback_menu() {
   echo -e "| 2) Rollback Moonraker                                 |"
   back_footer
 
+  local action
   while true; do
     read -p "${cyan}###### Perform action:${white} " action
     case "${action}" in
@@ -45,7 +46,7 @@ function rollback_menu() {
 function rollback_component() {
   local component=${1}
 
-  if [ ! -d "${HOME}/${component}" ]; then
+  if [[ ! -d "${HOME}/${component}" ]]; then
     print_error "Rollback not possible! Missing installation?"
     return
   fi
@@ -53,7 +54,7 @@ function rollback_component() {
   echo
   top_border
   echo -e "| Please select how many commits you want to revert.    |"
-  echo -e "| Consider using the information provided by the Github |"
+  echo -e "| Consider using the information provided by the GitHub |"
   echo -e "| commit history to decide how many commits to revert.  |"
   blank_line
   echo -e "| ${red}Warning:${white}                                              |"
@@ -61,9 +62,10 @@ function rollback_component() {
   echo -e "| ${red}of printing! Proceeding WILL terminate that print!${white}    |"
   back_footer
 
+  local count
   while true; do
     read -p "${cyan}###### Revert this amount of commits:${white} " count
-    if [ -n "${count}" ] && ((count > 0)); then
+    if [[ -n ${count} ]] && ((count > 0)); then
       status_msg "Revert ${component^} by ${count} commits ..."
       cd "${HOME}/${component}"
       if git reset --hard HEAD~"${count}"; then
@@ -73,7 +75,7 @@ function rollback_component() {
         print_error "Reverting ${component^} failed! Please see the console output above."
       fi
       break
-    elif [[ "${count}" == "B" || "${count}" == "b" ]]; then
+    elif [[ ${count} == "B" || ${count} == "b" ]]; then
       clear && print_header && break
     else
       error_msg "Invalid command!"

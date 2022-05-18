@@ -13,6 +13,7 @@ set -e
 
 function settings_ui() {
   read_kiauh_ini "${FUNCNAME[0]}"
+
   local custom_cfg_loc="${custom_klipper_cfg_loc}"
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
@@ -21,37 +22,42 @@ function settings_ui() {
   local bbu="${backup_before_update}"
 
   ### config location
-  if [ -z "${custom_cfg_loc}" ]; then
+  if [[ -z ${custom_cfg_loc} ]]; then
     custom_cfg_loc="${cyan}${KLIPPER_CONFIG}${white}"
   else
     custom_cfg_loc="${cyan}${custom_cfg_loc}${white}"
   fi
+
   ### custom repository
   custom_repo=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//" )
-  if [ -z "${custom_repo}" ]; then
+  if [[ -z ${custom_repo} ]]; then
     custom_repo="${cyan}Klipper3D/klipper${white}"
   else
     custom_repo="${cyan}${custom_repo}${white}"
   fi
+
   ### custom repository branch
-  if [ -z "${custom_branch}" ]; then
+  if [[ -z ${custom_branch} ]]; then
     custom_branch="${cyan}master${white}"
   else
     custom_branch="${cyan}${custom_branch}${white}"
   fi
+
   ### webinterface stable toggle
-  if [ "${ms_pre_rls}" == "false" ]; then
+  if [[ ${ms_pre_rls} == "false" ]]; then
     ms_pre_rls="${red}● ${ms_pre_rls}${white}"
   else
     ms_pre_rls="${green}● ${ms_pre_rls}${white}"
   fi
-  if [ "${fl_pre_rls}" == "false" ]; then
+
+  if [[ ${fl_pre_rls} == "false" ]]; then
     fl_pre_rls="${red}● ${fl_pre_rls}${white}"
   else
     fl_pre_rls="${green}● ${fl_pre_rls}${white}"
   fi
+
   ### backup before update toggle
-  if [ "${bbu}" == "false" ]; then
+  if [[ "${bbu}" == "false" ]]; then
     bbu="${red}● ${bbu}${white}"
   else
     bbu="${green}● ${bbu}${white}"
@@ -74,18 +80,18 @@ function settings_ui() {
   echo -e "| 1) Change Klipper config folder location              |"
   echo -e "| 2) Set custom Klipper repository                      |"
   blank_line
-  if [ "${mainsail_install_unstable}" == "false" ]; then
+  if [[ ${mainsail_install_unstable} == "false" ]]; then
   echo -e "| 3) ${green}Allow${white} unstable Mainsail releases                   |"
   else
   echo -e "| 3) ${red}Disallow${white} unstable Mainsail releases                |"
   fi
-  if [ "${fluidd_install_unstable}" == "false" ]; then
+  if [[ ${fluidd_install_unstable} == "false" ]]; then
   echo -e "| 4) ${green}Allow${white} unstable Fluidd releases                     |"
   else
   echo -e "| 4) ${red}Disallow${white} unstable Fluidd releases                  |"
   fi
   blank_line
-  if [ "${backup_before_update}" == "false" ]; then
+  if [[ ${backup_before_update} == "false" ]]; then
   echo -e "| 5) ${green}Enable${white} automatic backups before updates            |"
   else
   echo -e "| 5) ${red}Disable${white} automatic backups before updates           |"
@@ -94,7 +100,7 @@ function settings_ui() {
 }
 
 function show_settings_help() {
-  local choice default_cfg="${cyan}${HOME}/klipper_config${white}"
+  local default_cfg="${cyan}${HOME}/klipper_config${white}"
 
   top_border
   echo -e "|    ~~~~~~ < ? > Help: KIAUH Settings < ? > ~~~~~~     |"
@@ -131,6 +137,7 @@ function show_settings_help() {
   blank_line
   back_footer
 
+  local choice
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
@@ -145,11 +152,10 @@ function show_settings_help() {
 }
 
 function settings_menu() {
-  local action
-
   clear && print_header
   settings_ui
 
+  local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
