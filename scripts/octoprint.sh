@@ -152,15 +152,21 @@ function install_octoprint() {
       return 1
     fi
 
-    cd "${tmp}" && virtualenv --python=python3 venv
+    cd "${tmp}"
 
-    ### activate virtualenv
-    source venv/bin/activate
-    pip install pip --upgrade
-    pip install --no-cache-dir octoprint
+    if virtualenv --python=python3 venv; then
+      ### activate virtualenv
+      source venv/bin/activate
+      pip install pip --upgrade
+      pip install --no-cache-dir octoprint
+      ### leave virtualenv
+      deactivate
+    else
+      log_error "failure while creating python3 OctoPrint env"
+      error_msg "Creation of OctoPrint virtualenv failed!"
+      exit 1
+    fi
 
-    ### leave virtualenv
-    deactivate
     cd "${HOME}"
   }
 
