@@ -41,17 +41,24 @@ function install_klipperscreen() {
 function klipperscreen_setup() {
   local dep=(wget curl unzip dfu-util)
   dependency_check "${dep[@]}"
-  status_msg "Downloading KlipperScreen ..."
+  status_msg "Cloning KlipperScreen from ${KLIPPERSCREEN_REPO} ..."
 
   # force remove existing KlipperScreen dir
   [[ -d ${KLIPPERSCREEN_DIR} ]] && rm -rf "${KLIPPERSCREEN_DIR}"
 
   # clone into fresh KlipperScreen dir
-  cd "${HOME}" && git clone "${KLIPPERSCREEN_REPO}"
-  ok_msg "Download complete!"
+  if ! git clone "${KLIPPERSCREEN_REPO}" "${KLIPPERSCREEN_DIR}"; then
+    print_error "Cloning KlipperScreen from\n ${KLIPPERSCREEN_REPO}\n failed!"
+    exit 1
+  fi
+
   status_msg "Installing KlipperScreen ..."
-  "${KLIPPERSCREEN_DIR}"/scripts/KlipperScreen-install.sh
-  ok_msg "KlipperScreen successfully installed!"
+  if "${KLIPPERSCREEN_DIR}"/scripts/KlipperScreen-install.sh; then
+    ok_msg "KlipperScreen successfully installed!"
+  else
+    print_error "KlipperScreen installation failed!"
+    exit 1
+  fi
 }
 
 #===================================================#
@@ -132,7 +139,7 @@ function get_klipperscreen_status() {
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${KLIPPERSCREEN_DIR}" "${KLIPPERSCREEN_ENV}")
-  (( sf_count > 0)) && unset "data_arr[0]"
+  (( sf_count > 0 )) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
