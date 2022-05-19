@@ -40,14 +40,21 @@ function install_mjpg-streamer() {
   dependency_check "${dep[@]}"
 
   ### step 1: clone mjpg-streamer
-  status_msg "Downloading MJPG-Streamer ..."
+  status_msg "Cloning MJPG-Streamer from ${repo} ..."
   [[ -d "${HOME}/mjpg-streamer" ]] && rm -rf "${HOME}/mjpg-streamer"
-  cd "${HOME}" && git clone "${repo}"
-  ok_msg "Download complete!"
+  if ! git clone "${repo}" "${HOME}/mjpg-streamer"; then
+    print_error "Cloning MJPG-Streamer from\n ${repo}\n failed!"
+    exit 1
+  fi
+  ok_msg "Cloning complete!"
 
   ### step 2: compiling mjpg-streamer
   status_msg "Compiling MJPG-Streamer ..."
-  cd "${HOME}/mjpg-streamer/mjpg-streamer-experimental" && make
+  cd "${HOME}/mjpg-streamer/mjpg-streamer-experimental"
+  if ! make; then
+    print_error "Compiling MJPG-Streamer failed!"
+    exit 1
+  fi
   ok_msg "Compiling complete!"
 
   #step 3: install mjpg-streamer
