@@ -470,10 +470,14 @@ function remove_klipper() {
 #================================================#
 
 function update_klipper() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+  local custom_repo="${custom_klipper_repo}"
+  local custom_branch="${custom_klipper_repo_branch}"
+
   do_action_service "stop" "klipper"
 
   if [[ ! -d ${KLIPPER_DIR} ]]; then
-    cd "${HOME}" && git clone "${KLIPPER_REPO}"
+    clone_klipper "${custom_repo}" "${custom_branch}"
   else
     backup_before_update "klipper"
     status_msg "Updating Klipper ..."
