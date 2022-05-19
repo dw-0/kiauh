@@ -138,22 +138,36 @@ function install_moonraker_dependencies() {
   read -r -a packages <<< "${packages}"
 
   ### Update system package info
-  status_msg "Updating lists of packages..."
-  sudo apt-get update --allow-releaseinfo-change
+  status_msg "Updating package lists..."
+  if ! sudo apt-get update --allow-releaseinfo-change; then
+    log_error "failure while updating package lists"
+    error_msg "Updating package lists failed!"
+    exit 1
+  fi
 
   ### Install required packages
-  status_msg "Installing packages..."
-  sudo apt-get install --yes "${packages[@]}"
+  status_msg "Installing required packages..."
+  if ! sudo apt-get install --yes "${packages[@]}"; then
+    log_error "failure while installing required moonraker packages"
+    error_msg "Installing required packages failed!"
+    exit 1
+  fi
 }
 
 function create_moonraker_virtualenv() {
   status_msg "Installing python virtual environment..."
+
   ### always create a clean virtualenv
   [[ -d ${MOONRAKER_ENV} ]] && rm -rf "${MOONRAKER_ENV}"
-  virtualenv -p /usr/bin/python3 "${MOONRAKER_ENV}"
-  ### upgrade pip
-  "${MOONRAKER_ENV}"/bin/pip install -U pip
-  "${MOONRAKER_ENV}"/bin/pip install -r "${MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
+
+  if virtualenv -p /usr/bin/python3 "${MOONRAKER_ENV}"; then
+    "${MOONRAKER_ENV}"/bin/pip install -U pip
+    "${MOONRAKER_ENV}"/bin/pip install -r "${MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
+  else
+    log_error "failure while creating python3 moonraker-env"
+    error_msg "Creation of Moonraker virtualenv failed!"
+    exit 1
+  fi
 }
 
 function moonraker_setup() {
@@ -165,10 +179,7 @@ function moonraker_setup() {
   dependency_check "${dep[@]}"
 
   ### step 1: clone moonraker
-  status_msg "Downloading Moonraker ..."
-  ### force remove existing moonraker dir and clone into fresh moonraker dir
-  [[ -d ${MOONRAKER_DIR} ]] && rm -rf "${MOONRAKER_DIR}"
-  cd "${HOME}" && git clone "${MOONRAKER_REPO}"
+  clone_moonraker "${MOONRAKER_REPO}"
 
   ### step 2: install moonraker dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
@@ -193,6 +204,20 @@ function moonraker_setup() {
   (( instance_arr[0] == 1 )) && confirm="Moonraker has been set up!"
   (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Moonraker instances have been set up!"
   print_confirm "${confirm}" && print_mr_ip_list "${instance_arr[0]}" && return
+}
+
+function clone_moonraker() {
+  local repo=${1}
+
+  status_msg "Cloning Moonraker from ${repo} ..."
+
+  ### force remove existing moonraker dir and clone into fresh moonraker dir
+  [[ -d ${MOONRAKER_DIR} ]] && rm -rf "${MOONRAKER_DIR}"
+
+  if ! git clone "${MOONRAKER_REPO}" "${MOONRAKER_DIR}"; then
+    print_error "Cloning Moonraker from\n ${repo}\n failed!"
+    exit 1
+  fi
 }
 
 function create_moonraker_conf() {
@@ -476,7 +501,7 @@ function update_moonraker() {
   do_action_service "stop" "moonraker"
 
   if [[ ! -d ${MOONRAKER_DIR} ]]; then
-    cd "${HOME}" && git clone "${MOONRAKER_REPO}"
+    clone_moonraker "${MOONRAKER_REPO}"
   else
     backup_before_update "moonraker"
     status_msg "Updating Moonraker ..."
