@@ -64,6 +64,9 @@ function install_fluidd() {
     done
   fi
 
+  ### download fluidd
+  download_fluidd
+
   ### ask user to install the recommended webinterface macros
   install_fluidd_macros
 
@@ -74,9 +77,6 @@ function install_fluidd() {
 
   ### symlink nginx log
   symlink_webui_nginx_log "fluidd"
-
-  ### install fluidd
-  fluidd_setup
 
   ### add fluidd to the update manager in moonraker.conf
   patch_fluidd_update_manager
@@ -156,22 +156,28 @@ function download_fluidd_macros() {
   fi
 }
 
-function fluidd_setup() {
+function download_fluidd() {
   local url
   url=$(get_fluidd_download_url)
 
-  status_msg "Downloading Fluidd ..."
+  status_msg "Downloading Fluidd from ${url} ..."
 
   if [[ -d ${FLUIDD_DIR} ]]; then
     rm -rf "${FLUIDD_DIR}"
   fi
 
   mkdir "${FLUIDD_DIR}" && cd "${FLUIDD_DIR}"
-  wget "${url}" && ok_msg "Download complete!"
-  status_msg "Extracting archive ..."
-  unzip -q -o ./*.zip && ok_msg "Done!"
-  status_msg "Remove downloaded archive ..."
-  rm -rf ./*.zip && ok_msg "Done!"
+
+  if wget "${url}"; then
+    ok_msg "Download complete!"
+    status_msg "Extracting archive ..."
+    unzip -q -o ./*.zip && ok_msg "Done!"
+    status_msg "Remove downloaded archive ..."
+    rm -rf ./*.zip && ok_msg "Done!"
+  else
+    print_error "Downloading Fluidd from\n ${url}\n failed!"
+    exit 1
+  fi
 }
 
 #===================================================#
@@ -241,7 +247,7 @@ function remove_fluidd() {
 function update_fluidd() {
   backup_before_update "fluidd"
   status_msg "Updating Fluidd ..."
-  fluidd_setup
+  download_fluidd
   match_nginx_configs
   symlink_webui_nginx_log "fluidd"
 }
