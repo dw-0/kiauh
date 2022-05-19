@@ -172,27 +172,35 @@ function install_klipper_packages() {
   read -r -a packages <<< "${packages}"
 
   ### Update system package info
-  status_msg "Updating lists of packages..."
-  sudo apt-get update --allow-releaseinfo-change
+  status_msg "Updating package lists..."
+  if ! sudo apt-get update --allow-releaseinfo-change; then
+    log_error "failure while updating package lists"
+    error_msg "Updating package lists failed!"
+    exit 1
+  fi
 
   ### Install required packages
-  status_msg "Installing packages..."
+  status_msg "Installing required packages..."
   if ! sudo apt-get install --yes "${packages[@]}"; then
-    log_error "failure while installing klipper packages"
-    error_msg "Installing packages failed!"
+    log_error "failure while installing required klipper packages"
+    error_msg "Installing required packages failed!"
     exit 1
   fi
 }
 
 function create_klipper_virtualenv() {
-  local python_version="${1}" py2_ver py3_ver
+  local python_version="${1}"
+
+  [[ ${python_version} == "python2" ]] && \
+  status_msg "Installing $(python2 -V) virtual environment..."
+
+  [[ ${python_version} == "python3" ]] && \
+  status_msg "Installing $(python3 -V) virtual environment..."
+
+  ### remove klippy-env if it already exists
+  [[ -d ${KLIPPY_ENV} ]] && rm -rf "${KLIPPY_ENV}"
 
   if [[ ${python_version} == "python2" ]]; then
-    py2_ver=$(python2 -V)
-    status_msg "Installing ${py2_ver} virtual environment..."
-
-    [[ -d ${KLIPPY_ENV} ]] && rm -rf "${KLIPPY_ENV}"
-
     if virtualenv -p python2 "${KLIPPY_ENV}"; then
       "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
     else
@@ -203,9 +211,6 @@ function create_klipper_virtualenv() {
   fi
 
   if [[ ${python_version} == "python3" ]]; then
-    py3_ver=$(python3 -V)
-    status_msg "Installing ${py3_ver} virtual environment..."
-
     if virtualenv -p python3 "${KLIPPY_ENV}"; then
       "${KLIPPY_ENV}"/bin/pip install -U pip
       "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
@@ -232,20 +237,7 @@ function klipper_setup() {
   dependency_check "${dep[@]}"
 
   ### step 1: clone klipper
-  ### force remove existing klipper dir and clone into fresh klipper dir
-  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
-
-  if [[ -z ${custom_repo} ]]; then
-    status_msg "Downloading Klipper ..."
-    cd "${HOME}" && git clone "${KLIPPER_REPO}"
-  else
-    local repo_name
-    repo_name=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//" )
-    status_msg "Downloading Klipper from ${repo_name} ..."
-    cd "${HOME}" && git clone "https://github.com/${custom_repo}" "klipper"
-    cd "${KLIPPER_DIR}" && git checkout "${custom_branch}"
-    cd "${HOME}"
-  fi
+  clone_klipper "${custom_repo}" "${custom_branch}"
 
   ### step 2: install klipper dependencies and create python virtualenv
   install_klipper_packages "${python_version}"
@@ -271,6 +263,28 @@ function klipper_setup() {
   (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Klipper instances have been set up!"
 
   print_confirm "${confirm}" && return
+}
+
+function clone_klipper() {
+  local repo=${1} branch=${2}
+
+  [[ -z ${repo} ]] && repo="${KLIPPER_REPO}"
+  repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
+  repo="https://github.com/${repo}"
+
+  [[ -z ${branch} ]] && branch="master"
+
+  ### force remove existing klipper dir and clone into fresh klipper dir
+  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
+
+  status_msg "Cloning Klipper from ${repo} ..."
+
+  if git clone "${repo}" "${KLIPPER_DIR}"; then
+    cd "${KLIPPER_DIR}" && git checkout "${branch}"
+  else
+    print_error "Cloning Klipper from\n ${repo}\n failed!"
+    exit 1
+  fi
 }
 
 function write_klipper_service() {
@@ -326,7 +340,7 @@ function create_klipper_service() {
   elif (( klipper_count >= 1 )) && [[ ${#names[@]} -gt 0 ]]; then
     local j=0 re="^[1-9][0-9]*$"
 
-    for ((i=1; i <= klipper_count; i++)); do
+    for (( i=1; i <= klipper_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
