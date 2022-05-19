@@ -64,6 +64,9 @@ function install_mainsail() {
     done
   fi
 
+  ### download mainsail
+  download_mainsail
+
   ### ask user to install the recommended webinterface macros
   install_mainsail_macros
 
@@ -74,9 +77,6 @@ function install_mainsail() {
 
   ### symlink nginx log
   symlink_webui_nginx_log "mainsail"
-
-  ### install mainsail
-  mainsail_setup
 
   ### add mainsail to the update manager in moonraker.conf
   patch_mainsail_update_manager
@@ -156,22 +156,28 @@ function download_mainsail_macros() {
   fi
 }
 
-function mainsail_setup() {
+function download_mainsail() {
   local url
   url=$(get_mainsail_download_url)
 
-  status_msg "Downloading Mainsail ..."
+  status_msg "Downloading Mainsail from ${url} ..."
 
   if [[ -d ${MAINSAIL_DIR} ]]; then
     rm -rf "${MAINSAIL_DIR}"
   fi
 
   mkdir "${MAINSAIL_DIR}" && cd "${MAINSAIL_DIR}"
-  wget "${url}" && ok_msg "Download complete!"
-  status_msg "Extracting archive ..."
-  unzip -q -o ./*.zip && ok_msg "Done!"
-  status_msg "Remove downloaded archive ..."
-  rm -rf ./*.zip && ok_msg "Done!"
+
+  if wget "${url}"; then
+    ok_msg "Download complete!"
+    status_msg "Extracting archive ..."
+    unzip -q -o ./*.zip && ok_msg "Done!"
+    status_msg "Remove downloaded archive ..."
+    rm -rf ./*.zip && ok_msg "Done!"
+  else
+    print_error "Downloading Mainsail from\n ${url}\n failed!"
+    exit 1
+  fi
 
   ### check for moonraker multi-instance and if multi-instance was found, enable mainsails remoteMode
   if [[ $(moonraker_systemd | wc -w) -gt 1 ]]; then
@@ -246,7 +252,7 @@ function remove_mainsail() {
 function update_mainsail() {
   backup_before_update "mainsail"
   status_msg "Updating Mainsail ..."
-  mainsail_setup
+  download_mainsail
   match_nginx_configs
   symlink_webui_nginx_log "mainsail"
 }
