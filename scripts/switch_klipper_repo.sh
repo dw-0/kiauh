@@ -98,16 +98,13 @@ function change_klipper_repo_menu() {
 #================================================#
 
 function switch_klipper_repo() {
-  local repo_url branch
-  repo_url="https://github.com/${1}" branch=${2}
+  local repo=${1} branch=${2}
 
   status_msg "Switching Klipper repository..."
   do_action_service "stop" "klipper"
 
-  cd "${HOME}"
   [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
-  git clone "${repo_url}" "klipper" && cd "${KLIPPER_DIR}"
-  git checkout "${branch}" && cd "${HOME}"
+  clone_klipper "${repo}" "${branch}"
 
   do_action_service "start" "klipper"
 }
