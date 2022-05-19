@@ -30,7 +30,11 @@ function install_pgc_for_klipper() {
   dependency_check "${dep[@]}"
 
   [[ -d ${PGC_DIR} ]] && rm -rf "${PGC_DIR}"
-  cd "${HOME}" && git clone "${PGC_REPO}"
+  if ! git clone "${PGC_REPO}" "${PGC_DIR}"; then
+    print_error "Cloning PrettyGCode for Klipper from\n ${PGC_REPO}\n failed!"
+    exit 1
+  fi
+
   sudo cp "${pgconfsrc}" "${pgconf}"
   sudo sed -i "s|/home/pi/pgcode;|/home/${USER}/pgcode;|" "${pgconf}"
 
