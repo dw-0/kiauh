@@ -120,20 +120,33 @@ function install_telegram_bot_dependencies() {
   read -r -a packages <<< "${packages}"
 
   ### Update system package info
-  status_msg "Updating lists of packages..."
-  sudo apt-get update --allow-releaseinfo-change
+  status_msg "Updating package lists..."
+  if ! sudo apt-get update --allow-releaseinfo-change; then
+    log_error "failure while updating package lists"
+    error_msg "Updating package lists failed!"
+    exit 1
+  fi
 
   ### Install required packages
-  status_msg "Installing packages..."
-  sudo apt-get install --yes "${packages[@]}"
+  status_msg "Installing required packages..."
+  if ! sudo apt-get install --yes "${packages[@]}"; then
+    log_error "failure while installing required moonraker-telegram-bot packages"
+    error_msg "Installing required packages failed!"
+    exit 1
+  fi
 }
 
 function create_telegram_bot_virtualenv() {
   status_msg "Installing python virtual environment..."
   ### always create a clean virtualenv
   [[ -d ${TELEGRAM_BOT_ENV} ]] && rm -rf "${TELEGRAM_BOT_ENV}"
-  virtualenv -p /usr/bin/python3 --system-site-packages "${TELEGRAM_BOT_ENV}"
-  "${TELEGRAM_BOT_ENV}"/bin/pip install -r "${TELEGRAM_BOT_DIR}/scripts/requirements.txt"
+  if virtualenv -p /usr/bin/python3 --system-site-packages "${TELEGRAM_BOT_ENV}"; then
+    "${TELEGRAM_BOT_ENV}"/bin/pip install -r "${TELEGRAM_BOT_DIR}/scripts/requirements.txt"
+  else
+    log_error "failure while creating python3 moonraker-telegram-bot-env"
+    error_msg "Creation of Moonraker Telegram Bot virtualenv failed!"
+    exit 1
+  fi
 }
 
 function telegram_bot_setup() {
@@ -143,10 +156,7 @@ function telegram_bot_setup() {
   dependency_check "${dep[@]}"
 
   ### step 1: clone telegram bot
-  status_msg "Downloading Moonraker-Telegram-Bot ..."
-  ### force remove existing Moonraker-Telegram-Bot dir
-  [[ -d ${TELEGRAM_BOT_DIR} ]] && rm -rf "${TELEGRAM_BOT_DIR}"
-  cd "${HOME}" && git clone "${TELEGRAM_BOT_REPO}"
+  clone_telegram_bot "${TELEGRAM_BOT_REPO}"
 
   ### step 2: install telegram bot dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
@@ -168,6 +178,19 @@ function telegram_bot_setup() {
   (( instance_arr[0] == 1 )) && confirm="Telegram Bot has been set up!"
   (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Telegram Bot instances have been set up!"
   print_confirm "${confirm}" && return
+}
+
+function clone_telegram_bot() {
+  local repo=${1}
+
+  status_msg "Cloning Moonraker-Telegram-Bot from ${repo} ..."
+  ### force remove existing Moonraker-Telegram-Bot dir
+  [[ -d ${repo} ]] && rm -rf "${TELEGRAM_BOT_DIR}"
+
+  if ! git clone "${repo}" "${TELEGRAM_BOT_DIR}"; then
+    print_error "Cloning Moonraker-Telegram-Bot from\n ${repo}\n failed!"
+    exit 1
+  fi
 }
 
 function create_telegram_conf() {
@@ -344,7 +367,7 @@ function update_telegram_bot() {
   do_action_service "stop" "moonraker-telegram-bot"
 
   if [[ ! -d ${TELEGRAM_BOT_DIR} ]]; then
-    cd "${HOME}" && git clone "${TELEGRAM_BOT_REPO}"
+    clone_telegram_bot "${TELEGRAM_BOT_REPO}"
   else
     backup_before_update "moonraker-telegram-bot"
     status_msg "Updating Moonraker ..."
@@ -379,7 +402,7 @@ function get_telegram_bot_status() {
 
   if (( filecount == ${#data_arr[*]} )); then
     status="Installed: ${sf_count}"
-  elif ((filecount == 0)); then
+  elif (( filecount == 0 )); then
     status="Not installed!"
   else
     status="Incomplete!"
