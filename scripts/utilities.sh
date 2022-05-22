@@ -452,10 +452,6 @@ function system_check_webui() {
   [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]] && \
   HAPROXY_FOUND="true"
 
-  ### check system for an installed lighttpd service
-  [[ $(dpkg-query -f'${Status}' --show lighttpd 2>/dev/null) = *\ installed ]] && \
-  LIGHTTPD_FOUND="true"
-
   ### check system for an installed apache2 service
   [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]] && \
   APACHE2_FOUND="true"

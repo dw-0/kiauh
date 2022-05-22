@@ -171,26 +171,6 @@ function process_disruptive_services() {
     fi
   fi
 
-  ### handle lighttpd service
-  if [[ ${DISABLE_LIGHTTPD} == "true" || ${REMOVE_LIGHTTPD} == "true" ]]; then
-    if systemctl is-active lighttpd -q; then
-      status_msg "Stopping lighttpd service ..."
-      sudo systemctl stop lighttpd && ok_msg "Service stopped!"
-    fi
-
-    ### disable lighttpd
-    if [[ ${DISABLE_LIGHTTPD} == "true" ]]; then
-      status_msg "Disabling lighttpd ..."
-      sudo systemctl disable lighttpd && ok_msg "Lighttpd service disabled!"
-
-      ### remove lighttpd
-      if [[ ${REMOVE_LIGHTTPD} == "true" ]]; then
-        status_msg "Removing lighttpd ..."
-        sudo apt-get remove lighttpd -y && sudo update-rc.d -f lighttpd remove && ok_msg "Lighttpd removed!"
-      fi
-    fi
-  fi
-
   ### handle apache2 service
   if [[ ${DISABLE_APACHE2} == "true" || ${REMOVE_APACHE2} == "true" ]]; then
     if systemctl is-active apache2 -q; then
@@ -198,12 +178,12 @@ function process_disruptive_services() {
       sudo systemctl stop apache2 && ok_msg "Service stopped!"
     fi
 
-    ### disable lighttpd
+    ### disable apache2
     if [[ ${DISABLE_APACHE2} == "true" ]]; then
-      status_msg "Disabling lighttpd ..."
+      status_msg "Disabling apache2 service ..."
       sudo systemctl disable apache2 && ok_msg "Apache2 service disabled!"
 
-      ### remove lighttpd
+      ### remove apache2
       if [[ ${REMOVE_APACHE2} == "true" ]]; then
         status_msg "Removing apache2 ..."
         sudo apt-get remove apache2 -y && sudo update-rc.d -f apache2 remove && ok_msg "Apache2 removed!"
@@ -213,8 +193,8 @@ function process_disruptive_services() {
 }
 
 function process_services_dialog() {
-  #notify user about haproxy or lighttpd services found and possible issues
-  if [[ ${HAPROXY_FOUND} == "true" || ${LIGHTTPD_FOUND} == "true" || ${APACHE2_FOUND} == "true" ]]; then
+  #notify user about haproxy or apache2 services found and possible issues
+  if [[ ${HAPROXY_FOUND} == "true" || ${APACHE2_FOUND} == "true" ]]; then
     while true; do
       echo
       top_border
@@ -222,9 +202,6 @@ function process_services_dialog() {
       hr
       if [[ ${HAPROXY_FOUND} == "true" ]]; then
         echo -e "| ● haproxy                                             |"
-      fi
-      if [[ ${LIGHTTPD_FOUND} == "true" ]]; then
-        echo -e "| ● lighttpd                                            |"
       fi
       if [[ ${APACHE2_FOUND} == "true" ]]; then
         echo -e "| ● apache2                                             |"
@@ -244,13 +221,11 @@ function process_services_dialog() {
         1)
           echo -e "###### > Remove packages"
           REMOVE_HAPROXY="true"
-          REMOVE_LIGHTTPD="true"
           REMOVE_APACHE2="true"
           break;;
         2)
           echo -e "###### > Disable only"
           DISABLE_HAPROXY="true"
-          DISABLE_LIGHTTPD="true"
           DISABLE_APACHE2="true"
           break;;
         3)
