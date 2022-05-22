@@ -506,14 +506,18 @@ function select_mainsail_port() {
     bottom_border
 
     local new_port re="^[0-9]+$"
-    while [[ ! ${new_port} =~ ${re} ]]; do
+    while true; do
       read -p "${cyan}Please enter a new Port:${white} " new_port
-      if [[ ${new_port} != "${FLUIDD_PORT}" ]] && [[ ${new_port} != "${OCTOPRINT_PORT}" ]]; then
-        echo "Setting port ${new_port} for Mainsail!"
+      if [[ ${new_port} =~ ${re} && ${new_port} != "${FLUIDD_PORT}" && ${new_port} != "${OCTOPRINT_PORT}" ]]; then
+        select_msg "Setting port ${new_port} for Mainsail!"
         SET_LISTEN_PORT=${new_port}
         break
       else
-        echo "That port is already taken! Select a different one!"
+        if [[ ! ${new_port} =~ ${re}  ]]; then
+          error_msg "Invalid input!"
+        else
+          error_msg "Port already taken! Select a different one!"
+        fi
       fi
     done
   fi
