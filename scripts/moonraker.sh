@@ -469,16 +469,6 @@ function remove_moonraker_polkit() {
   ok_msg "Done!"
 }
 
-#TODO this is technically not moonraker but rather webinterface related configs, so this should be refactored.
-function remove_moonraker_nginx() {
-  if [[ -e "${NGINX_CONFD}/upstreams.conf" || -e "${NGINX_CONFD}/common_vars.conf" ]]; then
-    status_msg "Removing Moonraker NGINX configuration ..."
-    sudo rm -f "${NGINX_CONFD}/upstreams.conf" "${NGINX_CONFD}/common_vars.conf"
-    ok_msg "Moonraker NGINX configuration removed!"
-  fi
-}
-
-
 function remove_moonraker() {
   remove_moonraker_sysvinit
   remove_moonraker_systemd
@@ -487,10 +477,9 @@ function remove_moonraker() {
   remove_moonraker_polkit
   remove_moonraker_dir
   remove_moonraker_env
-  remove_moonraker_nginx
 
-  local confirm="Moonraker was successfully removed!"
-  print_confirm "${confirm}" && return
+  print_confirm "Moonraker was successfully removed!"
+  return
 }
 
 #==================================================#
