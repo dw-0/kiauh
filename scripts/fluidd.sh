@@ -48,13 +48,13 @@ function install_fluidd() {
       top_border
       echo -e "| Install MJGP-Streamer for webcam support?             |"
       bottom_border
-      read -p "${cyan}###### Please select (Y/n):${white} " yn
+      read -p "${cyan}###### Please select (y/N):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes|"")
+        Y|y|Yes|yes)
           select_msg "Yes"
           install_mjpg_streamer="true"
           break;;
-        N|n|No|no)
+        N|n|No|no|"")
           select_msg "No"
           install_mjpg_streamer="false"
           break;;
