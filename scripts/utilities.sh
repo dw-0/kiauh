@@ -449,12 +449,14 @@ function dependency_check() {
 
 function system_check_webui() {
   ### check system for an installed haproxy service
-  [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]] && \
-  HAPROXY_FOUND="true"
+  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
+    HAPROXY_FOUND="true"
+  fi
 
   ### check system for an installed apache2 service
-  [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]] && \
-  APACHE2_FOUND="true"
+  if [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]]; then
+    APACHE2_FOUND="true"
+  fi
 }
 
 function fetch_webui_ports() {
