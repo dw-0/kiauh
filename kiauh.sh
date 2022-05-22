@@ -54,9 +54,36 @@ function kiauh_update_avail() {
   fi
 }
 
+function kiauh_update_dialog() {
+  [[ ! $(kiauh_update_avail) == "true" ]] && return
+  top_border
+  echo -e "|${green}              New KIAUH update available!              ${white}|"
+  hr
+  echo -e "|${green}  View Changelog: https://git.io/JnmlX                 ${white}|"
+  blank_line
+  echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${white}|"
+  echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${white}|"
+  echo -e "|${yellow}  features. Please consider updating!                  ${white}|"
+  bottom_border
+
+  local yn
+  read -p "${cyan}Do you want to update now? (Y/n):${white} " yn
+  while true; do
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        do_action "update_kiauh"
+        break;;
+      N|n|No|no)
+        break;;
+      *)
+        deny_action "kiauh_update_dialog";;
+    esac
+  done
+}
+
 check_euid
 init_logfile
 set_globals
 init_ini
-kiauh_update_avail
+kiauh_update_dialog
 main_menu
