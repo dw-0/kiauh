@@ -291,7 +291,7 @@ function read_listen_port() {
 }
 
 function detect_enabled_sites() {
-  MAINSAIL_ENABLED="false" FLUIDD_ENABLED="false" OCTOPRINT_ENABLED="false"
+  MAINSAIL_ENABLED="false" FLUIDD_ENABLED="false"
   #check if there is another UI config already installed and reads the port they are listening on
   if [[ -e "/etc/nginx/sites-enabled/mainsail" ]]; then
     SITE_ENABLED="true" && MAINSAIL_ENABLED="true"
@@ -301,9 +301,5 @@ function detect_enabled_sites() {
     SITE_ENABLED="true" && FLUIDD_ENABLED="true"
     FLUIDD_PORT=$(read_listen_port "fluidd")
 
-  fi
-  if [[ -e "/etc/nginx/sites-enabled/octoprint" ]]; then
-    SITE_ENABLED="true" && OCTOPRINT_ENABLED="true"
-    OCTOPRINT_PORT=$(read_listen_port "octoprint")
   fi
 }

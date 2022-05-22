@@ -374,9 +374,6 @@ function remove_octoprint() {
   remove_octoprint_env
   remove_octoprint_dir
 
-  ### remove octoprint_port from ~/.kiauh.ini
-  sed -i "/^octoprint_port=/d" "${INI_FILE}"
-
   local confirm="OctoPrint was successfully removed!"
 
   print_confirm "${confirm}" && return

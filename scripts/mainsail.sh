@@ -465,13 +465,10 @@ function mainsail_port_check() {
     if [[ ${SITE_ENABLED} == "true" ]]; then
       status_msg "Detected other enabled interfaces:"
 
-      [[ ${OCTOPRINT_ENABLED} == "true" ]] && \
-      echo -e "   ${cyan}● OctoPrint - Port: ${OCTOPRINT_PORT}${white}"
-
       [[ ${FLUIDD_ENABLED} == "true" ]] && \
       echo -e "   ${cyan}● Fluidd - Port: ${FLUIDD_PORT}${white}"
 
-      if [[ ${FLUIDD_PORT} == "80" ]] || [[ ${OCTOPRINT_PORT} == "80" ]]; then
+      if [[ ${FLUIDD_PORT} == "80" ]]; then
         PORT_80_BLOCKED="true"
         select_mainsail_port
       fi
@@ -494,12 +491,10 @@ function select_mainsail_port() {
     echo -e "| ${red}You need to choose a different port for Mainsail!${white}     |"
     echo -e "| ${red}The following web interface is listening at port 80:${white}  |"
     blank_line
-    [[ ${OCTOPRINT_PORT} == "80" ]] && echo "|  ● OctoPrint                                          |"
     [[ ${FLUIDD_PORT} == "80" ]] && echo "|  ● Fluidd                                             |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to one of the other webinterfaces and do ${red}NOT${white} |"
-    echo -e "| use ports in the range of 4750 or above!              |"
+    echo -e "| assigned to another webinterface!                     |"
     blank_line
     echo -e "| Be aware: there is ${red}NO${white} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
@@ -508,7 +503,7 @@ function select_mainsail_port() {
     local new_port re="^[0-9]+$"
     while true; do
       read -p "${cyan}Please enter a new Port:${white} " new_port
-      if [[ ${new_port} =~ ${re} && ${new_port} != "${FLUIDD_PORT}" && ${new_port} != "${OCTOPRINT_PORT}" ]]; then
+      if [[ ${new_port} =~ ${re} && ${new_port} != "${FLUIDD_PORT}" ]]; then
         select_msg "Setting port ${new_port} for Mainsail!"
         SET_LISTEN_PORT=${new_port}
         break
