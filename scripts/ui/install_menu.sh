@@ -23,7 +23,7 @@ function install_ui() {
   echo -e "|  1) [Klipper]             |  6) [OctoPrint]           |"
   echo -e "|  2) [Moonraker]           |                           |"
   echo -e "|                           | Other:                    |"
-  echo -e "| Klipper Webinterface :    |  7) [PrettyGCode]         |"
+  echo -e "| Klipper Webinterface:     |  7) [PrettyGCode]         |"
   echo -e "|  3) [Mainsail]            |  8) [Telegram Bot]        |"
   echo -e "|  4) [Fluidd]              |                           |"
   echo -e "|                           | Webcam Streamer:          |"
