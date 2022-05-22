@@ -4,20 +4,21 @@ This document covers possible important changes to KIAUH.
 
 ### 2022-04-XX
 KIAUH has now reached major version 4 !
-* feat: Klipper can be installed under Python3 (consideres experimental)
-* feat: Klipper can be installed from custom repositories
+* feat: Klipper can be installed under Python3 (considered as experimental)
+* feat: Klipper can be installed from custom repositories / inofficial forks
 * feat: Custom instance name for multi instance installations of Klipper
-* feat: Option to only allow installation of stable builds of Mainsail and Fluidd
+  * Any other multi instance will share the same name given to the corresponding Klipper instance
+  * E.g. klipper-voron2 -> moonraker-voron2 -> moonraker-telegram-bot-voron2
+* feat: Option to only allow the installation of stable Mainsail and Fluidd versions
 * feat: Multi-Instance OctoPrint installations now each have their own virtual python environment
-  * allows independent installation of Plugins for each instance
+  * allows independent installation of plugins for each instance
 * feat: Implementing the use of shellcheck during development
 * feat: Implementing a simple logging mechanic
-* feat: Log-upload function allows uploading for several, other logfiles (kiauh.log, webcamd.log etc.)
-* fix: During Klipper installation checks for group membership of `tty` and `dialout` are made
+* feat: Log-upload function now also allows uploading other logfiles (kiauh.log, webcamd.log etc.)
+* fix: During Klipper installation, checks for group membership of `tty` and `dialout` are made
 * refactor: Support for DWC and DWC-for-Klipper has been removed
 * refactor: The backup before update settings were moved to the KIAUH settings menu
 * refactor: Switch branch function has been removed (was replaced by the custom Klipper repo feature)
-* refactor: Rewriting a lot of functions to pass shellcheck checks
 * refactor: The update manager sections for Mainsail, Fluidd and KlipperScreen were removed from the moonraker.conf template
   * They will now be individually added during installation of the corresponding interface
 * refactor: The rollback function was reworked and now also allows rollbacks of Moonraker
