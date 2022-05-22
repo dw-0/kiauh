@@ -487,7 +487,6 @@ function mainsail_port_check() {
 }
 
 function select_mainsail_port() {
-  local new_port
   if [[ ${PORT_80_BLOCKED} == "true" ]]; then
     echo
     top_border
@@ -505,8 +504,9 @@ function select_mainsail_port() {
     echo -e "| Be aware: there is ${red}NO${white} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"
     bottom_border
-    while true; do
-      #TODO implement regex input validation for numbers only
+
+    local new_port re="^[0-9]+$"
+    while [[ ! ${new_port} =~ ${re} ]]; do
       read -p "${cyan}Please enter a new Port:${white} " new_port
       if [[ ${new_port} != "${FLUIDD_PORT}" ]] && [[ ${new_port} != "${OCTOPRINT_PORT}" ]]; then
         echo "Setting port ${new_port} for Mainsail!"
