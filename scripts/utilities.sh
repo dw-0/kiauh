@@ -114,9 +114,8 @@ function read_kiauh_ini() {
   local func=${1}
 
   if [[ ! -f ${INI_FILE} ]]; then
-    print_error "ERROR: File '~/.kiauh.ini' not found!"
-    log_error "Reading from .kiauh.ini failed! File not found!"
-    return 1
+    log_warning "Reading from .kiauh.ini failed! File not found! Creating default ini file."
+    init_ini
   fi
 
   log_info "Reading from .kiauh.ini ... (${func})"
