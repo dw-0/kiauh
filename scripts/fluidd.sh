@@ -399,10 +399,10 @@ function select_fluidd_port() {
 
 function patch_fluidd_update_manager() {
   local moonraker_configs
-  moonraker_configs=$(find "$(get_klipper_cfg_dir)" -type f -name "moonraker.conf" | sort)
+  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
 
   for conf in ${moonraker_configs}; do
-    if ! grep -Eq "[update_manager fluidd]" "${conf}"; then
+    if ! grep -Eq "^\[update_manager fluidd\]$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
 
