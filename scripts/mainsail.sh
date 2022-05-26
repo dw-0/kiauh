@@ -33,6 +33,9 @@ function install_mainsail() {
   process_disruptive_services
 
   status_msg "Initializing Mainsail installation ..."
+  ### first, we create a backup of the full klipper_config dir - safety first!
+  backup_klipper_config_dir
+
   ### check for other enabled web interfaces
   unset SET_LISTEN_PORT
   detect_enabled_sites
@@ -128,9 +131,6 @@ function download_mainsail_macros() {
   configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
 
   if [[ -n ${configs} ]]; then
-    ### create a backup of the config folder
-    backup_klipper_config_dir
-
     for config in ${configs}; do
       path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
       if [[ ! -f "${path}/mainsail.cfg" ]]; then
