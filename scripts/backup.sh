@@ -31,18 +31,34 @@ function backup_before_update() {
   backup_"${1}"
 }
 
+###
+# Helper function to back up all printer.cfg files located in
+# ${KLIPPER_CONFIG} and its subfolders
+###
 function backup_printer_cfg() {
   check_for_backup_dir
-  local current_date
+  local current_date configs target_dir
+  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
 
-  if [[ -f ${PRINTER_CFG} ]]; then
+  if [[ -n ${configs}  ]]; then
     current_date=$(get_date)
+    target_dir="${BACKUP_DIR}/printer_cfg_backup/${current_date}"
+
     status_msg "Timestamp: ${current_date}"
-    status_msg "Create backup of printer.cfg ..."
-    cp "${PRINTER_CFG}" "${BACKUP_DIR}/printer.cfg.${current_date}.backup" && ok_msg "Backup complete!"
+    mkdir -p "${target_dir}"
+
+    for config in ${configs}; do
+      status_msg "Create backup of ${config} ..."
+      cp -r "${config}" "${target_dir}"
+      ok_msg "Done!"
+    done
+
+    print_confirm "Backup of all printer.cfg complete!"
+
   else
-    ok_msg "No printer.cfg found! Skipping backup ..."
+    print_error "No printer.cfg found! Skipping backup ..."
   fi
+  return
 }
 
 function backup_klipper_config_dir() {
