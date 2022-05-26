@@ -326,7 +326,7 @@ function print_theme_list() {
 
   while IFS="," read -r col1 col2 col3 col4; do
     if [[ ${col1} != "name" ]]; then
-      printf "|  ${i}) %-50s|\n" "[${col1}]"
+      printf "| ${i}) %-51s|\n" "[${col1}]"
     fi
     i=$(( i + 1 ))
   done <<< "${theme_list}"
@@ -338,18 +338,18 @@ function ms_theme_installer_menu() {
   theme_list=$(curl -s -L "${theme_csv_url}")
 
   top_border
-  echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${white}     | "
+  echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${white}     |"
   hr
-  echo -e "|  ${green}A preview of each Mainsail theme can be found here:${white}  | "
-  echo -e "|  https://docs.mainsail.xyz/theming/themes             | "
+  echo -e "| ${green}A preview of each Mainsail theme can be found here:${white}   |"
+  echo -e "| https://docs.mainsail.xyz/theming/themes              |"
   blank_line
-  echo -e "|  ${yellow}Important note:${white}                                      | "
-  echo -e "|  Installing a theme from this menu will overwrite an  | "
-  echo -e "|  already installed theme or modified custom.css file! | "
+  echo -e "| ${yellow}Important note:${white}                                       |"
+  echo -e "| Installing a theme from this menu will overwrite an   |"
+  echo -e "| already installed theme or modified custom.css file!  |"
   hr
   print_theme_list "${theme_list}"
-  echo -e "|                                                       | "
-  echo -e "|  R) [Remove Theme]                                    | "
+  echo -e "|                                                       |"
+  echo -e "| R) [Remove Theme]                                     |"
   back_footer
 
   while IFS="," read -r col1 col2 col3 col4; do
@@ -379,27 +379,41 @@ function ms_theme_installer_menu() {
 }
 
 function ms_theme_install() {
-  local path moonraker_count theme_url=${1} theme_name theme_note
+  local theme_url=${1} theme_name theme_note
   theme_name=${2} theme_note=${3}
-  path="$(get_klipper_cfg_dir)"
-  moonraker_count=$(moonraker_systemd | wc -w)
 
-  if (( moonraker_count > 1 )); then
+  local config_folders target_folders=()
+  config_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -maxdepth 1 -type d | sort)
+
+  ### build target folder array
+  for folder in ${config_folders}; do
+    target_folders+=("${folder}")
+  done
+
+  if (( ${#target_folders[@]} > 1 )); then
     top_border
-    echo -e "|  More than one printer was found on this system!      | "
-    echo -e "|  Please select the printer to which you want to       | "
-    echo -e "|  apply the previously selected action.                | "
+    echo -e "| Please select the printer you want to apply the theme |"
+    echo -e "| installation to:                                      |"
+    for (( i=0; i < ${#target_folders[@]}; i++ )); do
+      folder=$(echo "${target_folders[${i}]}" | rev | cut -d "/" -f1 | rev)
+      printf "|${cyan}%-55s${white}|\n" " ${i}) ${folder}"
+    done
     bottom_border
-    #TODO: list printers depending on moonraker instance names for the user to select from
-    read -p "${cyan}Select printer:${white} " printer
-    path="${path}/printer_${printer}"
+
+    local target re="^[0-9]*$"
+    while true; do
+      read -p "${cyan}###### Select printer:${white} " target
+      ### break while loop if input is valid, else display error
+      [[ ${target} =~ ${re} && ${target} -lt ${#target_folders[@]} ]] && break
+      error_msg "Invalid command!"
+    done
   fi
 
-  [[ ! -d ${path} ]] && mkdir -p "${path}"
-  [[ -d "${path}/.theme" ]] && rm -rf "${path}/.theme"
+  [[ -d "${target_folders[${target}]}/.theme" ]] && rm -rf "${target_folders[${target}]}/.theme"
 
   status_msg "Installing ${theme_name[${option}]} ..."
-  cd "${path}" &&
+  cd "${target_folders[${target}]}"
+
   if git clone "${theme_url}" ".theme"; then
     ok_msg "Theme installation complete!"
     [[ -n ${theme_note} ]] && echo "${yellow}###### Theme Info: ${theme_note}${white}"
@@ -410,27 +424,40 @@ function ms_theme_install() {
 }
 
 function ms_theme_delete() {
-  local path moonraker_count
-  path="$(get_klipper_cfg_dir)"
-  moonraker_count=$(moonraker_systemd | wc -w)
+  local theme_folders target_folders=()
+  theme_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -type d -name ".theme" | sort)
 
-  if (( moonraker_count > 1 )); then
+  ### build target folder array
+  for folder in ${theme_folders}; do
+    target_folders+=("${folder}")
+  done
+
+  if (( ${#target_folders[@]} > 0 )); then
     top_border
-    echo -e "|  More than one printer was found on this system!      | "
-    echo -e "|  Please select the printer to which you want to       | "
-    echo -e "|  apply the previously selected action.                | "
+    echo -e "| Please select the printer you want to remove the      |"
+    echo -e "| theme installation from.                              |"
+    for (( i=0; i < ${#target_folders[@]}; i++ )); do
+      folder=$(echo "${target_folders[${i}]}" | rev | cut -d "/" -f2 | rev)
+      printf "|${cyan}%-55s${white}|\n" " ${i}) ${folder}"
+    done
     bottom_border
-    #TODO: list all found .theme folders and let the user select
-    read -p "${cyan}Select printer:${white} " printer
-    path="${path}/printer_${printer}"
+
+    local target re="^[0-9]*$"
+    while true; do
+      read -p "${cyan}###### Select printer:${white} " target
+      ### break while loop if input is valid, else display error
+      [[ ${target} =~ ${re} && ${target} -lt ${#target_folders[@]} ]] && break
+      error_msg "Invalid command!"
+    done
+  else
+    status_msg "No Themes installed!\n"
+    return
   fi
 
-  if [[ -d "${path}/.theme" ]]; then
-    status_msg "Removing Theme ..."
-    rm -rf "${path}/.theme" && ok_msg "Theme removed!\n"
-  else
-    status_msg "No Theme installed!\n"
-  fi
+  status_msg "Removing Theme ..."
+  rm -rf "${target_folders[${target}]}" && ok_msg "Theme removed!\n"
+
+  return
 }
 
 #================================================#
