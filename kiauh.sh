@@ -67,7 +67,7 @@ function kiauh_update_dialog() {
   bottom_border
 
   local yn
-  read -p "${cyan}Do you want to update now? (Y/n):${white} " yn
+  read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
   while true; do
     case "${yn}" in
       Y|y|Yes|yes|"")
