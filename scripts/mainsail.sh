@@ -340,7 +340,7 @@ function ms_theme_installer_menu() {
   top_border
   echo -e "|     ${red}~~~~~~~~ [ Mainsail Theme Installer ] ~~~~~~~${white}     |"
   hr
-  echo -e "| ${green}A preview of each Mainsail theme can be found here:${white}   |"
+  echo -e "| ${cyan}A preview of each Mainsail theme can be found here:${white}   |"
   echo -e "| https://docs.mainsail.xyz/theming/themes              |"
   blank_line
   echo -e "| ${yellow}Important note:${white}                                       |"
@@ -411,7 +411,7 @@ function ms_theme_install() {
 
   [[ -d "${target_folders[${target}]}/.theme" ]] && rm -rf "${target_folders[${target}]}/.theme"
 
-  status_msg "Installing ${theme_name[${option}]} ..."
+  status_msg "Installing '${theme_name}' to ${target_folders[${target}]} ..."
   cd "${target_folders[${target}]}"
 
   if git clone "${theme_url}" ".theme"; then
@@ -454,7 +454,7 @@ function ms_theme_delete() {
     return
   fi
 
-  status_msg "Removing Theme ..."
+  status_msg "Removing ${target_folders[${target}]} ..."
   rm -rf "${target_folders[${target}]}" && ok_msg "Theme removed!\n"
 
   return
