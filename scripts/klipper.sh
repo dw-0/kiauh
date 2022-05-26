@@ -122,8 +122,8 @@ function klipper_setup_dialog() {
 
     ### get user input for custom names
     if [[ ${custom_names} == "true" ]]; then
-      local i=1 name="" re="^[0-9a-zA-Z]+$"
-      while [[ ! ${name} =~ ${re} && ${i} -le ${klipper_count} ]]; do
+      local i=1 name re="^[0-9a-zA-Z]+$"
+      while [[ ! ${name} =~ ${re} || ${i} -le ${klipper_count} ]]; do
         read -p "${cyan}###### Name for instance #${i}:${white} " name
         if [[ ${name} =~ ${re} ]]; then
           select_msg "Name: ${name}"
@@ -356,7 +356,7 @@ function create_klipper_service() {
       ### write multi instance service
       write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
       write_example_printer_cfg "${cfg_dir}" "${cfg}"
-      ok_msg "Klipper instance 'klipper-${names[${j}]} created!"
+      ok_msg "Klipper instance 'klipper-${names[${j}]}' created!"
       j=$(( j + 1 ))
     done && unset j
 
