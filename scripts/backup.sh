@@ -31,36 +31,6 @@ function backup_before_update() {
   backup_"${1}"
 }
 
-###
-# Helper function to back up all printer.cfg files located in
-# ${KLIPPER_CONFIG} and its subfolders
-###
-function backup_printer_cfg() {
-  check_for_backup_dir
-  local current_date configs target_dir
-  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
-
-  if [[ -n ${configs}  ]]; then
-    current_date=$(get_date)
-    target_dir="${BACKUP_DIR}/printer_cfg_backup/${current_date}"
-
-    status_msg "Timestamp: ${current_date}"
-    mkdir -p "${target_dir}"
-
-    for config in ${configs}; do
-      status_msg "Create backup of ${config} ..."
-      cp -r "${config}" "${target_dir}"
-      ok_msg "Done!"
-    done
-
-    print_confirm "Backup of all printer.cfg complete!"
-
-  else
-    print_error "No printer.cfg found! Skipping backup ..."
-  fi
-  return
-}
-
 function backup_klipper_config_dir() {
   check_for_backup_dir
   local current_date config_folder_name
@@ -102,36 +72,6 @@ function backup_moonraker_database() {
     print_confirm "Moonraker database backup complete!"
   else
     print_error "No Moonraker database found! Skipping backup ..."
-  fi
-  return
-}
-
-###
-# Helper function to back up all moonraker.conf files located in
-# ${KLIPPER_CONFIG} and its subfolders
-###
-function backup_moonraker_conf() {
-  check_for_backup_dir
-  local current_date configs target_dir
-  configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
-
-  if [[ -n ${configs}  ]]; then
-    current_date=$(get_date)
-    target_dir="${BACKUP_DIR}/moonraker_conf_backup/${current_date}"
-
-    status_msg "Timestamp: ${current_date}"
-    mkdir -p "${target_dir}"
-
-    for config in ${configs}; do
-      status_msg "Create backup of ${config} ..."
-      cp -r "${config}" "${target_dir}"
-      ok_msg "Done!"
-    done
-
-    print_confirm "Backup of all moonraker.conf complete!"
-
-  else
-    print_error "No moonraker.conf found! Skipping backup ..."
   fi
   return
 }
