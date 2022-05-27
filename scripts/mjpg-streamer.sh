@@ -129,11 +129,9 @@ EOF
   fi
 
   ### step 7: check if user is in group "video"
-  local usergroup_changed="false" usergroup_video
-  usergroup_video=$(groups "${USER}" | grep "video")
-
-  if [[ -z ${usergroup_video} ]]; then
-    status_msg "Adding user ${USER} to group 'video' ..."
+  local usergroup_changed="false"
+  if ! groups "${USER}" | grep -q "video"; then
+    status_msg "Adding user '${USER}' to group 'video' ..."
     sudo usermod -a -G video "${USER}" && ok_msg "Done!"
     usergroup_changed="true"
   fi
