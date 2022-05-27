@@ -446,18 +446,6 @@ function dependency_check() {
   fi
 }
 
-function system_check_webui() {
-  ### check system for an installed haproxy service
-  if [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]]; then
-    HAPROXY_FOUND="true"
-  fi
-
-  ### check system for an installed apache2 service
-  if [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]]; then
-    APACHE2_FOUND="true"
-  fi
-}
-
 function fetch_webui_ports() {
   local port interfaces=("mainsail" "fluidd" "octoprint")
 

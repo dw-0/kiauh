@@ -150,68 +150,93 @@ function match_nginx_configs() {
   [[ ${require_service_restart} == "true" ]] && sudo systemctl restart nginx.service
 }
 
-function process_disruptive_services() {
-  #handle haproxy service
-  if [[ ${DISABLE_HAPROXY} == "true" || ${REMOVE_HAPROXY} == "true" ]]; then
-    if systemctl is-active haproxy -q; then
-      status_msg "Stopping haproxy service ..."
-      sudo systemctl stop haproxy && ok_msg "Service stopped!"
-    fi
+function remove_conflicting_packages() {
+  local apache=${1} haproxy=${2}
 
-    ### disable haproxy
-    if [[ ${DISABLE_HAPROXY} == "true" ]]; then
-      status_msg "Disabling haproxy ..."
-      sudo systemctl disable haproxy && ok_msg "Haproxy service disabled!"
+  ### disable services before removing them
+  disable_conflicting_packages "${apache}" "${haproxy}"
 
-      ### remove haproxy
-      if [[ ${REMOVE_HAPROXY} == "true" ]]; then
-        status_msg "Removing haproxy ..."
-        sudo apt-get remove haproxy -y && sudo update-rc.d -f haproxy remove && ok_msg "Haproxy removed!"
-      fi
+  if [[ ${apache} == "true" ]]; then
+    status_msg "Removing Apache2 from system ..."
+    if sudo apt-get remove apache2 -y && sudo update-rc.d -f apache2 remove; then
+      ok_msg "Apache2 removed!"
+    else
+      error_msg "Removing Apache2 from system failed!"
     fi
   fi
 
-  ### handle apache2 service
-  if [[ ${DISABLE_APACHE2} == "true" || ${REMOVE_APACHE2} == "true" ]]; then
-    if systemctl is-active apache2 -q; then
-      status_msg "Stopping apache2 service ..."
-      sudo systemctl stop apache2 && ok_msg "Service stopped!"
-    fi
-
-    ### disable apache2
-    if [[ ${DISABLE_APACHE2} == "true" ]]; then
-      status_msg "Disabling apache2 service ..."
-      sudo systemctl disable apache2 && ok_msg "Apache2 service disabled!"
-
-      ### remove apache2
-      if [[ ${REMOVE_APACHE2} == "true" ]]; then
-        status_msg "Removing apache2 ..."
-        sudo apt-get remove apache2 -y && sudo update-rc.d -f apache2 remove && ok_msg "Apache2 removed!"
-      fi
+  if [[ ${haproxy} == "true" ]]; then
+    status_msg "Removing haproxy ..."
+    if sudo apt-get remove haproxy -y && sudo update-rc.d -f haproxy remove; then
+      ok_msg "Haproxy removed!"
+    else
+      error_msg "Removing Haproxy from system failed!"
     fi
   fi
 }
 
-function process_services_dialog() {
+function disable_conflicting_packages() {
+  local apache=${1} haproxy=${2}
+
+  if [[ ${apache} == "true" ]]; then
+    status_msg "Stopping Apache2 service ..."
+    if systemctl is-active apache2 -q; then
+      sudo systemctl stop apache2 && ok_msg "Service stopped!"
+    else
+      warn_msg "Apache2 service not active!"
+    fi
+
+    status_msg "Disabling Apache2 service ..."
+    if sudo systemctl disable apache2; then
+      ok_msg "Apache2 service disabled!"
+    else
+      error_msg "Disabling Apache2 service failed!"
+    fi
+  fi
+
+  if [[ ${haproxy} == "true" ]]; then
+    status_msg "Stopping Haproxy service ..."
+    if systemctl is-active haproxy -q; then
+      sudo systemctl stop haproxy && ok_msg "Service stopped!"
+    else
+      warn_msg "Haproxy service not active!"
+    fi
+
+    status_msg "Disabling Haproxy service ..."
+    if sudo systemctl disable haproxy; then
+      ok_msg "Haproxy service disabled!"
+    else
+      error_msg "Disabling Haproxy service failed!"
+    fi
+  fi
+}
+
+function detect_conflicting_packages() {
+  local apache="false" haproxy="false"
+
+  ### check system for an installed apache2 service
+  [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]] && apache="true"
+  ### check system for an installed haproxy service
+  [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]] && haproxy="true"
+
   #notify user about haproxy or apache2 services found and possible issues
-  if [[ ${HAPROXY_FOUND} == "true" || ${APACHE2_FOUND} == "true" ]]; then
+  if [[ ${haproxy} == "false" && ${apache} == "false" ]]; then
+    return
+  else
     while true; do
       echo
       top_border
-      echo -e "| ${red}Possibly disruptive/incompatible services found!${white}      |"
-      hr
-      if [[ ${HAPROXY_FOUND} == "true" ]]; then
-        echo -e "| ● haproxy                                             |"
-      fi
-      if [[ ${APACHE2_FOUND} == "true" ]]; then
-        echo -e "| ● apache2                                             |"
-      fi
-      hr
+      echo -e "| ${red}Conflicting package installations found:${white}              |"
+      [[ ${apache} == "true" ]] && \
+      echo -e "| ${red}● apache2${white}                                             |"
+      [[ ${haproxy} == "true" ]] && \
+      echo -e "| ${red}● haproxy${white}                                             |"
+      blank_line
       echo -e "| Having those packages installed can lead to unwanted  |"
       echo -e "| behaviour. It's recommended to remove those packages. |"
       echo -e "|                                                       |"
       echo -e "| 1) Remove packages (recommend)                        |"
-      echo -e "| 2) Disable only (may cause issues)                    |"
+      echo -e "| 2) Disable only (may still cause issues)              |"
       echo -e "| ${red}3) Skip this step (not recommended)${white}                   |"
       bottom_border
 
@@ -220,13 +245,11 @@ function process_services_dialog() {
       case "${action}" in
         1)
           echo -e "###### > Remove packages"
-          REMOVE_HAPROXY="true"
-          REMOVE_APACHE2="true"
+          remove_conflicting_packages "${apache}" "${haproxy}"
           break;;
         2)
           echo -e "###### > Disable only"
-          DISABLE_HAPROXY="true"
-          DISABLE_APACHE2="true"
+          disable_conflicting_packages "${apache}" "${haproxy}"
           break;;
         3)
           echo -e "###### > Skip"

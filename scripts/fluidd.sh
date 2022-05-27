@@ -25,12 +25,8 @@ function install_fluidd() {
   ### checking dependencies
   local dep=(wget nginx)
   dependency_check "${dep[@]}"
-  ### check if moonraker is already installed
-  system_check_webui
-  ### ask user how to handle Haproxy, Apache2 if found
-  process_services_dialog
-  ### process possible disruptive services
-  process_disruptive_services
+  ### detect conflicting Haproxy and Apache2 installations
+  detect_conflicting_packages
 
   status_msg "Initializing Fluidd installation ..."
   ### first, we create a backup of the full klipper_config dir - safety first!
