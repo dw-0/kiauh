@@ -77,6 +77,8 @@ function install_fluidd() {
   set_upstream_nginx_cfg
   ### create /etc/nginx/sites-available/<interface config>
   set_nginx_cfg "fluidd"
+  ### nginx on ubuntu 21 and above needs special permissions to access the files
+  set_nginx_permissions
 
   ### symlink nginx log
   symlink_webui_nginx_log "fluidd"

@@ -284,6 +284,20 @@ function set_nginx_cfg() {
   fi
 }
 
+function set_nginx_permissions() {
+  local distro_name version_id
+
+  distro_name=$(grep -E "^NAME=" /etc/os-release | cut -d'"' -f2)
+  version_id=$(grep -E "^VERSION_ID=" /etc/os-release | cut -d'"' -f2)
+
+  if [[ ${distro_name} == "Ubuntu" && ( ${version_id} == "21.10" || ${version_id} == "22.04") ]]; then
+    status_msg "Granting NGINX the required permissions ..."
+    chmod og+x "${HOME}" && ok_msg "Done!"
+  fi
+
+  return
+}
+
 function read_listen_port() {
   local port interface=${1}
   port=$(grep listen "/etc/nginx/sites-enabled/${interface}" | head -1 | sed 's/^\s*//' | cut -d" " -f2 | cut -d";" -f1)
