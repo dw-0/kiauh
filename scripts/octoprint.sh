@@ -391,7 +391,7 @@ function get_octoprint_status() {
 
   if (( sf_count == 0 )) && (( env_count == 0 )) && (( dir_count == 0 )); then
     status="Not installed!"
-  elif (( sf_count == env_count)) && (( sf_count == dir_count )); then
+  elif (( sf_count == env_count )) && (( sf_count == dir_count )); then
     status="Installed: ${sf_count}"
   else
     status="Incomplete!"

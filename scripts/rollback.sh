@@ -65,7 +65,7 @@ function rollback_component() {
   local count
   while true; do
     read -p "${cyan}###### Revert this amount of commits:${white} " count
-    if [[ -n ${count} ]] && ((count > 0)); then
+    if [[ -n ${count} ]] && (( count > 0 )); then
       status_msg "Revert ${component^} by ${count} commits ..."
       cd "${HOME}/${component}"
       if git reset --hard HEAD~"${count}"; then

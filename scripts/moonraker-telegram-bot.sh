@@ -209,7 +209,7 @@ function create_telegram_conf() {
   elif (( telegram_bot_count > 1 )); then
     local j=0 re="^[1-9][0-9]*$"
 
-    for ((i=1; i <= telegram_bot_count; i++ )); do
+    for (( i=1; i <= telegram_bot_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
@@ -219,7 +219,7 @@ function create_telegram_conf() {
 
       ### write multi instance config
       write_telegram_conf "${cfg_dir}" "${cfg}" "${log}"
-      j=$((j+1))
+      j=$(( j + 1 ))
     done && unset j
 
   else

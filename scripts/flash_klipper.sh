@@ -222,7 +222,7 @@ function start_flash_sd() {
     else
       printf "|  ${i}) %-49s|\n" "${board_list[${i}]}"
     fi
-    i=$((i + 1))
+    i=$(( i + 1 ))
   done
   quit_footer
 

@@ -259,8 +259,8 @@ function klipper_setup() {
 
   ### confirm message
   local confirm=""
-  (( instance_arr[0] == 1)) && confirm="Klipper has been set up!"
-  (( instance_arr[0] > 1)) && confirm="${instance_arr[0]} Klipper instances have been set up!"
+  (( instance_arr[0] == 1 )) && confirm="Klipper has been set up!"
+  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Klipper instances have been set up!"
 
   print_confirm "${confirm}" && return
 }
@@ -515,16 +515,16 @@ function get_klipper_status() {
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(("${filecount}" + 1))
+    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
   done
 
-  if (( filecount == ${#data_arr[*]})); then
+  if (( filecount == ${#data_arr[*]} )); then
     if (( py_ver == 3 )); then
       status="Installed: ${sf_count}(py${py_ver})"
     else
       status="Installed: ${sf_count}"
     fi
-  elif ((filecount == 0)); then
+  elif (( filecount == 0 )); then
     status="Not installed!"
   else
     status="Incomplete!"

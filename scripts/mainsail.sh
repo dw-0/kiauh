@@ -356,6 +356,7 @@ function ms_theme_installer_menu() {
     theme_repo+=("${col4}")
   done <<< "${theme_list}"
 
+  local option
   while true; do
     read -p "${cyan}Install theme:${white} " option
     if (( option > 0 &&  option < ${#theme_name[@]} )); then
