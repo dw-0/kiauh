@@ -53,8 +53,8 @@ function backup_klipper_config_dir() {
 
 function backup_moonraker_database() {
   check_for_backup_dir
-  local current_date databases target_dir
-  databases=$(find "${HOME}" -maxdepth 1 -type d -regextype posix-extended -regex "${HOME}/.moonraker_database(_[^0])?[0-9]*" | sort)
+  local current_date databases target_dir regex=".moonraker_database(_[0-9a-zA-Z]+)?"
+  databases=$(find "${HOME}" -maxdepth 1 -type d -regextype posix-extended -regex "${HOME}/${regex}" | sort)
 
   if [[ -n ${databases} ]]; then
     current_date=$(get_date)
