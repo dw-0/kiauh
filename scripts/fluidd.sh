@@ -248,6 +248,7 @@ function update_fluidd() {
   download_fluidd
   match_nginx_configs
   symlink_webui_nginx_log "fluidd"
+  print_confirm "Fluidd successfully updated!"
 }
 
 #===================================================#
