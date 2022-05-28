@@ -176,6 +176,11 @@ function download_mainsail() {
     print_error "Downloading Mainsail from\n ${url}\n failed!"
     exit 1
   fi
+
+  ### check for moonraker multi-instance and if multi-instance was found, enable mainsails remoteMode
+  if [[ $(moonraker_systemd | wc -w) -gt 1 ]]; then
+    enable_mainsail_remotemode
+  fi
 }
 
 #===================================================#
@@ -537,6 +542,13 @@ function select_mainsail_port() {
       fi
     done
   fi
+}
+
+function enable_mainsail_remotemode() {
+  [[ ! -f "${MAINSAIL_DIR}/config.json" ]] && return
+
+  rm -f "${MAINSAIL_DIR}/config.json"
+  echo -e "{\n    \"remoteMode\":true\n}" >> "${MAINSAIL_DIR}/config.json"
 }
 
 function patch_mainsail_update_manager() {
