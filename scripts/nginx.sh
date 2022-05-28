@@ -113,7 +113,6 @@ function match_nginx_configs() {
     set_upstream_nginx_cfg
 
     require_service_restart="true"
-    ok_msg "Done!"
   fi
 
   ### check for outdated mainsail config
@@ -128,7 +127,6 @@ function match_nginx_configs() {
     sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${mainsail_port};/" "${mainsail_nginx_cfg}"
 
     require_service_restart="true"
-    ok_msg "Done!"
   fi
 
   ### check for outdated fluidd config
@@ -143,11 +141,14 @@ function match_nginx_configs() {
     sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${fluidd_port};/" "${fluidd_nginx_cfg}"
 
     require_service_restart="true"
-    ok_msg "Done!"
   fi
 
   ### only restart nginx if configs were updated
-  [[ ${require_service_restart} == "true" ]] && sudo systemctl restart nginx.service
+  if [[ ${require_service_restart} == "true" ]]; then
+    sudo systemctl restart nginx.service
+  fi
+
+  ok_msg "Done!"
 }
 
 function remove_conflicting_packages() {

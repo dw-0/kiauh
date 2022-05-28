@@ -253,6 +253,7 @@ function update_mainsail() {
   download_mainsail
   match_nginx_configs
   symlink_webui_nginx_log "mainsail"
+  print_confirm "Mainsail successfully updated!"
 }
 
 #===================================================#
