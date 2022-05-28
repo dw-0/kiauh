@@ -91,11 +91,11 @@ function upload_selection() {
   blank_line
   back_footer
 
-  local option
+  local option re="^[0-9]+$"
   while true; do
     read -p "${cyan}###### Please select:${white} " option
 
-    if [[ -n ${option} && ${option} -ge 0 && ${option} -lt ${#logfiles[@]} ]]; then
+    if [[ ${option} =~ ${re} && ${option} -lt ${#logfiles[@]} ]]; then
       upload_log "${logfiles[${option}]}"
       upload_selection
     elif [[ ${option} == "B" || ${option} == "b" ]]; then
