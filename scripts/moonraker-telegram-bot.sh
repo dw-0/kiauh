@@ -217,6 +217,7 @@ function create_telegram_conf() {
       else
         cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
       fi
+      cfg="${cfg_dir}/telegram.conf"
 
       ### write multi instance config
       write_telegram_conf "${cfg_dir}" "${cfg}" "${log}"
