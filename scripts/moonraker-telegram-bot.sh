@@ -22,16 +22,18 @@ function telegram_bot_systemd() {
 }
 
 function telegram_bot_setup_dialog() {
-  status_msg "Initializing Telegram Bot installation ..."
-
   ### return early if moonraker is not installed
   local moonraker_services
   moonraker_services=$(moonraker_systemd)
+
   if [[ -z ${moonraker_services} ]]; then
     local error="Moonraker not installed! Please install Moonraker first!"
-    log_error "Telegram Bot setup started without Moonraker being installed. Aborting setup."
     print_error "${error}" && return
   fi
+
+  status_msg "Initializing Telegram Bot installation ..."
+  ### first, we create a backup of the full klipper_config dir - safety first!
+  backup_klipper_config_dir
 
   local moonraker_count user_input=() moonraker_names=()
   moonraker_count=$(echo "${moonraker_services}" | wc -w )
@@ -169,7 +171,10 @@ function telegram_bot_setup() {
   ### step 4: create telegram bot instances
   create_telegram_bot_service "${instance_arr[@]}"
 
-  ### step 5: enable and start all instances
+  ### step 5: add telegram-bot to the update manager in moonraker.conf
+  patch_telegram_bot_update_manager
+
+  ### step 6: enable and start all instances
   do_action_service "enable" "moonraker-telegram-bot"
   do_action_service "start" "moonraker-telegram-bot"
 
@@ -448,4 +453,34 @@ function compare_telegram_bot_versions() {
   fi
 
   echo "${versions}"
+}
+
+#================================================#
+#=================== HELPERS ====================#
+#================================================#
+
+function patch_telegram_bot_update_manager() {
+  local moonraker_configs
+  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
+
+  for conf in ${moonraker_configs}; do
+    if ! grep -Eq "^\[update_manager moonraker-telegram-bot\]$" "${conf}"; then
+      ### add new line to conf if it doesn't end with one
+      [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+
+      ### add Moonraker-Telegram-Bot update manager section to moonraker.conf
+      status_msg "Adding Moonraker-Telegram-Bot to update manager in file:\n       ${conf}"
+      /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
+
+[update_manager moonraker-telegram-bot]
+type: git_repo
+path: ~/moonraker-telegram-bot
+origin: https://github.com/nlef/moonraker-telegram-bot.git
+env: ~/moonraker-telegram-bot-env/bin/python
+requirements: scripts/requirements.txt
+install_script: scripts/install.sh
+MOONRAKER_CONF
+
+    fi
+  done
 }
