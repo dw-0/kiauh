@@ -214,6 +214,7 @@ function clone_moonraker() {
   ### force remove existing moonraker dir and clone into fresh moonraker dir
   [[ -d ${MOONRAKER_DIR} ]] && rm -rf "${MOONRAKER_DIR}"
 
+  cd "${HOME}" || exit 1
   if ! git clone "${MOONRAKER_REPO}" "${MOONRAKER_DIR}"; then
     print_error "Cloning Moonraker from\n ${repo}\n failed!"
     exit 1

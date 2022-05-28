@@ -187,6 +187,7 @@ function clone_telegram_bot() {
   ### force remove existing Moonraker-Telegram-Bot dir
   [[ -d ${repo} ]] && rm -rf "${TELEGRAM_BOT_DIR}"
 
+  cd "${HOME}" || exit 1
   if ! git clone "${repo}" "${TELEGRAM_BOT_DIR}"; then
     print_error "Cloning Moonraker-Telegram-Bot from\n ${repo}\n failed!"
     exit 1

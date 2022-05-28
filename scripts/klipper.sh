@@ -279,6 +279,7 @@ function clone_klipper() {
 
   status_msg "Cloning Klipper from ${repo} ..."
 
+  cd "${HOME}" || exit 1
   if git clone "${repo}" "${KLIPPER_DIR}"; then
     cd "${KLIPPER_DIR}" && git checkout "${branch}"
   else
