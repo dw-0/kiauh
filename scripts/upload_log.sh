@@ -59,19 +59,19 @@ function upload_selection() {
 
   function find_logfile() {
     local name=${1} location=${2}
-    for log in $(find "${location}" -maxdepth 1 -type f -name "${name}" | sort -g); do
+    for log in $(find "${location}" -maxdepth 1 -regextype posix-extended -regex "${location}/${name}" | sort -g); do
       logfiles+=("${log}")
     done
   }
 
-  find_logfile "kiauh.log" "/tmp"
-  find_logfile "klippy*.log" "${logs_dir}"
-  find_logfile "moonraker*.log" "${logs_dir}"
-  find_logfile "telegram*.log" "${logs_dir}"
-  find_logfile "mainsail*" "${webif_logs}"
-  find_logfile "fluidd*" "${webif_logs}"
+  find_logfile "kiauh\.log" "/tmp"
+  find_logfile "klippy(-[0-9a-zA-Z]+)?\.log" "${logs_dir}"
+  find_logfile "moonraker(-[0-9a-zA-Z]+)?\.log" "${logs_dir}"
+  find_logfile "telegram(-[0-9a-zA-Z]+)?\.log" "${logs_dir}"
+  find_logfile "mainsail.*" "${webif_logs}"
+  find_logfile "fluidd.*" "${webif_logs}"
   find_logfile "KlipperScreen.log" "/tmp"
-  find_logfile "webcamd*" "/var/log"
+  find_logfile "webcamd\.log(\.[0-9]+)?$" "/var/log"
 
   ### draw interface
   local i=0
