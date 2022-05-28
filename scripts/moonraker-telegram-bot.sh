@@ -17,7 +17,7 @@ set -e
 
 function telegram_bot_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker-telegram-bot(-[^0])?[0-9]*.service" | sort)
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker-telegram-bot(-[0-9a-zA-Z]+)?.service" | sort)
   echo "${services}"
 }
 
@@ -344,8 +344,8 @@ function remove_telegram_bot_env() {
 }
 
 function remove_telegram_bot_logs() {
-  local files
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/telegram(-[0-9a-zA-Z]+)?\.log(.*)?" | sort)
+  local files regex="telegram(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
