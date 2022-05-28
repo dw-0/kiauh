@@ -322,7 +322,7 @@ function get_usb_id() {
 function get_uart_id() {
   unset mcu_list
   sleep 1
-  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty(AMA|ACM|S)[0-9]+$" 2>/dev/null)
+  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty(AMA0|S0)$" 2>/dev/null)
 
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
