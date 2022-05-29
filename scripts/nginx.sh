@@ -16,16 +16,20 @@ set -e
 #===================================================#
 
 function remove_nginx() {
-  if [[ -f "${SYSTEMD}/nginx.service" ]]; then
-    status_msg "Stopping Nginx service ..."
-    sudo systemctl stop nginx && sudo systemctl disable nginx
-    ok_msg "Service stopped and disabled!"
+  if [[ $(dpkg -s nginx  2>/dev/null | grep "Status") = *\ installed ]]; then
+    status_msg "Stopping NGINX service ..."
+    if systemctl is-active nginx -q; then
+      sudo systemctl stop nginx && ok_msg "Service stopped!"
+    else
+      warn_msg "NGINX service not active!"
+    fi
 
-    status_msg "Purging Nginx from system ..."
-    sudo apt-get purge nginx nginx-common -y
-    sudo update-rc.d -f nginx remove
-
-    print_confirm "Nginx successfully removed!"
+    status_msg "Removing NGINX from system ..."
+    if sudo apt-get remove nginx -y && sudo update-rc.d -f nginx remove; then
+      ok_msg "NGINX removed!"
+    else
+      error_msg "Removing NGINX from system failed!"
+    fi
   else
     print_error "Looks like Nginx was already removed!\n Skipping..."
   fi
@@ -167,7 +171,7 @@ function remove_conflicting_packages() {
   fi
 
   if [[ ${haproxy} == "true" ]]; then
-    status_msg "Removing haproxy ..."
+    status_msg "Removing haproxy from system ..."
     if sudo apt-get remove haproxy -y && sudo update-rc.d -f haproxy remove; then
       ok_msg "Haproxy removed!"
     else
@@ -216,9 +220,9 @@ function detect_conflicting_packages() {
   local apache="false" haproxy="false"
 
   ### check system for an installed apache2 service
-  [[ $(dpkg-query -f'${Status}' --show apache2 2>/dev/null) = *\ installed ]] && apache="true"
+  [[ $(dpkg -s apache2  2>/dev/null | grep "Status") = *\ installed ]] && apache="true"
   ### check system for an installed haproxy service
-  [[ $(dpkg-query -f'${Status}' --show haproxy 2>/dev/null) = *\ installed ]] && haproxy="true"
+  [[ $(dpkg -s haproxy  2>/dev/null | grep "Status") = *\ installed ]] && haproxy="true"
 
   #notify user about haproxy or apache2 services found and possible issues
   if [[ ${haproxy} == "false" && ${apache} == "false" ]]; then
@@ -236,7 +240,7 @@ function detect_conflicting_packages() {
       echo -e "| Having those packages installed can lead to unwanted  |"
       echo -e "| behaviour. It's recommended to remove those packages. |"
       echo -e "|                                                       |"
-      echo -e "| 1) Remove packages (recommend)                        |"
+      echo -e "| ${green}1) Remove packages (recommend)${white}                        |"
       echo -e "| 2) Disable only (may still cause issues)              |"
       echo -e "| ${red}3) Skip this step (not recommended)${white}                   |"
       bottom_border
