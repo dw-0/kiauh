@@ -251,7 +251,7 @@ function set_klipper_cfg_path() {
     for service in ${klipper_services}; do
       if [[ ${service} = "/etc/systemd/system/klipper.service" ]]; then
 
-        if grep "Environment=KLIPPER_CONFIG=" "${service}"; then
+        if grep -q "Environment=KLIPPER_CONFIG=" "${service}"; then
           ### single instance klipper service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/KLIPPER_CONFIG=/ s|CONFIG=(.+)\/printer\.cfg|CONFIG=${new_cfg_loc}/printer\.cfg|" "${service}"
         else
@@ -262,7 +262,7 @@ function set_klipper_cfg_path() {
       else
         instance=$(echo "${service}" | cut -d"-" -f2 | cut -d"." -f1)
 
-        if grep "Environment=KLIPPER_CONFIG=" "${service}"; then
+        if grep -q "Environment=KLIPPER_CONFIG=" "${service}"; then
           ### multi instance klipper service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/KLIPPER_CONFIG=/ s|CONFIG=(.+)\/printer_${instance}\/printer\.cfg|CONFIG=${new_cfg_loc}\/printer_${instance}\/printer\.cfg|" "${service}"
         else
@@ -283,7 +283,7 @@ function set_klipper_cfg_path() {
     for service in ${moonraker_services}; do
       if [[ ${service} = "/etc/systemd/system/moonraker.service" ]]; then
 
-        if grep "Environment=MOONRAKER_CONF=" "${service}"; then
+        if grep -q "Environment=MOONRAKER_CONF=" "${service}"; then
           ### single instance moonraker service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/MOONRAKER_CONF=/ s|_CONF=(.+)\/moonraker\.conf|_CONF=${new_cfg_loc}\/moonraker\.conf|" "${service}"
         else
@@ -294,7 +294,7 @@ function set_klipper_cfg_path() {
       else
         instance=$(echo "${service}" | cut -d"-" -f2 | cut -d"." -f1)
 
-        if grep "Environment=MOONRAKER_CONF=" "${service}"; then
+        if grep -q "Environment=MOONRAKER_CONF=" "${service}"; then
           ### multi instance moonraker service installed by kiauh v4 / MainsailOS > 0.5.0
           sudo sed -i -r "/MOONRAKER_CONF=/ s|_CONF=(.+)\/printer_${instance}\/moonraker\.conf|_CONF=${new_cfg_loc}\/printer_${instance}\/moonraker\.conf|" "${service}"
         else
