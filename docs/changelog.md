@@ -9,7 +9,8 @@ KIAUH has now reached major version 4 !
 * feat: Custom instance name for multi instance installations of Klipper
   * Any other multi instance will share the same name given to the corresponding Klipper instance
   * E.g. klipper-voron2 -> moonraker-voron2 -> moonraker-telegram-bot-voron2
-* feat: Option to only allow the installation of stable Mainsail and Fluidd versions
+* feat: Option to allow installation of / updating to unstable Mainsail and Fluidd versions
+  * by default only stable versions get installed/updated
 * feat: Multi-Instance OctoPrint installations now each have their own virtual python environment
   * allows independent installation of plugins for each instance
 * feat: Implementing the use of shellcheck during development
