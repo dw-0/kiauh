@@ -2,9 +2,9 @@
 
 This document covers possible important changes to KIAUH.
 
-### 2022-04-XX
+### 2022-05-29
 KIAUH has now reached major version 4 !
-* feat: Klipper can be installed under Python3 (considered as experimental)
+* feat: Klipper can be installed under Python3 (still considered as experimental)
 * feat: Klipper can be installed from custom repositories / inofficial forks
 * feat: Custom instance name for multi instance installations of Klipper
   * Any other multi instance will share the same name given to the corresponding Klipper instance
@@ -15,7 +15,9 @@ KIAUH has now reached major version 4 !
 * feat: Implementing the use of shellcheck during development
 * feat: Implementing a simple logging mechanic
 * feat: Log-upload function now also allows uploading other logfiles (kiauh.log, webcamd.log etc.)
+* feat: added several new help dialogs which try to explain various functions
 * fix: During Klipper installation, checks for group membership of `tty` and `dialout` are made
+* refactor: rework of the settings menu for better control the new KIAUH features
 * refactor: Support for DWC and DWC-for-Klipper has been removed
 * refactor: The backup before update settings were moved to the KIAUH settings menu
 * refactor: Switch branch function has been removed (was replaced by the custom Klipper repo feature)
