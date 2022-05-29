@@ -1,15 +1,22 @@
-#Systemd service file for klipper
+#Systemd Klipper Service
+
 [Unit]
-Description=Starts klipper instance %INST% on startup
+Description=Systemd Klipper Service for instance klipper-%INST%
+Documentation=https://www.klipper3d.org/
 After=network.target
+Wants=udev.target
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
+Environment=KLIPPER_CONFIG=%CFG%
+Environment=KLIPPER_LOG=%LOG%
+Environment=KLIPPER_SOCKET=%UDS%
+Environment=KLIPPER_PRINTER=%PRINTER%
 Type=simple
 User=%USER%
 RemainAfterExit=yes
-ExecStart=%KL_ENV%/bin/python %KL_DIR%/klippy/klippy.py %P_CFG% -I %P_TMP% -l %KL_LOG% -a %KL_UDS%
+ExecStart=%ENV%/bin/python %DIR%/klippy/klippy.py ${KLIPPER_CONFIG} -I ${KLIPPER_PRINTER} -l ${KLIPPER_LOG} -a ${KLIPPER_SOCKET}
 Restart=always
 RestartSec=10

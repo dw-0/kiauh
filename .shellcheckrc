@@ -1,0 +1,15 @@
+source=scripts
+
+enable=avoid-nullary-conditions
+enable=deprecate-which
+enable=quote-safe-variables
+enable=require-variable-braces
+enable=require-double-brackets
+
+# SC2162: `read` without `-r` will mangle backslashes.
+# https://github.com/koalaman/shellcheck/wiki/SC2162
+disable=SC2162
+
+# SC2164: Use `cd ... || exit` in case `cd` fails
+# https://github.com/koalaman/shellcheck/wiki/SC2164
+disable=SC2164

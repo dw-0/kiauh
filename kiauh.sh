@@ -1,105 +1,89 @@
-#!/bin/bash
-clear
-set -e
+#!/usr/bin/env bash
 
-### set color variables
-green=$(echo -en "\e[92m")
-yellow=$(echo -en "\e[93m")
-red=$(echo -en "\e[91m")
-cyan=$(echo -en "\e[96m")
-default=$(echo -en "\e[39m")
+#=======================================================================#
+# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+#                                                                       #
+# This file is part of KIAUH - Klipper Installation And Update Helper   #
+# https://github.com/th33xitus/kiauh                                    #
+#                                                                       #
+# This file may be distributed under the terms of the GNU GPLv3 license #
+#=======================================================================#
+
+set -e
+clear
 
 ### sourcing all additional scripts
-SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
-for script in "${SRCDIR}/kiauh/scripts/"*.sh; do . $script; done
-for script in "${SRCDIR}/kiauh/scripts/ui/"*.sh; do . $script; done
+KIAUH_SRCDIR="$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")"
+for script in "${KIAUH_SRCDIR}/scripts/"*.sh; do . "${script}"; done
+for script in "${KIAUH_SRCDIR}/scripts/ui/"*.sh; do . "${script}"; done
 
-### set important directories
-#klipper
-KLIPPER_DIR=${HOME}/klipper
-KLIPPY_ENV=${HOME}/klippy-env
-#nginx
-NGINX_SA=/etc/nginx/sites-available
-NGINX_SE=/etc/nginx/sites-enabled
-NGINX_CONFD=/etc/nginx/conf.d
-#moonraker
-MOONRAKER_DIR=${HOME}/moonraker
-MOONRAKER_ENV=${HOME}/moonraker-env
-#mainsail
-MAINSAIL_DIR=${HOME}/mainsail
-#fluidd
-FLUIDD_DIR=${HOME}/fluidd
-#dwc2
-DWC2FK_DIR=${HOME}/dwc2-for-klipper-socket
-DWC_ENV_DIR=${HOME}/dwc-env
-DWC2_DIR=${HOME}/duetwebcontrol
-#octoprint
-OCTOPRINT_DIR=${HOME}/OctoPrint
-OCTOPRINT_CFG_DIR=${HOME}/.octoprint
-#KlipperScreen
-KLIPPERSCREEN_DIR=${HOME}/KlipperScreen
-KLIPPERSCREEN_ENV_DIR=${HOME}/.KlipperScreen-env
-#MoonrakerTelegramBot
-MOONRAKER_TELEGRAM_BOT_DIR=${HOME}/moonraker-telegram-bot
-MOONRAKER_TELEGRAM_BOT_ENV_DIR=${HOME}/moonraker-telegram-bot-env
-#misc
-INI_FILE=${HOME}/.kiauh.ini
-BACKUP_DIR=${HOME}/kiauh-backups
+#===================================================#
+#=================== UPDATE KIAUH ==================#
+#===================================================#
 
-### set github repos
-KLIPPER_REPO=https://github.com/Klipper3d/klipper.git
-ARKSINE_REPO=https://github.com/Arksine/klipper.git
-DMBUTYUGIN_REPO=https://github.com/dmbutyugin/klipper.git
-DWC2FK_REPO=https://github.com/Stephan3/dwc2-for-klipper-socket.git
-KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
-NLEF_REPO=https://github.com/nlef/moonraker-telegram-bot.git
-#branches
-BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
-BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
+function update_kiauh() {
+  status_msg "Updating KIAUH ..."
 
-### set some messages
-warn_msg(){
-  echo -e "${red}<!!!!> $1${default}"
-}
-status_msg(){
-  echo; echo -e "${yellow}###### $1${default}"
-}
-ok_msg(){
-  echo -e "${green}>>>>>> $1${default}"
-}
-title_msg(){
-  echo -e "${cyan}$1${default}"
-}
-get_date(){
-  current_date=$(date +"%y%m%d-%H%M")
-}
-print_unkown_cmd(){
-  ERROR_MSG="Invalid command!"
+  cd "${KIAUH_SRCDIR}"
+  git reset --hard && git pull
+
+  ok_msg "Update complete! Please restart KIAUH."
+  exit 0
 }
 
-print_msg(){
-  if [[ "$ERROR_MSG" != "" ]]; then
-    echo -e "${red}"
-    echo -e "#########################################################"
-    echo -e " $ERROR_MSG "
-    echo -e "#########################################################"
-    echo -e "${default}"
-  fi
-  if [ "$CONFIRM_MSG" != "" ]; then
-    echo -e "${green}"
-    echo -e "#########################################################"
-    echo -e " $CONFIRM_MSG "
-    echo -e "#########################################################"
-    echo -e "${default}"
+#===================================================#
+#=================== KIAUH STATUS ==================#
+#===================================================#
+
+function kiauh_update_avail() {
+  [[ ! -d "${KIAUH_SRCDIR}/.git" ]] && return
+  local origin head
+
+  cd "${KIAUH_SRCDIR}"
+
+  ### abort if not on master branch
+  ! git branch -a | grep -q "\* master" && return
+
+  ### compare commit hash
+  git fetch -q
+  origin=$(git rev-parse --short=8 origin/master)
+  head=$(git rev-parse --short=8 HEAD)
+
+  if [[ ${origin} != "${head}" ]]; then
+    echo "true"
   fi
 }
 
-clear_msg(){
-  unset CONFIRM_MSG
-  unset ERROR_MSG
+function kiauh_update_dialog() {
+  [[ ! $(kiauh_update_avail) == "true" ]] && return
+  top_border
+  echo -e "|${green}              New KIAUH update available!              ${white}|"
+  hr
+  echo -e "|${green}  View Changelog: https://git.io/JnmlX                 ${white}|"
+  blank_line
+  echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${white}|"
+  echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${white}|"
+  echo -e "|${yellow}  features. Please consider updating!                  ${white}|"
+  bottom_border
+
+  local yn
+  read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
+  while true; do
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        do_action "update_kiauh"
+        break;;
+      N|n|No|no)
+        break;;
+      *)
+        deny_action "kiauh_update_dialog";;
+    esac
+  done
 }
 
 check_euid
+init_logfile
+set_globals
 init_ini
-kiauh_status
+kiauh_update_dialog
 main_menu

@@ -2,6 +2,30 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2022-04-XX
+KIAUH has now reached major version 4 !
+* feat: Klipper can be installed under Python3 (considered as experimental)
+* feat: Klipper can be installed from custom repositories / inofficial forks
+* feat: Custom instance name for multi instance installations of Klipper
+  * Any other multi instance will share the same name given to the corresponding Klipper instance
+  * E.g. klipper-voron2 -> moonraker-voron2 -> moonraker-telegram-bot-voron2
+* feat: Option to only allow the installation of stable Mainsail and Fluidd versions
+* feat: Multi-Instance OctoPrint installations now each have their own virtual python environment
+  * allows independent installation of plugins for each instance
+* feat: Implementing the use of shellcheck during development
+* feat: Implementing a simple logging mechanic
+* feat: Log-upload function now also allows uploading other logfiles (kiauh.log, webcamd.log etc.)
+* fix: During Klipper installation, checks for group membership of `tty` and `dialout` are made
+* refactor: Support for DWC and DWC-for-Klipper has been removed
+* refactor: The backup before update settings were moved to the KIAUH settings menu
+* refactor: Switch branch function has been removed (was replaced by the custom Klipper repo feature)
+* refactor: The update manager sections for Mainsail, Fluidd and KlipperScreen were removed from the moonraker.conf template
+  * They will now be individually added during installation of the corresponding interface
+* refactor: The rollback function was reworked and now also allows rollbacks of Moonraker
+  * It now takes numerical inputs and reverts the corresponding repository by the given amount instead
+  * KIAUH does not save previous states to its config anymore like it did with the previous approach
+
+
 ### 2022-01-29
 * Starting from the 28th of January, Moonraker can make use of PackageKit and PolicyKit.\
 More details on that can be found [here](
@@ -114,9 +138,9 @@ Each service gets its corresponding instance added to the service filename.
             --> moonraker-2.service
             --> moonraker-n.service
     ```
-* The same service file rules from above apply to DWC and OctoPrint even though only Klipper and Moonraker are shown in this example.
+* The same service file rules from above apply to OctoPrint even though only Klipper and Moonraker are shown in this example.
 
-* You can start, stop and restart all Klipper, Moonraker, DWC and OctoPrint instances from the KIAUH main menu. For doing this, just type "stop klipper", "start moonraker", "restart octoprint" and so on.
+* You can start, stop and restart all Klipper, Moonraker and OctoPrint instances from the KIAUH main menu. For doing this, just type "stop klipper", "start moonraker", "restart octoprint" and so on.
 
 * KIAUH v3.0 relocated its ini-file. It is now a hidden file in the users home-directory calles `.kiauh.ini`. This has the benefit of keeping all values in that file between possible re-installations of KIAUH. Otherwise that file would be lost.
 

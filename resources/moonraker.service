@@ -1,16 +1,20 @@
-#Systemd service file for moonraker
+#Systemd Moonraker Service
+
 [Unit]
-Description=Starts Moonraker %INST% on startup
+Description=Systemd Moonraker Service for instance moonraker-%INST%
+Documentation=https://moonraker.readthedocs.io/
 After=network.target
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
+Environment=MOONRAKER_CONF=%CFG%
+Environment=MOONRAKER_LOG=%LOG%
 Type=simple
 SupplementaryGroups=moonraker-admin
 User=%USER%
 RemainAfterExit=yes
-ExecStart=%MR_ENV%/bin/python %MR_DIR%/moonraker/moonraker.py -l %MR_LOG% -c %MR_CONF%
+ExecStart=%ENV%/bin/python %DIR%/moonraker/moonraker.py -c ${MOONRAKER_CONF} -l ${MOONRAKER_LOG}
 Restart=always
 RestartSec=10

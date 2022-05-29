@@ -1,0 +1,19 @@
+#Systemd service file for Moonraker Telegram Bot
+
+[Unit]
+Description=Starts Moonraker Telegram Bot instance %INST% on startup
+Documentation=https://github.com/nlef/moonraker-telegram-bot/wiki
+After=network.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Environment=TELEGRAM_CONF=%CFG%
+Environment=TELEGRAM_LOG=%LOG%
+Type=simple
+User=%USER%
+RemainAfterExit=yes
+ExecStart=%ENV%/bin/python %DIR%/bot/main.py -c ${TELEGRAM_CONF} -l ${TELEGRAM_LOG}
+Restart=always
+RestartSec=10
