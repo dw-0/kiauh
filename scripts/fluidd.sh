@@ -202,7 +202,7 @@ function remove_fluidd_config() {
 
 function remove_fluidd_logs() {
   local files
-  files=$(find /var/log/nginx -name "fluidd*")
+  files=$(find /var/log/nginx -name "fluidd*" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do

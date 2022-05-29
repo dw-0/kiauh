@@ -207,7 +207,7 @@ function remove_mainsail_config() {
 
 function remove_mainsail_logs() {
   local files
-  files=$(find /var/log/nginx -name "mainsail*")
+  files=$(find /var/log/nginx -name "mainsail*" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
