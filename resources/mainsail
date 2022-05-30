@@ -1,10 +1,10 @@
-# /etc/nginx/sites-available/<<UI>>
+# /etc/nginx/sites-available/mainsail
 
 server {
     listen 80;
 
-    access_log /var/log/nginx/<<UI>>-access.log;
-    error_log /var/log/nginx/<<UI>>-error.log;
+    access_log /var/log/nginx/mainsail-access.log;
+    error_log /var/log/nginx/mainsail-error.log;
 
     # disable this section on smaller hardware like a pi zero
     gzip on;
@@ -16,8 +16,8 @@ server {
     gzip_http_version 1.1;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/x-javascript application/json application/xml;
 
-    # web_path from <<UI>> static files
-    root /home/pi/<<UI>>;
+    # web_path from mainsail static files
+    root /home/pi/mainsail;
 
     index index.html;
     server_name _;

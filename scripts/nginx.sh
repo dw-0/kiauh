@@ -269,34 +269,25 @@ function detect_conflicting_packages() {
 
 function set_nginx_cfg() {
   local interface=${1}
+
   if [[ ${SET_NGINX_CFG} == "true" ]]; then
-    local cfg="${RESOURCES}/${interface}"
     #check for dependencies
     local dep=(nginx)
     dependency_check "${dep[@]}"
 
-    status_msg "Creating Nginx configuration for ${interface^} ..."
-    cat "${RESOURCES}/klipper_webui_nginx.cfg" > "${cfg}"
-    sed -i "s/<<UI>>/${interface}/g" "${cfg}"
+    local cfg_src="${RESOURCES}/${interface}"
+    local cfg_dest="/etc/nginx/sites-available/${interface}"
+
+    status_msg "Creating NGINX configuration for ${interface^} ..."
+
+    # copy config to destination and set correct username
+    [[ -f ${cfg_dest} ]] && sudo rm -f "${cfg_dest}"
+    sudo cp "${cfg_src}" "${cfg_dest}"
+    sudo sed -i "/root/s/pi/${USER}/" "${cfg_dest}"
 
     if [[ ${SET_LISTEN_PORT} != "${DEFAULT_PORT}" ]]; then
-      status_msg "Configuring port for ${interface^} ..."
-      sed -i "s/listen\s[0-9]*;/listen ${SET_LISTEN_PORT};/" "${cfg}"
-      sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${SET_LISTEN_PORT};/" "${cfg}"
-    fi
-
-    #set correct user
-    if [[ ${interface} == "mainsail" || ${interface} == "fluidd" ]]; then
-      sudo sed -i "/root/s/pi/${USER}/" "${cfg}"
-    fi
-
-    #moving the config file into correct directory
-    sudo mv "${cfg}" "/etc/nginx/sites-available/${interface}"
-    ok_msg "Nginx configuration for ${interface^} was set!"
-    if [[ -n ${SET_LISTEN_PORT} ]]; then
-      ok_msg "${interface^} configured for port ${SET_LISTEN_PORT}!"
-    else
-      ok_msg "${interface^} configured for default port ${DEFAULT_PORT}!"
+      sudo sed -i "s/listen\s[0-9]*;/listen ${SET_LISTEN_PORT};/" "${cfg_dest}"
+      sudo sed -i "s/listen\s\[\:*\]\:[0-9]*;/listen \[::\]\:${SET_LISTEN_PORT};/" "${cfg_dest}"
     fi
 
     #remove nginx default config
@@ -308,7 +299,16 @@ function set_nginx_cfg() {
     if [[ ! -e "/etc/nginx/sites-enabled/${interface}" ]]; then
       sudo ln -s "/etc/nginx/sites-available/${interface}" "/etc/nginx/sites-enabled/"
     fi
+
+    if [[ -n ${SET_LISTEN_PORT} ]]; then
+      ok_msg "${interface^} configured for port ${SET_LISTEN_PORT}!"
+    else
+      ok_msg "${interface^} configured for default port ${DEFAULT_PORT}!"
+    fi
+
     sudo systemctl restart nginx.service
+
+    ok_msg "NGINX configuration for ${interface^} was set!"
   fi
 }
 
