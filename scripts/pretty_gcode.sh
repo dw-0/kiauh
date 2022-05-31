@@ -104,7 +104,7 @@ function get_remote_prettygcode_commit() {
 
   [[ ! -d ${PGC_DIR} || ! -d "${PGC_DIR}/.git" ]] && return
   cd "${PGC_DIR}" && git fetch origin -q
-  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  commit=$(git describe origin/main --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
 }
 
