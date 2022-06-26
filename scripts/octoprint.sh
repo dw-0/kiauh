@@ -24,10 +24,16 @@ function octoprint_systemd() {
 function octoprint_setup_dialog() {
   status_msg "Initializing OctoPrint installation ..."
 
-  local klipper_services klipper_count user_input=() klipper_names=()
+  local klipper_services
   klipper_services=$(klipper_systemd)
-  klipper_count=$(echo "${klipper_services}" | wc -w )
+  if [[ -z ${klipper_services} ]]; then
+    local error="Klipper not installed! Please install Klipper first!"
+    log_error "OctoPrint setup started without Klipper being installed. Aborting setup."
+    print_error "${error}" && return
+  fi
 
+  local klipper_count user_input=() klipper_names=()
+  klipper_count=$(echo "${klipper_services}" | wc -w )
   for service in ${klipper_services}; do
     klipper_names+=( "$(get_instance_name "${service}")" )
   done
@@ -63,7 +69,7 @@ function octoprint_setup_dialog() {
     done && select_msg "${octoprint_count}"
 
   else
-    log_error "Internal error. octoprint_count of '${octoprint_count}' not equal or grather than one!"
+    log_error "Internal error. klipper_count of '${klipper_count}' not equal or grather than one!"
     return 1
   fi
 
