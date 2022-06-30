@@ -37,7 +37,6 @@ function update_ui() {
 }
 
 function update_menu() {
-  unset update_arr
   do_action "" "update_ui"
   
   local action
@@ -74,6 +73,13 @@ function update_menu() {
 }
 
 function update_all() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+
+  local update_arr
+  local app_update_state="${application_updates_available}"
+
+  IFS=', ' read -r -a update_arr <<< "${app_update_state}"
+
   while true; do
     if (( ${#update_arr[@]} == 0 )); then
       print_confirm "Everything is already up-to-date!"
@@ -83,49 +89,47 @@ function update_all() {
     echo
     top_border
     echo -e "|  The following installations will be updated:         |"
-    if [[ "${KLIPPER_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● Klipper${white}                                            |"
-    fi
-    if [[ "${MOONRAKER_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● Moonraker${white}                                          |"
-    fi
-    if [[ "${MAINSAIL_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● Mainsail${white}                                           |"
-    fi
-    if [[ "${FLUIDD_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● Fluidd${white}                                             |"
-    fi
-    if [[ "${KLIPPERSCREEN_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● KlipperScreen${white}                                      |"
-    fi
-    if [[ "${PGC_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● PrettyGCode for Klipper${white}                            |"
-    fi
-    if [[ "${MOONRAKER_TELEGRAM_BOT_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● MoonrakerTelegramBot${white}                               |"
-    fi
-    if [[ "${SYS_UPDATE_AVAIL}" = "true" ]]; then
-      echo -e "|  ${cyan}● System${white}                                             |"
-    fi
+
+    [[ "${update_arr[*]}" =~ "klipper" ]] && \
+    echo -e "|  ${cyan}● Klipper${white}                                            |"
+
+    [[ "${update_arr[*]}" =~ "moonraker" ]] && \
+    echo -e "|  ${cyan}● Moonraker${white}                                          |"
+
+    [[ "${update_arr[*]}" =~ "mainsail" ]] && \
+    echo -e "|  ${cyan}● Mainsail${white}                                           |"
+
+    [[ "${update_arr[*]}" =~ "fluidd" ]] && \
+    echo -e "|  ${cyan}● Fluidd${white}                                             |"
+
+    [[ "${update_arr[*]}" =~ "klipperscreen" ]] && \
+    echo -e "|  ${cyan}● KlipperScreen${white}                                      |"
+
+    [[ "${update_arr[*]}" =~ "pgc_for_klipper" ]] && \
+    echo -e "|  ${cyan}● PrettyGCode for Klipper${white}                            |"
+
+    [[ "${update_arr[*]}" =~ "telegram_bot" ]] && \
+    echo -e "|  ${cyan}● MoonrakerTelegramBot${white}                               |"
+
+    [[ "${update_arr[*]}" =~ "system" ]] && \
+    echo -e "|  ${cyan}● System${white}                                             |"
+
     bottom_border
     
     local yn
-    if (( ${#update_arr[@]} != 0 )); then
-      read -p "${cyan}###### Do you want to proceed? (Y/n):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          for update in "${update_arr[@]}"
-          do
-            #shellcheck disable=SC2250
-            $update
-          done
-          break;;
-        N|n|No|no)
-          break;;
-        *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
-      esac
-    fi
+    read -p "${cyan}###### Do you want to proceed? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        for app in "${update_arr[@]}"; do
+          local update="update_${app}"
+          #shellcheck disable=SC2250
+          $update
+        done
+        break;;
+      N|n|No|no)
+        break;;
+      *)
+        error_msg "Invalid command!";;
+    esac
   done
 }

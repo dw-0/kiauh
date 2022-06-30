@@ -109,7 +109,6 @@ function get_remote_prettygcode_commit() {
 }
 
 function compare_prettygcode_versions() {
-  unset PGC_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_prettygcode_commit)"
   remote_ver="$(get_remote_prettygcode_commit)"
@@ -117,12 +116,11 @@ function compare_prettygcode_versions() {
   if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # add prettygcode to the update all array for the update all function in the updater
-    PGC_UPDATE_AVAIL="true" && update_arr+=(update_pgc_for_klipper)
+    # add moonraker to application_updates_available in kiauh.ini
+    add_to_application_updates "pgc_for_klipper"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    PGC_UPDATE_AVAIL="false"
   fi
 
   echo "${versions}"

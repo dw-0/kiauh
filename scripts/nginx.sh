@@ -260,8 +260,7 @@ function detect_conflicting_packages() {
           echo -e "###### > Skip"
           break;;
         *)
-          print_unkown_cmd
-          print_msg && clear_msg;;
+          error_msg "Invalid command!";;
       esac
     done
   fi

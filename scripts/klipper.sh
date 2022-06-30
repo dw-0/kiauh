@@ -553,7 +553,6 @@ function get_remote_klipper_commit() {
 }
 
 function compare_klipper_versions() {
-  unset KLIPPER_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_klipper_commit)"
   remote_ver="$(get_remote_klipper_commit)"
@@ -561,12 +560,11 @@ function compare_klipper_versions() {
   if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # add klipper to the update all array for the update all function in the updater
-    KLIPPER_UPDATE_AVAIL="true" && update_arr+=(update_klipper)
+    # add klipper to application_updates_available in kiauh.ini
+    add_to_application_updates "klipper"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    KLIPPER_UPDATE_AVAIL="false"
   fi
 
   echo "${versions}"

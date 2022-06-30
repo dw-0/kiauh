@@ -297,20 +297,18 @@ function get_remote_mainsail_version() {
 }
 
 function compare_mainsail_versions() {
-  unset MAINSAIL_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_mainsail_version)"
   remote_ver="$(get_remote_mainsail_version)"
 
-  if [[ ${local_ver} != "${remote_ver}" ]]; then
+  if [[ ${local_ver} != "${remote_ver}" && ${local_ver} != "" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # add mainsail to the update all array for the update all function in the updater
-    MAINSAIL_UPDATE_AVAIL="true" && update_arr+=(update_mainsail)
+    # add moonraker to application_updates_available in kiauh.ini
+    add_to_application_updates "mainsail"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    MAINSAIL_UPDATE_AVAIL="false"
   fi
 
   echo "${versions}"
