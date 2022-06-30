@@ -557,7 +557,6 @@ function get_remote_moonraker_commit() {
 }
 
 function compare_moonraker_versions() {
-  unset MOONRAKER_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_moonraker_commit)"
   remote_ver="$(get_remote_moonraker_commit)"
@@ -565,12 +564,11 @@ function compare_moonraker_versions() {
   if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # add moonraker to the update all array for the update all function in the updater
-    MOONRAKER_UPDATE_AVAIL="true" && update_arr+=(update_moonraker)
+    # add moonraker to application_updates_available in kiauh.ini
+    add_to_application_updates "moonraker"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    MOONRAKER_UPDATE_AVAIL="false"
   fi
 
   echo "${versions}"

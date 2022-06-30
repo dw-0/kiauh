@@ -141,6 +141,12 @@ function init_ini() {
     } >> "${INI_FILE}"
   fi
 
+  if ! grep -Eq "^application_updates_available=" "${INI_FILE}"; then
+    echo -e "\napplication_updates_available=\c" >> "${INI_FILE}"
+  else
+    sed -i "/application_updates_available=/s/=.*/=/" "${INI_FILE}"
+  fi
+
   if ! grep -Eq "^backup_before_update=." "${INI_FILE}"; then
     echo -e "\nbackup_before_update=false\c" >> "${INI_FILE}"
   fi
@@ -370,6 +376,18 @@ function set_custom_klipper_repo() {
   sed -i '$a'"custom_klipper_repo_branch=${branch}" "${INI_FILE}"
 }
 
+function add_to_application_updates() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+
+  local application="${1}"
+  local app_update_state="${application_updates_available}"
+
+  if ! grep -Eq "${application}" <<< "${app_update_state}"; then
+    app_update_state="${app_update_state}${application},"
+    sed -i "/application_updates_available=/s/=.*/=${app_update_state}/" "${INI_FILE}"
+  fi
+}
+
 #================================================#
 #=============== HANDLE SERVICES ================#
 #================================================#
@@ -474,11 +492,10 @@ function check_system_updates() {
   updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
 
   if [[ -n ${updates_avail} ]]; then
-    # add system updates to the update all array for the update all function in the updater
-    SYS_UPDATE_AVAIL="true" && update_arr+=(update_system)
     info_msg="${yellow}System upgrade available!${white}"
+    # add system to application_updates_available in kiauh.ini
+    add_to_application_updates "system"
   else
-    SYS_UPDATE_AVAIL="false"
     info_msg="${green}System up to date!       ${white}"
   fi
 

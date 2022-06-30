@@ -292,20 +292,18 @@ function get_remote_fluidd_version() {
 }
 
 function compare_fluidd_versions() {
-  unset FLUIDD_UPDATE_AVAIL
   local versions local_ver remote_ver
   local_ver="$(get_local_fluidd_version)"
   remote_ver="$(get_remote_fluidd_version)"
 
-  if [[ ${local_ver} != "${remote_ver}" ]]; then
+  if [[ ${local_ver} != "${remote_ver}" && ${local_ver} != "" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # add fluidd to the update all array for the update all function in the updater
-    FLUIDD_UPDATE_AVAIL="true" && update_arr+=(update_fluidd)
+    # add moonraker to application_updates_available in kiauh.ini
+    add_to_application_updates "fluidd"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    FLUIDD_UPDATE_AVAIL="false"
   fi
 
   echo "${versions}"
