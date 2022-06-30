@@ -148,6 +148,12 @@ function klipper_setup_dialog() {
   klipper_setup "${user_input[@]}"
 }
 
+###
+# extracts the required packages from the
+# install-debian.sh script and installs them
+#
+# @param {string}: python_version - klipper-env python version
+#
 function install_klipper_packages() {
   local packages python_version="${1}"
   local install_script="${KLIPPER_DIR}/scripts/install-debian.sh"
@@ -163,9 +169,13 @@ function install_klipper_packages() {
   if [[ ${python_version} == "python3" ]]; then
     ### replace python-dev with python3-dev if python3 was selected
     packages="${packages//python-dev/python3-dev}"
-  else
+  elif [[ ${python_version} == "python2" ]]; then
     ### package name 'python-dev' is deprecated (-> no installation candidate) on more modern linux distros
     packages="${packages//python-dev/python2-dev}"
+  else
+    log_error "Internal Error: missing parameter 'python_version' during function call of ${FUNCNAME[0]}"
+    error_msg "Internal Error: missing parameter 'python_version' during function call of ${FUNCNAME[0]}"
+    exit 1
   fi
 
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
@@ -470,10 +480,18 @@ function remove_klipper() {
 #================ UPDATE KLIPPER ================#
 #================================================#
 
+###
+# stops klipper, performs a git pull, installs
+# possible new dependencies, then restarts klipper
+#
 function update_klipper() {
   read_kiauh_ini "${FUNCNAME[0]}"
+
+  local py_ver
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
+
+  py_ver="python$(get_klipper_python_ver)"
 
   do_action_service "stop" "klipper"
 
@@ -481,10 +499,11 @@ function update_klipper() {
     clone_klipper "${custom_repo}" "${custom_branch}"
   else
     backup_before_update "klipper"
+
     status_msg "Updating Klipper ..."
     cd "${KLIPPER_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies
-    install_klipper_packages
+    install_klipper_packages "${py_ver}"
     ### install possible new python dependencies
     "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
@@ -587,7 +606,11 @@ function get_klipper_cfg_dir() {
   echo "${cfg_dir}"
 }
 
-### returns the major python version the klippy-env was created with
+###
+# reads the python version from the klipper virtual environment
+#
+# @output: writes the python major version to STDOUT
+#
 function get_klipper_python_ver() {
   [[ ! -d ${KLIPPY_ENV} ]] && return
 
