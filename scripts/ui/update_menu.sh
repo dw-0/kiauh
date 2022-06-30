@@ -129,8 +129,7 @@ function update_all() {
       N|n|No|no)
         break;;
       *)
-        print_unkown_cmd
-        print_msg && clear_msg;;
+        error_msg "Invalid command!";;
     esac
   done
 }
