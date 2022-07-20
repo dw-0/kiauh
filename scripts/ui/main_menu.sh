@@ -81,6 +81,9 @@ function print_klipper_repo() {
 function main_menu() {
   print_header && main_ui
 
+  ### initialize kiauh.ini
+  init_ini
+
   local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
