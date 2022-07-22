@@ -569,6 +569,7 @@ function enable_mainsail_remotemode() {
 }
 
 function patch_mainsail_update_manager() {
+  local patched="false"
   local moonraker_configs
   moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
 
@@ -589,5 +590,11 @@ path: ~/mainsail
 MOONRAKER_CONF
 
     fi
+
+    patched="true"
   done
+
+  if [[ ${patched} == "true" ]]; then
+    do_action_service "restart" "moonraker"
+  fi
 }

@@ -395,6 +395,7 @@ function select_fluidd_port() {
 }
 
 function patch_fluidd_update_manager() {
+  local patched="false"
   local moonraker_configs
   moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
 
@@ -415,5 +416,11 @@ path: ~/fluidd
 MOONRAKER_CONF
 
     fi
+
+    patched="true"
   done
+
+  if [[ ${patched} == "true" ]]; then
+    do_action_service "restart" "moonraker"
+  fi
 }

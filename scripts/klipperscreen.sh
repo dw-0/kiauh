@@ -202,6 +202,7 @@ function compare_klipperscreen_versions() {
 #================================================#
 
 function patch_klipperscreen_update_manager() {
+  local patched="false"
   local moonraker_configs
   moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
 
@@ -224,5 +225,11 @@ install_script: scripts/KlipperScreen-install.sh
 MOONRAKER_CONF
 
     fi
+
+    patched="true"
   done
+
+  if [[ ${patched} == "true" ]]; then
+    do_action_service "restart" "moonraker"
+  fi
 }
