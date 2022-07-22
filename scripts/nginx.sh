@@ -100,7 +100,9 @@ function match_nginx_configs() {
   local common_vars="${NGINX_CONFD}/common_vars.conf"
   local mainsail_nginx_cfg="/etc/nginx/sites-available/mainsail"
   local fluidd_nginx_cfg="/etc/nginx/sites-available/fluidd"
-  local upstreams_webcams mainsail_webcams fluidd_webcams
+  local upstreams_webcams
+  local mainsail_webcams
+  local fluidd_webcams
 
   ### reinstall nginx configs if the amount of upstreams don't match anymore
   upstreams_webcams=$(grep -Ec "mjpgstreamer" "/etc/nginx/conf.d/upstreams.conf")
@@ -124,7 +126,7 @@ function match_nginx_configs() {
     status_msg "Outdated Mainsail config found! Updating ..."
 
     sudo rm -f "${mainsail_nginx_cfg}"
-    sudo cp "${RESOURCES}/klipper_webui_nginx.cfg" "${mainsail_nginx_cfg}"
+    sudo cp "${RESOURCES}/mainsail" "${mainsail_nginx_cfg}"
     sudo sed -i "s/<<UI>>/mainsail/g" "${mainsail_nginx_cfg}"
     sudo sed -i "/root/s/pi/${USER}/" "${mainsail_nginx_cfg}"
     sudo sed -i "s/listen\s[0-9]*;/listen ${mainsail_port};/" "${mainsail_nginx_cfg}"
@@ -138,7 +140,7 @@ function match_nginx_configs() {
     status_msg "Outdated Fluidd config found! Updating ..."
 
     sudo rm -f "${fluidd_nginx_cfg}"
-    sudo cp "${RESOURCES}/klipper_webui_nginx.cfg" "${fluidd_nginx_cfg}"
+    sudo cp "${RESOURCES}/fluidd" "${fluidd_nginx_cfg}"
     sudo sed -i "s/<<UI>>/fluidd/g" "${fluidd_nginx_cfg}"
     sudo sed -i "/root/s/pi/${USER}/" "${fluidd_nginx_cfg}"
     sudo sed -i "s/listen\s[0-9]*;/listen ${fluidd_port};/" "${fluidd_nginx_cfg}"
