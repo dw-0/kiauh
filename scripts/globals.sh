@@ -70,4 +70,8 @@ function set_globals() {
   NGINX_SA="/etc/nginx/sites-available"
   NGINX_SE="/etc/nginx/sites-enabled"
   NGINX_CONFD="/etc/nginx/conf.d"
+
+  #=============== MOONRAKER-OBICO ================#
+  MOONRAKER_OBICO_DIR="${HOME}/moonraker-obico"
+  MOONRAKER_OBICO_REPO="https://github.com/TheSpaghettiDetective/moonraker-obico.git"
 }
