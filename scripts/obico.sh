@@ -22,7 +22,7 @@ function moonraker_obico_systemd() {
 }
 
 function moonraker_obico_setup_dialog() {
-  status_msg "Initializing moonraker-obico installation ..."
+  status_msg "Initializing Moonraker-obico installation ..."
 
   ### return early if python version check fails
   if [[ $(python3_check) == "false" ]]; then
@@ -35,9 +35,9 @@ function moonraker_obico_setup_dialog() {
   local moonraker_obico_services
   moonraker_obico_services=$(moonraker_obico_systemd)
   if [[ -n ${moonraker_obico_services} ]]; then
-    local error="At least one moonraker-obico service is already installed:"
+    local error="At least one Moonraker-obico service is already installed:"
     for s in ${moonraker_obico_services}; do
-      log_info "Found moonraker-obico service: ${s}"
+      log_info "Found Moonraker-obico service: ${s}"
       error="${error}\n ➔ ${s}"
     done
     print_error "${error}" && return
@@ -70,24 +70,24 @@ function moonraker_obico_setup_dialog() {
     done
     blank_line
     echo -e "| The setup will apply the same names to                |"
-    echo -e "| moonraker-obico!                                      |"
+    echo -e "| Moonraker-obico!                                      |"
     blank_line
-    echo -e "| Please select the number of moonraker-obico instances |"
-    echo -e "| to install. Usually one moonraker-obico instance per  |"
+    echo -e "| Please select the number of Moonraker-obico instances |"
+    echo -e "| to install. Usually one Moonraker-obico instance per  |"
     echo -e "| Moonraker instance is required, but you may not       |"
-    echo -e "| install more moonraker-obico instances than available |"
+    echo -e "| install more Moonraker-obico instances than available |"
     echo -e "| Moonraker instances.                                  |"
     bottom_border
 
     ### ask for amount of instances
     local re="^[1-9][0-9]*$"
     while [[ ! ${moonraker_obico_count} =~ ${re} || ${moonraker_obico_count} -gt ${moonraker_count} ]]; do
-      read -p "${cyan}###### Number of moonraker-obico instances to set up:${white} " -i "${moonraker_count}" -e moonraker_obico_count
+      read -p "${cyan}###### Number of Moonraker-obico instances to set up:${white} " -i "${moonraker_count}" -e moonraker_obico_count
       ### break if input is valid
       [[ ${moonraker_obico_count} =~ ${re} && ${moonraker_obico_count} -le ${moonraker_count} ]] && break
       ### conditional error messages
       [[ ! ${moonraker_obico_count} =~ ${re} ]] && error_msg "Input not a number"
-      (( moonraker_obico_count > moonraker_count )) && error_msg "Number of moonraker-obico instances larger than installed Moonraker instances"
+      (( moonraker_obico_count > moonraker_count )) && error_msg "Number of Moonraker-obico instances larger than installed Moonraker instances"
     done && select_msg "${moonraker_obico_count}"
   else
     log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
@@ -99,8 +99,8 @@ function moonraker_obico_setup_dialog() {
   ### confirm instance amount
   local yn
   while true; do
-    (( moonraker_obico_count == 1 )) && local question="Install moonraker-obico?"
-    (( moonraker_obico_count > 1 )) && local question="Install ${moonraker_obico_count} moonraker-obico instances?"
+    (( moonraker_obico_count == 1 )) && local question="Install Moonraker-obico?"
+    (( moonraker_obico_count > 1 )) && local question="Install ${moonraker_obico_count} Moonraker-obico instances?"
     read -p "${cyan}###### ${question} (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
@@ -108,7 +108,7 @@ function moonraker_obico_setup_dialog() {
         break;;
       N|n|No|no)
         select_msg "No"
-        abort_msg "Exiting moonraker-obico setup ...\n"
+        abort_msg "Exiting Moonraker-obico setup ...\n"
         return;;
       *)
         error_msg "Invalid Input!";;
@@ -122,8 +122,8 @@ function moonraker_obico_setup_dialog() {
     done
   fi
 
-  (( moonraker_obico_count > 1 )) && status_msg "Installing ${moonraker_count} moonraker-obico instances ..."
-  (( moonraker_obico_count == 1 )) && status_msg "Installing moonraker-obico ..."
+  (( moonraker_obico_count > 1 )) && status_msg "Installing ${moonraker_count} Moonraker-obico instances ..."
+  (( moonraker_obico_count == 1 )) && status_msg "Installing Moonraker-obico ..."
   moonraker_obico_setup "${user_input[@]}"
 
 }
@@ -179,88 +179,104 @@ function moonraker_obico_setup() {
 function clone_moonraker_obico() {
   local repo=${1}
 
-  status_msg "Cloning moonraker-obico from ${repo} ..."
+  status_msg "Cloning Moonraker-obico from ${repo} ..."
 
   ### force remove existing moonraker-obico dir and clone into fresh moonraker-obico dir
   [[ -d ${MOONRAKER_OBICO_DIR} ]] && rm -rf "${MOONRAKER_OBICO_DIR}"
 
   cd "${HOME}" || exit 1
   if ! git clone "${MOONRAKER_OBICO_REPO}" "${MOONRAKER_OBICO_DIR}"; then
-    print_error "Cloning moonraker-obico from\n ${repo}\n failed!"
+    print_error "Cloning Moonraker-obico from\n ${repo}\n failed!"
     exit 1
   fi
 }
 
 function moonraker_obico_install() {
-  echo "${MOONRAKER_OBICO_DIR}/install.sh" $*
+  "${MOONRAKER_OBICO_DIR}/install.sh" $@
 }
 
 #===================================================#
 #============= REMOVE MOONRAKER-OBICO ==============#
 #===================================================#
 
-function remove_klipperscreen() {
-  ### remove KlipperScreen dir
-  if [[ -d ${KLIPPERSCREEN_DIR} ]]; then
-    status_msg "Removing KlipperScreen directory ..."
-    rm -rf "${KLIPPERSCREEN_DIR}" && ok_msg "Directory removed!"
+function remove_moonraker_obico_systemd() {
+  [[ -z $(moonraker_obico_systemd) ]] && return
+  status_msg "Removing Moonraker-obico Systemd Services ..."
+
+  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
+    status_msg "Removing ${service} ..."
+    sudo systemctl stop "${service}"
+    sudo systemctl disable "${service}"
+    sudo rm -f "${SYSTEMD}/${service}"
+    ok_msg "Done!"
+  done
+
+  ### reloading units
+  sudo systemctl daemon-reload
+  sudo systemctl reset-failed
+  ok_msg "Moonraker-obico Services removed!"
+}
+
+function remove_moonraker_obico_logs() {
+  local files regex="moonraker-obico(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
   fi
+}
 
-  ### remove KlipperScreen VENV dir
-  if [[ -d ${KLIPPERSCREEN_ENV} ]]; then
-    status_msg "Removing KlipperScreen VENV directory ..."
-    rm -rf "${KLIPPERSCREEN_ENV}" && ok_msg "Directory removed!"
-  fi
+function remove_moonraker_obico_dir() {
+  [[ ! -d ${MOONRAKER_OBICO_DIR} ]] && return
 
-  ### remove KlipperScreen service
-  if [[ -e "${SYSTEMD}/KlipperScreen.service" ]]; then
-    status_msg "Removing KlipperScreen service ..."
-    do_action_service "stop" "KlipperScreen"
-    do_action_service "disable" "KlipperScreen"
-    sudo rm -f "${SYSTEMD}/KlipperScreen.service"
+  status_msg "Removing Moonraker-obico directory ..."
+  rm -rf "${MOONRAKER_OBICO_DIR}"
+  ok_msg "Directory removed!"
+}
 
-    ###reloading units
-    sudo systemctl daemon-reload
-    sudo systemctl reset-failed
-    ok_msg "KlipperScreen Service removed!"
-  fi
+function remove_moonraker_obico_env() {
+  [[ ! -d "${HOME}/moonraker-env" ]] && return
 
-  ### remove KlipperScreen log
-  if [[ -e "/tmp/KlipperScreen.log" ]]; then
-    status_msg "Removing KlipperScreen log file ..."
-    rm -f "/tmp/KlipperScreen.log" && ok_msg "File removed!"
-  fi
+  status_msg "Removing moonraker-env directory ..."
+  rm -rf "${HOME}/moonraker-env"
+  ok_msg "Directory removed!"
+}
 
-  ### remove KlipperScreen log symlink in config dir
-  if [[ -e "${KLIPPER_CONFIG}/KlipperScreen.log" ]]; then
-    status_msg "Removing KlipperScreen log symlink ..."
-    rm -f "${KLIPPER_CONFIG}/KlipperScreen.log" && ok_msg "File removed!"
-  fi
+function remove_moonraker_obico() {
+  remove_moonraker_obico_systemd
+  remove_moonraker_obico_logs
+  remove_moonraker_obico_dir
+  remove_moonraker_obico_env
 
-  print_confirm "KlipperScreen successfully removed!"
+  print_confirm "Moonraker-obico was successfully removed!"
+  return
 }
 
 #===================================================#
 #============= UPDATE MOONRAKER-OBICO ==============#
 #===================================================#
 
-function update_klipperscreen() {
-  local old_md5
-  old_md5=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
+function update_moonraker() {
+  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
+    do_action_service "stop" "${service}"
+  done
 
-  do_action_service "stop" "KlipperScreen"
-  cd "${KLIPPERSCREEN_DIR}"
-  git pull origin master -q && ok_msg "Fetch successfull!"
-  git checkout -f master && ok_msg "Checkout successfull"
-
-  if [[ $(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
-    status_msg "New dependecies detected..."
-    "${KLIPPERSCREEN_ENV}"/bin/pip install -r "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt"
-    ok_msg "Dependencies have been installed!"
+  if [[ ! -d ${MOONRAKER_OBICO_DIR} ]]; then
+    clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
+  else
+    status_msg "Updating Moonraker-obico ..."
+    cd "${MOONRAKER_OBICO_DIR}" && git pull
+    "${MOONRAKER_OBICO_DIR}/install.sh" -u
   fi
 
   ok_msg "Update complete!"
-  do_action_service "start" "KlipperScreen"
+  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
+    do_action_service "restart" "${service}"
+  done
 }
 
 #===================================================#
@@ -289,77 +305,4 @@ function get_obico_status() {
     status="Incomplete!"
   fi
   echo "${status}"
-}
-
-function get_local_klipperscreen_commit() {
-  [[ ! -d ${KLIPPERSCREEN_DIR} || ! -d "${KLIPPERSCREEN_DIR}/.git" ]] && return
-
-  local commit
-  cd "${KLIPPERSCREEN_DIR}"
-  commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
-  echo "${commit}"
-}
-
-function get_remote_klipperscreen_commit() {
-  [[ ! -d ${KLIPPERSCREEN_DIR} || ! -d "${KLIPPERSCREEN_DIR}/.git" ]] && return
-
-  local commit
-  cd "${KLIPPERSCREEN_DIR}" && git fetch origin -q
-  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
-  echo "${commit}"
-}
-
-function compare_klipperscreen_versions() {
-  local versions local_ver remote_ver
-  local_ver="$(get_local_klipperscreen_commit)"
-  remote_ver="$(get_remote_klipperscreen_commit)"
-
-  if [[ ${local_ver} != "${remote_ver}" ]]; then
-    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
-    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # add moonraker to application_updates_available in kiauh.ini
-    add_to_application_updates "klipperscreen"
-  else
-    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
-    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-  fi
-
-  echo "${versions}"
-}
-
-#================================================#
-#=================== HELPERS ====================#
-#================================================#
-
-function patch_klipperscreen_update_manager() {
-  local patched="false"
-  local moonraker_configs
-  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
-
-  for conf in ${moonraker_configs}; do
-    if ! grep -Eq "^\[update_manager KlipperScreen\]$" "${conf}"; then
-      ### add new line to conf if it doesn't end with one
-      [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
-
-      ### add KlipperScreens update manager section to moonraker.conf
-      status_msg "Adding KlipperScreen to update manager in file:\n       ${conf}"
-      /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
-
-[update_manager KlipperScreen]
-type: git_repo
-path: ${HOME}/KlipperScreen
-origin: https://github.com/jordanruthe/KlipperScreen.git
-env: ${HOME}/.KlipperScreen-env/bin/python
-requirements: scripts/KlipperScreen-requirements.txt
-install_script: scripts/KlipperScreen-install.sh
-MOONRAKER_CONF
-
-    fi
-
-    patched="true"
-  done
-
-  if [[ ${patched} == "true" ]]; then
-    do_action_service "restart" "moonraker"
-  fi
 }
