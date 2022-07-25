@@ -25,10 +25,10 @@ function install_ui() {
   echo -e "|                           | Other:                    |"
   echo -e "| Klipper Webinterface:     |  7) [PrettyGCode]         |"
   echo -e "|  3) [Mainsail]            |  8) [Telegram Bot]        |"
-  echo -e "|  4) [Fluidd]              |                           |"
-  echo -e "|                           | Webcam Streamer:          |"
-  echo -e "| Touchscreen GUI:          |  9) [MJPG-Streamer]       |"
-  echo -e "|  5) [KlipperScreen]       |                           |"
+  echo -e "|  4) [Fluidd]              |  9) [Obico for Klipper]   |"
+  echo -e "|                           |                           |"
+  echo -e "| Touchscreen GUI:          | Webcam Streamer:          |"
+  echo -e "|  5) [KlipperScreen]       | 10) [MJPG-Streamer]       |"
   back_footer
 }
 
@@ -57,6 +57,8 @@ function install_menu() {
       8)
         do_action "telegram_bot_setup_dialog" "install_ui";;
       9)
+        do_action "moonraker_obico_setup_dialog" "install_ui";;
+      10)
         do_action "install_mjpg-streamer" "install_ui";;
       B|b)
         clear; main_menu; break;;

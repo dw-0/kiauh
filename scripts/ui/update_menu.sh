@@ -31,8 +31,9 @@ function update_ui() {
   echo -e "| Other:                 |---------------|--------------|"
   echo -e "|  6) [PrettyGCode]      |$(compare_prettygcode_versions)|"
   echo -e "|  7) [Telegram Bot]     |$(compare_telegram_bot_versions)|"
+  echo -e "|  8) [Obico for Klipper]|$(compare_moonraker_obico_versions)|"
   echo -e "|                        |------------------------------|"
-  echo -e "|  8) [System]           |  $(check_system_updates)   |"
+  echo -e "|  9) [System]           |  $(check_system_updates)   |"
   back_footer
 }
 
