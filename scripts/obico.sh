@@ -306,3 +306,39 @@ function get_obico_status() {
   fi
   echo "${status}"
 }
+
+function get_local_moonraker_obico_commit() {
+  [[ ! -d ${MOONRAKER_OBICO_DIR} || ! -d "${MOONRAKER_OBICO_DIR}/.git" ]] && return
+
+  local commit
+  cd "${MOONRAKER_OBICO_DIR}"
+  commit="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
+  echo "${commit}"
+}
+
+function get_remote_moonraker_obico_commit() {
+  [[ ! -d ${MOONRAKER_OBICO_DIR} || ! -d "${MOONRAKER_OBICO_DIR}/.git" ]] && return
+
+  local commit
+  cd "${MOONRAKER_OBICO_DIR}" && git fetch origin -q
+  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  echo "${commit}"
+}
+
+function compare_moonraker_obico_versions() {
+  local versions local_ver remote_ver
+  local_ver="$(get_local_moonraker_obico_commit)"
+  remote_ver="$(get_remote_moonraker_obico_commit)"
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+    # add moonraker to application_updates_available in kiauh.ini
+    add_to_application_updates "moonraker_obico"
+  else
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+  fi
+
+  echo "${versions}"
+}
