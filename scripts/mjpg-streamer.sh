@@ -16,10 +16,10 @@ set -e
 #=================================================#
 
 function install_mjpg-streamer() {
-  local webcamd="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
-  local webcam_txt="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mjpgstreamer/filesystem/home/pi/klipper_config/webcam.txt"
+  local webcamd="${KIAUH_SRCDIR}/resources/mjpg-streamer/webcamd"
+  local webcam_txt="${KIAUH_SRCDIR}/resources/mjpg-streamer/webcam.txt"
+  local service="${KIAUH_SRCDIR}/resources/mjpg-streamer/webcamd.service"
   local repo="https://github.com/jacksonliam/mjpg-streamer.git"
-  local service="${KIAUH_SRCDIR}/resources/webcamd.service"
 
   ### return early if webcamd.service already exists
   if [[ -f "${SYSTEMD}/webcamd.service" ]]; then
@@ -77,7 +77,7 @@ function install_mjpg-streamer() {
 </html>
 EOT
 
-  sudo wget "${webcamd}" -O "/usr/local/bin/webcamd"
+  sudo cp "${webcamd}" "/usr/local/bin/webcamd"
   sudo sed -i "/^config_dir=/ s|=.*|=${KLIPPER_CONFIG}|" /usr/local/bin/webcamd
   sudo sed -i "/MJPGSTREAMER_HOME/ s/pi/${USER}/" /usr/local/bin/webcamd
   sudo chmod +x /usr/local/bin/webcamd
@@ -86,7 +86,7 @@ EOT
   [[ ! -d ${KLIPPER_CONFIG} ]] && mkdir -p "${KLIPPER_CONFIG}"
   if [[ ! -f "${KLIPPER_CONFIG}/webcam.txt" ]]; then
     status_msg "Creating webcam.txt config file ..."
-    wget "${webcam_txt}" -O "${KLIPPER_CONFIG}/webcam.txt"
+    cp "${webcam_txt}" "${KLIPPER_CONFIG}/webcam.txt"
     ok_msg "Done!"
   fi
 
