@@ -12,6 +12,11 @@
 set -e
 
 function install_ui() {
+  local moonraker_obico_status=$(print_status "moonraker_obico") moonraker_obico_menu="[Obico for Klipper]   "
+  if echo ${moonraker_obico_status} | grep -q "Not linked!"; then
+    moonraker_obico_menu="[Link to Obico Server]"
+  fi
+
   top_border
   echo -e "|     ${green}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~${white}     |"
   hr
@@ -25,7 +30,7 @@ function install_ui() {
   echo -e "|                           | Other:                    |"
   echo -e "| Klipper Webinterface:     |  7) [PrettyGCode]         |"
   echo -e "|  3) [Mainsail]            |  8) [Telegram Bot]        |"
-  echo -e "|  4) [Fluidd]              |  9) [Obico for Klipper]   |"
+  echo -e "|  4) [Fluidd]              |  9) ${moonraker_obico_menu}|"
   echo -e "|                           |                           |"
   echo -e "| Touchscreen GUI:          | Webcam Streamer:          |"
   echo -e "|  5) [KlipperScreen]       | 10) [MJPG-Streamer]       |"
