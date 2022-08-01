@@ -38,7 +38,7 @@ function telegram_bot_setup_dialog() {
   local moonraker_count user_input=() moonraker_names=()
   moonraker_count=$(echo "${moonraker_services}" | wc -w )
   for service in ${moonraker_services}; do
-    moonraker_names+=( "$(get_instance_name "${service}")" )
+    moonraker_names+=( "$(get_instance_name "${service}" moonraker)" )
   done
 
   local telegram_bot_count

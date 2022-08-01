@@ -17,7 +17,7 @@ set -e
 
 function moonraker_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[0-9a-zA-Z]+)?.service" | sort)
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[0-9a-zA-Z]+)?.service" | grep -v "moonraker-obico" | sort)
   echo "${services}"
 }
 
@@ -55,7 +55,7 @@ function moonraker_setup_dialog() {
   local klipper_count user_input=() klipper_names=()
   klipper_count=$(echo "${klipper_services}" | wc -w )
   for service in ${klipper_services}; do
-    klipper_names+=( "$(get_instance_name "${service}")" )
+    klipper_names+=( "$(get_instance_name "${service}" moonraker)" )
   done
 
   local moonraker_count
