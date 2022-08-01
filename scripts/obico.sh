@@ -203,52 +203,53 @@ function moonraker_obico_setup_dialog() {
   fi
 
   ### Step 7: Link to the Obico server if necessary
-  if [[ -n ${moonraker_obico_services} ]]; then
-    for service in ${moonraker_obico_services}; do
-        local instance_name="$(get_instance_name ${service})"
-        if ! is_moonraker_obico_linked "${instance_name}"; then
-            not_linked_instances+=( "${instance_name}" )
-        fi
-    done
-    if (( ${#not_linked_instances[@]} > 0 )); then
-      top_border
-      printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
-      for name in "${not_linked_instances[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ●moonrakerobico-${name}"
-      done
-      blank_line
-      echo -e "| If you don't want to link the printer now, you can    |"
-      echo -e "| restart the linking process later by:                 |"
-      echo -e "| 1. \`cd ~/kiauh && ./kiauh.sh\` to launch KIAUH.        |"
-      echo -e "| 2. Select ${green}[Install]${white}                                   |"
-      echo -e "| 3. Select ${green}[Link to Obico Server]${white}                      |"
-      blank_line
-      echo -e "| For more information, visit:                          |"
-      echo -e "| https://www.obico.io/docs/user-guides/klipper-setup/  |"
-      bottom_border
-    fi
-
-    while true; do
-      read -p "${cyan}###### Link to the Obico Server now? (Y/n):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          select_msg "Yes"
-          break;;
-        N|n|No|no)
-          select_msg "No"
-          abort_msg "Exiting Moonraker-obico setup ...\n"
-          return;;
-        *)
-          error_msg "Invalid Input!";;
-      esac
-    done
-
+  local not_linked_instances=()
+  for service in $(moonraker_obico_systemd); do
+      local instance_name="$(get_instance_name ${service})"
+      if ! is_moonraker_obico_linked "${instance_name}"; then
+          not_linked_instances+=( "${instance_name}" )
+      fi
+  done
+  if (( ${#not_linked_instances[@]} > 0 )); then
+    top_border
+    printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
     for name in "${not_linked_instances[@]}"; do
-      status_msg "Link moonraker-obico-${name} to the Obico Server..."
-      moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
-      "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -n "${name}" -c "${moonraker_obico_cfg}"
+      printf "|${cyan}%-57s${white}|\n" " ●moonrakerobico-${name}"
     done
+    blank_line
+    echo -e "| To link to your Obico Server account, you need to     |"
+    echo -e "| obtain the 6-digit verification code in the Obico     |"
+    echo -e "| mobile or web app. For more information, visit:       |"
+    echo -e "| https://www.obico.io/docs/user-guides/klipper-setup/  |"
+    blank_line
+    echo -e "| If you don't want to link the printer now, you can    |"
+    echo -e "| restart the linking process later by:                 |"
+    echo -e "| 1. \`cd ~/kiauh && ./kiauh.sh\` to launch KIAUH.        |"
+    echo -e "| 2. Select ${green}[Install]${white}                                   |"
+    echo -e "| 3. Select ${green}[Link to Obico Server]${white}                      |"
+    bottom_border
   fi
+
+  while true; do
+    read -p "${cyan}###### Link to your Obico Server account now? (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        abort_msg "Exiting Moonraker-obico setup ...\n"
+        return;;
+      *)
+        error_msg "Invalid Input!";;
+    esac
+  done
+
+  for name in "${not_linked_instances[@]}"; do
+    status_msg "Link moonraker-obico-${name} to the Obico Server..."
+    moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
+    "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "${moonraker_obico_cfg}"
+  done
 
 }
 
