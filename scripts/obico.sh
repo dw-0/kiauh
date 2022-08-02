@@ -89,7 +89,7 @@ function moonraker_obico_setup_dialog() {
   moonraker_obico_services=$(moonraker_obico_systemd)
   existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w )
   for service in ${moonraker_obico_services}; do
-    moonraker_obico_names+=( "$(get_instance_name "${service}" moonraker_obico)" )
+    moonraker_obico_names+=( "$(get_instance_name "${service}" moonraker-obico)" )
   done
 
   local allowed_moonraker_obico_count=$(( moonraker_count - existing_moonraker_obico_count ))
@@ -109,7 +109,7 @@ function moonraker_obico_setup_dialog() {
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
         for name in "${moonraker_obico_names[@]}"; do
-          printf "|${cyan}%-57s${white}|\n" " ●moonrakerobico-${name}"
+          printf "|${cyan}%-57s${white}|\n" " ●moonraker-obico-${name}"
         done
       fi
       blank_line
@@ -206,7 +206,7 @@ function moonraker_obico_setup_dialog() {
   local not_linked_instances=()
   # Refetch systemd service again since additional services may have been newly installed
   for service in $(moonraker_obico_systemd); do
-      local instance_name="$(get_instance_name "${service}" moonraker_obico)"
+      local instance_name="$(get_instance_name "${service}" moonraker-obico)"
       if ! is_moonraker_obico_linked "${instance_name}"; then
           not_linked_instances+=( "${instance_name}" )
       fi
@@ -218,7 +218,7 @@ function moonraker_obico_setup_dialog() {
     else
       printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
       for name in "${not_linked_instances[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ●moonrakerobico-${name}"
+        printf "|${cyan}%-57s${white}|\n" " ●moonraker-obico-${name}"
       done
     fi
     blank_line
@@ -376,7 +376,7 @@ function get_moonraker_obico_status() {
   else
     status="Installed!"
     for service in ${moonraker_obico_services}; do
-      if ! is_moonraker_obico_linked "$(get_instance_name "${service}" moonraker_obico)"; then
+      if ! is_moonraker_obico_linked "$(get_instance_name "${service}" moonraker-obico)"; then
         status="Not linked!"
       fi
     done
