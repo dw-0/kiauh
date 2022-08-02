@@ -23,7 +23,7 @@ function moonraker_obico_systemd() {
 
 function cfg_dir() {
   local name=${1}
-  if [[ -z ${name} ]]; then
+  if [[ -z ${name} || ${name} == "moonraker" || ${name} == "moonraker-obico" ]]; then
     echo "${KLIPPER_CONFIG}"
   else
     local re="^[1-9][0-9]*$"
@@ -39,7 +39,7 @@ function cfg_dir() {
 function is_moonraker_obico_linked() {
   local name=${1}
   moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
-  grep -E "^[^#]" "${moonraker_obico_cfg}" | grep -q 'auth_token'
+  grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -q 'auth_token'
   return $?
 }
 
@@ -204,6 +204,7 @@ function moonraker_obico_setup_dialog() {
 
   ### Step 7: Link to the Obico server if necessary
   local not_linked_instances=()
+  # Refetch systemd service again since additional services may have been newly installed
   for service in $(moonraker_obico_systemd); do
       local instance_name="$(get_instance_name "${service}" moonraker_obico)"
       if ! is_moonraker_obico_linked "${instance_name}"; then
@@ -212,10 +213,14 @@ function moonraker_obico_setup_dialog() {
   done
   if (( ${#not_linked_instances[@]} > 0 )); then
     top_border
-    printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
-    for name in "${not_linked_instances[@]}"; do
-      printf "|${cyan}%-57s${white}|\n" " ●moonrakerobico-${name}"
-    done
+    if (( moonraker_count == 1 )); then
+      printf "|${green}%-55s${white}|\n" " Moonraker-obico not linked to the server!"
+    else
+      printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
+      for name in "${not_linked_instances[@]}"; do
+        printf "|${cyan}%-57s${white}|\n" " ●moonrakerobico-${name}"
+      done
+    fi
     blank_line
     echo -e "| To link to your Obico Server account, you need to     |"
     echo -e "| obtain the 6-digit verification code in the Obico     |"
@@ -248,7 +253,11 @@ function moonraker_obico_setup_dialog() {
   for name in "${not_linked_instances[@]}"; do
     status_msg "Link moonraker-obico-${name} to the Obico Server..."
     moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
-    "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "${moonraker_obico_cfg}"
+    if (( moonraker_count == 1 )); then
+      "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -c "${moonraker_obico_cfg}"
+    else
+      "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "${moonraker_obico_cfg}"
+    fi
   done
 
 }
