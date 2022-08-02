@@ -338,7 +338,7 @@ function remove_moonraker_obico() {
 #============= UPDATE MOONRAKER-OBICO ==============#
 #===================================================#
 
-function update_moonraker() {
+function update_moonraker_obico() {
   for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
     do_action_service "stop" "${service}"
   done

@@ -61,6 +61,8 @@ function update_menu() {
       7)
         do_action "update_telegram_bot" "update_ui";;
       8)
+        do_action "update_moonraker_obico" "update_ui";;
+      9)
         do_action "update_system" "update_ui";;
       a)
         do_action "update_all" "update_ui";;
