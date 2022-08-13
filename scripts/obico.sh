@@ -104,13 +104,13 @@ function moonraker_obico_setup_dialog() {
       top_border
       printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
       for name in "${moonraker_names[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ●moonraker-${name}"
+        printf "|${cyan}%-57s${white}|\n" " ● moonraker-${name}"
       done
       blank_line
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
         for name in "${moonraker_obico_names[@]}"; do
-          printf "|${cyan}%-57s${white}|\n" " ●moonraker-obico-${name}"
+          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${name}"
         done
       fi
       blank_line
@@ -219,7 +219,7 @@ function moonraker_obico_setup_dialog() {
     else
       printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
       for name in "${not_linked_instances[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ●moonraker-obico-${name}"
+        printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${name}"
       done
     fi
     blank_line
