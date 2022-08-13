@@ -349,16 +349,12 @@ function remove_moonraker_obico() {
 #===================================================#
 
 function update_moonraker_obico() {
-  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
-    do_action_service "stop" "${service}"
-  done
+  do_action_service "stop" "moonraker-obico"
 
   clone_or_update_moonraker_obico "${MOONRAKER_OBICO_REPO}"
   ok_msg "Update complete!"
 
-  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
-    do_action_service "restart" "${service}"
-  done
+  do_action_service "restart" "moonraker-obico"
 }
 
 #===================================================#
