@@ -38,7 +38,7 @@ function cfg_dir() {
 
 function is_moonraker_obico_linked() {
   local name=${1}
-  moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
+  moonraker_obico_cfg="$(cfg_dir "${name}")/moonraker-obico.cfg"
   grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -q 'auth_token'
   return $?
 }
@@ -186,13 +186,13 @@ function moonraker_obico_setup_dialog() {
 
     if (( moonraker_count == 1 )); then
       moonraker_cfg="$(cfg_dir '')/moonraker.conf"
-      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg}" -p ${port} -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg}" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
     elif (( moonraker_count > 1 )); then
       local j=${existing_moonraker_obico_count}
 
       for (( i=1; i <= new_moonraker_obico_count; i++ )); do
         local name=${moonraker_names[${j}]}
-        moonraker_cfg="$(cfg_dir ${name})/moonraker.conf"
+        moonraker_cfg="$(cfg_dir "${name}")/moonraker.conf"
 
         "${MOONRAKER_OBICO_DIR}/install.sh" -n "${name}" -C "${moonraker_cfg}" -p $((port+j)) -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
         j=$(( j + 1 ))
@@ -250,7 +250,7 @@ function moonraker_obico_setup_dialog() {
 
   for name in "${not_linked_instances[@]}"; do
     status_msg "Link moonraker-obico-${name} to the Obico Server..."
-    moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
+    moonraker_obico_cfg="$(cfg_dir "${name}")/moonraker-obico.cfg"
     if (( moonraker_count == 1 )); then
       "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -c "${moonraker_obico_cfg}"
     else
@@ -265,7 +265,7 @@ function clone_or_update_moonraker_obico() {
 
   if [[ -d ${MOONRAKER_OBICO_DIR} ]]; then
     status_msg "Updating ${MOONRAKER_OBICO_DIR} ..."
-    cd ${MOONRAKER_OBICO_DIR} && git pull
+    cd "${MOONRAKER_OBICO_DIR}" && git pull
   else
     status_msg "Cloning Moonraker-obico from ${repo} ..."
     cd "${HOME}" || exit 1
