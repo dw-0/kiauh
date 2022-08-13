@@ -181,7 +181,7 @@ function moonraker_obico_setup_dialog() {
     dependency_check "${dep[@]}"
 
     ### Step 5: Clone the moonraker-obico repo
-    clone_or_update_moonraker_obico "${MOONRAKER_OBICO_REPO}"
+    clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
 
     ### step 6: call moonrake-obico/install.sh with the correct params
     local port=7125 moonraker_cfg
@@ -263,19 +263,17 @@ function moonraker_obico_setup_dialog() {
 
 }
 
-function clone_or_update_moonraker_obico() {
+function clone_moonraker_obico() {
   local repo=${1}
 
-  if [[ -d ${MOONRAKER_OBICO_DIR} ]]; then
-    status_msg "Updating ${MOONRAKER_OBICO_DIR} ..."
-    cd "${MOONRAKER_OBICO_DIR}" && git pull
-  else
-    status_msg "Cloning Moonraker-obico from ${repo} ..."
-    cd "${HOME}" || exit 1
-    if ! git clone "${MOONRAKER_OBICO_REPO}" "${MOONRAKER_OBICO_DIR}"; then
-      print_error "Cloning Moonraker-obico from\n ${repo}\n failed!"
-      exit 1
-    fi
+  status_msg "Cloning Moonraker-obico from ${repo} ..."
+  ### force remove existing Moonraker-obico dir
+  [[ -d ${repo} ]] && rm -rf "${MOONRAKER_OBICO_DIR}"
+
+  cd "${HOME}" || exit 1
+  if ! git clone "${repo}" "${MOONRAKER_OBICO_DIR}"; then
+    print_error "Cloning Moonraker-obico from\n ${repo}\n failed!"
+    exit 1
   fi
 }
 
@@ -351,9 +349,14 @@ function remove_moonraker_obico() {
 function update_moonraker_obico() {
   do_action_service "stop" "moonraker-obico"
 
-  clone_or_update_moonraker_obico "${MOONRAKER_OBICO_REPO}"
-  ok_msg "Update complete!"
+  if [[ ! -d ${MOONRAKER_OBICO_DIR} ]]; then
+    clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
+  else
+    status_msg "Updating Moonraker-obico ..."
+    cd "${MOONRAKER_OBICO_DIR}" && git pull
+  fi
 
+  ok_msg "Update complete!"
   do_action_service "restart" "moonraker-obico"
 }
 
