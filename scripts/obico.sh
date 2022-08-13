@@ -38,7 +38,7 @@ function cfg_dir() {
 
 function is_moonraker_obico_linked() {
   local name=${1}
-  moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
+  moonraker_obico_cfg="$(cfg_dir "${name}")/moonraker-obico.cfg"
   grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -q 'auth_token'
   return $?
 }
@@ -85,7 +85,9 @@ function moonraker_obico_setup_dialog() {
     print_error "${error}" && return
   fi
 
-  local moonraker_obico_services moonraker_obico_names=()
+  local moonraker_obico_services
+  local moonraker_obico_names=()
+  local existing_moonraker_obico_count
   moonraker_obico_services=$(moonraker_obico_systemd)
   existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w )
   for service in ${moonraker_obico_services}; do
@@ -102,13 +104,13 @@ function moonraker_obico_setup_dialog() {
       top_border
       printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
       for name in "${moonraker_names[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ●moonraker-${name}"
+        printf "|${cyan}%-57s${white}|\n" " ● moonraker-${name}"
       done
       blank_line
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
         for name in "${moonraker_obico_names[@]}"; do
-          printf "|${cyan}%-57s${white}|\n" " ●moonraker-obico-${name}"
+          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${name}"
         done
       fi
       blank_line
@@ -179,20 +181,20 @@ function moonraker_obico_setup_dialog() {
     dependency_check "${dep[@]}"
 
     ### Step 5: Clone the moonraker-obico repo
-    clone_or_update_moonraker_obico "${MOONRAKER_OBICO_REPO}"
+    clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
 
     ### step 6: call moonrake-obico/install.sh with the correct params
     local port=7125 moonraker_cfg
 
     if (( moonraker_count == 1 )); then
       moonraker_cfg="$(cfg_dir '')/moonraker.conf"
-      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg}" -p ${port} -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg}" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
     elif (( moonraker_count > 1 )); then
       local j=${existing_moonraker_obico_count}
 
       for (( i=1; i <= new_moonraker_obico_count; i++ )); do
         local name=${moonraker_names[${j}]}
-        moonraker_cfg="$(cfg_dir ${name})/moonraker.conf"
+        moonraker_cfg="$(cfg_dir "${name}")/moonraker.conf"
 
         "${MOONRAKER_OBICO_DIR}/install.sh" -n "${name}" -C "${moonraker_cfg}" -p $((port+j)) -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
         j=$(( j + 1 ))
@@ -201,10 +203,11 @@ function moonraker_obico_setup_dialog() {
   fi
 
   ### Step 7: Link to the Obico server if necessary
+  local instance_name
   local not_linked_instances=()
   # Refetch systemd service again since additional services may have been newly installed
   for service in $(moonraker_obico_systemd); do
-      local instance_name="$(get_instance_name "${service}" moonraker-obico)"
+      instance_name="$(get_instance_name "${service}" moonraker-obico)"
       if ! is_moonraker_obico_linked "${instance_name}"; then
           not_linked_instances+=( "${instance_name}" )
       fi
@@ -216,7 +219,7 @@ function moonraker_obico_setup_dialog() {
     else
       printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
       for name in "${not_linked_instances[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ●moonraker-obico-${name}"
+        printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${name}"
       done
     fi
     blank_line
@@ -250,7 +253,7 @@ function moonraker_obico_setup_dialog() {
 
   for name in "${not_linked_instances[@]}"; do
     status_msg "Link moonraker-obico-${name} to the Obico Server..."
-    moonraker_obico_cfg="$(cfg_dir ${name})/moonraker-obico.cfg"
+    moonraker_obico_cfg="$(cfg_dir "${name}")/moonraker-obico.cfg"
     if (( moonraker_count == 1 )); then
       "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -c "${moonraker_obico_cfg}"
     else
@@ -260,24 +263,22 @@ function moonraker_obico_setup_dialog() {
 
 }
 
-function clone_or_update_moonraker_obico() {
+function clone_moonraker_obico() {
   local repo=${1}
 
-  if [[ -d ${MOONRAKER_OBICO_DIR} ]]; then
-    status_msg "Updating ${MOONRAKER_OBICO_DIR} ..."
-    cd ${MOONRAKER_OBICO_DIR} && git pull
-  else
-    status_msg "Cloning Moonraker-obico from ${repo} ..."
-    cd "${HOME}" || exit 1
-    if ! git clone "${MOONRAKER_OBICO_REPO}" "${MOONRAKER_OBICO_DIR}"; then
-      print_error "Cloning Moonraker-obico from\n ${repo}\n failed!"
-      exit 1
-    fi
+  status_msg "Cloning Moonraker-obico from ${repo} ..."
+  ### force remove existing Moonraker-obico dir
+  [[ -d ${repo} ]] && rm -rf "${MOONRAKER_OBICO_DIR}"
+
+  cd "${HOME}" || exit 1
+  if ! git clone "${repo}" "${MOONRAKER_OBICO_DIR}"; then
+    print_error "Cloning Moonraker-obico from\n ${repo}\n failed!"
+    exit 1
   fi
 }
 
 function moonraker_obico_install() {
-  "${MOONRAKER_OBICO_DIR}/install.sh" $@
+  "${MOONRAKER_OBICO_DIR}/install.sh" "$@"
 }
 
 #===================================================#
@@ -303,7 +304,7 @@ function remove_moonraker_obico_systemd() {
 }
 
 function remove_moonraker_obico_logs() {
-  local files regex="moonraker-obico(-[0-9a-zA-Z]+)?\.log([.-0-9]+)?"
+  local files regex="moonraker-obico(-[0-9a-zA-Z]+)?\.log(.*)?"
   files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
@@ -346,16 +347,17 @@ function remove_moonraker_obico() {
 #===================================================#
 
 function update_moonraker_obico() {
-  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
-    do_action_service "stop" "${service}"
-  done
+  do_action_service "stop" "moonraker-obico"
 
-  clone_or_update_moonraker_obico "${MOONRAKER_OBICO_REPO}"
+  if [[ ! -d ${MOONRAKER_OBICO_DIR} ]]; then
+    clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
+  else
+    status_msg "Updating Moonraker-obico ..."
+    cd "${MOONRAKER_OBICO_DIR}" && git pull
+  fi
+
   ok_msg "Update complete!"
-
-  for service in $(moonraker_obico_systemd | cut -d"/" -f5); do
-    do_action_service "restart" "${service}"
-  done
+  do_action_service "restart" "moonraker-obico"
 }
 
 #===================================================#
@@ -363,21 +365,31 @@ function update_moonraker_obico() {
 #===================================================#
 
 function get_moonraker_obico_status() {
-  local moonraker_obico_services sf_count status
-  moonraker_obico_services=$(moonraker_obico_systemd)
-  sf_count=$(echo "${moonraker_obico_services}" | wc -w )
+  local status
+  local service_count
+  local is_linked
+  local moonraker_obico_services
 
-  if (( sf_count == 0 )); then
-    status="Not installed!"
-  elif [[ ! -e "${MOONRAKER_OBICO_DIR}" ]]; then
-    status="Incomplete!"
-  else
-    status="Installed!"
+  moonraker_obico_services=$(moonraker_obico_systemd)
+  service_count=$(echo "${moonraker_obico_services}" | wc -w )
+
+  is_linked="true"
+  if [[ -n ${moonraker_obico_services} ]]; then
     for service in ${moonraker_obico_services}; do
       if ! is_moonraker_obico_linked "$(get_instance_name "${service}" moonraker-obico)"; then
-        status="Not linked!"
+        is_linked="false"
       fi
     done
+  fi
+
+  if (( service_count == 0 )); then
+    status="Not installed!"
+  elif [[ ! -d "${MOONRAKER_OBICO_DIR}" ]]; then
+    status="Incomplete!"
+  elif [[ ${is_linked} == "false" ]]; then
+    status="Not linked!"
+  else
+    status="Installed!"
   fi
 
   echo "${status}"
@@ -418,3 +430,18 @@ function compare_moonraker_obico_versions() {
 
   echo "${versions}"
 }
+
+###
+# it is possible, that moonraker_obico is installed in a so called
+# "non-linked" state. the linking can be achieved by running the
+# installation script again. this function will check the obico
+# installation status and returns the correctly formulated menu title
+#
+function obico_install_title() {
+  if [[ $(get_moonraker_obico_status) == "Not linked!" ]]; then
+    echo "[Link to Obico Server]"
+  else
+    echo "[Obico for Klipper]   "
+  fi
+}
+

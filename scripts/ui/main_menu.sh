@@ -49,7 +49,10 @@ function print_status() {
 
   if [[ ${status} == "Not installed!" ]]; then
     status="${red}${status}${white}"
-  elif [[ ${status} == "Incomplete!" ]] || [[ ${status} == "Not linked!" ]]; then
+  elif [[ ${status} == "Incomplete!" ]]; then
+    status="${yellow}${status}${white}"
+  elif [[ ${status} == "Not linked!" ]]; then
+    ### "Not linked!" is only required for Moonraker-obico
     status="${yellow}${status}${white}"
   else
     status="${green}${status}${white}"
