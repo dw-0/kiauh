@@ -201,10 +201,11 @@ function moonraker_obico_setup_dialog() {
   fi
 
   ### Step 7: Link to the Obico server if necessary
+  local instance_name
   local not_linked_instances=()
   # Refetch systemd service again since additional services may have been newly installed
   for service in $(moonraker_obico_systemd); do
-      local instance_name="$(get_instance_name "${service}" moonraker-obico)"
+      instance_name="$(get_instance_name "${service}" moonraker-obico)"
       if ! is_moonraker_obico_linked "${instance_name}"; then
           not_linked_instances+=( "${instance_name}" )
       fi
