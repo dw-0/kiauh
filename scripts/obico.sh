@@ -278,7 +278,7 @@ function clone_or_update_moonraker_obico() {
 }
 
 function moonraker_obico_install() {
-  "${MOONRAKER_OBICO_DIR}/install.sh" $@
+  "${MOONRAKER_OBICO_DIR}/install.sh" "$@"
 }
 
 #===================================================#
