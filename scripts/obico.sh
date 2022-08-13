@@ -421,3 +421,18 @@ function compare_moonraker_obico_versions() {
 
   echo "${versions}"
 }
+
+###
+# it is possible, that moonraker_obico is installed in a so called
+# "non-linked" state. the linking can be achieved by running the
+# installation script again. this function will check the obico
+# installation status and returns the correctly formulated menu title
+#
+function obico_install_title() {
+  if [[ $(get_moonraker_obico_status) == "Not linked!" ]]; then
+    echo "[Link to Obico Server]"
+  else
+    echo "[Obico for Klipper]   "
+  fi
+}
+
