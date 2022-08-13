@@ -365,21 +365,31 @@ function update_moonraker_obico() {
 #===================================================#
 
 function get_moonraker_obico_status() {
-  local moonraker_obico_services sf_count status
-  moonraker_obico_services=$(moonraker_obico_systemd)
-  sf_count=$(echo "${moonraker_obico_services}" | wc -w )
+  local status
+  local service_count
+  local is_linked
+  local moonraker_obico_services
 
-  if (( sf_count == 0 )); then
-    status="Not installed!"
-  elif [[ ! -e "${MOONRAKER_OBICO_DIR}" ]]; then
-    status="Incomplete!"
-  else
-    status="Installed!"
+  moonraker_obico_services=$(moonraker_obico_systemd)
+  service_count=$(echo "${moonraker_obico_services}" | wc -w )
+
+  is_linked="true"
+  if [[ -n ${moonraker_obico_services} ]]; then
     for service in ${moonraker_obico_services}; do
       if ! is_moonraker_obico_linked "$(get_instance_name "${service}" moonraker-obico)"; then
-        status="Not linked!"
+        is_linked="false"
       fi
     done
+  fi
+
+  if (( service_count == 0 )); then
+    status="Not installed!"
+  elif [[ ! -d "${MOONRAKER_OBICO_DIR}" ]]; then
+    status="Incomplete!"
+  elif [[ ${is_linked} == "false" ]]; then
+    status="Not linked!"
+  else
+    status="Installed!"
   fi
 
   echo "${status}"
