@@ -98,7 +98,6 @@ function moonraker_obico_setup_dialog() {
     ### Step 1: Ask for the number of moonraker-obico instances to install
     if (( moonraker_count == 1 )); then
       ok_msg "Moonraker installation found!\n"
-      new_moonraker_obico_count=1
     elif (( moonraker_count > 1 )); then
       top_border
       printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
@@ -134,7 +133,7 @@ function moonraker_obico_setup_dialog() {
         (( new_moonraker_obico_count > allowed_moonraker_obico_count )) && error_msg "Number of Moonraker-obico instances larger than installed Moonraker instances"
       done && select_msg "${new_moonraker_obico_count}"
     else
-      log_error "Internal error. new_moonraker_obico_count of '${new_moonraker_obico_count}' not equal or grather than one!"
+      log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
       return 1
     fi
 
@@ -183,7 +182,6 @@ function moonraker_obico_setup_dialog() {
     clone_or_update_moonraker_obico "${MOONRAKER_OBICO_REPO}"
 
     ### step 6: call moonrake-obico/install.sh with the correct params
-    local log="${KLIPPER_LOGS}"
     local port=7125 moonraker_cfg
 
     if (( moonraker_count == 1 )); then
