@@ -674,6 +674,10 @@ function set_hostname() {
   ok_msg "Remember to reboot for the changes to take effect!"
 }
 
+#================================================#
+#============ INSTANCE MANAGEMENT ===============#
+#================================================#
+
 ### this function takes in the full path of a systemd service file and returns
 ### either the instance index or the custom name
 ### input: /etc/systemd/system/klipper-name.service
@@ -708,8 +712,7 @@ function get_klipper_instance_name() {
 }
 
 ###
-# combines and saves each instance name/identifier
-# to the kiauh.ini file in a comma separated format
+# save all instance names in a comma separated format to the kiauh.ini
 #
 function add_to_multi_instance_names() {
   read_kiauh_ini "${FUNCNAME[0]}"
@@ -733,4 +736,43 @@ function fetch_multi_instance_names() {
     name=$(get_klipper_instance_name "${service}")
     add_to_multi_instance_names "${name}"
   done
+}
+
+###
+# helper function that returns all possibly available absolute
+# klipper config directory paths based on their instance name.
+#
+# => returns an empty string if klipper is not installed
+# => returns a space separated string of absolute config directory paths
+#
+function get_config_folders() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+
+  local instance_names=()
+  local cfg_dirs=()
+
+  ###
+  # convert the comma separates string from the .kiauh.ini into
+  # an array of instance names. a single instance installation
+  # results in an empty instance_names array
+  IFS=',' read -r -a instance_names <<< "${multi_instance_names}"
+
+  if (( ${#instance_names[@]} > 0 )); then
+    for name in "${instance_names[@]}"; do
+      ###
+      # by KIAUH convention, all instance names of only numbers
+      # need to be prefixed with 'printer_'
+      if [[ ${name} =~ ^[0-9]+$ ]]; then
+        cfg_dirs+=("${KLIPPER_CONFIG}/printer_${name}")
+      else
+        cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
+      fi
+    done
+  elif (( ${#instance_names[@]} == 0 && $(klipper_systemd | wc -w) > 0 )); then
+    cfg_dirs+=("${KLIPPER_CONFIG}")
+  else
+    cfg_dirs=()
+  fi
+
+  echo "${cfg_dirs[@]}"
 }
