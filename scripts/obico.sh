@@ -85,7 +85,9 @@ function moonraker_obico_setup_dialog() {
     print_error "${error}" && return
   fi
 
-  local moonraker_obico_services moonraker_obico_names=()
+  local moonraker_obico_services
+  local moonraker_obico_names=()
+  local existing_moonraker_obico_count
   moonraker_obico_services=$(moonraker_obico_systemd)
   existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w )
   for service in ${moonraker_obico_services}; do
