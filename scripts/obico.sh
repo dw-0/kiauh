@@ -21,38 +21,22 @@ function moonraker_obico_systemd() {
   echo "${services}"
 }
 
-function cfg_dir() {
-  local name=${1}
-  if [[ -z ${name} || ${name} == "moonraker" || ${name} == "moonraker-obico" ]]; then
-    echo "${KLIPPER_CONFIG}"
+function moonraker_obico_config() {
+  local moonraker_cfg_dirs=($(get_config_folders))
+  if [[ -n "${moonraker_cfg_dirs}" ]]; then
+    echo "${moonraker_cfg_dirs[${i}]}/moonraker-obico.cfg"
   else
-    local re="^[1-9][0-9]*$"
-    ### overwrite config folder if name is only a number
-    if [[ ${name} =~ ${re} ]]; then
-      echo "${KLIPPER_CONFIG}/printer_${name}"
-    else
-      echo "${KLIPPER_CONFIG}/${name}"
-    fi
+    echo ""
   fi
 }
 
-function is_moonraker_obico_linked() {
-  local name=${1}
-  moonraker_obico_cfg="$(cfg_dir "${name}")/moonraker-obico.cfg"
-  grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -q 'auth_token'
+function moonraker_obico_needs_linking() {
+  moonraker_obico_cfg=${1}
+  if [[ ! -f "${moonraker_obico_cfg}" ]]; then
+    return 1
+  fi
+  grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -vq 'auth_token'
   return $?
-}
-
-function get_moonraker_names() {
-  local moonraker_services
-  moonraker_services=$(moonraker_systemd)
-  if [[ -z ${moonraker_services} ]]; then
-    echo '' && return
-  fi
-
-  for service in ${moonraker_services}; do
-    get_instance_name "${service}" moonraker
-  done
 }
 
 function obico_server_url_prompt() {
@@ -75,31 +59,29 @@ function obico_server_url_prompt() {
 function moonraker_obico_setup_dialog() {
   status_msg "Initializing Moonraker-obico installation ..."
 
-  ### return early if moonraker is not installed
   local moonraker_count moonraker_names
-  moonraker_names=($(get_moonraker_names))
-  moonraker_count=${#moonraker_names[@]}
+  moonraker_count=$(moonraker_systemd | wc -w)
   if (( moonraker_count == 0 )); then
+    ### return early if moonraker is not installed
     local error="Moonraker not installed! Please install Moonraker first!"
     log_error "Moonraker-obico setup started without Moonraker being installed. Aborting setup."
     print_error "${error}" && return
+  elif (( moonraker_count > 1 )); then
+    moonraker_names=($(get_multi_instance_names))  # moonraker_names is valid only in case of multi-instance
   fi
 
   local moonraker_obico_services
-  local moonraker_obico_names=()
   local existing_moonraker_obico_count
   moonraker_obico_services=$(moonraker_obico_systemd)
   existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w )
-  for service in ${moonraker_obico_services}; do
-    moonraker_obico_names+=( "$(get_instance_name "${service}" moonraker-obico)" )
-  done
-
   local allowed_moonraker_obico_count=$(( moonraker_count - existing_moonraker_obico_count ))
   if (( allowed_moonraker_obico_count > 0 )); then
+    local new_moonraker_obico_count
 
     ### Step 1: Ask for the number of moonraker-obico instances to install
     if (( moonraker_count == 1 )); then
       ok_msg "Moonraker installation found!\n"
+      new_moonraker_obico_count=1
     elif (( moonraker_count > 1 )); then
       top_border
       printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
@@ -109,8 +91,8 @@ function moonraker_obico_setup_dialog() {
       blank_line
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
-        for name in "${moonraker_obico_names[@]}"; do
-          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${name}"
+        for svc in "${moonraker_obico_services}"; do
+          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${service}" moonraker-obico)"
         done
       fi
       blank_line
@@ -125,7 +107,7 @@ function moonraker_obico_setup_dialog() {
       bottom_border
 
       ### ask for amount of instances
-      local new_moonraker_obico_count re="^[1-9][0-9]*$"
+      local re="^[1-9][0-9]*$"
       while [[ ! ${new_moonraker_obico_count} =~ ${re} || ${new_moonraker_obico_count} -gt ${allowed_moonraker_obico_count} ]]; do
         read -p "${cyan}###### Number of new Moonraker-obico instances to set up:${white} " -i "${allowed_moonraker_obico_count}" -e new_moonraker_obico_count
         ### break if input is valid
@@ -137,7 +119,7 @@ function moonraker_obico_setup_dialog() {
     else
       log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
       return 1
-    fi
+    fi  # (( moonraker_count == 1 ))
 
     ### Step 2: Confirm instance amount
     local yn
@@ -157,7 +139,7 @@ function moonraker_obico_setup_dialog() {
           error_msg "Invalid Input!";;
       esac
     done
-  fi
+  fi  # (( allowed_moonraker_obico_count > 0 ))
 
   if (( new_moonraker_obico_count > 0 )); then
 
@@ -184,42 +166,43 @@ function moonraker_obico_setup_dialog() {
     clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
 
     ### step 6: call moonrake-obico/install.sh with the correct params
-    local port=7125 moonraker_cfg
+    local port=7125 moonraker_cfg_dirs=($(get_config_folders))
 
     if (( moonraker_count == 1 )); then
-      moonraker_cfg="$(cfg_dir '')/moonraker.conf"
-      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg}" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg_dirs[0]}/moonraker.conf" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
     elif (( moonraker_count > 1 )); then
       local j=${existing_moonraker_obico_count}
 
       for (( i=1; i <= new_moonraker_obico_count; i++ )); do
-        local name=${moonraker_names[${j}]}
-        moonraker_cfg="$(cfg_dir "${name}")/moonraker.conf"
-
-        "${MOONRAKER_OBICO_DIR}/install.sh" -n "${name}" -C "${moonraker_cfg}" -p $((port+j)) -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+        "${MOONRAKER_OBICO_DIR}/install.sh" -n "${moonraker_names[${j}]}" -C "${moonraker_cfg_dirs[${j}]}/moonraker.conf" -p $((port+j)) -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
         j=$(( j + 1 ))
       done && unset j
-    fi
-  fi
+    fi # (( moonraker_count == 1 ))
+  fi  # (( new_moonraker_obico_count > 0 ))
 
   ### Step 7: Link to the Obico server if necessary
   local instance_name
   local not_linked_instances=()
-  # Refetch systemd service again since additional services may have been newly installed
-  for service in $(moonraker_obico_systemd); do
-      instance_name="$(get_instance_name "${service}" moonraker-obico)"
-      if ! is_moonraker_obico_linked "${instance_name}"; then
-          not_linked_instances+=( "${instance_name}" )
+  if (( moonraker_count == 1 )); then
+    if moonraker_obico_needs_linking "$(moonraker_obico_config 0)"; then
+      not_linked_instances+=("0")
+    fi
+  elif (( moonraker_count > 1 )); then
+    for (( i=0; i <= moonraker_count; i++ )); do
+      if moonraker_obico_needs_linking "$(moonraker_obico_config ${i})"; then
+        not_linked_instances+=("${i}")
       fi
-  done
+    done
+  fi  # (( moonraker_count == 1 ))
+
   if (( ${#not_linked_instances[@]} > 0 )); then
     top_border
     if (( moonraker_count == 1 )); then
       printf "|${green}%-55s${white}|\n" " Moonraker-obico not linked to the server!"
     else
       printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
-      for name in "${not_linked_instances[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${name}"
+      for i in "${not_linked_instances[@]}"; do
+        printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-{moonraker_names[i]}"
       done
     fi
     blank_line
@@ -234,33 +217,33 @@ function moonraker_obico_setup_dialog() {
     echo -e "| 2. Select ${green}[Install]${white}                                   |"
     echo -e "| 3. Select ${green}[Link to Obico Server]${white}                      |"
     bottom_border
-  fi
 
-  while true; do
-    read -p "${cyan}###### Link to your Obico Server account now? (Y/n):${white} " yn
-    case "${yn}" in
-      Y|y|Yes|yes|"")
-        select_msg "Yes"
-        break;;
-      N|n|No|no)
-        select_msg "No"
-        abort_msg "Exiting Moonraker-obico setup ...\n"
-        return;;
-      *)
-        error_msg "Invalid Input!";;
-    esac
-  done
+    while true; do
+      read -p "${cyan}###### Link to your Obico Server account now? (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          abort_msg "Exiting Moonraker-obico setup ...\n"
+          return;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
 
-  for name in "${not_linked_instances[@]}"; do
-    status_msg "Link moonraker-obico-${name} to the Obico Server..."
-    moonraker_obico_cfg="$(cfg_dir "${name}")/moonraker-obico.cfg"
     if (( moonraker_count == 1 )); then
-      "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -c "${moonraker_obico_cfg}"
-    else
-      "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "${moonraker_obico_cfg}"
-    fi
-  done
-
+      status_msg "Link moonraker-obico to the Obico Server..."
+      "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -c "$(moonraker_obico_config 0)"
+    elif (( moonraker_count > 1 )); then
+      for i in "${not_linked_instances[@]}"; do
+        local name="${moonraker_names[i]}"
+        status_msg "Link moonraker-obico-${name} to the Obico Server..."
+        "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "$(moonraker_obico_config ${i})"
+      done
+    fi  # (( moonraker_count == 1 ))
+  fi  # (( ${#not_linked_instances[@]} > 0 ))
 }
 
 function clone_moonraker_obico() {
@@ -375,8 +358,8 @@ function get_moonraker_obico_status() {
 
   is_linked="true"
   if [[ -n ${moonraker_obico_services} ]]; then
-    for service in ${moonraker_obico_services}; do
-      if ! is_moonraker_obico_linked "$(get_instance_name "${service}" moonraker-obico)"; then
+    for cfg_dir in $(get_config_folders); do
+      if moonraker_obico_needs_linking "${cfg_dir}/moonraker-obico.cfg"; then
         is_linked="false"
       fi
     done
