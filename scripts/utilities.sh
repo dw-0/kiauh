@@ -739,17 +739,15 @@ function fetch_multi_instance_names() {
 }
 
 ###
-# helper function that returns all possibly available absolute
-# klipper config directory paths based on their instance name.
+# Helper function that returns all configured instance names
 #
-# => returns an empty string if klipper is not installed
-# => returns a space separated string of absolute config directory paths
+# => return an empty string if 0 or 1 klipper instance is installed
+# => return space-separated string for names of the configured instances
+#           if 2 or more klipper instances are installed
 #
-function get_config_folders() {
+function get_multi_instance_names() {
   read_kiauh_ini "${FUNCNAME[0]}"
-
   local instance_names=()
-  local cfg_dirs=()
 
   ###
   # convert the comma separates string from the .kiauh.ini into
@@ -757,8 +755,23 @@ function get_config_folders() {
   # results in an empty instance_names array
   IFS=',' read -r -a instance_names <<< "${multi_instance_names}"
 
-  if (( ${#instance_names[@]} > 0 )); then
-    for name in "${instance_names[@]}"; do
+  echo "${instance_names[@]}"
+}
+
+###
+# helper function that returns all possibly available absolute
+# klipper config directory paths based on their instance name.
+#
+# => returns an empty string if klipper is not installed
+# => returns a space separated string of absolute config directory paths
+#
+function get_config_folders() {
+  local cfg_dirs=()
+  local instance_names
+  instance_names=$(get_multi_instance_names)
+
+  if [[ -n ${instance_names} ]]; then
+    for name in "${instance_names}"; do
       ###
       # by KIAUH convention, all instance names of only numbers
       # need to be prefixed with 'printer_'
@@ -768,7 +781,7 @@ function get_config_folders() {
         cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
       fi
     done
-  elif (( ${#instance_names[@]} == 0 && $(klipper_systemd | wc -w) > 0 )); then
+  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) > 0 ]]; then
     cfg_dirs+=("${KLIPPER_CONFIG}")
   else
     cfg_dirs=()
