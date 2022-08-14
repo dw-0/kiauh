@@ -36,6 +36,12 @@ function install_menu() {
   clear && print_header
   install_ui
 
+  ### save all installed webinterface ports to the ini file
+  fetch_webui_ports
+
+  ### save all klipper multi-instance names to the ini file
+  set_multi_instance_names
+
   local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action

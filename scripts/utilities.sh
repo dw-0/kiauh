@@ -178,15 +178,7 @@ function init_ini() {
 
   if ! grep -Eq "^multi_instance_names=" "${INI_FILE}"; then
     echo -e "\nmulti_instance_names=\c" >> "${INI_FILE}"
-  else
-    sed -i "/multi_instance_names=/s/=.*/=/" "${INI_FILE}"
   fi
-
-  ### save all installed webinterface ports to the ini file
-  fetch_webui_ports
-
-  ### save all klipper multi-instance names to the ini file
-  fetch_multi_instance_names
 
   ### strip all empty lines out of the file
   sed -i "/^[[:blank:]]*$/ d" "${INI_FILE}"
@@ -712,30 +704,34 @@ function get_klipper_instance_name() {
 }
 
 ###
-# save all instance names in a comma separated format to the kiauh.ini
+# loops through all installed klipper services and saves
+# each instances name in a comma separated format to the kiauh.ini
 #
-function add_to_multi_instance_names() {
+function set_multi_instance_names() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
-  local name="${1}"
-  local names="${multi_instance_names}"
+  local name
+  local names=""
+  local services=$(klipper_systemd)
 
-  if ! grep -Eq "${name}" <<< "${names}"; then
-    names="${names}${name},"
-    sed -i "/multi_instance_names=/s/=.*/=${names}/" "${INI_FILE}"
+  ###
+  # if value of 'multi_instance_names' is not an empty
+  # string, delete its value, so it can be re-written
+  if [[ -n ${multi_instance_names} ]]; then
+    sed -i "/multi_instance_names=/s/=.*/=/" "${INI_FILE}"
   fi
-}
 
-###
-# loops through all installed klipper services and
-# calls the 'add_to_multi_instance_names' on each one
-#
-function fetch_multi_instance_names() {
-  for service in $(klipper_systemd); do
-    local name
-    name=$(get_klipper_instance_name "${service}")
-    add_to_multi_instance_names "${name}"
+  for svc in ${services}; do
+    name=$(get_klipper_instance_name "${svc}")
+
+    if ! grep -Eq "${name}" <<<"${names}"; then
+      names="${names}${name},"
+    fi
+
   done
+
+  # write up-to-date instance name string to kiauh.ini
+  sed -i "/multi_instance_names=/s/=.*/=${names}/" "${INI_FILE}"
 }
 
 ###
@@ -762,8 +758,8 @@ function get_multi_instance_names() {
 # helper function that returns all possibly available absolute
 # klipper config directory paths based on their instance name.
 #
-# => returns an empty string if klipper is not installed
-# => returns a space separated string of absolute config directory paths
+# => return an empty string if klipper is not installed
+# => return space-separated string of absolute config directory paths
 #
 function get_config_folders() {
   local cfg_dirs=()
