@@ -777,7 +777,7 @@ function get_config_folders() {
         cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
       fi
     done
-  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) > 0 ]]; then
+  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
     cfg_dirs+=("${KLIPPER_CONFIG}")
   else
     cfg_dirs=()
