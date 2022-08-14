@@ -35,8 +35,11 @@ function moonraker_obico_needs_linking() {
   if [[ ! -f "${moonraker_obico_cfg}" ]]; then
     return 1
   fi
-  grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -vq 'auth_token'
-  return $?
+  if grep -s -E "^[^#]" "${moonraker_obico_cfg}" | grep -q 'auth_token'; then
+    return 1
+  else
+    return 0
+  fi
 }
 
 function obico_server_url_prompt() {
@@ -91,8 +94,8 @@ function moonraker_obico_setup_dialog() {
       blank_line
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
-        for svc in "${moonraker_obico_services}"; do
-          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${service}" moonraker-obico)"
+        for svc in ${moonraker_obico_services}; do
+          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${svc}" moonraker-obico)"
         done
       fi
       blank_line
@@ -202,7 +205,7 @@ function moonraker_obico_setup_dialog() {
     else
       printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Moonraker-obico instances not linked to the server!"
       for i in "${not_linked_instances[@]}"; do
-        printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-{moonraker_names[i]}"
+        printf "|${cyan}%-57s${white}|\n" " ● moonraker-obico-${moonraker_names[${i}]}"
       done
     fi
     blank_line
@@ -251,7 +254,7 @@ function clone_moonraker_obico() {
 
   status_msg "Cloning Moonraker-obico from ${repo} ..."
   ### force remove existing Moonraker-obico dir
-  [[ -d ${repo} ]] && rm -rf "${MOONRAKER_OBICO_DIR}"
+  [[ -d "${MOONRAKER_OBICO_DIR}" ]] && rm -rf "${MOONRAKER_OBICO_DIR}"
 
   cd "${HOME}" || exit 1
   if ! git clone "${repo}" "${MOONRAKER_OBICO_DIR}"; then

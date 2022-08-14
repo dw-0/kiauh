@@ -771,7 +771,7 @@ function get_config_folders() {
   instance_names=$(get_multi_instance_names)
 
   if [[ -n ${instance_names} ]]; then
-    for name in "${instance_names}"; do
+    for name in ${instance_names}; do
       ###
       # by KIAUH convention, all instance names of only numbers
       # need to be prefixed with 'printer_'
