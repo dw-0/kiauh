@@ -24,14 +24,14 @@ function moonraker_obico_systemd() {
 function moonraker_obico_config() {
   local moonraker_cfg_dirs=($(get_config_folders))
   if [[ -n "${moonraker_cfg_dirs}" ]]; then
-    echo "${moonraker_cfg_dirs[${i}]}/moonraker-obico.cfg"
+    echo "${moonraker_cfg_dirs[${1}]}/moonraker-obico.cfg"
   else
     echo ""
   fi
 }
 
 function moonraker_obico_needs_linking() {
-  moonraker_obico_cfg=${1}
+  local moonraker_obico_cfg=${1}
   if [[ ! -f "${moonraker_obico_cfg}" ]]; then
     return 1
   fi
@@ -184,7 +184,6 @@ function moonraker_obico_setup_dialog() {
   fi  # (( new_moonraker_obico_count > 0 ))
 
   ### Step 7: Link to the Obico server if necessary
-  local instance_name
   local not_linked_instances=()
   if (( moonraker_count == 1 )); then
     if moonraker_obico_needs_linking "$(moonraker_obico_config 0)"; then
