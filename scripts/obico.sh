@@ -22,8 +22,11 @@ function moonraker_obico_systemd() {
 }
 
 function moonraker_obico_config() {
-  local moonraker_cfg_dirs=($(get_config_folders))
-  if [[ -n "${moonraker_cfg_dirs}" ]]; then
+  local moonraker_cfg_dirs
+
+  read -r -a moonraker_cfg_dirs <<< "$(get_config_folders)"
+
+  if (( ${#moonraker_cfg_dirs[@]} > 0 )); then
     echo "${moonraker_cfg_dirs[${1}]}/moonraker-obico.cfg"
   else
     echo ""
@@ -55,22 +58,27 @@ function obico_server_url_prompt() {
   blank_line
   echo -e "| For self-hosted server, specify:                      |"
   printf "|${cyan}%-55s${white}|\n" " http://server_ip:port"
-  echo -e "| For instance, \`http://192.168.0.5:3334\`.              |"
+  echo -e "| For instance, 'http://192.168.0.5:3334'.              |"
   bottom_border
 }
 
 function moonraker_obico_setup_dialog() {
   status_msg "Initializing Moonraker-obico installation ..."
 
-  local moonraker_count moonraker_names
+
+  local moonraker_count
+  local moonraker_names
+
   moonraker_count=$(moonraker_systemd | wc -w)
+
   if (( moonraker_count == 0 )); then
     ### return early if moonraker is not installed
     local error="Moonraker not installed! Please install Moonraker first!"
     log_error "Moonraker-obico setup started without Moonraker being installed. Aborting setup."
     print_error "${error}" && return
   elif (( moonraker_count > 1 )); then
-    moonraker_names=($(get_multi_instance_names))  # moonraker_names is valid only in case of multi-instance
+    # moonraker_names is valid only in case of multi-instance
+    read -r -a moonraker_names <<< "$(get_multi_instance_names)"
   fi
 
   local moonraker_obico_services
@@ -169,7 +177,10 @@ function moonraker_obico_setup_dialog() {
     clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
 
     ### step 6: call moonrake-obico/install.sh with the correct params
-    local port=7125 moonraker_cfg_dirs=($(get_config_folders))
+    local port=7125
+    local moonraker_cfg_dirs
+
+    read -r -a moonraker_cfg_dirs <<< "$(get_config_folders)"
 
     if (( moonraker_count == 1 )); then
       "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg_dirs[0]}/moonraker.conf" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
@@ -191,7 +202,7 @@ function moonraker_obico_setup_dialog() {
     fi
   elif (( moonraker_count > 1 )); then
     for (( i=0; i <= moonraker_count; i++ )); do
-      if moonraker_obico_needs_linking "$(moonraker_obico_config ${i})"; then
+      if moonraker_obico_needs_linking "$(moonraker_obico_config "${i}")"; then
         not_linked_instances+=("${i}")
       fi
     done
@@ -215,7 +226,7 @@ function moonraker_obico_setup_dialog() {
     blank_line
     echo -e "| If you don't want to link the printer now, you can    |"
     echo -e "| restart the linking process later by:                 |"
-    echo -e "| 1. \`cd ~/kiauh && ./kiauh.sh\` to launch KIAUH.        |"
+    echo -e "| 1. 'cd ~/kiauh && ./kiauh.sh' to launch KIAUH.        |"
     echo -e "| 2. Select ${green}[Install]${white}                                   |"
     echo -e "| 3. Select ${green}[Link to Obico Server]${white}                      |"
     bottom_border
@@ -242,7 +253,7 @@ function moonraker_obico_setup_dialog() {
       for i in "${not_linked_instances[@]}"; do
         local name="${moonraker_names[i]}"
         status_msg "Link moonraker-obico-${name} to the Obico Server..."
-        "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "$(moonraker_obico_config ${i})"
+        "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "$(moonraker_obico_config "${i}")"
       done
     fi  # (( moonraker_count == 1 ))
   fi  # (( ${#not_linked_instances[@]} > 0 ))
