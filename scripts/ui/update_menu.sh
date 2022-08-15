@@ -31,8 +31,9 @@ function update_ui() {
   echo -e "| Other:                 |---------------|--------------|"
   echo -e "|  6) [PrettyGCode]      |$(compare_prettygcode_versions)|"
   echo -e "|  7) [Telegram Bot]     |$(compare_telegram_bot_versions)|"
+  echo -e "|  8) [Obico for Klipper]|$(compare_moonraker_obico_versions)|"
   echo -e "|                        |------------------------------|"
-  echo -e "|  8) [System]           |  $(check_system_updates)   |"
+  echo -e "|  9) [System]           |  $(check_system_updates)   |"
   back_footer
 }
 
@@ -60,6 +61,8 @@ function update_menu() {
       7)
         do_action "update_telegram_bot" "update_ui";;
       8)
+        do_action "update_moonraker_obico" "update_ui";;
+      9)
         do_action "update_system" "update_ui";;
       a)
         do_action "update_all" "update_ui";;

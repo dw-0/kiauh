@@ -26,7 +26,8 @@ function remove_ui() {
   echo -e "|  4) [Fluidd]              | Other:                    |"
   echo -e "|                           |  8) [PrettyGCode]         |"
   echo -e "| Touchscreen GUI:          |  9) [Telegram Bot]        |"
-  echo -e "|  5) [KlipperScreen]       | 10) [NGINX]               |"
+  echo -e "|  5) [KlipperScreen]       | 10) [Obico for Klipper]   |"
+  echo -e "|                           | 11) [NGINX]               |"
   back_footer
 }
 
@@ -56,6 +57,8 @@ function remove_menu() {
       9)
         do_action "remove_telegram_bot" "remove_ui";;
       10)
+        do_action "remove_moonraker_obico" "remove_ui";;
+      11)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;

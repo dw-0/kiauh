@@ -24,6 +24,7 @@ function main_ui() {
   echo -e "|  5) [Backup]       |        Fluidd: $(print_status "fluidd")|"
   echo -e "|                    | KlipperScreen: $(print_status "klipperscreen")|"
   echo -e "|  6) [Settings]     |  Telegram Bot: $(print_status "telegram_bot")|"
+  echo -e "|                    |         Obico: $(print_status "moonraker_obico")|"
   echo -e "|                    |                                  |"
   echo -e "|  $(print_kiauh_version)|     Octoprint: $(print_status "octoprint")|"
   quit_footer
@@ -49,6 +50,9 @@ function print_status() {
   if [[ ${status} == "Not installed!" ]]; then
     status="${red}${status}${white}"
   elif [[ ${status} == "Incomplete!" ]]; then
+    status="${yellow}${status}${white}"
+  elif [[ ${status} == "Not linked!" ]]; then
+    ### "Not linked!" is only required for Moonraker-obico
     status="${yellow}${status}${white}"
   else
     status="${green}${status}${white}"

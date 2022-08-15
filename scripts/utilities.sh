@@ -178,15 +178,7 @@ function init_ini() {
 
   if ! grep -Eq "^multi_instance_names=" "${INI_FILE}"; then
     echo -e "\nmulti_instance_names=\c" >> "${INI_FILE}"
-  else
-    sed -i "/multi_instance_names=/s/=.*/=/" "${INI_FILE}"
   fi
-
-  ### save all installed webinterface ports to the ini file
-  fetch_webui_ports
-
-  ### save all klipper multi-instance names to the ini file
-  fetch_multi_instance_names
 
   ### strip all empty lines out of the file
   sed -i "/^[[:blank:]]*$/ d" "${INI_FILE}"
@@ -674,13 +666,25 @@ function set_hostname() {
   ok_msg "Remember to reboot for the changes to take effect!"
 }
 
-### this function takes in the full path of a systemd service file and returns
-### either the instance index or the custom name
-### input: /etc/systemd/system/klipper-name.service
-### returns: name
+#================================================#
+#============ INSTANCE MANAGEMENT ===============#
+#================================================#
+
+###
+# takes in a systemd service files full path and
+# returns the sub-string with the instance name
+#
+# @param {string}: service file absolute path
+#                  (e.g. '/etc/systemd/system/klipper-<name>.service')
+#
+# => return sub-string containing only the <name> part of the full string
+#
 function get_instance_name() {
-  local instance=${1} name
-  name=$(echo "${instance}" | rev | cut -d"/" -f1 | rev | cut -d"-" -f2 | cut -d"." -f1)
+  local instance=${1}
+  local name
+
+  name=$(echo "${instance}" | rev | cut -d"/" -f1 | cut -d"." -f2 | cut -d"-" -f1 | rev)
+
   echo "${name}"
 }
 
@@ -708,29 +712,84 @@ function get_klipper_instance_name() {
 }
 
 ###
-# combines and saves each instance name/identifier
-# to the kiauh.ini file in a comma separated format
+# loops through all installed klipper services and saves
+# each instances name in a comma separated format to the kiauh.ini
 #
-function add_to_multi_instance_names() {
+function set_multi_instance_names() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
-  local name="${1}"
-  local names="${multi_instance_names}"
+  local name
+  local names=""
+  local services=$(klipper_systemd)
 
-  if ! grep -Eq "${name}" <<< "${names}"; then
-    names="${names}${name},"
-    sed -i "/multi_instance_names=/s/=.*/=${names}/" "${INI_FILE}"
+  ###
+  # if value of 'multi_instance_names' is not an empty
+  # string, delete its value, so it can be re-written
+  if [[ -n ${multi_instance_names} ]]; then
+    sed -i "/multi_instance_names=/s/=.*/=/" "${INI_FILE}"
   fi
+
+  for svc in ${services}; do
+    name=$(get_klipper_instance_name "${svc}")
+
+    if ! grep -Eq "${name}" <<<"${names}"; then
+      names="${names}${name},"
+    fi
+
+  done
+
+  # write up-to-date instance name string to kiauh.ini
+  sed -i "/multi_instance_names=/s/=.*/=${names}/" "${INI_FILE}"
 }
 
 ###
-# loops through all installed klipper services and
-# calls the 'add_to_multi_instance_names' on each one
+# Helper function that returns all configured instance names
 #
-function fetch_multi_instance_names() {
-  for service in $(klipper_systemd); do
-    local name
-    name=$(get_klipper_instance_name "${service}")
-    add_to_multi_instance_names "${name}"
-  done
+# => return an empty string if 0 or 1 klipper instance is installed
+# => return space-separated string for names of the configured instances
+#           if 2 or more klipper instances are installed
+#
+function get_multi_instance_names() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+  local instance_names=()
+
+  ###
+  # convert the comma separates string from the .kiauh.ini into
+  # an array of instance names. a single instance installation
+  # results in an empty instance_names array
+  IFS=',' read -r -a instance_names <<< "${multi_instance_names}"
+
+  echo "${instance_names[@]}"
+}
+
+###
+# helper function that returns all possibly available absolute
+# klipper config directory paths based on their instance name.
+#
+# => return an empty string if klipper is not installed
+# => return space-separated string of absolute config directory paths
+#
+function get_config_folders() {
+  local cfg_dirs=()
+  local instance_names
+  instance_names=$(get_multi_instance_names)
+
+  if [[ -n ${instance_names} ]]; then
+    for name in ${instance_names}; do
+      ###
+      # by KIAUH convention, all instance names of only numbers
+      # need to be prefixed with 'printer_'
+      if [[ ${name} =~ ^[0-9]+$ ]]; then
+        cfg_dirs+=("${KLIPPER_CONFIG}/printer_${name}")
+      else
+        cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
+      fi
+    done
+  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
+    cfg_dirs+=("${KLIPPER_CONFIG}")
+  else
+    cfg_dirs=()
+  fi
+
+  echo "${cfg_dirs[@]}"
 }

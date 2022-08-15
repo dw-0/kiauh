@@ -15,9 +15,24 @@ set -e
 #================ INSTALL MOONRAKER ================#
 #===================================================#
 
+###
+# this function detects all installed moonraker
+# systemd instances and returns their absolute path
 function moonraker_systemd() {
   local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/moonraker(-[0-9a-zA-Z]+)?.service" | sort)
+  local blacklist
+  local ignore
+  local match
+
+  ###
+  # any moonraker client that uses "moonraker" in its own name must be blacklisted using
+  # this variable, otherwise they will be falsely recognized as moonraker instances
+  blacklist="obico"
+
+  ignore="${SYSTEMD}/moonraker-(${blacklist}).service"
+  match="${SYSTEMD}/moonraker(-[0-9a-zA-Z]+)?.service"
+
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype awk ! -regex "${ignore}" -regex "${match}" | sort)
   echo "${services}"
 }
 
