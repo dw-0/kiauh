@@ -70,7 +70,7 @@ function moonraker_setup_dialog() {
   local klipper_count user_input=() klipper_names=()
   klipper_count=$(echo "${klipper_services}" | wc -w )
   for service in ${klipper_services}; do
-    klipper_names+=( "$(get_instance_name "${service}" klipper)" )
+    klipper_names+=( "$(get_instance_name "${service}")" )
   done
 
   local moonraker_count

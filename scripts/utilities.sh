@@ -675,8 +675,8 @@ function set_hostname() {
 ### input: /etc/systemd/system/klipper-name.service
 ### returns: name
 function get_instance_name() {
-  local instance=${1} base_name=${2} name
-  name=$(echo "${instance}" | rev | cut -d"/" -f1 | cut -d"." -f2 | rev | sed -E "s/${base_name}-//")
+  local instance=${1} name
+  name=$(echo "${instance}" | rev | cut -d"/" -f1 | rev | cut -d"-" -f2 | cut -d"." -f1)
   echo "${name}"
 }
 
