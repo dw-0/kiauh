@@ -676,7 +676,7 @@ function set_hostname() {
 ### returns: name
 function get_instance_name() {
   local instance=${1} name
-  name=$(echo "${instance}" | rev | cut -d"/" -f1 | rev | cut -d"-" -f2 | cut -d"." -f1)
+  name=$(echo "${instance}" | rev | cut -d"/" -f1 | cut -d"." -f2 | cut -d"-" -f1 | rev)
   echo "${name}"
 }
 
