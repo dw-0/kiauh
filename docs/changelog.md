@@ -2,6 +2,9 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2022-08-15
+Support for "Obico for Klipper" was added! Huge thanks to [kennethjiang](https://github.com/kennethjiang) for helping me with the implementation!
+
 ### 2022-05-29
 KIAUH has now reached major version 4 !
 * feat: Klipper can be installed under Python3 (still considered as experimental)
