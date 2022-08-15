@@ -670,13 +670,21 @@ function set_hostname() {
 #============ INSTANCE MANAGEMENT ===============#
 #================================================#
 
-### this function takes in the full path of a systemd service file and returns
-### either the instance index or the custom name
-### input: /etc/systemd/system/klipper-name.service
-### returns: name
+###
+# takes in a systemd service files full path and
+# returns the sub-string with the instance name
+#
+# @param {string}: service file absolute path
+#                  (e.g. '/etc/systemd/system/klipper-<name>.service')
+#
+# => return sub-string containing only the <name> part of the full string
+#
 function get_instance_name() {
-  local instance=${1} name
+  local instance=${1}
+  local name
+
   name=$(echo "${instance}" | rev | cut -d"/" -f1 | cut -d"." -f2 | cut -d"-" -f1 | rev)
+
   echo "${name}"
 }
 
