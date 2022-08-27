@@ -313,13 +313,19 @@ function set_nginx_cfg() {
   fi
 }
 
+###
+# check if permissions of the users home directory
+# grant execution rights to group and other which is
+# required for NGINX to be able to serve Mainsail/Fluidd
+#
 function set_nginx_permissions() {
-  local distro_name version_id
+  local homedir_perm
+  local exec_perms_count
 
-  distro_name=$(grep -E "^NAME=" /etc/os-release | cut -d'"' -f2)
-  version_id=$(grep -E "^VERSION_ID=" /etc/os-release | cut -d'"' -f2)
+  homedir_perm=$(ls -ld "${HOME}")
+  exec_perms_count=$(echo "${homedir_perm}" | cut -d" " -f1 | grep -c "x")
 
-  if [[ ${distro_name} == "Ubuntu" && ( ${version_id} == "21.10" || ${version_id} == "22.04") ]]; then
+  if (( exec_perms_count < 3 )); then
     status_msg "Granting NGINX the required permissions ..."
     chmod og+x "${HOME}" && ok_msg "Done!"
   fi
