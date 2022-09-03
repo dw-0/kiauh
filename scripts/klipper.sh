@@ -28,32 +28,34 @@ function klipper_systemd() {
   echo "${services}"
 }
 
-function klipper_exists() {
-  local services
-  [[ -n $(klipper_initd) ]] && services+="$(klipper_initd) "
-  [[ -n $(klipper_systemd) ]] && services+="$(klipper_systemd)"
-  echo "${services}"
-}
-
 function klipper_setup_dialog() {
   status_msg "Initializing Klipper installation ..."
 
-  local klipper_services
+  local klipper_initd_service
+  local klipper_systemd_services
   local python_version="${1}" user_input=()
-  klipper_services=$(klipper_exists)
+  local error
+
+  klipper_initd_service=$(klipper_initd)
+  klipper_systemd_services=$(klipper_systemd)
   user_input+=("${python_version}")
 
   ### return early if klipper already exists
-  if [[ -n ${klipper_services} ]]; then
-    local error="At least one Klipper service is already installed:"
+  if [[ -n ${klipper_initd_service} ]]; then
+    error="Unsupported Klipper SysVinit service detected:"
+    error="${error}\n ➔ ${klipper_initd_service}"
+    error="${error}\n Please re-install Klipper with KIAUH!"
+    log_info "Unsupported Klipper SysVinit service detected: ${klipper_initd_service}"
+  elif [[ -n ${klipper_systemd_services} ]]; then
+    error="At least one Klipper service is already installed:"
 
-    for s in ${klipper_services}; do
+    for s in ${klipper_systemd_services}; do
       log_info "Found Klipper service: ${s}"
       error="${error}\n ➔ ${s}"
     done
-
-    print_error "${error}" && return
   fi
+
+  [[ -n ${error} ]] && print_error "${error}" && return
 
   ### ask for amount of instances to create
   top_border
