@@ -208,7 +208,7 @@ function moonraker_setup() {
   create_moonraker_service "${instance_arr[@]}"
 
   ### step 5: create polkit rules for moonraker
-  moonraker_polkit || true
+  install_moonraker_polkit || true
 
   ### step 6: enable and start all instances
   do_action_service "enable" "moonraker"
@@ -379,8 +379,20 @@ function print_mr_ip_list() {
 ### introduced due to
 ### https://github.com/Arksine/moonraker/issues/349
 ### https://github.com/Arksine/moonraker/pull/346
-function moonraker_polkit() {
+function install_moonraker_polkit() {
+  local POLKIT_LEGACY_FILE="/etc/polkit-1/localauthority/50-local.d/10-moonraker.pkla"
+  local POLKIT_FILE="/etc/polkit-1/rules.d/moonraker.rules"
+  local POLKIT_USR_FILE="/usr/share/polkit-1/rules.d/moonraker.rules"
+  local legacy_file_exists
+  local file_exists
+  local usr_file_exists
+
   local has_sup
+  local require_daemon_reload="false"
+
+  legacy_file_exists=$(sudo find "${POLKIT_LEGACY_FILE}" 2> /dev/null)
+  file_exists=$(sudo find "${POLKIT_FILE}" 2> /dev/null)
+  usr_file_exists=$(sudo find "${POLKIT_USR_FILE}" 2> /dev/null)
 
   ### check for required SupplementaryGroups entry in service files
   ### write it to the service if it doesn't exist
@@ -389,14 +401,25 @@ function moonraker_polkit() {
     if [[ -z ${has_sup} ]]; then
       status_msg "Adding moonraker-admin supplementary group to ${service} ..."
       sudo sed -i "/^Type=simple$/a SupplementaryGroups=moonraker-admin" "${service}"
+      require_daemon_reload="true"
       ok_msg "Adding moonraker-admin supplementary group successfull!"
     fi
   done
 
-  [[ -z ${has_sup} ]] && echo "reloading services!!!" && sudo systemctl daemon-reload
+  if [[ ${require_daemon_reload} == "true" ]]; then
+    status_msg "Reloading unit files ..."
+    sudo systemctl daemon-reload
+    ok_msg "Unit files reloaded!"
+  fi
 
-  ### execute moonrakers policykit-rules script
-  "${HOME}"/moonraker/scripts/set-policykit-rules.sh
+  ### execute moonrakers policykit-rules script only if rule files do not already exist
+  if [[ -z ${legacy_file_exists} && ( -z ${file_exists} || -z ${usr_file_exists} ) ]]; then
+    status_msg "Installing Moonraker policykit rules ..."
+    "${HOME}"/moonraker/scripts/set-policykit-rules.sh
+    ok_msg "Moonraker policykit rules installed!"
+  fi
+
+  return
 }
 
 #==================================================#
@@ -518,7 +541,7 @@ function update_moonraker() {
   fi
 
   ### required due to https://github.com/Arksine/moonraker/issues/349
-  moonraker_polkit || true
+  install_moonraker_polkit || true
 
   ok_msg "Update complete!"
   do_action_service "restart" "moonraker"
