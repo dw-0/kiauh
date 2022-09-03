@@ -518,7 +518,7 @@ function update_moonraker() {
   fi
 
   ### required due to https://github.com/Arksine/moonraker/issues/349
-  moonraker_polkit
+  moonraker_polkit || true
 
   ok_msg "Update complete!"
   do_action_service "restart" "moonraker"
