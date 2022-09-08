@@ -45,7 +45,7 @@ function install_mainsail() {
     while true; do
       echo
       top_border
-      echo -e "| Install MJGP-Streamer for webcam support?             |"
+      echo -e "| Install MJPG-Streamer for webcam support?             |"
       bottom_border
       read -p "${cyan}###### Please select (y/N):${white} " yn
       case "${yn}" in
