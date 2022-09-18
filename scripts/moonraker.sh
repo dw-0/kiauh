@@ -340,9 +340,7 @@ function create_moonraker_service() {
 
     ### enable mainsails remoteMode if mainsail is found
     if [[ -d ${MAINSAIL_DIR} ]]; then
-      status_msg "Mainsail installation found! Enabling Mainsail remote mode ..."
       enable_mainsail_remotemode
-      ok_msg "Mainsails remote mode enabled!"
     fi
 
   else

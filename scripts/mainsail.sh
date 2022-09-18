@@ -564,8 +564,9 @@ function select_mainsail_port() {
 function enable_mainsail_remotemode() {
   [[ ! -f "${MAINSAIL_DIR}/config.json" ]] && return
 
-  rm -f "${MAINSAIL_DIR}/config.json"
-  echo -e "{\n    \"remoteMode\":true\n}" >> "${MAINSAIL_DIR}/config.json"
+  status_msg "Setting instance storage location to 'browser' ..."
+  sed -i 's|"instancesDB": "moonraker"|"instancesDB": "browser"|' "${MAINSAIL_DIR}/config.json"
+  ok_msg "Done!"
 }
 
 function patch_mainsail_update_manager() {
