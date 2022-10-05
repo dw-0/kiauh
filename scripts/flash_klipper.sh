@@ -102,7 +102,7 @@ function print_detected_mcu_to_screen() {
   local i=1
 
   if (( ${#mcu_list[@]} < 1 )); then
-    print_error "No MCU found!\n MCU eihter not connected or not detected!"
+    print_error "No MCU found!\n MCU either not connected or not detected!"
     return
   fi
 
@@ -121,7 +121,7 @@ function select_mcu_id() {
   local i=0 sel_index=0 method=${1}
 
   if (( ${#mcu_list[@]} < 1 )); then
-    print_error "No MCU found!\n MCU eihter not connected or not detected!"
+    print_error "No MCU found!\n MCU either not connected or not detected!"
     return
   fi
 
