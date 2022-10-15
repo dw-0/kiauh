@@ -493,6 +493,16 @@ function fetch_webui_ports() {
 #=================== SYSTEM =====================#
 #================================================#
 
+function create_required_folders() {
+  [[ ! -d "${HOME}/printer_data/backup" ]] && mkdir -p "${HOME}/printer_data/backup"
+  [[ ! -d "${HOME}/printer_data/certs" ]] && mkdir -p "${HOME}/printer_data/certs"
+  [[ ! -d "${HOME}/printer_data/config" ]] && mkdir -p "${HOME}/printer_data/config"
+  [[ ! -d "${HOME}/printer_data/database" ]] && mkdir -p "${HOME}/printer_data/database"
+  [[ ! -d "${HOME}/printer_data/gcodes" ]] && mkdir -p "${HOME}/printer_data/gcodes"
+  [[ ! -d "${HOME}/printer_data/logs" ]] && mkdir -p "${HOME}/printer_data/logs"
+  [[ ! -d "${HOME}/printer_data/systemd" ]] && mkdir -p "${HOME}/printer_data/systemd"
+}
+
 function check_system_updates() {
   local updates_avail info_msg
   updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")

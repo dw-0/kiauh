@@ -255,9 +255,8 @@ function klipper_setup() {
   install_klipper_packages "${python_version}"
   create_klipper_virtualenv "${python_version}"
 
-  ### step 3: create gcode_files and logs folder
-  [[ ! -d "${HOME}/gcode_files" ]] && mkdir -p "${HOME}/gcode_files"
-  [[ ! -d ${KLIPPER_LOGS} ]] && mkdir -p "${KLIPPER_LOGS}"
+  ### step 3: create required folder structure
+  create_required_folders
 
   ### step 4: create klipper instances
   create_klipper_service "${instance_arr[@]}"
@@ -301,17 +300,19 @@ function clone_klipper() {
 }
 
 function write_klipper_service() {
-  local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6}
+  local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6} env_file=${7}
   local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
+  local env_template="${KIAUH_SRCDIR}/resources/klipper.env"
 
   ### replace all placeholders
   if [[ ! -f ${service} ]]; then
     status_msg "Creating Klipper Service ${i} ..."
     sudo cp "${service_template}" "${service}"
-    [[ -z ${i} ]] && sudo sed -i "s| for instance klipper-%INST%||" "${service}"
+    sudo cp "${env_template}" "${env_file}"
+    [[ -z ${i} ]] && sudo sed -i "s|%INST%||" "${service}"
     [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${KLIPPY_ENV}|; s|%DIR%|${KLIPPER_DIR}|" "${service}"
-    sudo sed -i "s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${KLIPPY_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${env_file}"
   fi
 }
 
@@ -336,17 +337,20 @@ function create_klipper_service() {
   local input=("${@}")
   local klipper_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local cfg_dir cfg log printer uds service
+  local printer_data cfg_dir cfg log printer uds service env_file
 
   if (( klipper_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
-    cfg_dir="${KLIPPER_CONFIG}"
+    printer_data="${HOME}/printer_data"
+    cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/printer.cfg"
-    log="${KLIPPER_LOGS}/klippy.log"
+    log="${HOME}/printer_data/logs/klippy.log"
     printer="/tmp/printer"
     uds="/tmp/klippy_uds"
     service="${SYSTEMD}/klipper.service"
+    env_file="${HOME}/printer_data/systemd/klipper.env"
+
     ### write single instance service
-    write_klipper_service "" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
+    write_klipper_service "" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
     write_example_printer_cfg "${cfg_dir}" "${cfg}"
     ok_msg "Klipper instance created!"
 
@@ -356,18 +360,21 @@ function create_klipper_service() {
     for (( i=1; i <= klipper_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
+        printer_data="${printer_data}/printer_${names[${j}]}"
       else
-        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+        printer_data="${printer_data}/${names[${j}]}"
       fi
 
+      cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/printer.cfg"
-      log="${KLIPPER_LOGS}/klippy-${names[${j}]}.log"
+      log="${printer_data}/logs/klippy.log"
       printer="/tmp/printer-${names[${j}]}"
       uds="/tmp/klippy_uds-${names[${j}]}"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
+      env_file="${printer_data}/systemd/klipper.env"
+
       ### write multi instance service
-      write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}"
+      write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
       write_example_printer_cfg "${cfg_dir}" "${cfg}"
       ok_msg "Klipper instance 'klipper-${names[${j}]}' created!"
       j=$(( j + 1 ))
@@ -411,8 +418,8 @@ function remove_klipper_systemd() {
 }
 
 function remove_klipper_logs() {
-  local files regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
+  local files regex="klippy.log(.*)?"
+  files=$(find "${HOME}/printer_data" -maxdepth 2 -regextype posix-extended -regex "${HOME}/printer_data/.*/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
