@@ -1,7 +1,5 @@
-#Systemd Klipper Service
-
 [Unit]
-Description=Systemd Klipper Service for instance klipper-%INST%
+Description=Klipper 3D Printer Firmware SV1 %INST%
 Documentation=https://www.klipper3d.org/
 After=network.target
 Wants=udev.target
@@ -10,13 +8,11 @@ Wants=udev.target
 WantedBy=multi-user.target
 
 [Service]
-Environment=KLIPPER_CONFIG=%CFG%
-Environment=KLIPPER_LOG=%LOG%
-Environment=KLIPPER_SOCKET=%UDS%
-Environment=KLIPPER_PRINTER=%PRINTER%
 Type=simple
 User=%USER%
 RemainAfterExit=yes
-ExecStart=%ENV%/bin/python %DIR%/klippy/klippy.py ${KLIPPER_CONFIG} -I ${KLIPPER_PRINTER} -l ${KLIPPER_LOG} -a ${KLIPPER_SOCKET}
+WorkingDirectory=/home/%USER%/klipper
+EnvironmentFile=%ENV_FILE%
+ExecStart=%ENV%/bin/python $KLIPPER_ARGS
 Restart=always
 RestartSec=10
