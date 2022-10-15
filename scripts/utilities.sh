@@ -255,7 +255,7 @@ function set_klipper_cfg_path() {
     fi
   fi
 
-  klipper_services=$(klipper_systemd)
+  klipper_services=$(find_klipper_systemd)
 
   if [[ -n ${klipper_services} ]]; then
     status_msg "Re-writing Klipper services to use new config file location ..."
@@ -492,6 +492,18 @@ function fetch_webui_ports() {
 #================================================#
 #=================== SYSTEM =====================#
 #================================================#
+
+function find_klipper_initd() {
+  local services
+  services=$(find "${INITD}" -maxdepth 1 -regextype posix-extended -regex "${INITD}/klipper(-[^0])?[0-9]*" | sort)
+  echo "${services}"
+}
+
+function find_klipper_systemd() {
+  local services
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service" | sort)
+  echo "${services}"
+}
 
 function create_required_folders() {
   [[ ! -d "${HOME}/printer_data/backup" ]] && mkdir -p "${HOME}/printer_data/backup"
@@ -730,7 +742,7 @@ function set_multi_instance_names() {
 
   local name
   local names=""
-  local services=$(klipper_systemd)
+  local services=$(find_klipper_systemd)
 
   ###
   # if value of 'multi_instance_names' is not an empty
@@ -795,7 +807,7 @@ function get_config_folders() {
         cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
       fi
     done
-  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
+  elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
     cfg_dirs+=("${KLIPPER_CONFIG}")
   else
     cfg_dirs=()

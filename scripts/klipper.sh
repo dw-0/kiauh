@@ -15,19 +15,6 @@ set -e
 #================ INSTALL KLIPPER ================#
 #=================================================#
 
-### check for existing klipper service installations
-function klipper_initd() {
-  local services
-  services=$(find "${INITD}" -maxdepth 1 -regextype posix-extended -regex "${INITD}/klipper(-[^0])?[0-9]*" | sort)
-  echo "${services}"
-}
-
-function klipper_systemd() {
-  local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service" | sort)
-  echo "${services}"
-}
-
 function klipper_setup_dialog() {
   status_msg "Initializing Klipper installation ..."
 
@@ -36,8 +23,8 @@ function klipper_setup_dialog() {
   local python_version="${1}" user_input=()
   local error
 
-  klipper_initd_service=$(klipper_initd)
-  klipper_systemd_services=$(klipper_systemd)
+  klipper_initd_service=$(find_klipper_initd)
+  klipper_systemd_services=$(find_klipper_systemd)
   user_input+=("${python_version}")
 
   ### return early if klipper already exists
@@ -150,6 +137,106 @@ function klipper_setup_dialog() {
   klipper_setup "${user_input[@]}"
 }
 
+function klipper_setup() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+  ### index 0: python version, index 1: instance count, index 2-n: instance names (optional)
+  local user_input=("${@}")
+  local python_version="${user_input[0]}" && unset "user_input[0]"
+  local instance_arr=("${user_input[@]}") && unset "user_input[@]"
+  local custom_repo="${custom_klipper_repo}"
+  local custom_branch="${custom_klipper_repo_branch}"
+  local dep=(git)
+
+  ### checking dependencies
+  dependency_check "${dep[@]}"
+
+  ### step 1: clone klipper
+  clone_klipper "${custom_repo}" "${custom_branch}"
+
+  ### step 2: install klipper dependencies and create python virtualenv
+  install_klipper_packages "${python_version}"
+  create_klipper_virtualenv "${python_version}"
+
+  ### step 3: create required folder structure
+  create_required_folders
+
+  ### step 4: configure klipper instances
+  configure_klipper_service "${instance_arr[@]}"
+
+  ### step 5: enable and start all instances
+  do_action_service "enable" "klipper"
+  do_action_service "start" "klipper"
+
+  ### step 6: check for dialout group membership
+  check_usergroups
+
+  ### confirm message
+  local confirm=""
+  (( instance_arr[0] == 1 )) && confirm="Klipper has been set up!"
+  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Klipper instances have been set up!"
+
+  print_confirm "${confirm}" && return
+}
+
+function clone_klipper() {
+  local repo=${1} branch=${2}
+
+  [[ -z ${repo} ]] && repo="${KLIPPER_REPO}"
+  repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
+  repo="https://github.com/${repo}"
+
+  [[ -z ${branch} ]] && branch="master"
+
+  ### force remove existing klipper dir and clone into fresh klipper dir
+  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
+
+  status_msg "Cloning Klipper from ${repo} ..."
+
+  cd "${HOME}" || exit 1
+  if git clone "${repo}" "${KLIPPER_DIR}"; then
+    cd "${KLIPPER_DIR}" && git checkout "${branch}"
+  else
+    print_error "Cloning Klipper from\n ${repo}\n failed!"
+    exit 1
+  fi
+}
+
+function create_klipper_virtualenv() {
+  local python_version="${1}"
+
+  [[ ${python_version} == "python2" ]] && \
+  status_msg "Installing $(python2 -V) virtual environment..."
+
+  [[ ${python_version} == "python3" ]] && \
+  status_msg "Installing $(python3 -V) virtual environment..."
+
+  ### remove klippy-env if it already exists
+  [[ -d ${KLIPPY_ENV} ]] && rm -rf "${KLIPPY_ENV}"
+
+  if [[ ${python_version} == "python2" ]]; then
+    if virtualenv -p python2 "${KLIPPY_ENV}"; then
+      "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+    else
+      log_error "failure while creating python2 klippy-env"
+      error_msg "Creation of Klipper virtualenv failed!"
+      exit 1
+    fi
+  fi
+
+  if [[ ${python_version} == "python3" ]]; then
+    if virtualenv -p python3 "${KLIPPY_ENV}"; then
+      "${KLIPPY_ENV}"/bin/pip install -U pip
+      "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+    else
+      log_error "failure while creating python3 klippy-env"
+      error_msg "Creation of Klipper virtualenv failed!"
+      exit 1
+    fi
+  fi
+
+  return
+}
+
 ###
 # extracts the required packages from the
 # install-debian.sh script and installs them
@@ -200,140 +287,7 @@ function install_klipper_packages() {
   fi
 }
 
-function create_klipper_virtualenv() {
-  local python_version="${1}"
-
-  [[ ${python_version} == "python2" ]] && \
-  status_msg "Installing $(python2 -V) virtual environment..."
-
-  [[ ${python_version} == "python3" ]] && \
-  status_msg "Installing $(python3 -V) virtual environment..."
-
-  ### remove klippy-env if it already exists
-  [[ -d ${KLIPPY_ENV} ]] && rm -rf "${KLIPPY_ENV}"
-
-  if [[ ${python_version} == "python2" ]]; then
-    if virtualenv -p python2 "${KLIPPY_ENV}"; then
-      "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
-    else
-      log_error "failure while creating python2 klippy-env"
-      error_msg "Creation of Klipper virtualenv failed!"
-      exit 1
-    fi
-  fi
-
-  if [[ ${python_version} == "python3" ]]; then
-    if virtualenv -p python3 "${KLIPPY_ENV}"; then
-      "${KLIPPY_ENV}"/bin/pip install -U pip
-      "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
-    else
-      log_error "failure while creating python3 klippy-env"
-      error_msg "Creation of Klipper virtualenv failed!"
-      exit 1
-    fi
-  fi
-
-  return
-}
-
-function klipper_setup() {
-  read_kiauh_ini "${FUNCNAME[0]}"
-  ### index 0: python version, index 1: instance count, index 2-n: instance names (optional)
-  local user_input=("${@}")
-  local python_version="${user_input[0]}" && unset "user_input[0]"
-  local instance_arr=("${user_input[@]}") && unset "user_input[@]"
-  local custom_repo="${custom_klipper_repo}"
-  local custom_branch="${custom_klipper_repo_branch}"
-  ### checking dependencies
-  local dep=(git)
-  dependency_check "${dep[@]}"
-
-  ### step 1: clone klipper
-  clone_klipper "${custom_repo}" "${custom_branch}"
-
-  ### step 2: install klipper dependencies and create python virtualenv
-  install_klipper_packages "${python_version}"
-  create_klipper_virtualenv "${python_version}"
-
-  ### step 3: create required folder structure
-  create_required_folders
-
-  ### step 4: create klipper instances
-  create_klipper_service "${instance_arr[@]}"
-
-  ### step 5: enable and start all instances
-  do_action_service "enable" "klipper"
-  do_action_service "start" "klipper"
-
-  ### step 6: check for dialout group membership
-  check_usergroups
-
-  ### confirm message
-  local confirm=""
-  (( instance_arr[0] == 1 )) && confirm="Klipper has been set up!"
-  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Klipper instances have been set up!"
-
-  print_confirm "${confirm}" && return
-}
-
-function clone_klipper() {
-  local repo=${1} branch=${2}
-
-  [[ -z ${repo} ]] && repo="${KLIPPER_REPO}"
-  repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
-  repo="https://github.com/${repo}"
-
-  [[ -z ${branch} ]] && branch="master"
-
-  ### force remove existing klipper dir and clone into fresh klipper dir
-  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
-
-  status_msg "Cloning Klipper from ${repo} ..."
-
-  cd "${HOME}" || exit 1
-  if git clone "${repo}" "${KLIPPER_DIR}"; then
-    cd "${KLIPPER_DIR}" && git checkout "${branch}"
-  else
-    print_error "Cloning Klipper from\n ${repo}\n failed!"
-    exit 1
-  fi
-}
-
-function write_klipper_service() {
-  local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6} env_file=${7}
-  local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
-  local env_template="${KIAUH_SRCDIR}/resources/klipper.env"
-
-  ### replace all placeholders
-  if [[ ! -f ${service} ]]; then
-    status_msg "Creating Klipper Service ${i} ..."
-    sudo cp "${service_template}" "${service}"
-    sudo cp "${env_template}" "${env_file}"
-    [[ -z ${i} ]] && sudo sed -i "s|%INST%||" "${service}"
-    [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${KLIPPY_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${env_file}"
-  fi
-}
-
-function write_example_printer_cfg() {
-  local cfg_dir=${1} cfg=${2}
-  local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
-
-  ### create a config directory if it doesn't exist
-  if [[ ! -d ${cfg_dir} ]]; then
-    status_msg "Creating '${cfg_dir}' ..."
-    mkdir -p "${cfg_dir}"
-  fi
-
-  ### create a minimal config if there is no printer.cfg
-  if [[ ! -f ${cfg} ]]; then
-    status_msg "Creating minimal example printer.cfg ..."
-    cp "${cfg_template}" "${cfg}"
-  fi
-}
-
-function create_klipper_service() {
+function configure_klipper_service() {
   local input=("${@}")
   local klipper_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
@@ -385,6 +339,40 @@ function create_klipper_service() {
   fi
 }
 
+function write_klipper_service() {
+  local i=${1} cfg=${2} log=${3} printer=${4} uds=${5} service=${6} env_file=${7}
+  local service_template="${KIAUH_SRCDIR}/resources/klipper.service"
+  local env_template="${KIAUH_SRCDIR}/resources/klipper.env"
+
+  ### replace all placeholders
+  if [[ ! -f ${service} ]]; then
+    status_msg "Creating Klipper Service ${i} ..."
+    sudo cp "${service_template}" "${service}"
+    sudo cp "${env_template}" "${env_file}"
+    [[ -z ${i} ]] && sudo sed -i "s|%INST%||" "${service}"
+    [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${KLIPPY_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${env_file}"
+  fi
+}
+
+function write_example_printer_cfg() {
+  local cfg_dir=${1} cfg=${2}
+  local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
+
+  ### create a config directory if it doesn't exist
+  if [[ ! -d ${cfg_dir} ]]; then
+    status_msg "Creating '${cfg_dir}' ..."
+    mkdir -p "${cfg_dir}"
+  fi
+
+  ### create a minimal config if there is no printer.cfg
+  if [[ ! -f ${cfg} ]]; then
+    status_msg "Creating minimal example printer.cfg ..."
+    cp "${cfg_template}" "${cfg}"
+  fi
+}
+
 #================================================#
 #================ REMOVE KLIPPER ================#
 #================================================#
@@ -400,10 +388,10 @@ function remove_klipper_sysvinit() {
 }
 
 function remove_klipper_systemd() {
-  [[ -z $(klipper_systemd) ]] && return
+  [[ -z $(find_klipper_systemd) ]] && return
 
   status_msg "Removing Klipper Systemd Services ..."
-  for service in $(klipper_systemd | cut -d"/" -f5); do
+  for service in $(find_klipper_systemd | cut -d"/" -f5); do
     status_msg "Removing ${service} ..."
     sudo systemctl stop "${service}"
     sudo systemctl disable "${service}"
@@ -527,11 +515,11 @@ function update_klipper() {
 
 function get_klipper_status() {
   local sf_count status py_ver
-  sf_count="$(klipper_systemd | wc -w)"
+  sf_count="$(find_klipper_systemd | wc -w)"
 
   ### detect an existing "legacy" klipper init.d installation
-  if [[ $(klipper_systemd | wc -w) -eq 0 ]] \
-  && [[ $(klipper_initd | wc -w) -ge 1 ]]; then
+  if [[ $(find_klipper_systemd | wc -w) -eq 0 ]] \
+  && [[ $(find_klipper_initd | wc -w) -ge 1 ]]; then
     sf_count=1
   fi
 
