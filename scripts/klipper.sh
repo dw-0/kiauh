@@ -157,17 +157,14 @@ function klipper_setup() {
   install_klipper_packages "${python_version}"
   create_klipper_virtualenv "${python_version}"
 
-  ### step 3: create required folder structure
-  create_required_folders
-
-  ### step 4: configure klipper instances
+  ### step 3: configure and create klipper instances
   configure_klipper_service "${instance_arr[@]}"
 
-  ### step 5: enable and start all instances
+  ### step 4: enable and start all instances
   do_action_service "enable" "klipper"
   do_action_service "start" "klipper"
 
-  ### step 6: check for dialout group membership
+  ### step 5: check for dialout group membership
   check_usergroups
 
   ### confirm message
@@ -291,16 +288,20 @@ function configure_klipper_service() {
   local input=("${@}")
   local klipper_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local cfg_dir cfg log printer uds service env_file
+  local pdata_dir cfg_dir cfg log printer uds service env_file
 
   if (( klipper_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
-    cfg_dir="${PRINTER_DATA}/config"
+    pdata_dir="${PRINTER_DATA}"
+    cfg_dir="${pdata_dir}/config"
     cfg="${cfg_dir}/printer.cfg"
     log="${HOME}/printer_data/logs/klippy.log"
     printer="/tmp/printer"
     uds="/tmp/klippy_uds"
     service="${SYSTEMD}/klipper.service"
-    env_file="${PRINTER_DATA}/systemd/klipper.env"
+    env_file="${pdata_dir}/systemd/klipper.env"
+
+    ### create required folder structure
+    create_required_folders "${pdata_dir}"
 
     ### write single instance service
     write_klipper_service "" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
@@ -313,19 +314,21 @@ function configure_klipper_service() {
     for (( i=1; i <= klipper_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${PRINTER_DATA}/printer_${names[${j}]}/config"
-        log="${PRINTER_DATA}/printer_${names[${j}]}/logs/klippy.log"
-        env_file="${PRINTER_DATA}/printer_${names[${j}]}/systemd/klipper.env"
+        pdata_dir="${PRINTER_DATA}/printer_${names[${j}]}"
       else
-        cfg_dir="${PRINTER_DATA}/${names[${j}]}/config"
-        log="${PRINTER_DATA}/${names[${j}]}/logs/klippy.log"
-        env_file="${PRINTER_DATA}/${names[${j}]}/systemd/klipper.env"
+        pdata_dir="${PRINTER_DATA}/${names[${j}]}"
       fi
 
+      cfg_dir="${pdata_dir}/config"
       cfg="${cfg_dir}/printer.cfg"
+      log="${pdata_dir}/logs/klippy.log"
       printer="/tmp/printer-${names[${j}]}"
       uds="/tmp/klippy_uds-${names[${j}]}"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
+      env_file="${pdata_dir}/systemd/klipper.env"
+
+      ### create required folder structure
+      create_required_folders "${pdata_dir}"
 
       ### write multi instance service
       write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
