@@ -205,7 +205,7 @@ function moonraker_setup() {
   create_moonraker_conf "${instance_arr[@]}"
 
   ### step 4: create moonraker instances
-  create_moonraker_service "${instance_arr[@]}"
+  configure_moonraker_service "${instance_arr[@]}"
 
   ### step 5: create polkit rules for moonraker
   install_moonraker_polkit || true
@@ -240,16 +240,18 @@ function create_moonraker_conf() {
   local input=("${@}")
   local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local log="${KLIPPER_LOGS}"
-  local lan
+  local port lan log cfg_dir cfg db uds
+
+  port=7125
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
-  local port=7125 cfg_dir cfg db uds
 
   if (( moonraker_count == 1 )); then
-    cfg_dir="${KLIPPER_CONFIG}"
+    cfg_dir="${PRINTER_DATA}/config"
     cfg="${cfg_dir}/moonraker.conf"
-    db="${HOME}/.moonraker_database"
+    log="${PRINTER_DATA}/logs/moonraker.log"
+    db="${PRINTER_DATA}/database"
     uds="/tmp/klippy_uds"
+
     ### write single instance config
     write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
 
@@ -259,14 +261,18 @@ function create_moonraker_conf() {
     for (( i=1; i <= moonraker_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
+        cfg_dir="${PRINTER_DATA}/printer_${names[${j}]}/config"
+        log="${PRINTER_DATA}/printer_${names[${j}]}/logs/moonraker.log"
+        db="${PRINTER_DATA}/printer_${names[${j}]}/database"
       else
-        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+        cfg_dir="${PRINTER_DATA}/${names[${j}]}/config"
+        log="${PRINTER_DATA}/${names[${j}]}/logs/moonraker.log"
+        db="${PRINTER_DATA}/${names[${j}]}/database"
       fi
 
       cfg="${cfg_dir}/moonraker.conf"
       uds="/tmp/klippy_uds-${names[${j}]}"
-      db="${HOME}/.moonraker_database_${names[${j}]}"
+
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
       port=$(( port + 1 ))
@@ -287,8 +293,7 @@ function write_moonraker_conf() {
   if [[ ! -f ${cfg} ]]; then
     status_msg "Creating moonraker.conf in ${cfg_dir} ..."
     cp "${conf_template}" "${cfg}"
-    sed -i "s|%USER%|${USER}|g" "${cfg}"
-    sed -i "s|%CFG%|${cfg_dir}|; s|%PORT%|${port}|; s|%LOG%|${log}|; s|%DB%|${db}|; s|%UDS%|${uds}|" "${cfg}"
+    sed -i "s|%USER%|${USER}|g; s|%PORT%|${port}|; s|%UDS%|${uds}|" "${cfg}"
     # if host ip is not in the default ip ranges replace placeholder,
     # otherwise remove placeholder from config
     if ! grep -q "${lan}" "${cfg}"; then
@@ -302,20 +307,22 @@ function write_moonraker_conf() {
   fi
 }
 
-function create_moonraker_service() {
+function configure_moonraker_service() {
   local input=("${@}")
   local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local cfg_dir cfg log service
+  local pdata_dir cfg_dir cfg service env_file
 
   if (( moonraker_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
     i=""
-    cfg_dir="${KLIPPER_CONFIG}"
+    pdata_dir="${PRINTER_DATA}"
+    cfg_dir="${pdata_dir}/config"
     cfg="${cfg_dir}/moonraker.conf"
-    log="${KLIPPER_LOGS}/moonraker.log"
     service="${SYSTEMD}/moonraker.service"
+    env_file="${pdata_dir}/systemd/moonraker.env"
+
     ### write single instance service
-    write_moonraker_service "" "${cfg}" "${log}" "${service}"
+    write_moonraker_service "" "${pdata_dir}" "${cfg}" "${service}" "${env_file}"
     ok_msg "Moonraker instance created!"
 
   elif (( moonraker_count > 1 )) && [[ ${#names[@]} -gt 0 ]]; then
@@ -324,16 +331,18 @@ function create_moonraker_service() {
     for (( i=1; i <= moonraker_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
+        pdata_dir="${PRINTER_DATA}/printer_${names[${j}]}"
       else
-        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+        pdata_dir="${PRINTER_DATA}/${names[${j}]}"
       fi
 
+      cfg_dir="${pdata_dir}/config"
       cfg="${cfg_dir}/moonraker.conf"
-      log="${KLIPPER_LOGS}/moonraker-${names[${j}]}.log"
       service="${SYSTEMD}/moonraker-${names[${j}]}.service"
+      env_file="${pdata_dir}/systemd/moonraker.env"
+
       ### write multi instance service
-      write_moonraker_service "${names[${j}]}" "${cfg}" "${log}" "${service}"
+      write_moonraker_service "${names[${j}]}" "${pdata_dir}" "${cfg}" "${service}" "${env_file}"
       ok_msg "Moonraker instance 'moonraker-${names[${j}]}' created!"
       j=$(( j + 1 ))
     done && unset i
@@ -349,18 +358,20 @@ function create_moonraker_service() {
 }
 
 function write_moonraker_service() {
-  local i=${1} cfg=${2} log=${3} service=${4}
+  local i=${1} pdata_dir=${2} cfg=${3} service=${4} env_file=${5}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker.service"
+  local env_template="${KIAUH_SRCDIR}/resources/moonraker.env"
 
   ### replace all placeholders
   if [[ ! -f ${service} ]]; then
     status_msg "Creating Moonraker Service ${i} ..."
     sudo cp "${service_template}" "${service}"
+    sudo cp "${env_template}" "${env_file}"
 
-    [[ -z ${i} ]] && sudo sed -i "s| for instance moonraker-%INST%||" "${service}"
+    [[ -z ${i} ]] && sudo sed -i "s| %INST%||" "${service}"
     [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${MOONRAKER_ENV}|; s|%DIR%|${MOONRAKER_DIR}|" "${service}"
-    sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${MOONRAKER_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%PRINTER_DATA%|${pdata_dir}|" "${env_file}"
   fi
 }
 
@@ -454,8 +465,8 @@ function remove_moonraker_systemd() {
 }
 
 function remove_moonraker_logs() {
-  local files regex="moonraker(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
+  local files regex="moonraker.log(.*)?"
+  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
