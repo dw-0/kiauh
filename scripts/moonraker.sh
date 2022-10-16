@@ -458,6 +458,19 @@ function remove_moonraker_systemd() {
   ok_msg "Moonraker Services removed!"
 }
 
+function remove_moonraker_env_file() {
+  local files regex="moonraker.env"
+  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_moonraker_logs() {
   local files regex="moonraker.log(.*)?"
   files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
@@ -514,6 +527,7 @@ function remove_moonraker_polkit() {
 function remove_moonraker() {
   remove_moonraker_sysvinit
   remove_moonraker_systemd
+  remove_moonraker_env_file
   remove_moonraker_logs
   remove_moonraker_api_key
   remove_moonraker_polkit
