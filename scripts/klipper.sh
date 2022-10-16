@@ -349,7 +349,7 @@ function write_klipper_service() {
     status_msg "Creating Klipper Service ${i} ..."
     sudo cp "${service_template}" "${service}"
     sudo cp "${env_template}" "${env_file}"
-    [[ -z ${i} ]] && sudo sed -i "s|%INST%||" "${service}"
+    [[ -z ${i} ]] && sudo sed -i "s| %INST%||" "${service}"
     [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
     sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${KLIPPY_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
     sudo sed -i "s|%USER%|${USER}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${env_file}"
