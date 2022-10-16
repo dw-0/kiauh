@@ -316,6 +316,9 @@ function configure_moonraker_service() {
     service="${SYSTEMD}/moonraker.service"
     env_file="${pdata_dir}/systemd/moonraker.env"
 
+    ### create required folder structure
+    create_required_folders "${pdata_dir}"
+
     ### write single instance service
     write_moonraker_service "" "${pdata_dir}" "${service}" "${env_file}"
     ok_msg "Moonraker instance created!"
@@ -334,6 +337,9 @@ function configure_moonraker_service() {
       cfg_dir="${pdata_dir}/config"
       service="${SYSTEMD}/moonraker-${names[${j}]}.service"
       env_file="${pdata_dir}/systemd/moonraker.env"
+
+      ### create required folder structure
+      create_required_folders "${pdata_dir}"
 
       ### write multi instance service
       write_moonraker_service "${names[${j}]}" "${pdata_dir}" "${service}" "${env_file}"
