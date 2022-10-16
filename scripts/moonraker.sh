@@ -240,20 +240,19 @@ function create_moonraker_conf() {
   local input=("${@}")
   local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local port lan log cfg_dir cfg db uds
+  local port lan pdata_dir cfg_dir cfg uds
 
   port=7125
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
 
   if (( moonraker_count == 1 )); then
-    cfg_dir="${PRINTER_DATA}/config"
+    pdata_dir="${PRINTER_DATA}"
+    cfg_dir="${pdata_dir}/config"
     cfg="${cfg_dir}/moonraker.conf"
-    log="${PRINTER_DATA}/logs/moonraker.log"
-    db="${PRINTER_DATA}/database"
     uds="/tmp/klippy_uds"
 
     ### write single instance config
-    write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
+    write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"
 
   elif (( moonraker_count > 1 )); then
     local j=0 re="^[1-9][0-9]*$"
@@ -261,20 +260,17 @@ function create_moonraker_conf() {
     for (( i=1; i <= moonraker_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${PRINTER_DATA}/printer_${names[${j}]}/config"
-        log="${PRINTER_DATA}/printer_${names[${j}]}/logs/moonraker.log"
-        db="${PRINTER_DATA}/printer_${names[${j}]}/database"
+        pdata_dir="${PRINTER_DATA}/printer_${names[${j}]}"
       else
-        cfg_dir="${PRINTER_DATA}/${names[${j}]}/config"
-        log="${PRINTER_DATA}/${names[${j}]}/logs/moonraker.log"
-        db="${PRINTER_DATA}/${names[${j}]}/database"
+        pdata_dir="${PRINTER_DATA}/${names[${j}]}"
       fi
 
+      cfg_dir="${pdata_dir}/config"
       cfg="${cfg_dir}/moonraker.conf"
       uds="/tmp/klippy_uds-${names[${j}]}"
 
       ### write multi instance config
-      write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${log}" "${db}" "${uds}" "${lan}"
+      write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"
       port=$(( port + 1 ))
       j=$(( j + 1 ))
     done && unset j
@@ -285,7 +281,7 @@ function create_moonraker_conf() {
 }
 
 function write_moonraker_conf() {
-  local cfg_dir=${1} cfg=${2} port=${3} log=${4} db=${5} uds=${6} lan=${7}
+  local cfg_dir=${1} cfg=${2} port=${3} uds=${4} lan=${5}
   local conf_template="${KIAUH_SRCDIR}/resources/moonraker.conf"
 
   [[ ! -d ${cfg_dir} ]] && mkdir -p "${cfg_dir}"
@@ -311,18 +307,17 @@ function configure_moonraker_service() {
   local input=("${@}")
   local moonraker_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local pdata_dir cfg_dir cfg service env_file
+  local pdata_dir cfg_dir service env_file
 
   if (( moonraker_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
     i=""
     pdata_dir="${PRINTER_DATA}"
     cfg_dir="${pdata_dir}/config"
-    cfg="${cfg_dir}/moonraker.conf"
     service="${SYSTEMD}/moonraker.service"
     env_file="${pdata_dir}/systemd/moonraker.env"
 
     ### write single instance service
-    write_moonraker_service "" "${pdata_dir}" "${cfg}" "${service}" "${env_file}"
+    write_moonraker_service "" "${pdata_dir}" "${service}" "${env_file}"
     ok_msg "Moonraker instance created!"
 
   elif (( moonraker_count > 1 )) && [[ ${#names[@]} -gt 0 ]]; then
@@ -337,12 +332,11 @@ function configure_moonraker_service() {
       fi
 
       cfg_dir="${pdata_dir}/config"
-      cfg="${cfg_dir}/moonraker.conf"
       service="${SYSTEMD}/moonraker-${names[${j}]}.service"
       env_file="${pdata_dir}/systemd/moonraker.env"
 
       ### write multi instance service
-      write_moonraker_service "${names[${j}]}" "${pdata_dir}" "${cfg}" "${service}" "${env_file}"
+      write_moonraker_service "${names[${j}]}" "${pdata_dir}" "${service}" "${env_file}"
       ok_msg "Moonraker instance 'moonraker-${names[${j}]}' created!"
       j=$(( j + 1 ))
     done && unset i
@@ -358,7 +352,7 @@ function configure_moonraker_service() {
 }
 
 function write_moonraker_service() {
-  local i=${1} pdata_dir=${2} cfg=${3} service=${4} env_file=${5}
+  local i=${1} pdata_dir=${2} service=${3} env_file=${4}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker.service"
   local env_template="${KIAUH_SRCDIR}/resources/moonraker.env"
 
