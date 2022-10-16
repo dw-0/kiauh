@@ -17,7 +17,6 @@ function set_globals() {
   SYSTEMD="/etc/systemd/system"
   INITD="/etc/init.d"
   ETCDEF="/etc/default"
-  PRINTER_DATA="${HOME}/printer_data"
 
   #=================== KIAUH ====================#
   green=$(echo -en "\e[92m")
@@ -35,8 +34,6 @@ function set_globals() {
   KLIPPY_ENV="${HOME}/klippy-env"
   KLIPPER_DIR="${HOME}/klipper"
   KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
-  KLIPPER_LOGS="${HOME}/klipper_logs"
-  KLIPPER_CONFIG="$(get_klipper_cfg_dir)" # default: ${HOME}/klipper_config
 
   #================= MOONRAKER ==================#
   MOONRAKER_ENV="${HOME}/moonraker-env"

@@ -506,15 +506,15 @@ function find_klipper_systemd() {
 }
 
 function create_required_folders() {
-  local pdata_dir=${1}
+  local printer_data=${1}
 
-  [[ ! -d "${pdata_dir}/backup" ]] && mkdir -p "${pdata_dir}/backup"
-  [[ ! -d "${pdata_dir}/certs" ]] && mkdir -p "${pdata_dir}/certs"
-  [[ ! -d "${pdata_dir}/config" ]] && mkdir -p "${pdata_dir}/config"
-  [[ ! -d "${pdata_dir}/database" ]] && mkdir -p "${pdata_dir}/database"
-  [[ ! -d "${pdata_dir}/gcodes" ]] && mkdir -p "${pdata_dir}/gcodes"
-  [[ ! -d "${pdata_dir}/logs" ]] && mkdir -p "${pdata_dir}/logs"
-  [[ ! -d "${pdata_dir}/systemd" ]] && mkdir -p "${pdata_dir}/systemd"
+  [[ ! -d "${printer_data}/backup" ]] && mkdir -p "${printer_data}/backup"
+  [[ ! -d "${printer_data}/certs" ]] && mkdir -p "${printer_data}/certs"
+  [[ ! -d "${printer_data}/config" ]] && mkdir -p "${printer_data}/config"
+  [[ ! -d "${printer_data}/database" ]] && mkdir -p "${printer_data}/database"
+  [[ ! -d "${printer_data}/gcodes" ]] && mkdir -p "${printer_data}/gcodes"
+  [[ ! -d "${printer_data}/logs" ]] && mkdir -p "${printer_data}/logs"
+  [[ ! -d "${printer_data}/systemd" ]] && mkdir -p "${printer_data}/systemd"
 }
 
 function check_system_updates() {

@@ -288,20 +288,20 @@ function configure_klipper_service() {
   local input=("${@}")
   local klipper_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local pdata_dir cfg_dir cfg log printer uds service env_file
+  local printer_data cfg_dir cfg log printer uds service env_file
 
   if (( klipper_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
-    pdata_dir="${PRINTER_DATA}"
-    cfg_dir="${pdata_dir}/config"
+    printer_data="${HOME}/printer_data"
+    cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/printer.cfg"
     log="${HOME}/printer_data/logs/klippy.log"
     printer="/tmp/printer"
     uds="/tmp/klippy_uds"
     service="${SYSTEMD}/klipper.service"
-    env_file="${pdata_dir}/systemd/klipper.env"
+    env_file="${printer_data}/systemd/klipper.env"
 
     ### create required folder structure
-    create_required_folders "${pdata_dir}"
+    create_required_folders "${printer_data}"
 
     ### write single instance service
     write_klipper_service "" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
@@ -314,21 +314,21 @@ function configure_klipper_service() {
     for (( i=1; i <= klipper_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        pdata_dir="${PRINTER_DATA}/printer_${names[${j}]}"
+        printer_data="${HOME}/printer_${names[${j}]}_data"
       else
-        pdata_dir="${PRINTER_DATA}/${names[${j}]}"
+        printer_data="${HOME}/${names[${j}]}_data"
       fi
 
-      cfg_dir="${pdata_dir}/config"
+      cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/printer.cfg"
-      log="${pdata_dir}/logs/klippy.log"
+      log="${printer_data}/logs/klippy.log"
       printer="/tmp/printer-${names[${j}]}"
       uds="/tmp/klippy_uds-${names[${j}]}"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
-      env_file="${pdata_dir}/systemd/klipper.env"
+      env_file="${printer_data}/systemd/klipper.env"
 
       ### create required folder structure
-      create_required_folders "${pdata_dir}"
+      create_required_folders "${printer_data}"
 
       ### write multi instance service
       write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
@@ -409,8 +409,8 @@ function remove_klipper_systemd() {
 }
 
 function remove_klipper_env_file() {
-  local files name="klipper.env"
-  files=$(find "${PRINTER_DATA}" -name "${name}" 2> /dev/null | sort)
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/klipper\.env"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -422,8 +422,8 @@ function remove_klipper_env_file() {
 }
 
 function remove_klipper_logs() {
-  local files name="klippy.log*"
-  files=$(find "${PRINTER_DATA}" -name "${name}" 2> /dev/null | sort)
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/klippy\.log*"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
