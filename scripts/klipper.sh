@@ -300,7 +300,7 @@ function configure_klipper_service() {
     printer="/tmp/printer"
     uds="/tmp/klippy_uds"
     service="${SYSTEMD}/klipper.service"
-    env_file="${HOME}/printer_data/systemd/klipper.env"
+    env_file="${PRINTER_DATA}/systemd/klipper.env"
 
     ### write single instance service
     write_klipper_service "" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
