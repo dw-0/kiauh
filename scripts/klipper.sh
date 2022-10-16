@@ -291,11 +291,10 @@ function configure_klipper_service() {
   local input=("${@}")
   local klipper_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local printer_data cfg_dir cfg log printer uds service env_file
+  local cfg_dir cfg log printer uds service env_file
 
   if (( klipper_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
-    printer_data="${HOME}/printer_data"
-    cfg_dir="${printer_data}/config"
+    cfg_dir="${PRINTER_DATA}/config"
     cfg="${cfg_dir}/printer.cfg"
     log="${HOME}/printer_data/logs/klippy.log"
     printer="/tmp/printer"
@@ -314,18 +313,19 @@ function configure_klipper_service() {
     for (( i=1; i <= klipper_count; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        printer_data="${printer_data}/printer_${names[${j}]}"
+        cfg_dir="${PRINTER_DATA}/printer_${names[${j}]}/config"
+        log="${PRINTER_DATA}/printer_${names[${j}]}/logs/klippy.log"
+        env_file="${PRINTER_DATA}/printer_${names[${j}]}/systemd/klipper.env"
       else
-        printer_data="${printer_data}/${names[${j}]}"
+        cfg_dir="${PRINTER_DATA}/${names[${j}]}/config"
+        log="${PRINTER_DATA}/${names[${j}]}/logs/klippy.log"
+        env_file="${PRINTER_DATA}/${names[${j}]}/systemd/klipper.env"
       fi
 
-      cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/printer.cfg"
-      log="${printer_data}/logs/klippy.log"
       printer="/tmp/printer-${names[${j}]}"
       uds="/tmp/klippy_uds-${names[${j}]}"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
-      env_file="${printer_data}/systemd/klipper.env"
 
       ### write multi instance service
       write_klipper_service "${names[${j}]}" "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
