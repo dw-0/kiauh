@@ -465,8 +465,8 @@ function remove_moonraker_systemd() {
 }
 
 function remove_moonraker_env_file() {
-  local files regex="moonraker.env"
-  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
+  local files name="moonraker.env"
+  files=$(find "${PRINTER_DATA}" -name "${name}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -478,8 +478,8 @@ function remove_moonraker_env_file() {
 }
 
 function remove_moonraker_logs() {
-  local files regex="moonraker.log(.*)?"
-  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
+  local files name="moonraker.log*"
+  files=$(find "${PRINTER_DATA}" -name "${name}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do

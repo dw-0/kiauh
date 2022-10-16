@@ -409,8 +409,8 @@ function remove_klipper_systemd() {
 }
 
 function remove_klipper_env_file() {
-  local files regex="klipper.env"
-  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
+  local files name="klipper.env"
+  files=$(find "${PRINTER_DATA}" -name "${name}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -422,8 +422,8 @@ function remove_klipper_env_file() {
 }
 
 function remove_klipper_logs() {
-  local files regex="klippy.log(.*)?"
-  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
+  local files name="klippy.log*"
+  files=$(find "${PRINTER_DATA}" -name "${name}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
