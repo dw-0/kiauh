@@ -607,19 +607,6 @@ function compare_klipper_versions() {
 #=================== HELPERS ====================#
 #================================================#
 
-function get_klipper_cfg_dir() {
-  local cfg_dir
-  read_kiauh_ini "${FUNCNAME[0]}"
-
-  if [[ -z ${custom_klipper_cfg_loc} ]]; then
-    cfg_dir="${HOME}/klipper_config"
-  else
-    cfg_dir="${custom_klipper_cfg_loc}"
-  fi
-
-  echo "${cfg_dir}"
-}
-
 ###
 # reads the python version from the klipper virtual environment
 #
