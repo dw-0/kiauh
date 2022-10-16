@@ -405,9 +405,22 @@ function remove_klipper_systemd() {
   ok_msg "Klipper Service removed!"
 }
 
+function remove_klipper_env_file() {
+  local files regex="klipper.env"
+  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_klipper_logs() {
   local files regex="klippy.log(.*)?"
-  files=$(find "${HOME}/printer_data" -maxdepth 2 -regextype posix-extended -regex "${HOME}/printer_data/.*/${regex}" 2> /dev/null | sort)
+  files=$(find "${PRINTER_DATA}" -maxdepth 2 -regextype posix-extended -regex "${PRINTER_DATA}/.*/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -463,6 +476,7 @@ function remove_klipper_env() {
 function remove_klipper() {
   remove_klipper_sysvinit
   remove_klipper_systemd
+  remove_klipper_env_file
   remove_klipper_logs
   remove_klipper_uds
   remove_klipper_printer
