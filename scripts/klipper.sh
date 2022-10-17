@@ -361,7 +361,7 @@ function write_klipper_service() {
 
 function write_example_printer_cfg() {
   local cfg_dir=${1} cfg=${2}
-  local cfg_template="${KIAUH_SRCDIR}/resources/printer.cfg"
+  local cfg_template="${KIAUH_SRCDIR}/resources/example.printer.cfg"
 
   ### create a config directory if it doesn't exist
   if [[ ! -d ${cfg_dir} ]]; then
