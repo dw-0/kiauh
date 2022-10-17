@@ -74,23 +74,29 @@ function set_upstream_nginx_cfg() {
 }
 
 function symlink_webui_nginx_log() {
-  local interface=${1} path="${KLIPPER_LOGS}"
-  local access_log="/var/log/nginx/${interface}-access.log"
-  local error_log="/var/log/nginx/${interface}-error.log"
+  local interface path access_log error_log regex logpaths
 
-  [[ ! -d ${path} ]] && mkdir -p "${path}"
+  interface=${1}
+  access_log="/var/log/nginx/${interface}-access.log"
+  error_log="/var/log/nginx/${interface}-error.log"
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs"
+  logpaths=$(find "${HOME}" -maxdepth 2 -type d -regextype posix-extended -regex "${regex}" | sort)
 
-  if [[ -f ${access_log} && ! -L "${path}/${interface}-access.log" ]]; then
-    status_msg "Creating symlink for ${access_log} ..."
-    ln -s "${access_log}" "${path}"
-    ok_msg "Done!"
-  fi
+  for path in ${logpaths}; do
+    [[ ! -d ${path} ]] && mkdir -p "${path}"
 
-  if [[ -f ${error_log} && ! -L "${path}/${interface}-error.log" ]]; then
-    status_msg "Creating symlink for ${error_log} ..."
-    ln -s "${error_log}" "${path}"
-    ok_msg "Done!"
-  fi
+    if [[ -f ${access_log} && ! -L "${path}/${interface}-access.log" ]]; then
+      status_msg "Creating symlink for ${access_log} ..."
+      ln -s "${access_log}" "${path}"
+      ok_msg "Symlink created: ${path}/${interface}-access.log"
+    fi
+
+    if [[ -f ${error_log} && ! -L "${path}/${interface}-error.log" ]]; then
+      status_msg "Creating symlink for ${error_log} ..."
+      ln -s "${error_log}" "${path}"
+      ok_msg "Symlink created: ${path}/${interface}-error.log"
+    fi
+  done
 }
 
 function match_nginx_configs() {
