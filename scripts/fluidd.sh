@@ -124,9 +124,11 @@ function install_fluidd_macros() {
 }
 
 function download_fluidd_macros() {
-  local fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
-  local configs path
-  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
+  local fluidd_cfg path configs regex
+
+  fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
+  configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${configs} ]]; then
     for config in ${configs}; do
@@ -214,8 +216,10 @@ function remove_fluidd_logs() {
 }
 
 function remove_fluidd_log_symlinks() {
-  local files
-  files=$(find "${KLIPPER_LOGS}" -name "fluidd*" 2> /dev/null | sort)
+  local files regex
+
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/fluidd-.*"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -395,10 +399,11 @@ function select_fluidd_port() {
 }
 
 function patch_fluidd_update_manager() {
-  local patched="false"
-  local moonraker_configs
-  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
+  local patched moonraker_configs regex
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
+  patched="false"
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "^\[update_manager fluidd\]$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
