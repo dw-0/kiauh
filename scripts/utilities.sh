@@ -358,6 +358,7 @@ function create_required_folders() {
   [[ ! -d "${printer_data}/config" ]] && mkdir -p "${printer_data}/config"
   [[ ! -d "${printer_data}/database" ]] && mkdir -p "${printer_data}/database"
   [[ ! -d "${printer_data}/gcodes" ]] && mkdir -p "${printer_data}/gcodes"
+  [[ ! -d "${printer_data}/ipc" ]] && mkdir -p "${printer_data}/ipc"
   [[ ! -d "${printer_data}/logs" ]] && mkdir -p "${printer_data}/logs"
   [[ ! -d "${printer_data}/systemd" ]] && mkdir -p "${printer_data}/systemd"
 }

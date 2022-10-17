@@ -294,9 +294,9 @@ function configure_klipper_service() {
     printer_data="${HOME}/printer_data"
     cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/printer.cfg"
-    log="${HOME}/printer_data/logs/klippy.log"
-    printer="/tmp/printer"
-    uds="/tmp/klippy_uds"
+    log="${printer_data}/logs/klippy.log"
+    printer="${printer_data}/ipc/printer"
+    uds="${printer_data}/ipc/klippy_uds"
     service="${SYSTEMD}/klipper.service"
     env_file="${printer_data}/systemd/klipper.env"
 
@@ -322,8 +322,8 @@ function configure_klipper_service() {
       cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/printer.cfg"
       log="${printer_data}/logs/klippy.log"
-      printer="/tmp/printer-${names[${j}]}"
-      uds="/tmp/klippy_uds-${names[${j}]}"
+      printer="${printer_data}/ipc/printer"
+      uds="${printer_data}/ipc/klippy_uds"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
       env_file="${printer_data}/systemd/klipper.env"
 
