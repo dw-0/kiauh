@@ -401,13 +401,13 @@ function ms_theme_install() {
     for folder in "${folder_arr[@]}"; do
       ### instance names/identifier of only numbers need to be prefixed with 'printer_'
       if [[ ${folder} =~ ^[0-9]+$ ]]; then
-        target_folders+=("${KLIPPER_CONFIG}/printer_${folder}")
+        target_folders+=("${HOME}/printer_${folder}_data/config")
       else
-        target_folders+=("${KLIPPER_CONFIG}/${folder}")
+        target_folders+=("${HOME}/${folder}_data/config")
       fi
     done
   else
-    target_folders+=("${KLIPPER_CONFIG}")
+    target_folders+=("${HOME}/printer_data/config")
   fi
 
   if (( ${#target_folders[@]} > 1 )); then
@@ -415,7 +415,7 @@ function ms_theme_install() {
     echo -e "| Please select the printer you want to apply the theme |"
     echo -e "| installation to:                                      |"
     for (( i=0; i < ${#target_folders[@]}; i++ )); do
-      folder=$(echo "${target_folders[${i}]}" | rev | cut -d "/" -f1 | rev)
+      folder=$(echo "${target_folders[${i}]}" | rev | cut -d "/" -f2 | cut -d"_" -f2- | rev)
       printf "|${cyan}%-55s${white}|\n" " ${i}) ${folder}"
     done
     bottom_border
@@ -444,8 +444,11 @@ function ms_theme_install() {
 }
 
 function ms_theme_delete() {
-  local theme_folders target_folders=()
-  theme_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -type d -name ".theme" | sort)
+  local regex theme_folders target_folders=()
+
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/\.theme"
+  theme_folders=$(find "${HOME}" -maxdepth 3 -type d -regextype posix-extended -regex "${regex}" | sort)
+#  theme_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -type d -name ".theme" | sort)
 
   ### build target folder array
   for folder in ${theme_folders}; do
