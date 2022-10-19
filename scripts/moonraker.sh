@@ -249,7 +249,7 @@ function create_moonraker_conf() {
     printer_data="${HOME}/printer_data"
     cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/moonraker.conf"
-    uds="/tmp/klippy_uds"
+    uds="/tmp/klippy.sock"
 
     ### write single instance config
     write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"
@@ -267,7 +267,7 @@ function create_moonraker_conf() {
 
       cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/moonraker.conf"
-      uds="/tmp/klippy_uds-${names[${j}]}"
+      uds="/tmp/klippy.sock-${names[${j}]}"
 
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"

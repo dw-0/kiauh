@@ -295,8 +295,8 @@ function configure_klipper_service() {
     cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/printer.cfg"
     log="${printer_data}/logs/klippy.log"
-    printer="${printer_data}/ipc/printer"
-    uds="${printer_data}/ipc/klippy_uds"
+    printer="${printer_data}/comms/printer"
+    uds="${printer_data}/comms/klippy.sock"
     service="${SYSTEMD}/klipper.service"
     env_file="${printer_data}/systemd/klipper.env"
 
@@ -322,8 +322,8 @@ function configure_klipper_service() {
       cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/printer.cfg"
       log="${printer_data}/logs/klippy.log"
-      printer="${printer_data}/ipc/printer"
-      uds="${printer_data}/ipc/klippy_uds"
+      printer="${printer_data}/comms/printer"
+      uds="${printer_data}/comms/klippy.sock"
       service="${SYSTEMD}/klipper-${names[${j}]}.service"
       env_file="${printer_data}/systemd/klipper.env"
 
@@ -436,7 +436,7 @@ function remove_klipper_logs() {
 
 function remove_klipper_uds() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy.sock(-[0-9a-zA-Z]+)?" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
