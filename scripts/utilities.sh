@@ -351,16 +351,16 @@ function find_klipper_systemd() {
 }
 
 function create_required_folders() {
-  local printer_data=${1}
+  local printer_data=${1} folders
+  folders=("backup" "certs" "config" "database" "gcodes" "comms" "logs" "systemd")
 
-  [[ ! -d "${printer_data}/backup" ]] && mkdir -p "${printer_data}/backup"
-  [[ ! -d "${printer_data}/certs" ]] && mkdir -p "${printer_data}/certs"
-  [[ ! -d "${printer_data}/config" ]] && mkdir -p "${printer_data}/config"
-  [[ ! -d "${printer_data}/database" ]] && mkdir -p "${printer_data}/database"
-  [[ ! -d "${printer_data}/gcodes" ]] && mkdir -p "${printer_data}/gcodes"
-  [[ ! -d "${printer_data}/comms" ]] && mkdir -p "${printer_data}/comms"
-  [[ ! -d "${printer_data}/logs" ]] && mkdir -p "${printer_data}/logs"
-  [[ ! -d "${printer_data}/systemd" ]] && mkdir -p "${printer_data}/systemd"
+  for dir in "${folders[@]}"; do
+  if [[ ! -d "${printer_data}/${dir}" ]]; then
+    status_msg "Creating folder '${printer_data}/${dir}' ..."
+    mkdir -p "${printer_data}/${dir}"
+    ok_msg "Folder '${printer_data}/${dir}' created!"
+  fi
+done
 }
 
 function check_system_updates() {
