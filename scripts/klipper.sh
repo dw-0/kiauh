@@ -422,7 +422,7 @@ function remove_klipper_env_file() {
 }
 
 function remove_klipper_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/klippy\.log*"
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/klippy\.log.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then

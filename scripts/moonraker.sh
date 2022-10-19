@@ -478,7 +478,7 @@ function remove_moonraker_env_file() {
 }
 
 function remove_moonraker_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log*"
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
