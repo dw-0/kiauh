@@ -14,9 +14,10 @@ set -e
 function main_ui() {
   echo -e "${yellow}/=======================================================\\"
   echo -e "| Note:                                                 |"
-  echo -e "| Temporarily, installation of the following software   |"
-  echo -e "| is disabled: KlipperScreen, OctoPrint, Obico,         |"
-  echo -e "| PrettyGCode, Telegram Bot, MJPG-Streamer.             |"
+  echo -e "| The following functions are currently unavailable:    |"
+  echo -e "| - Installation of KlipperScreen, OctoPrint, Obico,    |"
+  echo -e "|   PrettyGCode, Telegram Bot, MJPG-Streamer.           |"
+  echo -e "| - Log-Upload and Backups                              |"
   blank_line
   echo -e "| They will be available again hopefully soon.          |"
   echo -e "| Sorry for the inconvenience!                          |"
@@ -92,7 +93,8 @@ function print_klipper_repo() {
 
 
 function main_menu() {
-  print_header && main_ui
+  clear && print_header
+  main_ui
 
   ### initialize kiauh.ini
   init_ini
@@ -112,8 +114,9 @@ function main_menu() {
       "restart octoprint") do_action_service "restart" "octoprint"; main_ui;;
       update) do_action "update_kiauh" "main_ui";;
       0)clear && print_header
-        upload_selection
-        break;;
+        #upload_selection
+        print_error "Function currently disabled! Sorry!"
+        main_ui;;
       1)clear && print_header
         install_menu
         break;;
@@ -127,8 +130,9 @@ function main_menu() {
         advanced_menu
         break;;
       5)clear && print_header
-        backup_menu
-        break;;
+        #backup_menu
+        print_error "Function currently disabled! Sorry!"
+        main_ui;;
       6)clear && print_header
         settings_menu
         break;;
@@ -139,5 +143,5 @@ function main_menu() {
         deny_action "main_ui";;
     esac
   done
-  clear; main_menu
+  main_menu
 }
