@@ -2,6 +2,27 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2022-10-20
+KIAUH has now reached major version 5 !
+
+Recently Moonraker introduced some changes which makes it necessary to change the folder structure of printer setups.
+If you are interested in the details, check out this PR: https://github.com/Arksine/moonraker/pull/491 \
+Although Moonraker has some mechanics available to migrate existing setups to the new file structure with the help of symlinks, fresh and clean installs
+should be considered.
+
+The version jump of KIAUH to v5 is a breaking change due to those major changes! That means v4 and v5 are not compatible with each other!
+This is also the reason why you will currently be greeted by a yellow notification in the main menu of KIAUH. I decided to disable a few functions of the script and focus on releasing the required
+changes to the core components of this script. I will work on updating the other parts of the script piece by piece during the next days/weeks.
+So I am already sorry in advance if one of your desired components you wanted to install will temporarily not work and might require a manual setup.
+
+**So what is working?**\
+Installation of Klipper, Moonraker, Mainsail and Fluidd. Both, single and multi-instance setups work!\
+As already said, the rest will follow in the near future. Updating and Removing of already installed components should continue to work.
+
+**What was removed?**\
+The option to change Klippers configuration directory got removed. From now on it will not be possible anymore to change
+the configuration directory from within KIAUH and the new filestructure is enforced.
+
 ### 2022-08-15
 Support for "Obico for Klipper" was added! Huge thanks to [kennethjiang](https://github.com/kennethjiang) for helping me with the implementation!
 

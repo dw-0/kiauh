@@ -14,6 +14,8 @@
 # TODO: obico
 # TODO: pretty_gcode
 # TODO: upload_log
+# TODO: all backup functions
+# TODO: octoprint
 # TODO: doublecheck that nothing got missed!
 
 set -e
