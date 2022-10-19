@@ -435,8 +435,8 @@ function remove_klipper_logs() {
 }
 
 function remove_klipper_uds() {
-  local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy.sock(-[0-9a-zA-Z]+)?" | sort)
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/comms\/klippy\.sock"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -448,9 +448,9 @@ function remove_klipper_uds() {
 }
 
 function remove_klipper_printer() {
-  local files
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/comms\/klippy\.serial"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy.serial(-[0-9a-zA-Z]+)?" | sort)
   if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
