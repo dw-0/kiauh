@@ -39,29 +39,29 @@ function install_fluidd() {
   ### check if another site already listens to port 80
   fluidd_port_check
 
-  ### ask user to install mjpg-streamer
-  local install_mjpg_streamer
-  if [[ ! -f "${SYSTEMD}/webcamd.service" ]]; then
-    while true; do
-      echo
-      top_border
-      echo -e "| Install MJPG-Streamer for webcam support?             |"
-      bottom_border
-      read -p "${cyan}###### Please select (y/N):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes)
-          select_msg "Yes"
-          install_mjpg_streamer="true"
-          break;;
-        N|n|No|no|"")
-          select_msg "No"
-          install_mjpg_streamer="false"
-          break;;
-        *)
-          error_msg "Invalid command!";;
-      esac
-    done
-  fi
+#  ### ask user to install mjpg-streamer
+#  local install_mjpg_streamer
+#  if [[ ! -f "${SYSTEMD}/webcamd.service" ]]; then
+#    while true; do
+#      echo
+#      top_border
+#      echo -e "| Install MJPG-Streamer for webcam support?             |"
+#      bottom_border
+#      read -p "${cyan}###### Please select (y/N):${white} " yn
+#      case "${yn}" in
+#        Y|y|Yes|yes)
+#          select_msg "Yes"
+#          install_mjpg_streamer="true"
+#          break;;
+#        N|n|No|no|"")
+#          select_msg "No"
+#          install_mjpg_streamer="false"
+#          break;;
+#        *)
+#          error_msg "Invalid command!";;
+#      esac
+#    done
+#  fi
 
   ### download fluidd
   download_fluidd
@@ -83,7 +83,7 @@ function install_fluidd() {
   patch_fluidd_update_manager
 
   ### install mjpg-streamer
-  [[ ${install_mjpg_streamer} == "true" ]] && install_mjpg-streamer
+#  [[ ${install_mjpg_streamer} == "true" ]] && install_mjpg-streamer
 
   fetch_webui_ports #WIP
 

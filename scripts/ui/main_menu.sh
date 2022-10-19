@@ -12,6 +12,15 @@
 set -e
 
 function main_ui() {
+  echo -e "${yellow}/=======================================================\\"
+  echo -e "| Note:                                                 |"
+  echo -e "| Temporarily, installation of the following software   |"
+  echo -e "| is disabled: KlipperScreen, OctoPrint, Obico,         |"
+  echo -e "| PrettyGCode, Telegram Bot, MJPG-Streamer.             |"
+  blank_line
+  echo -e "| They will be available again hopefully soon.          |"
+  echo -e "| Sorry for the inconvenience!                          |"
+  echo -e "\=======================================================/${white}"
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
