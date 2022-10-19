@@ -13,7 +13,6 @@ set -e
 
 function main_ui() {
   echo -e "${yellow}/=======================================================\\"
-  echo -e "| Note:                                                 |"
   echo -e "| The following functions are currently unavailable:    |"
   echo -e "| - Installation of KlipperScreen, OctoPrint, Obico,    |"
   echo -e "|   PrettyGCode, Telegram Bot, MJPG-Streamer.           |"
