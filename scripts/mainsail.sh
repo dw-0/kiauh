@@ -235,11 +235,25 @@ function remove_mainsail_log_symlinks() {
   fi
 }
 
+function remove_legacy_mainsail_log_symlinks() {
+  local files
+  files=$(find "${HOME}/klipper_logs" -name "mainsail*" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_mainsail() {
   remove_mainsail_dir
   remove_mainsail_config
   remove_mainsail_logs
   remove_mainsail_log_symlinks
+  remove_legacy_mainsail_log_symlinks
 
   ### remove mainsail_port from ~/.kiauh.ini
   sed -i "/^mainsail_port=/d" "${INI_FILE}"

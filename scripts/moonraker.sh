@@ -490,6 +490,19 @@ function remove_moonraker_logs() {
   fi
 }
 
+function remove_legacy_moonraker_logs() {
+  local files regex="moonraker(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_moonraker_api_key() {
   ### remove legacy api key
   if [[ -e "${HOME}/.klippy_api_key" ]]; then
@@ -535,6 +548,7 @@ function remove_moonraker() {
   remove_moonraker_systemd
   remove_moonraker_env_file
   remove_moonraker_logs
+  remove_legacy_moonraker_logs
   remove_moonraker_api_key
   remove_moonraker_polkit
   remove_moonraker_dir

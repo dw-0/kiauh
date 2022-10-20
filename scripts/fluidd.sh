@@ -230,11 +230,25 @@ function remove_fluidd_log_symlinks() {
   fi
 }
 
+function remove_legacy_fluidd_log_symlinks() {
+  local files
+  files=$(find "${HOME}/klipper_logs" -name "fluidd*" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_fluidd() {
   remove_fluidd_dir
   remove_fluidd_config
   remove_fluidd_logs
   remove_fluidd_log_symlinks
+  remove_legacy_fluidd_log_symlinks
 
   ### remove fluidd_port from ~/.kiauh.ini
   sed -i "/^fluidd_port=/d" "${INI_FILE}"

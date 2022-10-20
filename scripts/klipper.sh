@@ -434,6 +434,19 @@ function remove_klipper_logs() {
   fi
 }
 
+function remove_legacy_klipper_logs() {
+  local files regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_klipper_uds() {
   local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/comms\/klippy\.sock"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
@@ -450,6 +463,19 @@ function remove_klipper_uds() {
 function remove_klipper_printer() {
   local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/comms\/klippy\.serial"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_legacy_klipper_printer() {
+  local files
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[0-9a-zA-Z]+)?" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -481,8 +507,10 @@ function remove_klipper() {
   remove_klipper_systemd
   remove_klipper_env_file
   remove_klipper_logs
+  remove_legacy_klipper_logs
   remove_klipper_uds
   remove_klipper_printer
+  remove_legacy_klipper_printer
   remove_klipper_dir
   remove_klipper_env
 
