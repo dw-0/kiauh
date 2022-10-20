@@ -2,6 +2,57 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2022-10-20
+KIAUH has now reached major version 5 !
+
+Recently Moonraker introduced some changes which makes it necessary to change the folder structure of printer setups.
+If you are interested in the details, check out this PR: https://github.com/Arksine/moonraker/pull/491 \
+Although Moonraker has some mechanics available to migrate existing setups to the new file structure with the use of symlinks, fresh and clean installs
+should be considered.
+
+The version jump of KIAUH to v5 is a breaking change due to those major changes! That means v4 and v5 are not compatible with each other!
+This is also the reason why you will currently be greeted by a yellow notification in the main menu of KIAUH leading to this changelog.
+I decided to disable a few functions of the script and focus on releasing the required changes to the core components of this script.
+I will work on updating the other parts of the script piece by piece during the next days/weeks.
+So I am already sorry in advance if one of your desired components you wanted to install or use temporarily cannot be installed or used right now.
+
+The following functions are currently unavailable:
+- Installation of: KlipperScreen, Obico, Octoprint, MJPG-Streamer, Telegram Bot and PrettyGCode
+- All backup functions and the Log-Upload
+
+**So what is working?**\
+Installation of Klipper, Moonraker, Mainsail and Fluidd. Both, single and multi-instance setups work!\
+As already said, the rest will follow in the near future. Updating and removal of already installed components should continue to work.
+
+**What was removed?**\
+The option to change Klippers configuration directory got removed. From now on it will not be possible anymore to change
+the configuration directory from within KIAUH and the new filestructure is enforced.
+
+**What if I don't have an existing Klipper/Moonraker install right now?**\
+Nothing important to think about, install Klipper and Moonraker. KIAUH will install both of them with the new filestructure.
+
+**What if I have an existing Klipper/Moonraker install?**\
+First of all: Backups! Please copy all of your config files and the Moonraker database (it is a hidden folder, usually `~/.moonraker_database`) to a safe location.
+After that, uninstall Klipper and Moonraker with KIAUH. You can then proceed and re-install both of them with KIAUH again. It is important that you are on KIAUH v5 for that!
+Once everything is installed again, you need to manually copy your configuration files from the old `~/klipper_config` folder to the new `~/printer_data/config` folder.
+Previous, by Moonraker created symlinks to folder of the old filestructure will not work anymore, you need to move the files to their new location now!
+Do the same with the two files inside of `~/.moonraker_database`. Move/copy them into `~/printer_data/database`. If `~/printer_data/database` is already populated with a `data.mdb` and `lock.mdb`
+delete them or simply overwrite them. Nothing should be lost as those should be empty database files. Anyway, you made backups, right?
+You can now proceed and restart Moonraker. Either from within Mainsail or Fluidd, or use SSH and execute `sudo systemctl restart moonraker`.
+If everything went smooth, you should be good to go again. If you see some Moonraker warnings about deprecated options in the `moonraker.conf`, go ahead and resolve them.
+I will not cover them in detail here. A good source is the Moonraker documentation: https://moonraker.readthedocs.io/en/latest/configuration/
+
+**What if I have an existing Klipper/Moonraker multi-instance install?**\
+Pretty much the same steps that are required for single instance installs apply to multi-instance setups. So please go ahead and read the previous paragraph if you didn't already.
+Make backups of everything first. Then remove and install the desired amount of Klipper and Moonraker instances again.
+Now you need to move all config and database files to their new locations.\
+Example with an instance called `printer_1`:\
+The config files go from `~/klipper_config/printer_1` to `~/printer_1_data/config`.
+The database files go from `~/.moonraker_database_1` to `~/printer_1_data/database`.
+Now restart all Moonraker services. You can restart all of them at once if you launch KIAUH, and in the main menu type `restart moonraker` and hit Enter.
+
+I hope I have covered the most important things. In case you need further support, the official Klipper Discord is a good place to ask for help.
+
 ### 2022-08-15
 Support for "Obico for Klipper" was added! Huge thanks to [kennethjiang](https://github.com/kennethjiang) for helping me with the implementation!
 

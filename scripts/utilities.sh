@@ -156,10 +156,6 @@ function init_ini() {
     echo -e "\nlogupload_accepted=false\c" >> "${INI_FILE}"
   fi
 
-  if ! grep -Eq "^custom_klipper_cfg_loc=" "${INI_FILE}"; then
-    echo -e "\ncustom_klipper_cfg_loc=\c" >> "${INI_FILE}"
-  fi
-
   if ! grep -Eq "^custom_klipper_repo=" "${INI_FILE}"; then
     echo -e "\ncustom_klipper_repo=\c" >> "${INI_FILE}"
   fi
@@ -182,157 +178,6 @@ function init_ini() {
 
   ### strip all empty lines out of the file
   sed -i "/^[[:blank:]]*$/ d" "${INI_FILE}"
-}
-
-function change_klipper_cfg_folder() {
-  local current_cfg_loc example_loc recommended_loc new_cfg_loc
-  current_cfg_loc="$(get_klipper_cfg_dir)"
-  example_loc=$(printf "%s/<your_config_folder>" "${HOME}")
-  recommended_loc=$(printf "%s/klipper_config" "${HOME}")
-
-  local yn
-  while true; do
-    top_border
-    echo -e "|  ${yellow}IMPORTANT:${white}                                           |"
-    echo -e "|  Please enter the new path in the following format:   |"
-    printf  "|  ${cyan}%-51s${white}  |\n" "${example_loc}"
-    blank_line
-    echo -e "|  ${red}WARNING: ${white}                                            |"
-    echo -e "|  ${red}There will be no validation checks! Make sure to set${white} |"
-    echo -e "|  ${red}a valid directory to prevent possible problems!${white}      |"
-    blank_line
-    printf  "|  Recommended: ${cyan}%-38s${white}  |\n" "${recommended_loc}"
-    bottom_border
-    echo
-    echo -e "${cyan}###### Please set the new Klipper config directory:${white} "
-    read -e -i "${current_cfg_loc}" -e new_cfg_loc
-    echo
-    read -p "${cyan}###### Set config directory to '${yellow}${new_cfg_loc}${cyan}' ? (Y/n):${white} " yn
-    case "${yn}" in
-      Y|y|Yes|yes|"")
-        select_msg "Yes"
-        set_klipper_cfg_path "${current_cfg_loc}" "${new_cfg_loc}"
-        print_confirm "New config directory set!"
-        break;;
-      N|n|No|no)
-        select_msg "No"
-        break;;
-      *)
-        print_error "Invalid command!";;
-    esac
-  done
-}
-
-function set_klipper_cfg_path() {
-  local current_cfg_loc="${1}" new_cfg_loc="${2}"
-  local instance klipper_services moonraker_services moonraker_configs
-
-  log_info "Function set_klipper_cfg_path invoked\nCurrent location: ${1}\nNew location: ${2}"
-  ### backup the old config dir
-  backup_klipper_config_dir
-  ### write new location to .kiauh.ini
-  sed -i "/^custom_klipper_cfg_loc=/d" "${INI_FILE}"
-  sed -i '$a'"custom_klipper_cfg_loc=${new_cfg_loc}" "${INI_FILE}"
-  status_msg "New directory was set to '${new_cfg_loc}'!"
-
-  ### stop services
-  do_action_service "stop" "klipper"
-  do_action_service "stop" "moonraker"
-
-  ### copy config files to new klipper config folder
-  if [[ -n ${current_cfg_loc} && -d ${current_cfg_loc} ]]; then
-    status_msg "Copy config files to '${new_cfg_loc}' ..."
-
-    if [[ ! -d ${new_cfg_loc} ]]; then
-      log_info "Copy process started"
-      mkdir -p "${new_cfg_loc}"
-      cd "${current_cfg_loc}"
-      cp -r -v ./* "${new_cfg_loc}"
-      ok_msg "Done!"
-    else
-      log_warning "Copy process skipped, new config directory already exists and may not be empty!"
-      warn_msg "New config directory already exists! Copy process skipped!"
-    fi
-  fi
-
-  klipper_services=$(klipper_systemd)
-
-  if [[ -n ${klipper_services} ]]; then
-    status_msg "Re-writing Klipper services to use new config file location ..."
-
-    for service in ${klipper_services}; do
-      if [[ ${service} = "/etc/systemd/system/klipper.service" ]]; then
-
-        if grep -q "Environment=KLIPPER_CONFIG=" "${service}"; then
-          ### single instance klipper service installed by kiauh v4 / MainsailOS > 0.5.0
-          sudo sed -i -r "/KLIPPER_CONFIG=/ s|CONFIG=(.+)\/printer\.cfg|CONFIG=${new_cfg_loc}/printer\.cfg|" "${service}"
-        else
-          ### single instance klipper service installed by kiauh v3
-          sudo sed -i -r "/ExecStart=/ s|klippy\.py (.+)\/printer\.cfg|klippy\.py ${new_cfg_loc}\/printer\.cfg|" "${service}"
-        fi
-
-      else
-        instance=$(echo "${service}" | cut -d"-" -f2 | cut -d"." -f1)
-
-        if grep -q "Environment=KLIPPER_CONFIG=" "${service}"; then
-          ### multi instance klipper service installed by kiauh v4 / MainsailOS > 0.5.0
-          sudo sed -i -r "/KLIPPER_CONFIG=/ s|CONFIG=(.+)\/printer_${instance}\/printer\.cfg|CONFIG=${new_cfg_loc}\/printer_${instance}\/printer\.cfg|" "${service}"
-        else
-          ### multi instance klipper service installed by kiauh v3
-          sudo sed -i -r "/ExecStart=/ s|klippy\.py (.+)\/printer_${instance}\/printer\.cfg|klippy\.py ${new_cfg_loc}\/printer_${instance}\/printer\.cfg|" "${service}"
-        fi
-      fi
-    done
-    ok_msg "OK!"
-  fi
-
-  moonraker_services=$(moonraker_systemd)
-
-  if [[ -n ${moonraker_services} ]]; then
-    ### handle multi moonraker instance service file
-    status_msg "Re-writing Moonraker services to use new config file location ..."
-
-    for service in ${moonraker_services}; do
-      if [[ ${service} = "/etc/systemd/system/moonraker.service" ]]; then
-
-        if grep -q "Environment=MOONRAKER_CONF=" "${service}"; then
-          ### single instance moonraker service installed by kiauh v4 / MainsailOS > 0.5.0
-          sudo sed -i -r "/MOONRAKER_CONF=/ s|_CONF=(.+)\/moonraker\.conf|_CONF=${new_cfg_loc}\/moonraker\.conf|" "${service}"
-        else
-          ### single instance moonraker service installed by kiauh v3
-          sudo sed -i -r "/ExecStart=/ s| -c (.+)\/moonraker\.conf| -c ${new_cfg_loc}\/moonraker\.conf|" "${service}"
-        fi
-
-      else
-        instance=$(echo "${service}" | cut -d"-" -f2 | cut -d"." -f1)
-
-        if grep -q "Environment=MOONRAKER_CONF=" "${service}"; then
-          ### multi instance moonraker service installed by kiauh v4 / MainsailOS > 0.5.0
-          sudo sed -i -r "/MOONRAKER_CONF=/ s|_CONF=(.+)\/printer_${instance}\/moonraker\.conf|_CONF=${new_cfg_loc}\/printer_${instance}\/moonraker\.conf|" "${service}"
-        else
-          ### multi instance moonraker service installed by kiauh v3
-          sudo sed -i -r "/ExecStart=/ s| -c (.+)\/printer_${instance}\/moonraker\.conf| -c ${new_cfg_loc}\/printer_${instance}\/moonraker\.conf|" "${service}"
-        fi
-      fi
-    done
-
-    moonraker_configs=$(find "${new_cfg_loc}" -type f -name "moonraker.conf" | sort)
-
-    ### replace old file path with new one in moonraker.conf
-    local loc
-    for conf in ${moonraker_configs}; do
-      loc=$(echo "${conf}" | rev | cut -d"/" -f2- | rev)
-      sed -i -r "/config_path:/ s|config_path:.*|config_path: ${loc}|" "${conf}"
-    done
-    ok_msg "OK!"
-  fi
-
-  ### reloading units
-  sudo systemctl daemon-reload
-
-  ### restart services
-  do_action_service "restart" "klipper"
-  do_action_service "restart" "moonraker"
 }
 
 function switch_mainsail_releasetype() {
@@ -492,6 +337,38 @@ function fetch_webui_ports() {
 #================================================#
 #=================== SYSTEM =====================#
 #================================================#
+
+function find_klipper_initd() {
+  local services
+  services=$(find "${INITD}" -maxdepth 1 -regextype posix-extended -regex "${INITD}/klipper(-[^0])?[0-9]*" | sort)
+  echo "${services}"
+}
+
+function find_klipper_systemd() {
+  local services
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service" | sort)
+  echo "${services}"
+}
+
+function create_required_folders() {
+  local printer_data=${1} folders
+  folders=("backup" "certs" "config" "database" "gcodes" "comms" "logs" "systemd")
+
+  for folder in "${folders[@]}"; do
+    local dir="${printer_data}/${folder}"
+
+    ### remove possible symlink created by moonraker
+    if [[ -L "${dir}" && -d "${dir}" ]]; then
+      rm "${dir}"
+    fi
+
+    if [[ ! -d "${dir}" ]]; then
+      status_msg "Creating folder '${dir}' ..."
+      mkdir -p "${dir}"
+      ok_msg "Folder '${dir}' created!"
+    fi
+  done
+}
 
 function check_system_updates() {
   local updates_avail info_msg
@@ -720,7 +597,7 @@ function set_multi_instance_names() {
 
   local name
   local names=""
-  local services=$(klipper_systemd)
+  local services=$(find_klipper_systemd)
 
   ###
   # if value of 'multi_instance_names' is not an empty
@@ -785,7 +662,7 @@ function get_config_folders() {
         cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
       fi
     done
-  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
+  elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
     cfg_dirs+=("${KLIPPER_CONFIG}")
   else
     cfg_dirs=()

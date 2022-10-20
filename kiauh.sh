@@ -9,6 +9,15 @@
 # This file may be distributed under the terms of the GNU GPLv3 license #
 #=======================================================================#
 
+# TODO: mjpg-streamer
+# TODO: moonraker-telegram-bot
+# TODO: obico
+# TODO: pretty_gcode
+# TODO: upload_log
+# TODO: all backup functions
+# TODO: octoprint
+# TODO: doublecheck that nothing got missed!
+
 set -e
 clear
 

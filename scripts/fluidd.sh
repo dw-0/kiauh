@@ -39,29 +39,29 @@ function install_fluidd() {
   ### check if another site already listens to port 80
   fluidd_port_check
 
-  ### ask user to install mjpg-streamer
-  local install_mjpg_streamer
-  if [[ ! -f "${SYSTEMD}/webcamd.service" ]]; then
-    while true; do
-      echo
-      top_border
-      echo -e "| Install MJPG-Streamer for webcam support?             |"
-      bottom_border
-      read -p "${cyan}###### Please select (y/N):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes)
-          select_msg "Yes"
-          install_mjpg_streamer="true"
-          break;;
-        N|n|No|no|"")
-          select_msg "No"
-          install_mjpg_streamer="false"
-          break;;
-        *)
-          error_msg "Invalid command!";;
-      esac
-    done
-  fi
+#  ### ask user to install mjpg-streamer
+#  local install_mjpg_streamer
+#  if [[ ! -f "${SYSTEMD}/webcamd.service" ]]; then
+#    while true; do
+#      echo
+#      top_border
+#      echo -e "| Install MJPG-Streamer for webcam support?             |"
+#      bottom_border
+#      read -p "${cyan}###### Please select (y/N):${white} " yn
+#      case "${yn}" in
+#        Y|y|Yes|yes)
+#          select_msg "Yes"
+#          install_mjpg_streamer="true"
+#          break;;
+#        N|n|No|no|"")
+#          select_msg "No"
+#          install_mjpg_streamer="false"
+#          break;;
+#        *)
+#          error_msg "Invalid command!";;
+#      esac
+#    done
+#  fi
 
   ### download fluidd
   download_fluidd
@@ -83,7 +83,7 @@ function install_fluidd() {
   patch_fluidd_update_manager
 
   ### install mjpg-streamer
-  [[ ${install_mjpg_streamer} == "true" ]] && install_mjpg-streamer
+#  [[ ${install_mjpg_streamer} == "true" ]] && install_mjpg-streamer
 
   fetch_webui_ports #WIP
 
@@ -124,9 +124,11 @@ function install_fluidd_macros() {
 }
 
 function download_fluidd_macros() {
-  local fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
-  local configs path
-  configs=$(find "${KLIPPER_CONFIG}" -type f -name "printer.cfg" | sort)
+  local fluidd_cfg path configs regex
+
+  fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
+  configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${configs} ]]; then
     for config in ${configs}; do
@@ -214,8 +216,23 @@ function remove_fluidd_logs() {
 }
 
 function remove_fluidd_log_symlinks() {
+  local files regex
+
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/fluidd-.*"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" 2> /dev/null | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_legacy_fluidd_log_symlinks() {
   local files
-  files=$(find "${KLIPPER_LOGS}" -name "fluidd*" 2> /dev/null | sort)
+  files=$(find "${HOME}/klipper_logs" -name "fluidd*" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -231,6 +248,7 @@ function remove_fluidd() {
   remove_fluidd_config
   remove_fluidd_logs
   remove_fluidd_log_symlinks
+  remove_legacy_fluidd_log_symlinks
 
   ### remove fluidd_port from ~/.kiauh.ini
   sed -i "/^fluidd_port=/d" "${INI_FILE}"
@@ -395,10 +413,11 @@ function select_fluidd_port() {
 }
 
 function patch_fluidd_update_manager() {
-  local patched="false"
-  local moonraker_configs
-  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
+  local patched moonraker_configs regex
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
+  patched="false"
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "^\[update_manager fluidd\]$" "${conf}"; then
       ### add new line to conf if it doesn't end with one

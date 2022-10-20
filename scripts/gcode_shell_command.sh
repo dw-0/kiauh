@@ -105,10 +105,11 @@ function create_example_shell_command() {
   ### create a backup of the config folder
   backup_klipper_config_dir
 
-  local printer_cfgs path
-  printer_cfgs=$(find "$(get_klipper_cfg_dir)" -type f -name "printer.cfg" | sort)
+  local configs regex path
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
+  configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
-  for cfg in ${printer_cfgs}; do
+  for cfg in ${configs}; do
     path=$(echo "${cfg}" | rev | cut -d"/" -f2- | rev)
 
     if [[ ! -f "${path}/shell_command.cfg" ]]; then

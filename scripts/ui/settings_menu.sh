@@ -14,19 +14,11 @@ set -e
 function settings_ui() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
-  local custom_cfg_loc="${custom_klipper_cfg_loc}"
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
   local ms_pre_rls="${mainsail_install_unstable}"
   local fl_pre_rls="${fluidd_install_unstable}"
   local bbu="${backup_before_update}"
-
-  ### config location
-  if [[ -z ${custom_cfg_loc} ]]; then
-    custom_cfg_loc="${cyan}${KLIPPER_CONFIG}${white}"
-  else
-    custom_cfg_loc="${cyan}${custom_cfg_loc}${white}"
-  fi
 
   ### custom repository
   custom_repo=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//" )
@@ -67,8 +59,6 @@ function settings_ui() {
   echo -e "|     $(title_msg "~~~~~~~~~~~~ [ KIAUH Settings ] ~~~~~~~~~~~~~")     |"
   hr
   echo -e "| Klipper:                                              |"
-  echo -e "|   ● Config folder:                                    |"
-  printf  "|     %-60s|\n" "${custom_cfg_loc}"
   echo -e "|   ● Repository:                                       |"
   printf  "|     %-70s|\n" "${custom_repo} (${custom_branch})"
   hr
@@ -77,24 +67,23 @@ function settings_ui() {
   hr
   printf  "| Backup before updating: %-42s|\n" "${bbu}"
   hr
-  echo -e "| 1) Change Klipper config folder location              |"
-  echo -e "| 2) Set custom Klipper repository                      |"
+  echo -e "| 1) Set custom Klipper repository                      |"
   blank_line
   if [[ ${mainsail_install_unstable} == "false" ]]; then
-  echo -e "| 3) ${green}Allow${white} unstable Mainsail releases                   |"
+  echo -e "| 2) ${green}Allow${white} unstable Mainsail releases                   |"
   else
-  echo -e "| 3) ${red}Disallow${white} unstable Mainsail releases                |"
+  echo -e "| 2) ${red}Disallow${white} unstable Mainsail releases                |"
   fi
   if [[ ${fluidd_install_unstable} == "false" ]]; then
-  echo -e "| 4) ${green}Allow${white} unstable Fluidd releases                     |"
+  echo -e "| 3) ${green}Allow${white} unstable Fluidd releases                     |"
   else
-  echo -e "| 4) ${red}Disallow${white} unstable Fluidd releases                  |"
+  echo -e "| 3) ${red}Disallow${white} unstable Fluidd releases                  |"
   fi
   blank_line
   if [[ ${backup_before_update} == "false" ]]; then
-  echo -e "| 5) ${green}Enable${white} automatic backups before updates            |"
+  echo -e "| 4) ${green}Enable${white} automatic backups before updates            |"
   else
-  echo -e "| 5) ${red}Disable${white} automatic backups before updates           |"
+  echo -e "| 4) ${red}Disable${white} automatic backups before updates           |"
   fi
   back_help_footer
 }
@@ -104,16 +93,6 @@ function show_settings_help() {
 
   top_border
   echo -e "|    ~~~~~~ < ? > Help: KIAUH Settings < ? > ~~~~~~     |"
-  hr
-  echo -e "| ${cyan}Klipper config folder:${white}                                |"
-  echo -e "| The location of your printer.cfg and all other config |"
-  echo -e "| files that gets used during installation of Klipper   |"
-  echo -e "| and all other components which need that location.    |"
-  echo -e "| It is not recommended to change this location.        |"
-  echo -e "| Be advised, that negative side effects could occur.   |"
-  blank_line
-  printf  "| Default: %-55s|\n" "${default_cfg}"
-  blank_line
   hr
   echo -e "| ${cyan}Install unstable releases:${white}                            |"
   echo -e "| If set to ${green}true${white}, KIAUH installs/updates the software   |"
@@ -161,19 +140,15 @@ function settings_menu() {
     case "${action}" in
       1)
         clear && print_header
-        change_klipper_cfg_folder
-        settings_ui;;
-      2)
-        clear && print_header
         change_klipper_repo_menu
         settings_ui;;
-      3)
+      2)
         switch_mainsail_releasetype
         settings_menu;;
-      4)
+      3)
         switch_fluidd_releasetype
         settings_menu;;
-      5)
+      4)
         toggle_backup_before_update
         settings_menu;;
       B|b)

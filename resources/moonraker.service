@@ -1,20 +1,19 @@
-#Systemd Moonraker Service
-
 [Unit]
-Description=Systemd Moonraker Service for instance moonraker-%INST%
+Description=API Server for Klipper SV1 %INST%
 Documentation=https://moonraker.readthedocs.io/
-After=network.target
+Requires=network-online.target
+After=network-online.target
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
-Environment=MOONRAKER_CONF=%CFG%
-Environment=MOONRAKER_LOG=%LOG%
 Type=simple
-SupplementaryGroups=moonraker-admin
 User=%USER%
+SupplementaryGroups=moonraker-admin
 RemainAfterExit=yes
-ExecStart=%ENV%/bin/python %DIR%/moonraker/moonraker.py -c ${MOONRAKER_CONF} -l ${MOONRAKER_LOG}
+WorkingDirectory=/home/%USER%/moonraker
+EnvironmentFile=%ENV_FILE%
+ExecStart=%ENV%/bin/python $MOONRAKER_ARGS
 Restart=always
 RestartSec=10
