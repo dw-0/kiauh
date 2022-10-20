@@ -354,13 +354,20 @@ function create_required_folders() {
   local printer_data=${1} folders
   folders=("backup" "certs" "config" "database" "gcodes" "comms" "logs" "systemd")
 
-  for dir in "${folders[@]}"; do
-  if [[ ! -d "${printer_data}/${dir}" ]]; then
-    status_msg "Creating folder '${printer_data}/${dir}' ..."
-    mkdir -p "${printer_data}/${dir}"
-    ok_msg "Folder '${printer_data}/${dir}' created!"
-  fi
-done
+  for folder in "${folders[@]}"; do
+    local dir="${printer_data}/${folder}"
+
+    ### remove possible symlink created by moonraker
+    if [[ -L "${dir}" && -d "${dir}" ]]; then
+      rm "${dir}"
+    fi
+
+    if [[ ! -d "${dir}" ]]; then
+      status_msg "Creating folder '${dir}' ..."
+      mkdir -p "${dir}"
+      ok_msg "Folder '${dir}' created!"
+    fi
+  done
 }
 
 function check_system_updates() {
