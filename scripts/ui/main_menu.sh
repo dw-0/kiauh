@@ -13,13 +13,8 @@ set -e
 
 function main_ui() {
   echo -e "${yellow}/=======================================================\\"
-  echo -e "| The following functions are currently unavailable:    |"
-  echo -e "| - Installation of KlipperScreen, OctoPrint, Obico,    |"
-  echo -e "|   PrettyGCode, Telegram Bot, MJPG-Streamer.           |"
-  echo -e "| - Log-Upload and Backups                              |"
-  blank_line
-  echo -e "| They will be available again hopefully soon.          |"
-  echo -e "| Sorry for the inconvenience!                          |"
+  echo -e "| Please read the newest changelog carefully:           |"
+  echo -e "| https://git.io/JnmlX                                  |"
   echo -e "\=======================================================/${white}"
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
