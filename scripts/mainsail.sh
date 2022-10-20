@@ -19,7 +19,21 @@ function install_mainsail() {
   ### exit early if moonraker not found
   if [[ -z $(moonraker_systemd) ]]; then
     local error="Moonraker not installed! Please install Moonraker first!"
-    print_error "${error}" && return
+    print_error "${error}"
+    while true; do
+      read -p "${cyan}###### Install Mainsail without Moonraker? (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          abort_msg "Exiting Mainsail setup ...\n"
+          return;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
   fi
 
   ### checking dependencies

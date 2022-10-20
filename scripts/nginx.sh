@@ -43,8 +43,55 @@ function set_upstream_nginx_cfg() {
   local current_date
   local upstreams="${NGINX_CONFD}/upstreams.conf"
   local common_vars="${NGINX_CONFD}/common_vars.conf"
+  local apiserver="127.0.0.1:7125"
 
   current_date=$(get_date)
+
+  ### change apiserver if moonraker not exist
+  if [[ -z $(moonraker_systemd) ]]; then
+    echo
+    top_border
+    echo -e "| Moonraker is not exist on localhost.                  |"
+    echo -e "| You need to setup a connection to your own Moonraker. |"
+    bottom_border
+
+    while true; do
+      read -p "${cyan}###### Setup now? (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+
+          while true; do
+            local moonraker_host
+            read -p "${cyan}###### Your Moonraker host? (127.0.0.1) :${white} " moonraker_host
+            [[ -z "${moonraker_host}" ]] && moonraker_host="127.0.0.1"
+            select_msg "${moonraker_host}"
+
+            local moonraker_port
+            read -p "${cyan}###### Your Moonraker port? (7125):${white} " moonraker_port
+            [[ -z "${moonraker_port}" ]] && moonraker_port="7125"
+            select_msg "${moonraker_port}"
+
+            local http_code=$(curl "{${moonraker_host}}:{${moonraker_port}}" -m 3 -o /dev/null -w '%{http_code}\n' -s)
+            case "${http_code}" in
+              200)
+                ok_msg "Successfully connect to Moonraker"
+                apiserver="${moonraker_host}:${moonraker_port}"
+                break;;
+              *)
+                error_msg "Cannot connect to Moonraker";;
+            esac
+          done
+
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          break;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
+  fi
 
   ### backup existing nginx configs
   [[ ! -d "${BACKUP_DIR}/nginx_cfg" ]] && mkdir -p "${BACKUP_DIR}/nginx_cfg"
@@ -69,7 +116,7 @@ function set_upstream_nginx_cfg() {
   done
 
   ### copy nginx configs to target destination
-  [[ ! -f ${upstreams} ]] && sudo cp "${RESOURCES}/upstreams.conf" "${upstreams}"
+  [[ ! -f ${upstreams} ]] && (sudo cp "${RESOURCES}/upstreams.conf" "${upstreams}"; sudo sed -i "s/127.0.0.1:7125/${apiserver}/" "${upstreams}")
   [[ ! -f ${common_vars} ]] && sudo cp "${RESOURCES}/common_vars.conf" "${common_vars}"
 }
 
