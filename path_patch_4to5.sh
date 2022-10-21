@@ -83,11 +83,13 @@ function path_patch() {
     data_dirs+="${data_dir} "
     
     mkdir -p "${data_dir}"
+    [[ -d "${data_dir}/config" ]] && rm -rfd "${data_dir}/config"
     mv ${cfg} "${data_dir}/config" # moving configs
     for folder in "${basic_folders[@]}"; do
-      mkdir -p "${data_dir}/${folder}"
+      [[ ! -d "${data_dir}/${folder}" ]] && mkdir -p "${data_dir}/${folder}"
     done
 
+    [[ -d "${data_dir}/gcodes" ]] && rm -rfd "${data_dir}/gcodes"
     if [[ -d "${HOME}/gcode_files" ]]; then
       ln -s "${HOME}/gcode_files" "${data_dir}/gcodes"
     else
@@ -107,7 +109,7 @@ function path_patch() {
     # handling moonraker database
     suffix=""
     if [[ ! -z ${instance_code} ]]; then suffix="_${instance_code}"; fi ## under dash type
-    [[ -d "${HOME}/.moonraker_database${suffix}" ]] && rm -d "${data_dir}/database" && mv "${HOME}/.moonraker_database${suffix}" "${data_dir}/database" && \
+    [[ -d "${HOME}/.moonraker_database${suffix}" ]] && rm -rfd "${data_dir}/database" && mv "${HOME}/.moonraker_database${suffix}" "${data_dir}/database" && \
     ok_msg "Restore moonraker database for $([[ -z ${instance_code} ]] && echo "main") instance $([[ ! -z ${instance_code} ]] && echo "${instance_code}")"
     ${MOONRAKER_ENV}/bin/python -mlmdb -e ${data_dir}/database/ edit --delete=validate_install
 
