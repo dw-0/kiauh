@@ -63,6 +63,16 @@ function path_patch() {
     return 1
   fi
 
+  # make backup files
+  mkdir -p "${HOME}/kiauhV4_config_backup"
+  cp -rf ${kcfg_dir} "${HOME}/kiauhV4_config_backup/"
+  data_dirs=$(ls -d -- "${HOME}/.moonraker_database"*)
+  for db in ${data_dirs[@]}; do
+  cp -rf "${db}" "${HOME}/kiauhV4_config_backup/"
+  done
+  data_dirs=""
+  
+  # start backup
   do_action_service "stop" "moonraker"
   do_action_service "stop" "klipper"
 
@@ -141,7 +151,7 @@ function path_patch() {
     fi
   done
 
-  [[ -d "${HOME}/klipper_logs" ]] && rm -rdf "${HOME}/klipper_logs"s
+  [[ -d "${HOME}/klipper_logs" ]] && rm -rdf "${HOME}/klipper_logs"
   symlink_webui_nginx_log "mainsail"
   symlink_webui_nginx_log "fluidd"
   sudo systemctl daemon-reload
