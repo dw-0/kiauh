@@ -1,7 +1,7 @@
 [Unit]
 Description=Klipper 3D Printer Firmware SV1 %INST%
 Documentation=https://www.klipper3d.org/
-After=network.target
+After=network-online.target
 Wants=udev.target
 
 [Install]
