@@ -227,21 +227,30 @@ function create_octoprint_service() {
   local octoprint_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
   local j=0 port=5000
-  local octo_env service basedir tmp_printer config_yaml restart_cmd
+  local printer_data octo_env service basedir printer config_yaml restart_cmd
 
   for (( i=1; i <= octoprint_count; i++ )); do
     if (( octoprint_count == 1 )); then
+      printer_data="${HOME}/printer_data"
       octo_env="${HOME}/OctoPrint"
       service="${SYSTEMD}/octoprint.service"
       basedir="${HOME}/.octoprint"
-      tmp_printer="/tmp/printer"
+      printer="${printer_data}/comms/klippy.serial"
       config_yaml="${basedir}/config.yaml"
       restart_cmd="sudo service octoprint restart"
     elif (( octoprint_count > 1 )); then
+
+      local re="^[1-9][0-9]*$"
+      if [[ ${names[j]} =~ ${re} ]]; then
+        printer_data="${HOME}/printer_${names[${j}]}_data"
+      else
+        printer_data="${HOME}/${names[${j}]}_data"
+      fi
+
       octo_env="${HOME}/OctoPrint_${names[${j}]}"
       service="${SYSTEMD}/octoprint-${names[${j}]}.service"
       basedir="${HOME}/.octoprint_${names[${j}]}"
-      tmp_printer="/tmp/printer-${names[${j}]}"
+      printer="${printer_data}/comms/klippy.serial"
       config_yaml="${basedir}/config.yaml"
       restart_cmd="sudo service octoprint-${names[${j}]} restart"
     fi
@@ -280,9 +289,9 @@ OCTOPRINT
       /bin/sh -c "cat > ${basedir}/config.yaml" << CONFIGYAML
 serial:
     additionalPorts:
-    - ${tmp_printer}
+    - ${printer}
     disconnectOnErrors: false
-    port: ${tmp_printer}
+    port: ${printer}
 server:
     commands:
         serverRestartCommand: ${restart_cmd}

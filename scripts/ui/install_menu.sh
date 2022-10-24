@@ -60,10 +60,7 @@ function install_menu() {
         print_error "Function currently disabled! Sorry!"
         install_ui;;
       6)
-        #do_action "octoprint_setup_dialog" "install_ui";;
-        clear && print_header
-        print_error "Function currently disabled! Sorry!"
-        install_ui;;
+        do_action "octoprint_setup_dialog" "install_ui";;
       7)
         #do_action "install_pgc_for_klipper" "install_ui";;
         clear && print_header
