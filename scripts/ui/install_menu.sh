@@ -55,10 +55,7 @@ function install_menu() {
       4)
         do_action "install_fluidd" "install_ui";;
       5)
-        #do_action "install_klipperscreen" "install_ui";;
-        clear && print_header
-        print_error "Function currently disabled! Sorry!"
-        install_ui;;
+        do_action "install_klipperscreen" "install_ui";;
       6)
         do_action "octoprint_setup_dialog" "install_ui";;
       7)
