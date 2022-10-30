@@ -522,8 +522,9 @@ function patch_telegram_bot_update_manager() {
   regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
+  patched="false"
   for conf in ${moonraker_configs}; do
-    if ! grep -Eq "^\[update_manager moonraker-telegram-bot\]$" "${conf}"; then
+    if ! grep -Eq "^\[update_manager moonraker-telegram-bot\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
 
