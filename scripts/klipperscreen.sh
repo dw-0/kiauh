@@ -207,7 +207,7 @@ function patch_klipperscreen_update_manager() {
   moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
 
   for conf in ${moonraker_configs}; do
-    if ! grep -Eq "^\[update_manager KlipperScreen\]$" "${conf}"; then
+    if ! grep -Eq "^\[update_manager KlipperScreen\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
 

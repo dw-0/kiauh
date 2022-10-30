@@ -419,7 +419,7 @@ function patch_fluidd_update_manager() {
 
   patched="false"
   for conf in ${moonraker_configs}; do
-    if ! grep -Eq "^\[update_manager fluidd\]$" "${conf}"; then
+    if ! grep -Eq "^\[update_manager fluidd\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
 
