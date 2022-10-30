@@ -403,7 +403,7 @@ function remove_telegram_bot_logs() {
 
 function remove_legacy_telegram_bot_logs() {
   local files regex="telegram(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" | sort)
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
