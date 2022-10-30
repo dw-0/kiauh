@@ -518,9 +518,9 @@ function compare_telegram_bot_versions() {
 #================================================#
 
 function patch_telegram_bot_update_manager() {
-  local patched="false"
-  local moonraker_configs
-  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
+  local patched moonraker_configs regex
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "^\[update_manager moonraker-telegram-bot\]$" "${conf}"; then
