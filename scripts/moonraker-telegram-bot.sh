@@ -203,29 +203,40 @@ function create_telegram_conf() {
   local input=("${@}")
   local telegram_bot_count=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local log="${KLIPPER_LOGS}"
-  local cfg cfg_dir
+  local printer_data log_dir cfg cfg_dir
 
   if (( telegram_bot_count == 1 )); then
-    cfg_dir="${KLIPPER_CONFIG}"
+    printer_data="${HOME}/printer_data"
+    log_dir="${printer_data}/logs"
+    cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/telegram.conf"
+
+    ### create required folder structure
+    create_required_folders "${printer_data}"
+
     ### write single instance config
-    write_telegram_conf "${cfg_dir}" "${cfg}" "${log}"
+    write_telegram_conf "${cfg_dir}" "${cfg}"
 
   elif (( telegram_bot_count > 1 )); then
     local j=0 re="^[1-9][0-9]*$"
 
     for (( i=1; i <= telegram_bot_count; i++ )); do
-      ### overwrite config folder if name is only a number
-      if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
-      else
-        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
-      fi
+
+      printer_data="${HOME}/${names[${j}]}_data"
+      ### prefix instance name with "printer_" if it is only a number
+      [[ ${names[j]} =~ ${re} ]] && printer_data="${HOME}/printer_${names[${j}]}_data"
+
+
+      cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/telegram.conf"
+      log_dir="${printer_data}/logs"
+
+      ### create required folder structure
+      create_required_folders "${printer_data}"
 
       ### write multi instance config
-      write_telegram_conf "${cfg_dir}" "${cfg}" "${log}"
+      write_telegram_conf "${cfg_dir}" "${cfg}"
+
       j=$(( j + 1 ))
     done && unset j
 
@@ -235,17 +246,15 @@ function create_telegram_conf() {
 }
 
 function write_telegram_conf() {
-  local cfg_dir=${1} cfg=${2} log=${3}
+  local cfg_dir=${1} cfg=${2}
   local conf_template="${TELEGRAM_BOT_DIR}/scripts/base_install_template"
-  [[ ! -d ${cfg_dir} ]] && mkdir -p "${cfg_dir}"
 
   if [[ ! -f ${cfg} ]]; then
     status_msg "Creating telegram.conf in ${cfg_dir} ..."
     cp "${conf_template}" "${cfg}"
-    sed -i "s|some_log_path|${log}|g" "${cfg}"
     ok_msg "telegram.conf created!"
   else
-    status_msg "File '${cfg}' already exists!\nSkipping..."
+    ok_msg "File '${cfg}' already exists! Skipping..."
   fi
 }
 
@@ -253,16 +262,22 @@ function create_telegram_bot_service() {
   local input=("${@}")
   local instances=${input[0]} && unset "input[0]"
   local names=("${input[@]}") && unset "input[@]"
-  local cfg_dir cfg log service
+  local printer_data cfg_dir cfg log service env_file
 
   if (( instances == 1 )); then
-    cfg_dir="${KLIPPER_CONFIG}"
+    printer_data="${HOME}/printer_data"
+    cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/telegram.conf"
-    log="${KLIPPER_LOGS}/telegram.log"
+    log="${printer_data}/logs/telegram.log"
     service="${SYSTEMD}/moonraker-telegram-bot.service"
+    env_file="${printer_data}/systemd/moonraker-telegram-bot.env"
+
+    ### create required folder structure
+    create_required_folders "${printer_data}"
+
     ### write single instance service
-    write_telegram_bot_service "" "${cfg}" "${log}" "${service}"
-    ok_msg "Single Telegram Bot instance created!"
+    write_telegram_bot_service "" "${cfg}" "${log}" "${service}" "${env_file}"
+    ok_msg "Telegram Bot instance created!"
 
   elif (( instances > 1 )); then
     local j=0 re="^[1-9][0-9]*$"
@@ -270,17 +285,27 @@ function create_telegram_bot_service() {
     for (( i=1; i <= instances; i++ )); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
-        cfg_dir="${KLIPPER_CONFIG}/printer_${names[${j}]}"
+        printer_data="${HOME}/printer_${names[${j}]}_data"
       else
-        cfg_dir="${KLIPPER_CONFIG}/${names[${j}]}"
+        printer_data="${HOME}/${names[${j}]}_data"
       fi
 
+      cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/telegram.conf"
-      log="${KLIPPER_LOGS}/telegram-${names[${j}]}.log"
+      log="${printer_data}/logs/telegram.log"
       service="${SYSTEMD}/moonraker-telegram-bot-${names[${j}]}.service"
+      env_file="${printer_data}/systemd/moonraker-telegram-bot.env"
+
+      ### create required folder structure
+      create_required_folders "${printer_data}"
+
       ### write multi instance service
-      write_telegram_bot_service "${names[${j}]}" "${cfg}" "${log}" "${service}"
-      ok_msg "Telegram Bot instance moonraker-telegram-bot-${names[${j}]} created!"
+      if write_telegram_bot_service "${names[${j}]}" "${cfg}" "${log}" "${service}" "${env_file}"; then
+        ok_msg "Telegram Bot instance moonraker-telegram-bot-${names[${j}]} created!"
+      else
+        error_msg "An error occured during creation of instance moonraker-telegram-bot-${names[${j}]}!"
+      fi
+
       j=$(( j + 1 ))
     done && unset j
 
@@ -290,17 +315,24 @@ function create_telegram_bot_service() {
 }
 
 function write_telegram_bot_service() {
-  local i=${1} cfg=${2} log=${3} service=${4}
+  local i=${1} cfg=${2} log=${3} service=${4} env_file=${5}
   local service_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.service"
+  local env_template="${KIAUH_SRCDIR}/resources/moonraker-telegram-bot.env"
 
   ### replace all placeholders
   if [[ ! -f ${service} ]]; then
-    status_msg "Creating Telegram Bot Service ${i} ..."
+    status_msg "Creating service file for instance ${i} ..."
     sudo cp "${service_template}" "${service}"
-    [[ -z ${i} ]] && sudo sed -i "s|instance %INST% ||" "${service}"
-    [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%DIR%|${TELEGRAM_BOT_DIR}|" "${service}"
-    sudo sed -i "s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${service}"
+    if [[ -z ${i} ]]; then
+      sudo sed -i "s| %INST%||" "${service}"
+    else
+      sudo sed -i "s|%INST%|${i}|" "${service}"
+    fi
+    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+
+    status_msg "Creating environment file for instance ${i} ..."
+    cp "${env_template}" "${env_file}"
+    sed -i "s|%USER%|${USER}|; s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${env_file}"
   fi
 }
 
@@ -343,9 +375,35 @@ function remove_telegram_bot_env() {
   ok_msg "Directory removed!"
 }
 
+function remove_telegram_bot_env_file() {
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/moonraker-telegram-bot\.env"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_telegram_bot_logs() {
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/telegram\.log.*"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_legacy_telegram_bot_logs() {
   local files regex="telegram(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" | sort)
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -360,7 +418,9 @@ function remove_telegram_bot() {
   remove_telegram_bot_systemd
   remove_telegram_bot_dir
   remove_telegram_bot_env
+  remove_telegram_bot_env_file
   remove_telegram_bot_logs
+  remove_legacy_telegram_bot_logs
 
   local confirm="Moonraker-Telegram-Bot was successfully removed!"
   print_confirm "${confirm}" && return
@@ -458,12 +518,13 @@ function compare_telegram_bot_versions() {
 #================================================#
 
 function patch_telegram_bot_update_manager() {
-  local patched="false"
-  local moonraker_configs
-  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
+  local patched moonraker_configs regex
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
+  patched="false"
   for conf in ${moonraker_configs}; do
-    if ! grep -Eq "^\[update_manager moonraker-telegram-bot\]$" "${conf}"; then
+    if ! grep -Eq "^\[update_manager moonraker-telegram-bot\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
 

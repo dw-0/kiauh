@@ -61,10 +61,7 @@ function install_menu() {
       7)
         do_action "install_pgc_for_klipper" "install_ui";;
       8)
-        #do_action "telegram_bot_setup_dialog" "install_ui";;
-        clear && print_header
-        print_error "Function currently disabled! Sorry!"
-        install_ui;;
+        do_action "telegram_bot_setup_dialog" "install_ui";;
       9)
         #do_action "moonraker_obico_setup_dialog" "install_ui";;
         clear && print_header
