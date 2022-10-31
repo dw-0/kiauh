@@ -65,9 +65,6 @@ function obico_server_url_prompt() {
 function moonraker_obico_setup_dialog() {
   status_msg "Initializing Moonraker-obico installation ..."
 
-  get_instance_folder_path "config"
-  get_instance_folder_path "logs"
-
   local moonraker_count
   local moonraker_names
 
