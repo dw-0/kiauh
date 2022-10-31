@@ -597,7 +597,9 @@ function set_multi_instance_names() {
 
   local name
   local names=""
-  local services=$(find_klipper_systemd)
+  local services
+
+  services=$(find_klipper_systemd)
 
   ###
   # if value of 'multi_instance_names' is not an empty
@@ -657,16 +659,60 @@ function get_config_folders() {
       # by KIAUH convention, all instance names of only numbers
       # need to be prefixed with 'printer_'
       if [[ ${name} =~ ^[0-9]+$ ]]; then
-        cfg_dirs+=("${KLIPPER_CONFIG}/printer_${name}")
+        cfg_dirs+=("${HOME}/printer_${name}_data/config")
       else
-        cfg_dirs+=("${KLIPPER_CONFIG}/${name}")
+        cfg_dirs+=("${HOME}/${name}_data/config")
       fi
     done
   elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
-    cfg_dirs+=("${KLIPPER_CONFIG}")
+    cfg_dirs+=("${HOME}/printer_data/config")
   else
     cfg_dirs=()
   fi
 
   echo "${cfg_dirs[@]}"
+}
+
+###
+# helper function that returns all available absolute directory paths
+# based on their instance name and specified target folder
+#
+# @param {string}: folder name - target instance folder name (e.g. config)
+#
+# => return an empty string if klipper is not installed
+# => return space-separated string of absolute directory paths
+#
+function get_instance_folder_path() {
+  local folder_name=${1}
+  local folder_paths=()
+  local instance_names
+  local path
+
+  instance_names=$(get_multi_instance_names)
+
+  if [[ -n ${instance_names} ]]; then
+    for name in ${instance_names}; do
+      ###
+      # by KIAUH convention, all instance names of only numbers
+      # need to be prefixed with 'printer_'
+      if [[ ${name} =~ ^[0-9]+$ ]]; then
+        path="${HOME}/printer_${name}_data/${folder_name}"
+        if [[ -d ${path} ]]; then
+          folder_paths+=("${path}")
+        fi
+      else
+        path="${HOME}/${name}_data/${folder_name}"
+        if [[ -d ${path} ]]; then
+          folder_paths+=("${path}")
+        fi
+      fi
+    done
+  elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
+    path="${HOME}/printer_data/${folder_name}"
+    if [[ -d ${path} ]]; then
+      folder_paths+=("${path}")
+    fi
+  fi
+
+  echo "${folder_paths[@]}"
 }

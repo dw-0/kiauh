@@ -172,6 +172,9 @@ function klipper_setup() {
   (( instance_arr[0] == 1 )) && confirm="Klipper has been set up!"
   (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Klipper instances have been set up!"
 
+  ### finalizing the setup with writing instance names to the kiauh.ini
+  set_multi_instance_names
+
   print_confirm "${confirm}" && return
 }
 

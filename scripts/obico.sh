@@ -24,7 +24,7 @@ function moonraker_obico_systemd() {
 function moonraker_obico_config() {
   local moonraker_cfg_dirs
 
-  read -r -a moonraker_cfg_dirs <<< "$(get_config_folders)"
+  read -r -a moonraker_cfg_dirs <<< "$(get_instance_folder_path "config")"
 
   if (( ${#moonraker_cfg_dirs[@]} > 0 )); then
     echo "${moonraker_cfg_dirs[${1}]}/moonraker-obico.cfg"
@@ -65,7 +65,6 @@ function obico_server_url_prompt() {
 function moonraker_obico_setup_dialog() {
   status_msg "Initializing Moonraker-obico installation ..."
 
-
   local moonraker_count
   local moonraker_names
 
@@ -103,7 +102,6 @@ function moonraker_obico_setup_dialog() {
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
         for svc in ${moonraker_obico_services}; do
-#          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${svc}" moonraker-obico)"
           printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${svc}")"
         done
       fi
@@ -179,17 +177,29 @@ function moonraker_obico_setup_dialog() {
 
     ### step 6: call moonrake-obico/install.sh with the correct params
     local port=7125
-    local moonraker_cfg_dirs
+    local instance_cfg_dirs
+    local instance_log_dirs
 
-    read -r -a moonraker_cfg_dirs <<< "$(get_config_folders)"
+    read -r -a instance_cfg_dirs <<< "$(get_instance_folder_path "config")"
+    read -r -a instance_log_dirs <<< "$(get_instance_folder_path "logs")"
 
     if (( moonraker_count == 1 )); then
-      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg_dirs[0]}/moonraker.conf" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+      "${MOONRAKER_OBICO_DIR}/install.sh"\
+      -C "${instance_cfg_dirs[0]}/moonraker.conf"\
+      -p "${port}" -H 127.0.0.1 -l\
+      "${instance_log_dirs[0]}"\
+      -s -L -S "${obico_server_url}"
     elif (( moonraker_count > 1 )); then
       local j=${existing_moonraker_obico_count}
 
       for (( i=1; i <= new_moonraker_obico_count; i++ )); do
-        "${MOONRAKER_OBICO_DIR}/install.sh" -n "${moonraker_names[${j}]}" -C "${moonraker_cfg_dirs[${j}]}/moonraker.conf" -p $((port+j)) -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+        "${MOONRAKER_OBICO_DIR}/install.sh"\
+        -n "${moonraker_names[${j}]}"\
+        -C "${instance_cfg_dirs[${j}]}/moonraker.conf"\
+        -p $((port+j))\
+        -H 127.0.0.1\
+        -l "${instance_log_dirs[${j}]}"\
+        -s -L -S "${obico_server_url}"
         j=$(( j + 1 ))
       done && unset j
     fi # (( moonraker_count == 1 ))
@@ -301,8 +311,21 @@ function remove_moonraker_obico_systemd() {
 }
 
 function remove_moonraker_obico_logs() {
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker-obico(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_legacy_moonraker_obico_logs() {
   local files regex="moonraker-obico(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -372,7 +395,7 @@ function get_moonraker_obico_status() {
 
   is_linked="true"
   if [[ -n ${moonraker_obico_services} ]]; then
-    for cfg_dir in $(get_config_folders); do
+    for cfg_dir in $(get_instance_folder_path "config"); do
       if moonraker_obico_needs_linking "${cfg_dir}/moonraker-obico.cfg"; then
         is_linked="false"
       fi
