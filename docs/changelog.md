@@ -2,11 +2,11 @@
 
 This document covers possible important changes to KIAUH.
 
-### 2022-10-30
+### 2022-10-31
 Some functions got updated, though not all of them.
 
 The following functions are still currently unavailable:
-- Installation of: Obico, MJPG-Streamer
+- Installation of: MJPG-Streamer
 - All backup functions and the Log-Upload
 
 ### 2022-10-20
