@@ -102,7 +102,6 @@ function moonraker_obico_setup_dialog() {
       if (( existing_moonraker_obico_count > 0 )); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Moonraker-obico instances already installed!"
         for svc in ${moonraker_obico_services}; do
-#          printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${svc}" moonraker-obico)"
           printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${svc}")"
         done
       fi
