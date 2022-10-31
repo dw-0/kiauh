@@ -24,7 +24,7 @@ function moonraker_obico_systemd() {
 function moonraker_obico_config() {
   local moonraker_cfg_dirs
 
-  read -r -a moonraker_cfg_dirs <<< "$(get_config_folders)"
+  read -r -a moonraker_cfg_dirs <<< "$(get_instance_folder_path "config")"
 
   if (( ${#moonraker_cfg_dirs[@]} > 0 )); then
     echo "${moonraker_cfg_dirs[${1}]}/moonraker-obico.cfg"
@@ -65,6 +65,8 @@ function obico_server_url_prompt() {
 function moonraker_obico_setup_dialog() {
   status_msg "Initializing Moonraker-obico installation ..."
 
+  get_instance_folder_path "config"
+  get_instance_folder_path "logs"
 
   local moonraker_count
   local moonraker_names
@@ -179,17 +181,29 @@ function moonraker_obico_setup_dialog() {
 
     ### step 6: call moonrake-obico/install.sh with the correct params
     local port=7125
-    local moonraker_cfg_dirs
+    local instance_cfg_dirs
+    local instance_log_dirs
 
-    read -r -a moonraker_cfg_dirs <<< "$(get_config_folders)"
+    read -r -a instance_cfg_dirs <<< "$(get_instance_folder_path "config")"
+    read -r -a instance_log_dirs <<< "$(get_instance_folder_path "logs")"
 
     if (( moonraker_count == 1 )); then
-      "${MOONRAKER_OBICO_DIR}/install.sh" -C "${moonraker_cfg_dirs[0]}/moonraker.conf" -p "${port}" -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+      "${MOONRAKER_OBICO_DIR}/install.sh"\
+      -C "${instance_cfg_dirs[0]}/moonraker.conf"\
+      -p "${port}" -H 127.0.0.1 -l\
+      "${instance_log_dirs[0]}"\
+      -s -L -S "${obico_server_url}"
     elif (( moonraker_count > 1 )); then
       local j=${existing_moonraker_obico_count}
 
       for (( i=1; i <= new_moonraker_obico_count; i++ )); do
-        "${MOONRAKER_OBICO_DIR}/install.sh" -n "${moonraker_names[${j}]}" -C "${moonraker_cfg_dirs[${j}]}/moonraker.conf" -p $((port+j)) -H 127.0.0.1 -l "${KLIPPER_LOGS}" -s -L -S "${obico_server_url}"
+        "${MOONRAKER_OBICO_DIR}/install.sh"\
+        -n "${moonraker_names[${j}]}"\
+        -C "${instance_cfg_dirs[${j}]}/moonraker.conf"\
+        -p $((port+j))\
+        -H 127.0.0.1\
+        -l "${instance_log_dirs[${j}]}"\
+        -s -L -S "${obico_server_url}"
         j=$(( j + 1 ))
       done && unset j
     fi # (( moonraker_count == 1 ))
@@ -372,7 +386,7 @@ function get_moonraker_obico_status() {
 
   is_linked="true"
   if [[ -n ${moonraker_obico_services} ]]; then
-    for cfg_dir in $(get_config_folders); do
+    for cfg_dir in $(get_instance_folder_path "config"); do
       if moonraker_obico_needs_linking "${cfg_dir}/moonraker-obico.cfg"; then
         is_linked="false"
       fi
