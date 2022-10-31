@@ -597,7 +597,9 @@ function set_multi_instance_names() {
 
   local name
   local names=""
-  local services=$(find_klipper_systemd)
+  local services
+
+  services=$(find_klipper_systemd)
 
   ###
   # if value of 'multi_instance_names' is not an empty
@@ -706,9 +708,10 @@ function get_instance_folder_path() {
       fi
     done
   elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
-    folder_paths+=("${HOME}/printer_data/${folder_name}")
-  else
-    folder_paths=()
+    path="${HOME}/printer_data/${folder_name}"
+    if [[ -d ${path} ]]; then
+      folder_paths+=("${path}")
+    fi
   fi
 
   echo "${folder_paths[@]}"
