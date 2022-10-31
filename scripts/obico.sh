@@ -315,8 +315,21 @@ function remove_moonraker_obico_systemd() {
 }
 
 function remove_moonraker_obico_logs() {
+  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker-obico(-[0-9a-zA-Z]+)?\.log(.*)?"
+  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
+function remove_legacy_moonraker_obico_logs() {
   local files regex="moonraker-obico(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${KLIPPER_LOGS}" -maxdepth 1 -regextype posix-extended -regex "${KLIPPER_LOGS}/${regex}" 2> /dev/null | sort)
+  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
