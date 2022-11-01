@@ -56,16 +56,7 @@ function start_klipper_setup() {
   [[ -n ${error} ]] && print_error "${error}" && return
 
   ### user selection for python version
-  top_border
-  echo -e "| Please select the preferred Python version.           | "
-  echo -e "| The recommended version is Python 2.7.                | "
-  blank_line
-  echo -e "| Installing Klipper with Python 3 is officially not    | "
-  echo -e "| recommended and should be considered as experimental. | "
-  hr
-  echo -e "|  1) [Python 2.7]  (recommended)                       | "
-  echo -e "|  2) [Python 3.x]  ${yellow}(experimental)${white}                      | "
-  back_footer
+  print_dialog_user_select_python_version
   while true; do
     read -p "${cyan}###### Select Python version:${white} " input
     case "${input}" in
@@ -85,15 +76,7 @@ function start_klipper_setup() {
   done && unset input
 
   ### user selection for instance count
-  top_border
-  echo -e "| Please select the number of Klipper instances to set  |"
-  echo -e "| up. The number of Klipper instances will determine    |"
-  echo -e "| the amount of printers you can run from this host.    |"
-  blank_line
-  echo -e "| ${yellow}WARNING:${white}                                              |"
-  echo -e "| ${yellow}Setting up too many instances may crash your system.${white}  |"
-  back_footer
-
+  print_dialog_user_select_instance_count
   regex="^[1-9][0-9]*$"
   while [[ ! ${input} =~ ${regex} ]]; do
     read -p "${cyan}###### Number of Klipper instances to set up:${white} " input
@@ -112,14 +95,7 @@ function start_klipper_setup() {
   ### user selection for custom names
   use_custom_names="false"
   if (( instance_count > 1 )); then
-    top_border
-    echo -e "| You can now assign a custom name to each instance.    |"
-    echo -e "| If skipped, each instance will get an index assigned  |"
-    echo -e "| in ascending order, starting at index '1'.            |"
-    blank_line
-    echo -e "| Info:                                                 |"
-    echo -e "| Only alphanumeric characters for names are allowed!   |"
-    back_footer
+    print_dialog_user_select_custom_name_bool
     while true; do
       read -p "${cyan}###### Assign custom names? (y/N):${white} " input
       case "${input}" in
@@ -135,7 +111,7 @@ function start_klipper_setup() {
         *)
           error_msg "Invalid Input!";;
       esac
-    done
+    done && unset input
   else
     instance_names+=("printer")
   fi
@@ -146,7 +122,6 @@ function start_klipper_setup() {
 
     i=1
     regex="^[0-9a-zA-Z]+$"
-
     while [[ ! ${input} =~ ${regex} || ${i} -le ${instance_count} ]]; do
       read -p "${cyan}###### Name for instance #${i}:${white} " input
 
@@ -158,9 +133,8 @@ function start_klipper_setup() {
       else
         error_msg "Invalid Input!"
       fi
-    done
+    done && unset input
   else
-    ### if no custom names are used, add the respective amount of indices to the user_input array
     for (( i=1; i <= instance_count; i++ )); do
       instance_names+=("printer_${i}")
     done
@@ -170,6 +144,41 @@ function start_klipper_setup() {
   (( instance_count == 1 )) && status_msg "Installing single Klipper instance ..."
 
   run_klipper_setup "${python_version}" "${instance_names[@]}"
+}
+
+function print_dialog_user_select_python_version() {
+  top_border
+  echo -e "| Please select the preferred Python version.           | "
+  echo -e "| The recommended version is Python 2.7.                | "
+  blank_line
+  echo -e "| Installing Klipper with Python 3 is officially not    | "
+  echo -e "| recommended and should be considered as experimental. | "
+  hr
+  echo -e "|  1) [Python 2.7]  (recommended)                       | "
+  echo -e "|  2) [Python 3.x]  ${yellow}(experimental)${white}                      | "
+  back_footer
+}
+
+function print_dialog_user_select_instance_count() {
+  top_border
+  echo -e "| Please select the number of Klipper instances to set  |"
+  echo -e "| up. The number of Klipper instances will determine    |"
+  echo -e "| the amount of printers you can run from this host.    |"
+  blank_line
+  echo -e "| ${yellow}WARNING:${white}                                              |"
+  echo -e "| ${yellow}Setting up too many instances may crash your system.${white}  |"
+  back_footer
+}
+
+function print_dialog_user_select_custom_name_bool() {
+  top_border
+  echo -e "| You can now assign a custom name to each instance.    |"
+  echo -e "| If skipped, each instance will get an index assigned  |"
+  echo -e "| in ascending order, starting at index '1'.            |"
+  blank_line
+  echo -e "| Info:                                                 |"
+  echo -e "| Only alphanumeric characters for names are allowed!   |"
+  back_footer
 }
 
 function run_klipper_setup() {
