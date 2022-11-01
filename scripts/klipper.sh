@@ -73,7 +73,7 @@ function start_klipper_setup() {
       *)
         error_msg "Invalid Input!\n";;
     esac
-  done && unset input
+  done
 
   ### user selection for instance count
   print_dialog_user_select_instance_count
@@ -90,7 +90,7 @@ function start_klipper_setup() {
     else
       error_msg "Invalid Input!\n"
     fi
-  done && unset input
+  done
 
   ### user selection for custom names
   use_custom_names="false"
@@ -111,7 +111,7 @@ function start_klipper_setup() {
         *)
           error_msg "Invalid Input!";;
       esac
-    done && unset input
+    done
   else
     instance_names+=("printer")
   fi
