@@ -29,17 +29,17 @@ function start_klipper_setup() {
   local python_version
   local instance_count
   local instance_names
+  local use_custom_names
+  local input
+  local regex
   local error
 
   status_msg "Initializing Klipper installation ...\n"
 
-  print_user_select_klipper_python_version
-  python_version=$(user_select_klipper_python_version)
-
+  ### return early if klipper already exists
   klipper_initd_service=$(find_klipper_initd)
   klipper_systemd_services=$(find_klipper_systemd)
 
-  ### return early if klipper already exists
   if [[ -n ${klipper_initd_service} ]]; then
     error="Unsupported Klipper SysVinit service detected:"
     error="${error}\n ➔ ${klipper_initd_service}"
@@ -53,28 +53,9 @@ function start_klipper_setup() {
       error="${error}\n ➔ ${s}"
     done
   fi
-
   [[ -n ${error} ]] && print_error "${error}" && return
 
-  ### ask for amount of instances to create
-  print_user_select_instance_count
-  instance_count=$(user_select_instance_count)
-
-  ### ask for custom names
-  if (( instance_count > 1 )); then
-    print_user_select_instance_names
-    instance_names=$(user_select_instance_names "${instance_count}")
-  else
-    instance_names+=("printer")
-  fi
-
-  (( instance_count > 1 )) && status_msg "Installing ${instance_count} Klipper instances ..."
-  (( instance_count == 1 )) && status_msg "Installing single Klipper instance ..."
-
-  run_klipper_setup "${python_version}" "${instance_names[@]}"
-}
-
-function print_user_select_klipper_python_version() {
+  ### user selection for python version
   top_border
   echo -e "| Please select the preferred Python version.           | "
   echo -e "| The recommended version is Python 2.7.                | "
@@ -85,21 +66,15 @@ function print_user_select_klipper_python_version() {
   echo -e "|  1) [Python 2.7]  (recommended)                       | "
   echo -e "|  2) [Python 3.x]  ${yellow}(experimental)${white}                      | "
   back_footer
-}
-
-function user_select_klipper_python_version() {
-  local python_version
-  local option
-
   while true; do
-    read -p "${cyan}###### Select Python version:${white} " option
-    case "${option}" in
+    read -p "${cyan}###### Select Python version:${white} " input
+    case "${input}" in
       1)
-        #select_msg "Python 2.7"
+        select_msg "Python 2.7"
         python_version=2
         break;;
       2)
-        #select_msg "Python 3.x"
+        select_msg "Python 3.x"
         python_version=3
         break;;
       B|b)
@@ -107,12 +82,9 @@ function user_select_klipper_python_version() {
       *)
         error_msg "Invalid Input!\n";;
     esac
-  done
+  done && unset input
 
-  echo "${python_version}"
-}
-
-function print_user_select_instance_count() {
+  ### user selection for instance count
   top_border
   echo -e "| Please select the number of Klipper instances to set  |"
   echo -e "| up. The number of Klipper instances will determine    |"
@@ -121,67 +93,57 @@ function print_user_select_instance_count() {
   echo -e "| ${yellow}WARNING:${white}                                              |"
   echo -e "| ${yellow}Setting up too many instances may crash your system.${white}  |"
   back_footer
-}
-
-function user_select_instance_count() {
-  local regex
-  local input
-  local instance_count
 
   regex="^[1-9][0-9]*$"
   while [[ ! ${input} =~ ${regex} ]]; do
-    read -p "${cyan}###### Number of Klipper instances to set up:${white} " -i "1" -e input
+    read -p "${cyan}###### Number of Klipper instances to set up:${white} " input
 
     if [[ ${input} =~ ${regex} ]]; then
       instance_count="${input}"
+      select_msg "Instance count: ${instance_count}"
       break
+    elif [[ ${input} == "B" || ${input} == "b" ]]; then
+      install_menu
     else
-      error_msg "Input not a number"
+      error_msg "Invalid Input!\n"
     fi
-  done
+  done && unset input
 
-  echo "${instance_count}"
-}
-
-function print_user_select_instance_names() {
-  top_border
-  echo -e "| You can now assign a custom name to each instance.    |"
-  echo -e "| If skipped, each instance will get an index assigned  |"
-  echo -e "| in ascending order, starting at index '1'.            |"
-  blank_line
-  echo -e "| Info:                                                 |"
-  echo -e "| Only alphanumeric characters for names are allowed!   |"
-  back_footer
-}
-
-function user_select_instance_names() {
-  local instance_count=${1}
-  local use_custom_names
-  local instance_names
-  local input
-  local regex
-  local i
-
+  ### user selection for custom names
   use_custom_names="false"
-  while true; do
-    read -p "${cyan}###### Assign custom names? (y/N):${white} " input
+  if (( instance_count > 1 )); then
+    top_border
+    echo -e "| You can now assign a custom name to each instance.    |"
+    echo -e "| If skipped, each instance will get an index assigned  |"
+    echo -e "| in ascending order, starting at index '1'.            |"
+    blank_line
+    echo -e "| Info:                                                 |"
+    echo -e "| Only alphanumeric characters for names are allowed!   |"
+    back_footer
+    while true; do
+      read -p "${cyan}###### Assign custom names? (y/N):${white} " input
+      case "${input}" in
+        Y|y|Yes|yes)
+          select_msg "Yes"
+          use_custom_names="true"
+          break;;
+        N|n|No|no|"")
+          select_msg "No"
+          break;;
+        B|b)
+          clear; install_menu; break;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
+  else
+    instance_names+=("printer")
+  fi
 
-    case "${input}" in
-      Y|y|Yes|yes)
-        #select_msg "Yes"
-        use_custom_names="true"
-        break;;
-      N|n|No|no|"")
-        #select_msg "No"
-        break;;
-      B|b)
-        clear; install_menu; break;;
-      *)
-        error_msg "Invalid Input!";;
-    esac
-  done
-
+  ### user selection for setting the actual custom names
   if [[ ${use_custom_names} == "true" ]]; then
+    local i
+
     i=1
     regex="^[0-9a-zA-Z]+$"
 
@@ -189,7 +151,8 @@ function user_select_instance_names() {
       read -p "${cyan}###### Name for instance #${i}:${white} " input
 
       if [[ ${input} =~ ${regex} ]]; then
-        #select_msg "Name: ${input}"
+        select_msg "Name: ${input}"
+        #TODO: if input is only a number, we need to rewrite it here already and prefix it with 'printer_'!
         instance_names+=("${input}")
         i=$(( i + 1 ))
       else
@@ -203,7 +166,10 @@ function user_select_instance_names() {
     done
   fi
 
-  echo "${instance_names[@]}"
+  (( instance_count > 1 )) && status_msg "Installing ${instance_count} Klipper instances ..."
+  (( instance_count == 1 )) && status_msg "Installing single Klipper instance ..."
+
+  run_klipper_setup "${python_version}" "${instance_names[@]}"
 }
 
 function run_klipper_setup() {
@@ -211,12 +177,13 @@ function run_klipper_setup() {
 
   local python_version=${1}
   local instance_names
-  read -r -a instance_names <<< "${2}"
-
   local confirm
   local custom_repo
   local custom_branch
   local dep
+
+  shift 1
+  read -r -a instance_names <<< "${@}"
 
   custom_repo="${custom_klipper_repo}"
   custom_branch="${custom_klipper_repo_branch}"
