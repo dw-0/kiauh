@@ -61,11 +61,11 @@ function start_klipper_setup() {
     read -p "${cyan}###### Select Python version:${white} " input
     case "${input}" in
       1)
-        select_msg "Python 2.7"
+        select_msg "Python 2.7\n"
         python_version=2
         break;;
       2)
-        select_msg "Python 3.x"
+        select_msg "Python 3.x\n"
         python_version=3
         break;;
       B|b)
@@ -73,7 +73,7 @@ function start_klipper_setup() {
       *)
         error_msg "Invalid Input!\n";;
     esac
-  done
+  done && input=""
 
   ### user selection for instance count
   print_dialog_user_select_instance_count
@@ -83,14 +83,14 @@ function start_klipper_setup() {
 
     if [[ ${input} =~ ${regex} ]]; then
       instance_count="${input}"
-      select_msg "Instance count: ${instance_count}"
+      select_msg "Instance count: ${instance_count}\n"
       break
     elif [[ ${input} == "B" || ${input} == "b" ]]; then
       install_menu
     else
       error_msg "Invalid Input!\n"
     fi
-  done
+  done && input=""
 
   ### user selection for custom names
   use_custom_names="false"
@@ -100,18 +100,18 @@ function start_klipper_setup() {
       read -p "${cyan}###### Assign custom names? (y/N):${white} " input
       case "${input}" in
         Y|y|Yes|yes)
-          select_msg "Yes"
+          select_msg "Yes\n"
           use_custom_names="true"
           break;;
         N|n|No|no|"")
-          select_msg "No"
+          select_msg "No\n"
           break;;
         B|b)
           clear; install_menu; break;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!\n";;
       esac
-    done
+    done && input=""
   else
     instance_names+=("printer")
   fi
@@ -126,14 +126,14 @@ function start_klipper_setup() {
       read -p "${cyan}###### Name for instance #${i}:${white} " input
 
       if [[ ${input} =~ ${regex} ]]; then
-        select_msg "Name: ${input}"
+        select_msg "Name: ${input}\n"
         #TODO: if input is only a number, we need to rewrite it here already and prefix it with 'printer_'!
         instance_names+=("${input}")
         i=$(( i + 1 ))
       else
-        error_msg "Invalid Input!"
+        error_msg "Invalid Input!\n"
       fi
-    done && unset input
+    done && input=""
   else
     for (( i=1; i <= instance_count; i++ )); do
       instance_names+=("printer_${i}")
