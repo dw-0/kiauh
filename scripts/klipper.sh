@@ -397,51 +397,37 @@ function write_example_printer_cfg() {
 #================ REMOVE KLIPPER ================#
 #================================================#
 
-function remove_klipper_sysvinit() {
-  [[ ! -e "${INITD}/klipper" ]] && return
+function remove_klipper_service() {
+  if [[ ! -e "${INITD}/klipper" ]] && [[ -z $(find_klipper_systemd) ]]; then
+    return
+  fi
 
-  status_msg "Removing Klipper SysVinit service ..."
-  sudo systemctl stop klipper
-  sudo update-rc.d -f klipper remove
-  sudo rm -f "${INITD}/klipper" "${ETCDEF}/klipper"
-  ok_msg "Klipper SysVinit service removed!"
-}
+  status_msg "Removing Klipper services ..."
 
-function remove_klipper_systemd() {
-  [[ -z $(find_klipper_systemd) ]] && return
-
-  status_msg "Removing Klipper Systemd Services ..."
-  for service in $(find_klipper_systemd | cut -d"/" -f5); do
-    status_msg "Removing ${service} ..."
-    sudo systemctl stop "${service}"
-    sudo systemctl disable "${service}"
-    sudo rm -f "${SYSTEMD}/${service}"
-    ok_msg "Done!"
-  done
-
-  ### reloading units
-  sudo systemctl daemon-reload
-  sudo systemctl reset-failed
-  ok_msg "Klipper Service removed!"
-}
-
-function remove_klipper_env_file() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/klipper\.env"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
-
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
+  if [[ -e "${INITD}/klipper" ]]; then
+    sudo systemctl stop klipper
+    sudo update-rc.d -f klipper remove
+    sudo rm -f "${INITD}/klipper" "${ETCDEF}/klipper"
+  else
+    for service in $(find_klipper_systemd | cut -d"/" -f5); do
+      status_msg "Removing ${service} ..."
+      sudo systemctl stop "${service}"
+      sudo systemctl disable "${service}"
+      sudo rm -f "${SYSTEMD}/${service}"
+      sudo systemctl daemon-reload
+      sudo systemctl reset-failed
     done
   fi
+
+  ok_msg "All Klipper services removed!"
 }
 
-function remove_klipper_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/klippy\.log.*"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+function remove_instance_files() {
+  local target_folder=${1}
+  local target_name=${2}
+  local files
 
+  files=$(find "${HOME}" -regex "${HOME}/[A-Za-z0-9_]+_data/${target_folder}/${target_name}")
   if [[ -n ${files} ]]; then
     for file in ${files}; do
       status_msg "Removing ${file} ..."
@@ -464,22 +450,9 @@ function remove_legacy_klipper_logs() {
   fi
 }
 
-function remove_klipper_uds() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/comms\/klippy\.sock"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
-
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
-}
-
-function remove_klipper_printer() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/comms\/klippy\.serial"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
+function remove_legacy_klipper_uds() {
+  local files
+  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
 
   if [[ -n ${files} ]]; then
     for file in ${files}; do
@@ -520,19 +493,20 @@ function remove_klipper_env() {
 }
 
 function remove_klipper() {
-  remove_klipper_sysvinit
-  remove_klipper_systemd
-  remove_klipper_env_file
-  remove_klipper_logs
+  remove_klipper_service
+  remove_instance_files "systemd" "klipper.env"
+  remove_instance_files "logs" "klippy.log.*"
+  remove_instance_files "comms" "klippy.sock"
+  remove_instance_files "comms" "klippy.serial"
+
   remove_legacy_klipper_logs
-  remove_klipper_uds
-  remove_klipper_printer
+  remove_legacy_klipper_uds
   remove_legacy_klipper_printer
+
   remove_klipper_dir
   remove_klipper_env
 
-  local confirm="Klipper was successfully removed!"
-  print_confirm "${confirm}" && return
+  print_confirm "Klipper was successfully removed!" && return
 }
 
 #================================================#
