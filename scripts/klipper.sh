@@ -413,58 +413,36 @@ function remove_klipper_service() {
   ok_msg "All Klipper services removed!"
 }
 
-function remove_instance_files() {
+function find_instance_files() {
   local target_folder=${1}
   local target_name=${2}
   local files
 
-  files=$(find "${HOME}" -regex "${HOME}/[A-Za-z0-9_]+_data/${target_folder}/${target_name}")
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
+  readarray -t files < <(find "${HOME}" -regex "${HOME}/[A-Za-z0-9_]+_data/${target_folder}/${target_name}" | sort)
+
+  echo -e "${files[@]}"
 }
 
-function remove_legacy_klipper_logs() {
-  local files regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
-
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
-}
-
-function remove_legacy_klipper_uds() {
+function find_legacy_klipper_logs() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
+  local regex="klippy(-[0-9a-zA-Z]+)?\.log(.*)?"
 
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
+  readarray -t files < <(find "${HOME}/klipper_logs" -maxdepth 1 -regextype posix-extended -regex "${HOME}/klipper_logs/${regex}" 2> /dev/null | sort)
+  echo -e "${files[@]}"
 }
 
-function remove_legacy_klipper_printer() {
+function find_legacy_klipper_uds() {
   local files
-  files=$(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[0-9a-zA-Z]+)?" | sort)
 
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
+  readarray -t files < <(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/klippy_uds(-[0-9a-zA-Z]+)?" | sort)
+  echo -e "${files[@]}"
+}
+
+function find_legacy_klipper_printer() {
+  local files
+
+  readarray -t files < <(find /tmp -maxdepth 1 -regextype posix-extended -regex "/tmp/printer(-[0-9a-zA-Z]+)?" | sort)
+  echo -e "${files[@]}"
 }
 
 function remove_klipper_dir() {
@@ -483,16 +461,33 @@ function remove_klipper_env() {
   ok_msg "Directory removed!"
 }
 
+###
+# takes in a string of space separated absolute
+# filepaths and removes those files one after another
+#
+function remove_files() {
+  local files
+  read -r -a files <<< "${@}"
+
+  if (( ${#files[@]} > 0 )); then
+    for file in "${files[@]}"; do
+      status_msg "Removing ${file} ..."
+      rm -f "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_klipper() {
   remove_klipper_service
-  remove_instance_files "systemd" "klipper.env"
-  remove_instance_files "logs" "klippy.log.*"
-  remove_instance_files "comms" "klippy.sock"
-  remove_instance_files "comms" "klippy.serial"
+  remove_files "$(find_instance_files "systemd" "klipper.env")"
+  remove_files "$(find_instance_files "logs" "klippy.log.*")"
+  remove_files "$(find_instance_files "comms" "klippy.sock")"
+  remove_files "$(find_instance_files "comms" "klippy.serial")"
 
-  remove_legacy_klipper_logs
-  remove_legacy_klipper_uds
-  remove_legacy_klipper_printer
+  remove_files "$(find_legacy_klipper_logs)"
+  remove_files "$(find_legacy_klipper_uds)"
+  remove_files "$(find_legacy_klipper_printer)"
 
   remove_klipper_dir
   remove_klipper_env
