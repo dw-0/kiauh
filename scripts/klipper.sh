@@ -75,7 +75,7 @@ function start_klipper_setup() {
   print_dialog_user_select_instance_count
   regex="^[1-9][0-9]*$"
   while [[ ! ${input} =~ ${regex} ]]; do
-    read -p "${cyan}###### Number of Klipper instances to set up:${white} " input
+    read -p "${cyan}###### Number of Klipper instances to set up:${white} " -i "1" -e input
 
     if [[ ${input} =~ ${regex} ]]; then
       instance_count="${input}"
