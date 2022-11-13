@@ -127,8 +127,11 @@ function start_klipper_setup() {
 
       if [[ ${input} =~ ${regex} ]]; then
         select_msg "Name: ${input}\n"
-        #TODO: if input is only a number, we need to rewrite it here already and prefix it with 'printer_'!
-        instance_names+=("${input}")
+        if [[ ${input} =~ ^[0-9]+$ ]]; then
+          instance_names+=("printer_${input}")
+        else
+          instance_names+=("${input}")
+        fi
         i=$(( i + 1 ))
       else
         error_msg "Invalid Input!\n"
