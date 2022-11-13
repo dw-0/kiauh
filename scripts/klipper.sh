@@ -113,7 +113,7 @@ function start_klipper_setup() {
   fi
 
   ### user selection for setting the actual custom names
-  if [[ ${use_custom_names} == "true" ]]; then
+  if (( instance_count > 1 )) && [[ ${use_custom_names} == "true" ]]; then
     local i
 
     i=1
@@ -133,7 +133,7 @@ function start_klipper_setup() {
         error_msg "Invalid Input!\n"
       fi
     done && input=""
-  else
+  elif (( instance_count > 1 )) && [[ ${use_custom_names} == "false" ]]; then
     for (( i=1; i <= instance_count; i++ )); do
       instance_names+=("printer_${i}")
     done
