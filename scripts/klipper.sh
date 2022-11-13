@@ -11,10 +11,6 @@
 
 set -e
 
-#TODO:
-# the current changes do not allow to display feedback to the user
-# regarding the decisions that were made during input prompts (select_msg)
-
 #TODO (multi instance):
 # if the klipper installer is started another time while other klipper
 # instances are detected, ask if new instances should be added
