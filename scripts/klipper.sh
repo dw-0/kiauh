@@ -207,9 +207,9 @@ function run_klipper_setup() {
   install_klipper_packages "${python_version}"
   create_klipper_virtualenv "${python_version}"
 
-  ### step 3: configure and create klipper instances
+  ### step 3: create klipper instances
   for instance in "${instance_names[@]}"; do
-    configure_klipper_service "${instance}"
+    create_klipper_service "${instance}"
   done
 
   ### step 4: enable and start all instances
@@ -319,25 +319,27 @@ function install_klipper_packages() {
   fi
 }
 
-function configure_klipper_service() {
+function create_klipper_service() {
   local instance_name=${1}
 
   local printer_data
   local cfg_dir
   local cfg
   local log
-  local printer
-  local uds
+  local klippy_serial
+  local klippy_socket
   local env_file
   local service
+  local service_template
+  local env_template
   local suffix
 
   printer_data="${HOME}/${instance_name}_data"
   cfg_dir="${printer_data}/config"
   cfg="${cfg_dir}/printer.cfg"
   log="${printer_data}/logs/klippy.log"
-  printer="${printer_data}/comms/klippy.serial"
-  uds="${printer_data}/comms/klippy.sock"
+  klippy_serial="${printer_data}/comms/klippy.serial"
+  klippy_socket="${printer_data}/comms/klippy.sock"
   env_file="${printer_data}/systemd/klipper.env"
 
   if [[ ${instance_name} == "printer" ]]; then
@@ -346,36 +348,25 @@ function configure_klipper_service() {
     suffix="-${instance_name//printer_/}"
   fi
 
-  service="${SYSTEMD}/klipper${suffix}.service"
-
   create_required_folders "${printer_data}"
-  write_klipper_service "${cfg}" "${log}" "${printer}" "${uds}" "${service}" "${env_file}"
-  write_example_printer_cfg "${cfg}"
-}
-
-function write_klipper_service() {
-  local cfg=${1}
-  local log=${2}
-  local printer=${3}
-  local uds=${4}
-  local service=${5}
-  local env_file=${6}
-
-  local service_template
-  local env_template
 
   service_template="${KIAUH_SRCDIR}/resources/klipper.service"
   env_template="${KIAUH_SRCDIR}/resources/klipper.env"
+  service="${SYSTEMD}/klipper${suffix}.service"
 
   if [[ ! -f ${service} ]]; then
-    status_msg "Write Klipper service file ..."
+    status_msg "Create Klipper service file ..."
 
     sudo cp "${service_template}" "${service}"
     sudo cp "${env_template}" "${env_file}"
     sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${KLIPPY_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${printer}|; s|%UDS%|${uds}|" "${env_file}"
+    sudo sed -i "s|%USER%|${USER}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${klippy_serial}|; s|%UDS%|${klippy_socket}|" "${env_file}"
 
     ok_msg "Klipper service file created!"
+  fi
+
+  if [[ ! -f ${cfg} ]]; then
+    write_example_printer_cfg "${cfg}"
   fi
 }
 
