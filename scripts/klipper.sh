@@ -510,7 +510,7 @@ function update_klipper() {
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
 
-  py_ver="python$(get_klipper_python_ver)"
+  py_ver=$(get_klipper_python_ver)
 
   do_action_service "stop" "klipper"
 
