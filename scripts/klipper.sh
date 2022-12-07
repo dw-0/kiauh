@@ -57,12 +57,12 @@ function start_klipper_setup() {
     read -p "${cyan}###### Select Python version:${white} " input
     case "${input}" in
       1)
-        select_msg "Python 2.7\n"
-        python_version=2
-        break;;
-      2)
         select_msg "Python 3.x\n"
         python_version=3
+        break;;
+      2)
+        select_msg "Python 2.7\n"
+        python_version=2
         break;;
       B|b)
         clear; install_menu; break;;
@@ -153,8 +153,8 @@ function print_dialog_user_select_python_version() {
   echo -e "| Installing Klipper with Python 3 is officially not    | "
   echo -e "| recommended and should be considered as experimental. | "
   hr
-  echo -e "|  1) [Python 2.7]  (recommended)                       | "
-  echo -e "|  2) [Python 3.x]  ${yellow}(experimental)${white}                      | "
+  echo -e "|  1) [Python 3.x]  (recommended)                       | "
+  echo -e "|  2) [Python 2.7]  ${yellow}(legacy)${white}                            | "
   back_footer
 }
 
