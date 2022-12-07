@@ -126,7 +126,7 @@ function install_mainsail_macros() {
 function download_mainsail_macros() {
   local ms_cfg path configs regex
 
-  ms_cfg="https://raw.githubusercontent.com/mainsail-crew/MainsailOS/master/src/modules/mainsail/filesystem/home/pi/klipper_config/mainsail.cfg"
+  ms_cfg="https://raw.githubusercontent.com/mainsail-crew/mainsail-config/master/mainsail.cfg"
   regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
   configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
