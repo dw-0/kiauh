@@ -147,11 +147,8 @@ function start_klipper_setup() {
 
 function print_dialog_user_select_python_version() {
   top_border
-  echo -e "| Please select the preferred Python version.           | "
-  echo -e "| The recommended version is Python 2.7.                | "
-  blank_line
-  echo -e "| Installing Klipper with Python 3 is officially not    | "
-  echo -e "| recommended and should be considered as experimental. | "
+  echo -e "| Please select your preferred Python version.          | "
+  echo -e "| The recommended version is Python 3.x.                | "
   hr
   echo -e "|  1) [Python 3.x]  (recommended)                       | "
   echo -e "|  2) [Python 2.7]  ${yellow}(legacy)${white}                            | "
