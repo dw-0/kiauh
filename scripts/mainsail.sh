@@ -502,8 +502,10 @@ function ms_theme_delete() {
 #================================================#
 
 function get_mainsail_download_url() {
-  local tags latest_tag latest_url stable_tag stable_url url
-  tags=$(curl -s "${MAINSAIL_TAGS}" | grep "name" | cut -d'"' -f4)
+  local ms_tags tags latest_tag latest_url stable_tag stable_url url
+
+  ms_tags="https://api.github.com/repos/mainsail-crew/mainsail/tags"
+  tags=$(curl -s "${ms_tags}" | grep "name" | cut -d'"' -f4)
 
   ### latest download url including pre-releases (alpha, beta, rc)
   latest_tag=$(echo "${tags}" | head -1)

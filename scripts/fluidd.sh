@@ -332,8 +332,10 @@ function compare_fluidd_versions() {
 #================================================#
 
 function get_fluidd_download_url() {
-  local tags latest_tag latest_url stable_tag stable_url url
-  tags=$(curl -s "${FLUIDD_TAGS}" | grep "name" | cut -d'"' -f4)
+  local fl_tags tags latest_tag latest_url stable_tag stable_url url
+
+  fl_tags="https://api.github.com/repos/fluidd-core/fluidd/tags"
+  tags=$(curl -s "${fl_tags}" | grep "name" | cut -d'"' -f4)
 
   ### latest download url including pre-releases (alpha, beta, rc)
   latest_tag=$(echo "${tags}" | head -1)

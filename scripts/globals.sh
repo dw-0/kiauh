@@ -42,13 +42,9 @@ function set_globals() {
 
   #================= MAINSAIL ===================#
   MAINSAIL_DIR="${HOME}/mainsail"
-  MAINSAIL_REPO_API="https://api.github.com/repos/mainsail-crew/mainsail/releases"
-  MAINSAIL_TAGS="https://api.github.com/repos/mainsail-crew/mainsail/tags"
 
   #================== FLUIDD ====================#
   FLUIDD_DIR="${HOME}/fluidd"
-  FLUIDD_REPO_API="https://api.github.com/repos/fluidd-core/fluidd/releases"
-  FLUIDD_TAGS="https://api.github.com/repos/fluidd-core/fluidd/tags"
 
   #=============== KLIPPERSCREEN ================#
   KLIPPERSCREEN_ENV="${HOME}/.KlipperScreen-env"
