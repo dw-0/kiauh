@@ -213,7 +213,14 @@ function run_klipper_setup() {
 
   ### step 2: install klipper dependencies and create python virtualenv
   install_klipper_packages "${python_version}"
-  create_klipper_virtualenv "${python_version}"
+
+  if [[ "${klipper_clone_result}" == "0" ]]
+  then
+    create_klipper_virtualenv "${python_version}"
+  else
+    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
+  fi
+  unset klipper_clone_result
 
   ### step 3: create klipper instances
   for instance in "${instance_names[@]}"; do
@@ -253,6 +260,7 @@ function clone_klipper() {
       git -C ${KLIPPER_DIR} stash
       git -C ${KLIPPER_DIR} checkout ${branch}
       git -C ${KLIPPER_DIR} pull --ff-only
+      klipper_clone_result="1"
       return
     fi
   fi
@@ -271,6 +279,8 @@ function clone_klipper() {
     print_error "Cloning Klipper from\n ${repo}\n failed!"
     exit 1
   fi
+
+  klipper_clone_result="0"
 }
 
 function create_klipper_virtualenv() {
