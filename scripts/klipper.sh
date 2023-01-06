@@ -41,35 +41,39 @@ function start_klipper_setup() {
     error="${error}\n ➔ ${klipper_initd_service}"
     error="${error}\n Please re-install Klipper with KIAUH!"
     log_info "Unsupported Klipper SysVinit service detected: ${klipper_initd_service}"
-  elif [[ -n ${klipper_systemd_services} ]]; then
-    error="At least one Klipper service is already installed:"
+  fi
+
+  local klipper_systemd_services_count=0
+  if [[ -n ${klipper_systemd_services} ]]; then
+    klipper_systemd_services_count=$(find_klipper_systemd | wc -w)
+    status_msg "Following Klipper instances are already installed:"
 
     for s in ${klipper_systemd_services}; do
-      log_info "Found Klipper service: ${s}"
-      error="${error}\n ➔ ${s}"
+      echo "$(get_instance_name ${s})"
     done
-  fi
-  [[ -n ${error} ]] && print_error "${error}" && return
 
-  ### user selection for python version
-  print_dialog_user_select_python_version
-  while true; do
-    read -p "${cyan}###### Select Python version:${white} " -e -i 1 input
-    case "${input}" in
-      1)
-        select_msg "Python 3.x\n"
-        python_version=3
-        break;;
-      2)
-        select_msg "Python 2.7\n"
-        python_version=2
-        break;;
-      B|b)
-        clear; install_menu; break;;
-      *)
-        error_msg "Invalid Input!\n";;
-    esac
-  done && input=""
+    python_version=$(get_klipper_python_ver)
+  else
+    ### user selection for python version
+    print_dialog_user_select_python_version
+    while true; do
+      read -p "${cyan}###### Select Python version:${white} " -e -i 1 input
+      case "${input}" in
+        1)
+          select_msg "Python 3.x\n"
+          python_version=3
+          break;;
+        2)
+          select_msg "Python 2.7\n"
+          python_version=2
+          break;;
+        B|b)
+          clear; install_menu; break;;
+        *)
+          error_msg "Invalid Input!\n";;
+      esac
+    done && input=""
+  fi
 
   ### user selection for instance count
   print_dialog_user_select_instance_count
@@ -90,7 +94,7 @@ function start_klipper_setup() {
 
   ### user selection for custom names
   use_custom_names="false"
-  if (( instance_count > 1 )); then
+  if (( instance_count > 1 )) || [[ -n ${klipper_systemd_services} ]]; then
     print_dialog_user_select_custom_name_bool
     while true; do
       read -p "${cyan}###### Assign custom names? (y/N):${white} " input
@@ -113,7 +117,7 @@ function start_klipper_setup() {
   fi
 
   ### user selection for setting the actual custom names
-  if (( instance_count > 1 )) && [[ ${use_custom_names} == "true" ]]; then
+  if [[ ${use_custom_names} == "true" ]]; then
     local i
 
     i=1
@@ -145,7 +149,7 @@ function start_klipper_setup() {
       fi
     done && input=""
   elif (( instance_count > 1 )) && [[ ${use_custom_names} == "false" ]]; then
-    for (( i=1; i <= instance_count; i++ )); do
+    for (( i=klipper_systemd_services_count+1; i <= instance_count+klipper_systemd_services_count; ++i )); do
       instance_names+=("printer_${i}")
     done
   fi
