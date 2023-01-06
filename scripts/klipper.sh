@@ -233,6 +233,19 @@ function clone_klipper() {
   repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
   repo="https://github.com/${repo}"
 
+  if [[ -d ${KLIPPER_DIR} ]]
+  then
+    status_msg "Klipper already cloned, checking compatibility ..."
+    local current_repo=$(git -C ${KLIPPER_DIR} config --get remote.origin.url)
+    if [[ "${repo}" == "${current_repo}" ]]
+    then
+      git -C ${KLIPPER_DIR} stash
+      git -C ${KLIPPER_DIR} checkout ${branch}
+      git -C ${KLIPPER_DIR} pull --ff-only
+      return
+    fi
+  fi
+
   [[ -z ${branch} ]] && branch="master"
 
   ### force remove existing klipper dir and clone into fresh klipper dir
