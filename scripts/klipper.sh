@@ -54,7 +54,7 @@ function start_klipper_setup() {
   ### user selection for python version
   print_dialog_user_select_python_version
   while true; do
-    read -p "${cyan}###### Select Python version:${white} " input
+    read -p "${cyan}###### Select Python version:${white} " -e -i 1 input
     case "${input}" in
       1)
         select_msg "Python 3.x\n"
