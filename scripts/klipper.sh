@@ -536,7 +536,8 @@ function update_klipper() {
   do_action_service "stop" "klipper"
 
   if [[ ! -d ${KLIPPER_DIR} ]]; then
-    clone_klipper "${custom_repo}" "${custom_branch}"
+    error_msg "Nothing to update, Klipper directory doesn't exists! Please instakk Klipper first."
+    return
   else
     backup_before_update "klipper"
 
