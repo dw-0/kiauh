@@ -123,11 +123,22 @@ function start_klipper_setup() {
 
       if [[ ${input} =~ ${regex} ]]; then
         select_msg "Name: ${input}\n"
+        local instance_name
         if [[ ${input} =~ ^[0-9]+$ ]]; then
-          instance_names+=("printer_${input}")
+          instance_name="printer_${input}"
         else
-          instance_names+=("${input}")
+          instance_name="${input}"
         fi
+        if [[ -d "${HOME}/${instance_name}_data" ]]
+        then
+          status_msg "Instance ${instance_name} already exists"
+          read -p "${cyan}###### Enter q for exit or any other input to continue:${white} " same_continue
+          if [[ "${same_continue}" == "q" ]]
+          then
+            return
+          fi
+        fi
+        instance_names+=("${instance_name}")
         i=$(( i + 1 ))
       else
         error_msg "Invalid Input!\n"
