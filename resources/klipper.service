@@ -10,7 +10,6 @@ WantedBy=multi-user.target
 [Service]
 Type=simple
 User=%USER%
-RemainAfterExit=yes
 WorkingDirectory=/home/%USER%/klipper
 EnvironmentFile=%ENV_FILE%
 ExecStart=%ENV%/bin/python $KLIPPER_ARGS

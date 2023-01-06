@@ -11,7 +11,6 @@ WantedBy=multi-user.target
 Type=simple
 User=%USER%
 SupplementaryGroups=moonraker-admin
-RemainAfterExit=yes
 WorkingDirectory=/home/%USER%/moonraker
 EnvironmentFile=%ENV_FILE%
 ExecStart=%ENV%/bin/python $MOONRAKER_ARGS
