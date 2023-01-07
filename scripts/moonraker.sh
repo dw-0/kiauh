@@ -199,7 +199,10 @@ function moonraker_setup() {
   ### step 2: install moonraker dependencies and create python virtualenv
   status_msg "Installing dependencies ..."
   install_moonraker_dependencies
-  create_moonraker_virtualenv
+  if [[ "${moonraker_clone_result}" == "0" ]]; then
+    create_moonraker_virtualenv
+  fi
+  unset moonraker_clone_result
 
   ### step 3: create moonraker.conf
   create_moonraker_conf "${instance_arr[@]}"
@@ -226,6 +229,15 @@ function clone_moonraker() {
 
   status_msg "Cloning Moonraker from ${repo} ..."
 
+  if [[ -d ${MOONRAKER_DIR} ]]
+  then
+    status_msg "Moonraker already cloned, pulling recent changes ..."
+    git -C ${MOONRAKER_DIR} stash
+    git -C ${MOONRAKER_DIR} pull --ff-only
+    moonraker_clone_result="1"
+    return
+  fi
+
   ### force remove existing moonraker dir and clone into fresh moonraker dir
   [[ -d ${MOONRAKER_DIR} ]] && rm -rf "${MOONRAKER_DIR}"
 
@@ -234,6 +246,7 @@ function clone_moonraker() {
     print_error "Cloning Moonraker from\n ${repo}\n failed!"
     exit 1
   fi
+  moonraker_clone_result="0"
 }
 
 function create_moonraker_conf() {
@@ -566,7 +579,8 @@ function update_moonraker() {
   do_action_service "stop" "moonraker"
 
   if [[ ! -d ${MOONRAKER_DIR} ]]; then
-    clone_moonraker "${MOONRAKER_REPO}"
+    error_msg "Nothing to update, Moonraker directory doesn't exists! Please install Moonraker first."
+    return
   else
     backup_before_update "moonraker"
     status_msg "Updating Moonraker ..."
