@@ -103,14 +103,13 @@ function moonraker_setup_dialog() {
       echo
 
       while true; do
-        read -p "Select: " -i "0" -e moonraker_count
+        read -p "Select: " moonraker_count
         if [[ $moonraker_count =~ ^[0-9]+$ ]] && [[ $moonraker_count -le ${#klipper_available[@]} ]]; then
           break
         else
           error_msg "Invalid Input!"
         fi
       done
-      select_msg "${moonraker_count}"
       if (( moonraker_count == 0 )); then
         for service in "${klipper_available[@]}"; do
           user_input+=( "$(basename ${service})" )
@@ -132,6 +131,10 @@ function moonraker_setup_dialog() {
     return 1
   fi
 
+  for i in ${user_input[@]}; do
+    select_msg "${i}"
+  done
+
   ### confirm instance amount
   local yn
   while true; do
@@ -149,11 +152,6 @@ function moonraker_setup_dialog() {
       *)
         error_msg "Invalid Input!";;
     esac
-  done
-
-  ### write existing klipper names into user_input array to use them as names for moonraker
-  for name in ${klipper_services}; do
-    user_input+=("$(basename ${name})")
   done
 
   (( moonraker_count > 0 )) && status_msg "Installing Moonraker for $(basename ${klipper_available[(( moonraker_count-1 ))]}) instance ..."
@@ -274,16 +272,14 @@ function clone_moonraker() {
 function create_moonraker_conf() {
   local names=("${@}")
   local moonraker_count=${#names[@]}
-  local port lan printer_data cfg_dir cfg uds
+  local lan printer_data cfg_dir cfg uds
+  local port=$(get_moonraker_next_port)
 
-  port=7125
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
 
-  local j=0 re="^[1-9][0-9]*$"
-
-  for (( i=1; i <= moonraker_count; i++ )); do
+  for service in "${names[@]}"; do
     ### overwrite config folder if name is only a number
-    printer_data=$(get_data_folder "${names[$j]}" "klipper")
+    printer_data=$(get_data_folder "${service}" "klipper")
 
     cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/moonraker.conf"
@@ -291,8 +287,7 @@ function create_moonraker_conf() {
 
     ### write multi instance config
     write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"
-    port=$(( port + 1 ))
-    j=$(( j + 1 ))
+    (( port=port+1 ))
   done && unset j
 }
 
@@ -324,11 +319,9 @@ function configure_moonraker_service() {
   local moonraker_count=${#names[@]}
   local printer_data cfg_dir service env_file instance_name service_name
 
-  local j=0 re="^[1-9][0-9]*$"
-
-  for (( i=1; i <= moonraker_count; i++ )); do
-    printer_data=$(get_data_folder "${names[$j]}" "klipper")
-    instance_name=$(get_instance_name "${names[$j]}")
+  for service in "${names[@]}"; do
+    printer_data=$(get_data_folder "${service}" "klipper")
+    instance_name=$(get_instance_name "${service}")
 
     cfg_dir="${printer_data}/config"
     if [[ "${instance_name}" == "klipper" ]]; then
@@ -345,7 +338,6 @@ function configure_moonraker_service() {
     ### write multi instance service
     write_moonraker_service "${service_name}" "${printer_data}" "${service}" "${env_file}"
     ok_msg "Moonraker instance '${service_name}' created!"
-    j=$(( j + 1 ))
   done && unset i
 
   ### enable mainsails remoteMode if mainsail is found
@@ -382,19 +374,42 @@ function print_mr_ip_list() {
   done && echo
 }
 
-function get_moonraker_address() {
+function get_moonraker_next_port() {
+  local port=7125
+  local moonraker_services=$(moonraker_systemd) moonraker_ports=()
+  for service in ${moonraker_services}
+  do
+    service_name=$(basename ${service})
+    moonraker_ports+=( "$(get_moonraker_port ${service_name})" )
+  done
+  while true; do
+    if [[ ! " ${moonraker_ports[*]} " =~ " ${port} " ]]; then
+      break
+    fi
+    (( port=port+1 ))
+  done
+  echo "${port}"
+}
+
+function get_moonraker_port() {
   local service=${1}
   local printer_data=$(get_data_folder ${service} moonraker)
-  local ip=$(hostname -I | cut -d" " -f1)
   local port=$(grep "^port:" "${printer_data}/config/moonraker.conf" | cut -f 2 -d " ")
+  echo "${port}"
+}
+
+function get_moonraker_address() {
+  local ip=$(hostname -I | cut -d" " -f1)
+  local port=$(get_moonraker_port ${1})
   echo "${ip}:${port}"
 }
 
 function print_moonraker_addresses() {
-  local moonraker_services=$(moonraker_systemd)
+  local service_name moonraker_services=$(moonraker_systemd)
   for service in ${moonraker_services}
   do
-    echo "   ${cyan}● ${service}:${white} $(get_moonraker_address ${service})"
+    service_name=$(basename ${service})
+    echo "   ${cyan}● ${service_name}:${white} $(get_moonraker_address ${service_name})"
   done
 }
 
@@ -459,11 +474,9 @@ function remove_moonraker_sysvinit() {
 }
 
 function remove_moonraker_systemd() {
-  [[ -z $(moonraker_systemd) ]] && return
-
   status_msg "Removing Moonraker Systemd Services ..."
 
-  for service in $(moonraker_systemd | cut -d"/" -f5); do
+  for service in "${@}"; do
     status_msg "Removing ${service} ..."
     sudo systemctl stop "${service}"
     sudo systemctl disable "${service}"
@@ -478,29 +491,25 @@ function remove_moonraker_systemd() {
 }
 
 function remove_moonraker_env_file() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/moonraker\.env"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
-
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
+  local printer_data file
+  for service in "${@}"; do
+    printer_data=$(get_data_folder ${service} moonraker)
+    file="${HOME}/${printer_data}/systemd/moonraker.env"
+    status_msg "Removing ${file} ..."
+    rm -f "${file}"
+    ok_msg "${file} removed!"
+  done
 }
 
 function remove_moonraker_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log.*"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
-
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
+  local printer_data file
+  for service in "${@}"; do
+    printer_data=$(get_data_folder ${service} moonraker)
+    file="${HOME}/${printer_data}/systemd/moonraker.log"*
+    status_msg "Removing ${file} ..."
+    rm -f "${file}"
+    ok_msg "${file} removed!"
+  done
 }
 
 function remove_legacy_moonraker_logs() {
@@ -558,14 +567,79 @@ function remove_moonraker_polkit() {
 
 function remove_moonraker() {
   remove_moonraker_sysvinit
-  remove_moonraker_systemd
-  remove_moonraker_env_file
-  remove_moonraker_logs
+
+  local moonraker_services=$(moonraker_systemd)
+  if [[ -z ${moonraker_services} ]]; then
+    print_error "Moonraker not installed, nothing to do!"
+    return
+  fi
+
+  local moonraker_services_count="$(moonraker_systemd | wc -w)"
+  if (( moonraker_services_count == 1 )); then
+    echo hi
+  else
+    echo "Select Moonraker service to remove:"
+    echo " 0. Remove all"
+    local i=1 moonraker_names=() service_name
+    for name in ${moonraker_services}; do
+      service_name=$(basename ${name})
+      echo " ${i}. ${service_name}"
+      moonraker_names+=( "${service_name}" )
+      (( i=i+1 ))
+    done
+
+    while true; do
+      read -p "Select: " moonraker_count
+      if [[ $moonraker_count =~ ^[0-9]+$ ]]; then
+        break
+      else
+        error_msg "Invalid Input!"
+      fi
+    done
+
+    local user_input=()
+    if (( moonraker_count == 0 )); then
+      user_input=( ${moonraker_names[@]} )
+    else
+      user_input=( "${moonraker_names[(( moonraker_count-1 ))]}" )
+    fi
+
+    for i in ${user_input[@]}; do
+      select_msg "${i}"
+    done
+
+    ### confirm instance amount
+    local yn
+    while true; do
+      (( moonraker_count == 0 )) && local question="Remove all Moonraker instances?"
+      [[ ${#user_input[@]} == 1 ]] && local question="Remove Moonraker $(basename ${user_input[0]}) instance?"
+      read -p "${cyan}###### ${question} (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          abort_msg "Exiting Moonraker setup ...\n"
+          return;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
+  fi
+
+  remove_moonraker_systemd "${user_input[@]}"
+  remove_moonraker_env_file "${user_input[@]}"
+  remove_moonraker_logs "${user_input[@]}"
+
   remove_legacy_moonraker_logs
-  remove_moonraker_api_key
-  remove_moonraker_polkit
-  remove_moonraker_dir
-  remove_moonraker_env
+
+  if (( ${moonraker_services_count} == 1 || ${moonraker_count} == 0 )); then
+    remove_moonraker_api_key
+    remove_moonraker_polkit
+    remove_moonraker_dir
+    remove_moonraker_env
+  fi
 
   print_confirm "Moonraker was successfully removed!"
   return
