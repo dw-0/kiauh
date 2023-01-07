@@ -576,7 +576,7 @@ function remove_moonraker() {
 
   local moonraker_services_count="$(moonraker_systemd | wc -w)"
   if (( moonraker_services_count == 1 )); then
-    echo hi
+    user_input=( "$(basename ${moonraker_services})" )
   else
     echo "Select Moonraker service to remove:"
     echo " 0. Remove all"
@@ -607,26 +607,27 @@ function remove_moonraker() {
     for i in ${user_input[@]}; do
       select_msg "${i}"
     done
-
-    ### confirm instance amount
-    local yn
-    while true; do
-      (( moonraker_count == 0 )) && local question="Remove all Moonraker instances?"
-      [[ ${#user_input[@]} == 1 ]] && local question="Remove Moonraker $(basename ${user_input[0]}) instance?"
-      read -p "${cyan}###### ${question} (Y/n):${white} " yn
-      case "${yn}" in
-        Y|y|Yes|yes|"")
-          select_msg "Yes"
-          break;;
-        N|n|No|no)
-          select_msg "No"
-          abort_msg "Exiting Moonraker setup ...\n"
-          return;;
-        *)
-          error_msg "Invalid Input!";;
-      esac
-    done
   fi
+
+  ### confirm instance amount
+  local yn
+  while true; do
+    (( moonraker_services_count == 1 )) && local question="Remove Moonraker?"
+    [[ "${moonraker_count}" == "0" ]] && local question="Remove all Moonraker instances?"
+    (( moonraker_count > 0 )) && [[ ${#user_input[@]} == 1 ]] && local question="Remove Moonraker $(basename ${user_input[0]}) instance?"
+    read -p "${cyan}###### ${question} (Y/n):${white} " yn
+    case "${yn}" in
+      Y|y|Yes|yes|"")
+        select_msg "Yes"
+        break;;
+      N|n|No|no)
+        select_msg "No"
+        abort_msg "Exiting Moonraker setup ...\n"
+        return;;
+      *)
+        error_msg "Invalid Input!";;
+    esac
+  done
 
   remove_moonraker_systemd "${user_input[@]}"
   remove_moonraker_env_file "${user_input[@]}"
