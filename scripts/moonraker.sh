@@ -37,8 +37,7 @@ function moonraker_systemd() {
 }
 
 function moonraker_setup_dialog() {
-  status_msg "Initializing Moonraker installation ..."
-
+  print_moonraker_addresses
   ### return early if python version check fails
   if [[ $(python3_check) == "false" ]]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
@@ -46,116 +45,85 @@ function moonraker_setup_dialog() {
     print_error "${error}" && return
   fi
 
-  ### return early if moonraker already exists
-  local moonraker_services
-  moonraker_services=$(moonraker_systemd)
+  local klipper_services=$(find_klipper_systemd)
+  local klipper_count=$(echo "${klipper_services}" | wc -w )
+  for service in ${klipper_services}; do
+    klipper_names+=( "$(get_instance_name "${service}")" )
+  done
+
+  local moonraker_services=$(moonraker_systemd)
+  local moonraker_count=$(echo "${moonraker_services}" | wc -w )
+  for service in ${moonraker_services}; do
+    moonraker_names+=( "$(get_instance_name "${service}")" )
+  done
 
   ### return early if klipper is not installed
-  local klipper_services
-  klipper_services=$(find_klipper_systemd)
   if [[ -z ${klipper_services} ]]; then
     local error="Klipper not installed! Please install Klipper first!"
     log_error "Moonraker setup started without Klipper being installed. Aborting setup."
     print_error "${error}" && return
   fi
 
-  local klipper_count user_input=() klipper_names=() moonraker_names=()
-  klipper_count=$(echo "${klipper_services}" | wc -w )
-  for service in ${klipper_services}; do
-    klipper_names+=( "$(get_instance_name "${service}")" )
-  done
-  for service in ${moonraker_services}; do
-    moonraker_names+=( "$(get_instance_name "${service}")" )
-  done
+  top_border
+  echo -e "|     ${red}~~~~~~~~~ [ Moonraker installation ] ~~~~~~~~${white}     |"
+  hr
 
-  local moonraker_count=$(echo "${moonraker_services}" | wc -w )
-  if (( klipper_count == 1 )); then
-    ok_msg "Klipper installation found!\n"
-    moonraker_count=1
-  elif (( klipper_count > 1 )); then
-    top_border
-    printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker services found!"
-    local moonraker_folders=()
-    for name in ${moonraker_services}; do
-      local moonraker_folder=$(get_data_folder $(basename ${name}) moonraker)
-      printf "|${cyan}%-57s${white}|\n" " ● $(basename ${name}) - $(get_moonraker_address $(basename ${name}))"
-      moonraker_folders+=( "${moonraker_folder}" )
-    done
-    blank_line
-    printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper services found!"
-    local klipper_available=()
-    for name in ${klipper_services}; do
-      local klipper_folder=$(get_data_folder $(basename ${name}) klipper)
-      printf "|${cyan}%-57s${white}|\n" " ● $(basename ${name}) - ${klipper_folder}"
-      if [[ ! " ${moonraker_folders[*]} " =~ " ${klipper_folder} " ]]; then
-        klipper_available+=( "${name}" )
-      fi
-    done
-    bottom_border
-    if [[ ${#klipper_available[@]} > 1 ]]; then
-      echo -e "\nSelect instance to install moonraker:"
-      echo " 0. Install all"
-      local i=1
-      for name in "${klipper_available[@]}"; do
-        echo " ${i}. $(basename ${name})"
-        (( i=i+1 ))
-      done
-      echo
-
-      while true; do
-        read -p "Select: " moonraker_count
-        if [[ $moonraker_count =~ ^[0-9]+$ ]] && [[ $moonraker_count -le ${#klipper_available[@]} ]]; then
-          break
-        else
-          error_msg "Invalid Input!"
-        fi
-      done
-      if (( moonraker_count == 0 )); then
-        for service in "${klipper_available[@]}"; do
-          user_input+=( "$(basename ${service})" )
-        done
-      else
-        user_input=( "$(basename ${klipper_available[(( moonraker_count-1 ))]})" )
-      fi
-    elif [[ ${#klipper_available[@]} == 0 ]]; then
-      printf "|${red}%-55s${white}|\n" "Moonraker already installed for every Klipper instance!"
-      echo
-      return
-    else
-      echo -e "\nMoonraker will be installed for $(basename ${klipper_available[0]}) instance"
-      moonraker_count=1
-      user_input=( "$(basename ${klipper_available[0]})" )
+  printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker services found!"
+  local moonraker_folders=()
+  for name in ${moonraker_services}; do
+    local moonraker_folder=$(get_data_folder $(basename ${name}) moonraker)
+    printf "|${cyan}%-57s${white}|\n" " ● $(basename ${name}) - $(get_moonraker_address $(basename ${name}))"
+    moonraker_folders+=( "${moonraker_folder}" )
+  done
+  blank_line
+  printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper services found!"
+  local klipper_available=()
+  for name in ${klipper_services}; do
+    local klipper_folder=$(get_data_folder $(basename ${name}) klipper)
+    printf "|${cyan}%-57s${white}|\n" " ● $(basename ${name}) - ${klipper_folder}"
+    if [[ ! " ${moonraker_folders[*]} " =~ " ${klipper_folder} " ]]; then
+      klipper_available+=( "$(basename ${name})" )
     fi
+  done
+  local klipper_available_count=${#klipper_available[@]}
+  hr
+
+  printf "|${green}%-55s${white}|\n" " ${klipper_available_count} Moonraker services can be installed:"
+  local service_name
+  if (( klipper_available_count == 1 )); then
+    service_name=$(basename "${klipper_available[@]}")
+    printf "| 0) %-51s|\n" "${service_name}"
   else
-    log_error "Internal error. klipper_count of '${klipper_count}' not equal or grather than one!"
-    return 1
+    printf "| 0) %-51s|\n" "Install all"
+    local i=1
+    for name in "${klipper_available[@]}"; do
+      printf "| ${i}) %-51s|\n" "${name}"
+      (( i=i+1 ))
+    done
+  fi
+  back_footer
+
+  local option
+  while true; do
+    read -p "${cyan}Install moonraker for:${white} " option
+    if [[ ${option} == "B" || ${option} == "b" ]]; then
+      return
+    elif [[ $((option)) != $option ]]; then
+      error_msg "Invalid command!"
+    elif (( option >= 0 && option < ${#klipper_available[@]} )); then
+      break
+    else
+      error_msg "Invalid command!"
+    fi
+  done
+
+  if (( option == 0 )); then
+    user_input=( ${klipper_available[@]} )
+  else
+    user_input=( "${klipper_available[(( option-1 ))]}" )
   fi
 
-  for i in ${user_input[@]}; do
-    select_msg "${i}"
-  done
-
-  ### confirm instance amount
-  local yn
-  while true; do
-    (( moonraker_count == 0 )) && local question="Install Moonraker for all available instances?"
-    [[ ${#user_input[@]} == 1 ]] && local question="Install Moonraker for $(basename ${user_input[0]}) instance?"
-    read -p "${cyan}###### ${question} (Y/n):${white} " yn
-    case "${yn}" in
-      Y|y|Yes|yes|"")
-        select_msg "Yes"
-        break;;
-      N|n|No|no)
-        select_msg "No"
-        abort_msg "Exiting Moonraker setup ...\n"
-        return;;
-      *)
-        error_msg "Invalid Input!";;
-    esac
-  done
-
-  (( moonraker_count > 0 )) && status_msg "Installing Moonraker for $(basename ${klipper_available[(( moonraker_count-1 ))]}) instance ..."
-  (( moonraker_count == 1 )) && status_msg "Installing Moonraker ..."
+  status_msg "Installing Moonraker ..."
   moonraker_setup "${user_input[@]}"
 }
 
@@ -317,18 +285,13 @@ function write_moonraker_conf() {
 function configure_moonraker_service() {
   local names=("${@}")
   local moonraker_count=${#names[@]}
-  local printer_data cfg_dir service env_file instance_name service_name
+  local printer_data cfg_dir service env_file service_name
 
   for service in "${names[@]}"; do
     printer_data=$(get_data_folder "${service}" "klipper")
-    instance_name=$(get_instance_name "${service}")
 
     cfg_dir="${printer_data}/config"
-    if [[ "${instance_name}" == "klipper" ]]; then
-      service_name="moonraker.service"
-    else
-      service_name="moonraker-${instance_name}.service"
-    fi
+    service_name="${service/"klipper"/"moonraker"}" 
     service="${SYSTEMD}/${service_name}"
     env_file="${printer_data}/systemd/moonraker.env"
 
@@ -494,7 +457,7 @@ function remove_moonraker_env_file() {
   local printer_data file
   for service in "${@}"; do
     printer_data=$(get_data_folder ${service} moonraker)
-    file="${HOME}/${printer_data}/systemd/moonraker.env"
+    file="${printer_data}/systemd/moonraker.env"
     status_msg "Removing ${file} ..."
     rm -f "${file}"
     ok_msg "${file} removed!"
@@ -505,7 +468,7 @@ function remove_moonraker_logs() {
   local printer_data file
   for service in "${@}"; do
     printer_data=$(get_data_folder ${service} moonraker)
-    file="${HOME}/${printer_data}/systemd/moonraker.log"*
+    file="${printer_data}/systemd/moonraker.lo"*
     status_msg "Removing ${file} ..."
     rm -f "${file}"
     ok_msg "${file} removed!"
@@ -574,60 +537,53 @@ function remove_moonraker() {
     return
   fi
 
-  local moonraker_services_count="$(moonraker_systemd | wc -w)"
-  if (( moonraker_services_count == 1 )); then
-    user_input=( "$(basename ${moonraker_services})" )
-  else
-    echo "Select Moonraker service to remove:"
-    echo " 0. Remove all"
-    local i=1 moonraker_names=() service_name
-    for name in ${moonraker_services}; do
-      service_name=$(basename ${name})
-      echo " ${i}. ${service_name}"
-      moonraker_names+=( "${service_name}" )
-      (( i=i+1 ))
-    done
-
-    while true; do
-      read -p "Select: " moonraker_count
-      if [[ $moonraker_count =~ ^[0-9]+$ ]]; then
-        break
-      else
-        error_msg "Invalid Input!"
-      fi
-    done
-
-    local user_input=()
-    if (( moonraker_count == 0 )); then
-      user_input=( ${moonraker_names[@]} )
-    else
-      user_input=( "${moonraker_names[(( moonraker_count-1 ))]}" )
-    fi
-
-    for i in ${user_input[@]}; do
-      select_msg "${i}"
-    done
+  local moonraker_services=$(moonraker_systemd)
+  if [[ -z ${moonraker_services} ]]; then
+    print_error "Moonraker not installed, nothing to do!"
+    return
   fi
 
-  ### confirm instance amount
-  local yn
+  top_border
+  echo -e "|     ${red}~~~~~~~ [ Moonraker instance remover ] ~~~~~~${white}     |"
+  hr
+
+  local user_input=() moonraker_names=()
+  local moonraker_services_count="$(moonraker_systemd | wc -w)"
+  if (( moonraker_services_count == 1 )); then
+    service_name=$(basename ${moonraker_services})
+    moonraker_names+=( "${service_name}" )
+    printf "| 0) %-51s|\n" "${service_name}"
+  else
+    printf "| 0) %-51s|\n" "Remove all"
+    local i=1 service_name
+    for name in ${moonraker_services}; do
+      service_name=$(basename ${name})
+      moonraker_names+=( "${service_name}" )
+      printf "| ${i}) %-51s|\n" "${service_name}"
+      (( i=i+1 ))
+    done
+  fi
+  back_footer
+
+  local option
   while true; do
-    (( moonraker_services_count == 1 )) && local question="Remove Moonraker?"
-    [[ "${moonraker_count}" == "0" ]] && local question="Remove all Moonraker instances?"
-    (( moonraker_count > 0 )) && [[ ${#user_input[@]} == 1 ]] && local question="Remove Moonraker $(basename ${user_input[0]}) instance?"
-    read -p "${cyan}###### ${question} (Y/n):${white} " yn
-    case "${yn}" in
-      Y|y|Yes|yes|"")
-        select_msg "Yes"
-        break;;
-      N|n|No|no)
-        select_msg "No"
-        abort_msg "Exiting Moonraker setup ...\n"
-        return;;
-      *)
-        error_msg "Invalid Input!";;
-    esac
+    read -p "${cyan}Remove Moonraker instance:${white} " option
+    if [[ ${option} == "B" || ${option} == "b" ]]; then
+      return
+    elif [[ $((option)) != $option ]]; then
+      error_msg "Invalid command!"
+    elif (( option >= 0 && option < ${#moonraker_names[@]} )); then
+      break
+    else
+      error_msg "Invalid command!"
+    fi
   done
+
+  if (( option == 0 )); then
+    user_input=( ${moonraker_names[@]} )
+  else
+    user_input=( "${moonraker_names[(( option-1 ))]}" )
+  fi
 
   remove_moonraker_systemd "${user_input[@]}"
   remove_moonraker_env_file "${user_input[@]}"
@@ -635,7 +591,7 @@ function remove_moonraker() {
 
   remove_legacy_moonraker_logs
 
-  if (( ${moonraker_services_count} == 1 || ${moonraker_count} == 0 )); then
+  if (( ${moonraker_services_count} == 1 )) || [[ "${moonraker_count}" == "0" ]]; then
     remove_moonraker_api_key
     remove_moonraker_polkit
     remove_moonraker_dir
