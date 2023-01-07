@@ -398,6 +398,22 @@ function print_mr_ip_list() {
   done && echo
 }
 
+function get_moonraker_address() {
+  local service=${1}
+  local printer_data=$(get_data_folder ${service} moonraker)
+  local ip=$(hostname -I | cut -d" " -f1)
+  local port=$(grep "^port:" "${printer_data}/config/moonraker.conf" | cut -f 2 -d " ")
+  echo "${ip}:${port}"
+}
+
+function print_moonraker_addresses() {
+  local moonraker_services=$(moonraker_systemd)
+  for service in ${moonraker_services}
+  do
+    echo "   ${cyan}● ${service}:${white} $(get_moonraker_address ${service})"
+  done
+}
+
 ### introduced due to
 ### https://github.com/Arksine/moonraker/issues/349
 ### https://github.com/Arksine/moonraker/pull/346
