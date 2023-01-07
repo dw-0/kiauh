@@ -642,6 +642,28 @@ function get_multi_instance_names() {
 }
 
 ###
+# helper function that returns klipper data directory
+# path based on systemd service name.
+#
+# => return an empty string if klipper is not installed
+# => return absolute config directory path
+#
+function get_data_folder() {
+  local service_name=${1}
+  local service_type=${2}
+  if [[ "${service_name}" == "${service_type}.service" ]]; then
+    echo "${HOME}/printer_data"
+  else
+    local instance_name=$(get_instance_name "${service_name}")
+    if [[ ${instance_name} =~ ^[0-9]+$ ]]; then
+      echo "${HOME}/printer_${instance_name}_data"
+    else
+      echo "${HOME}/${instance_name}_data"
+    fi
+  fi
+}
+
+###
 # helper function that returns all possibly available absolute
 # klipper config directory paths based on their instance name.
 #
