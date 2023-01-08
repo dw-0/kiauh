@@ -37,7 +37,6 @@ function moonraker_systemd() {
 }
 
 function moonraker_setup_dialog() {
-  print_moonraker_addresses
   ### return early if python version check fails
   if [[ $(python3_check) == "false" ]]; then
     local error="Versioncheck failed! Python 3.7 or newer required!\n"
