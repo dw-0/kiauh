@@ -22,8 +22,9 @@ function remove_ui() {
   echo -e "|  2) [Moonraker]           |                           |"
   echo -e "|                           | Webcam Streamer:          |"
   echo -e "| Klipper Webinterface:     |  7) [MJPG-Streamer]       |"
-  echo -e "|  3) [Mainsail]            |                           |"
-  echo -e "|  4) [Fluidd]              | Other:                    |"
+  echo -e "|  3) [Mainsail]            | 12) [Crowsnest]           |"
+  echo -e "|  4) [Fluidd]              |                           |"
+  echo -e "|                           | Other:                    |"
   echo -e "|                           |  8) [PrettyGCode]         |"
   echo -e "| Touchscreen GUI:          |  9) [Telegram Bot]        |"
   echo -e "|  5) [KlipperScreen]       | 10) [Obico for Klipper]   |"
@@ -60,6 +61,8 @@ function remove_menu() {
         do_action "remove_moonraker_obico" "remove_ui";;
       11)
         do_action "remove_nginx" "remove_ui";;
+      12) 
+        do_action "remove_crowsnest" "remove_ui";;
       B|b)
         clear; main_menu; break;;
       *)
