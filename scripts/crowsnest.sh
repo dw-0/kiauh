@@ -82,35 +82,6 @@ function continue_config() {
     return 0
 }
 
-# function install_basic_deps(){
-#     local -a install
-#     local -a deps
-#     deps=(git make)
-#     for i in "${deps[@]}"; do
-#         if [[ -z "$(command -v "${i}")" ]]; then
-#             install+="${i}"
-#         fi
-#     done
-#     if [[ -n "${install[*]}" ]]; then
-#         ### Update system package info ( shameless stolen from klipper.sh )
-#         status_msg "Updating package lists..."
-#         if ! sudo apt-get update --allow-releaseinfo-change; then
-#             log_error "failure while updating package lists"
-#             error_msg "Updating package lists failed!"
-#             exit 1
-#         fi
-#         status_msg "Installing required packages..."
-#         if ! sudo apt-get install --yes "${install[@]}"; then
-#             log_error "failure while installing required crowsnest basic packages"
-#             error_msg "Installing required packages failed!"
-#             exit 1
-#         fi
-#     else
-#         ok_msg "All basic dependencies met, nothing to do!"
-#     fi
-# }
-
-
 # Install func
 function install_crowsnest(){
 
