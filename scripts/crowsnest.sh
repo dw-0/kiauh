@@ -15,150 +15,153 @@
 # https://github.com/KwadFan/crowsnest                                  #
 #=======================================================================#
 
+# shellcheck enable=require-variable-braces
+# shellcheck disable=SC2154
+
 # Error Handling
 set -e
 
 # Helper messages
 
 function multi_instance_message(){
-    echo -e "Crowsnest is NOT designed to support Multi Instances."
-    echo -e "A Workaround for this is to choose the most used instance as a 'master'"
-    echo -e "Use this instance to setup your 'crowsnest.conf' and steering it's service.\n"
-    echo -e "Found the following instances:\n"
-    for i in ${1}; do
-        select_msg "${i}"
-    done
-    echo -e "\nLaunching crowsnest's configuration tool ..."
-    continue_config
+  echo -e "Crowsnest is NOT designed to support Multi Instances."
+  echo -e "A Workaround for this is to choose the most used instance as a 'master'"
+  echo -e "Use this instance to setup your 'crowsnest.conf' and steering it's service.\n"
+  echo -e "Found the following instances:\n"
+  for i in ${1}; do
+    select_msg "${i}"
+  done
+  echo -e "\nLaunching crowsnest's configuration tool ..."
+  continue_config
 }
 
 # Helper funcs
 function clone_crowsnest(){
-    $(command -v git) clone "${CROWSNEST_REPO}" -b master "${CROWSNEST_DIR}"
+  $(command -v git) clone "${CROWSNEST_REPO}" -b master "${CROWSNEST_DIR}"
 }
 
 function check_multi_instance(){
-    local -a instances
-    readarray -t instances < <(find "${HOME}" -regex "${HOME}/[a-zA-Z0-9_]+_data/*" -printf "%P\n" 2> /dev/null | sort)
-    if [[ "${#instances[@]}" -gt 1 ]]; then
-        status_msg "Multi Instance Install detected ..."
-        multi_instance_message "${instances[*]}"
-        if [[ -d "${HOME}/crowsnest" ]]; then
-            pushd "${HOME}/crowsnest" &> /dev/null || exit 1
-            if ! make config ;then
-                error_msg "Something went wrong! Please try again..."
-                if [[ -f "tools/.config" ]]; then
-                    rm -f tools/.config
-                fi
-                exit 1
-            fi
-            if [[ ! -f "tools/.config" ]]; then
-                log_error "failure while generating .config"
-                error_msg "Generating .config failed, installation aborted"
-                exit 1
-            fi
-            popd &> /dev/null || exit 1
+  local -a instances
+  readarray -t instances < <(find "${HOME}" -regex "${HOME}/[a-zA-Z0-9_]+_data/*" -printf "%P\n" 2> /dev/null | sort)
+  if [[ "${#instances[@]}" -gt 1 ]]; then
+    status_msg "Multi Instance Install detected ..."
+    multi_instance_message "${instances[*]}"
+    if [[ -d "${HOME}/crowsnest" ]]; then
+      pushd "${HOME}/crowsnest" &> /dev/null || exit 1
+      if ! make config ;then
+        error_msg "Something went wrong! Please try again..."
+        if [[ -f "tools/.config" ]]; then
+          rm -f tools/.config
         fi
+        exit 1
+      fi
+      if [[ ! -f "tools/.config" ]]; then
+        log_error "failure while generating .config"
+        error_msg "Generating .config failed, installation aborted"
+        exit 1
+      fi
+      popd &> /dev/null || exit 1
     fi
+  fi
 }
 
 function continue_config() {
-    local reply
-    while true; do
-        read -erp "Continue? [Y/n]: " -i "Y" reply
-        case "${reply}" in
-            [Yy]* )
-                break
-            ;;
-            [Nn]* )
-                warn_msg "Installation aborted by user ... Exiting!"
-                exit 1
-            ;;
-            * )
-                echo -e "\e[31mERROR: Please type Y or N !\e[0m"
-            ;;
-        esac
-    done
-    return 0
+  local reply
+  while true; do
+    read -erp "${cyan}###### Continuing with configuration? (y/N):${white} " reply
+    case "${reply}" in
+      [Yy]* )
+        break
+        ;;
+      [Nn]* )
+        warn_msg "Installation aborted by user ... Exiting!"
+        exit 1
+        ;;
+      * )
+        echo -e "\e[31mERROR: Please type Y or N !\e[0m"
+        ;;
+    esac
+  done
+  return 0
 }
 
 # Install func
 function install_crowsnest(){
 
-    # Step 1: jump to home directory
-    pushd "${HOME}" &> /dev/null || exit 1
+  # Step 1: jump to home directory
+  pushd "${HOME}" &> /dev/null || exit 1
 
-    # Step 2: Clone crowsnest repo
-    status_msg "Cloning 'crowsnest' repository ..."
-    if [[ ! -d "${HOME}/crowsnest" ]] &&
-    [[ -z "$(ls -A "${HOME}/crowsnest")" ]]; then
-        clone_crowsnest
-    else
-        ok_msg "crowsnest repository already exists ..."
-    fi
+  # Step 2: Clone crowsnest repo
+  status_msg "Cloning 'crowsnest' repository ..."
+  if [[ ! -d "${HOME}/crowsnest" ]] &&
+  [[ -z "$(ls -A "${HOME}/crowsnest")" ]]; then
+    clone_crowsnest
+  else
+    ok_msg "crowsnest repository already exists ..."
+  fi
 
-    # Step 3: Install dependencies
-    # status_msg "Install basic dependencies ..."
-    # install_basic_deps
-    dependency_check git make
+  # Step 3: Install dependencies
+  # status_msg "Install basic dependencies ..."
+  # install_basic_deps
+  dependency_check git make
 
-    # Step 4: Check for Multi Instance
-    check_multi_instance
+  # Step 4: Check for Multi Instance
+  check_multi_instance
 
-    # Step 5: Launch crowsnest installer
-    pushd "${HOME}/crowsnest" &> /dev/null || exit 1
-    title_msg "Installer will prompt you for sudo password!"
-    status_msg "Launching crowsnest installer ..."
-    if ! sudo make install; then
-        error_msg "Something went wrong! Please try again..."
-        exit 1
-    fi
+  # Step 5: Launch crowsnest installer
+  pushd "${HOME}/crowsnest" &> /dev/null || exit 1
+  title_msg "Installer will prompt you for sudo password!"
+  status_msg "Launching crowsnest installer ..."
+  if ! sudo make install; then
+    error_msg "Something went wrong! Please try again..."
+    exit 1
+  fi
 
-    # Step 5: Leave directory (twice due two pushd)
-    popd &> /dev/null || exit 1
-    popd &> /dev/null || exit 1
+  # Step 5: Leave directory (twice due two pushd)
+  popd &> /dev/null || exit 1
+  popd &> /dev/null || exit 1
 }
 
 # Remove func
 function remove_crowsnest(){
-    pushd "${HOME}/crowsnest" &> /dev/null || exit 1
-    title_msg "Uninstaller will prompt you for sudo password!"
-    status_msg "Launching crowsnest Uninstaller ..."
-    if ! make uninstall; then
-        error_msg "Something went wrong! Please try again..."
-        exit 1
-    fi
-    if [[ -e "${CROWSNEST_DIR}" ]]; then
-        status_msg "Removing Crowsnest directory ..."
-        rm -rf "${CROWSNEST_DIR}"
-    fi
+  pushd "${HOME}/crowsnest" &> /dev/null || exit 1
+  title_msg "Uninstaller will prompt you for sudo password!"
+  status_msg "Launching crowsnest Uninstaller ..."
+  if ! make uninstall; then
+    error_msg "Something went wrong! Please try again..."
+    exit 1
+  fi
+  if [[ -e "${CROWSNEST_DIR}" ]]; then
+    status_msg "Removing Crowsnest directory ..."
+    rm -rf "${CROWSNEST_DIR}"
+  fi
 }
 
 # Status funcs
 get_crowsnest_status(){
-    local -a files
-    files=(
-        "${CROWSNEST_DIR}"
-        "/usr/local/bin/crowsnest"
-        "/etc/logrotate.d/crowsnest"
-        "/etc/systemd/system/crowsnest.service"
-        "$(find "${HOME}" -name 'crowsnest.env' 2> /dev/null ||
-        echo "${HOME}/printer_data/systemd/crowsnest.env")"
-        )
-        # Contains ugly hackaround for multi instance... :(
-    local count
-    count=0
+  local -a files
+  files=(
+    "${CROWSNEST_DIR}"
+    "/usr/local/bin/crowsnest"
+    "/etc/logrotate.d/crowsnest"
+    "/etc/systemd/system/crowsnest.service"
+    "$(find "${HOME}" -name 'crowsnest.env' 2> /dev/null ||
+    echo "${HOME}/printer_data/systemd/crowsnest.env")"
+    )
+    # Contains ugly hackaround for multi instance... :(
+  local count
+  count=0
 
-    for file in "${files[@]}"; do
-        [[ -e "${file}" ]] && count=$(( count +1 ))
-    done
-    if [[ "${count}" -eq "${#files[*]}" ]]; then
-        echo "Installed"
-    elif [[ "${count}" -gt 0 ]]; then
-        echo "Incomplete!"
-    else 
-        echo "Not installed!"
-    fi
+  for file in "${files[@]}"; do
+    [[ -e "${file}" ]] && count=$(( count +1 ))
+  done
+  if [[ "${count}" -eq "${#files[*]}" ]]; then
+    echo "Installed"
+  elif [[ "${count}" -gt 0 ]]; then
+    echo "Incomplete!"
+  else 
+    echo "Not installed!"
+  fi
 }
 
 # Update funcs
