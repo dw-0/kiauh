@@ -29,8 +29,8 @@ function main_ui() {
   echo -e "|                    |        Fluidd: $(print_status "fluidd")|"
   echo -e "|                    | KlipperScreen: $(print_status "klipperscreen")|"
   echo -e "|  6) [Settings]     |  Telegram Bot: $(print_status "telegram_bot")|"
-  echo -e "|                    |         Obico: $(print_status "moonraker_obico")|"
   echo -e "|                    |     Crowsnest: $(print_status "crowsnest")|"
+  echo -e "|                    |         Obico: $(print_status "moonraker_obico")|"
   echo -e "|                    |                                  |"
   echo -e "|  $(print_kiauh_version)|     Octoprint: $(print_status "octoprint")|"
   quit_footer
