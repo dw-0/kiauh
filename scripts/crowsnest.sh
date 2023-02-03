@@ -70,16 +70,15 @@ function continue_config() {
   while true; do
     read -erp "${cyan}###### Continuing with configuration? (y/N):${white} " reply
     case "${reply}" in
-      [Yy]* )
-        break
-        ;;
-      [Nn]* )
+      Y|y|Yes|yes)
+        select_msg "Yes"
+        break;;
+      N|n|No|no|"")
+        select_msg "No"
         warn_msg "Installation aborted by user ... Exiting!"
-        exit 1
-        ;;
-      * )
-        echo -e "\e[31mERROR: Please type Y or N !\e[0m"
-        ;;
+        exit 1;;
+      *)
+        error_msg "Invalid Input!\n";;
     esac
   done
   return 0
@@ -93,16 +92,13 @@ function install_crowsnest(){
 
   # Step 2: Clone crowsnest repo
   status_msg "Cloning 'crowsnest' repository ..."
-  if [[ ! -d "${HOME}/crowsnest" ]] &&
-  [[ -z "$(ls -A "${HOME}/crowsnest")" ]]; then
+  if [[ ! -d "${HOME}/crowsnest" && -z "$(ls -A "${HOME}/crowsnest")" ]]; then
     clone_crowsnest
   else
     ok_msg "crowsnest repository already exists ..."
   fi
 
   # Step 3: Install dependencies
-  # status_msg "Install basic dependencies ..."
-  # install_basic_deps
   dependency_check git make
 
   # Step 4: Check for Multi Instance
@@ -159,7 +155,7 @@ get_crowsnest_status(){
     echo "Installed"
   elif [[ "${count}" -gt 0 ]]; then
     echo "Incomplete!"
-  else 
+  else
     echo "Not installed!"
   fi
 }
