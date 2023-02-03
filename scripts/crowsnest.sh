@@ -196,37 +196,36 @@ function compare_crowsnest_versions() {
   echo "${versions}"
 }
 
-function update_crowsnest() {
-  ## Helper Func
-  function install_crowsnest_dependencies() {
-    local packages
-    local install_script="${CROWSNEST_DIR}/tools/install.sh"
+function install_crowsnest_dependencies() {
+  local packages
+  local install_script="${CROWSNEST_DIR}/tools/install.sh"
 
-    ### read PKGLIST from official install-script
-    status_msg "Reading dependencies..."
-    # shellcheck disable=SC2016
-    packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
+  ### read PKGLIST from official install-script
+  status_msg "Reading dependencies..."
+  # shellcheck disable=SC2016
+  packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
 
-    echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
+  echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
     read -r -a packages <<< "${packages}"
 
-    ### Update system package info
-    status_msg "Updating package lists..."
-    if ! sudo apt-get update --allow-releaseinfo-change; then
-      log_error "failure while updating package lists"
-      error_msg "Updating package lists failed!"
-      exit 1
-    fi
+  ### Update system package info
+  status_msg "Updating package lists..."
+  if ! sudo apt-get update --allow-releaseinfo-change; then
+    log_error "failure while updating package lists"
+    error_msg "Updating package lists failed!"
+    exit 1
+  fi
 
-    ### Install required packages
-    status_msg "Installing required packages..."
-    if ! sudo apt-get install --yes "${packages[@]}"; then
-      log_error "failure while installing required crowsnest packages"
-      error_msg "Installing required packages failed!"
-      exit 1
-    fi
-  }
+  ### Install required packages
+  status_msg "Installing required packages..."
+  if ! sudo apt-get install --yes "${packages[@]}"; then
+    log_error "failure while installing required crowsnest packages"
+    error_msg "Installing required packages failed!"
+    exit 1
+  fi
+}
 
+function update_crowsnest() {
   do_action_service "stop" "crowsnest"
 
   if [[ ! -d ${CROWSNEST_DIR} ]]; then
