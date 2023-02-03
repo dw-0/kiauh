@@ -64,7 +64,7 @@ function update_menu() {
       8)
         do_action "update_moonraker_obico" "update_ui";;
       9)
-        do_action "update_system" "update_crowsnest";;
+        do_action "update_crowsnest" "update_ui";;
       10)
         do_action "update_system" "update_ui";;
       a)
