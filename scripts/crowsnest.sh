@@ -15,9 +15,6 @@
 # https://github.com/KwadFan/crowsnest                                  #
 #=======================================================================#
 
-# shellcheck enable=require-variable-braces
-# shellcheck disable=SC2154
-
 # Error Handling
 set -e
 
