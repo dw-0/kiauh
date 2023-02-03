@@ -21,7 +21,7 @@ function remove_ui() {
   echo -e "|  1) [Klipper]             |  6) [OctoPrint]           |"
   echo -e "|  2) [Moonraker]           |                           |"
   echo -e "|                           | Webcam Streamer:          |"
-  echo -e "| Klipper Webinterface:     |  7) [MJPG-Streamer]       |"
+  echo -e "| Klipper Webinterface:     |  7) [Crowsnest]           |"
   echo -e "|  3) [Mainsail]            |                           |"
   echo -e "|  4) [Fluidd]              | Other:                    |"
   echo -e "|                           |  8) [PrettyGCode]         |"
@@ -51,7 +51,7 @@ function remove_menu() {
       6)
         do_action "remove_octoprint" "remove_ui";;
       7)
-        do_action "remove_mjpg-streamer" "remove_ui";;
+        do_action "remove_crowsnest" "remove_ui";;
       8)
         do_action "remove_prettygcode" "remove_ui";;
       9)

@@ -27,10 +27,8 @@ function install_ui() {
   echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
   echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
   echo -e "|                          |                            |"
-  echo -e "| Touchscreen GUI:         |                            |"
-  echo -e "|  5) [KlipperScreen]      |                            |"
-#  echo -e "| Touchscreen GUI:         | Webcam Streamer:           |"
-#  echo -e "|  5) [KlipperScreen]      | 10) [MJPG-Streamer]        |"
+  echo -e "| Touchscreen GUI:         | Webcam Streamer:           |"
+  echo -e "|  5) [KlipperScreen]      | 10) [Crowsnest]            |"
   back_footer
 }
 
@@ -66,11 +64,8 @@ function install_menu() {
         do_action "telegram_bot_setup_dialog" "install_ui";;
       9)
         do_action "moonraker_obico_setup_dialog" "install_ui";;
-#      10)
-#        do_action "install_mjpg-streamer" "install_ui";;
-#        clear && print_header
-#        print_error "Function currently disabled! Sorry!"
-#        install_ui;;
+      10) 
+        do_action "install_crowsnest" "install_ui";;
       B|b)
         clear; main_menu; break;;
       *)

@@ -29,6 +29,7 @@ function main_ui() {
   echo -e "|                    |        Fluidd: $(print_status "fluidd")|"
   echo -e "|                    | KlipperScreen: $(print_status "klipperscreen")|"
   echo -e "|  6) [Settings]     |  Telegram Bot: $(print_status "telegram_bot")|"
+  echo -e "|                    |     Crowsnest: $(print_status "crowsnest")|"
   echo -e "|                    |         Obico: $(print_status "moonraker_obico")|"
   echo -e "|                    |                                  |"
   echo -e "|  $(print_kiauh_version)|     Octoprint: $(print_status "octoprint")|"
@@ -107,6 +108,9 @@ function main_menu() {
       "start octoprint") do_action_service "start" "octoprint"; main_ui;;
       "stop octoprint") do_action_service "stop" "octoprint"; main_ui;;
       "restart octoprint") do_action_service "restart" "octoprint"; main_ui;;
+      "start crowsnest") do_action_service "start" "crowsnest"; main_ui;;
+      "stop crowsnest") do_action_service "stop" "crowsnest"; main_ui;;
+      "restart crowsnest") do_action_service "restart" "crowsnest"; main_ui;;
       update) do_action "update_kiauh" "main_ui";;
       0)clear && print_header
         #upload_selection

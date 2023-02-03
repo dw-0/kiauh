@@ -68,4 +68,9 @@ function set_globals() {
   #=============== MOONRAKER-OBICO ================#
   MOONRAKER_OBICO_DIR="${HOME}/moonraker-obico"
   MOONRAKER_OBICO_REPO="https://github.com/TheSpaghettiDetective/moonraker-obico.git"
+
+  #=============== Crowsnest ================#
+  CROWSNEST_DIR="${HOME}/crowsnest"
+  CROWSNEST_REPO="https://github.com/mainsail-crew/crowsnest.git"
+
 }
