@@ -2,6 +2,12 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2023-02-03
+The installer for MJPG-Streamer got replaced by crowsnest. It is an improved webcam service, utilizing ustreamer. 
+Please have a look here for additional info about crowsnest and how to configure it: https://github.com/mainsail-crew/crowsnest \
+It's unsure if the previous MJPG-Streamer installer will be updated and make its way back into KIAUH.
+A big thanks to [KwadFan](https://github.com/KwadFan) for writing the crowsnest implementation.
+
 ### 2022-10-31
 Some functions got updated, though not all of them.
 
