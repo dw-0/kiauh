@@ -229,7 +229,7 @@ function update_crowsnest() {
   do_action_service "stop" "crowsnest"
 
   if [[ ! -d ${CROWSNEST_DIR} ]]; then
-    clone_moonraker "${CROWSNEST_REPO}"
+    clone_crowsnest
   else
     status_msg "Updating Crowsnest ..."
     cd "${CROWSNEST_DIR}" && git pull
