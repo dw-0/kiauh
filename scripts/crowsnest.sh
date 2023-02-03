@@ -21,9 +21,9 @@ set -e
 # Helper messages
 
 function multi_instance_message(){
-  echo -e "Crowsnest is NOT designed to support Multi Instances."
+  echo -e "Crowsnest is NOT designed to support multi instances."
   echo -e "A Workaround for this is to choose the most used instance as a 'master'"
-  echo -e "Use this instance to setup your 'crowsnest.conf' and steering it's service.\n"
+  echo -e "Use this instance to set up your 'crowsnest.conf' and steering it's service.\n"
   echo -e "Found the following instances:\n"
   for i in ${1}; do
     select_msg "${i}"
@@ -41,7 +41,7 @@ function check_multi_instance(){
   local -a instances
   readarray -t instances < <(find "${HOME}" -regex "${HOME}/[a-zA-Z0-9_]+_data/*" -printf "%P\n" 2> /dev/null | sort)
   if [[ "${#instances[@]}" -gt 1 ]]; then
-    status_msg "Multi Instance Install detected ..."
+    status_msg "Multi instance install detected ..."
     multi_instance_message "${instances[*]}"
     if [[ -d "${HOME}/crowsnest" ]]; then
       pushd "${HOME}/crowsnest" &> /dev/null || exit 1
@@ -65,7 +65,7 @@ function check_multi_instance(){
 function continue_config() {
   local reply
   while true; do
-    read -erp "${cyan}###### Continuing with configuration? (y/N):${white} " reply
+    read -erp "${cyan}###### Continue with configuration? (y/N):${white} " reply
     case "${reply}" in
       Y|y|Yes|yes)
         select_msg "Yes"
@@ -89,7 +89,7 @@ function install_crowsnest(){
 
   # Step 2: Clone crowsnest repo
   status_msg "Cloning 'crowsnest' repository ..."
-  if [[ ! -d "${HOME}/crowsnest" && -z "$(ls -A "${HOME}/crowsnest")" ]]; then
+  if [[ ! -d "${HOME}/crowsnest" && -z "$(ls -A "${HOME}/crowsnest" 2> /dev/null)" ]]; then
     clone_crowsnest
   else
     ok_msg "crowsnest repository already exists ..."
@@ -119,14 +119,15 @@ function install_crowsnest(){
 function remove_crowsnest(){
   pushd "${HOME}/crowsnest" &> /dev/null || exit 1
   title_msg "Uninstaller will prompt you for sudo password!"
-  status_msg "Launching crowsnest Uninstaller ..."
+  status_msg "Launching crowsnest uninstaller ..."
   if ! make uninstall; then
     error_msg "Something went wrong! Please try again..."
     exit 1
   fi
   if [[ -e "${CROWSNEST_DIR}" ]]; then
-    status_msg "Removing Crowsnest directory ..."
+    status_msg "Removing crowsnest directory ..."
     rm -rf "${CROWSNEST_DIR}"
+    ok_msg "Directory removed!"
   fi
 }
 
