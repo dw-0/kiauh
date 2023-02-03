@@ -22,7 +22,7 @@ set -e
 
 function multi_instance_message(){
   echo -e "Crowsnest is NOT designed to support multi instances."
-  echo -e "A Workaround for this is to choose the most used instance as a 'master'"
+  echo -e "A workaround for this is to choose the most used instance as a 'master'"
   echo -e "Use this instance to set up your 'crowsnest.conf' and steering it's service.\n"
   echo -e "Found the following instances:\n"
   for i in ${1}; do
