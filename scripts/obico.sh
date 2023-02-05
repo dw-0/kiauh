@@ -188,7 +188,7 @@ function moonraker_obico_setup_dialog() {
       -C "${instance_cfg_dirs[0]}/moonraker.conf"\
       -p "${port}" -H 127.0.0.1 -l\
       "${instance_log_dirs[0]}"\
-      -s -L -S "${obico_server_url}"
+      -L -S "${obico_server_url}"
     elif (( moonraker_count > 1 )); then
       local j=${existing_moonraker_obico_count}
 
@@ -199,7 +199,7 @@ function moonraker_obico_setup_dialog() {
         -p $((port+j))\
         -H 127.0.0.1\
         -l "${instance_log_dirs[${j}]}"\
-        -s -L -S "${obico_server_url}"
+        -L -S "${obico_server_url}"
         j=$(( j + 1 ))
       done && unset j
     fi # (( moonraker_count == 1 ))
