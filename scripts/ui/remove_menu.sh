@@ -22,12 +22,13 @@ function remove_ui() {
   echo -e "|  2) [Moonraker]           |                           |"
   echo -e "|                           | Webcam Streamer:          |"
   echo -e "| Klipper Webinterface:     |  7) [Crowsnest]           |"
-  echo -e "|  3) [Mainsail]            |                           |"
-  echo -e "|  4) [Fluidd]              | Other:                    |"
-  echo -e "|                           |  8) [PrettyGCode]         |"
-  echo -e "| Touchscreen GUI:          |  9) [Telegram Bot]        |"
-  echo -e "|  5) [KlipperScreen]       | 10) [Obico for Klipper]   |"
-  echo -e "|                           | 11) [NGINX]               |"
+  echo -e "|  3) [Mainsail]            |  8) [MJPG-Streamer]       |"
+  echo -e "|  4) [Fluidd]              |                           |"
+  echo -e "|                           | Other:                    |"
+  echo -e "| Touchscreen GUI:          |  9) [PrettyGCode]         |"
+  echo -e "|  5) [KlipperScreen]       | 10) [Telegram Bot]        |"
+  echo -e "|                           | 11) [Obico for Klipper]   |"
+  echo -e "|                           | 12) [NGINX]               |"
   back_footer
 }
 
@@ -53,12 +54,14 @@ function remove_menu() {
       7)
         do_action "remove_crowsnest" "remove_ui";;
       8)
-        do_action "remove_prettygcode" "remove_ui";;
+        do_action "remove_mjpg-streamer" "remove_ui";;
       9)
-        do_action "remove_telegram_bot" "remove_ui";;
+        do_action "remove_prettygcode" "remove_ui";;
       10)
-        do_action "remove_moonraker_obico" "remove_ui";;
+        do_action "remove_telegram_bot" "remove_ui";;
       11)
+        do_action "remove_moonraker_obico" "remove_ui";;
+      12)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;
