@@ -78,22 +78,43 @@ git clone https://github.com/th33xitus/kiauh.git
 <th>by <a href="https://github.com/jordanruthe">jordanruthe</a></th>
 <th>by <a href="https://github.com/OctoPrint">OctoPrint</a></th>
 </tr>
+
+<tr>
 <th><h3><a href="https://github.com/nlef/moonraker-telegram-bot">Moonraker-Telegram-Bot</a></h3></th>
 <th><h3><a href="https://github.com/Kragrathea/pgcode">PrettyGCode for Klipper</a></h3></th>
 <th><h3><a href="https://github.com/TheSpaghettiDetective/moonraker-obico">Obico for Klipper</a></h3></th>
-<tr>
 </tr>
+
 <tr>
 <th><img src="https://avatars.githubusercontent.com/u/52351624?v=4" alt="nlef avatar" height="64"></th>
 <th><img src="https://avatars.githubusercontent.com/u/5917231?v=4" alt="Kragrathea avatar" height="64"></th>
 <th><img src="https://avatars.githubusercontent.com/u/46323662?s=200&v=4" alt="Obico logo" height="64"></th>
-
 </tr>
+
 <tr>
 <th>by <a href="https://github.com/nlef">nlef</a></th>
 <th>by <a href="https://github.com/Kragrathea">Kragrathea</a></th>
 <th>by <a href="https://github.com/TheSpaghettiDetective">Obico</a></th>
 </tr>
+
+<tr>
+<th><h3></h3></th>
+<th><h3><a href="https://octoeverywhere.com">OctoEverywhere For Klipper</a></h3></th>
+<th><h3></h3></th>
+</tr>
+
+<tr>
+<th></th>
+<th><img src="https://octoeverywhere.com/img/logo.svg" alt="OctoEverywhere Logo" height="64"></th>
+<th></th>
+</tr>
+
+<tr>
+<th></th>
+<th>by <a href="https://github.com/QuinnDamerell">Quinn Damerell</a></th>
+<th></th>
+</tr>
+
 </table>
 
 ## **Credits**
