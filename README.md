@@ -15,7 +15,7 @@
   <a><img src="https://img.shields.io/github/forks/th33xitus/kiauh"></a>
   <a><img src="https://img.shields.io/github/languages/top/th33xitus/kiauh?logo=gnubash&logoColor=white"></a>
   <a><img src="https://img.shields.io/github/v/tag/th33xitus/kiauh"></a>
-  <br />  
+  <br />
   <a><img src="https://img.shields.io/github/last-commit/th33xitus/kiauh"></a>
   <a><img src="https://img.shields.io/github/contributors/th33xitus/kiauh"></a>
 </p>

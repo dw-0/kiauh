@@ -10,7 +10,7 @@
 #=======================================================================#
 
 #
-# This file is written and maintined by Quinn Damerell from OctoEverywhere
+# This file is written and maintained by Quinn Damerell from OctoEverywhere
 # Please contact our support team if you need any help!
 # https://octoeverywhre.com/support
 #
@@ -18,7 +18,7 @@
 set -e
 
 #===================================================#
-#============== INSTALL OCTOEVERYWHERE  ============#
+#==============         Install         ============#
 #===================================================#
 
 function octoeverywhere_systemd() {
@@ -44,7 +44,7 @@ function octoeverywhere_setup_dialog() {
     read -r -a moonraker_names <<< "$(get_multi_instance_names)"
   fi
 
-  # Next, check for any existing OctoEverywhere servcies.
+  # Next, check for any existing OctoEverywhere services.
   local octoeverywhere_services
   local existing_octoeverywhere_count
   octoeverywhere_services=$(octoeverywhere_systemd)
@@ -55,7 +55,7 @@ function octoeverywhere_setup_dialog() {
   if (( allowed_octoeverywhere_count > 0 )); then
     local new_octoeverywhere_count
 
-    ### Step 1: Ask for the number of moonraker-obico instances to install
+    ### Step 1: Ask for the number of OctoEverywhere instances to install
     if (( moonraker_count == 1 )); then
       ok_msg "Moonraker installation found!\n"
       new_octoeverywhere_count=1
@@ -94,7 +94,7 @@ function octoeverywhere_setup_dialog() {
         (( new_octoeverywhere_count > allowed_octoeverywhere_count )) && error_msg "Number of OctoEverywhere instances larger than installed Moonraker instances"
       done && select_msg "${new_octoeverywhere_count}"
     else
-      log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
+      log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grater than one!"
       return 1
     fi  # (( moonraker_count == 1 ))
   fi  # (( allowed_octoeverywhere_count > 0 ))
@@ -103,7 +103,7 @@ function octoeverywhere_setup_dialog() {
   # If the user selects the install option again, they might be trying to recover the install
   # or complete a printer link they didn't finish in the past.
   # So in this case, we will allow them to run the install script again, since it's safe to run
-  # if the service is already installed, it will rpaire any missing issues.
+  # if the service is already installed, it will repair any missing issues.
   if (( allowed_octoeverywhere_count == 0 && moonraker_count == 1 )); then
     local yn
     while true; do
@@ -128,13 +128,13 @@ function octoeverywhere_setup_dialog() {
     allowed_octoeverywhere_count=1
   fi
 
-  # If there's something to intall, do it!
+  # If there's something to install, do it!
   if (( allowed_octoeverywhere_count > 0 )); then
 
     (( new_octoeverywhere_count > 1 )) && status_msg "Installing ${new_octoeverywhere_count} OctoEverywhere instances ..."
     (( new_octoeverywhere_count == 1 )) && status_msg "Installing OctoEverywhere ..."
 
-    # Ensure the basic system depdencies are installed.
+    # Ensure the basic system dependencies are installed.
     local dep=(git dfu-util virtualenv python3 python3-pip python3-venv)
     dependency_check "${dep[@]}"
 
@@ -178,7 +178,7 @@ function octoeverywhere_install() {
 }
 
 #===================================================#
-#============= REMOVE MOONRAKER-OBICO ==============#
+#=============        Remove          ==============#
 #===================================================#
 
 function remove_octoeverywhere_systemd() {
@@ -268,7 +268,7 @@ function remove_octoeverywhere()
 }
 
 #===================================================#
-#============= UPDATE MOONRAKER-OBICO ==============#
+#=============        UPDATE          ==============#
 #===================================================#
 
 function update_octoeverywhere() {
@@ -278,7 +278,7 @@ function update_octoeverywhere() {
 }
 
 #===================================================#
-#============= MOONRAKER-OBICO STATUS ==============#
+#=============        STATUS          ==============#
 #===================================================#
 
 function get_octoeverywhere_status() {
