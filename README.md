@@ -99,13 +99,13 @@ git clone https://github.com/th33xitus/kiauh.git
 
 <tr>
 <th><h3></h3></th>
-<th><h3><a href="https://octoeverywhere.com">OctoEverywhere For Klipper</a></h3></th>
+<th><h3><a href="https://octoeverywhere.com/?source=kiauh_readme">OctoEverywhere For Klipper</a></h3></th>
 <th><h3></h3></th>
 </tr>
 
 <tr>
 <th></th>
-<th><img src="https://octoeverywhere.com/img/logo.svg" alt="OctoEverywhere Logo" height="64"></th>
+<th><a href="https://octoeverywhere.com/?source=kiauh_readme"><img src="https://octoeverywhere.com/img/logo.svg" alt="OctoEverywhere Logo" height="64"></a></th>
 <th></th>
 </tr>
 
