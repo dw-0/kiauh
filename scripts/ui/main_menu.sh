@@ -31,6 +31,7 @@ function main_ui() {
   echo -e "|  6) [Settings]     |  Telegram Bot: $(print_status "telegram_bot")|"
   echo -e "|                    |     Crowsnest: $(print_status "crowsnest")|"
   echo -e "|                    |         Obico: $(print_status "moonraker_obico")|"
+  echo -e "|                    |OctoEverywhere: $(print_status "octoeverywhere")|"
   echo -e "|                    |                                  |"
   echo -e "|  $(print_kiauh_version)|     Octoprint: $(print_status "octoprint")|"
   quit_footer

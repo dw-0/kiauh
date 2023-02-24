@@ -28,7 +28,8 @@ function remove_ui() {
   echo -e "| Touchscreen GUI:          |  9) [PrettyGCode]         |"
   echo -e "|  5) [KlipperScreen]       | 10) [Telegram Bot]        |"
   echo -e "|                           | 11) [Obico for Klipper]   |"
-  echo -e "|                           | 12) [NGINX]               |"
+  echo -e "|                           | 12) [OctoEverywhere]      |"
+  echo -e "|                           | 13) [NGINX]               |"
   back_footer
 }
 
@@ -62,6 +63,8 @@ function remove_menu() {
       11)
         do_action "remove_moonraker_obico" "remove_ui";;
       12)
+        do_action "remove_octoeverywhere" "remove_ui";;
+      13)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;
