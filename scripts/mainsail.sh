@@ -39,35 +39,13 @@ function install_mainsail() {
   ### check if another site already listens to port 80
   mainsail_port_check
 
-#  ### ask user to install mjpg-streamer
-#  local install_mjpg_streamer
-#  if [[ ! -f "${SYSTEMD}/webcamd.service" ]]; then
-#    while true; do
-#      echo
-#      top_border
-#      echo -e "| Install MJPG-Streamer for webcam support?             |"
-#      bottom_border
-#      read -p "${cyan}###### Please select (y/N):${white} " yn
-#      case "${yn}" in
-#        Y|y|Yes|yes)
-#          select_msg "Yes"
-#          install_mjpg_streamer="true"
-#          break;;
-#        N|n|No|no|"")
-#          select_msg "No"
-#          install_mjpg_streamer="false"
-#          break;;
-#        *)
-#          error_msg "Invalid command!";;
-#      esac
-#    done
-#  fi
-
   ### download mainsail
   download_mainsail
 
   ### ask user to install the recommended webinterface macros
-  install_mainsail_macros
+  if [[ ! -d "${HOME}/mainsail-config" ]]; then
+    install_mainsail_macros
+  fi
 
   ### create /etc/nginx/conf.d/upstreams.conf
   set_upstream_nginx_cfg
@@ -82,9 +60,6 @@ function install_mainsail() {
   ### add mainsail to the update manager in moonraker.conf
   patch_mainsail_update_manager
 
-  ### install mjpg-streamer
-#  [[ ${install_mjpg_streamer} == "true" ]] && install_mjpg-streamer
-
   fetch_webui_ports #WIP
 
   ### confirm message
@@ -92,22 +67,21 @@ function install_mainsail() {
 }
 
 function install_mainsail_macros() {
+  local yn
   while true; do
     echo
     top_border
-    echo -e "| It is recommended to have some important macros in    |"
-    echo -e "| your printer configuration to have Mainsail fully     |"
-    echo -e "| functional and working.                               |"
+    echo -e "| It is recommended to use special macros in order to   |"
+    echo -e "| have Mainsail fully functional and working.           |"
     blank_line
     echo -e "| The recommended macros for Mainsail can be seen here: |"
-    echo -e "| https://docs.mainsail.xyz/configuration#macros        |"
+    echo -e "| https://github.com/mainsail-crew/mainsail-config      |"
     blank_line
-    echo -e "| If you already have these macros in your config file, |"
-    echo -e "| skip this step and answer with 'no'.                  |"
+    echo -e "| If you already use these macros skip this step.       |"
     echo -e "| Otherwise you should consider to answer with 'yes' to |"
-    echo -e "| add the recommended example macros to your config.    |"
+    echo -e "| download the recommended macros.                      |"
     bottom_border
-    read -p "${cyan}###### Add the recommended macros? (Y/n):${white} " yn
+    read -p "${cyan}###### Download the recommended macros? (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
         select_msg "Yes"
@@ -124,36 +98,48 @@ function install_mainsail_macros() {
 }
 
 function download_mainsail_macros() {
-  local ms_cfg path configs regex
+  local ms_cfg_repo path configs regex line gcode_dir
 
-  ms_cfg="https://raw.githubusercontent.com/mainsail-crew/mainsail-config/master/mainsail.cfg"
+  ms_cfg_repo="https://github.com/mainsail-crew/mainsail-config.git"
   regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
   configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
-  if [[ -n ${configs} ]]; then
-    for config in ${configs}; do
-      path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
-      if [[ ! -f "${path}/mainsail.cfg" ]]; then
-        status_msg "Downloading mainsail.cfg to ${path} ..."
-        log_info "downloading mainsail.cfg to: ${path}"
-        wget "${ms_cfg}" -O "${path}/mainsail.cfg"
-
-        ### replace user 'pi' with current username to prevent issues in cases where the user is not called 'pi'
-        log_info "modify mainsail.cfg"
-        sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/\/home\/${USER}/" "${path}/mainsail.cfg"
-
-        ### write include to the very first line of the printer.cfg
-        if ! grep -Eq "^[include mainsail.cfg]$" "${path}/printer.cfg"; then
-          log_info "modify printer.cfg"
-          sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
-        fi
-        ok_msg "Done!"
-      fi
-    done
-  else
+  if [[ -z ${configs} ]]; then
     log_error "execution stopped! reason: no printer.cfg found"
     return
   fi
+
+  status_msg "Cloning mainsail-config ..."
+  if cd "${HOME}" && git clone "${ms_cfg_repo}"; then
+    for config in ${configs}; do
+      path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
+      if [[ ! -e "${path}/mainsail.cfg" ]]; then
+        # link config to cfg-dir
+        ln -sf "${HOME}/mainsail-config/mainsail.cfg" "${path}/mainsail.cfg"
+        # write include to the very first line of the printer.cfg
+        if ! grep -Eq "^[include mainsail.cfg]$" "${path}/printer.cfg"; then
+          log_info "${path}/printer.cfg"
+          sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
+        fi
+        # get linenumber of include statement and add 1
+        line=$(($(grep -n "\[include mainsail.cfg\]" "${path}/printer.cfg" | tail -1 | cut -d: -f1) + 1))
+        gcode_dir=${path/config/gcodes}
+        # insert required virtual_sdcard block into printer.cfg
+        if ! grep -Eq "^[virtual_sdcard]$" "${path}/printer.cfg"; then
+          log_info "${path}/printer.cfg"
+          sed -Ei "${line} i\ \n[virtual_sdcard]\npath: ${gcode_dir}\non_error_gcode: CANCEL_PRINT\n" "${path}/printer.cfg"
+        fi
+        # add the config repo to the moonraker updater
+        patch_mainsail_config_update_manager
+      fi
+    done
+  else
+    print_error "Cloning failed!"
+    log_error "execution stopped! reason: cloning failed"
+    return
+  fi
+
+  ok_msg "Done!"
 }
 
 function download_mainsail() {
@@ -196,7 +182,7 @@ function remove_mainsail_dir() {
   rm -rf "${MAINSAIL_DIR}" && ok_msg "Directory removed!"
 }
 
-function remove_mainsail_config() {
+function remove_mainsail_nginx_config() {
   if [[ -e "/etc/nginx/sites-available/mainsail" ]]; then
     status_msg "Removing Mainsail configuration for Nginx ..."
     sudo rm "/etc/nginx/sites-available/mainsail" && ok_msg "File removed!"
@@ -248,9 +234,18 @@ function remove_legacy_mainsail_log_symlinks() {
   fi
 }
 
+function remove_mainsail_config() {
+  if [[ -d "${HOME}/mainsail-config"  ]]; then
+    status_msg "Removing ${HOME}/mainsail-config ..."
+    rm -rf "${HOME}/mainsail-config"
+    ok_msg "${HOME}/mainsail-config removed!"
+    print_confirm "Mainsail-Config successfully removed!"
+  fi
+}
+
 function remove_mainsail() {
   remove_mainsail_dir
-  remove_mainsail_config
+  remove_mainsail_nginx_config
   remove_mainsail_logs
   remove_mainsail_log_symlinks
   remove_legacy_mainsail_log_symlinks
@@ -612,6 +607,39 @@ type: web
 channel: stable
 repo: mainsail-crew/mainsail
 path: ~/mainsail
+MOONRAKER_CONF
+
+    fi
+
+    patched="true"
+  done
+
+  if [[ ${patched} == "true" ]]; then
+    do_action_service "restart" "moonraker"
+  fi
+}
+
+function patch_mainsail_config_update_manager() {
+  local patched moonraker_configs regex
+  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
+
+  patched="false"
+  for conf in ${moonraker_configs}; do
+    if ! grep -Eq "^\[update_manager mainsail-config\]\s*$" "${conf}"; then
+      ### add new line to conf if it doesn't end with one
+      [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
+
+      ### add Mainsails update manager section to moonraker.conf
+      status_msg "Adding Mainsail-Config to update manager in file:\n       ${conf}"
+      /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
+
+[update_manager mainsail-config]
+type: git_repo
+primary_branch: master
+path: ~/mainsail-config
+origin: https://github.com/mainsail-crew/mainsail-config.git
+managed_services: klipper
 MOONRAKER_CONF
 
     fi
