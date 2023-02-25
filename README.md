@@ -22,9 +22,46 @@
 
 ## **🛠️ Instructions:**
 
-For downloading this script it is necessary to have git installed.\
-If you haven't, please run `sudo apt-get install git -y` to install git first.\
-After git is installed, use the following commands in the given order to download and execute the script:
+### Prerequisites
+KIAUH is a script that helps you to install Klipper on a Linux Operating System that has
+already been flashed to the SD card of your Raspberry Pi (or other SBC). So you need to make sure to have
+a working Linux system available. A recommended Linux image (in case you are using a Raspberry Pi) is
+`Raspberry Pi OS Lite (32bit)`. The easiest way to flash an image like this to an SD card is by using the
+[official Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+
+* Once you downloaded, installed and launched the Raspberry Pi Imager 
+select the `Choose OS` option and then `Raspberry Pi OS (other)`: \
+![](resources/screenshots/rpi_imager1.png)
+
+* Then select `Raspberry Pi OS Lite (32bit)`:
+![](resources/screenshots/rpi_imager2.png)
+
+* Back in the main menu of the Raspberry Pi Imager select the corresponding SD card you want to
+flash the image to.
+
+* Also make sure to go into the Advaced Option (the cog icon in the lower left corner)
+and enable SSH and configure Wi-Fi.
+
+* If you need more help for using the Raspberry Pi Imager, consider 
+visiting the [official documentation](https://www.raspberrypi.com/documentation/computers/getting-started.html).
+
+These steps only apply if you are actually using a Raspberry Pi. In case you want 
+to use a different SBC, please find out how to get an appropriate Linux image flashed 
+to the SD card before proceeding further. Also make sure that KIAUH will be able to run 
+and operate on the Linux Distribution you are going to flash. Read the Notes 
+further down in this document.
+
+### Download and use KIAUH
+**📢 Disclaimer: Usage of this script happens at your own risk!**
+
+* **Step 1:** \
+To download this script, it is necessary to have git installed. If you don't have git already installed, or if you are unsure, run the following command:
+```shell
+sudo apt-get install git -y
+```
+
+* **Step 2:** \
+Once git is installed, use the following commands in the given order to download and execute the script:
 
 ```shell
 cd ~
@@ -33,17 +70,20 @@ git clone https://github.com/th33xitus/kiauh.git
 
 ./kiauh/kiauh.sh
 ```
-**📢 Disclaimer: Usage of this script happens at your own risk!**
+
+* **Step 3:** \
+You should find yourself in the main menu of KIAUH. You will see several options you can choose 
+from depending on what you want to do. For choosing an option, type the corresponding number into the "Perform action" prompt.
 
 
 ## **❗ Notes:**
 
 **📋 Please see the [Changelog](docs/changelog.md) for possible important changes!**
 
-- Tested **only** on Raspberry Pi OS Lite (Debian 10 Buster)
-    - Other Debian based distributions can work
-    - Reported to work on Armbian too
-- During the use of this script you might be asked for your sudo password. There are several functions involved which need sudo privileges.
+- Mainly tested on Raspberry Pi OS Lite (Debian 10 Buster / Debian 11 Bullseye)
+    - Other Debian based distributions (like Ubuntu 20 to 22) likely work too
+    - Reported to work on Armbian as well
+- During the use of this script you will be asked for your sudo password. There are several functions involved which need sudo privileges.
 
 ## **🌐 Sources & Further Information**
 
