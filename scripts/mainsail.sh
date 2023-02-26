@@ -119,6 +119,7 @@ function download_mainsail_macros() {
         warn_msg "The file will be renamed to 'mainsail.bak.cfg' to be able to continue with the installation."
         if ! mv "${path}/mainsail.cfg" "${path}/mainsail.bak.cfg"; then
           error_msg "Renaming mainsail.cfg failed! Aborting installation ..."
+          return
         fi
       fi
 
