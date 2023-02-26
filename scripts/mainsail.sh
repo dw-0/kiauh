@@ -30,7 +30,7 @@ function install_mainsail() {
 
   status_msg "Initializing Mainsail installation ..."
   ### first, we create a backup of the full klipper_config dir - safety first!
-  backup_klipper_config_dir
+  #backup_klipper_config_dir
 
   ### check for other enabled web interfaces
   unset SET_LISTEN_PORT
@@ -43,9 +43,7 @@ function install_mainsail() {
   download_mainsail
 
   ### ask user to install the recommended webinterface macros
-  if [[ ! -d "${HOME}/mainsail-config" ]]; then
-    install_mainsail_macros
-  fi
+  install_mainsail_macros
 
   ### create /etc/nginx/conf.d/upstreams.conf
   set_upstream_nginx_cfg
@@ -105,39 +103,54 @@ function download_mainsail_macros() {
   configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -z ${configs} ]]; then
+    print_error "No printer.cfg found! Installation of Macros will be skipped ..."
     log_error "execution stopped! reason: no printer.cfg found"
     return
   fi
 
   status_msg "Cloning mainsail-config ..."
-  if cd "${HOME}" && git clone "${ms_cfg_repo}"; then
+  [[ -d "${HOME}/mainsail-config" ]] && rm -rf "${HOME}/mainsail-config"
+  if git clone "${ms_cfg_repo}" "${HOME}/mainsail-config"; then
     for config in ${configs}; do
       path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
-      if [[ ! -e "${path}/mainsail.cfg" ]]; then
-        # link config to cfg-dir
-        ln -sf "${HOME}/mainsail-config/mainsail.cfg" "${path}/mainsail.cfg"
-        # write include to the very first line of the printer.cfg
-        if ! grep -Eq "^[include mainsail.cfg]$" "${path}/printer.cfg"; then
-          log_info "${path}/printer.cfg"
-          sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
+
+      if [[ -e "${path}/mainsail.cfg" && ! -h "${path}/mainsail.cfg" ]]; then
+        warn_msg "Attention! Existing mainsail.cfg detected!"
+        warn_msg "The file will be renamed to 'mainsail.bak.cfg' to be able to continue with the installation."
+        if ! mv "${path}/mainsail.cfg" "${path}/mainsail.bak.cfg"; then
+          error_msg "Renaming mainsail.cfg failed! Aborting installation ..."
         fi
-        # get linenumber of include statement and add 1
-        line=$(($(grep -n "\[include mainsail.cfg\]" "${path}/printer.cfg" | tail -1 | cut -d: -f1) + 1))
-        gcode_dir=${path/config/gcodes}
-        # insert required virtual_sdcard block into printer.cfg
-        if ! grep -Eq "^[virtual_sdcard]$" "${path}/printer.cfg"; then
-          log_info "${path}/printer.cfg"
-          sed -Ei "${line} i\ \n[virtual_sdcard]\npath: ${gcode_dir}\non_error_gcode: CANCEL_PRINT\n" "${path}/printer.cfg"
-        fi
-        # add the config repo to the moonraker updater
-        patch_mainsail_config_update_manager
+      fi
+
+      if [[ -h "${path}/mainsail.cfg" ]]; then
+        warn_msg "Recreating symlink in ${path} ..."
+        rm -rf "${path}/mainsail.cfg"
+      fi
+
+      if ! ln -sf "${HOME}/mainsail-config/mainsail.cfg" "${path}/mainsail.cfg"; then
+        error_msg "Creating symlink failed! Aborting installation ..."
+        return
+      fi
+
+      if ! grep -Eq "^[include mainsail.cfg]$" "${path}/printer.cfg"; then
+        log_info "${path}/printer.cfg"
+        sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
+      fi
+
+      line=$(($(grep -n "\[include mainsail.cfg\]" "${path}/printer.cfg" | tail -1 | cut -d: -f1) + 1))
+      gcode_dir=${path/config/gcodes}
+      if ! grep -Eq "^[virtual_sdcard]$" "${path}/printer.cfg"; then
+        log_info "${path}/printer.cfg"
+        sed -i "${line} i \[virtual_sdcard]\npath: ${gcode_dir}\non_error_gcode: CANCEL_PRINT\n" "${path}/printer.cfg"
       fi
     done
   else
-    print_error "Cloning failed!"
+    print_error "Cloning failed! Aborting installation ..."
     log_error "execution stopped! reason: cloning failed"
     return
   fi
+
+  patch_mainsail_config_update_manager
 
   ok_msg "Done!"
 }
