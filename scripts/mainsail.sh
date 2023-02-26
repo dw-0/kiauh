@@ -128,7 +128,7 @@ function download_mainsail_macros() {
         rm -rf "${path}/mainsail.cfg"
       fi
 
-      if ! ln -sf "${HOME}/mainsail-config/mainsail.cfg" "${path}/mainsail.cfg"; then
+      if ! ln -sf "${HOME}/mainsail-config/client.cfg" "${path}/mainsail.cfg"; then
         error_msg "Creating symlink failed! Aborting installation ..."
         return
       fi
