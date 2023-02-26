@@ -133,14 +133,14 @@ function download_mainsail_macros() {
         return
       fi
 
-      if ! grep -Eq "^[include mainsail.cfg]$" "${path}/printer.cfg"; then
+      if ! grep -Eq "^\[include mainsail.cfg\]$" "${path}/printer.cfg"; then
         log_info "${path}/printer.cfg"
         sed -i "1 i [include mainsail.cfg]" "${path}/printer.cfg"
       fi
 
       line=$(($(grep -n "\[include mainsail.cfg\]" "${path}/printer.cfg" | tail -1 | cut -d: -f1) + 1))
       gcode_dir=${path/config/gcodes}
-      if ! grep -Eq "^[virtual_sdcard]$" "${path}/printer.cfg"; then
+      if ! grep -Eq "^\[virtual_sdcard\]$" "${path}/printer.cfg"; then
         log_info "${path}/printer.cfg"
         sed -i "${line} i \[virtual_sdcard]\npath: ${gcode_dir}\non_error_gcode: CANCEL_PRINT\n" "${path}/printer.cfg"
       fi
