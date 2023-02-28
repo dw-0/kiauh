@@ -99,7 +99,7 @@ function download_mainsail_macros() {
   local ms_cfg_repo path configs regex line gcode_dir
 
   ms_cfg_repo="https://github.com/mainsail-crew/mainsail-config.git"
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
   configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -z ${configs} ]]; then
@@ -223,7 +223,7 @@ function remove_mainsail_logs() {
 function remove_mainsail_log_symlinks() {
   local files regex
 
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/mainsail-.*"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs\/mainsail-.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
@@ -469,7 +469,7 @@ function ms_theme_install() {
 function ms_theme_delete() {
   local regex theme_folders target_folders=()
 
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/\.theme"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/\.theme"
   theme_folders=$(find "${HOME}" -maxdepth 3 -type d -regextype posix-extended -regex "${regex}" | sort)
 #  theme_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -type d -name ".theme" | sort)
 
@@ -603,7 +603,7 @@ function enable_mainsail_remotemode() {
 
 function patch_mainsail_update_manager() {
   local patched moonraker_configs regex
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
   patched="false"
@@ -635,7 +635,7 @@ MOONRAKER_CONF
 
 function patch_mainsail_config_update_manager() {
   local patched moonraker_configs regex
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
   patched="false"
