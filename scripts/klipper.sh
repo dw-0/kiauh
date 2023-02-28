@@ -19,6 +19,29 @@ set -e
 #================ INSTALL KLIPPER ================#
 #=================================================#
 
+###
+# this function detects all installed klipper
+# systemd instances and returns their absolute path
+function klipper_systemd() {
+  local services
+  local blacklist
+  local ignore
+  local match
+
+  ###
+  # any service that uses "klipper" in its own name but isn't a full klipper service must be blacklisted using
+  # this variable, otherwise they will be falsely recognized as klipper instances. E.g. "klipper-mcu.service"
+  # is not a klipper service, but related to klippers linux mcu, which also requires its own service file, hence
+  # it must be blacklisted.
+  blacklist="mcu"
+
+  ignore="${SYSTEMD}/klipper-(${blacklist}).service"
+  match="${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service"
+
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype awk ! -regex "${ignore}" -regex "${match}" | sort)
+  echo "${services}"
+}
+
 function start_klipper_setup() {
   local klipper_initd_service
   local klipper_systemd_services
@@ -34,7 +57,7 @@ function start_klipper_setup() {
 
   ### return early if klipper already exists
   klipper_initd_service=$(find_klipper_initd)
-  klipper_systemd_services=$(find_klipper_systemd)
+  klipper_systemd_services=$(klipper_systemd)
 
   if [[ -n ${klipper_initd_service} ]]; then
     error="Unsupported Klipper SysVinit service detected:"
@@ -386,7 +409,7 @@ function write_example_printer_cfg() {
 #================================================#
 
 function remove_klipper_service() {
-  if [[ ! -e "${INITD}/klipper" ]] && [[ -z $(find_klipper_systemd) ]]; then
+  if [[ ! -e "${INITD}/klipper" ]] && [[ -z $(klipper_systemd) ]]; then
     return
   fi
 
@@ -397,7 +420,7 @@ function remove_klipper_service() {
     sudo update-rc.d -f klipper remove
     sudo rm -f "${INITD}/klipper" "${ETCDEF}/klipper"
   else
-    for service in $(find_klipper_systemd | cut -d"/" -f5); do
+    for service in $(klipper_systemd | cut -d"/" -f5); do
       status_msg "Removing ${service} ..."
       sudo systemctl stop "${service}"
       sudo systemctl disable "${service}"
@@ -534,10 +557,10 @@ function update_klipper() {
 
 function get_klipper_status() {
   local sf_count status py_ver
-  sf_count="$(find_klipper_systemd | wc -w)"
+  sf_count="$(klipper_systemd | wc -w)"
 
   ### detect an existing "legacy" klipper init.d installation
-  if [[ $(find_klipper_systemd | wc -w) -eq 0 ]] \
+  if [[ $(klipper_systemd | wc -w) -eq 0 ]] \
   && [[ $(find_klipper_initd | wc -w) -ge 1 ]]; then
     sf_count=1
   fi

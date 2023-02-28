@@ -25,7 +25,7 @@ function octoprint_setup_dialog() {
   status_msg "Initializing OctoPrint installation ..."
 
   local klipper_services
-  klipper_services=$(find_klipper_systemd)
+  klipper_services=$(klipper_systemd)
   if [[ -z ${klipper_services} ]]; then
     local error="Klipper not installed! Please install Klipper first!"
     log_error "OctoPrint setup started without Klipper being installed. Aborting setup."

@@ -599,7 +599,7 @@ function set_multi_instance_names() {
   local names=""
   local services
 
-  services=$(find_klipper_systemd)
+  services=$(klipper_systemd)
 
   ###
   # if value of 'multi_instance_names' is not an empty
@@ -664,7 +664,7 @@ function get_config_folders() {
         cfg_dirs+=("${HOME}/${name}_data/config")
       fi
     done
-  elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
+  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
     cfg_dirs+=("${HOME}/printer_data/config")
   else
     cfg_dirs=()
@@ -707,7 +707,7 @@ function get_instance_folder_path() {
         fi
       fi
     done
-  elif [[ -z ${instance_names} && $(find_klipper_systemd | wc -w) -gt 0 ]]; then
+  elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
     path="${HOME}/printer_data/${folder_name}"
     if [[ -d ${path} ]]; then
       folder_paths+=("${path}")
