@@ -338,18 +338,6 @@ function fetch_webui_ports() {
 #=================== SYSTEM =====================#
 #================================================#
 
-function find_klipper_initd() {
-  local services
-  services=$(find "${INITD}" -maxdepth 1 -regextype posix-extended -regex "${INITD}/klipper(-[^0])?[0-9]*" | sort)
-  echo "${services}"
-}
-
-function find_klipper_systemd() {
-  local services
-  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service" | sort)
-  echo "${services}"
-}
-
 function create_required_folders() {
   local printer_data=${1} folders
   folders=("backup" "certs" "config" "database" "gcodes" "comms" "logs" "systemd")
