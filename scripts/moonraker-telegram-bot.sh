@@ -376,7 +376,7 @@ function remove_telegram_bot_env() {
 }
 
 function remove_telegram_bot_env_file() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/moonraker-telegram-bot\.env"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/systemd\/moonraker-telegram-bot\.env"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
@@ -389,7 +389,7 @@ function remove_telegram_bot_env_file() {
 }
 
 function remove_telegram_bot_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/telegram\.log.*"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs\/telegram\.log.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
@@ -519,7 +519,7 @@ function compare_telegram_bot_versions() {
 
 function patch_telegram_bot_update_manager() {
   local patched moonraker_configs regex
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
   patched="false"

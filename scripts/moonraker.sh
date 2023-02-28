@@ -44,7 +44,7 @@ function moonraker_setup_dialog() {
     print_error "${error}" && return
   fi
 
-  local klipper_services=$(find_klipper_systemd)
+  local klipper_services=$(klipper_systemd)
   local klipper_count=$(echo "${klipper_services}" | wc -w )
   for service in ${klipper_services}; do
     klipper_names+=( "$(get_instance_name "${service}")" )
@@ -590,7 +590,7 @@ function remove_moonraker() {
 
   remove_legacy_moonraker_logs
 
-  if (( ${moonraker_services_count} == 1 )) || [[ "${moonraker_count}" == "0" ]]; then
+  if (( ${moonraker_services_count} == 1 )) || [[ "${option}" == "0" ]]; then
     remove_moonraker_api_key
     remove_moonraker_polkit
     remove_moonraker_dir

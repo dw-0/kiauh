@@ -19,8 +19,30 @@ set -e
 #================ INSTALL KLIPPER ================#
 #=================================================#
 
+###
+# this function detects all installed klipper
+# systemd instances and returns their absolute path
+function klipper_systemd() {
+  local services
+  local blacklist
+  local ignore
+  local match
+
+  ###
+  # any service that uses "klipper" in its own name but isn't a full klipper service must be blacklisted using
+  # this variable, otherwise they will be falsely recognized as klipper instances. E.g. "klipper-mcu.service"
+  # is not a klipper service, but related to klippers linux mcu, which also requires its own service file, hence
+  # it must be blacklisted.
+  blacklist="mcu"
+
+  ignore="${SYSTEMD}/klipper-(${blacklist}).service"
+  match="${SYSTEMD}/klipper(-[0-9a-zA-Z]+)?.service"
+
+  services=$(find "${SYSTEMD}" -maxdepth 1 -regextype awk ! -regex "${ignore}" -regex "${match}" | sort)
+  echo "${services}"
+}
+
 function start_klipper_setup() {
-  local klipper_initd_service
   local klipper_systemd_services
   local python_version
   local instance_count
@@ -28,24 +50,17 @@ function start_klipper_setup() {
   local use_custom_names
   local input
   local regex
+  local blacklist
   local error
 
   status_msg "Initializing Klipper installation ...\n"
 
   ### return early if klipper already exists
-  klipper_initd_service=$(find_klipper_initd)
-  klipper_systemd_services=$(find_klipper_systemd)
-
-  if [[ -n ${klipper_initd_service} ]]; then
-    error="Unsupported Klipper SysVinit service detected:"
-    error="${error}\n ➔ ${klipper_initd_service}"
-    error="${error}\n Please re-install Klipper with KIAUH!"
-    log_info "Unsupported Klipper SysVinit service detected: ${klipper_initd_service}"
-  fi
+  klipper_systemd_services=$(klipper_systemd)
 
   local klipper_systemd_services_count=0
   if [[ -n ${klipper_systemd_services} ]]; then
-    klipper_systemd_services_count=$(find_klipper_systemd | wc -w)
+    klipper_systemd_services_count=$(klipper_systemd | wc -w)
     status_msg "Following Klipper instances are already installed:"
 
     for s in ${klipper_systemd_services}; do
@@ -117,15 +132,19 @@ function start_klipper_setup() {
   fi
 
   ### user selection for setting the actual custom names
+  shopt -s nocasematch
   if [[ ${use_custom_names} == "true" ]]; then
     local i
 
     i=1
     regex="^[0-9a-zA-Z]+$"
-    while [[ ! ${input} =~ ${regex} || ${i} -le ${instance_count} ]]; do
+    blacklist="mcu"
+    while [[ ! ${input} =~ ${regex} || ${input} =~ ${blacklist} || ${i} -le ${instance_count} ]]; do
       read -p "${cyan}###### Name for instance #${i}:${white} " input
 
-      if [[ ${input} =~ ${regex} ]]; then
+      if [[ ${input} =~ ${blacklist} ]]; then
+        error_msg "Name not allowed! You are trying to use a reserved name."
+      elif [[ ${input} =~ ${regex} && ! ${input} =~ ${blacklist} ]]; then
         select_msg "Name: ${input}\n"
         local instance_name
         if [[ ${input} =~ ^[0-9]+$ ]]; then
@@ -153,6 +172,7 @@ function start_klipper_setup() {
       instance_names+=("printer_${i}")
     done
   fi
+  shopt -u nocasematch
 
   (( instance_count > 1 )) && status_msg "Installing ${instance_count} Klipper instances ..."
   (( instance_count == 1 )) && status_msg "Installing single Klipper instance ..."
@@ -426,12 +446,6 @@ function write_example_printer_cfg() {
 function remove_klipper_service() {
   status_msg "Removing Klipper services ..."
 
-  if [[ -e "${INITD}/klipper" ]]; then
-    sudo systemctl stop klipper
-    sudo update-rc.d -f klipper remove
-    sudo rm -f "${INITD}/klipper" "${ETCDEF}/klipper"
-  fi
-
   for service in "${@}"; do
     status_msg "Removing ${service} ..."
     sudo systemctl stop "${service}"
@@ -547,7 +561,7 @@ function remove_klipper() {
   remove_files "$(find_legacy_klipper_uds)"
   remove_files "$(find_legacy_klipper_printer)"
 
-  local klipper_systemd_services=$(find_klipper_systemd)
+  local klipper_systemd_services=$(klipper_systemd)
   if [[ -z ${klipper_systemd_services} ]]; then
     print_error "Klipper not installed, nothing to do!"
     return
@@ -558,7 +572,7 @@ function remove_klipper() {
   hr
 
   local user_input=() klipper_names=()
-  local klipper_services_count="$(find_klipper_systemd | wc -w)"
+  local klipper_services_count="$(klipper_systemd | wc -w)"
   if (( klipper_services_count == 1 )); then
     service_name=$(basename ${klipper_systemd_services})
     klipper_names+=( "${service_name}" )
@@ -598,7 +612,7 @@ function remove_klipper() {
   remove_klipper_service "${user_input[@]}"
   remove_klipper_files "${user_input[@]}"
 
-  if (( ${klipper_services_count} == 1 )) || [[ "${klipper_count}" == "0" ]]; then
+  if (( ${klipper_services_count} == 1 )) || [[ "${option}" == "0" ]]; then
     remove_klipper_dir
     remove_klipper_env
   fi
@@ -649,13 +663,7 @@ function update_klipper() {
 
 function get_klipper_status() {
   local sf_count status py_ver
-  sf_count="$(find_klipper_systemd | wc -w)"
-
-  ### detect an existing "legacy" klipper init.d installation
-  if [[ $(find_klipper_systemd | wc -w) -eq 0 ]] \
-  && [[ $(find_klipper_initd | wc -w) -ge 1 ]]; then
-    sf_count=1
-  fi
+  sf_count="$(klipper_systemd | wc -w)"
 
   py_ver=$(get_klipper_python_ver)
 

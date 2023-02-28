@@ -38,7 +38,7 @@ function install_pgc_for_klipper() {
   fi
 
   sudo cp "${pgconfsrc}" "${pgconf}"
-  sudo sed -i "s|/home/pi/pgcode;|/home/${USER}/pgcode;|" "${pgconf}"
+  sudo sed -i "s|/home/pi/pgcode;|${HOME}/pgcode;|" "${pgconf}"
 
   ### replace default port
   if (( pgc_custom_port != pgc_default_port )); then
