@@ -425,16 +425,6 @@ function install_moonraker_polkit() {
 #================ REMOVE MOONRAKER ================#
 #==================================================#
 
-function remove_moonraker_sysvinit() {
-  [[ ! -e "${INITD}/moonraker" ]] && return
-
-  status_msg "Removing Moonraker SysVinit service ..."
-  sudo systemctl stop moonraker
-  sudo update-rc.d -f moonraker remove
-  sudo rm -f "${INITD}/moonraker" "${ETCDEF}/moonraker"
-  ok_msg "Moonraker SysVinit service removed!"
-}
-
 function remove_moonraker_systemd() {
   status_msg "Removing Moonraker Systemd Services ..."
 
@@ -528,8 +518,6 @@ function remove_moonraker_polkit() {
 }
 
 function remove_moonraker() {
-  remove_moonraker_sysvinit
-
   local moonraker_services=$(moonraker_systemd)
   if [[ -z ${moonraker_services} ]]; then
     print_error "Moonraker not installed, nothing to do!"
