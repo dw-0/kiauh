@@ -60,7 +60,7 @@ function moonraker_setup_dialog() {
 
   ### return early if klipper is not installed
   local klipper_services
-  klipper_services=$(find_klipper_systemd)
+  klipper_services=$(klipper_systemd)
   if [[ -z ${klipper_services} ]]; then
     local error="Klipper not installed! Please install Klipper first!"
     log_error "Moonraker setup started without Klipper being installed. Aborting setup."
