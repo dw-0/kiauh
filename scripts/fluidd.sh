@@ -127,7 +127,7 @@ function download_fluidd_macros() {
   local fluidd_cfg path configs regex
 
   fluidd_cfg="https://raw.githubusercontent.com/fluidd-core/FluiddPI/master/src/modules/fluidd/filesystem/home/pi/klipper_config/fluidd.cfg"
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
   configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${configs} ]]; then
@@ -140,7 +140,7 @@ function download_fluidd_macros() {
 
         ### replace user 'pi' with current username to prevent issues in cases where the user is not called 'pi'
         log_info "modify fluidd.cfg"
-        sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/\/home\/${USER}/" "${path}/fluidd.cfg"
+        sed -i "/^path: \/home\/pi\/gcode_files/ s/\/home\/pi/${HOME//\//\\/}/" "${path}/fluidd.cfg"
 
         ### write include to the very first line of the printer.cfg
         if ! grep -Eq "^[include fluidd.cfg]$" "${path}/printer.cfg"; then
@@ -218,7 +218,7 @@ function remove_fluidd_logs() {
 function remove_fluidd_log_symlinks() {
   local files regex
 
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/fluidd-.*"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs\/fluidd-.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" 2> /dev/null | sort)
 
   if [[ -n ${files} ]]; then
@@ -416,7 +416,7 @@ function select_fluidd_port() {
 
 function patch_fluidd_update_manager() {
   local patched moonraker_configs regex
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
   patched="false"

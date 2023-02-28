@@ -465,7 +465,7 @@ function remove_moonraker_systemd() {
 }
 
 function remove_moonraker_env_file() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/moonraker\.env"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/systemd\/moonraker\.env"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
@@ -478,7 +478,7 @@ function remove_moonraker_env_file() {
 }
 
 function remove_moonraker_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log.*"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then

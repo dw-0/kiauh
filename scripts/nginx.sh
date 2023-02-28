@@ -79,7 +79,7 @@ function symlink_webui_nginx_log() {
   interface=${1}
   access_log="/var/log/nginx/${interface}-access.log"
   error_log="/var/log/nginx/${interface}-error.log"
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs"
   logpaths=$(find "${HOME}" -maxdepth 2 -type d -regextype posix-extended -regex "${regex}" | sort)
 
   for path in ${logpaths}; do

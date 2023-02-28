@@ -106,7 +106,7 @@ function create_example_shell_command() {
   backup_klipper_config_dir
 
   local configs regex path
-  regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/printer\.cfg"
   configs=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   for cfg in ${configs}; do
