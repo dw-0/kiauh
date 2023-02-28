@@ -50,6 +50,7 @@ function start_klipper_setup() {
   local use_custom_names
   local input
   local regex
+  local blacklist
   local error
 
   status_msg "Initializing Klipper installation ...\n"
@@ -129,15 +130,19 @@ function start_klipper_setup() {
   fi
 
   ### user selection for setting the actual custom names
+  shopt -s nocasematch
   if (( instance_count > 1 )) && [[ ${use_custom_names} == "true" ]]; then
     local i
 
     i=1
     regex="^[0-9a-zA-Z]+$"
-    while [[ ! ${input} =~ ${regex} || ${i} -le ${instance_count} ]]; do
+    blacklist="mcu"
+    while [[ ! ${input} =~ ${regex} || ${input} =~ ${blacklist} || ${i} -le ${instance_count} ]]; do
       read -p "${cyan}###### Name for instance #${i}:${white} " input
 
-      if [[ ${input} =~ ${regex} ]]; then
+      if [[ ${input} =~ ${blacklist} ]]; then
+        error_msg "Name not allowed! You are trying to use a reserved name."
+      elif [[ ${input} =~ ${regex} && ! ${input} =~ ${blacklist} ]]; then
         select_msg "Name: ${input}\n"
         if [[ ${input} =~ ^[0-9]+$ ]]; then
           instance_names+=("printer_${input}")
@@ -154,6 +159,7 @@ function start_klipper_setup() {
       instance_names+=("printer_${i}")
     done
   fi
+  shopt -u nocasematch
 
   (( instance_count > 1 )) && status_msg "Installing ${instance_count} Klipper instances ..."
   (( instance_count == 1 )) && status_msg "Installing single Klipper instance ..."
