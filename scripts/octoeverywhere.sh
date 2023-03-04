@@ -28,7 +28,7 @@ function octoeverywhere_systemd() {
 }
 
 function octoeverywhere_setup_dialog() {
-  echo -e "\n${magenta}OctoEverywhere Free & Unlimited Remote Access To Mainsail Or Fluidd... Everywhere!\nNow including free and unlimited AI print failure detection!\n${white}"
+  status_msg "Initializing OctoEverywhere for Klipper installation ..."
 
   # First, check for moonraker service instances.
   local moonraker_count
@@ -200,7 +200,7 @@ function remove_octoeverywhere_systemd() {
 }
 
 function remove_octoeverywhere_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/octoeverywhere(-[0-9a-zA-Z]+)?\.log(.*)?"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs\/octoeverywhere(-[0-9a-zA-Z]+)?\.log(.*)?"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
@@ -220,22 +220,9 @@ function remove_octoeverywhere_dir() {
   ok_msg "Directory removed!"
 }
 
-function remove_octoeverywhere_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/octoeverywhere(-[0-9a-zA-Z]+)?\.log(.*)?"
-  files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
-
-  if [[ -n ${files} ]]; then
-    for file in ${files}; do
-      status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
-    done
-  fi
-}
-
 function remove_octoeverywhere_config() {
   # Remove the system config but not the main config, so the printer id doesn't get lost.
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/octoeverywhere-system(-[0-9a-zA-Z]+)?\.cfg(.*)?"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/octoeverywhere-system(-[0-9a-zA-Z]+)?\.cfg(.*)?"
   files=$(find "${HOME}" -maxdepth 4 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
@@ -284,7 +271,6 @@ function update_octoeverywhere() {
 function get_octoeverywhere_status() {
   local status
   local service_count
-  local is_linked
   local octoeverywhere_services
 
   octoeverywhere_services=$(octoeverywhere_systemd)
