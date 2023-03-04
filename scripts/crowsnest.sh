@@ -135,7 +135,7 @@ function remove_crowsnest(){
 get_crowsnest_status(){
   local -a files
   local env_file
-  env_file="$(grep "EnvironmentFile" /etc/systemd/system/crowsnest.service | cut -d "=" -f2)"
+  env_file="$(grep "EnvironmentFile" /etc/systemd/system/crowsnest.service 2>/dev/null | cut -d "=" -f2)"
   files=(
     "${CROWSNEST_DIR}"
     "/usr/local/bin/crowsnest"
