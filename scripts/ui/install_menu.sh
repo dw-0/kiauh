@@ -20,16 +20,16 @@ function install_ui() {
   echo -e "|  functions on a completely fresh system.              |"
   hr
   echo -e "| Firmware & API:          | 3rd Party Webinterface:    |"
-  echo -e "|  1) [Klipper]            |  6)  [OctoPrint]           |"
+  echo -e "|  1) [Klipper]            |  6) [OctoPrint]            |"
   echo -e "|  2) [Moonraker]          |                            |"
   echo -e "|                          | Other:                     |"
-  echo -e "| Klipper Webinterface:    |  7)  [PrettyGCode]         |"
-  echo -e "|  3) [Mainsail]           |  8)  [Telegram Bot]        |"
-  echo -e "|  4) [Fluidd]             |  9)  $(obico_install_title)|"
-  echo -e "|                          |  10) [OctoEverywhere For Klipper] |"
-  echo -e "|                          |                            |"
-  echo -e "| Touchscreen GUI:         | Webcam Streamer:           |"
-  echo -e "|  5) [KlipperScreen]      |  11) [Crowsnest]           |"
+  echo -e "| Klipper Webinterface:    |  7) [PrettyGCode]          |"
+  echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
+  echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
+  echo -e "|                          | 10) [OctoEverywhere]       |"
+  echo -e "| Touchscreen GUI:         |                            |"
+  echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
+  echo -e "|                          | 11) [Crowsnest]            |"
   back_footer
 }
 
