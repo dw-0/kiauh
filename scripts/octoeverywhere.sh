@@ -12,7 +12,7 @@
 #
 # This file is written and maintained by Quinn Damerell from OctoEverywhere
 # Please contact our support team if you need any help!
-# https://octoeverywhre.com/support
+# https://octoeverywhere.com/support
 #
 
 set -e
