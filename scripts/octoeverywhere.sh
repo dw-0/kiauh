@@ -234,6 +234,19 @@ function remove_octoeverywhere_config() {
   fi
 }
 
+function remove_octoeverywhere_store_dir() {
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/octoeverywhere-store"
+  files=$(find "${HOME}" -maxdepth 2 -type d -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${files} ]]; then
+    for file in ${files}; do
+      status_msg "Removing ${file} ..."
+      rm -rf "${file}"
+      ok_msg "${file} removed!"
+    done
+  fi
+}
+
 function remove_octoeverywhere_env() {
   [[ ! -d "${HOME}octoeverywhere-env" ]] && return
 
@@ -249,6 +262,7 @@ function remove_octoeverywhere()
   remove_octoeverywhere_dir
   remove_octoeverywhere_env
   remove_octoeverywhere_config
+  remove_octoeverywhere_store_dir
 
   print_confirm "OctoEverywhere was successfully removed!"
   return
