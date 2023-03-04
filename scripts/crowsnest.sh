@@ -134,15 +134,15 @@ function remove_crowsnest(){
 # Status funcs
 get_crowsnest_status(){
   local -a files
+  local env_file
+  env_file="$(grep "EnvironmentFile" /etc/systemd/system/crowsnest.service 2>/dev/null | cut -d "=" -f2)"
   files=(
     "${CROWSNEST_DIR}"
     "/usr/local/bin/crowsnest"
     "/etc/logrotate.d/crowsnest"
     "/etc/systemd/system/crowsnest.service"
-    "$(find "${HOME}" -name 'crowsnest.env' 2> /dev/null ||
-    echo "${HOME}/printer_data/systemd/crowsnest.env")"
+    "${env_file}"
     )
-    # Contains ugly hackaround for multi instance... :(
   local count
   count=0
 

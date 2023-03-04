@@ -60,7 +60,7 @@ function moonraker_setup_dialog() {
 
   ### return early if klipper is not installed
   local klipper_services
-  klipper_services=$(find_klipper_systemd)
+  klipper_services=$(klipper_systemd)
   if [[ -z ${klipper_services} ]]; then
     local error="Klipper not installed! Please install Klipper first!"
     log_error "Moonraker setup started without Klipper being installed. Aborting setup."
@@ -465,7 +465,7 @@ function remove_moonraker_systemd() {
 }
 
 function remove_moonraker_env_file() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/systemd\/moonraker\.env"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/systemd\/moonraker\.env"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
@@ -478,7 +478,7 @@ function remove_moonraker_env_file() {
 }
 
 function remove_moonraker_logs() {
-  local files regex="\/home\/${USER}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log.*"
+  local files regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/logs\/moonraker\.log.*"
   files=$(find "${HOME}" -maxdepth 3 -regextype posix-extended -regex "${regex}" | sort)
 
   if [[ -n ${files} ]]; then
