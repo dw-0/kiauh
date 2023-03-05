@@ -248,7 +248,7 @@ function remove_octoeverywhere_store_dir() {
 }
 
 function remove_octoeverywhere_env() {
-  [[ ! -d "${HOME}octoeverywhere-env" ]] && return
+  [[ ! -d "${HOME}/octoeverywhere-env" ]] && return
 
   status_msg "Removing octoeverywhere-env directory ..."
   rm -rf "${HOME}/octoeverywhere-env"
