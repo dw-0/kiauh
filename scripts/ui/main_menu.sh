@@ -19,20 +19,21 @@ function main_ui() {
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
-  echo -e "|  0) [Log-Upload]   |       Klipper: $(print_status "klipper")|"
-  echo -e "|                    |          Repo: $(print_klipper_repo)|"
-  echo -e "|  1) [Install]      |                                  |"
-  echo -e "|  2) [Update]       |     Moonraker: $(print_status "moonraker")|"
-  echo -e "|  3) [Remove]       |                                  |"
-  echo -e "|  4) [Advanced]     |      Mainsail: $(print_status "mainsail")|"
-#  echo -e "|  5) [Backup]       |        Fluidd: $(print_status "fluidd")|"
-  echo -e "|                    |        Fluidd: $(print_status "fluidd")|"
-  echo -e "|                    | KlipperScreen: $(print_status "klipperscreen")|"
-  echo -e "|  6) [Settings]     |  Telegram Bot: $(print_status "telegram_bot")|"
-  echo -e "|                    |     Crowsnest: $(print_status "crowsnest")|"
-  echo -e "|                    |         Obico: $(print_status "moonraker_obico")|"
-  echo -e "|                    |                                  |"
-  echo -e "|  $(print_kiauh_version)|     Octoprint: $(print_status "octoprint")|"
+  echo -e "|  0) [Log-Upload] |         Klipper: $(print_status "klipper")|"
+  echo -e "|                  |            Repo: $(print_klipper_repo)|"
+  echo -e "|  1) [Install]    |                                    |"
+  echo -e "|  2) [Update]     |       Moonraker: $(print_status "moonraker")|"
+  echo -e "|  3) [Remove]     |                                    |"
+  echo -e "|  4) [Advanced]   |        Mainsail: $(print_status "mainsail")|"
+#  echo -e "|  5) [Backup]     |        Fluidd: $(print_status "fluidd")|"
+  echo -e "|                  |          Fluidd: $(print_status "fluidd")|"
+  echo -e "|                  |   KlipperScreen: $(print_status "klipperscreen")|"
+  echo -e "|  6) [Settings]   |    Telegram Bot: $(print_status "telegram_bot")|"
+  echo -e "|                  |       Crowsnest: $(print_status "crowsnest")|"
+  echo -e "|                  |           Obico: $(print_status "moonraker_obico")|"
+  echo -e "|                  |  OctoEverywhere: $(print_status "octoeverywhere")|"
+  echo -e "|                  |                                    |"
+  echo -e "|  $(print_kiauh_version)|       Octoprint: $(print_status "octoprint")|"
   quit_footer
 }
 
@@ -45,7 +46,7 @@ function get_kiauh_version() {
 
 function print_kiauh_version() {
   local version
-  version="$(printf "%-18s" "$(get_kiauh_version)")"
+  version="$(printf "%-16s" "$(get_kiauh_version)")"
   echo "${cyan}${version}${white}"
 }
 

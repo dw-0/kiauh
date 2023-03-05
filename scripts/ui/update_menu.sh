@@ -32,9 +32,10 @@ function update_ui() {
   echo -e "|  6) [PrettyGCode]      |$(compare_prettygcode_versions)|"
   echo -e "|  7) [Telegram Bot]     |$(compare_telegram_bot_versions)|"
   echo -e "|  8) [Obico for Klipper]|$(compare_moonraker_obico_versions)|"
-  echo -e "|  9) [Crowsnest]        |$(compare_crowsnest_versions)|"
+  echo -e "|  9) [OctoEverywhere]   |$(compare_octoeverywhere_versions)|"
+  echo -e "| 10) [Crowsnest]        |$(compare_crowsnest_versions)|"
   echo -e "|                        |------------------------------|"
-  echo -e "|  10)[System]           |  $(check_system_updates)   |"
+  echo -e "| 11) [System]           |  $(check_system_updates)   |"
   back_footer
 }
 
@@ -64,8 +65,10 @@ function update_menu() {
       8)
         do_action "update_moonraker_obico" "update_ui";;
       9)
-        do_action "update_crowsnest" "update_ui";;
+        do_action "update_octoeverywhere" "update_ui";;
       10)
+        do_action "update_crowsnest" "update_ui";;
+      11)
         do_action "update_system" "update_ui";;
       a)
         do_action "update_all" "update_ui";;

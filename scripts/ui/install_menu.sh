@@ -26,9 +26,10 @@ function install_ui() {
   echo -e "| Klipper Webinterface:    |  7) [PrettyGCode]          |"
   echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
   echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
-  echo -e "|                          |                            |"
-  echo -e "| Touchscreen GUI:         | Webcam Streamer:           |"
-  echo -e "|  5) [KlipperScreen]      | 10) [Crowsnest]            |"
+  echo -e "|                          | 10) [OctoEverywhere]       |"
+  echo -e "| Touchscreen GUI:         |                            |"
+  echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
+  echo -e "|                          | 11) [Crowsnest]            |"
   back_footer
 }
 
@@ -64,7 +65,9 @@ function install_menu() {
         do_action "telegram_bot_setup_dialog" "install_ui";;
       9)
         do_action "moonraker_obico_setup_dialog" "install_ui";;
-      10) 
+      10)
+        do_action "octoeverywhere_setup_dialog" "install_ui";;
+      11)
         do_action "install_crowsnest" "install_ui";;
       B|b)
         clear; main_menu; break;;
