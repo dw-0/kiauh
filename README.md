@@ -35,10 +35,14 @@ is the simplest way to flash an image like this to an SD card.
 
 * Once you downloaded, installed and launched the Raspberry Pi Imager 
 select `Choose OS -> Raspberry Pi OS (other)`: \
-![](resources/screenshots/rpi_imager1.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/th33xitus/kiauh/master/resources/screenshots/rpi_imager1.png" alt="KIAUH logo" height="350">
+</p>
 
 * Then select `Raspberry Pi OS Lite (32bit)`:
-![](resources/screenshots/rpi_imager2.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/th33xitus/kiauh/master/resources/screenshots/rpi_imager2.png" alt="KIAUH logo" height="350">
+</p>
 
 * Back in the Raspberry Pi Imager's main menu, select the corresponding SD card to which 
 you want to flash the image.
