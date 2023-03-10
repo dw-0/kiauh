@@ -273,9 +273,51 @@ function remove_octoeverywhere()
 #===================================================#
 
 function update_octoeverywhere() {
-  # Since our update might require new python packages or system packages, ask the user to use the
-  # moonraker update manager to do it, since that takes care of it.
-  print_error "Please use the Moonraker Update Manager from the Mainsail or Fluidd UI to update OctoEverywhere.\n Contact our support team if you need help! support@octoeverywhere.com"
+  do_action_service "stop" "octoeverywhere"
+
+  if [[ ! -d ${OCTOEVERYWHERE_DIR} ]]; then
+    clone_moonraker "${OCTOEVERYWHERE_DIR}"
+  else
+    backup_before_update "octoeverywhere"
+    status_msg "Updating OctoEverywhere for Klipper ..."
+    cd "${OCTOEVERYWHERE_DIR}" && git pull
+    ### read PKGLIST and install possible new dependencies
+    install_octoeverywhere_dependencies
+    ### install possible new python dependencies
+    "${OCTOEVERYWHERE_ENV}"/bin/pip install -r "${OCTOEVERYWHERE_DIR}/requirements.txt"
+  fi
+
+  ok_msg "Update complete!"
+  do_action_service "restart" "octoeverywhere"
+}
+
+function install_octoeverywhere_dependencies() {
+  local packages
+  local install_script="${OCTOEVERYWHERE_DIR}/install.sh"
+
+  ### read PKGLIST from official install-script
+  status_msg "Reading dependencies..."
+  # shellcheck disable=SC2016
+  packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
+
+  echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
+  read -r -a packages <<< "${packages}"
+
+  ### Update system package info
+  status_msg "Updating package lists..."
+  if ! sudo apt-get update --allow-releaseinfo-change; then
+    log_error "failure while updating package lists"
+    error_msg "Updating package lists failed!"
+    exit 1
+  fi
+
+  ### Install required packages
+  status_msg "Installing required packages..."
+  if ! sudo apt-get install --yes "${packages[@]}"; then
+    log_error "failure while installing required octoeverywhere packages"
+    error_msg "Installing required packages failed!"
+    exit 1
+  fi
 }
 
 #===================================================#

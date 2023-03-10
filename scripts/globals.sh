@@ -70,6 +70,7 @@ function set_globals() {
   MOONRAKER_OBICO_REPO="https://github.com/TheSpaghettiDetective/moonraker-obico.git"
 
   #=============== OCTOEVERYWHERE ================#
+  OCTOEVERYWHERE_ENV="${HOME}/octoeverywhere-env"
   OCTOEVERYWHERE_DIR="${HOME}/octoeverywhere"
   OCTOEVERYWHERE_REPO="https://github.com/QuinnDamerell/OctoPrint-OctoEverywhere.git"
 
