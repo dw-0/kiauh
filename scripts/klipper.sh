@@ -237,14 +237,7 @@ function run_klipper_setup() {
 
   ### step 2: install klipper dependencies and create python virtualenv
   install_klipper_packages "${python_version}"
-
-  if [[ "${klipper_clone_result}" == "0" ]]
-  then
-    create_klipper_virtualenv "${python_version}"
-  else
-    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
-  fi
-  unset klipper_clone_result
+  create_klipper_virtualenv "${python_version}"
 
   ### step 3: create klipper instances
   for instance in "${instance_names[@]}"; do
