@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=======================================================================#
-# Copyright (C) 2020 - 2022 Dominik Willner <th33xitus@gmail.com>       #
+# Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>       #
 #                                                                       #
 # This file is part of KIAUH - Klipper Installation And Update Helper   #
 # https://github.com/th33xitus/kiauh                                    #
@@ -28,7 +28,8 @@ function remove_ui() {
   echo -e "|  6) [Fluidd-Config]       | 11) [PrettyGCode]         |"
   echo -e "|                           | 12) [Telegram Bot]        |"
   echo -e "| Touchscreen GUI:          | 13) [Obico for Klipper]   |"
-  echo -e "|  7) [KlipperScreen]       | 14) [NGINX]               |"
+  echo -e "|  7) [KlipperScreen]       | 14) [OctoEverywhere]      |"
+  echo -e "|                           | 15) [NGINX]               |"
   back_footer
 }
 
@@ -66,6 +67,8 @@ function remove_menu() {
       13)
         do_action "remove_moonraker_obico" "remove_ui";;
       14)
+        do_action "remove_octoeverywhere" "remove_ui";;
+      15)
         do_action "remove_nginx" "remove_ui";;
       B|b)
         clear; main_menu; break;;
