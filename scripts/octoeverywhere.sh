@@ -276,7 +276,7 @@ function update_octoeverywhere() {
   do_action_service "stop" "octoeverywhere"
 
   if [[ ! -d ${OCTOEVERYWHERE_DIR} ]]; then
-    clone_moonraker "${OCTOEVERYWHERE_DIR}"
+    clone_octoeverywhere "${OCTOEVERYWHERE_REPO}"
   else
     backup_before_update "octoeverywhere"
     status_msg "Updating OctoEverywhere for Klipper ..."
@@ -289,6 +289,21 @@ function update_octoeverywhere() {
 
   ok_msg "Update complete!"
   do_action_service "restart" "octoeverywhere"
+}
+
+function clone_octoeverywhere() {
+  local repo=${1}
+
+  status_msg "Cloning OctoEverywhere from ${repo} ..."
+
+  ### force remove existing octoeverywhere dir and clone into fresh octoeverywhere dir
+  [[ -d ${OCTOEVERYWHERE_DIR} ]] && rm -rf "${OCTOEVERYWHERE_DIR}"
+
+  cd "${HOME}" || exit 1
+  if ! git clone "${OCTOEVERYWHERE_REPO}" "${OCTOEVERYWHERE_DIR}"; then
+    print_error "Cloning OctoEverywhere from\n ${repo}\n failed!"
+    exit 1
+  fi
 }
 
 function install_octoeverywhere_dependencies() {
