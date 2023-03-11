@@ -120,6 +120,9 @@ function update_all() {
     [[ "${update_arr[*]}" =~ "telegram_bot" ]] && \
     echo -e "|  ${cyan}● MoonrakerTelegramBot${white}                               |"
 
+    [[ "${update_arr[*]}" =~ "octoeverywhere" ]] && \
+    echo -e "|  ${cyan}● OctoEverywhere${white}                                     |"
+
     [[ "${update_arr[*]}" =~ "system" ]] && \
     echo -e "|  ${cyan}● System${white}                                             |"
 

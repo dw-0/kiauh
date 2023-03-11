@@ -273,9 +273,66 @@ function remove_octoeverywhere()
 #===================================================#
 
 function update_octoeverywhere() {
-  # Since our update might require new python packages or system packages, ask the user to use the
-  # moonraker update manager to do it, since that takes care of it.
-  print_error "Please use the Moonraker Update Manager from the Mainsail or Fluidd UI to update OctoEverywhere.\n Contact our support team if you need help! support@octoeverywhere.com"
+  do_action_service "stop" "octoeverywhere"
+
+  if [[ ! -d ${OCTOEVERYWHERE_DIR} ]]; then
+    clone_octoeverywhere "${OCTOEVERYWHERE_REPO}"
+  else
+    backup_before_update "octoeverywhere"
+    status_msg "Updating OctoEverywhere for Klipper ..."
+    cd "${OCTOEVERYWHERE_DIR}" && git pull
+    ### read PKGLIST and install possible new dependencies
+    install_octoeverywhere_dependencies
+    ### install possible new python dependencies
+    "${OCTOEVERYWHERE_ENV}"/bin/pip install -r "${OCTOEVERYWHERE_DIR}/requirements.txt"
+  fi
+
+  ok_msg "Update complete!"
+  do_action_service "restart" "octoeverywhere"
+}
+
+function clone_octoeverywhere() {
+  local repo=${1}
+
+  status_msg "Cloning OctoEverywhere from ${repo} ..."
+
+  ### force remove existing octoeverywhere dir and clone into fresh octoeverywhere dir
+  [[ -d ${OCTOEVERYWHERE_DIR} ]] && rm -rf "${OCTOEVERYWHERE_DIR}"
+
+  cd "${HOME}" || exit 1
+  if ! git clone "${OCTOEVERYWHERE_REPO}" "${OCTOEVERYWHERE_DIR}"; then
+    print_error "Cloning OctoEverywhere from\n ${repo}\n failed!"
+    exit 1
+  fi
+}
+
+function install_octoeverywhere_dependencies() {
+  local packages
+  local install_script="${OCTOEVERYWHERE_DIR}/install.sh"
+
+  ### read PKGLIST from official install-script
+  status_msg "Reading dependencies..."
+  # shellcheck disable=SC2016
+  packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
+
+  echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
+  read -r -a packages <<< "${packages}"
+
+  ### Update system package info
+  status_msg "Updating package lists..."
+  if ! sudo apt-get update --allow-releaseinfo-change; then
+    log_error "failure while updating package lists"
+    error_msg "Updating package lists failed!"
+    exit 1
+  fi
+
+  ### Install required packages
+  status_msg "Installing required packages..."
+  if ! sudo apt-get install --yes "${packages[@]}"; then
+    log_error "failure while installing required octoeverywhere packages"
+    error_msg "Installing required packages failed!"
+    exit 1
+  fi
 }
 
 #===================================================#
@@ -327,9 +384,8 @@ function compare_octoeverywhere_versions() {
   if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # Don't do this, since we don't want Kiauh to update us, since we might need package updates.
-    # add moonraker to application_updates_available in kiauh.ini
-    # add_to_application_updates "octoeverywhere"
+    # Add us to the update file, so if the user selects "update all" it includes us.
+    add_to_application_updates "octoeverywhere"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
