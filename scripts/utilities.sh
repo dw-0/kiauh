@@ -639,10 +639,12 @@ function get_multi_instance_names() {
 function get_data_folder() {
   local service_name=${1}
   local service_type=${2}
+  local instance_name
+
   if [[ "${service_name}" == "${service_type}.service" ]]; then
     echo "${HOME}/printer_data"
   else
-    local instance_name=$(get_instance_name "${service_name}")
+    instance_name=$(get_instance_name "${service_name}")
     if [[ ${instance_name} =~ ^[0-9]+$ ]]; then
       echo "${HOME}/printer_${instance_name}_data"
     else
