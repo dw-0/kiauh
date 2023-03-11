@@ -53,7 +53,6 @@ function start_klipper_setup() {
   local input
   local regex
   local blacklist
-  local error
 
   status_msg "Initializing Klipper installation ...\n"
 
@@ -214,7 +213,7 @@ function run_klipper_setup() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
   local python_version=${1}
-  local adding_instances
+  local adding_instances=${2}
   local instance_names
   local confirm
   local custom_repo
@@ -437,11 +436,12 @@ function remove_klipper_service() {
 }
 
 function find_instance_files() {
-  local target_folder=${1}
-  local target_name=${2}
+  local data_folder=${1}
+  local target_folder=${2}
+  local target_name=${3}
   local files
 
-  readarray -t files < <(find "${HOME}" -regex "${HOME}/[A-Za-z0-9_]+_data/${target_folder}/${target_name}" | sort)
+  readarray -t files < <(find "${HOME}" -regex "${data_folder}/${target_folder}/${target_name}" | sort)
 
   echo -e "${files[@]}"
 }
@@ -495,8 +495,11 @@ function remove_files() {
   if (( ${#files[@]} > 0 )); then
     for file in "${files[@]}"; do
       status_msg "Removing ${file} ..."
-      rm -f "${file}"
-      ok_msg "${file} removed!"
+      if rm -f "${file}"; then
+        ok_msg "${file} removed!"
+      else
+        error_msg "${file} could not be removed! Please remove it manually!"
+      fi
     done
   fi
 }
@@ -504,76 +507,64 @@ function remove_files() {
 function remove_klipper_files() {
   status_msg "Removing Klipper files ..."
 
-  local printer_data file
-
   for service in "${@}"; do
-    printer_data=$(get_data_folder ${service} klipper)
-
-    file="${printer_data}/systemd/klipper.env"
-    status_msg "Removing ${file} ..."
-    sudo rm -f ${file}
-    ok_msg "${file} removed!"
-
-    file="${printer_data}/logs/klipper.lo"*
-    status_msg "Removing ${file} ..."
-    rm -f ${file}
-    ok_msg "${file} removed!"
-
-    file="${printer_data}/comms/klippy.sock"
-    status_msg "Removing ${file} ..."
-    rm -f ${file}
-    ok_msg "${file} removed!"
-
-    file="${printer_data}/comms/klippy.serial"
-    status_msg "Removing ${file} ..."
-    rm -f ${file}
-    ok_msg "${file} removed!"
+    local data_folder
+    data_folder=$(get_data_folder "${service}")
+    remove_files "$(find_instance_files "${data_folder}" "systemd" "klipper.env")"
+    remove_files "$(find_instance_files "${data_folder}" "logs" "klippy.log.*")"
+    remove_files "$(find_instance_files "${data_folder}" "comms" "klippy.sock")"
+    remove_files "$(find_instance_files "${data_folder}" "comms" "klippy.serial")"
   done
 
   ok_msg "Files removed!"
 }
 
 function remove_klipper() {
-  remove_files "$(find_legacy_klipper_logs)"
-  remove_files "$(find_legacy_klipper_uds)"
-  remove_files "$(find_legacy_klipper_printer)"
+  local klipper_systemd_services
+  local klipper_services_count
+  local user_input=()
+  local klipper_names=()
+  local service_name
 
-  local klipper_systemd_services=$(klipper_systemd)
+  klipper_systemd_services=$(klipper_systemd)
   if [[ -z ${klipper_systemd_services} ]]; then
     print_error "Klipper not installed, nothing to do!"
     return
   fi
 
+  remove_files "$(find_legacy_klipper_logs)"
+  remove_files "$(find_legacy_klipper_uds)"
+  remove_files "$(find_legacy_klipper_printer)"
+
   top_border
   echo -e "|     ${red}~~~~~~~~ [ Klipper instance remover ] ~~~~~~~${white}     |"
   hr
 
-  local user_input=() klipper_names=()
-  local klipper_services_count="$(klipper_systemd | wc -w)"
+  klipper_services_count="$(echo "${klipper_systemd_services}" | wc -w)"
   if (( klipper_services_count == 1 )); then
-    service_name=$(basename ${klipper_systemd_services})
+    service_name=$(basename "${klipper_systemd_services}")
     klipper_names+=( "${service_name}" )
     printf "| 0) %-51s|\n" "${service_name}"
   else
     printf "| 0) %-51s|\n" "Remove all"
-    local i=1 service_name
+    local i=1
     for name in ${klipper_systemd_services}; do
-      service_name=$(basename ${name})
+      service_name=$(basename "${name}")
       klipper_names+=( "${service_name}" )
       printf "| ${i}) %-51s|\n" "${service_name}"
-      (( i=i+1 ))
+      i=$(( i + 1 ))
     done
   fi
   back_footer
 
   local option
   while true; do
-    read -p "${cyan}Remove Klipper instance:${white} " option
+    read -p "${cyan}Instance to remove:${white} " option
     if [[ ${option} == "B" || ${option} == "b" ]]; then
       return
-    elif [[ $((option)) != $option ]]; then
+    elif [[ $((option)) != "${option}" ]]; then
       error_msg "Invalid command!"
-    elif (( option >= 0 && option < ${#klipper_names[@]} )); then
+    elif (( option >= 0 && option <= ${#klipper_names[@]} )); then
       break
     else
       error_msg "Invalid command!"
@@ -581,15 +572,15 @@ function remove_klipper() {
   done
 
   if (( option == 0 )); then
-    user_input=( ${klipper_names[@]} )
+    user_input=( "${klipper_names[@]}" )
   else
-    user_input=( "${klipper_names[(( option-1 ))]}" )
+    user_input=( "${klipper_names[(( option - 1 ))]}" )
   fi
 
   remove_klipper_service "${user_input[@]}"
   remove_klipper_files "${user_input[@]}"
 
-  if (( ${klipper_services_count} == 1 )) || [[ "${option}" == "0" ]]; then
+  if (( klipper_services_count == 1 )) || [[ "${option}" == "0" ]]; then
     remove_klipper_dir
     remove_klipper_env
   fi
