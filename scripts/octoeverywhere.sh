@@ -384,9 +384,8 @@ function compare_octoeverywhere_versions() {
   if [[ ${local_ver} != "${remote_ver}" ]]; then
     versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
-    # Don't do this, since we don't want Kiauh to update us, since we might need package updates.
-    # add moonraker to application_updates_available in kiauh.ini
-    # add_to_application_updates "octoeverywhere"
+    # Add us to the update file, so if the user selects "update all" it includes us.
+    add_to_application_updates "octoeverywhere"
   else
     versions="${green}$(printf " %-14s" "${local_ver}")${white}"
     versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
