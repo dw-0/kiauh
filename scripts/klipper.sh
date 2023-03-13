@@ -43,32 +43,38 @@ function klipper_systemd() {
 }
 
 function start_klipper_setup() {
-  local klipper_count
+  local is_multi_instance_setup="false"
+  local adding_instances="false"
+  local use_custom_names="false"
+  local klipper_count=0
+
   local klipper_instances
   local python_version
   local instance_count
   local instance_names
-  local adding_instances
-  local use_custom_names
   local input
   local regex
   local blacklist
 
   status_msg "Initializing Klipper installation ...\n"
 
-  klipper_count=0
   klipper_instances=$(klipper_systemd)
-  adding_instances="false"
+  [[ -n ${klipper_instances} ]] && is_multi_instance_setup="true"
 
-  if [[ -n ${klipper_instances} ]]; then
-    klipper_count=$(klipper_systemd | wc -w)
+  if [[ ${is_multi_instance_setup} == "true" ]]; then
+    klipper_count=$(echo "${klipper_instances}" | wc -w)
     python_version=$(get_klipper_python_ver)
     adding_instances="true"
 
-    status_msg "The following Klipper instances are already installed:"
+    # print list of already installed instances
+    top_border
+    printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances are already installed!"
+    local klipper_folder
     for s in ${klipper_instances}; do
-      get_instance_name "${s}"
+      klipper_folder="$(get_data_folder "$(basename "${s}")" klipper)"
+      printf "|${cyan}%-57s${white}|\n" " ● klipper-$(get_instance_name "${s}") - ${klipper_folder}"
     done
+    bottom_border && echo
 
   else
     top_border
@@ -114,6 +120,7 @@ function start_klipper_setup() {
 
     if [[ ${input} =~ ${regex} ]]; then
       instance_count="${input}"
+      (( instance_count > 1 )) && is_multi_instance_setup="true"
       select_msg "Instance count: ${instance_count}\n"
       break
     elif [[ ${input} == "B" || ${input} == "b" ]]; then
@@ -123,20 +130,14 @@ function start_klipper_setup() {
     fi
   done && input=""
 
-  use_custom_names="false"
-  if (( instance_count > 1 )) || [[ -n ${klipper_instances} ]]; then
+  if [[ ${is_multi_instance_setup} == "true" ]]; then
     top_border
-    echo -e "| You can now assign a custom name to each instance.    |"
-    echo -e "| If skipped, each instance will get an index assigned  |"
-    if [[ ${adding_instances} == "true"  ]]; then
-      local count=$((klipper_count + 1))
-      echo -e "| in ascending order, starting at index '${count}'.            |"
-    else
-      echo -e "| in ascending order, starting at index '1'.            |"
-    fi
+    echo -e "| You can now give each instance a custom name. If you  |"
+    echo -e "| select 'N', each instance will get an index assigned  |"
+    echo -e "| in ascending order, starting at index '$((klipper_count + 1))'.            |"
     blank_line
-    echo -e "| Info:                                                 |"
-    echo -e "| Only alphanumeric characters for names are allowed!   |"
+    echo -e "| ${yellow}Info:${white}                                                 |"
+    echo -e "| ${yellow}Only alphanumeric characters are allowed!${white}             |"
     back_footer
     while true; do
       read -p "${cyan}###### Assign custom names? (y/N):${white} " input
@@ -191,7 +192,7 @@ function start_klipper_setup() {
       fi
     done && input=""
 
-  elif (( instance_count > 1 )) && [[ ${use_custom_names} == "false" ]]; then
+  elif [[ ${is_multi_instance_setup} == "true" && ${use_custom_names} == "false" ]]; then
     for (( i=klipper_count+1; i <= instance_count+klipper_count; ++i )); do
       instance_names+=("printer_${i}")
     done
@@ -199,9 +200,9 @@ function start_klipper_setup() {
   shopt -u nocasematch
 
   local msg="Installing Klipper ..."
-  if (( instance_count > 1 )) && [[ ${adding_instances} == "false" ]]; then
+  if [[ ${is_multi_instance_setup} == "true" && ${adding_instances} == "false" ]]; then
     msg="Installing ${instance_count} Klipper instances ..."
-  elif (( instance_count > 1 )) && [[ ${adding_instances} == "true" ]]; then
+  elif [[ ${adding_instances} == "true" ]]; then
     msg="Installing ${instance_count} additional Klipper instances ..."
   fi
   status_msg "${msg}"
