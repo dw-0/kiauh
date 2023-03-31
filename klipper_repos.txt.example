@@ -11,8 +11,11 @@
 # If you omit a branch, it will always default to 'master'
 #
 # You are allowed to omit the 'https://github.com/' part of the repository URL
+# If the repository name starts with 'git@github.com:' SSH will be the method of cloning
 # Down below are now a few examples of what is considered as valid:
 https://github.com/Klipper3d/klipper,master
 https://github.com/Klipper3d/klipper
 Klipper3d/klipper,master
 Klipper3d/klipper
+git@github.com:Klipper3d/klipper,master
+git@github.com:Klipper3d/klipper
