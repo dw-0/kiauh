@@ -251,16 +251,24 @@ function run_klipper_setup() {
 function clone_klipper() {
   local repo=${1} branch=${2}
 
+
+  
   [[ -z ${repo} ]] && repo="${KLIPPER_REPO}"
-  repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
-  repo="https://github.com/${repo}"
+  if [[ "$repo" != "git@github.com:"* ]]; then
+    clone_method="https"
+    repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
+    repo="https://github.com/${repo}"
+  else
+    clone_method="ssh"
+    repo=$(echo "${repo}")
+  fi
 
   [[ -z ${branch} ]] && branch="master"
 
   ### force remove existing klipper dir and clone into fresh klipper dir
   [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
 
-  status_msg "Cloning Klipper from ${repo} ..."
+  status_msg "Cloning Klipper from ${repo} using ${clone_method} ..."
 
   cd "${HOME}" || exit 1
   if git clone "${repo}" "${KLIPPER_DIR}"; then
