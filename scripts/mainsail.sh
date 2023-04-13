@@ -358,7 +358,7 @@ function print_theme_list() {
 
 function ms_theme_installer_menu() {
   local theme_list theme_author theme_repo theme_name theme_note theme_url
-  local theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/docs/master/_data/themes.csv"
+  local theme_csv_url="https://raw.githubusercontent.com/mainsail-crew/gb-docs/main/_data/themes.csv"
   theme_list=$(curl -s -L "${theme_csv_url}")
 
   top_border
