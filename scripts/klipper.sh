@@ -590,8 +590,14 @@ function get_remote_klipper_commit() {
   [[ ! -d ${KLIPPER_DIR} || ! -d "${KLIPPER_DIR}/.git" ]] && return
 
   local commit
+  local branch
+
+  read_kiauh_ini "${FUNCNAME[0]}"
+  branch="${custom_klipper_repo_branch}"
+  [[ -z ${branch} ]] && branch="master"
+
   cd "${KLIPPER_DIR}" && git fetch origin -q
-  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  commit=$(git describe "origin/${branch}" --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
 }
 
