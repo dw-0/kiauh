@@ -127,7 +127,7 @@ function update_all() {
     echo -e "|  ${cyan}● OctoEverywhere${white}                                     |"
 
     [[ "${update_arr[*]}" =~ "mobileraker" ]] && \
-    echo -e "|  ${cyan}● Mobileraker_Companion${white}                                     |"
+    echo -e "|  ${cyan}● Mobileraker${white}                                     |"
 
     [[ "${update_arr[*]}" =~ "system" ]] && \
     echo -e "|  ${cyan}● System${white}                                             |"
