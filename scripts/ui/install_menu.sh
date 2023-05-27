@@ -27,9 +27,10 @@ function install_ui() {
   echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
   echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
   echo -e "|                          | 10) [OctoEverywhere]       |"
+  echo -e "|                          | 11) [Mobileraker_Companion]|"
   echo -e "| Touchscreen GUI:         |                            |"
   echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
-  echo -e "|                          | 11) [Crowsnest]            |"
+  echo -e "|                          | 12) [Crowsnest]            |"
   back_footer
 }
 
@@ -68,6 +69,8 @@ function install_menu() {
       10)
         do_action "octoeverywhere_setup_dialog" "install_ui";;
       11)
+        do_action "install_mobileraker" "install_ui";;
+      12)
         do_action "install_crowsnest" "install_ui";;
       B|b)
         clear; main_menu; break;;
