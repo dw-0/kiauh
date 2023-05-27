@@ -81,6 +81,6 @@ function set_globals() {
   #=============== Mobileraker ================#
   MOBILERAKER_ENV="${HOME}/mobileraker-env"
   MOBILERAKER_DIR="${HOME}/mobileraker_companion"
-  MOBILERAKER_REPO="https://github.com/Clon1998/mobileraker.git"
+  MOBILERAKER_REPO="https://github.com/Clon1998/mobileraker_companion.git"
 
 }
