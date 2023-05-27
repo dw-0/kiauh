@@ -29,7 +29,7 @@ function remove_ui() {
   echo -e "|                           | 12) [Telegram Bot]        |"
   echo -e "| Touchscreen GUI:          | 13) [Obico for Klipper]   |"
   echo -e "|  7) [KlipperScreen]       | 14) [OctoEverywhere]      |"
-  echo -e "|                           | 15) [Mobileraker_Companion]|"
+  echo -e "|                           | 15) [Mobileraker]         |"
   echo -e "|                           | 16) [NGINX]               |"
   back_footer
 }

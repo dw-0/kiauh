@@ -27,7 +27,7 @@ function install_ui() {
   echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
   echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
   echo -e "|                          | 10) [OctoEverywhere]       |"
-  echo -e "|                          | 11) [Mobileraker_Companion]|"
+  echo -e "|                          | 11) [Mobileraker]          |"
   echo -e "| Touchscreen GUI:         |                            |"
   echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
   echo -e "|                          | 12) [Crowsnest]            |"

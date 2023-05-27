@@ -33,7 +33,7 @@ function update_ui() {
   echo -e "|  7) [Telegram Bot]     |$(compare_telegram_bot_versions)|"
   echo -e "|  8) [Obico for Klipper]|$(compare_moonraker_obico_versions)|"
   echo -e "|  9) [OctoEverywhere]   |$(compare_octoeverywhere_versions)|"
-  echo -e "| 10) [Mobileraker_Companion]   |$(compare_mobileraker_versions)|"
+  echo -e "| 10) [Mobileraker]      |$(compare_mobileraker_versions)|"
   echo -e "| 11) [Crowsnest]        |$(compare_crowsnest_versions)|"
   echo -e "|                        |------------------------------|"
   echo -e "| 12) [System]           |  $(check_system_updates)   |"
