@@ -129,8 +129,8 @@ function update_mobileraker() {
 
   do_action_service "stop" "mobileraker"
   cd "${MOBILERAKER_DIR}"
-  git pull origin master -q && ok_msg "Fetch successfull!"
-  git checkout -f master && ok_msg "Checkout successfull"
+  git pull origin main -q && ok_msg "Fetch successfull!"
+  git checkout -f main && ok_msg "Checkout successfull"
 
   if [[ $(md5sum "${MOBILERAKER_DIR}/scripts/mobileraker-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
     status_msg "New dependecies detected..."
@@ -184,7 +184,7 @@ function get_remote_mobileraker_commit() {
 
   local commit
   cd "${MOBILERAKER_DIR}" && git fetch origin -q
-  commit=$(git describe origin/master --always --tags | cut -d "-" -f 1,2)
+  commit=$(git describe origin/main --always --tags | cut -d "-" -f 1,2)
   echo "${commit}"
 }
 
