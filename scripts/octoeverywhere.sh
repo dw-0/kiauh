@@ -318,12 +318,16 @@ function install_octoeverywhere_dependencies() {
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
   read -r -a packages <<< "${packages}"
 
-  ### Update system package info
+  ### Update system package info if lists > 3 days old
   status_msg "Updating package lists..."
-  if ! sudo apt-get update --allow-releaseinfo-change; then
-    log_error "failure while updating package lists"
-    error_msg "Updating package lists failed!"
-    exit 1
+  if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
+    if ! sudo apt-get update --allow-releaseinfo-change; then
+      log_error "failure while updating package lists"
+      error_msg "Updating package lists failed!"
+      exit 1
+    fi
+  else
+    status_msg "Package lists updated recently, skipping..."
   fi
 
   ### Install required packages

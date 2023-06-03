@@ -303,9 +303,22 @@ function dependency_check() {
     done
     echo
 
-    if sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${packages[@]}" -y; then
+    ### Update system package info if lists > 3 days old
+    status_msg "Updating package lists..."
+    if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
+      if ! sudo apt-get update --allow-releaseinfo-change; then
+        log_error "failure while updating package lists"
+        error_msg "Updating package lists failed!"
+        exit 1
+      fi
+    else
+      status_msg "Package lists updated recently, skipping..."
+    fi
+    
+    if sudo apt-get install "${packages[@]}" -y; then
       ok_msg "Dependencies installed!"
     else
+      log_error "failure while installing dependencies"
       error_msg "Installing dependencies failed!"
       return 1 # exit kiauh
     fi
@@ -375,10 +388,20 @@ function check_system_updates() {
 
 function update_system() {
   status_msg "Updating System ..."
-  if sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y; then
+  if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
+    status_msg "Updating package lists..."
+    if ! sudo apt-get update --allow-releaseinfo-change; then
+      log_error "failure while updating package lists"
+      error_msg "Updating package lists failed!"
+      exit 1
+    fi
+  else
+    status_msg "Package lists updated recently, skipping..."
+  fi
+  if sudo apt-get upgrade -y; then
     print_confirm "Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
   else
-    print_error "System update failed! Please watch for any errors printed above!"
+    print_error "System update failed! Please look for any errors printed above!"
   fi
 }
 
