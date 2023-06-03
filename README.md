@@ -152,22 +152,23 @@ prompt and confirm by hitting ENTER.
 </tr>
 
 <tr>
-<th><h3></h3></th>
+<th><h3><a href="https://github.com/Clon1998/mobileraker_companion">Mobileraker's Companion</a></h3></th>
 <th><h3><a href="https://octoeverywhere.com/?source=kiauh_readme">OctoEverywhere For Klipper</a></h3></th>
 <th><h3></h3></th>
 </tr>
 
 <tr>
-<th></th>
+<th><a href="https://github.com/Clon1998/mobileraker_companion"><img src="https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png" alt="OctoEverywhere Logo" height="64"></th>
 <th><a href="https://octoeverywhere.com/?source=kiauh_readme"><img src="https://octoeverywhere.com/img/logo.svg" alt="OctoEverywhere Logo" height="64"></a></th>
 <th></th>
 </tr>
 
 <tr>
-<th></th>
+<th>by <a href="https://github.com/Clon1998">Patrick Schmidt</a></th>
 <th>by <a href="https://github.com/QuinnDamerell">Quinn Damerell</a></th>
 <th></th>
 </tr>
+
 
 </table>
 
