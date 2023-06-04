@@ -64,7 +64,7 @@ distributions based on Debian 11 Bullseye. Read the notes further down below in 
 * **Step 1:** \
 To download this script, it is necessary to have git installed. If you don't have git already installed, or if you are unsure, run the following command:
 ```shell
-sudo apt-get install git -y
+sudo apt-get update && sudo apt-get install git -y
 ```
 
 * **Step 2:** \
@@ -178,3 +178,12 @@ prompt and confirm by hitting ENTER.
 * A big thank you to [lixxbox](https://github.com/lixxbox) for that awesome KIAUH-Logo!
 * Also, a big thank you to everyone who supported my work with a [Ko-fi](https://ko-fi.com/th33xitus) !
 * Last but not least: Thank you to all contributors and members of the Klipper Community who like and share this project!
+
+<hr>
+
+<h4 align="center">A special thank you to JetBrains for sponsoring this project with their incredible software!</h4>
+<p align="center">
+  <a href="https://www.jetbrains.com/community/opensource/#support" target="_blank">
+    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo (Main) logo." height="128">
+  </a>
+</p>
