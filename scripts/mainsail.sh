@@ -511,27 +511,28 @@ function ms_theme_delete() {
 #================================================#
 
 function get_mainsail_download_url() {
-  local ms_tags tags latest_tag latest_url stable_tag stable_url url
+  local releases_by_tag tags tag unstable_url url
 
-  ms_tags="https://api.github.com/repos/mainsail-crew/mainsail/tags"
-  tags=$(curl -s "${ms_tags}" | grep "name" | cut -d'"' -f4)
-
-  ### latest download url including pre-releases (alpha, beta, rc)
-  latest_tag=$(echo "${tags}" | head -1)
-  latest_url="https://github.com/mainsail-crew/mainsail/releases/download/${latest_tag}/mainsail.zip"
-
-  ### get stable mainsail download url
-  stable_tag=$(echo "${tags}" | grep -E "^v([0-9]+\.?){3}$" | head -1)
-  stable_url="https://github.com/mainsail-crew/mainsail/releases/download/${stable_tag}/mainsail.zip"
+  ### latest stable download url
+  url="https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip"
 
   read_kiauh_ini "${FUNCNAME[0]}"
   if [[ ${mainsail_install_unstable} == "true" ]]; then
-    url="${latest_url}"
-    echo "${url}"
-  else
-    url="${stable_url}"
-    echo "${url}"
+    releases_by_tag="https://api.github.com/repos/mainsail-crew/mainsail/tags"
+    tags=$(curl -s "${releases_by_tag}" | grep "name" | cut -d'"' -f4)
+    tag=$(echo "${tags}" | head -1)
+
+    ### latest unstable download url including pre-releases (alpha, beta, rc)
+    unstable_url="https://github.com/mainsail-crew/mainsail/releases/download/${tag}/mainsail.zip"
+
+    if [[ ${unstable_url} == *"download//"* ]]; then
+      warn_msg "Download URL broken! Falling back to URL of latest stable release!"
+    else
+      url=${unstable_url}
+    fi
   fi
+  
+  echo "${url}"
 }
 
 function mainsail_port_check() {
