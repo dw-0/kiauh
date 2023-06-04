@@ -70,7 +70,7 @@ function select_mcu_connection() {
   echo -e "| How is the controller board connected to the host?    |"
   echo -e "| 1) USB                                                |"
   echo -e "| 2) UART                                               |"
-  echo -e "| 3) DFU                                               |"
+  echo -e "| 3) USB (DFU mode)                                     |"
   blank_line
   back_help_footer
 
