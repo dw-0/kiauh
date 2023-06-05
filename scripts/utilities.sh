@@ -285,7 +285,7 @@ function python3_check() {
 
 function dependency_check() {
   local dep=( "${@}" )
-  local packages
+  local packages log_name="dependencies"
   status_msg "Checking for the following dependencies:"
 
   #check if package is installed, if not write its name into array
@@ -303,25 +303,12 @@ function dependency_check() {
     done
     echo
 
-    ### Update system package info if lists > 3 days old
-    status_msg "Updating package lists..."
-    if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
-      if ! sudo apt-get update --allow-releaseinfo-change; then
-        log_error "failure while updating package lists"
-        error_msg "Updating package lists failed!"
-        exit 1
-      fi
-    else
-      status_msg "Package lists updated recently, skipping..."
-    fi
-    
-    if sudo apt-get install "${packages[@]}" -y; then
-      ok_msg "Dependencies installed!"
-    else
-      log_error "failure while installing dependencies"
-      error_msg "Installing dependencies failed!"
-      return 1 # exit kiauh
-    fi
+    # update system package lists if stale
+    update_system_package_lists
+
+    # install required packages
+    install_system_packages "$log_name" "packages[@]"
+
   else
     ok_msg "Dependencies already met!"
     return
@@ -371,8 +358,35 @@ function create_required_folders() {
   done
 }
 
+function update_system_package_lists() {
+  local cache_mtime update_age
+  if [[ -e /var/lib/apt/periodic/update-success-stamp ]]; then
+    cache_mtime="$(stat -c $Y /var/lib/apt/periodic/update-success-stamp)"
+  elif [[ -e /var/lib/apt/lists ]]; then
+    cache_mtime="$(stat -c $Y /var/lib/apt/lists)"
+  else
+    log_error "failure determining package cache age, forcing update"
+    cache_mtime=0
+  fi
+
+  update_age="$(($(date +'%s') - cache_mtime))"
+
+  # update if cache is greater than 48 hours old
+  if [[ $update_age -gt $((48*60*60)) ]]; then
+    status_msg "Updating package lists..."
+    if ! sudo apt-get update --allow-releaseinfo-change; then
+      log_error "failure while updating package lists"
+      error_msg "Updating package lists failed!"
+      exit 1
+    fi
+  else
+    status_msg "Package lists updated recently, skipping..."
+  fi
+}
+
 function check_system_updates() {
   local updates_avail info_msg
+  update_system_package_lists
   updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
 
   if [[ -n ${updates_avail} ]]; then
@@ -386,22 +400,26 @@ function check_system_updates() {
   echo "${info_msg}"
 }
 
-function update_system() {
-  status_msg "Updating System ..."
-  if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
-    status_msg "Updating package lists..."
-    if ! sudo apt-get update --allow-releaseinfo-change; then
-      log_error "failure while updating package lists"
-      error_msg "Updating package lists failed!"
-      exit 1
-    fi
-  else
-    status_msg "Package lists updated recently, skipping..."
-  fi
+function upgrade_system_packages() {
+  status_msg "Upgrading System ..."
+  update_system_package_lists
   if sudo apt-get upgrade -y; then
-    print_confirm "Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
+    print_confirm "Upgrade complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been held back!${green}"
   else
-    print_error "System update failed! Please look for any errors printed above!"
+    print_error "System upgrade failed! Please look for any errors printed above!"
+  fi
+}
+
+function install_system_packages() {
+  local log_name="$1"
+  local packages=("${!2}")
+  status_msg "Installing packages..."
+  if sudo apt-get install -y "${packages[@]}"; then
+    ok_msg "${log_name^} packages installed!"
+  else
+    log_error "failure while installing ${log_name,,} packages"
+    error_msg "Installing $log_name packages failed!"
+    exit 1 # exit kiauh
   fi
 }
 

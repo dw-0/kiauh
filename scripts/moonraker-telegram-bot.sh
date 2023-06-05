@@ -110,7 +110,7 @@ function telegram_bot_setup_dialog() {
 }
 
 function install_telegram_bot_dependencies() {
-  local packages
+  local packages log_name="Telegram Bot"
   local install_script="${TELEGRAM_BOT_DIR}/scripts/install.sh"
 
   ### read PKGLIST from official install-script
@@ -121,25 +121,11 @@ function install_telegram_bot_dependencies() {
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
   read -r -a packages <<< "${packages}"
 
-  ### Update system package info if lists > 3 days old
-  status_msg "Updating package lists..."
-  if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
-    if ! sudo apt-get update --allow-releaseinfo-change; then
-      log_error "failure while updating package lists"
-      error_msg "Updating package lists failed!"
-      exit 1
-    fi
-  else
-    status_msg "Package lists updated recently, skipping..."
-  fi
+  ### Update system package lists if stale
+  update_system_package_lists
 
   ### Install required packages
-  status_msg "Installing required packages..."
-  if ! sudo apt-get install --yes "${packages[@]}"; then
-    log_error "failure while installing required moonraker-telegram-bot packages"
-    error_msg "Installing required packages failed!"
-    exit 1
-  fi
+  install_system_packages "$log_name" "packages[@]"
 }
 
 function create_telegram_bot_virtualenv() {

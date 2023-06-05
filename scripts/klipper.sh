@@ -295,7 +295,7 @@ function create_klipper_virtualenv() {
 # @param {string}: python_version - klipper-env python version
 #
 function install_klipper_packages() {
-  local packages python_version="${1}"
+  local packages log_name="Klipper" python_version="${1}"
   local install_script="${KLIPPER_DIR}/scripts/install-debian.sh"
 
   status_msg "Reading dependencies..."
@@ -321,25 +321,11 @@ function install_klipper_packages() {
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
   read -r -a packages <<< "${packages}"
 
-  ### Update system package info if lists > 3 days old
-  status_msg "Updating package lists..."
-  if [[ -z "$(find -H /var/lib/apt/lists -maxdepth 0 -mtime -3)" ]]; then
-    if ! sudo apt-get update --allow-releaseinfo-change; then
-      log_error "failure while updating package lists"
-      error_msg "Updating package lists failed!"
-      exit 1
-    fi
-  else
-    status_msg "Package lists updated recently, skipping..."
-  fi
+  ### Update system package lists if stale
+  update_system_package_lists
 
   ### Install required packages
-  status_msg "Installing required packages..."
-  if ! sudo apt-get install --yes "${packages[@]}"; then
-    log_error "failure while installing required klipper packages"
-    error_msg "Installing required packages failed!"
-    exit 1
-  fi
+  install_system_packages "$log_name" "packages[@]"
 }
 
 function create_klipper_service() {
