@@ -16,12 +16,12 @@ set -e
 #===================================================#
 
 function install_mainsail() {
-  ### exit early if moonraker not found
   if [[ -z $(moonraker_systemd) ]]; then
-    local error="Moonraker not installed! Please install Moonraker first!"
+    local error="Moonraker not installed! It's recommended to install Moonraker first!"
     print_error "${error}"
     while true; do
-      read -p "${cyan}###### Install remote-mode Mainsail without Moonraker? (y/N):${white} " yn
+      local yn
+      read -p "${cyan}###### Proceed to install Mainsail without installing Moonraker? (y/N):${white} " yn
       case "${yn}" in
         Y|y|Yes|yes)
           select_msg "Yes"
@@ -196,7 +196,7 @@ function download_mainsail() {
 
   ### check for moonraker multi-instance and if no-instance or multi-instance was found, enable mainsails remoteMode
   services=$(moonraker_systemd)
-  if [[ ( -z "$services" ) || ( $(echo "${services}" | wc -w) -gt 1 ) ]]; then
+  if [[ ( -z "${services}" ) || ( $(echo "${services}" | wc -w) -gt 1 ) ]]; then
     enable_mainsail_remotemode
   fi
 }
