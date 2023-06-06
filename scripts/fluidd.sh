@@ -16,10 +16,24 @@ set -e
 #===================================================#
 
 function install_fluidd() {
-  ### exit early if moonraker not found
   if [[ -z $(moonraker_systemd) ]]; then
-    local error="Moonraker not installed! Please install Moonraker first!"
-    print_error "${error}" && return
+    local error="Moonraker not installed! It's recommended to install Moonraker first!"
+    print_error "${error}"
+    while true; do
+      local yn
+      read -p "${cyan}###### Proceed to install Fluidd without installing Moonraker? (y/N):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes)
+          select_msg "Yes"
+          break;;
+        N|n|No|no|"")
+          select_msg "No"
+          abort_msg "Exiting Fluidd setup ...\n"
+          return;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
   fi
 
   ### checking dependencies
@@ -30,7 +44,7 @@ function install_fluidd() {
 
   status_msg "Initializing Fluidd installation ..."
   ### first, we create a backup of the full klipper_config dir - safety first!
-  backup_klipper_config_dir
+  #backup_klipper_config_dir
 
   ### check for other enabled web interfaces
   unset SET_LISTEN_PORT
