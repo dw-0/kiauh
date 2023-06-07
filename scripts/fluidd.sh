@@ -327,9 +327,9 @@ function get_local_fluidd_version() {
 function get_remote_fluidd_version() {
   [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
 
-  local version
-  version=$(get_fluidd_download_url | rev | cut -d"/" -f2 | rev)
-  echo "${version}"
+  local tags
+  tags=$(curl -s "https://api.github.com/repos/fluidd-core/fluidd/tags" | grep "name" | cut -d'"' -f4)
+  echo "${tags}" | head -1
 }
 
 function compare_fluidd_versions() {
