@@ -86,6 +86,7 @@ function kiauh_update_dialog() {
 }
 
 check_euid
+check_free_space
 init_logfile
 set_globals
 kiauh_update_dialog

@@ -26,6 +26,14 @@ function check_euid() {
   fi
 }
 
+function check_free_space() {
+  local gb_req=5
+  if [[ $(df -Pk ${HOME} | sed 1d | grep -v used | awk '{ print $4 "\t" }') -lt $((1048576*$gb_req)) ]]; then
+    echo -e "${red}Free disk space in ${yellow}${HOME}${red} is less than ${gb_req}GB, abort${white}"
+    exit 1
+  fi
+}
+
 #================================================#
 #============= MESSAGE FORMATTING ===============#
 #================================================#
