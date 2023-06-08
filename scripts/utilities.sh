@@ -365,7 +365,7 @@ function update_system_package_lists() {
   elif [[ -e /var/lib/apt/lists ]]; then
     cache_mtime="$(stat -c $Y /var/lib/apt/lists)"
   else
-    log_error "failure determining package cache age, forcing update"
+    log_warning "Failure determining package cache age, forcing update"
     cache_mtime=0
   fi
 
@@ -375,29 +375,32 @@ function update_system_package_lists() {
   if [[ $update_age -gt $((48*60*60)) ]]; then
     status_msg "Updating package lists..."
     if ! sudo apt-get update --allow-releaseinfo-change; then
-      log_error "failure while updating package lists"
+      log_error "Failure while updating package lists!"
       error_msg "Updating package lists failed!"
       exit 1
     fi
   else
-    status_msg "Package lists updated recently, skipping..."
+    log_info "Package lists updated recently, skipping update..."
   fi
 }
 
 function check_system_updates() {
-  local updates_avail info_msg
-  update_system_package_lists
-  updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
-
-  if [[ -n ${updates_avail} ]]; then
-    info_msg="${yellow}System upgrade available!${white}"
-    # add system to application_updates_available in kiauh.ini
-    add_to_application_updates "system"
+  local updates_avail status
+  if ! update_system_package_lists; then
+    status="${red}Update check failed!     ${white}" 
   else
-    info_msg="${green}System up to date!       ${white}"
+    updates_avail="$(apt list --upgradeable 2>/dev/null | sed "1d")"
+    
+    if [[ -n ${updates_avail} ]]; then
+      status="${yellow}System upgrade available!${white}"
+      # add system to application_updates_available in kiauh.ini
+      add_to_application_updates "system"
+    else
+      status="${green}System up to date!       ${white}"
+    fi
   fi
-
-  echo "${info_msg}"
+  
+  echo "${status}"
 }
 
 function upgrade_system_packages() {
@@ -417,7 +420,7 @@ function install_system_packages() {
   if sudo apt-get install -y "${packages[@]}"; then
     ok_msg "${log_name^} packages installed!"
   else
-    log_error "failure while installing ${log_name,,} packages"
+    log_error "Failure while installing ${log_name,,} packages"
     error_msg "Installing $log_name packages failed!"
     exit 1 # exit kiauh
   fi
