@@ -375,10 +375,13 @@ function update_system_package_lists() {
   # update if cache is greater than 48 hours old
   if [[ $update_age -gt $((48*60*60)) ]]; then
     if [[ ! $silent ]]; then status_msg "Updating package lists..."; fi
-    if ! sudo apt-get update --allow-releaseinfo-change; then
+    if ! sudo apt-get update --allow-releaseinfo-change &>/dev/null; then
       log_error "Failure while updating package lists!"
       if [[ ! $silent ]]; then error_msg "Updating package lists failed!"; fi
       exit 1
+    else
+      log_info "Package lists updated successfully"
+      if [[ ! $silent ]]; then status_msg "Updated package lists."; fi
     fi
   else
     log_info "Package lists updated recently, skipping update..."
