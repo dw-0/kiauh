@@ -156,7 +156,7 @@ function install_moonraker_dependencies() {
   update_system_package_lists
 
   ### Install required packages
-  install_system_packages "$log_name" "packages[@]"
+  install_system_packages "${log_name}" "packages[@]"
 }
 
 function create_moonraker_virtualenv() {

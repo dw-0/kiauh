@@ -125,7 +125,7 @@ function install_telegram_bot_dependencies() {
   update_system_package_lists
 
   ### Install required packages
-  install_system_packages "$log_name" "packages[@]"
+  install_system_packages "${log_name}" "packages[@]"
 }
 
 function create_telegram_bot_virtualenv() {

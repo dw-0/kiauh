@@ -325,7 +325,7 @@ function install_klipper_packages() {
   update_system_package_lists
 
   ### Install required packages
-  install_system_packages "$log_name" "packages[@]"
+  install_system_packages "${log_name}" "packages[@]"
 }
 
 function create_klipper_service() {

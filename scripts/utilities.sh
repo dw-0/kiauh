@@ -307,7 +307,7 @@ function dependency_check() {
     update_system_package_lists
 
     # install required packages
-    install_system_packages "$log_name" "packages[@]"
+    install_system_packages "${log_name}" "packages[@]"
 
   else
     ok_msg "Dependencies already met!"
@@ -359,8 +359,10 @@ function create_required_folders() {
 }
 
 function update_system_package_lists() {
-  local cache_mtime update_age silent
-  if [[ $1 == '--silent' ]]; then silent=1; shift; fi
+  local cache_mtime update_age update_interval silent
+  
+  if [[ $1 == '--silent' ]]; then silent="true"; fi
+  
   if [[ -e /var/lib/apt/periodic/update-success-stamp ]]; then
     cache_mtime="$(stat -c %Y /var/lib/apt/periodic/update-success-stamp)"
   elif [[ -e /var/lib/apt/lists ]]; then
@@ -371,17 +373,18 @@ function update_system_package_lists() {
   fi
 
   update_age="$(($(date +'%s') - cache_mtime))"
+  update_interval=$((48*60*60)) # 48hrs
 
-  # update if cache is greater than 48 hours old
-  if [[ $update_age -gt $((48*60*60)) ]]; then
-    if [[ ! $silent ]]; then status_msg "Updating package lists..."; fi
+  # update if cache is greater than update_interval
+  if (( update_age > update_interval )); then
+    if [[ ! ${silent} == "true" ]]; then status_msg "Updating package lists..."; fi
     if ! sudo apt-get update --allow-releaseinfo-change &>/dev/null; then
       log_error "Failure while updating package lists!"
-      if [[ ! $silent ]]; then error_msg "Updating package lists failed!"; fi
+      if [[ ! ${silent} == "true" ]]; then error_msg "Updating package lists failed!"; fi
       exit 1
     else
       log_info "Package lists updated successfully"
-      if [[ ! $silent ]]; then status_msg "Updated package lists."; fi
+      if [[ ! ${silent} == "true" ]]; then status_msg "Updated package lists."; fi
     fi
   else
     log_info "Package lists updated recently, skipping update..."
@@ -425,7 +428,7 @@ function install_system_packages() {
     ok_msg "${log_name^} packages installed!"
   else
     log_error "Failure while installing ${log_name,,} packages"
-    error_msg "Installing $log_name packages failed!"
+    error_msg "Installing ${log_name} packages failed!"
     exit 1 # exit kiauh
   fi
 }
