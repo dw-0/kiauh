@@ -33,7 +33,7 @@ that you have a functional Linux system on hand. `Raspberry Pi OS Lite (32bit)` 
 if you are using a Raspberry Pi. The [official Raspberry Pi Imager](https://www.raspberrypi.com/software/) 
 is the simplest way to flash an image like this to an SD card.
 
-* Once you downloaded, installed and launched the Raspberry Pi Imager 
+* Once you have downloaded, installed and launched the Raspberry Pi Imager, 
 select `Choose OS -> Raspberry Pi OS (other)`: \
 <p align="center">
   <img src="https://raw.githubusercontent.com/th33xitus/kiauh/master/resources/screenshots/rpi_imager1.png" alt="KIAUH logo" height="350">
@@ -47,7 +47,7 @@ select `Choose OS -> Raspberry Pi OS (other)`: \
 * Back in the Raspberry Pi Imager's main menu, select the corresponding SD card to which 
 you want to flash the image.
 
-* Make sure to go into the Advaced Option (the cog icon in the lower left corner of the main menu)
+* Make sure to go into the Advanced Option (the cog icon in the lower left corner of the main menu)
 and enable SSH and configure Wi-Fi.
 
 * If you need more help for using the Raspberry Pi Imager, please visit the [official documentation](https://www.raspberrypi.com/documentation/computers/getting-started.html).
@@ -68,14 +68,14 @@ sudo apt-get update && sudo apt-get install git -y
 ```
 
 * **Step 2:** \
-Once git is installed, use the following command to download KIAUH into your home-directoy:
+Once git is installed, use the following command to download KIAUH into your home-directory:
 
 ```shell
 cd ~ && git clone https://github.com/th33xitus/kiauh.git
 ```
 
 * **Step 3:** \
-Finally start KIAUH by running the next command:
+Finally, start KIAUH by running the next command:
 
 ```shell
 ./kiauh/kiauh.sh
