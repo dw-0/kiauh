@@ -381,7 +381,7 @@ function update_system_package_lists() {
     if ! sudo apt-get update --allow-releaseinfo-change &>/dev/null; then
       log_error "Failure while updating package lists!"
       if [[ ! ${silent} == "true" ]]; then error_msg "Updating package lists failed!"; fi
-      exit 1
+      return 1
     else
       log_info "Package lists updated successfully"
       if [[ ! ${silent} == "true" ]]; then status_msg "Updated package lists."; fi
