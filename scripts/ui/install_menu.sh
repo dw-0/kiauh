@@ -34,7 +34,8 @@ function install_ui() {
 }
 
 function install_menu() {
-  clear && print_header
+  clear -x && sudo -v && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
+  print_header
   install_ui
 
   ### save all installed webinterface ports to the ini file
