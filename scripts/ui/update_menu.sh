@@ -11,7 +11,7 @@
 
 set -e
 
-function update_ui() {
+function update_ui() {  
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${white}     |"
   hr
@@ -40,6 +40,7 @@ function update_ui() {
 }
 
 function update_menu() {
+  clear -x && sudo -v && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
   do_action "" "update_ui"
   
   local action
