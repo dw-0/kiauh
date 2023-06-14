@@ -370,8 +370,8 @@ function write_moonraker_service() {
 
     [[ -z ${i} ]] && sudo sed -i "s| %INST%||" "${service}"
     [[ -n ${i} ]] && sudo sed -i "s|%INST%|${i}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${MOONRAKER_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%PRINTER_DATA%|${printer_data}|" "${env_file}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%MOONRAKER_DIR%|${MOONRAKER_DIR}|; s|%ENV%|${MOONRAKER_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%MOONRAKER_DIR%|${MOONRAKER_DIR}|; s|%PRINTER_DATA%|${printer_data}|" "${env_file}"
   fi
 }
 
