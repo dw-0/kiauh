@@ -12,10 +12,6 @@
 set -e
 
 function main_ui() {
-  echo -e "${yellow}/=======================================================\\"
-  echo -e "| Please read the newest changelog carefully:           |"
-  echo -e "| https://git.io/JnmlX                                  |"
-  echo -e "\=======================================================/${white}"
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
