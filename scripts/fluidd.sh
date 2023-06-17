@@ -16,10 +16,24 @@ set -e
 #===================================================#
 
 function install_fluidd() {
-  ### exit early if moonraker not found
   if [[ -z $(moonraker_systemd) ]]; then
-    local error="Moonraker not installed! Please install Moonraker first!"
-    print_error "${error}" && return
+    local error="Moonraker not installed! It's recommended to install Moonraker first!"
+    print_error "${error}"
+    while true; do
+      local yn
+      read -p "${cyan}###### Proceed to install Fluidd without installing Moonraker? (y/N):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes)
+          select_msg "Yes"
+          break;;
+        N|n|No|no|"")
+          select_msg "No"
+          abort_msg "Exiting Fluidd setup ...\n"
+          return;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
   fi
 
   ### checking dependencies
@@ -30,7 +44,7 @@ function install_fluidd() {
 
   status_msg "Initializing Fluidd installation ..."
   ### first, we create a backup of the full klipper_config dir - safety first!
-  backup_klipper_config_dir
+  #backup_klipper_config_dir
 
   ### check for other enabled web interfaces
   unset SET_LISTEN_PORT
@@ -313,9 +327,9 @@ function get_local_fluidd_version() {
 function get_remote_fluidd_version() {
   [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
 
-  local version
-  version=$(get_fluidd_download_url | rev | cut -d"/" -f2 | rev)
-  echo "${version}"
+  local tags
+  tags=$(curl -s "https://api.github.com/repos/fluidd-core/fluidd/tags" | grep "name" | cut -d'"' -f4)
+  echo "${tags}" | head -1
 }
 
 function compare_fluidd_versions() {
@@ -341,27 +355,28 @@ function compare_fluidd_versions() {
 #================================================#
 
 function get_fluidd_download_url() {
-  local fl_tags tags latest_tag latest_url stable_tag stable_url url
+  local releases_by_tag tags tag unstable_url url
 
-  fl_tags="https://api.github.com/repos/fluidd-core/fluidd/tags"
-  tags=$(curl -s "${fl_tags}" | grep "name" | cut -d'"' -f4)
-
-  ### latest download url including pre-releases (alpha, beta, rc)
-  latest_tag=$(echo "${tags}" | head -1)
-  latest_url="https://github.com/fluidd-core/fluidd/releases/download/${latest_tag}/fluidd.zip"
-
-  ### get stable fluidd download url
-  stable_tag=$(echo "${tags}" | grep -E "^v([0-9]+\.?){3}$" | head -1)
-  stable_url="https://github.com/fluidd-core/fluidd/releases/download/${stable_tag}/fluidd.zip"
+  ### latest stable download url
+  url="https://github.com/fluidd-core/fluidd/releases/latest/download/fluidd.zip"
 
   read_kiauh_ini "${FUNCNAME[0]}"
   if [[ ${fluidd_install_unstable} == "true" ]]; then
-    url="${latest_url}"
-    echo "${url}"
-  else
-    url="${stable_url}"
-    echo "${url}"
+    releases_by_tag="https://api.github.com/repos/fluidd-core/fluidd/tags"
+    tags=$(curl -s "${releases_by_tag}" | grep "name" | cut -d'"' -f4)
+    tag=$(echo "${tags}" | head -1)
+
+    ### latest unstable download url including pre-releases (alpha, beta, rc)
+    unstable_url="https://github.com/fluidd-core/fluidd/releases/download/${tag}/fluidd.zip"
+
+    if [[ ${unstable_url} == *"download//"* ]]; then
+      warn_msg "Download URL broken! Falling back to URL of latest stable release!"
+    else
+      url=${unstable_url}
+    fi
   fi
+
+  echo "${url}"
 }
 
 function fluidd_port_check() {

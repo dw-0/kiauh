@@ -110,7 +110,7 @@ function telegram_bot_setup_dialog() {
 }
 
 function install_telegram_bot_dependencies() {
-  local packages
+  local packages log_name="Telegram Bot"
   local install_script="${TELEGRAM_BOT_DIR}/scripts/install.sh"
 
   ### read PKGLIST from official install-script
@@ -121,21 +121,11 @@ function install_telegram_bot_dependencies() {
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
   read -r -a packages <<< "${packages}"
 
-  ### Update system package info
-  status_msg "Updating package lists..."
-  if ! sudo apt-get update --allow-releaseinfo-change; then
-    log_error "failure while updating package lists"
-    error_msg "Updating package lists failed!"
-    exit 1
-  fi
+  ### Update system package lists if stale
+  update_system_package_lists
 
   ### Install required packages
-  status_msg "Installing required packages..."
-  if ! sudo apt-get install --yes "${packages[@]}"; then
-    log_error "failure while installing required moonraker-telegram-bot packages"
-    error_msg "Installing required packages failed!"
-    exit 1
-  fi
+  install_system_packages "${log_name}" "packages[@]"
 }
 
 function create_telegram_bot_virtualenv() {
@@ -328,11 +318,11 @@ function write_telegram_bot_service() {
     else
       sudo sed -i "s|%INST%|${i}|" "${service}"
     fi
-    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%TELEGRAM_BOT_DIR%|${TELEGRAM_BOT_DIR}|; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
 
     status_msg "Creating environment file for instance ${i} ..."
     cp "${env_template}" "${env_file}"
-    sed -i "s|%USER%|${USER}|; s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${env_file}"
+    sed -i "s|%USER%|${USER}|; s|%TELEGRAM_BOT_DIR%|${TELEGRAM_BOT_DIR}|; s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${env_file}"
   fi
 }
 

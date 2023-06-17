@@ -9,7 +9,7 @@ WantedBy=multi-user.target
 [Service]
 Type=simple
 User=%USER%
-WorkingDirectory=/home/%USER%/moonraker-telegram-bot
+WorkingDirectory=%TELEGRAM_BOT_DIR%
 EnvironmentFile=%ENV_FILE%
 ExecStart=%ENV%/bin/python $TELEGRAM_BOT_ARGS
 Restart=always

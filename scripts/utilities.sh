@@ -20,6 +20,8 @@ function check_euid() {
     echo -e "${red}"
     top_border
     echo -e "|       !!! THIS SCRIPT MUST NOT RUN AS ROOT !!!        |"
+    echo -e "|                                                       |"
+    echo -e "|        It will ask for credentials as needed.         |"
     bottom_border
     echo -e "${white}"
     exit 1
@@ -285,7 +287,7 @@ function python3_check() {
 
 function dependency_check() {
   local dep=( "${@}" )
-  local packages
+  local packages log_name="dependencies"
   status_msg "Checking for the following dependencies:"
 
   #check if package is installed, if not write its name into array
@@ -303,12 +305,12 @@ function dependency_check() {
     done
     echo
 
-    if sudo apt-get update --allow-releaseinfo-change && sudo apt-get install "${packages[@]}" -y; then
-      ok_msg "Dependencies installed!"
-    else
-      error_msg "Installing dependencies failed!"
-      return 1 # exit kiauh
-    fi
+    # update system package lists if stale
+    update_system_package_lists
+
+    # install required packages
+    install_system_packages "${log_name}" "packages[@]"
+
   else
     ok_msg "Dependencies already met!"
     return
@@ -358,27 +360,78 @@ function create_required_folders() {
   done
 }
 
-function check_system_updates() {
-  local updates_avail info_msg
-  updates_avail=$(apt list --upgradeable 2>/dev/null | sed "1d")
-
-  if [[ -n ${updates_avail} ]]; then
-    info_msg="${yellow}System upgrade available!${white}"
-    # add system to application_updates_available in kiauh.ini
-    add_to_application_updates "system"
+function update_system_package_lists() {
+  local cache_mtime update_age update_interval silent
+  
+  if [[ $1 == '--silent' ]]; then silent="true"; fi
+  
+  if [[ -e /var/lib/apt/periodic/update-success-stamp ]]; then
+    cache_mtime="$(stat -c %Y /var/lib/apt/periodic/update-success-stamp)"
+  elif [[ -e /var/lib/apt/lists ]]; then
+    cache_mtime="$(stat -c %Y /var/lib/apt/lists)"
   else
-    info_msg="${green}System up to date!       ${white}"
+    log_warning "Failure determining package cache age, forcing update"
+    cache_mtime=0
   fi
 
-  echo "${info_msg}"
+  update_age="$(($(date +'%s') - cache_mtime))"
+  update_interval=$((48*60*60)) # 48hrs
+
+  # update if cache is greater than update_interval
+  if (( update_age > update_interval )); then
+    if [[ ! ${silent} == "true" ]]; then status_msg "Updating package lists..."; fi
+    if ! sudo apt-get update --allow-releaseinfo-change &>/dev/null; then
+      log_error "Failure while updating package lists!"
+      if [[ ! ${silent} == "true" ]]; then error_msg "Updating package lists failed!"; fi
+      return 1
+    else
+      log_info "Package lists updated successfully"
+      if [[ ! ${silent} == "true" ]]; then status_msg "Updated package lists."; fi
+    fi
+  else
+    log_info "Package lists updated recently, skipping update..."
+  fi
 }
 
-function update_system() {
-  status_msg "Updating System ..."
-  if sudo apt-get update --allow-releaseinfo-change && sudo apt-get upgrade -y; then
-    print_confirm "Update complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been kept back!${green}"
+function check_system_updates() {
+  local updates_avail status
+  if ! update_system_package_lists --silent; then
+    status="${red}Update check failed!     ${white}" 
   else
-    print_error "System update failed! Please watch for any errors printed above!"
+    updates_avail="$(apt list --upgradeable 2>/dev/null | sed "1d")"
+    
+    if [[ -n ${updates_avail} ]]; then
+      status="${yellow}System upgrade available!${white}"
+      # add system to application_updates_available in kiauh.ini
+      add_to_application_updates "system"
+    else
+      status="${green}System up to date!       ${white}"
+    fi
+  fi
+  
+  echo "${status}"
+}
+
+function upgrade_system_packages() {
+  status_msg "Upgrading System ..."
+  update_system_package_lists
+  if sudo apt-get upgrade -y; then
+    print_confirm "Upgrade complete! Check the log above!\n ${yellow}KIAUH will not install any dist-upgrades or\n any packages which have been held back!${green}"
+  else
+    print_error "System upgrade failed! Please look for any errors printed above!"
+  fi
+}
+
+function install_system_packages() {
+  local log_name="$1"
+  local packages=("${!2}")
+  status_msg "Installing packages..."
+  if sudo apt-get install -y "${packages[@]}"; then
+    ok_msg "${log_name^} packages installed!"
+  else
+    log_error "Failure while installing ${log_name,,} packages"
+    error_msg "Installing ${log_name} packages failed!"
+    exit 1 # exit kiauh
   fi
 }
 
