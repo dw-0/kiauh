@@ -318,11 +318,11 @@ function write_telegram_bot_service() {
     else
       sudo sed -i "s|%INST%|${i}|" "${service}"
     fi
-    sudo sed -i "s|%USER%|${USER}|g; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%TELEGRAM_BOT_DIR%|${TELEGRAM_BOT_DIR}|; s|%ENV%|${TELEGRAM_BOT_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
 
     status_msg "Creating environment file for instance ${i} ..."
     cp "${env_template}" "${env_file}"
-    sed -i "s|%USER%|${USER}|; s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${env_file}"
+    sed -i "s|%USER%|${USER}|; s|%TELEGRAM_BOT_DIR%|${TELEGRAM_BOT_DIR}|; s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${env_file}"
   fi
 }
 
