@@ -30,7 +30,9 @@ function main_ui() {
   echo -e "|                  |  OctoEverywhere: $(print_status "octoeverywhere")|"
   echo -e "|                  |     Mobileraker: $(print_status "mobileraker")|"
   echo -e "|                  |                                    |"
-  echo -e "|  $(print_kiauh_version)|       Octoprint: $(print_status "octoprint")|"
+  echo -e "|                  |       Octoprint: $(print_status "octoprint")|"
+  hr
+  echo -e "|  $(print_kiauh_version)|    Changelog: ${magenta}https://git.io/JnmlX${white} |"
   quit_footer
 }
 
