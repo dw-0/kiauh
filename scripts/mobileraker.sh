@@ -211,10 +211,11 @@ function compare_mobileraker_versions() {
 #================================================#
 
 function patch_mobileraker_update_manager() {
-  local patched="false"
-  local moonraker_configs
-  moonraker_configs=$(find "${KLIPPER_CONFIG}" -type f -name "moonraker.conf" | sort)
+  local patched moonraker_configs regex
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
+  moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
+  patched="false"
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "^\[update_manager mobileraker\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
