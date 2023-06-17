@@ -11,7 +11,7 @@
 
 set -e
 
-function update_ui() {
+function update_ui() {  
   top_border
   echo -e "|     ${green}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~${white}     |"
   hr
@@ -40,6 +40,7 @@ function update_ui() {
 }
 
 function update_menu() {
+  clear -x && sudo -v && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
   do_action "" "update_ui"
   
   local action
@@ -69,7 +70,7 @@ function update_menu() {
       10)
         do_action "update_crowsnest" "update_ui";;
       11)
-        do_action "update_system" "update_ui";;
+        do_action "upgrade_system_packages" "update_ui";;
       a)
         do_action "update_all" "update_ui";;
       B|b)
