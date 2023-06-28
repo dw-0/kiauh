@@ -29,11 +29,26 @@ function check_euid() {
 }
 
 function check_free_space() {
-  local gb_req=5
-  if [[ $(df -Pk ${HOME} | sed 1d | grep -v used | awk '{ print $4 "\t" }') -lt $((1048576*$gb_req)) ]]; then
-    echo -e "${red}Free disk space in ${yellow}${HOME}${red} is less than ${gb_req}GB, abort${white}"
-    exit 1
-  fi
+  local mount_free mb_rec=2048
+  local mount_check_regex='^/($|bin|etc|home|lib|mnt|opt|root|sbin|tmp|usr|var)' # all root dirs possibly relevant to software install
+  for mount_check in $(cat /etc/mtab | grep '^/dev' | cut -d ' ' -f 2 | grep -E '${mount_check_regex}'); do
+    mount_free=$(($(df -Pk ${mount_check} | sed 1d | grep -v used | awk '{ print $4 "\t" }')/1024))
+    if [[ ${mount_free} -lt ${mb_req} ]]; then
+      local yn
+      while true; do
+        echo -e "${yellow}Heads up! Free disk space in ${white}${mount_check}${yellow} is only ${white}${mount_free} MB${yellow}.${white}"
+        read -p "${yellow}You may run into errors installing or updating software that uses this mountpoint. Proceed? (y|N): ${white}" yn
+        case "${yn}" in
+          Y|y|Yes|yes)
+            break;;
+          N|n|No|no|"")
+            exit 1;;
+          *)
+            echo -e "${red}Please answer "y" or "n"${white}";;
+        esac
+      done
+    fi
+  done
 }
 
 #================================================#
