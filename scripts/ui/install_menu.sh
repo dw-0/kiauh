@@ -27,14 +27,16 @@ function install_ui() {
   echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
   echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
   echo -e "|                          | 10) [OctoEverywhere]       |"
+  echo -e "|                          | 11) [Mobileraker]          |"
   echo -e "| Touchscreen GUI:         |                            |"
   echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
-  echo -e "|                          | 11) [Crowsnest]            |"
+  echo -e "|                          | 12) [Crowsnest]            |"
   back_footer
 }
 
 function install_menu() {
-  clear && print_header
+  clear -x && sudo -v && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
+  print_header
   install_ui
 
   ### save all installed webinterface ports to the ini file
@@ -68,6 +70,8 @@ function install_menu() {
       10)
         do_action "octoeverywhere_setup_dialog" "install_ui";;
       11)
+        do_action "install_mobileraker" "install_ui";;
+      12)
         do_action "install_crowsnest" "install_ui";;
       B|b)
         clear; main_menu; break;;

@@ -2,6 +2,11 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2023-06-17
+KIAUH has now added support for installing Mobileraker's companion! 
+Mobileraker is a free and Open Source Android and iOS App for Klipper, utilizing the Moonraker API, allowing you
+to control your printer. Thank you to [Clon1998](https://github.com/Clon1998) for adding this feature!
+
 ### 2023-02-03
 The installer for MJPG-Streamer got replaced by crowsnest. It is an improved webcam service, utilizing ustreamer. 
 Please have a look here for additional info about crowsnest and how to configure it: https://github.com/mainsail-crew/crowsnest \

@@ -12,10 +12,6 @@
 set -e
 
 function main_ui() {
-  echo -e "${yellow}/=======================================================\\"
-  echo -e "| Please read the newest changelog carefully:           |"
-  echo -e "| https://git.io/JnmlX                                  |"
-  echo -e "\=======================================================/${white}"
   top_border
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
   hr
@@ -32,8 +28,11 @@ function main_ui() {
   echo -e "|                  |       Crowsnest: $(print_status "crowsnest")|"
   echo -e "|                  |           Obico: $(print_status "moonraker_obico")|"
   echo -e "|                  |  OctoEverywhere: $(print_status "octoeverywhere")|"
+  echo -e "|                  |     Mobileraker: $(print_status "mobileraker")|"
   echo -e "|                  |                                    |"
-  echo -e "|  $(print_kiauh_version)|       Octoprint: $(print_status "octoprint")|"
+  echo -e "|                  |       Octoprint: $(print_status "octoprint")|"
+  hr
+  echo -e "|  $(print_kiauh_version)|    Changelog: ${magenta}https://git.io/JnmlX${white} |"
   quit_footer
 }
 
