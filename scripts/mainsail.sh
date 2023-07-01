@@ -324,10 +324,16 @@ function get_mainsail_status() {
 }
 
 function get_local_mainsail_version() {
-  [[ ! -f "${MAINSAIL_DIR}/.version" ]] && return
-
+  local versionfile="${MAINSAIL_DIR}/.version"
+  local relinfofile="${MAINSAIL_DIR}/release_info.json"
   local version
-  version=$(head -n 1 "${MAINSAIL_DIR}/.version")
+
+  if [[ -f ${relinfofile} ]]; then
+    version=$(grep -o '"version":"[^"]*' "${relinfofile}" | grep -o '[^"]*$')
+  elif [[ -f ${versionfile} ]]; then
+    version=$(head -n 1 "${versionfile}")
+  fi
+
   echo "${version}"
 }
 
@@ -547,7 +553,7 @@ function get_mainsail_download_url() {
       url=${unstable_url}
     fi
   fi
-  
+
   echo "${url}"
 }
 

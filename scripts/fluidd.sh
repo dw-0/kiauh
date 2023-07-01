@@ -317,10 +317,16 @@ function get_fluidd_status() {
 }
 
 function get_local_fluidd_version() {
-  [[ ! -f "${FLUIDD_DIR}/.version" ]] && return
-
+  local versionfile="${FLUIDD_DIR}/.version"
+  local relinfofile="${FLUIDD_DIR}/release_info.json"
   local version
-  version=$(head -n 1 "${FLUIDD_DIR}/.version")
+
+  if [[ -f ${relinfofile} ]]; then
+    version=$(grep -o '"version":"[^"]*' "${relinfofile}" | grep -o '[^"]*$')
+  elif [[ -f ${versionfile} ]]; then
+    version=$(head -n 1 "${versionfile}")
+  fi
+
   echo "${version}"
 }
 
