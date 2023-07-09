@@ -402,6 +402,8 @@ function update_moonraker_obico() {
     cd "${MOONRAKER_OBICO_DIR}" && git pull
   fi
 
+  "${MOONRAKER_OBICO_DIR}/install.sh" -U
+
   ok_msg "Update complete!"
   do_action_service "restart" "moonraker-obico"
 }
