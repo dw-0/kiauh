@@ -85,6 +85,32 @@ function moonraker_obico_setup_dialog() {
   moonraker_obico_services=$(moonraker_obico_systemd)
   existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w )
   local allowed_moonraker_obico_count=$(( moonraker_count - existing_moonraker_obico_count ))
+
+  # Allow user to reinstall an incomplete installation.
+  if (( allowed_moonraker_obico_count == 0 && moonraker_count > 0 )) && [[ $(get_moonraker_obico_status) != "Not linked!" ]]; then
+    local yn
+    while true; do
+      echo "${yellow}Obico for Klipper is already installed.${white}"
+      echo "It is safe to run the install again to repair any issues."
+      echo ""
+      local question="Do you want to reinstall Obico for Klipper?"
+      read -p "${cyan}###### ${question} (Y/n):${white} " yn
+      case "${yn}" in
+        Y|y|Yes|yes|"")
+          select_msg "Yes"
+          break;;
+        N|n|No|no)
+          select_msg "No"
+          abort_msg "Exiting Obico for Klipper installation...\n"
+          return;;
+        *)
+          error_msg "Invalid Input!";;
+      esac
+    done
+    # The user responded yes, allow the install to run again.
+    allowed_moonraker_obico_count=1
+  fi
+
   if (( allowed_moonraker_obico_count > 0 )); then
     local new_moonraker_obico_count
 
@@ -167,10 +193,6 @@ function moonraker_obico_setup_dialog() {
 
     (( new_moonraker_obico_count > 1 )) && status_msg "Installing ${new_moonraker_obico_count} Moonraker-obico instances ..."
     (( new_moonraker_obico_count == 1 )) && status_msg "Installing Moonraker-obico ..."
-
-    ### Step 4: Install dependencies
-    local dep=(git dfu-util virtualenv python3 python3-pip python3-venv ffmpeg)
-    dependency_check "${dep[@]}"
 
     ### Step 5: Clone the moonraker-obico repo
     clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
@@ -375,6 +397,8 @@ function update_moonraker_obico() {
     status_msg "Updating Moonraker-obico ..."
     cd "${MOONRAKER_OBICO_DIR}" && git pull
   fi
+
+  "${MOONRAKER_OBICO_DIR}/install.sh" -U
 
   ok_msg "Update complete!"
   do_action_service "restart" "moonraker-obico"
