@@ -87,7 +87,7 @@ function moonraker_obico_setup_dialog() {
   local allowed_moonraker_obico_count=$(( moonraker_count - existing_moonraker_obico_count ))
 
   # Allow user to reinstall an incomplete installation.
-  if (( allowed_moonraker_obico_count == 0 && moonraker_count > 0 )); then
+  if (( allowed_moonraker_obico_count == 0 && moonraker_count > 0 )) && [[ $(get_moonraker_obico_status) != "Not linked!" ]]; then
     local yn
     while true; do
       echo "${yellow}Obico for Klipper is already installed.${white}"
