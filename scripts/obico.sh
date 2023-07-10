@@ -194,10 +194,6 @@ function moonraker_obico_setup_dialog() {
     (( new_moonraker_obico_count > 1 )) && status_msg "Installing ${new_moonraker_obico_count} Moonraker-obico instances ..."
     (( new_moonraker_obico_count == 1 )) && status_msg "Installing Moonraker-obico ..."
 
-    ### Step 4: Install dependencies
-    local dep=(git dfu-util virtualenv python3 python3-pip python3-venv ffmpeg)
-    dependency_check "${dep[@]}"
-
     ### Step 5: Clone the moonraker-obico repo
     clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
 
