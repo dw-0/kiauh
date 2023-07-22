@@ -139,8 +139,14 @@ function update_all() {
     read -p "${cyan}###### Do you want to proceed? (Y/n):${white} " yn
     case "${yn}" in
       Y|y|Yes|yes|"")
-        for app in "${update_arr[@]}"; do
-          local update="update_${app}"
+        local component
+        local update
+        for component in "${update_arr[@]}"; do
+          if [[ ${component} == "system" ]]; then
+            update="upgrade_system_packages"
+          else
+            update="update_${component}"
+          fi
           #shellcheck disable=SC2250
           $update
         done
