@@ -30,7 +30,7 @@ function install_klipperscreen() {
   fi
 
   ### first, we create a backup of the full klipper_config dir - safety first!
-  backup_klipper_config_dir
+  backup_config_dir
 
   ### install KlipperScreen
   klipperscreen_setup

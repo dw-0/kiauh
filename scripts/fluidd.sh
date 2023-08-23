@@ -44,7 +44,7 @@ function install_fluidd() {
 
   status_msg "Initializing Fluidd installation ..."
   ### first, we create a backup of the full klipper_config dir - safety first!
-  #backup_klipper_config_dir
+  backup_config_dir
 
   ### check for other enabled web interfaces
   unset SET_LISTEN_PORT

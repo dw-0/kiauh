@@ -33,7 +33,7 @@ function telegram_bot_setup_dialog() {
 
   status_msg "Initializing Telegram Bot installation ..."
   ### first, we create a backup of the full klipper_config dir - safety first!
-  backup_klipper_config_dir
+  backup_config_dir
 
   local moonraker_count user_input=() moonraker_names=()
   moonraker_count=$(echo "${moonraker_services}" | wc -w )

@@ -21,8 +21,7 @@ function main_ui() {
   echo -e "|  2) [Update]     |       Moonraker: $(print_status "moonraker")|"
   echo -e "|  3) [Remove]     |                                    |"
   echo -e "|  4) [Advanced]   |        Mainsail: $(print_status "mainsail")|"
-#  echo -e "|  5) [Backup]     |        Fluidd: $(print_status "fluidd")|"
-  echo -e "|                  |          Fluidd: $(print_status "fluidd")|"
+  echo -e "|  5) [Backup]     |          Fluidd: $(print_status "fluidd")|"
   echo -e "|                  |   KlipperScreen: $(print_status "klipperscreen")|"
   echo -e "|  6) [Settings]   |    Telegram Bot: $(print_status "telegram_bot")|"
   echo -e "|                  |       Crowsnest: $(print_status "crowsnest")|"
@@ -129,8 +128,7 @@ function main_menu() {
         advanced_menu
         break;;
       5)clear && print_header
-        #backup_menu
-        print_error "Function currently disabled! Sorry!"
+        backup_menu
         main_ui;;
       6)clear && print_header
         settings_menu

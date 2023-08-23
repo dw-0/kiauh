@@ -25,29 +25,32 @@ function check_for_backup_dir() {
 }
 
 function backup_before_update() {
-  echo ""
-  ### todo backup functions need to be updated for new folder structure
-#  read_kiauh_ini "${FUNCNAME[0]}"
-#  local state="${backup_before_update}"
-#  [[ ${state} = "false" ]] && return
-#  backup_"${1}"
+  read_kiauh_ini "${FUNCNAME[0]}"
+  local state="${backup_before_update}"
+  [[ ${state} = "false" ]] && return
+  backup_"${1}"
 }
 
-function backup_klipper_config_dir() {
+function backup_config_dir() {
   check_for_backup_dir
-  local current_date config_folder_name
+  local current_date instance_names config_pathes
 
-  if [[ -d "${KLIPPER_CONFIG}" ]]; then
+  config_pathes=$(get_config_folders)
+  readarray -t -d" " instance_names < <(get_multi_instance_names)
+
+  if [[ -n "${config_pathes}" ]]; then
     current_date=$(get_date)
-    config_folder_name="$(echo "${KLIPPER_CONFIG}" | rev | cut -d"/" -f1 | rev)"
-
     status_msg "Timestamp: ${current_date}"
-    status_msg "Create backup of the Klipper config directory ..."
 
-    mkdir -p "${BACKUP_DIR}/${config_folder_name}/${current_date}"
-    cp -r "${KLIPPER_CONFIG}" "${_}"
-
-    print_confirm "Configuration directory backup complete!"
+    local i=0 folder
+    for folder in ${config_pathes}; do
+      local folder_name="${instance_names[${i}]}"
+      status_msg "Create backup of ${folder} ..."
+      mkdir -p "${BACKUP_DIR}/configs/${current_date}/${folder_name}"
+      cp -r "${folder}" "${_}"
+      ok_msg "Backup created in:\n${BACKUP_DIR}/configs/${current_date}/${folder_name}"
+      i=$(( i + 1 ))
+    done
   else
     ok_msg "No config directory found! Skipping backup ..."
   fi
@@ -55,27 +58,27 @@ function backup_klipper_config_dir() {
 
 function backup_moonraker_database() {
   check_for_backup_dir
-  local current_date databases target_dir regex=".moonraker_database(_[0-9a-zA-Z]+)?"
-  databases=$(find "${HOME}" -maxdepth 1 -type d -regextype posix-extended -regex "${HOME}/${regex}" | sort)
+  local current_date db_pathes
 
-  if [[ -n ${databases} ]]; then
+  db_pathes=$(get_instance_folder_path "database")
+  readarray -t -d" " instance_names < <(get_multi_instance_names)
+
+  if [[ -n ${db_pathes} ]]; then
     current_date=$(get_date)
-    target_dir="${BACKUP_DIR}/moonraker_database_backup/${current_date}"
-
     status_msg "Timestamp: ${current_date}"
-    mkdir -p "${target_dir}"
 
-    for database in ${databases}; do
+    local i=0 database
+    for database in ${db_pathes}; do
+      local folder_name="${instance_names[${i}]}"
       status_msg "Create backup of ${database} ..."
-      cp -r "${database}" "${target_dir}"
-      ok_msg "Done!"
+      mkdir -p "${BACKUP_DIR}/moonraker_databases/${current_date}/${folder_name}"
+      cp -r "${database}" "${_}"
+      ok_msg "Backup created in:\n${BACKUP_DIR}/moonraker_databases/${current_date}/${folder_name}"
+      i=$(( i + 1 ))
     done
-
-    print_confirm "Moonraker database backup complete!"
   else
     print_error "No Moonraker database found! Skipping backup ..."
   fi
-  return
 }
 
 function backup_klipper() {

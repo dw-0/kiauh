@@ -20,7 +20,7 @@ function backup_ui() {
   echo -e "| Klipper & API:             | Touchscreen GUI:         |"
   echo -e "|  1) [Klipper]              |  7) [KlipperScreen]      |"
   echo -e "|  2) [Moonraker]            |                          |"
-  echo -e "|  3) [Configuration Folder] | 3rd Party Webinterface:  |"
+  echo -e "|  3) [Config Folder]        | 3rd Party Webinterface:  |"
   echo -e "|  4) [Moonraker Database]   |  8) [OctoPrint]          |"
   echo -e "|                            |                          |"
   echo -e "| Klipper Webinterface:      | Other:                   |"
@@ -41,7 +41,7 @@ function backup_menu() {
       2)
         do_action "backup_moonraker" "backup_ui";;
       3)
-        do_action "backup_klipper_config_dir" "backup_ui";;
+        do_action "backup_config_dir" "backup_ui";;
       4)
         do_action "backup_moonraker_database" "backup_ui";;
       5)

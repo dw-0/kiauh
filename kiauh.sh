@@ -10,7 +10,6 @@
 #=======================================================================#
 
 # TODO: upload_log
-# TODO: all backup functions
 # TODO: doublecheck that nothing got missed!
 
 set -e
