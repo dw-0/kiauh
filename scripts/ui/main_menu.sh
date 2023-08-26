@@ -112,8 +112,7 @@ function main_menu() {
       "restart crowsnest") do_action_service "restart" "crowsnest"; main_ui;;
       update) do_action "update_kiauh" "main_ui";;
       0)clear && print_header
-        #upload_selection
-        print_error "Function currently disabled! Sorry!"
+        upload_selection
         main_ui;;
       1)clear && print_header
         install_menu

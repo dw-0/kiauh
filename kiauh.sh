@@ -9,9 +9,6 @@
 # This file may be distributed under the terms of the GNU GPLv3 license #
 #=======================================================================#
 
-# TODO: upload_log
-# TODO: doublecheck that nothing got missed!
-
 set -e
 clear
 

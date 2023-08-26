@@ -54,7 +54,6 @@ function upload_selection() {
   [[ ${upload_agreed} == "false" ]] && accept_upload_conditions
 
   local logfiles
-  local logs_dir="${KLIPPER_LOGS}"
   local webif_logs="/var/log/nginx"
 
   function find_logfile() {
@@ -64,14 +63,18 @@ function upload_selection() {
     done
   }
 
-  find_logfile "kiauh\.log" "/tmp"
-  find_logfile "klippy(-[0-9a-zA-Z]+)?\.log" "${logs_dir}"
-  find_logfile "moonraker(-[0-9a-zA-Z]+)?\.log" "${logs_dir}"
-  find_logfile "telegram(-[0-9a-zA-Z]+)?\.log" "${logs_dir}"
+  local logdir log_dirs
+  log_dirs=$(get_instance_folder_path "logs")
+  for logdir in ${log_dirs}; do
+    find_logfile "klippy(-[0-9a-zA-Z]+)?\.log" "${logdir}"
+    find_logfile "moonraker(-[0-9a-zA-Z]+)?\.log" "${logdir}"
+    find_logfile "telegram(-[0-9a-zA-Z]+)?\.log" "${logdir}"
+  done
   find_logfile "mainsail.*" "${webif_logs}"
   find_logfile "fluidd.*" "${webif_logs}"
   find_logfile "KlipperScreen.log" "/tmp"
   find_logfile "webcamd\.log(\.[0-9]+)?$" "/var/log"
+  find_logfile "kiauh\.log" "/tmp"
 
   ### draw interface
   local i=0
