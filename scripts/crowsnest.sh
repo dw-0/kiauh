@@ -117,18 +117,22 @@ function install_crowsnest(){
 
 # Remove func
 function remove_crowsnest(){
-  pushd "${HOME}/crowsnest" &> /dev/null || exit 1
-  title_msg "Uninstaller will prompt you for sudo password!"
-  status_msg "Launching crowsnest uninstaller ..."
-  if ! make uninstall; then
-    error_msg "Something went wrong! Please try again..."
-    exit 1
-  fi
-  if [[ -e "${CROWSNEST_DIR}" ]]; then
+  if [[ -d "${CROWSNEST_DIR}" ]]; then
+    pushd "${HOME}/crowsnest" &> /dev/null || exit 1
+    title_msg "Uninstaller will prompt you for sudo password!"
+    status_msg "Launching crowsnest uninstaller ..."
+
+    if ! make uninstall; then
+      error_msg "Something went wrong! Please try again..."
+      exit 1
+    fi
+
     status_msg "Removing crowsnest directory ..."
     rm -rf "${CROWSNEST_DIR}"
     ok_msg "Directory removed!"
   fi
+
+  print_confirm "Crowsnest successfully removed!"
 }
 
 # Status funcs
