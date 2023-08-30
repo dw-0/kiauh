@@ -191,3 +191,19 @@ function backup_telegram_bot() {
     print_error "Can't back up MoonrakerTelegramBot directory!\n Not found!"
   fi
 }
+
+function backup_octoeverywhere() {
+  local current_date
+
+  if [[ -d ${OCTOEVERYWHERE_DIR} ]] ; then
+    status_msg "Creating OctoEverywhere backup ..."
+    check_for_backup_dir
+    current_date=$(get_date)
+    status_msg "Timestamp: ${current_date}"
+    mkdir -p "${BACKUP_DIR}/OctoEverywhere-backups/${current_date}"
+    cp -r "${OCTOEVERYWHERE_DIR}" "${_}" && cp -r "${OCTOEVERYWHERE_ENV}" "${_}"
+    print_confirm "OctoEverywhere backup complete!"
+  else
+    print_error "Can't back up OctoEverywhere directory!\n Not found!"
+  fi
+}
