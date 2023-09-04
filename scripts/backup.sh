@@ -33,23 +33,25 @@ function backup_before_update() {
 
 function backup_config_dir() {
   check_for_backup_dir
-  local current_date instance_names config_pathes
+  local current_date config_pathes
 
   config_pathes=$(get_config_folders)
-  readarray -t -d" " instance_names < <(get_multi_instance_names)
 
   if [[ -n "${config_pathes}" ]]; then
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
 
-    local i=0 folder
+    local i=0 folder folder_name target_dir
     for folder in ${config_pathes}; do
-      local folder_name="${instance_names[${i}]}"
       status_msg "Create backup of ${folder} ..."
-      mkdir -p "${BACKUP_DIR}/configs/${current_date}/${folder_name}"
-      cp -r "${folder}" "${_}"
-      ok_msg "Backup created in:\n${BACKUP_DIR}/configs/${current_date}/${folder_name}"
+
+      folder_name=$(echo "${folder}" | rev | cut -d"/" -f2 | rev)
+      target_dir="${BACKUP_DIR}/configs/${current_date}/${folder_name}"
+      mkdir -p "${target_dir}"
+      cp -r "${folder}" "${target_dir}"
       i=$(( i + 1 ))
+
+      ok_msg "Backup created in:\n${target_dir}"
     done
   else
     ok_msg "No config directory found! Skipping backup ..."
