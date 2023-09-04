@@ -61,20 +61,22 @@ function backup_moonraker_database() {
   local current_date db_pathes
 
   db_pathes=$(get_instance_folder_path "database")
-  readarray -t -d" " instance_names < <(get_multi_instance_names)
 
   if [[ -n ${db_pathes} ]]; then
     current_date=$(get_date)
     status_msg "Timestamp: ${current_date}"
 
-    local i=0 database
+    local i=0 database folder_name target_dir
     for database in ${db_pathes}; do
-      local folder_name="${instance_names[${i}]}"
       status_msg "Create backup of ${database} ..."
-      mkdir -p "${BACKUP_DIR}/moonraker_databases/${current_date}/${folder_name}"
-      cp -r "${database}" "${_}"
-      ok_msg "Backup created in:\n${BACKUP_DIR}/moonraker_databases/${current_date}/${folder_name}"
+
+      folder_name=$(echo "${database}" | rev | cut -d"/" -f2 | rev)
+      target_dir="${BACKUP_DIR}/moonraker_databases/${current_date}/${folder_name}"
+      mkdir -p "${target_dir}"
+      cp -r "${database}" "${target_dir}"
       i=$(( i + 1 ))
+
+      ok_msg "Backup created in:\n${target_dir}"
     done
   else
     print_error "No Moonraker database found! Skipping backup ..."
