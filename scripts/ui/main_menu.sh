@@ -57,7 +57,7 @@ function print_status() {
   elif [[ ${status} == "Incomplete!" ]]; then
     status="${yellow}${status}${white}"
   elif [[ ${status} == "Not linked!" ]]; then
-    ### "Not linked!" is only required for Moonraker-obico
+    ### "Not linked!" is only required for Obico for Klipper
     status="${yellow}${status}${white}"
   else
     status="${green}${status}${white}"
