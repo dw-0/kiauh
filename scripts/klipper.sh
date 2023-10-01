@@ -244,6 +244,7 @@ function run_klipper_setup() {
 
   ### finalizing the setup with writing instance names to the kiauh.ini
   set_multi_instance_names
+  remove_disrupting_packages
 
   print_confirm "${confirm}" && return
 }
@@ -624,4 +625,28 @@ function get_klipper_python_ver() {
   local version
   version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
   echo "${version}"
+}
+
+function remove_disrupting_packages() {
+  local brltty="false"
+  local modem_manager="false"
+
+  ### check system for installed brltty
+  [[ $(dpkg -s brltty  2>/dev/null | grep "Status") = *\ installed ]] && brltty="true"
+  ### check system for an installed haproxy service
+  [[ $(dpkg -s ModemManager  2>/dev/null | grep "Status") = *\ installed ]] && modem_manager="true"
+
+  status_msg "Installed brltty package detected, removing brltty ..."
+  if [[ ${brltty} == "true" ]]; then
+    sudo systemctl stop brltty
+    sudo apt-get remove brltty -y
+  fi
+  ok_msg "brltty removed!"
+
+  status_msg "Installed ModemManager package detected, disabling ModemManager service ..."
+  if [[ ${modem_manager} == "true" ]]; then
+    sudo systemctl stop ModemManager
+    sudo systemctl disable ModemManager
+  fi
+  ok_msg "ModemManager service disabled!"
 }
