@@ -251,9 +251,8 @@ function moonraker_obico_setup_dialog() {
       done
     fi
     blank_line
-    echo -e "| To link to your Obico Server account, you need to     |"
-    echo -e "| obtain the 6-digit verification code in the Obico     |"
-    echo -e "| mobile or web app. For more information, visit:       |"
+    echo -e "| It will take only 10 seconds to link printer to Obico.|"
+    echo -e "| For more information, visit:                          |"
     echo -e "| https://www.obico.io/docs/user-guides/klipper-setup/  |"
     blank_line
     echo -e "| If you don't want to link the printer now, you can    |"
