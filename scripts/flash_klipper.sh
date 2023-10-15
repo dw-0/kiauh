@@ -112,7 +112,6 @@ function print_detected_mcu_to_screen() {
   fi
 
   for mcu in "${mcu_list[@]}"; do
-    mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
     echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
     i=$(( i + 1 ))
   done
