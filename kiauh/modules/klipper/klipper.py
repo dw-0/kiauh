@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import List
 
 from kiauh.instance_manager.base_instance import BaseInstance
-from kiauh.utils.constants import SYSTEMD, KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.utils.constants import CURRENT_USER, SYSTEMD, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import create_directory
 
@@ -31,7 +31,7 @@ class Klipper(BaseInstance):
     def __init__(self, name: str):
         super().__init__(name=name,
                          prefix="klipper",
-                         user=pwd.getpwuid(os.getuid())[0],
+                         user=CURRENT_USER,
                          data_dir_name=self._get_data_dir_from_name(name))
         self.klipper_dir = KLIPPER_DIR
         self.env_dir = KLIPPER_ENV_DIR

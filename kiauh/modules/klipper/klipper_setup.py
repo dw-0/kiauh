@@ -11,14 +11,15 @@
 
 import os
 import re
+import grp
 import subprocess
 from pathlib import Path
 from typing import Optional, List, Union
 
 from kiauh.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_utils import print_instance_overview
-from kiauh.utils.constants import KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.modules.klipper.klipper_utils import print_instance_overview, print_missing_usergroup_dialog
+from kiauh.utils.constants import CURRENT_USER, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.utils.input_utils import get_user_confirm, get_user_number_input, \
     get_user_string_input, get_user_selection_input
 from kiauh.utils.logger import Logger
@@ -99,6 +100,7 @@ def install_klipper(instance_manager: InstanceManager) -> None:
     # step 4: check/handle conflicting packages/services
 
     # step 5: check for required group membership
+    check_user_groups()
 
 
 def setup_klipper_prerequesites() -> None:
@@ -234,3 +236,32 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
         instance_manager.delete_instance(del_remnants=False)
 
     instance_manager.reload_daemon()
+
+def check_user_groups():
+    current_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
+
+    missing_groups = []
+    if "tty" not in current_groups:
+        missing_groups.append("tty")
+    if "dialout" not in current_groups:
+        missing_groups.append("dialout")
+
+    if not missing_groups:
+        return
+
+    print_missing_usergroup_dialog(missing_groups)
+    if not get_user_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
+        Logger.warn("Skipped adding user to required groups. You might encounter issues.")
+        return
+
+    try:
+        for group in missing_groups:
+            Logger.print_info(f"Adding user '{CURRENT_USER}' to group {group} ...")
+            command = ["sudo", "usermod", "-a", "-G", group, CURRENT_USER]
+            subprocess.run(command, check=True)
+            Logger.print_ok(f"Group {group} assigned to user '{CURRENT_USER}'.")
+    except subprocess.CalledProcessError as e:
+        Logger.print_error(f"Unable to add user to usergroups: {e}")
+        raise
+
+    Logger.print_warn("Remember to relog/restart this machine for the group(s) to be applied!")
