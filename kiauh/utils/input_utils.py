@@ -15,7 +15,7 @@ from kiauh.utils.constants import COLOR_CYAN, RESET_FORMAT
 from kiauh.utils.logger import Logger
 
 
-def get_user_confirm(question: str, default_choice=True) -> bool:
+def get_confirm(question: str, default_choice=True) -> bool:
     options_confirm = ["y", "yes"]
     options_decline = ["n", "no"]
 
@@ -41,7 +41,7 @@ def get_user_confirm(question: str, default_choice=True) -> bool:
             Logger.print_error("Invalid choice. Please select 'y' or 'n'.")
 
 
-def get_user_number_input(
+def get_number_input(
     question: str, min_count: int, max_count=None, default=None
 ) -> int:
     _question = question + f" (default={default})" if default else question
@@ -65,7 +65,7 @@ def get_user_number_input(
             Logger.print_error("Invalid choice. Please select a valid number.")
 
 
-def get_user_string_input(question: str, exclude=Optional[List]) -> str:
+def get_string_input(question: str, exclude=Optional[List]) -> str:
     while True:
         _input = input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}").strip()
 
@@ -77,7 +77,7 @@ def get_user_string_input(question: str, exclude=Optional[List]) -> str:
             Logger.print_error("This value is already in use/reserved.")
 
 
-def get_user_selection_input(question: str, option_list: List) -> str:
+def get_selection_input(question: str, option_list: List) -> str:
     while True:
         _input = input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}").strip()
 

@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import List
 
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
-from kiauh.utils.input_utils import get_user_confirm
+from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
 
 
@@ -56,9 +56,7 @@ def clone_repo(target_dir: Path, url: str, branch: str) -> None:
         except subprocess.CalledProcessError as e:
             print("Error cloning repository:", e.output.decode())
     else:
-        overwrite_target = get_user_confirm(
-            "Target directory already exists. Overwrite?"
-        )
+        overwrite_target = get_confirm("Target directory already exists. Overwrite?")
         if overwrite_target:
             try:
                 shutil.rmtree(target_dir)
@@ -98,7 +96,7 @@ def create_python_venv(target: Path) -> None:
         except subprocess.CalledProcessError as e:
             print("Error setting up virtualenv:", e.output.decode())
     else:
-        overwrite_venv = get_user_confirm("Virtualenv already exists. Re-create?")
+        overwrite_venv = get_confirm("Virtualenv already exists. Re-create?")
         if overwrite_venv:
             try:
                 shutil.rmtree(target)

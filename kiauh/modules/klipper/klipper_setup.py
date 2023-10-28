@@ -25,10 +25,10 @@ from kiauh.modules.klipper.klipper_utils import (
 )
 from kiauh.utils.constants import CURRENT_USER, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.utils.input_utils import (
-    get_user_confirm,
-    get_user_number_input,
-    get_user_string_input,
-    get_user_selection_input,
+    get_confirm,
+    get_number_input,
+    get_string_input,
+    get_selection_input,
 )
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
@@ -83,7 +83,7 @@ def handle_existing_instances(instance_manager: InstanceManager) -> bool:
 
     if instance_count > 0:
         print_instance_overview(instance_list)
-        if not get_user_confirm("Add new instances?"):
+        if not get_confirm("Add new instances?"):
             return False
 
     return True
@@ -92,7 +92,7 @@ def handle_existing_instances(instance_manager: InstanceManager) -> bool:
 def install_klipper(instance_manager: InstanceManager) -> None:
     instance_list = instance_manager.get_instances()
     if_adding = " additional" if len(instance_list) > 0 else ""
-    install_count = get_user_number_input(
+    install_count = get_number_input(
         f"Number of{if_adding} Klipper instances to set up", 1, default=1
     )
 
@@ -157,7 +157,7 @@ def set_instance_names(instance_list, install_count: int) -> List[Union[str, Non
         # or convert single instance install to multi instance install
         or (instance_count == 1 and install_count >= 1)
     ):
-        if get_user_confirm("Assign custom names?", False):
+        if get_confirm("Assign custom names?", False):
             return assign_custom_names(instance_count, install_count, None)
         else:
             _range = range(1, install_count + 1)
@@ -195,7 +195,7 @@ def assign_custom_names(
 
     for i in range(instance_count + install_count):
         question = f"Enter name for instance {i + 1}"
-        name = get_user_string_input(question, exclude=exclude)
+        name = get_string_input(question, exclude=exclude)
         instance_names.append(name)
         exclude.append(name)
 
@@ -227,7 +227,7 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
     options = [str(i) for i in range(len(instance_list))]
     options.extend(["a", "A", "b", "B"])
 
-    selection = get_user_selection_input("Select Klipper instance to remove", options)
+    selection = get_selection_input("Select Klipper instance to remove", options)
     print(selection)
 
     if selection == "b".lower():
@@ -265,7 +265,7 @@ def check_user_groups():
         return
 
     print_missing_usergroup_dialog(missing_groups)
-    if not get_user_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
+    if not get_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
         Logger.warn(
             "Skipped adding user to required groups. You might encounter issues."
         )
