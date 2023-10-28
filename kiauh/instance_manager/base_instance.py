@@ -19,8 +19,13 @@ class BaseInstance(ABC):
     def blacklist(cls) -> List[str]:
         return []
 
-    def __init__(self, prefix: Optional[str], name: Optional[str],
-        user: Optional[str], data_dir_name: Optional[str]):
+    def __init__(
+        self,
+        prefix: Optional[str],
+        name: Optional[str],
+        user: Optional[str],
+        data_dir_name: Optional[str],
+    ):
         self._prefix = prefix
         self._name = name
         self._user = user
@@ -82,4 +87,5 @@ class BaseInstance(ABC):
     @abstractmethod
     def get_service_file_name(self) -> str:
         raise NotImplementedError(
-            "Subclasses must implement the get_service_file_name method")
+            "Subclasses must implement the get_service_file_name method"
+        )

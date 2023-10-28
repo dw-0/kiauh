@@ -15,8 +15,13 @@ import textwrap
 from abc import abstractmethod, ABC
 from typing import Dict, Any
 
-from kiauh.utils.constants import COLOR_GREEN, COLOR_YELLOW, COLOR_RED, \
-    COLOR_CYAN, RESET_FORMAT
+from kiauh.utils.constants import (
+    COLOR_GREEN,
+    COLOR_YELLOW,
+    COLOR_RED,
+    COLOR_CYAN,
+    RESET_FORMAT,
+)
 
 
 def clear():
@@ -24,58 +29,70 @@ def clear():
 
 
 def print_header():
-    header = textwrap.dedent(f"""
+    header = textwrap.dedent(
+        f"""
         /=======================================================\\
         |     {COLOR_CYAN}~~~~~~~~~~~~~~~~~ [ KIAUH ] ~~~~~~~~~~~~~~~~~{RESET_FORMAT}     |
         |     {COLOR_CYAN}   Klipper Installation And Update Helper    {RESET_FORMAT}     |
         |     {COLOR_CYAN}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{RESET_FORMAT}     |
         \=======================================================/
-        """)[1:]
+        """
+    )[1:]
     print(header, end="")
 
 
 def print_quit_footer():
-    footer = textwrap.dedent(f"""
+    footer = textwrap.dedent(
+        f"""
         |-------------------------------------------------------|
         |                        {COLOR_RED}Q) Quit{RESET_FORMAT}                        |
         \=======================================================/
-        """)[1:]
+        """
+    )[1:]
     print(footer, end="")
 
 
 def print_back_footer():
-    footer = textwrap.dedent(f"""
+    footer = textwrap.dedent(
+        f"""
         |-------------------------------------------------------|
         |                       {COLOR_GREEN}B) « Back{RESET_FORMAT}                       |
         \=======================================================/
-        """)[1:]
+        """
+    )[1:]
     print(footer, end="")
 
 
 def print_back_help_footer():
-    footer = textwrap.dedent(f"""
+    footer = textwrap.dedent(
+        f"""
         |-------------------------------------------------------|
         |         {COLOR_GREEN}B) « Back{RESET_FORMAT}         |          {COLOR_RED}Q) Quit{RESET_FORMAT}          |
         \=======================================================/
-        """)[1:]
+        """
+    )[1:]
     print(footer, end="")
 
 
 def print_back_quit_footer():
-    footer = textwrap.dedent(f"""
+    footer = textwrap.dedent(
+        f"""
         |-------------------------------------------------------|
         |         {COLOR_GREEN}B) « Back{RESET_FORMAT}         |        {COLOR_YELLOW}H) Help [?]{RESET_FORMAT}        |
         \=======================================================/
-        """)[1:]
+        """
+    )[1:]
     print(footer, end="")
 
 
 def print_back_quit_help_footer():
-    footer = textwrap.dedent(f"""
+    footer = textwrap.dedent(
+        f"""
         |-------------------------------------------------------|
         |     {COLOR_GREEN}B) « Back{RESET_FORMAT}    |    {COLOR_RED}Q) Quit{RESET_FORMAT}    |    {COLOR_YELLOW}H) Help [?]{RESET_FORMAT}     |
         \=======================================================/
-        """)[1:]
+        """
+    )[1:]
     print(footer, end="")
 
 
@@ -86,8 +103,9 @@ class BaseMenu(ABC):
     BACK_QUIT_FOOTER = "back_quit"
     BACK_QUIT_HELP_FOOTER = "back_quit_help"
 
-    def __init__(self, options: Dict[int, Any], options_offset=0, header=True,
-        footer_type="quit"):
+    def __init__(
+        self, options: Dict[int, Any], options_offset=0, header=True, footer_type="quit"
+    ):
         self.options = options
         self.options_offset = options_offset
         self.header = header
@@ -95,8 +113,7 @@ class BaseMenu(ABC):
 
     @abstractmethod
     def print_menu(self):
-        raise NotImplementedError(
-            "Subclasses must implement the print_menu method")
+        raise NotImplementedError("Subclasses must implement the print_menu method")
 
     def print_footer(self):
         footer_type_map = {
@@ -104,10 +121,9 @@ class BaseMenu(ABC):
             self.BACK_FOOTER: print_back_footer,
             self.BACK_HELP_FOOTER: print_back_help_footer,
             self.BACK_QUIT_FOOTER: print_back_quit_footer,
-            self.BACK_QUIT_HELP_FOOTER: print_back_quit_help_footer
+            self.BACK_QUIT_HELP_FOOTER: print_back_quit_help_footer,
         }
-        footer_function = footer_type_map.get(self.footer_type,
-                                              print_quit_footer)
+        footer_function = footer_type_map.get(self.footer_type, print_quit_footer)
         footer_function()
 
     def display(self):
@@ -121,9 +137,11 @@ class BaseMenu(ABC):
         while True:
             choice = input(f"{COLOR_CYAN}###### Perform action: {RESET_FORMAT}")
 
-            error_msg = f"{COLOR_RED}Invalid input.{RESET_FORMAT}" \
-                if choice.isalpha() \
+            error_msg = (
+                f"{COLOR_RED}Invalid input.{RESET_FORMAT}"
+                if choice.isalpha()
                 else f"{COLOR_RED}Invalid input. Select a number between {min(self.options)} and {max(self.options)}.{RESET_FORMAT}"
+            )
 
             if choice.isdigit() and 0 <= int(choice) < len(self.options):
                 return choice
@@ -133,10 +151,12 @@ class BaseMenu(ABC):
                     "back": ["b"],
                     "back_help": ["b", "h"],
                     "back_quit": ["b", "q"],
-                    "back_quit_help": ["b", "q", "h"]
+                    "back_quit_help": ["b", "q", "h"],
                 }
-                if self.footer_type in allowed_input and choice.lower() in \
-                    allowed_input[self.footer_type]:
+                if (
+                    self.footer_type in allowed_input
+                    and choice.lower() in allowed_input[self.footer_type]
+                ):
                     return choice
                 else:
                     print(error_msg)
@@ -169,7 +189,8 @@ class BaseMenu(ABC):
             raise NotImplementedError(f"No implementation for option {choice}")
         else:
             raise TypeError(
-                f"Type {type(option)} of option {choice} not of type BaseMenu or Method")
+                f"Type {type(option)} of option {choice} not of type BaseMenu or Method"
+            )
 
     def navigate_to_submenu(self, submenu_class):
         submenu = submenu_class()

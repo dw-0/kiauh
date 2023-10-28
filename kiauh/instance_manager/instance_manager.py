@@ -22,11 +22,16 @@ from kiauh.utils.logger import Logger
 
 # noinspection PyMethodMayBeStatic
 class InstanceManager:
-    def __init__(self, instance_type: Type[BaseInstance],
-        current_instance: Optional[BaseInstance] = None) -> None:
+    def __init__(
+        self,
+        instance_type: Type[BaseInstance],
+        current_instance: Optional[BaseInstance] = None,
+    ) -> None:
         self.instance_type = instance_type
         self.current_instance = current_instance
-        self.instance_name = current_instance.name if current_instance is not None else None
+        self.instance_name = (
+            current_instance.name if current_instance is not None else None
+        )
         self.instances = []
 
     def get_current_instance(self) -> BaseInstance:
@@ -34,7 +39,9 @@ class InstanceManager:
 
     def set_current_instance(self, instance: BaseInstance) -> None:
         self.current_instance = instance
-        self.instance_name = f"{instance.prefix}-{instance.name}" if instance.name else instance.prefix
+        self.instance_name = (
+            f"{instance.prefix}-{instance.name}" if instance.name else instance.prefix
+        )
 
     def create_instance(self) -> None:
         if self.current_instance is not None:
@@ -59,49 +66,41 @@ class InstanceManager:
     def enable_instance(self) -> None:
         Logger.print_info(f"Enabling {self.instance_name}.service ...")
         try:
-            command = ["sudo", "systemctl", "enable",
-                       f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "enable", f"{self.instance_name}.service"]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_name}.service enabled.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error enabling service {self.instance_name}.service:")
+            Logger.print_error(f"Error enabling service {self.instance_name}.service:")
             Logger.print_error(f"{e}")
 
     def disable_instance(self) -> None:
         Logger.print_info(f"Disabling {self.instance_name}.service ...")
         try:
-            command = ["sudo", "systemctl", "disable",
-                       f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "disable", f"{self.instance_name}.service"]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_name}.service disabled.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error disabling service {self.instance_name}.service:")
+            Logger.print_error(f"Error disabling service {self.instance_name}.service:")
             Logger.print_error(f"{e}")
 
     def start_instance(self) -> None:
         Logger.print_info(f"Starting {self.instance_name}.service ...")
         try:
-            command = ["sudo", "systemctl", "start",
-                       f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "start", f"{self.instance_name}.service"]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_name}.service started.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error starting service {self.instance_name}.service:")
+            Logger.print_error(f"Error starting service {self.instance_name}.service:")
             Logger.print_error(f"{e}")
 
     def stop_instance(self) -> None:
         Logger.print_info(f"Stopping {self.instance_name}.service ...")
         try:
-            command = ["sudo", "systemctl", "stop",
-                       f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "stop", f"{self.instance_name}.service"]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_name}.service stopped.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error stopping service {self.instance_name}.service:")
+            Logger.print_error(f"Error stopping service {self.instance_name}.service:")
             Logger.print_error(f"{e}")
             raise
 
@@ -120,8 +119,7 @@ class InstanceManager:
         if not self.instances:
             self._find_instances()
 
-        return sorted(self.instances,
-                      key=lambda x: self._sort_instance_list(x.name))
+        return sorted(self.instances, key=lambda x: self._sort_instance_list(x.name))
 
     def _find_instances(self) -> None:
         prefix = self.instance_type.__name__.lower()
@@ -131,12 +129,13 @@ class InstanceManager:
         service_list = [
             os.path.join(SYSTEMD, service)
             for service in os.listdir(SYSTEMD)
-            if pattern.search(service)
-               and not any(s in service for s in excluded)]
+            if pattern.search(service) and not any(s in service for s in excluded)
+        ]
 
         instance_list = [
             self.instance_type(name=self._get_instance_name(Path(service)))
-            for service in service_list]
+            for service in service_list
+        ]
 
         self.instances = instance_list
 

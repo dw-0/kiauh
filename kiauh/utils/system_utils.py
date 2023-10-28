@@ -57,7 +57,8 @@ def clone_repo(target_dir: Path, url: str, branch: str) -> None:
             print("Error cloning repository:", e.output.decode())
     else:
         overwrite_target = get_user_confirm(
-            "Target directory already exists. Overwrite?")
+            "Target directory already exists. Overwrite?"
+        )
         if overwrite_target:
             try:
                 shutil.rmtree(target_dir)
@@ -71,13 +72,13 @@ def clone_repo(target_dir: Path, url: str, branch: str) -> None:
 def parse_packages_from_file(source_file) -> List[str]:
     packages = []
     print("Reading dependencies...")
-    with open(source_file, 'r') as file:
+    with open(source_file, "r") as file:
         for line in file:
             line = line.strip()
             if line.startswith("PKGLIST="):
-                line = line.replace("\"", "")
+                line = line.replace('"', "")
                 line = line.replace("PKGLIST=", "")
-                line = line.replace('${PKGLIST}', '')
+                line = line.replace("${PKGLIST}", "")
                 packages.extend(line.split())
     return packages
 
@@ -97,16 +98,15 @@ def create_python_venv(target: Path) -> None:
         except subprocess.CalledProcessError as e:
             print("Error setting up virtualenv:", e.output.decode())
     else:
-        overwrite_venv = get_user_confirm(
-            "Virtualenv already exists. Re-create?")
+        overwrite_venv = get_user_confirm("Virtualenv already exists. Re-create?")
         if overwrite_venv:
             try:
                 shutil.rmtree(target)
                 create_python_venv(target)
             except OSError as e:
                 Logger.print_error(
-                    f"Error removing existing virtualenv: {e.strerror}",
-                    False)
+                    f"Error removing existing virtualenv: {e.strerror}", False
+                )
         else:
             print("Skipping re-creation of virtualenv ...")
 
@@ -144,10 +144,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
 
 def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     cache_mtime = 0
-    cache_files = [
-        "/var/lib/apt/periodic/update-success-stamp",
-        "/var/lib/apt/lists"
-    ]
+    cache_files = ["/var/lib/apt/periodic/update-success-stamp", "/var/lib/apt/lists"]
     for cache_file in cache_files:
         if Path(cache_file).exists():
             cache_mtime = max(cache_mtime, os.path.getmtime(cache_file))
@@ -196,8 +193,7 @@ def create_directory(_dir: Path) -> None:
             os.makedirs(_dir, exist_ok=True)
             Logger.print_ok("Directory created!")
         else:
-            Logger.print_info(
-                f"Directory already exists: {_dir}\nSkip creation ...")
+            Logger.print_info(f"Directory already exists: {_dir}\nSkip creation ...")
     except OSError as e:
         Logger.print_error(f"Error creating folder: {e}")
         raise
@@ -208,5 +204,7 @@ def mask_system_service(service_name: str) -> None:
         command = ["sudo", "systemctl", "mask", service_name]
         subprocess.run(command, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as e:
-        Logger.print_error(f"Unable to mask system service {service_name}: {e.stderr.decode()}")
+        Logger.print_error(
+            f"Unable to mask system service {service_name}: {e.stderr.decode()}"
+        )
         raise

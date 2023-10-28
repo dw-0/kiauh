@@ -9,12 +9,16 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from kiauh.utils.constants import COLOR_GREEN, COLOR_YELLOW, COLOR_RED, \
-    COLOR_MAGENTA, RESET_FORMAT
+from kiauh.utils.constants import (
+    COLOR_GREEN,
+    COLOR_YELLOW,
+    COLOR_RED,
+    COLOR_MAGENTA,
+    RESET_FORMAT,
+)
 
 
 class Logger:
-
     @staticmethod
     def info(msg):
         # log to kiauh.log

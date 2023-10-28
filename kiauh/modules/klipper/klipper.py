@@ -10,7 +10,6 @@
 # ======================================================================= #
 
 import os
-import pwd
 import shutil
 import subprocess
 from pathlib import Path
@@ -29,10 +28,12 @@ class Klipper(BaseInstance):
         return ["None", "mcu"]
 
     def __init__(self, name: str):
-        super().__init__(name=name,
-                         prefix="klipper",
-                         user=CURRENT_USER,
-                         data_dir_name=self._get_data_dir_from_name(name))
+        super().__init__(
+            name=name,
+            prefix="klipper",
+            user=CURRENT_USER,
+            data_dir_name=self._get_data_dir_from_name(name),
+        )
         self.klipper_dir = KLIPPER_DIR
         self.env_dir = KLIPPER_ENV_DIR
         self.cfg_file = f"{self.cfg_dir}/printer.cfg"
@@ -43,26 +44,35 @@ class Klipper(BaseInstance):
     def create(self) -> None:
         Logger.print_info("Creating Klipper Instance")
         module_path = os.path.dirname(os.path.abspath(__file__))
-        service_template_path = os.path.join(module_path, "res",
-                                             "klipper.service")
+        service_template_path = os.path.join(module_path, "res", "klipper.service")
         env_template_file_path = os.path.join(module_path, "res", "klipper.env")
         service_file_name = self.get_service_file_name(extension=True)
         service_file_target = f"{SYSTEMD}/{service_file_name}"
         env_file_target = os.path.abspath(f"{self.sysd_dir}/klipper.env")
 
         # create folder structure
-        dirs = [self.data_dir, self.cfg_dir, self.log_dir,
-                self.comms_dir, self.sysd_dir]
+        dirs = [
+            self.data_dir,
+            self.cfg_dir,
+            self.log_dir,
+            self.comms_dir,
+            self.sysd_dir,
+        ]
         for _dir in dirs:
             create_directory(Path(_dir))
 
         try:
             # writing the klipper service file (requires sudo!)
-            service_content = self._prep_service_file(service_template_path,
-                                                      env_file_target)
+            service_content = self._prep_service_file(
+                service_template_path, env_file_target
+            )
             command = ["sudo", "tee", service_file_target]
-            subprocess.run(command, input=service_content.encode(),
-                           stdout=subprocess.DEVNULL, check=True)
+            subprocess.run(
+                command,
+                input=service_content.encode(),
+                stdout=subprocess.DEVNULL,
+                check=True,
+            )
             Logger.print_ok(f"Service file created: {service_file_target}")
 
             # writing the klipper.env file
@@ -73,11 +83,11 @@ class Klipper(BaseInstance):
 
         except subprocess.CalledProcessError as e:
             Logger.print_error(
-                f"Error creating service file {service_file_target}: {e}")
+                f"Error creating service file {service_file_target}: {e}"
+            )
             raise
         except OSError as e:
-            Logger.print_error(
-                f"Error creating env file {env_file_target}: {e}")
+            Logger.print_error(f"Error creating env file {env_file_target}: {e}")
             raise
 
     def read(self) -> None:
@@ -118,7 +128,7 @@ class Klipper(BaseInstance):
         Logger.print_ok("Directories successfully deleted.")
 
     def get_service_file_name(self, extension=False) -> str:
-        name = self.prefix if self.name is None else self.prefix + '-' + self.name
+        name = self.prefix if self.name is None else self.prefix + "-" + self.name
         return name if not extension else f"{name}.service"
 
     def _get_service_file_path(self):
@@ -138,11 +148,11 @@ class Klipper(BaseInstance):
                 template_content = template_file.read()
         except FileNotFoundError:
             Logger.print_error(
-                f"Unable to open {service_template_path} - File not found")
+                f"Unable to open {service_template_path} - File not found"
+            )
             raise
         service_content = template_content.replace("%USER%", self.user)
-        service_content = service_content.replace("%KLIPPER_DIR%",
-                                                  self.klipper_dir)
+        service_content = service_content.replace("%KLIPPER_DIR%", self.klipper_dir)
         service_content = service_content.replace("%ENV%", self.env_dir)
         service_content = service_content.replace("%ENV_FILE%", env_file_path)
         return service_content
@@ -153,10 +163,12 @@ class Klipper(BaseInstance):
                 env_template_file_content = env_file.read()
         except FileNotFoundError:
             Logger.print_error(
-                f"Unable to open {env_template_file_path} - File not found")
+                f"Unable to open {env_template_file_path} - File not found"
+            )
             raise
-        env_file_content = env_template_file_content.replace("%KLIPPER_DIR%",
-                                                             self.klipper_dir)
+        env_file_content = env_template_file_content.replace(
+            "%KLIPPER_DIR%", self.klipper_dir
+        )
         env_file_content = env_file_content.replace("%CFG%", self.cfg_file)
         env_file_content = env_file_content.replace("%SERIAL%", self.serial)
         env_file_content = env_file_content.replace("%LOG%", self.log)

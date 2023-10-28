@@ -15,6 +15,6 @@ from kiauh.utils.logger import Logger
 
 def main():
     try:
-     MainMenu().start()
+        MainMenu().start()
     except KeyboardInterrupt:
         Logger.print_ok("\nHappy printing!\n", prefix=False)

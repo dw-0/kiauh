@@ -35,11 +35,12 @@ class UpdateMenu(BaseMenu):
                 11: self.update_crowsnest,
                 12: self.upgrade_system_packages,
             },
-            footer_type="back"
+            footer_type="back",
         )
 
     def print_menu(self):
-        menu = textwrap.dedent(f"""
+        menu = textwrap.dedent(
+            f"""
             /=======================================================\\
             |     {COLOR_GREEN}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~{RESET_FORMAT}     |
             |-------------------------------------------------------|
@@ -65,7 +66,8 @@ class UpdateMenu(BaseMenu):
             | 11) [Crowsnest]         |              |              |
             |                         |-----------------------------|
             | 12) [System]            |              |              |
-            """)[1:]
+            """
+        )[1:]
         print(menu, end="")
 
     def update_all(self):

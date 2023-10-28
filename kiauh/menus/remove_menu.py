@@ -38,11 +38,12 @@ class RemoveMenu(BaseMenu):
                 14: self.remove_mobileraker,
                 15: self.remove_nginx,
             },
-            footer_type="back"
+            footer_type="back",
         )
 
     def print_menu(self):
-        menu = textwrap.dedent(f"""
+        menu = textwrap.dedent(
+            f"""
             /=======================================================\\
             |     {COLOR_RED}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~{RESET_FORMAT}     |
             |-------------------------------------------------------|
@@ -60,7 +61,8 @@ class RemoveMenu(BaseMenu):
             |                           | 14) [Mobileraker]         |
             | Touchscreen GUI:          | 15) [NGINX]               |
             |  7) [KlipperScreen]       |                           |
-            """)[1:]
+            """
+        )[1:]
         print(menu, end="")
 
     def remove_klipper(self):

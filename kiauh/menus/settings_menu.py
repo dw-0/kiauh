@@ -15,10 +15,7 @@ from kiauh.menus.base_menu import BaseMenu
 # noinspection PyMethodMayBeStatic
 class SettingsMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={}
-            )
+        super().__init__(header=True, options={})
 
     def print_menu(self):
         print("self")

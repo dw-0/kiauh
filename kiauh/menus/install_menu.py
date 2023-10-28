@@ -32,13 +32,14 @@ class InstallMenu(BaseMenu):
                 8: self.install_obico,
                 9: self.install_octoeverywhere,
                 10: self.install_mobileraker,
-                11: self.install_crowsnest
+                11: self.install_crowsnest,
             },
-            footer_type="back"
+            footer_type="back",
         )
 
     def print_menu(self):
-        menu = textwrap.dedent(f"""
+        menu = textwrap.dedent(
+            f"""
             /=======================================================\\
             |     {COLOR_GREEN}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~{RESET_FORMAT}     |
             |-------------------------------------------------------|
@@ -56,7 +57,8 @@ class InstallMenu(BaseMenu):
             |                          | Webcam Streamer:           |
             | Touchscreen GUI:         | 11) [Crowsnest]            |
             |  5) [KlipperScreen]      |                            |
-            """)[1:]
+            """
+        )[1:]
         print(menu, end="")
 
     def install_klipper(self):

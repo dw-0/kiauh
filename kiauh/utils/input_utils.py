@@ -11,8 +11,8 @@
 
 from typing import Optional, List
 
-from kiauh.utils.logger import Logger
 from kiauh.utils.constants import COLOR_CYAN, RESET_FORMAT
+from kiauh.utils.logger import Logger
 
 
 def get_user_confirm(question: str, default_choice=True) -> bool:
@@ -30,7 +30,8 @@ def get_user_confirm(question: str, default_choice=True) -> bool:
         choice = (
             input(f"{COLOR_CYAN}###### {question} {def_choice} {RESET_FORMAT}")
             .strip()
-            .lower())
+            .lower()
+        )
 
         if choice in options_confirm:
             return True
@@ -40,8 +41,9 @@ def get_user_confirm(question: str, default_choice=True) -> bool:
             Logger.print_error("Invalid choice. Please select 'y' or 'n'.")
 
 
-def get_user_number_input(question: str, min_count: int, max_count=None,
-    default=None) -> int:
+def get_user_number_input(
+    question: str, min_count: int, max_count=None, default=None
+) -> int:
     _question = question + f" (default={default})" if default else question
     _question = f"{COLOR_CYAN}###### {_question}: {RESET_FORMAT}"
     while True:
@@ -65,8 +67,7 @@ def get_user_number_input(question: str, min_count: int, max_count=None,
 
 def get_user_string_input(question: str, exclude=Optional[List]) -> str:
     while True:
-        _input = (input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}")
-                  .strip())
+        _input = input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}").strip()
 
         if _input.isalnum() and _input not in exclude:
             return _input
@@ -78,8 +79,7 @@ def get_user_string_input(question: str, exclude=Optional[List]) -> str:
 
 def get_user_selection_input(question: str, option_list: List) -> str:
     while True:
-        _input = (input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}")
-                  .strip())
+        _input = input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}").strip()
 
         if _input in option_list:
             return _input

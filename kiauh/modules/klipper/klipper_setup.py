@@ -19,15 +19,27 @@ from typing import Optional, List, Union
 
 from kiauh.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_utils import print_instance_overview, print_missing_usergroup_dialog
+from kiauh.modules.klipper.klipper_utils import (
+    print_instance_overview,
+    print_missing_usergroup_dialog,
+)
 from kiauh.utils.constants import CURRENT_USER, KLIPPER_DIR, KLIPPER_ENV_DIR
-from kiauh.utils.input_utils import get_user_confirm, get_user_number_input, \
-    get_user_string_input, get_user_selection_input
+from kiauh.utils.input_utils import (
+    get_user_confirm,
+    get_user_number_input,
+    get_user_string_input,
+    get_user_selection_input,
+)
 from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import parse_packages_from_file, \
-    clone_repo, create_python_venv, \
-    install_python_requirements, update_system_package_lists, \
-    install_system_packages, mask_system_service
+from kiauh.utils.system_utils import (
+    parse_packages_from_file,
+    clone_repo,
+    create_python_venv,
+    install_python_requirements,
+    update_system_package_lists,
+    install_system_packages,
+    mask_system_service,
+)
 
 
 def run_klipper_setup(install: bool) -> None:
@@ -81,8 +93,8 @@ def install_klipper(instance_manager: InstanceManager) -> None:
     instance_list = instance_manager.get_instances()
     if_adding = " additional" if len(instance_list) > 0 else ""
     install_count = get_user_number_input(
-        f"Number of{if_adding} Klipper instances to set up",
-        1, default=1)
+        f"Number of{if_adding} Klipper instances to set up", 1, default=1
+    )
 
     instance_names = set_instance_names(instance_list, install_count)
 
@@ -132,8 +144,7 @@ def install_klipper_packages(klipper_dir: Path) -> None:
     install_system_packages(packages)
 
 
-def set_instance_names(instance_list, install_count: int) -> List[
-    Union[str, None]]:
+def set_instance_names(instance_list, install_count: int) -> List[Union[str, None]]:
     instance_count = len(instance_list)
 
     # default single instance install
@@ -141,9 +152,11 @@ def set_instance_names(instance_list, install_count: int) -> List[
         return [None]
 
     # new multi instance install
-    elif ((instance_count == 0 and install_count > 1)
-          # or convert single instance install to multi instance install
-          or (instance_count == 1 and install_count >= 1)):
+    elif (
+        (instance_count == 0 and install_count > 1)
+        # or convert single instance install to multi instance install
+        or (instance_count == 1 and install_count >= 1)
+    ):
         if get_user_confirm("Assign custom names?", False):
             return assign_custom_names(instance_count, install_count, None)
         else:
@@ -153,8 +166,7 @@ def set_instance_names(instance_list, install_count: int) -> List[
     # existing multi instance install
     elif instance_count > 1:
         if has_custom_names(instance_list):
-            return assign_custom_names(instance_count, install_count,
-                                       instance_list)
+            return assign_custom_names(instance_count, install_count, instance_list)
         else:
             start = get_highest_index(instance_list) + 1
             _range = range(start, start + install_count)
@@ -170,8 +182,9 @@ def has_custom_names(instance_list: List[Klipper]) -> bool:
     return False
 
 
-def assign_custom_names(instance_count: int, install_count: int,
-    instance_list: Optional[List[Klipper]]) -> List[str]:
+def assign_custom_names(
+    instance_count: int, install_count: int, instance_list: Optional[List[Klipper]]
+) -> List[str]:
     instance_names = []
     exclude = Klipper.blacklist()
 
@@ -190,7 +203,7 @@ def assign_custom_names(instance_count: int, install_count: int,
 
 
 def get_highest_index(instance_list: List[Klipper]) -> int:
-    indices = [int(instance.name.split('-')[-1]) for instance in instance_list]
+    indices = [int(instance.name.split("-")[-1]) for instance in instance_list]
     return max(indices)
 
 
@@ -209,14 +222,12 @@ def remove_single_instance(instance_manager: InstanceManager) -> None:
 
 def remove_multi_instance(instance_manager: InstanceManager) -> None:
     instance_list = instance_manager.get_instances()
-    print_instance_overview(instance_list, show_index=True,
-                            show_select_all=True)
+    print_instance_overview(instance_list, show_index=True, show_select_all=True)
 
     options = [str(i) for i in range(len(instance_list))]
     options.extend(["a", "A", "b", "B"])
 
-    selection = get_user_selection_input(
-        "Select Klipper instance to remove", options)
+    selection = get_user_selection_input("Select Klipper instance to remove", options)
     print(selection)
 
     if selection == "b".lower():
@@ -231,7 +242,8 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
     else:
         instance = instance_list[int(selection)]
         Logger.print_info(
-            f"Removing Klipper instance: {instance.get_service_file_name()}")
+            f"Removing Klipper instance: {instance.get_service_file_name()}"
+        )
         instance_manager.set_current_instance(instance)
         instance_manager.stop_instance()
         instance_manager.disable_instance()
@@ -254,7 +266,9 @@ def check_user_groups():
 
     print_missing_usergroup_dialog(missing_groups)
     if not get_user_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
-        Logger.warn("Skipped adding user to required groups. You might encounter issues.")
+        Logger.warn(
+            "Skipped adding user to required groups. You might encounter issues."
+        )
         return
 
     try:
@@ -267,13 +281,19 @@ def check_user_groups():
         Logger.print_error(f"Unable to add user to usergroups: {e}")
         raise
 
-    Logger.print_warn("Remember to relog/restart this machine for the group(s) to be applied!")
+    Logger.print_warn(
+        "Remember to relog/restart this machine for the group(s) to be applied!"
+    )
 
 
 def handle_disruptive_system_packages() -> None:
     services = []
-    brltty_status = subprocess.run(["systemctl", "is-enabled", "brltty"], capture_output=True, text=True)
-    modem_manager_status = subprocess.run(["systemctl", "is-enabled", "ModemManager"], capture_output=True, text=True)
+    brltty_status = subprocess.run(
+        ["systemctl", "is-enabled", "brltty"], capture_output=True, text=True
+    )
+    modem_manager_status = subprocess.run(
+        ["systemctl", "is-enabled", "ModemManager"], capture_output=True, text=True
+    )
 
     if "enabled" in brltty_status.stdout:
         services.append("brltty")
@@ -282,13 +302,17 @@ def handle_disruptive_system_packages() -> None:
 
     for service in services if services else []:
         try:
-            Logger.print_info(f"{service} service detected! Masking {service} service ...")
+            Logger.print_info(
+                f"{service} service detected! Masking {service} service ..."
+            )
             mask_system_service(service)
             Logger.print_ok(f"{service} service masked!")
         except subprocess.CalledProcessError:
-            warn_msg = textwrap.dedent(f"""
+            warn_msg = textwrap.dedent(
+                f"""
             KIAUH was unable to mask the {service} system service. 
             Please fix the problem manually. Otherwise, this may have 
             undesirable effects on the operation of Klipper.
-            """)[1:]
+            """
+            )[1:]
             Logger.print_warn(warn_msg)

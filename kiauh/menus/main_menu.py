@@ -31,13 +31,14 @@ class MainMenu(BaseMenu):
                 3: RemoveMenu,
                 4: AdvancedMenu,
                 5: None,
-                6: SettingsMenu
+                6: SettingsMenu,
             },
-            footer_type="quit"
+            footer_type="quit",
         )
 
     def print_menu(self):
-        menu = textwrap.dedent(f"""
+        menu = textwrap.dedent(
+            f"""
             /=======================================================\\
             |     {COLOR_CYAN}~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~{RESET_FORMAT}     |
             |-------------------------------------------------------|
@@ -58,7 +59,8 @@ class MainMenu(BaseMenu):
             |                  |  OctoEverywhere: <TODO>            |
             |-------------------------------------------------------|
             |  {COLOR_CYAN}KIAUH v6.0.0{RESET_FORMAT}    |    Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT} |
-            """)[1:]
+            """
+        )[1:]
         print(menu, end="")
 
     def test(self):
