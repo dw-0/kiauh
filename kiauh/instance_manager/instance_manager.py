@@ -148,4 +148,7 @@ class InstanceManager:
         return full_name.split("-")[-1]
 
     def _sort_instance_list(self, s):
+        if s is None:
+            return
+
         return int(s) if s.isdigit() else s
