@@ -18,8 +18,8 @@ from pathlib import Path
 from typing import List
 
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
-from kiauh.utils.logger import Logger
 from kiauh.utils.input_utils import get_user_confirm
+from kiauh.utils.logger import Logger
 
 
 def kill(opt_err_msg=None) -> None:
@@ -200,4 +200,13 @@ def create_directory(_dir: Path) -> None:
                 f"Directory already exists: {_dir}\nSkip creation ...")
     except OSError as e:
         Logger.print_error(f"Error creating folder: {e}")
+        raise
+
+
+def mask_system_service(service_name: str) -> None:
+    try:
+        command = ["sudo", "systemctl", "mask", service_name]
+        subprocess.run(command, stderr=subprocess.PIPE, check=True)
+    except subprocess.CalledProcessError as e:
+        Logger.print_error(f"Unable to mask system service {service_name}: {e.stderr.decode()}")
         raise

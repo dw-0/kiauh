@@ -9,10 +9,11 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+import grp
 import os
 import re
-import grp
 import subprocess
+import textwrap
 from pathlib import Path
 from typing import Optional, List, Union
 
@@ -26,7 +27,7 @@ from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import parse_packages_from_file, \
     clone_repo, create_python_venv, \
     install_python_requirements, update_system_package_lists, \
-    install_system_packages
+    install_system_packages, mask_system_service
 
 
 def run_klipper_setup(install: bool) -> None:
@@ -98,6 +99,7 @@ def install_klipper(instance_manager: InstanceManager) -> None:
     instance_manager.reload_daemon()
 
     # step 4: check/handle conflicting packages/services
+    handle_disruptive_system_packages()
 
     # step 5: check for required group membership
     check_user_groups()
@@ -237,6 +239,7 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
 
     instance_manager.reload_daemon()
 
+
 def check_user_groups():
     current_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
 
@@ -265,3 +268,27 @@ def check_user_groups():
         raise
 
     Logger.print_warn("Remember to relog/restart this machine for the group(s) to be applied!")
+
+
+def handle_disruptive_system_packages() -> None:
+    services = []
+    brltty_status = subprocess.run(["systemctl", "is-enabled", "brltty"], capture_output=True, text=True)
+    modem_manager_status = subprocess.run(["systemctl", "is-enabled", "ModemManager"], capture_output=True, text=True)
+
+    if "enabled" in brltty_status.stdout:
+        services.append("brltty")
+    if "enabled" in modem_manager_status.stdout:
+        services.append("ModemManager")
+
+    for service in services if services else []:
+        try:
+            Logger.print_info(f"{service} service detected! Masking {service} service ...")
+            mask_system_service(service)
+            Logger.print_ok(f"{service} service masked!")
+        except subprocess.CalledProcessError:
+            warn_msg = textwrap.dedent(f"""
+            KIAUH was unable to mask the {service} system service. 
+            Please fix the problem manually. Otherwise, this may have 
+            undesirable effects on the operation of Klipper.
+            """)[1:]
+            Logger.print_warn(warn_msg)
