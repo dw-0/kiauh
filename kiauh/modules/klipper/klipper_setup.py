@@ -17,6 +17,7 @@ import textwrap
 from pathlib import Path
 from typing import Optional, List, Union
 
+from kiauh.config_manager.config_manager import ConfigManager
 from kiauh.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_utils import (
@@ -118,10 +119,18 @@ def install_klipper(instance_manager: InstanceManager) -> None:
 
 
 def setup_klipper_prerequesites() -> None:
-    # clone klipper TODO: read branch and url from json to allow forks
+    cm = ConfigManager()
+    cm.read_config()
+
+    repo = (
+        cm.get_value("klipper", "repository_url")
+        or "https://github.com/Klipper3D/klipper"
+    )
+    branch = cm.get_value("klipper", "branch") or "master"
+
     repo_manager = RepoManager(
-        repo="https://github.com/Klipper3D/klipper",
-        branch="master",
+        repo=repo,
+        branch=branch,
         target_dir=KLIPPER_DIR,
     )
     repo_manager.clone_repo()

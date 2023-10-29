@@ -3,6 +3,4 @@
 .pytest_cache
 .kiauh-env
 *.code-workspace
-klipper_repos.txt
-klipper_repos.json
-
+kiauh.cfg

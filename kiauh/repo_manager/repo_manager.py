@@ -9,10 +9,9 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+import os
 import shutil
 import subprocess
-from pathlib import Path
-from typing import Union
 
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
@@ -62,12 +61,11 @@ class RepoManager:
         log = f"Cloning repository from '{self.repo}' with method '{self.method}'"
         Logger.print_info(log)
         try:
-            question = "Target directory already exists. Overwrite?"
-            if Path(self.target_dir).exists() and get_confirm(question):
+            if os.path.exists(self.target_dir):
+                if not get_confirm("Target directory already exists. Overwrite?"):
+                    Logger.print_info("Skipping re-clone of repository ...")
+                    return
                 shutil.rmtree(self.target_dir)
-            else:
-                Logger.print_info("Skipping re-clone of repository ...")
-                return
 
             self._clone()
             self._checkout()
@@ -81,7 +79,7 @@ class RepoManager:
 
     def _clone(self):
         try:
-            command = ["git", "clone", f"{self.repo}"]
+            command = ["git", "clone", self.repo, self.target_dir]
             subprocess.run(command, check=True)
 
             Logger.print_ok("Clone successfull!")

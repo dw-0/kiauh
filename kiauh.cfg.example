@@ -1,0 +1,12 @@
+[kiauh]
+backup_before_update: False
+
+[klipper]
+repository_url: https://github.com/Klipper3d/klipper
+branch: master
+method: https
+
+[moonraker]
+repository_url: https://github.com/Klipper3d/klipper
+branch: master
+method: https
