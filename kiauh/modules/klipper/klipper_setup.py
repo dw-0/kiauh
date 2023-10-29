@@ -23,6 +23,7 @@ from kiauh.modules.klipper.klipper_utils import (
     print_instance_overview,
     print_missing_usergroup_dialog,
 )
+from kiauh.repo_manager.repo_manager import RepoManager
 from kiauh.utils.constants import CURRENT_USER, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.utils.input_utils import (
     get_confirm,
@@ -33,7 +34,6 @@ from kiauh.utils.input_utils import (
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     parse_packages_from_file,
-    clone_repo,
     create_python_venv,
     install_python_requirements,
     update_system_package_lists,
@@ -119,9 +119,12 @@ def install_klipper(instance_manager: InstanceManager) -> None:
 
 def setup_klipper_prerequesites() -> None:
     # clone klipper TODO: read branch and url from json to allow forks
-    url = "https://github.com/Klipper3D/klipper"
-    branch = "master"
-    clone_repo(Path(KLIPPER_DIR), url, branch)
+    repo_manager = RepoManager(
+        repo="https://github.com/Klipper3D/klipper",
+        branch="master",
+        target_dir=KLIPPER_DIR,
+    )
+    repo_manager.clone_repo()
 
     # install klipper dependencies and create python virtualenv
     install_klipper_packages(Path(KLIPPER_DIR))

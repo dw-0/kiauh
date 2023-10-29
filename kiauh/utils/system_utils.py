@@ -42,31 +42,6 @@ def kill(opt_err_msg=None) -> None:
     sys.exit(1)
 
 
-def clone_repo(target_dir: Path, url: str, branch: str) -> None:
-    Logger.print_info(f"Cloning repository from {url}")
-    if not target_dir.exists():
-        try:
-            command = ["git", "clone", f"{url}"]
-            subprocess.run(command, check=True)
-
-            command = ["git", "checkout", f"{branch}"]
-            subprocess.run(command, cwd=target_dir, check=True)
-
-            Logger.print_ok("Clone successfull!")
-        except subprocess.CalledProcessError as e:
-            print("Error cloning repository:", e.output.decode())
-    else:
-        overwrite_target = get_confirm("Target directory already exists. Overwrite?")
-        if overwrite_target:
-            try:
-                shutil.rmtree(target_dir)
-                clone_repo(target_dir, url, branch)
-            except OSError as e:
-                print("Error removing existing repository:", e.strerror)
-        else:
-            print("Skipping re-clone of repository ...")
-
-
 def parse_packages_from_file(source_file) -> List[str]:
     packages = []
     print("Reading dependencies...")
