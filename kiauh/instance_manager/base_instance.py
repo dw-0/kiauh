@@ -73,14 +73,6 @@ class BaseInstance(ABC):
         raise NotImplementedError("Subclasses must implement the create method")
 
     @abstractmethod
-    def read(self) -> None:
-        raise NotImplementedError("Subclasses must implement the read method")
-
-    @abstractmethod
-    def update(self) -> None:
-        raise NotImplementedError("Subclasses must implement the update method")
-
-    @abstractmethod
     def delete(self, del_remnants: bool) -> None:
         raise NotImplementedError("Subclasses must implement the delete method")
 

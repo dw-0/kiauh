@@ -50,36 +50,12 @@ class Klipper(BaseInstance):
         service_file_target = f"{SYSTEMD}/{service_file_name}"
         env_file_target = os.path.abspath(f"{self.sysd_dir}/klipper.env")
 
-        # create folder structure
-        dirs = [
-            self.data_dir,
-            self.cfg_dir,
-            self.log_dir,
-            self.comms_dir,
-            self.sysd_dir,
-        ]
-        for _dir in dirs:
-            create_directory(Path(_dir))
-
         try:
-            # writing the klipper service file (requires sudo!)
-            service_content = self._prep_service_file(
-                service_template_path, env_file_target
+            self.create_folder_structure()
+            self.write_service_file(
+                service_template_path, service_file_target, env_file_target
             )
-            command = ["sudo", "tee", service_file_target]
-            subprocess.run(
-                command,
-                input=service_content.encode(),
-                stdout=subprocess.DEVNULL,
-                check=True,
-            )
-            Logger.print_ok(f"Service file created: {service_file_target}")
-
-            # writing the klipper.env file
-            env_file_content = self._prep_env_file(env_template_file_path)
-            with open(env_file_target, "w") as env_file:
-                env_file.write(env_file_content)
-            Logger.print_ok(f"Env file created: {env_file_target}")
+            self.write_env_file(env_template_file_path, env_file_target)
 
         except subprocess.CalledProcessError as e:
             Logger.print_error(
@@ -89,12 +65,6 @@ class Klipper(BaseInstance):
         except OSError as e:
             Logger.print_error(f"Error creating env file {env_file_target}: {e}")
             raise
-
-    def read(self) -> None:
-        print("Reading Klipper Instance")
-
-    def update(self) -> None:
-        print("Updating Klipper Instance")
 
     def delete(self, del_remnants: bool) -> None:
         service_file = self.get_service_file_name(extension=True)
@@ -113,6 +83,45 @@ class Klipper(BaseInstance):
         if del_remnants:
             self._delete_klipper_remnants()
 
+    def create_folder_structure(self) -> None:
+        dirs = [
+            self.data_dir,
+            self.cfg_dir,
+            self.log_dir,
+            self.comms_dir,
+            self.sysd_dir,
+        ]
+        for _dir in dirs:
+            create_directory(Path(_dir))
+
+    def write_service_file(
+        self, service_template_path: str, service_file_target: str, env_file_target: str
+    ):
+        service_content = self._prep_service_file(
+            service_template_path, env_file_target
+        )
+        command = ["sudo", "tee", service_file_target]
+        subprocess.run(
+            command,
+            input=service_content.encode(),
+            stdout=subprocess.DEVNULL,
+            check=True,
+        )
+        Logger.print_ok(f"Service file created: {service_file_target}")
+
+    def write_env_file(self, env_template_file_path: str, env_file_target: str):
+        env_file_content = self._prep_env_file(env_template_file_path)
+        with open(env_file_target, "w") as env_file:
+            env_file.write(env_file_content)
+        Logger.print_ok(f"Env file created: {env_file_target}")
+
+    def get_service_file_name(self, extension=False) -> str:
+        name = self.prefix if self.name is None else self.prefix + "-" + self.name
+        return name if not extension else f"{name}.service"
+
+    def _get_service_file_path(self):
+        return f"{SYSTEMD}/{self.get_service_file_name(extension=True)}"
+
     def _delete_klipper_remnants(self) -> None:
         try:
             Logger.print_info(f"Delete {self.klipper_dir} ...")
@@ -126,13 +135,6 @@ class Klipper(BaseInstance):
             raise
 
         Logger.print_ok("Directories successfully deleted.")
-
-    def get_service_file_name(self, extension=False) -> str:
-        name = self.prefix if self.name is None else self.prefix + "-" + self.name
-        return name if not extension else f"{name}.service"
-
-    def _get_service_file_path(self):
-        return f"{SYSTEMD}/{self.get_service_file_name(extension=True)}"
 
     def _get_data_dir_from_name(self, name: str) -> str:
         if name is None:

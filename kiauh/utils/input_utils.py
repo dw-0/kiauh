@@ -9,15 +9,18 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from kiauh.utils.constants import COLOR_CYAN, RESET_FORMAT
 from kiauh.utils.logger import Logger
 
 
-def get_confirm(question: str, default_choice=True) -> bool:
+def get_confirm(
+    question: str, default_choice=True, allow_go_back=False
+) -> Union[bool, None]:
     options_confirm = ["y", "yes"]
     options_decline = ["n", "no"]
+    options_go_back = ["b", "B"]
 
     if default_choice:
         def_choice = "(Y/n)"
@@ -28,7 +31,7 @@ def get_confirm(question: str, default_choice=True) -> bool:
 
     while True:
         choice = (
-            input(f"{COLOR_CYAN}###### {question} {def_choice} {RESET_FORMAT}")
+            input(f"{COLOR_CYAN}###### {question} {def_choice}: {RESET_FORMAT}")
             .strip()
             .lower()
         )
@@ -37,28 +40,34 @@ def get_confirm(question: str, default_choice=True) -> bool:
             return True
         elif choice in options_decline:
             return False
+        elif allow_go_back and choice in options_go_back:
+            return None
         else:
             Logger.print_error("Invalid choice. Please select 'y' or 'n'.")
 
 
 def get_number_input(
-    question: str, min_count: int, max_count=None, default=None
-) -> int:
+    question: str, min_count: int, max_count=None, default=None, allow_go_back=False
+) -> Union[int, None]:
+    options_go_back = ["b", "B"]
     _question = question + f" (default={default})" if default else question
     _question = f"{COLOR_CYAN}###### {_question}: {RESET_FORMAT}"
     while True:
         try:
-            num = input(_question)
-            if num == "":
+            _input = input(_question)
+            if allow_go_back and _input in options_go_back:
+                return None
+
+            if _input == "":
                 return default
 
             if max_count is not None:
-                if min_count <= int(num) <= max_count:
-                    return int(num)
+                if min_count <= int(_input) <= max_count:
+                    return int(_input)
                 else:
                     raise ValueError
-            elif int(num) >= min_count:
-                return int(num)
+            elif int(_input) >= min_count:
+                return int(_input)
             else:
                 raise ValueError
         except ValueError:
