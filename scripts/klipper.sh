@@ -244,7 +244,7 @@ function run_klipper_setup() {
 
   ### finalizing the setup with writing instance names to the kiauh.ini
   set_multi_instance_names
-  remove_disrupting_packages
+  mask_disrupting_services
 
   print_confirm "${confirm}" && return
 }
@@ -627,26 +627,33 @@ function get_klipper_python_ver() {
   echo "${version}"
 }
 
-function remove_disrupting_packages() {
+function mask_disrupting_services() {
   local brltty="false"
+  local brltty_udev="false"
   local modem_manager="false"
 
-  ### check system for installed brltty
   [[ $(dpkg -s brltty  2>/dev/null | grep "Status") = *\ installed ]] && brltty="true"
-  ### check system for an installed haproxy service
+  [[ $(dpkg -s brltty-udev  2>/dev/null | grep "Status") = *\ installed ]] && brltty_udev="true"
   [[ $(dpkg -s ModemManager  2>/dev/null | grep "Status") = *\ installed ]] && modem_manager="true"
 
-  status_msg "Installed brltty package detected, removing brltty ..."
+  status_msg "Installed brltty package detected, masking brltty service ..."
   if [[ ${brltty} == "true" ]]; then
     sudo systemctl stop brltty
-    sudo apt-get remove brltty -y
+    sudo systemctl mask brltty
   fi
-  ok_msg "brltty removed!"
+  ok_msg "brltty service masked!"
 
-  status_msg "Installed ModemManager package detected, disabling ModemManager service ..."
+  status_msg "Installed brltty-udev package detected, masking brltty-udev service ..."
+  if [[ ${brltty_udev} == "true" ]]; then
+    sudo systemctl stop brltty-udev
+    sudo systemctl mask brltty-udev
+  fi
+  ok_msg "brltty-udev service masked!"
+
+  status_msg "Installed ModemManager package detected, masking ModemManager service ..."
   if [[ ${modem_manager} == "true" ]]; then
     sudo systemctl stop ModemManager
-    sudo systemctl disable ModemManager
+    sudo systemctl mask ModemManager
   fi
-  ok_msg "ModemManager service disabled!"
+  ok_msg "ModemManager service masked!"
 }
