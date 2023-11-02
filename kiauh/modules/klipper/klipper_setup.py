@@ -16,6 +16,13 @@ from typing import List, Union
 
 from kiauh.config_manager.config_manager import ConfigManager
 from kiauh.instance_manager.instance_manager import InstanceManager
+from kiauh.modules.klipper import (
+    EXIT_KLIPPER_SETUP,
+    DEFAULT_KLIPPER_REPO_URL,
+    KLIPPER_DIR,
+    KLIPPER_ENV_DIR,
+    KLIPPER_REQUIREMENTS_TXT,
+)
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
     print_instance_overview,
@@ -30,7 +37,6 @@ from kiauh.modules.klipper.klipper_utils import (
     handle_single_to_multi_conversion,
 )
 from kiauh.repo_manager.repo_manager import RepoManager
-from kiauh.utils.constants import KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.utils.input_utils import (
     get_confirm,
     get_number_input,
@@ -59,7 +65,7 @@ def run_klipper_setup(install: bool) -> None:
     if install:
         add_additional = handle_existing_instances(instance_manager)
         if is_klipper_installed and not add_additional:
-            Logger.print_info("Exiting Klipper setup ...")
+            Logger.print_info(EXIT_KLIPPER_SETUP)
             return
 
         install_klipper(instance_manager)
@@ -100,12 +106,12 @@ def install_klipper(instance_manager: InstanceManager) -> None:
     question = f"Number of{' additional' if len(instance_list) > 0 else ''} Klipper instances to set up"
     install_count = get_number_input(question, 1, default=1, allow_go_back=True)
     if install_count is None:
-        Logger.print_info("Exiting Klipper setup ...")
+        Logger.print_info(EXIT_KLIPPER_SETUP)
         return
 
     instance_names = set_instance_names(instance_list, install_count)
     if instance_names is None:
-        Logger.print_info("Exiting Klipper setup ...")
+        Logger.print_info(EXIT_KLIPPER_SETUP)
         return
 
     if len(instance_list) < 1:
@@ -143,10 +149,7 @@ def setup_klipper_prerequesites() -> None:
     cm = ConfigManager()
     cm.read_config()
 
-    repo = str(
-        cm.get_value("klipper", "repository_url")
-        or "https://github.com/Klipper3D/klipper"
-    )
+    repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
     branch = str(cm.get_value("klipper", "branch") or "master")
 
     repo_manager = RepoManager(
@@ -159,7 +162,7 @@ def setup_klipper_prerequesites() -> None:
     # install klipper dependencies and create python virtualenv
     install_klipper_packages(Path(KLIPPER_DIR))
     create_python_venv(Path(KLIPPER_ENV_DIR))
-    klipper_py_req = Path(f"{KLIPPER_DIR}/scripts/klippy-requirements.txt")
+    klipper_py_req = Path(KLIPPER_REQUIREMENTS_TXT)
     install_python_requirements(Path(KLIPPER_ENV_DIR), klipper_py_req)
 
 

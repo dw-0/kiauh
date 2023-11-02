@@ -16,7 +16,8 @@ from pathlib import Path
 from typing import List
 
 from kiauh.instance_manager.base_instance import BaseInstance
-from kiauh.utils.constants import CURRENT_USER, SYSTEMD, KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.utils.constants import CURRENT_USER, SYSTEMD
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import create_directory
 

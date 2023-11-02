@@ -12,8 +12,6 @@
 import os
 import pwd
 
-from pathlib import Path
-
 # text colors and formats
 COLOR_MAGENTA = "\033[35m"  # magenta
 COLOR_GREEN = "\033[92m"  # bright green
@@ -21,15 +19,6 @@ COLOR_YELLOW = "\033[93m"  # bright yellow
 COLOR_RED = "\033[91m"  # bright red
 COLOR_CYAN = "\033[96m"  # bright cyan
 RESET_FORMAT = "\033[0m"  # reset format
-
 # current user
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
-
 SYSTEMD = "/etc/systemd/system"
-
-KLIPPER_DIR = f"{Path.home()}/klipper"
-KLIPPER_ENV_DIR = f"{Path.home()}/klippy-env"
-MOONRAKER_DIR = f"{Path.home()}/moonraker"
-MOONRAKER_ENV_DIR = f"{Path.home()}/moonraker-env"
-MAINSAIL_DIR = f"{Path.home()}/mainsail"
-FLUIDD_DIR = f"{Path.home()}/fluidd"
