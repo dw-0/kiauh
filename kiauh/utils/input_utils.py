@@ -11,6 +11,7 @@
 
 from typing import Optional, List, Union
 
+from kiauh.utils import INVALID_CHOICE
 from kiauh.utils.constants import COLOR_CYAN, RESET_FORMAT
 from kiauh.utils.logger import Logger
 
@@ -31,9 +32,7 @@ def get_confirm(
 
     while True:
         choice = (
-            input(f"{COLOR_CYAN}###### {question} {def_choice}: {RESET_FORMAT}")
-            .strip()
-            .lower()
+            input(format_question(question + f" {def_choice}", None)).strip().lower()
         )
 
         if choice in options_confirm:
@@ -43,54 +42,63 @@ def get_confirm(
         elif allow_go_back and choice in options_go_back:
             return None
         else:
-            Logger.print_error("Invalid choice. Please select 'y' or 'n'.")
+            Logger.print_error(INVALID_CHOICE)
 
 
 def get_number_input(
     question: str, min_count: int, max_count=None, default=None, allow_go_back=False
 ) -> Union[int, None]:
     options_go_back = ["b", "B"]
-    _question = question + f" (default={default})" if default else question
-    _question = f"{COLOR_CYAN}###### {_question}: {RESET_FORMAT}"
+    _question = format_question(question, default)
     while True:
+        _input = input(_question)
+        if allow_go_back and _input in options_go_back:
+            return None
+
+        if _input == "":
+            return default
+
         try:
-            _input = input(_question)
-            if allow_go_back and _input in options_go_back:
-                return None
-
-            if _input == "":
-                return default
-
-            if max_count is not None:
-                if min_count <= int(_input) <= max_count:
-                    return int(_input)
-                else:
-                    raise ValueError
-            elif int(_input) >= min_count:
-                return int(_input)
-            else:
-                raise ValueError
+            return validate_number_input(_input, min_count, max_count)
         except ValueError:
-            Logger.print_error("Invalid choice. Please select a valid number.")
+            Logger.print_error(INVALID_CHOICE)
 
 
-def get_string_input(question: str, exclude=Optional[List]) -> str:
+def get_string_input(question: str, exclude=Optional[List], default=None) -> str:
     while True:
-        _input = input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}").strip()
+        _input = input(format_question(question, default)).strip()
 
         if _input.isalnum() and _input not in exclude:
             return _input
 
-        Logger.print_error("Invalid choice. Please enter a valid value.")
+        Logger.print_error(INVALID_CHOICE)
         if _input in exclude:
             Logger.print_error("This value is already in use/reserved.")
 
 
-def get_selection_input(question: str, option_list: List) -> str:
+def get_selection_input(question: str, option_list: List, default=None) -> str:
     while True:
-        _input = input(f"{COLOR_CYAN}###### {question}: {RESET_FORMAT}").strip()
+        _input = input(format_question(question, default)).strip()
 
         if _input in option_list:
             return _input
 
-        Logger.print_error("Invalid choice. Please enter a valid value.")
+        Logger.print_error(INVALID_CHOICE)
+
+
+def format_question(question: str, default=None) -> str:
+    formatted_q = question
+    if default is not None:
+        formatted_q += f" (default={default})"
+
+    return f"{COLOR_CYAN}###### {formatted_q}: {RESET_FORMAT}"
+
+
+def validate_number_input(value: str, min_count: int, max_count: int) -> int:
+    if max_count is not None:
+        if min_count <= int(value) <= max_count:
+            return int(value)
+    elif int(value) >= min_count:
+        return int(value)
+
+    raise ValueError
