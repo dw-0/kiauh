@@ -26,7 +26,7 @@ from kiauh.utils.system_utils import create_directory
 class Klipper(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
-        return ["None", "mcu"]
+        return ["None", "klipper", "mcu"]
 
     def __init__(self, name: str):
         super().__init__(
@@ -117,7 +117,7 @@ class Klipper(BaseInstance):
         Logger.print_ok(f"Env file created: {env_file_target}")
 
     def get_service_file_name(self, extension=False) -> str:
-        name = self.prefix if self.name is None else self.prefix + "-" + self.name
+        name = "klipper" if self.name == self.prefix else self.prefix + "-" + self.name
         return name if not extension else f"{name}.service"
 
     def _get_service_file_path(self):
@@ -138,7 +138,7 @@ class Klipper(BaseInstance):
         Logger.print_ok("Directories successfully deleted.")
 
     def _get_data_dir_from_name(self, name: str) -> str:
-        if name is None:
+        if name == "klipper":
             return "printer"
         elif int(name.isdigit()):
             return f"printer_{name}"

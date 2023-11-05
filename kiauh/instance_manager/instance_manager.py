@@ -39,9 +39,7 @@ class InstanceManager:
 
     def set_current_instance(self, instance: BaseInstance) -> None:
         self.current_instance = instance
-        self.instance_name = (
-            f"{instance.prefix}-{instance.name}" if instance.name else instance.prefix
-        )
+        self.instance_name = instance.name
 
     def create_instance(self) -> None:
         if self.current_instance is not None:
@@ -123,13 +121,16 @@ class InstanceManager:
 
     def _find_instances(self) -> None:
         prefix = self.instance_type.__name__.lower()
-        pattern = re.compile(f"{prefix}(-[0-9a-zA-Z]+)?.service")
+        single_pattern = re.compile(f"^{prefix}.service$")
+        multi_pattern = re.compile(f"^{prefix}(-[0-9a-zA-Z]+)?.service$")
 
         excluded = self.instance_type.blacklist()
         service_list = [
             os.path.join(SYSTEMD, service)
             for service in os.listdir(SYSTEMD)
-            if pattern.search(service) and not any(s in service for s in excluded)
+            if multi_pattern.search(service)
+            and not any(s in service for s in excluded)
+            or single_pattern.search(service)
         ]
 
         instance_list = [
@@ -141,10 +142,8 @@ class InstanceManager:
 
     def _get_instance_name(self, file_path: Path) -> Union[str, None]:
         full_name = str(file_path).split("/")[-1].split(".")[0]
-        if full_name.isalnum():
-            return None
 
-        return full_name.split("-")[-1]
+        return full_name.split("-")[-1] if "-" in full_name else full_name
 
     def _sort_instance_list(self, s):
         if s is None:

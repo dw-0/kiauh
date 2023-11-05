@@ -68,7 +68,7 @@ def get_string_input(question: str, exclude=Optional[List], default=None) -> str
     while True:
         _input = input(format_question(question, default)).strip()
 
-        if _input.isalnum() and _input not in exclude:
+        if _input.isalnum() and _input.lower() not in exclude:
             return _input
 
         Logger.print_error(INVALID_CHOICE)

@@ -185,10 +185,14 @@ def set_instance_names(instance_list, install_count: int) -> List[Union[str, Non
 
     # new single instance install
     if instance_count == 0 and install_count == 1:
-        return [None]
+        return ["klipper"]
 
     # convert single instance install to multi install
-    elif instance_count == 1 and instance_list[0].name is None and install_count >= 1:
+    elif (
+        instance_count == 1
+        and instance_list[0].name == "klipper"
+        and install_count >= 1
+    ):
         return handle_convert_single_to_multi_instance_names(install_count)
 
     # new multi instance install
