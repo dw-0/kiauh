@@ -77,6 +77,15 @@ class RepoManager:
             Logger.print_error(f"Error removing existing repository: {e.strerror}")
             return
 
+    def pull_repo(self) -> None:
+        Logger.print_info(f"Updating repository '{self.repo}' ...")
+        try:
+            self._pull()
+        except subprocess.CalledProcessError:
+            log = "An unexpected error occured during updating the repository."
+            Logger.print_error(log)
+            return
+
     def _clone(self):
         try:
             command = ["git", "clone", self.repo, self.target_dir]
@@ -96,6 +105,15 @@ class RepoManager:
             Logger.print_ok("Checkout successfull!")
         except subprocess.CalledProcessError as e:
             log = f"Error checking out branch {self.branch}: {e.stderr.decode()}"
+            Logger.print_error(log)
+            raise
+
+    def _pull(self) -> None:
+        try:
+            command = ["git", "pull"]
+            subprocess.run(command, cwd=self.target_dir, check=True)
+        except subprocess.CalledProcessError as e:
+            log = f"Error on git pull: {e.stderr.decode()}"
             Logger.print_error(log)
             raise
 

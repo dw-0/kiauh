@@ -12,6 +12,7 @@
 import textwrap
 
 from kiauh.menus.base_menu import BaseMenu
+from kiauh.modules.klipper.klipper_setup import update_klipper
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
 
 
@@ -74,7 +75,7 @@ class UpdateMenu(BaseMenu):
         print("update_all")
 
     def update_klipper(self):
-        print("update_klipper")
+        update_klipper()
 
     def update_moonraker(self):
         print("update_moonraker")

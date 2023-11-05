@@ -91,6 +91,11 @@ class InstanceManager:
             Logger.print_error(f"Error starting service {self.instance_name}.service:")
             Logger.print_error(f"{e}")
 
+    def start_all_instance(self) -> None:
+        for instance in self.instances:
+            self.set_current_instance(instance)
+            self.start_instance()
+
     def stop_instance(self) -> None:
         Logger.print_info(f"Stopping {self.instance_name}.service ...")
         try:
@@ -101,6 +106,11 @@ class InstanceManager:
             Logger.print_error(f"Error stopping service {self.instance_name}.service:")
             Logger.print_error(f"{e}")
             raise
+
+    def stop_all_instance(self) -> None:
+        for instance in self.instances:
+            self.set_current_instance(instance)
+            self.stop_instance()
 
     def reload_daemon(self) -> None:
         Logger.print_info("Reloading systemd manager configuration ...")

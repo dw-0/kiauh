@@ -96,3 +96,20 @@ def print_missing_usergroup_dialog(missing_groups) -> None:
         f"| {COLOR_YELLOW}Relog required for group assignments to take effect!{RESET_FORMAT}  |"
     )
     print("\\=======================================================/")
+
+
+def print_update_warn_dialog():
+    print("/=======================================================\\")
+    print(
+        f"| {COLOR_YELLOW}WARNING:                                              {RESET_FORMAT}|"
+    )
+    print(
+        f"| {COLOR_YELLOW}Do NOT continue if there are ongoing prints running!  {RESET_FORMAT}|"
+    )
+    print(
+        f"| {COLOR_YELLOW}All Klipper instances will be restarted during the    {RESET_FORMAT}|"
+    )
+    print(
+        f"| {COLOR_YELLOW}update process and any ongoing prints WILL FAIL.      {RESET_FORMAT}|"
+    )
+    print("\\=======================================================/")

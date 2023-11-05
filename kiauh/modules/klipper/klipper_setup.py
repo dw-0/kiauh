@@ -27,6 +27,7 @@ from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
     print_instance_overview,
     print_select_instance_count_dialog,
+    print_update_warn_dialog,
 )
 from kiauh.modules.klipper.klipper_utils import (
     handle_convert_single_to_multi_instance_names,
@@ -249,3 +250,28 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
         instance_manager.delete_instance(del_remnants=False)
 
     instance_manager.reload_daemon()
+
+
+def update_klipper() -> None:
+    print_update_warn_dialog()
+
+    if not get_confirm("Update Klipper now?"):
+        return
+
+    instance_manager = InstanceManager(Klipper)
+    instance_manager.get_instances()
+    instance_manager.stop_all_instance()
+
+    cm = ConfigManager()
+    cm.read_config()
+
+    repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
+    branch = str(cm.get_value("klipper", "branch") or "master")
+
+    repo_manager = RepoManager(
+        repo=repo,
+        branch=branch,
+        target_dir=KLIPPER_DIR,
+    )
+    repo_manager.pull_repo()
+    instance_manager.start_all_instance()
