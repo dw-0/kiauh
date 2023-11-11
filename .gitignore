@@ -3,4 +3,5 @@
 .pytest_cache
 .kiauh-env
 *.code-workspace
+*.iml
 kiauh.cfg
