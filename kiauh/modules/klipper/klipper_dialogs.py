@@ -24,21 +24,21 @@ def print_instance_overview(
     dialog = textwrap.dedent(
         f"""
         /=======================================================\\
-        |{'{:^64}'.format(headline)}|
+        |{headline:^64}|
         |-------------------------------------------------------|
         """
     )[1:]
 
     if show_select_all:
         select_all = f"{COLOR_YELLOW}a) Select all{RESET_FORMAT}"
-        dialog += f"| {'{:63}'.format(select_all)}|"
-        dialog += "|                                                       |"
+        dialog += f"| {select_all:<63}|\n"
+        dialog += "|                                                       |\n"
 
     for i, s in enumerate(instances):
-        line = f"{COLOR_CYAN}{'{i})' if show_index else '●'} {s.get_service_file_name()}{RESET_FORMAT}"
-        dialog += f"| {'{:63}'.format(line)}|"
+        line = f"{COLOR_CYAN}{f'{i})' if show_index else '●'} {s.get_service_file_name()}{RESET_FORMAT}"
+        dialog += f"| {line:<63}|\n"
 
-    print(dialog)
+    print(dialog, end="")
     print_back_footer()
 
 
@@ -52,8 +52,8 @@ def print_select_instance_count_dialog():
         | up. The number of Klipper instances will determine    |
         | the amount of printers you can run from this host.    |
         |                                                       |
-        | {'{:63}'.format(line1)}|
-        | {'{:63}'.format(line2)}|
+        | {line1:<63}|
+        | {line2:<63}|
         """
     )[1:]
 
@@ -71,8 +71,8 @@ def print_select_custom_name_dialog():
         | If skipped, each instance will get an index assigned  |
         | in ascending order, starting at index '1'.            |
         |                                                       |
-        | {'{:63}'.format(line1)}|
-        | {'{:63}'.format(line2)}|
+        | {line1:<63}|
+        | {line2:<63}|
         """
     )[1:]
 
@@ -90,14 +90,14 @@ def print_missing_usergroup_dialog(missing_groups) -> None:
     dialog = textwrap.dedent(
         f"""
         /=======================================================\\
-        | {'{:63}'.format(line1)}|
+        | {line1:<63}|
         """
     )[1:]
 
     if "tty" in missing_groups:
-        dialog += f"| {'{:63}'.format(line2)}|\n"
+        dialog += f"| {line2:<63}|\n"
     if "dialout" in missing_groups:
-        dialog += f"| {'{:63}'.format(line3)}|\n"
+        dialog += f"| {line3:<63}|\n"
 
     dialog += textwrap.dedent(
         f"""
@@ -108,8 +108,8 @@ def print_missing_usergroup_dialog(missing_groups) -> None:
         | If you want to add the current user to the group(s)   |
         | listed above, answer with 'Y'. Else skip with 'n'.    |
         |                                                       |
-        | {'{:63}'.format(line4)}|
-        | {'{:63}'.format(line5)}|
+        | {line4:<63}|
+        | {line5:<63}|
         \\=======================================================/
         """
     )[1:]
@@ -117,7 +117,7 @@ def print_missing_usergroup_dialog(missing_groups) -> None:
     print(dialog, end="")
 
 
-def print_update_warn_dialog():
+def print_update_warn_dialog() -> None:
     line1 = f"{COLOR_YELLOW}WARNING:{RESET_FORMAT}"
     line2 = f"{COLOR_YELLOW}Do NOT continue if there are ongoing prints running!{RESET_FORMAT}"
     line3 = f"{COLOR_YELLOW}All Klipper instances will be restarted during the {RESET_FORMAT}"
@@ -125,10 +125,10 @@ def print_update_warn_dialog():
     dialog = textwrap.dedent(
         f"""
         /=======================================================\\
-        | {'{:63}'.format(line1)}|
-        | {'{:63}'.format(line2)}|
-        | {'{:63}'.format(line3)}|
-        | {'{:63}'.format(line4)}|
+        | {line1:<63}|
+        | {line2:<63}|
+        | {line3:<63}|
+        | {line4:<63}|
         \\=======================================================/
         """
     )[1:]
