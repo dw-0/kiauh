@@ -83,7 +83,7 @@ def handle_existing_instances(instance_list: List[Klipper]) -> bool:
 
     if instance_count > 0:
         print_instance_overview(instance_list)
-        if not get_confirm("Add new instances?"):
+        if not get_confirm("Add new instances?", allow_go_back=True):
             return False
 
     return True
