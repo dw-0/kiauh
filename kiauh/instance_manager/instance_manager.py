@@ -48,7 +48,7 @@ class InstanceManager:
     def current_instance(self, value: I) -> None:
         self._current_instance = value
         self.instance_suffix = value.suffix
-        self.instance_service = value.get_service_file_path()
+        self.instance_service = value.get_service_file_name()
         self.instance_service_path = value.get_service_file_path()
 
     @property
@@ -77,15 +77,9 @@ class InstanceManager:
 
     @property
     def instances(self) -> List[I]:
-        print("instances getter called")
         if not self._instances:
-            print("instances none")
             self._instances = self._find_instances()
 
-        print("return instances")
-        print(self._instances)
-        for instance in self._instances:
-            print(type(instance), instance.suffix)
         return sorted(self._instances, key=lambda x: self._sort_instance_list(x.suffix))
 
     @instances.setter
