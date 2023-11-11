@@ -12,34 +12,85 @@
 import os
 import re
 import subprocess
-from pathlib import Path
-from typing import Optional, List, Type, Union
+from typing import List, Optional, Union, TypeVar
 
 from kiauh.instance_manager.base_instance import BaseInstance
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 
 
+I = TypeVar(name="I", bound=BaseInstance, covariant=True)
+
+
 # noinspection PyMethodMayBeStatic
 class InstanceManager:
-    def __init__(
-        self,
-        instance_type: Type[BaseInstance],
-        current_instance: Optional[BaseInstance] = None,
-    ) -> None:
-        self.instance_type = instance_type
-        self.current_instance = current_instance
-        self.instance_name = (
-            current_instance.name if current_instance is not None else None
-        )
-        self.instances = []
+    def __init__(self, instance_type: I) -> None:
+        self._instance_type = instance_type
+        self._current_instance: Optional[I] = None
+        self._instance_suffix: Optional[str] = None
+        self._instance_service: Optional[str] = None
+        self._instance_service_path: Optional[str] = None
+        self._instances: List[I] = []
 
-    def get_current_instance(self) -> BaseInstance:
-        return self.current_instance
+    @property
+    def instance_type(self) -> I:
+        return self._instance_type
 
-    def set_current_instance(self, instance: BaseInstance) -> None:
-        self.current_instance = instance
-        self.instance_name = instance.name
+    @instance_type.setter
+    def instance_type(self, value: I):
+        self._instance_type = value
+
+    @property
+    def current_instance(self) -> I:
+        return self._current_instance
+
+    @current_instance.setter
+    def current_instance(self, value: I) -> None:
+        self._current_instance = value
+        self.instance_suffix = value.suffix
+        self.instance_service = value.get_service_file_path()
+        self.instance_service_path = value.get_service_file_path()
+
+    @property
+    def instance_suffix(self) -> str:
+        return self._instance_suffix
+
+    @instance_suffix.setter
+    def instance_suffix(self, value: str):
+        self._instance_suffix = value
+
+    @property
+    def instance_service(self) -> str:
+        return self._instance_service
+
+    @instance_service.setter
+    def instance_service(self, value: str):
+        self._instance_service = value
+
+    @property
+    def instance_service_path(self) -> str:
+        return self._instance_service_path
+
+    @instance_service_path.setter
+    def instance_service_path(self, value: str):
+        self._instance_service_path = value
+
+    @property
+    def instances(self) -> List[I]:
+        print("instances getter called")
+        if not self._instances:
+            print("instances none")
+            self._instances = self._find_instances()
+
+        print("return instances")
+        print(self._instances)
+        for instance in self._instances:
+            print(type(instance), instance.suffix)
+        return sorted(self._instances, key=lambda x: self._sort_instance_list(x.suffix))
+
+    @instances.setter
+    def instances(self, value: List[I]):
+        self._instances = value
 
     def create_instance(self) -> None:
         if self.current_instance is not None:
@@ -62,54 +113,56 @@ class InstanceManager:
             raise ValueError("current_instance cannot be None")
 
     def enable_instance(self) -> None:
-        Logger.print_info(f"Enabling {self.instance_name}.service ...")
+        Logger.print_info(f"Enabling {self.instance_service} ...")
         try:
-            command = ["sudo", "systemctl", "enable", f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "enable", self.instance_service]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_name}.service enabled.")
+                Logger.print_ok(f"{self.instance_suffix}.service enabled.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error enabling service {self.instance_name}.service:")
+            Logger.print_error(
+                f"Error enabling service {self.instance_suffix}.service:"
+            )
             Logger.print_error(f"{e}")
 
     def disable_instance(self) -> None:
-        Logger.print_info(f"Disabling {self.instance_name}.service ...")
+        Logger.print_info(f"Disabling {self.instance_service} ...")
         try:
-            command = ["sudo", "systemctl", "disable", f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "disable", self.instance_service]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_name}.service disabled.")
+                Logger.print_ok(f"{self.instance_service} disabled.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error disabling service {self.instance_name}.service:")
+            Logger.print_error(f"Error disabling service {self.instance_service}:")
             Logger.print_error(f"{e}")
 
     def start_instance(self) -> None:
-        Logger.print_info(f"Starting {self.instance_name}.service ...")
+        Logger.print_info(f"Starting {self.instance_service} ...")
         try:
-            command = ["sudo", "systemctl", "start", f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "start", self.instance_service]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_name}.service started.")
+                Logger.print_ok(f"{self.instance_service} started.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error starting service {self.instance_name}.service:")
+            Logger.print_error(f"Error starting service {self.instance_service}:")
             Logger.print_error(f"{e}")
 
     def start_all_instance(self) -> None:
         for instance in self.instances:
-            self.set_current_instance(instance)
+            self.current_instance = instance
             self.start_instance()
 
     def stop_instance(self) -> None:
-        Logger.print_info(f"Stopping {self.instance_name}.service ...")
+        Logger.print_info(f"Stopping {self.instance_service} ...")
         try:
-            command = ["sudo", "systemctl", "stop", f"{self.instance_name}.service"]
+            command = ["sudo", "systemctl", "stop", self.instance_service]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_name}.service stopped.")
+                Logger.print_ok(f"{self.instance_service} stopped.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error stopping service {self.instance_name}.service:")
+            Logger.print_error(f"Error stopping service {self.instance_service}:")
             Logger.print_error(f"{e}")
             raise
 
     def stop_all_instance(self) -> None:
         for instance in self.instances:
-            self.set_current_instance(instance)
+            self.current_instance = instance
             self.stop_instance()
 
     def reload_daemon(self) -> None:
@@ -123,39 +176,30 @@ class InstanceManager:
             Logger.print_error(f"{e}")
             raise
 
-    def get_instances(self) -> List[BaseInstance]:
-        if not self.instances:
-            self._find_instances()
-
-        return sorted(self.instances, key=lambda x: self._sort_instance_list(x.name))
-
-    def _find_instances(self) -> None:
-        prefix = self.instance_type.__name__.lower()
-        single_pattern = re.compile(f"^{prefix}.service$")
-        multi_pattern = re.compile(f"^{prefix}(-[0-9a-zA-Z]+)?.service$")
-
+    def _find_instances(self) -> List[I]:
+        name = self.instance_type.__name__.lower()
+        pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
         excluded = self.instance_type.blacklist()
+
         service_list = [
             os.path.join(SYSTEMD, service)
             for service in os.listdir(SYSTEMD)
-            if multi_pattern.search(service)
-            and not any(s in service for s in excluded)
-            or single_pattern.search(service)
+            if pattern.search(service) and not any(s in service for s in excluded)
         ]
 
         instance_list = [
-            self.instance_type(name=self._get_instance_name(Path(service)))
+            self.instance_type(suffix=self._get_instance_suffix(service))
             for service in service_list
         ]
 
-        self.instances = instance_list
+        return instance_list
 
-    def _get_instance_name(self, file_path: Path) -> Union[str, None]:
-        full_name = str(file_path).split("/")[-1].split(".")[0]
+    def _get_instance_suffix(self, file_path: str) -> Union[str, None]:
+        full_name = file_path.split("/")[-1].split(".")[0]
 
         return full_name.split("-")[-1] if "-" in full_name else full_name
 
-    def _sort_instance_list(self, s):
+    def _sort_instance_list(self, s: Union[int, str, None]):
         if s is None:
             return
 

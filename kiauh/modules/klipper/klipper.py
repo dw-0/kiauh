@@ -17,7 +17,7 @@ from typing import List
 
 from kiauh.instance_manager.base_instance import BaseInstance
 from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
-from kiauh.utils.constants import CURRENT_USER, SYSTEMD
+from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import create_directory
 
@@ -26,15 +26,10 @@ from kiauh.utils.system_utils import create_directory
 class Klipper(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
-        return ["None", "klipper", "mcu"]
+        return ["None", "mcu"]
 
-    def __init__(self, name: str):
-        super().__init__(
-            name=name,
-            prefix="klipper",
-            user=CURRENT_USER,
-            data_dir_name=self._get_data_dir_from_name(name),
-        )
+    def __init__(self, suffix: str = None):
+        super().__init__(instance_type=self, suffix=suffix)
         self.klipper_dir = KLIPPER_DIR
         self.env_dir = KLIPPER_ENV_DIR
         self.cfg_file = f"{self.cfg_dir}/printer.cfg"
@@ -43,7 +38,7 @@ class Klipper(BaseInstance):
         self.uds = f"{self.comms_dir}/klippy.sock"
 
     def create(self) -> None:
-        Logger.print_info("Creating Klipper Instance")
+        Logger.print_info("Creating new Klipper Instance ...")
         module_path = os.path.dirname(os.path.abspath(__file__))
         service_template_path = os.path.join(module_path, "res", "klipper.service")
         env_template_file_path = os.path.join(module_path, "res", "klipper.env")
@@ -69,7 +64,7 @@ class Klipper(BaseInstance):
 
     def delete(self, del_remnants: bool) -> None:
         service_file = self.get_service_file_name(extension=True)
-        service_file_path = self._get_service_file_path()
+        service_file_path = self.get_service_file_path()
 
         Logger.print_info(f"Deleting Klipper Instance: {service_file}")
 
@@ -116,13 +111,6 @@ class Klipper(BaseInstance):
             env_file.write(env_file_content)
         Logger.print_ok(f"Env file created: {env_file_target}")
 
-    def get_service_file_name(self, extension=False) -> str:
-        name = "klipper" if self.name == self.prefix else self.prefix + "-" + self.name
-        return name if not extension else f"{name}.service"
-
-    def _get_service_file_path(self):
-        return f"{SYSTEMD}/{self.get_service_file_name(extension=True)}"
-
     def _delete_klipper_remnants(self) -> None:
         try:
             Logger.print_info(f"Delete {self.klipper_dir} ...")
@@ -136,14 +124,6 @@ class Klipper(BaseInstance):
             raise
 
         Logger.print_ok("Directories successfully deleted.")
-
-    def _get_data_dir_from_name(self, name: str) -> str:
-        if name == "klipper":
-            return "printer"
-        elif int(name.isdigit()):
-            return f"printer_{name}"
-        else:
-            return name
 
     def _prep_service_file(self, service_template_path, env_file_path):
         try:

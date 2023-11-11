@@ -35,10 +35,10 @@ def assign_custom_names(
     instance_names = []
     exclude = Klipper.blacklist()
 
-    # if an instance_list is provided, exclude all existing instance names
+    # if an instance_list is provided, exclude all existing instance suffixes
     if instance_list is not None:
         for instance in instance_list:
-            exclude.append(instance.name)
+            exclude.append(instance.suffix)
 
     for i in range(instance_count + install_count):
         question = f"Enter name for instance {i + 1}"
@@ -93,14 +93,14 @@ def handle_existing_multi_instance_names(
 def handle_single_to_multi_conversion(
     instance_manager: InstanceManager, name: str
 ) -> None:
-    instance_list = instance_manager.get_instances()
-    instance_manager.set_current_instance(instance_list[0])
-    old_data_dir_name = instance_manager.get_instances()[0].data_dir
+    instance_list = instance_manager.instances
+    instance_manager.current_instance = instance_list[0]
+    old_data_dir_name = instance_manager.instances[0].data_dir
     instance_manager.stop_instance()
     instance_manager.disable_instance()
     instance_manager.delete_instance(del_remnants=False)
-    instance_manager.set_current_instance(Klipper(name=name))
-    new_data_dir_name = instance_manager.get_current_instance().data_dir
+    instance_manager.current_instance = Klipper(suffix=name)
+    new_data_dir_name = instance_manager.current_instance.data_dir
     try:
         os.rename(old_data_dir_name, new_data_dir_name)
     except OSError as e:
@@ -175,12 +175,12 @@ def handle_disruptive_system_packages() -> None:
 def has_custom_names(instance_list: List[Klipper]) -> bool:
     pattern = re.compile("^\d+$")
     for instance in instance_list:
-        if not pattern.match(instance.name):
+        if not pattern.match(instance.suffix):
             return True
 
     return False
 
 
 def get_highest_index(instance_list: List[Klipper]) -> int:
-    indices = [int(instance.name.split("-")[-1]) for instance in instance_list]
+    indices = [int(instance.suffix.split("-")[-1]) for instance in instance_list]
     return max(indices)

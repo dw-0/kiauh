@@ -55,41 +55,30 @@ from kiauh.utils.system_utils import (
 
 def run_klipper_setup(install: bool) -> None:
     instance_manager = InstanceManager(Klipper)
-    instance_list = instance_manager.get_instances()
+    instance_list = instance_manager.instances
     instances_installed = len(instance_list)
 
-    is_klipper_installed = check_klipper_installation(instance_manager)
+    is_klipper_installed = instances_installed > 0
     if not install and not is_klipper_installed:
         Logger.print_warn("Klipper not installed!")
         return
 
     if install:
-        add_additional = handle_existing_instances(instance_manager)
+        add_additional = handle_existing_instances(instance_list)
         if is_klipper_installed and not add_additional:
             Logger.print_info(EXIT_KLIPPER_SETUP)
             return
 
-        install_klipper(instance_manager)
+        install_klipper(instance_manager, instance_list)
 
     if not install:
         if instances_installed == 1:
-            remove_single_instance(instance_manager)
+            remove_single_instance(instance_manager, instance_list)
         else:
-            remove_multi_instance(instance_manager)
+            remove_multi_instance(instance_manager, instance_list)
 
 
-def check_klipper_installation(instance_manager: InstanceManager) -> bool:
-    instance_list = instance_manager.get_instances()
-    instances_installed = len(instance_list)
-
-    if instances_installed < 1:
-        return False
-
-    return True
-
-
-def handle_existing_instances(instance_manager: InstanceManager) -> bool:
-    instance_list = instance_manager.get_instances()
+def handle_existing_instances(instance_list: List[Klipper]) -> bool:
     instance_count = len(instance_list)
 
     if instance_count > 0:
@@ -100,9 +89,9 @@ def handle_existing_instances(instance_manager: InstanceManager) -> bool:
     return True
 
 
-def install_klipper(instance_manager: InstanceManager) -> None:
-    instance_list = instance_manager.get_instances()
-
+def install_klipper(
+    instance_manager: InstanceManager, instance_list: List[Klipper]
+) -> None:
     print_select_instance_count_dialog()
     question = f"Number of{' additional' if len(instance_list) > 0 else ''} Klipper instances to set up"
     install_count = get_number_input(question, 1, default=1, allow_go_back=True)
@@ -110,7 +99,7 @@ def install_klipper(instance_manager: InstanceManager) -> None:
         Logger.print_info(EXIT_KLIPPER_SETUP)
         return
 
-    instance_names = set_instance_names(instance_list, install_count)
+    instance_names = set_instance_suffix(instance_list, install_count)
     if instance_names is None:
         Logger.print_info(EXIT_KLIPPER_SETUP)
         return
@@ -119,11 +108,9 @@ def install_klipper(instance_manager: InstanceManager) -> None:
         setup_klipper_prerequesites()
 
     convert_single_to_multi = (
-        True
-        if len(instance_list) == 1
-        and instance_list[0].name is None
+        len(instance_list) == 1
+        and instance_list[0].suffix is None
         and install_count >= 1
-        else False
     )
 
     for name in instance_names:
@@ -131,7 +118,7 @@ def install_klipper(instance_manager: InstanceManager) -> None:
             handle_single_to_multi_conversion(instance_manager, name)
             convert_single_to_multi = False
         else:
-            instance_manager.set_current_instance(Klipper(name=name))
+            instance_manager.current_instance = Klipper(suffix=name)
 
         instance_manager.create_instance()
         instance_manager.enable_instance()
@@ -181,19 +168,17 @@ def install_klipper_packages(klipper_dir: Path) -> None:
     install_system_packages(packages)
 
 
-def set_instance_names(instance_list, install_count: int) -> List[Union[str, None]]:
+def set_instance_suffix(
+    instance_list: List[Klipper], install_count: int
+) -> List[Union[str, None]]:
     instance_count = len(instance_list)
 
     # new single instance install
     if instance_count == 0 and install_count == 1:
-        return ["klipper"]
+        return [None]
 
     # convert single instance install to multi install
-    elif (
-        instance_count == 1
-        and instance_list[0].name == "klipper"
-        and install_count >= 1
-    ):
+    elif instance_count == 1 and install_count >= 1 and instance_list[0].suffix is None:
         return handle_convert_single_to_multi_instance_names(install_count)
 
     # new multi instance install
@@ -207,10 +192,11 @@ def set_instance_names(instance_list, install_count: int) -> List[Union[str, Non
         )
 
 
-def remove_single_instance(instance_manager: InstanceManager) -> None:
-    instance_list = instance_manager.get_instances()
+def remove_single_instance(
+    instance_manager: InstanceManager, instance_list: List[Klipper]
+) -> None:
     try:
-        instance_manager.set_current_instance(instance_list[0])
+        instance_manager.current_instance = instance_list[0]
         instance_manager.stop_instance()
         instance_manager.disable_instance()
         instance_manager.delete_instance(del_remnants=True)
@@ -220,8 +206,9 @@ def remove_single_instance(instance_manager: InstanceManager) -> None:
         return
 
 
-def remove_multi_instance(instance_manager: InstanceManager) -> None:
-    instance_list = instance_manager.get_instances()
+def remove_multi_instance(
+    instance_manager: InstanceManager, instance_list: List[Klipper]
+) -> None:
     print_instance_overview(instance_list, show_index=True, show_select_all=True)
 
     options = [str(i) for i in range(len(instance_list))]
@@ -235,7 +222,7 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
     elif selection == "a".lower():
         Logger.print_info("Removing all Klipper instances ...")
         for instance in instance_list:
-            instance_manager.set_current_instance(instance)
+            instance_manager.current_instance = instance
             instance_manager.stop_instance()
             instance_manager.disable_instance()
             instance_manager.delete_instance(del_remnants=True)
@@ -244,7 +231,7 @@ def remove_multi_instance(instance_manager: InstanceManager) -> None:
         Logger.print_info(
             f"Removing Klipper instance: {instance.get_service_file_name()}"
         )
-        instance_manager.set_current_instance(instance)
+        instance_manager.current_instance = instance
         instance_manager.stop_instance()
         instance_manager.disable_instance()
         instance_manager.delete_instance(del_remnants=False)
@@ -259,7 +246,6 @@ def update_klipper() -> None:
         return
 
     instance_manager = InstanceManager(Klipper)
-    instance_manager.get_instances()
     instance_manager.stop_all_instance()
 
     cm = ConfigManager()
