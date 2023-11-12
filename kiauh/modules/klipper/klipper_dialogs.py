@@ -12,8 +12,8 @@
 import textwrap
 from typing import List
 
-from kiauh.instance_manager.base_instance import BaseInstance
-from kiauh.menus.base_menu import print_back_footer
+from kiauh.core.instance_manager.base_instance import BaseInstance
+from kiauh.core.menus.base_menu import print_back_footer
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
 

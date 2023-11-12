@@ -17,7 +17,7 @@ import textwrap
 
 from typing import List, Union
 
-from kiauh.instance_manager.instance_manager import InstanceManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,

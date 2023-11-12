@@ -11,7 +11,7 @@
 
 import textwrap
 
-from kiauh.menus.base_menu import BaseMenu
+from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper.klipper_setup import update_klipper
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
 

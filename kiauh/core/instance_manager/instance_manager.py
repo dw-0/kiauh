@@ -14,7 +14,7 @@ import re
 import subprocess
 from typing import List, Optional, Union, TypeVar
 
-from kiauh.instance_manager.base_instance import BaseInstance
+from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 

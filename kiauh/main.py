@@ -9,7 +9,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from kiauh.menus.main_menu import MainMenu
+from kiauh.core.menus.main_menu import MainMenu
 from kiauh.utils.logger import Logger
 
 

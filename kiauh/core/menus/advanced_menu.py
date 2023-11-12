@@ -11,7 +11,7 @@
 
 import textwrap
 
-from kiauh.menus.base_menu import BaseMenu
+from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 

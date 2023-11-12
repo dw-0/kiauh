@@ -14,8 +14,8 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
-from kiauh.config_manager.config_manager import ConfigManager
-from kiauh.instance_manager.instance_manager import InstanceManager
+from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper import (
     EXIT_KLIPPER_SETUP,
     DEFAULT_KLIPPER_REPO_URL,
@@ -37,7 +37,7 @@ from kiauh.modules.klipper.klipper_utils import (
     check_user_groups,
     handle_single_to_multi_conversion,
 )
-from kiauh.repo_manager.repo_manager import RepoManager
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.utils.input_utils import (
     get_confirm,
     get_number_input,

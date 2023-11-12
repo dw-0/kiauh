@@ -11,12 +11,12 @@
 
 import textwrap
 
-from kiauh.menus.advanced_menu import AdvancedMenu
-from kiauh.menus.base_menu import BaseMenu
-from kiauh.menus.install_menu import InstallMenu
-from kiauh.menus.remove_menu import RemoveMenu
-from kiauh.menus.settings_menu import SettingsMenu
-from kiauh.menus.update_menu import UpdateMenu
+from kiauh.core.menus.advanced_menu import AdvancedMenu
+from kiauh.core.menus.base_menu import BaseMenu
+from kiauh.core.menus.install_menu import InstallMenu
+from kiauh.core.menus.remove_menu import RemoveMenu
+from kiauh.core.menus.settings_menu import SettingsMenu
+from kiauh.core.menus.update_menu import UpdateMenu
 from kiauh.utils.constants import COLOR_MAGENTA, COLOR_CYAN, RESET_FORMAT
 
 
