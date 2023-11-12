@@ -142,32 +142,36 @@ def check_user_groups():
 
 def handle_disruptive_system_packages() -> None:
     services = []
-    brltty_status = subprocess.run(
-        ["systemctl", "is-enabled", "brltty"], capture_output=True, text=True
-    )
-    modem_manager_status = subprocess.run(
-        ["systemctl", "is-enabled", "ModemManager"], capture_output=True, text=True
-    )
+
+    command = ["systemctl", "is-enabled", "brltty"]
+    brltty_status = subprocess.run(command, capture_output=True, text=True)
+
+    command = ["systemctl", "is-enabled", "brltty-udev"]
+    brltty_udev_status = subprocess.run(command, capture_output=True, text=True)
+
+    command = ["systemctl", "is-enabled", "ModemManager"]
+    modem_manager_status = subprocess.run(command, capture_output=True, text=True)
 
     if "enabled" in brltty_status.stdout:
         services.append("brltty")
+    if "enabled" in brltty_udev_status.stdout:
+        services.append("brltty-udev")
     if "enabled" in modem_manager_status.stdout:
         services.append("ModemManager")
 
     for service in services if services else []:
         try:
-            Logger.print_info(
-                f"{service} service detected! Masking {service} service ..."
-            )
+            log = f"{service} service detected! Masking {service} service ..."
+            Logger.print_info(log)
             mask_system_service(service)
             Logger.print_ok(f"{service} service masked!")
         except subprocess.CalledProcessError:
             warn_msg = textwrap.dedent(
                 f"""
-            KIAUH was unable to mask the {service} system service. 
-            Please fix the problem manually. Otherwise, this may have 
-            undesirable effects on the operation of Klipper.
-            """
+                KIAUH was unable to mask the {service} system service. 
+                Please fix the problem manually. Otherwise, this may have 
+                undesirable effects on the operation of Klipper.
+                """
             )[1:]
             Logger.print_warn(warn_msg)
 
