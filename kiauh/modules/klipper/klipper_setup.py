@@ -195,11 +195,17 @@ def set_instance_suffix(
 def remove_single_instance(
     instance_manager: InstanceManager, instance_list: List[Klipper]
 ) -> None:
+    question = f"Delete {KLIPPER_DIR} and {KLIPPER_ENV_DIR}?"
+    del_remnants = get_confirm(question, allow_go_back=True)
+    if del_remnants is None:
+        Logger.print_info("Exiting Klipper Uninstaller ...")
+        return
+
     try:
         instance_manager.current_instance = instance_list[0]
         instance_manager.stop_instance()
         instance_manager.disable_instance()
-        instance_manager.delete_instance(del_remnants=True)
+        instance_manager.delete_instance(del_remnants=del_remnants)
         instance_manager.reload_daemon()
     except (OSError, subprocess.CalledProcessError):
         Logger.print_error("Removing instance failed!")
@@ -215,22 +221,26 @@ def remove_multi_instance(
     options.extend(["a", "A", "b", "B"])
 
     selection = get_selection_input("Select Klipper instance to remove", options)
-    print(selection)
 
     if selection == "b".lower():
         return
     elif selection == "a".lower():
+        question = f"Delete {KLIPPER_DIR} and {KLIPPER_ENV_DIR}?"
+        del_remnants = get_confirm(question, allow_go_back=True)
+        if del_remnants is None:
+            Logger.print_info("Exiting Klipper Uninstaller ...")
+            return
+
         Logger.print_info("Removing all Klipper instances ...")
         for instance in instance_list:
             instance_manager.current_instance = instance
             instance_manager.stop_instance()
             instance_manager.disable_instance()
-            instance_manager.delete_instance(del_remnants=True)
+            instance_manager.delete_instance(del_remnants=del_remnants)
     else:
         instance = instance_list[int(selection)]
-        Logger.print_info(
-            f"Removing Klipper instance: {instance.get_service_file_name()}"
-        )
+        log = f"Removing Klipper instance: {instance.get_service_file_name()}"
+        Logger.print_info(log)
         instance_manager.current_instance = instance
         instance_manager.stop_instance()
         instance_manager.disable_instance()
