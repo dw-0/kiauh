@@ -155,7 +155,7 @@ def setup_klipper_prerequesites() -> None:
 
 
 def install_klipper_packages(klipper_dir: Path) -> None:
-    script = f"{klipper_dir}/scripts/install-debian.sh"
+    script = Path(f"{klipper_dir}/scripts/install-debian.sh")
     packages = parse_packages_from_file(script)
     packages = [pkg.replace("python-dev", "python3-dev") for pkg in packages]
     # Add dfu-util for octopi-images
