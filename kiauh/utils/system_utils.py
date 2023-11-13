@@ -17,23 +17,15 @@ import time
 from pathlib import Path
 from typing import List
 
-from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
 
 
-def kill(opt_err_msg=None) -> None:
+def kill(opt_err_msg: str = "") -> None:
     """
-    Kill the application.
-
-    Parameters
-    ----------
-    opt_err_msg : str
-        optional, additional error message to display
-
-    Returns
-    ----------
-    None
+    Kills the application |
+    :param opt_err_msg: an optional, additional error message
+    :return: None
     """
 
     if opt_err_msg:
@@ -42,7 +34,14 @@ def kill(opt_err_msg=None) -> None:
     sys.exit(1)
 
 
-def parse_packages_from_file(source_file) -> List[str]:
+def parse_packages_from_file(source_file: Path) -> List[str]:
+    """
+    Read the package names from bash scripts, when defined like:
+    PKGLIST="package1 package2 package3" |
+    :param source_file: path of the sourcefile to read from
+    :return: a list of package names
+    """
+
     packages = []
     print("Reading dependencies...")
     with open(source_file, "r") as file:
@@ -53,38 +52,47 @@ def parse_packages_from_file(source_file) -> List[str]:
                 line = line.replace("PKGLIST=", "")
                 line = line.replace("${PKGLIST}", "")
                 packages.extend(line.split())
+
     return packages
 
 
 def create_python_venv(target: Path) -> None:
+    """
+    Create a python 3 virtualenv at the provided target destination |
+    :param target: Path where to create the virtualenv at
+    :return: None
+    """
     Logger.print_info("Set up Python virtual environment ...")
     if not target.exists():
         try:
             command = ["python3", "-m", "venv", f"{target}"]
             result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
             if result.returncode != 0 or result.stderr:
-                print(f"{COLOR_RED}{result.stderr}{RESET_FORMAT}")
+                Logger.print_error(f"{result.stderr}", prefix=False)
                 Logger.print_error("Setup of virtualenv failed!")
                 return
 
             Logger.print_ok("Setup of virtualenv successfull!")
         except subprocess.CalledProcessError as e:
-            print("Error setting up virtualenv:", e.output.decode())
+            Logger.print_error(f"Error setting up virtualenv:\n{e.output.decode()}")
     else:
-        overwrite_venv = get_confirm("Virtualenv already exists. Re-create?")
-        if overwrite_venv:
+        if get_confirm("Virtualenv already exists. Re-create?"):
             try:
                 shutil.rmtree(target)
                 create_python_venv(target)
             except OSError as e:
-                Logger.print_error(
-                    f"Error removing existing virtualenv: {e.strerror}", False
-                )
+                log = f"Error removing existing virtualenv: {e.strerror}"
+                Logger.print_error(log, False)
         else:
-            print("Skipping re-creation of virtualenv ...")
+            Logger.print_info("Skipping re-creation of virtualenv ...")
 
 
 def update_python_pip(target: Path) -> None:
+    """
+    Updates pip in the provided target destination |
+    :param target: Path of the virtualenv
+    :return: None
+    """
     Logger.print_info("Updating pip ...")
     try:
         command = [f"{target}/bin/pip", "install", "-U", "pip"]
@@ -96,10 +104,16 @@ def update_python_pip(target: Path) -> None:
 
         Logger.print_ok("Updating pip successfull!")
     except subprocess.CalledProcessError as e:
-        print("Error updating pip:", e.output.decode())
+        Logger.print_error(f"Error updating pip:\n{e.output.decode()}")
 
 
 def install_python_requirements(target: Path, requirements: Path) -> None:
+    """
+    Installs the python packages based on a provided requirements.txt |
+    :param target: Path of the virtualenv
+    :param requirements: Path to the requirements.txt file
+    :return: None
+    """
     update_python_pip(target)
     Logger.print_info("Installing Python requirements ...")
     try:
@@ -112,10 +126,17 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
 
         Logger.print_ok("Installing Python requirements successfull!")
     except subprocess.CalledProcessError as e:
-        print("Error installing Python requirements:", e.output.decode())
+        log = f"Error installing Python requirements:\n{e.output.decode()}"
+        Logger.print_error(log)
 
 
 def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
+    """
+    Updates the systems package list |
+    :param silent: Log info to the console or not
+    :param rls_info_change: Flag for "--allow-releaseinfo-change"
+    :return: None
+    """
     cache_mtime = 0
     cache_files = ["/var/lib/apt/periodic/update-success-stamp", "/var/lib/apt/lists"]
     for cache_file in cache_files:
@@ -129,7 +150,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         return
 
     if not silent:
-        print("Updating package list...")
+        Logger.print_info("Updating package list...")
 
     try:
         command = ["sudo", "apt-get", "update"]
@@ -148,6 +169,11 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
 
 
 def install_system_packages(packages: List) -> None:
+    """
+    Installs a list of system packages |
+    :param packages: List of system package names
+    :return: None
+    """
     try:
         command = ["sudo", "apt-get", "install", "-y"]
         for pkg in packages:
@@ -160,6 +186,11 @@ def install_system_packages(packages: List) -> None:
 
 
 def create_directory(_dir: Path) -> None:
+    """
+    Helper function for creating a directory or skipping if it already exists |
+    :param _dir: the directory to create
+    :return: None
+    """
     try:
         if not os.path.isdir(_dir):
             Logger.print_info(f"Create directory: {_dir}")
@@ -173,11 +204,15 @@ def create_directory(_dir: Path) -> None:
 
 
 def mask_system_service(service_name: str) -> None:
+    """
+    Mask a system service to prevent it from starting |
+    :param service_name: name of the service to mask
+    :return: None
+    """
     try:
         command = ["sudo", "systemctl", "mask", service_name]
         subprocess.run(command, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as e:
-        Logger.print_error(
-            f"Unable to mask system service {service_name}: {e.stderr.decode()}"
-        )
+        log = f"Unable to mask system service {service_name}: {e.stderr.decode()}"
+        Logger.print_error(log)
         raise
