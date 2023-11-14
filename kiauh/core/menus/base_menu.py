@@ -13,8 +13,9 @@ import subprocess
 import sys
 import textwrap
 from abc import abstractmethod, ABC
-from typing import Dict, Any
+from typing import Dict, Any, Literal
 
+from kiauh.core.menus import QUIT_FOOTER, BACK_FOOTER, BACK_HELP_FOOTER
 from kiauh.utils.constants import (
     COLOR_GREEN,
     COLOR_YELLOW,
@@ -29,12 +30,17 @@ def clear():
 
 
 def print_header():
+    line1 = " [ KIAUH ] "
+    line2 = "Klipper Installation And Update Helper"
+    line3 = ""
+    color = COLOR_CYAN
+    count = 62 - len(color) - len(RESET_FORMAT)
     header = textwrap.dedent(
         f"""
         /=======================================================\\
-        |     {COLOR_CYAN}~~~~~~~~~~~~~~~~~ [ KIAUH ] ~~~~~~~~~~~~~~~~~{RESET_FORMAT}     |
-        |     {COLOR_CYAN}   Klipper Installation And Update Helper    {RESET_FORMAT}     |
-        |     {COLOR_CYAN}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{RESET_FORMAT}     |
+        | {color}{line1:~^{count}}{RESET_FORMAT} |
+        | {color}{line2:^{count}}{RESET_FORMAT} |
+        | {color}{line3:~^{count}}{RESET_FORMAT} |
         \=======================================================/
         """
     )[1:]
@@ -42,10 +48,13 @@ def print_header():
 
 
 def print_quit_footer():
+    text = "Q) Quit"
+    color = COLOR_RED
+    count = 62 - len(color) - len(RESET_FORMAT)
     footer = textwrap.dedent(
         f"""
         |-------------------------------------------------------|
-        |                        {COLOR_RED}Q) Quit{RESET_FORMAT}                        |
+        | {color}{text:^{count}}{RESET_FORMAT} |
         \=======================================================/
         """
     )[1:]
@@ -53,10 +62,13 @@ def print_quit_footer():
 
 
 def print_back_footer():
+    text = "B) « Back"
+    color = COLOR_GREEN
+    count = 62 - len(color) - len(RESET_FORMAT)
     footer = textwrap.dedent(
         f"""
         |-------------------------------------------------------|
-        |                       {COLOR_GREEN}B) « Back{RESET_FORMAT}                       |
+        | {color}{text:^{count}}{RESET_FORMAT} |
         \=======================================================/
         """
     )[1:]
@@ -64,32 +76,15 @@ def print_back_footer():
 
 
 def print_back_help_footer():
+    text1 = "B) « Back"
+    text2 = "H) Help [?]"
+    color1 = COLOR_GREEN
+    color2 = COLOR_YELLOW
+    count = 34 - len(color1) - len(RESET_FORMAT)
     footer = textwrap.dedent(
         f"""
         |-------------------------------------------------------|
-        |         {COLOR_GREEN}B) « Back{RESET_FORMAT}         |          {COLOR_RED}Q) Quit{RESET_FORMAT}          |
-        \=======================================================/
-        """
-    )[1:]
-    print(footer, end="")
-
-
-def print_back_quit_footer():
-    footer = textwrap.dedent(
-        f"""
-        |-------------------------------------------------------|
-        |         {COLOR_GREEN}B) « Back{RESET_FORMAT}         |        {COLOR_YELLOW}H) Help [?]{RESET_FORMAT}        |
-        \=======================================================/
-        """
-    )[1:]
-    print(footer, end="")
-
-
-def print_back_quit_help_footer():
-    footer = textwrap.dedent(
-        f"""
-        |-------------------------------------------------------|
-        |     {COLOR_GREEN}B) « Back{RESET_FORMAT}    |    {COLOR_RED}Q) Quit{RESET_FORMAT}    |    {COLOR_YELLOW}H) Help [?]{RESET_FORMAT}     |
+        | {color1}{text1:^{count}}{RESET_FORMAT} | {color2}{text2:^{count}}{RESET_FORMAT} |
         \=======================================================/
         """
     )[1:]
@@ -97,14 +92,14 @@ def print_back_quit_help_footer():
 
 
 class BaseMenu(ABC):
-    QUIT_FOOTER = "quit"
-    BACK_FOOTER = "back"
-    BACK_HELP_FOOTER = "back_help"
-    BACK_QUIT_FOOTER = "back_quit"
-    BACK_QUIT_HELP_FOOTER = "back_quit_help"
-
     def __init__(
-        self, options: Dict[int, Any], options_offset=0, header=True, footer_type="quit"
+        self,
+        options: Dict[int, Any],
+        options_offset: int = 0,
+        header: bool = True,
+        footer_type: Literal[
+            "QUIT_FOOTER", "BACK_FOOTER", "BACK_HELP_FOOTER"
+        ] = QUIT_FOOTER,
     ):
         self.options = options
         self.options_offset = options_offset
@@ -117,11 +112,9 @@ class BaseMenu(ABC):
 
     def print_footer(self):
         footer_type_map = {
-            self.QUIT_FOOTER: print_quit_footer,
-            self.BACK_FOOTER: print_back_footer,
-            self.BACK_HELP_FOOTER: print_back_help_footer,
-            self.BACK_QUIT_FOOTER: print_back_quit_footer,
-            self.BACK_QUIT_HELP_FOOTER: print_back_quit_help_footer,
+            QUIT_FOOTER: print_quit_footer,
+            BACK_FOOTER: print_back_footer,
+            BACK_HELP_FOOTER: print_back_help_footer,
         }
         footer_function = footer_type_map.get(self.footer_type, print_quit_footer)
         footer_function()
@@ -150,8 +143,6 @@ class BaseMenu(ABC):
                     "quit": ["q"],
                     "back": ["b"],
                     "back_help": ["b", "h"],
-                    "back_quit": ["b", "q"],
-                    "back_quit_help": ["b", "q", "h"],
                 }
                 if (
                     self.footer_type in allowed_input

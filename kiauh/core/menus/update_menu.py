@@ -11,6 +11,7 @@
 
 import textwrap
 
+from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper.klipper_setup import update_klipper
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
@@ -36,14 +37,17 @@ class UpdateMenu(BaseMenu):
                 11: self.update_crowsnest,
                 12: self.upgrade_system_packages,
             },
-            footer_type="back",
+            footer_type=BACK_FOOTER,
         )
 
     def print_menu(self):
+        header = " [ Update Menu ] "
+        color = COLOR_GREEN
+        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
             /=======================================================\\
-            |     {COLOR_GREEN}~~~~~~~~~~~~~~ [ Update Menu ] ~~~~~~~~~~~~~~{RESET_FORMAT}     |
+            | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
             |  0) [Update all]        |              |              |
             |                         | Current:     | Latest:      |

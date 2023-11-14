@@ -11,6 +11,7 @@
 
 import textwrap
 
+from kiauh.core.menus import QUIT_FOOTER
 from kiauh.core.menus.advanced_menu import AdvancedMenu
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.core.menus.install_menu import InstallMenu
@@ -25,7 +26,7 @@ class MainMenu(BaseMenu):
         super().__init__(
             header=True,
             options={
-                0: self.test,
+                0: None,
                 1: InstallMenu,
                 2: UpdateMenu,
                 3: RemoveMenu,
@@ -33,14 +34,19 @@ class MainMenu(BaseMenu):
                 5: None,
                 6: SettingsMenu,
             },
-            footer_type="quit",
+            footer_type=QUIT_FOOTER,
         )
 
     def print_menu(self):
+        header = " [ Main Menu ] "
+        footer1 = "KIAUH v6.0.0"
+        footer2 = f"Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT}"
+        color = COLOR_CYAN
+        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
             /=======================================================\\
-            |     {COLOR_CYAN}~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~{RESET_FORMAT}     |
+            | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
             |  0) [Log-Upload] |         Klipper: <TODO>            |
             |                  |            Repo: <TODO>            |
@@ -58,10 +64,7 @@ class MainMenu(BaseMenu):
             |                  |           Obico: <TODO>            |
             |                  |  OctoEverywhere: <TODO>            |
             |-------------------------------------------------------|
-            |  {COLOR_CYAN}KIAUH v6.0.0{RESET_FORMAT}    |    Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT} |
+            | {COLOR_CYAN}{footer1:^16}{RESET_FORMAT} | {footer2:^43} |
             """
         )[1:]
         print(menu, end="")
-
-    def test(self):
-        print("blub")

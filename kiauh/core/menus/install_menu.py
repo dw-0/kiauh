@@ -11,6 +11,7 @@
 
 import textwrap
 
+from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper import klipper_setup
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
@@ -34,18 +35,17 @@ class InstallMenu(BaseMenu):
                 10: self.install_mobileraker,
                 11: self.install_crowsnest,
             },
-            footer_type="back",
+            footer_type=BACK_FOOTER,
         )
 
     def print_menu(self):
+        header = " [ Installation Menu ] "
+        color = COLOR_GREEN
+        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
             /=======================================================\\
-            |     {COLOR_GREEN}~~~~~~~~~~~ [ Installation Menu ] ~~~~~~~~~~~{RESET_FORMAT}     |
-            |-------------------------------------------------------|
-            |  You need this menu usually only for installing       |
-            |  all necessary dependencies for the various           |
-            |  functions on a completely fresh system.              |
+            | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
             | Firmware & API:          | Other:                     |
             |  1) [Klipper]            |  6) [PrettyGCode]          |

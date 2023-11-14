@@ -11,6 +11,7 @@
 
 import textwrap
 
+from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper import klipper_setup
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
@@ -38,14 +39,17 @@ class RemoveMenu(BaseMenu):
                 14: self.remove_mobileraker,
                 15: self.remove_nginx,
             },
-            footer_type="back",
+            footer_type=BACK_FOOTER,
         )
 
     def print_menu(self):
+        header = " [ Remove Menu ] "
+        color = COLOR_RED
+        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
             /=======================================================\\
-            |     {COLOR_RED}~~~~~~~~~~~~~~ [ Remove Menu ] ~~~~~~~~~~~~~~{RESET_FORMAT}     |
+            | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
             | INFO: Configurations and/or any backups will be kept! |
             |-------------------------------------------------------|
