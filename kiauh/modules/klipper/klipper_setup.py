@@ -14,6 +14,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
+from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper import (
@@ -251,15 +252,21 @@ def remove_multi_instance(
 
 def update_klipper() -> None:
     print_update_warn_dialog()
-
     if not get_confirm("Update Klipper now?"):
         return
 
-    instance_manager = InstanceManager(Klipper)
-    instance_manager.stop_all_instance()
-
     cm = ConfigManager()
     cm.read_config()
+
+    if cm.get_value("kiauh", "backup_before_update"):
+        backup_manager = BackupManager(source=KLIPPER_DIR, backup_name="klipper")
+        backup_manager.backup()
+        backup_manager.backup_name = "klippy-env"
+        backup_manager.source = KLIPPER_ENV_DIR
+        backup_manager.backup()
+
+    instance_manager = InstanceManager(Klipper)
+    instance_manager.stop_all_instance()
 
     repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
     branch = str(cm.get_value("klipper", "branch") or "master")
