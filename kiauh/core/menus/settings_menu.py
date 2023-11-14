@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ======================================================================= #
 #  Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>        #
