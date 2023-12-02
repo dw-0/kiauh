@@ -111,10 +111,10 @@ class InstanceManager:
         try:
             command = ["sudo", "systemctl", "enable", self.instance_service]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_suffix}.service enabled.")
+                Logger.print_ok(f"{self.instance_service}.service enabled.")
         except subprocess.CalledProcessError as e:
             Logger.print_error(
-                f"Error enabling service {self.instance_suffix}.service:"
+                f"Error enabling service {self.instance_service}.service:"
             )
             Logger.print_error(f"{e}")
 
