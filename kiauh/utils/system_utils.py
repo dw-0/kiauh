@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 import time
+import socket
 from pathlib import Path
 from typing import List
 
@@ -213,3 +214,33 @@ def mask_system_service(service_name: str) -> None:
         log = f"Unable to mask system service {service_name}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
+
+
+def check_file_exists(file_path: Path) -> bool:
+    """
+    Helper function for checking the existence of a file where
+    elevated permissions are required |
+    :param file_path: the absolute path of the file to check
+    :return: True if file exists, otherwise False
+    """
+    try:
+        command = ["sudo", "find", file_path]
+        subprocess.check_output(command, stderr=subprocess.DEVNULL)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+# this feels hacky and not quite right, but for now it works
+# see: https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+def get_ipv4_addr() -> str:
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(("192.255.255.255", 1))
+        return s.getsockname()[0]
+    except Exception:
+        return "127.0.0.1"
+    finally:
+        s.close()
