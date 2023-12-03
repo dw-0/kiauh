@@ -14,6 +14,7 @@ import textwrap
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper import klipper_setup
+from kiauh.modules.moonraker import moonraker_setup
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
 
 
@@ -73,7 +74,7 @@ class RemoveMenu(BaseMenu):
         klipper_setup.run_klipper_setup(install=False)
 
     def remove_moonraker(self):
-        print("remove_moonraker")
+        moonraker_setup.run_moonraker_setup(install=False)
 
     def remove_mainsail(self):
         print("remove_mainsail")
