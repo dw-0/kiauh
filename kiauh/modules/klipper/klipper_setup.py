@@ -14,6 +14,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
+from kiauh import KIAUH_CFG
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
@@ -135,7 +136,7 @@ def install_klipper(
 
 
 def setup_klipper_prerequesites() -> None:
-    cm = ConfigManager()
+    cm = ConfigManager(cfg_file=KIAUH_CFG)
     cm.read_config()
 
     repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
@@ -255,7 +256,7 @@ def update_klipper() -> None:
     if not get_confirm("Update Klipper now?"):
         return
 
-    cm = ConfigManager()
+    cm = ConfigManager(cfg_file=KIAUH_CFG)
     cm.read_config()
 
     if cm.get_value("kiauh", "backup_before_update"):

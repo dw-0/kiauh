@@ -9,19 +9,16 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import configparser
-from pathlib import Path
 from typing import Union
 
-from kiauh import APPLICATION_ROOT
 from kiauh.utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic
 class ConfigManager:
-    def __init__(self):
-        self.config_file = self._get_cfg_location()
+    def __init__(self, cfg_file: str):
+        self.config_file = cfg_file
         self.config = configparser.ConfigParser()
 
     def read_config(self) -> None:
@@ -56,11 +53,3 @@ class ConfigManager:
 
     def set_value(self, section: str, key: str, value: str):
         self.config.set(section, key, value)
-
-    def check_config_exist(self) -> bool:
-        return True if self._get_cfg_location() else False
-
-    def _get_cfg_location(self) -> str:
-        cfg_path = os.path.join(APPLICATION_ROOT, "kiauh.cfg")
-
-        return cfg_path if Path(cfg_path).exists() else None
