@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Union, Optional, Type, TypeVar
 
 from kiauh.utils.constants import SYSTEMD, CURRENT_USER
+from kiauh.utils.system_utils import create_directory
 
 B = TypeVar(name="B", bound="BaseInstance", covariant=True)
 
@@ -37,6 +38,7 @@ class BaseInstance(ABC):
         self._log_dir = f"{self.data_dir}/logs"
         self._comms_dir = f"{self.data_dir}/comms"
         self._sysd_dir = f"{self.data_dir}/systemd"
+        self._gcodes_dir = f"{self.data_dir}/gcodes"
 
     @property
     def instance_type(self) -> Type["BaseInstance"]:
@@ -110,6 +112,14 @@ class BaseInstance(ABC):
     def sysd_dir(self, value: str):
         self._sysd_dir = value
 
+    @property
+    def gcodes_dir(self):
+        return self._gcodes_dir
+
+    @gcodes_dir.setter
+    def gcodes_dir(self, value: str):
+        self._gcodes_dir = value
+
     @abstractmethod
     def create(self) -> None:
         raise NotImplementedError("Subclasses must implement the create method")
@@ -117,6 +127,21 @@ class BaseInstance(ABC):
     @abstractmethod
     def delete(self, del_remnants: bool) -> None:
         raise NotImplementedError("Subclasses must implement the delete method")
+
+    def create_folders(self, add_dirs: List[str] = None) -> None:
+        dirs = [
+            self.data_dir,
+            self.cfg_dir,
+            self.log_dir,
+            self.comms_dir,
+            self.sysd_dir,
+        ]
+
+        if add_dirs:
+            dirs.extend(add_dirs)
+
+        for _dir in dirs:
+            create_directory(Path(_dir))
 
     def get_service_file_name(self, extension: bool = False) -> str:
         name = f"{self.__class__.__name__.lower()}"

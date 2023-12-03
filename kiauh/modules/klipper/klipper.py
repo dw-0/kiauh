@@ -19,7 +19,6 @@ from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import create_directory
 
 
 # noinspection PyMethodMayBeStatic
@@ -47,7 +46,7 @@ class Klipper(BaseInstance):
         env_file_target = os.path.abspath(f"{self.sysd_dir}/klipper.env")
 
         try:
-            self.create_folder_structure()
+            self.create_folders()
             self.write_service_file(
                 service_template_path, service_file_target, env_file_target
             )
@@ -78,17 +77,6 @@ class Klipper(BaseInstance):
 
         if del_remnants:
             self._delete_klipper_remnants()
-
-    def create_folder_structure(self) -> None:
-        dirs = [
-            self.data_dir,
-            self.cfg_dir,
-            self.log_dir,
-            self.comms_dir,
-            self.sysd_dir,
-        ]
-        for _dir in dirs:
-            create_directory(Path(_dir))
 
     def write_service_file(
         self, service_template_path: str, service_file_target: str, env_file_target: str
