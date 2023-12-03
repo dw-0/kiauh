@@ -56,7 +56,7 @@ class BackupManager:
 
         try:
             log = f"Creating backup of {self.backup_name} in {self.backup_dir} ..."
-            Logger.print_info(log)
+            Logger.print_status(log)
             date = get_current_date()
             dest = Path(
                 f"{self.backup_dir}/{self.backup_name}/{date.get('date')}-{date.get('time')}"

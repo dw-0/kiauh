@@ -29,6 +29,7 @@ class InstanceManager:
         self._current_instance: Optional[I] = None
         self._instance_suffix: Optional[str] = None
         self._instance_service: Optional[str] = None
+        self._instance_service_full: Optional[str] = None
         self._instance_service_path: Optional[str] = None
         self._instances: List[I] = []
 
@@ -66,6 +67,10 @@ class InstanceManager:
     @instance_service.setter
     def instance_service(self, value: str):
         self._instance_service = value
+
+    @property
+    def instance_service_full(self) -> str:
+        return f"{self._instance_service}.service"
 
     @property
     def instance_service_path(self) -> str:
@@ -107,35 +112,33 @@ class InstanceManager:
             raise ValueError("current_instance cannot be None")
 
     def enable_instance(self) -> None:
-        Logger.print_info(f"Enabling {self.instance_service} ...")
+        Logger.print_status(f"Enabling {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "enable", self.instance_service]
+            command = ["sudo", "systemctl", "enable", self.instance_service_full]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service}.service enabled.")
+                Logger.print_ok(f"{self.instance_service_full} enabled.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error enabling service {self.instance_service}.service:"
-            )
+            Logger.print_error(f"Error enabling service {self.instance_service_full}:")
             Logger.print_error(f"{e}")
 
     def disable_instance(self) -> None:
-        Logger.print_info(f"Disabling {self.instance_service} ...")
+        Logger.print_status(f"Disabling {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "disable", self.instance_service]
+            command = ["sudo", "systemctl", "disable", self.instance_service_full]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service} disabled.")
+                Logger.print_ok(f"{self.instance_service_full} disabled.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error disabling service {self.instance_service}:")
+            Logger.print_error(f"Error disabling {self.instance_service_full}:")
             Logger.print_error(f"{e}")
 
     def start_instance(self) -> None:
-        Logger.print_info(f"Starting {self.instance_service} ...")
+        Logger.print_status(f"Starting {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "start", self.instance_service]
+            command = ["sudo", "systemctl", "start", self.instance_service_full]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service} started.")
+                Logger.print_ok(f"{self.instance_service_full} started.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error starting service {self.instance_service}:")
+            Logger.print_error(f"Error starting {self.instance_service_full}:")
             Logger.print_error(f"{e}")
 
     def start_all_instance(self) -> None:
@@ -144,13 +147,13 @@ class InstanceManager:
             self.start_instance()
 
     def stop_instance(self) -> None:
-        Logger.print_info(f"Stopping {self.instance_service} ...")
+        Logger.print_status(f"Stopping {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "stop", self.instance_service]
+            command = ["sudo", "systemctl", "stop", self.instance_service_full]
             if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service} stopped.")
+                Logger.print_ok(f"{self.instance_service_full} stopped.")
         except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error stopping service {self.instance_service}:")
+            Logger.print_error(f"Error stopping {self.instance_service_full}:")
             Logger.print_error(f"{e}")
             raise
 
@@ -160,7 +163,7 @@ class InstanceManager:
             self.stop_instance()
 
     def reload_daemon(self) -> None:
-        Logger.print_info("Reloading systemd manager configuration ...")
+        Logger.print_status("Reloading systemd manager configuration ...")
         try:
             command = ["sudo", "systemctl", "daemon-reload"]
             if subprocess.run(command, check=True):

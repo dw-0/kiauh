@@ -10,6 +10,7 @@
 # ======================================================================= #
 
 from kiauh.utils.constants import (
+    COLOR_WHITE,
     COLOR_GREEN,
     COLOR_YELLOW,
     COLOR_RED,
@@ -35,6 +36,11 @@ class Logger:
         pass
 
     @staticmethod
+    def print_info(msg, prefix=True, end="\n") -> None:
+        message = f"[INFO] {msg}" if prefix else msg
+        print(f"{COLOR_WHITE}{message}{RESET_FORMAT}", end=end)
+
+    @staticmethod
     def print_ok(msg, prefix=True, end="\n") -> None:
         message = f"[OK] {msg}" if prefix else msg
         print(f"{COLOR_GREEN}{message}{RESET_FORMAT}", end=end)
@@ -50,6 +56,6 @@ class Logger:
         print(f"{COLOR_RED}{message}{RESET_FORMAT}", end=end)
 
     @staticmethod
-    def print_info(msg, prefix=True, end="\n") -> None:
-        message = f"###### {msg}" if prefix else msg
+    def print_status(msg, prefix=True, end="\n") -> None:
+        message = f"\n###### {msg}" if prefix else msg
         print(f"{COLOR_MAGENTA}{message}{RESET_FORMAT}", end=end)

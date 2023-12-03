@@ -128,7 +128,7 @@ def check_user_groups():
 
     try:
         for group in missing_groups:
-            Logger.print_info(f"Adding user '{CURRENT_USER}' to group {group} ...")
+            Logger.print_status(f"Adding user '{CURRENT_USER}' to group {group} ...")
             command = ["sudo", "usermod", "-a", "-G", group, CURRENT_USER]
             subprocess.run(command, check=True)
             Logger.print_ok(f"Group {group} assigned to user '{CURRENT_USER}'.")
@@ -162,7 +162,7 @@ def handle_disruptive_system_packages() -> None:
     for service in services if services else []:
         try:
             log = f"{service} service detected! Masking {service} service ..."
-            Logger.print_info(log)
+            Logger.print_status(log)
             mask_system_service(service)
             Logger.print_ok(f"{service} service masked!")
         except subprocess.CalledProcessError:

@@ -38,7 +38,7 @@ class Klipper(BaseInstance):
         self.uds = f"{self.comms_dir}/klippy.sock"
 
     def create(self) -> None:
-        Logger.print_info("Creating new Klipper Instance ...")
+        Logger.print_status("Creating new Klipper Instance ...")
         module_path = os.path.dirname(os.path.abspath(__file__))
         service_template_path = os.path.join(module_path, "res", "klipper.service")
         env_template_file_path = os.path.join(module_path, "res", "klipper.env")
@@ -66,7 +66,7 @@ class Klipper(BaseInstance):
         service_file = self.get_service_file_name(extension=True)
         service_file_path = self.get_service_file_path()
 
-        Logger.print_info(f"Deleting Klipper Instance: {service_file}")
+        Logger.print_status(f"Deleting Klipper Instance: {service_file}")
 
         try:
             command = ["sudo", "rm", "-f", service_file_path]
@@ -113,12 +113,12 @@ class Klipper(BaseInstance):
 
     def _delete_klipper_remnants(self) -> None:
         try:
-            Logger.print_info(f"Delete {self.klipper_dir} ...")
+            Logger.print_status(f"Delete {self.klipper_dir} ...")
             shutil.rmtree(Path(self.klipper_dir))
-            Logger.print_info(f"Delete {self.env_dir} ...")
+            Logger.print_status(f"Delete {self.env_dir} ...")
             shutil.rmtree(Path(self.env_dir))
         except FileNotFoundError:
-            Logger.print_info("Cannot delete Klipper directories. Not found.")
+            Logger.print_status("Cannot delete Klipper directories. Not found.")
         except PermissionError as e:
             Logger.print_error(f"Error deleting Klipper directories: {e}")
             raise

@@ -67,7 +67,7 @@ def run_klipper_setup(install: bool) -> None:
     if install:
         add_additional = handle_existing_instances(instance_list)
         if is_klipper_installed and not add_additional:
-            Logger.print_info(EXIT_KLIPPER_SETUP)
+            Logger.print_status(EXIT_KLIPPER_SETUP)
             return
 
         install_klipper(instance_manager, instance_list)
@@ -97,12 +97,12 @@ def install_klipper(
     question = f"Number of{' additional' if len(instance_list) > 0 else ''} Klipper instances to set up"
     install_count = get_number_input(question, 1, default=1, allow_go_back=True)
     if install_count is None:
-        Logger.print_info(EXIT_KLIPPER_SETUP)
+        Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
     instance_names = set_instance_suffix(instance_list, install_count)
     if instance_names is None:
-        Logger.print_info(EXIT_KLIPPER_SETUP)
+        Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
     if len(instance_list) < 1:
@@ -199,7 +199,7 @@ def remove_single_instance(
     question = f"Delete {KLIPPER_DIR} and {KLIPPER_ENV_DIR}?"
     del_remnants = get_confirm(question, allow_go_back=True)
     if del_remnants is None:
-        Logger.print_info("Exiting Klipper Uninstaller ...")
+        Logger.print_status("Exiting Klipper Uninstaller ...")
         return
 
     try:
@@ -229,10 +229,10 @@ def remove_multi_instance(
         question = f"Delete {KLIPPER_DIR} and {KLIPPER_ENV_DIR}?"
         del_remnants = get_confirm(question, allow_go_back=True)
         if del_remnants is None:
-            Logger.print_info("Exiting Klipper Uninstaller ...")
+            Logger.print_status("Exiting Klipper Uninstaller ...")
             return
 
-        Logger.print_info("Removing all Klipper instances ...")
+        Logger.print_status("Removing all Klipper instances ...")
         for instance in instance_list:
             instance_manager.current_instance = instance
             instance_manager.stop_instance()
@@ -241,7 +241,7 @@ def remove_multi_instance(
     else:
         instance = instance_list[int(selection)]
         log = f"Removing Klipper instance: {instance.get_service_file_name()}"
-        Logger.print_info(log)
+        Logger.print_status(log)
         instance_manager.current_instance = instance
         instance_manager.stop_instance()
         instance_manager.disable_instance()

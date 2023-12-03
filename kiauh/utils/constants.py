@@ -14,6 +14,7 @@ import pwd
 from pathlib import Path
 
 # text colors and formats
+COLOR_WHITE = "\033[37m"  # white
 COLOR_MAGENTA = "\033[35m"  # magenta
 COLOR_GREEN = "\033[92m"  # bright green
 COLOR_YELLOW = "\033[93m"  # bright yellow

@@ -59,11 +59,13 @@ class RepoManager:
 
     def clone_repo(self):
         log = f"Cloning repository from '{self.repo}' with method '{self.method}'"
-        Logger.print_info(log)
+        Logger.print_status(log)
         try:
             if os.path.exists(self.target_dir):
-                if not get_confirm("Target directory already exists. Overwrite?"):
-                    Logger.print_info("Skipping re-clone of repository ...")
+                if not get_confirm(
+                    "Target directory already exists. Overwrite?", default_choice=False
+                ):
+                    Logger.print_info("Skipping re-clone of repository.")
                     return
                 shutil.rmtree(self.target_dir)
 
@@ -78,7 +80,7 @@ class RepoManager:
             return
 
     def pull_repo(self) -> None:
-        Logger.print_info(f"Updating repository '{self.repo}' ...")
+        Logger.print_status(f"Updating repository '{self.repo}' ...")
         try:
             self._pull()
         except subprocess.CalledProcessError:

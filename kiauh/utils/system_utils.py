@@ -62,7 +62,7 @@ def create_python_venv(target: Path) -> None:
     :param target: Path where to create the virtualenv at
     :return: None
     """
-    Logger.print_info("Set up Python virtual environment ...")
+    Logger.print_status("Set up Python virtual environment ...")
     if not target.exists():
         try:
             command = ["python3", "-m", "venv", f"{target}"]
@@ -76,7 +76,7 @@ def create_python_venv(target: Path) -> None:
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e.output.decode()}")
     else:
-        if get_confirm("Virtualenv already exists. Re-create?"):
+        if get_confirm("Virtualenv already exists. Re-create?", default_choice=False):
             try:
                 shutil.rmtree(target)
                 create_python_venv(target)
@@ -93,7 +93,7 @@ def update_python_pip(target: Path) -> None:
     :param target: Path of the virtualenv
     :return: None
     """
-    Logger.print_info("Updating pip ...")
+    Logger.print_status("Updating pip ...")
     try:
         command = [f"{target}/bin/pip", "install", "-U", "pip"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
@@ -115,7 +115,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
     :return: None
     """
     update_python_pip(target)
-    Logger.print_info("Installing Python requirements ...")
+    Logger.print_status("Installing Python requirements ...")
     try:
         command = [f"{target}/bin/pip", "install", "-r", f"{requirements}"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
@@ -150,7 +150,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         return
 
     if not silent:
-        Logger.print_info("Updating package list...")
+        Logger.print_status("Updating package list...")
 
     try:
         command = ["sudo", "apt-get", "update"]
@@ -193,11 +193,8 @@ def create_directory(_dir: Path) -> None:
     """
     try:
         if not os.path.isdir(_dir):
-            Logger.print_info(f"Create directory: {_dir}")
             os.makedirs(_dir, exist_ok=True)
-            Logger.print_ok("Directory created!")
-        else:
-            Logger.print_info(f"Directory already exists: {_dir}\nSkip creation ...")
+            Logger.print_ok(f"Created directory: {_dir}")
     except OSError as e:
         Logger.print_error(f"Error creating folder: {e}")
         raise
