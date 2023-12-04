@@ -11,7 +11,6 @@
 
 import os
 import pwd
-from pathlib import Path
 
 # text colors and formats
 COLOR_WHITE = "\033[37m"  # white
@@ -21,8 +20,6 @@ COLOR_YELLOW = "\033[93m"  # bright yellow
 COLOR_RED = "\033[91m"  # bright red
 COLOR_CYAN = "\033[96m"  # bright cyan
 RESET_FORMAT = "\033[0m"  # reset format
-# kiauh
-KIAUH_BACKUP_DIR = f"{Path.home()}/kiauh-backups"
 # current user
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
 SYSTEMD = "/etc/systemd/system"

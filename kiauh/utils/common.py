@@ -16,7 +16,7 @@ from typing import Dict, Literal
 def get_current_date() -> Dict[Literal["date", "time"], str]:
     """
     Get the current date |
-    :return: a Dict holding a date and time key:value pair
+    :return: Dict holding a date and time key:value pair
     """
     now: datetime = datetime.today()
     date: str = now.strftime("%Y-%m-%d")

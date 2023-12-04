@@ -40,7 +40,7 @@ def parse_packages_from_file(source_file: Path) -> List[str]:
     Read the package names from bash scripts, when defined like:
     PKGLIST="package1 package2 package3" |
     :param source_file: path of the sourcefile to read from
-    :return: a list of package names
+    :return: A list of package names
     """
 
     packages = []
@@ -169,7 +169,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         kill(f"Error updating system package list:\n{e.stderr.decode()}")
 
 
-def install_system_packages(packages: List) -> None:
+def install_system_packages(packages: List[str]) -> None:
     """
     Installs a list of system packages |
     :param packages: List of system package names
@@ -234,6 +234,11 @@ def check_file_exists(file_path: Path) -> bool:
 # this feels hacky and not quite right, but for now it works
 # see: https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
 def get_ipv4_addr() -> str:
+    """
+    Helper function that returns the IPv4 of the current machine
+    by opening a socket and sending a package to an arbitrary IP. |
+    :return: Local IPv4 of the current machine
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0)
     try:

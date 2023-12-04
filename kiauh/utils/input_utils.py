@@ -19,6 +19,13 @@ from kiauh.utils.logger import Logger
 def get_confirm(
     question: str, default_choice=True, allow_go_back=False
 ) -> Union[bool, None]:
+    """
+    Helper method for validating confirmation (yes/no) user input. |
+    :param question: The question to display
+    :param default_choice: A default if input was submitted without input
+    :param allow_go_back: Navigate back to a previous dialog
+    :return: Either True or False, or None on go_back
+    """
     options_confirm = ["y", "yes"]
     options_decline = ["n", "no"]
     options_go_back = ["b", "B"]
@@ -48,6 +55,15 @@ def get_confirm(
 def get_number_input(
     question: str, min_count: int, max_count=None, default=None, allow_go_back=False
 ) -> Union[int, None]:
+    """
+    Helper method to get a number input from the user
+    :param question: The question to display
+    :param min_count: The lowest allowed value
+    :param max_count: The highest allowed value (or None)
+    :param default: Optional default value
+    :param allow_go_back: Navigate back to a previous dialog
+    :return: Either the validated number input, or None on go_back
+    """
     options_go_back = ["b", "B"]
     _question = format_question(question, default)
     while True:
@@ -65,6 +81,13 @@ def get_number_input(
 
 
 def get_string_input(question: str, exclude=Optional[List], default=None) -> str:
+    """
+    Helper method to get a string input from the user
+    :param question: The question to display
+    :param exclude: List of strings which are not allowed
+    :param default: Optional default value
+    :return: The validated string value
+    """
     while True:
         _input = input(format_question(question, default)).strip()
 
@@ -77,6 +100,13 @@ def get_string_input(question: str, exclude=Optional[List], default=None) -> str
 
 
 def get_selection_input(question: str, option_list: List, default=None) -> str:
+    """
+    Helper method to get a selection from a list of options from the user
+    :param question: The question to display
+    :param option_list: The list of options the user can select from
+    :param default: Optional default value
+    :return: The option that was selected by the user
+    """
     while True:
         _input = input(format_question(question, default)).strip()
 
@@ -87,6 +117,12 @@ def get_selection_input(question: str, option_list: List, default=None) -> str:
 
 
 def format_question(question: str, default=None) -> str:
+    """
+    Helper method to have a standardized formatting of questions |
+    :param question: The question to display
+    :param default: If defined, the default option will be displayed to the user
+    :return: The formatted question string
+    """
     formatted_q = question
     if default is not None:
         formatted_q += f" (default={default})"
@@ -95,6 +131,14 @@ def format_question(question: str, default=None) -> str:
 
 
 def validate_number_input(value: str, min_count: int, max_count: int) -> int:
+    """
+    Helper method for a simple number input validation. |
+    :param value: The value to validate
+    :param min_count: The lowest allowed value
+    :param max_count: The highest allowed value (or None)
+    :return: The validated value as Integer
+    :raises: ValueError if value is invalid
+    """
     if max_count is not None:
         if min_count <= int(value) <= max_count:
             return int(value)

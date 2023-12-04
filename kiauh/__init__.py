@@ -10,6 +10,8 @@
 # ======================================================================= #
 
 from os.path import join, dirname, abspath
+from pathlib import Path
 
 APPLICATION_ROOT = dirname(dirname(abspath(__file__)))
 KIAUH_CFG = join(APPLICATION_ROOT, "kiauh.cfg")
+KIAUH_BACKUP_DIR = f"{Path.home()}/kiauh-backups"
