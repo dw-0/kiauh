@@ -52,15 +52,56 @@ function init_flash_process() {
     esac
   done
 
-  ### step 2: select how the mcu is connected to the host
+  ### step 2: select how the mcu is flashed (flash/serialflash)
+  select_flash_command
+
+  ### step 3: select how the mcu is connected to the host
   select_mcu_connection
 
-  ### step 3: select which detected mcu should be flashed
+  ### step 4: select which detected mcu should be flashed
   select_mcu_id "${method}"
 }
 
 #================================================#
 #=================== STEP 2 =====================#
+#================================================#
+function select_flash_command() {
+  unset flash_command
+
+  top_border
+  echo -e "| How to flash MCU?                                     |"
+  echo -e "| 1) make flash (default)                               |"
+  echo -e "| 2) make serialflash (stm32flash)                      |"
+  blank_line
+  back_help_footer
+
+  local choice
+  while true; do
+    read -p "${cyan}###### Flashing command:${white} " -i "1" -e choice
+    case "${choice}" in
+      1)
+        select_msg "Selected 'make flash' command"
+        flash_command="flash"
+        break;;
+      2)
+        select_msg "Selected 'make serialflash' command"
+        flash_command="serialflash"
+        break;;
+      B|b)
+        advanced_menu
+        break;;
+      H|h)
+        clear && print_header
+        show_mcu_flash_command_help
+        break;;
+      *)
+        error_msg "Invalid command!";;
+    esac
+  done
+}
+
+#================================================#
+#=================== STEP 3 =====================#
 #================================================#
 function select_mcu_connection() {
   top_border
@@ -119,7 +160,7 @@ function print_detected_mcu_to_screen() {
 }
 
 #================================================#
-#=================== STEP 3 =====================#
+#=================== STEP 4 =====================#
 #================================================#
 function select_mcu_id() {
   local i=0 sel_index=0 method=${1}
@@ -194,7 +235,7 @@ function start_flash_mcu() {
   local device=${1}
   do_action_service "stop" "klipper"
 
-  if make flash FLASH_DEVICE="${device}"; then
+  if make ${flash_command} FLASH_DEVICE="${device}"; then
     ok_msg "Flashing successfull!"
   else
     warn_msg "Flashing failed!"
@@ -379,6 +420,36 @@ function show_flash_method_help() {
       B|b)
         clear && print_header
         init_flash_process
+        break;;
+      *)
+        error_msg "Invalid command!";;
+    esac
+  done
+}
+
+function show_mcu_flash_command_help() {
+  top_border
+  echo -e "|     ~~~~~~~~ < ? > Help: Flash MCU < ? > ~~~~~~~~     |"
+  hr
+  echo -e "| ${cyan}make flash:${white}                                           |"
+  echo -e "| The default command to flash controller board, it     |"
+  echo -e "| will detect selected microcontroller and use suitable |"
+  echo -e "| tool for flashing it.                                 |"
+  blank_line
+  echo -e "| ${cyan}make serialflash:${white}                                     |"
+  echo -e "| Special command to flash STM32 microcontrollers in    |"
+  echo -e "| DFU mode but connected via serial. stm32flash command |"
+  echo -e "| will be used internally.                              |"
+  blank_line
+  back_footer
+
+  local choice
+  while true; do
+    read -p "${cyan}###### Please select:${white} " choice
+    case "${choice}" in
+      B|b)
+        clear && print_header
+        select_flash_command
         break;;
       *)
         error_msg "Invalid command!";;
