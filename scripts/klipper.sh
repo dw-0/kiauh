@@ -334,6 +334,7 @@ function create_klipper_service() {
 
   local printer_data
   local cfg_dir
+  local gcodes_dir
   local cfg
   local log
   local klippy_serial
@@ -346,6 +347,7 @@ function create_klipper_service() {
 
   printer_data="${HOME}/${instance_name}_data"
   cfg_dir="${printer_data}/config"
+  gcodes_dir="${printer_data}/gcodes"
   cfg="${cfg_dir}/printer.cfg"
   log="${printer_data}/logs/klippy.log"
   klippy_serial="${printer_data}/comms/klippy.serial"
@@ -376,18 +378,20 @@ function create_klipper_service() {
   fi
 
   if [[ ! -f ${cfg} ]]; then
-    write_example_printer_cfg "${cfg}"
+    write_example_printer_cfg "${cfg}" "${gcodes_dir}"
   fi
 }
 
 function write_example_printer_cfg() {
   local cfg=${1}
+  local gcodes_dir=${2}
   local cfg_template
 
   cfg_template="${KIAUH_SRCDIR}/resources/example.printer.cfg"
 
   status_msg "Creating minimal example printer.cfg ..."
   if cp "${cfg_template}" "${cfg}"; then
+    sed -i "s|%GCODES_DIR%|${gcodes_dir}|" "${cfg}"
     ok_msg "Minimal example printer.cfg created!"
   else
     error_msg "Couldn't create minimal example printer.cfg!"
