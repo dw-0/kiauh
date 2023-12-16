@@ -169,6 +169,26 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         kill(f"Error updating system package list:\n{e.stderr.decode()}")
 
 
+def check_package_install(packages: List[str]) -> List[str]:
+    """
+    Checks the system for installed packages |
+    :param packages: List of strings of package names
+    :return: A list containing the names of packages that are not installed
+    """
+    not_installed = []
+    for package in packages:
+        command = ["dpkg-query", "f'${Status}'", "--show", package]
+        result = subprocess.run(
+            command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True
+        )
+        if "installed" not in result.stdout.strip("'").split():
+            not_installed.append(package)
+        else:
+            Logger.print_ok(f"{package} already installed.")
+
+    return not_installed
+
+
 def install_system_packages(packages: List[str]) -> None:
     """
     Installs a list of system packages |
