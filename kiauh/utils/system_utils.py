@@ -11,10 +11,12 @@
 
 import os
 import shutil
+import socket
 import subprocess
 import sys
 import time
-import socket
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import List
 
@@ -269,3 +271,32 @@ def get_ipv4_addr() -> str:
         return "127.0.0.1"
     finally:
         s.close()
+
+
+def download_file(url: str, target_folder: str, target_name: str, show_progress=True):
+    target_path = os.path.join(target_folder, target_name)
+    try:
+        if show_progress:
+            urllib.request.urlretrieve(url, target_path, download_progress)
+        else:
+            urllib.request.urlretrieve(url, target_path)
+    except urllib.error.HTTPError as e:
+        Logger.print_error(f"Download failed! HTTP error occured: {e}")
+        raise
+    except urllib.error.URLError as e:
+        Logger.print_error(f"Download failed! URL error occured: {e}")
+        raise
+    except Exception as e:
+        Logger.print_error(f"Download failed! An error occured: {e}")
+        raise
+
+
+def download_progress(block_num, block_size, total_size):
+    downloaded = block_num * block_size
+    percent = 100 if downloaded >= total_size else downloaded / total_size * 100
+    mb = 1024 * 1024
+    progress = int(percent / 5)
+    remaining = "-" * (20 - progress)
+    dl = f"\rDownloading: [{'#' * progress}{remaining}]{percent:.2f}% ({downloaded/mb:.2f}/{total_size/mb:.2f}MB)"
+    sys.stdout.write(dl)
+    sys.stdout.flush()
