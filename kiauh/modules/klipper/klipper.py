@@ -31,10 +31,26 @@ class Klipper(BaseInstance):
         super().__init__(instance_type=self, suffix=suffix)
         self.klipper_dir = KLIPPER_DIR
         self.env_dir = KLIPPER_ENV_DIR
-        self.cfg_file = f"{self.cfg_dir}/printer.cfg"
-        self.log = f"{self.log_dir}/klippy.log"
-        self.serial = f"{self.comms_dir}/klippy.serial"
-        self.uds = f"{self.comms_dir}/klippy.sock"
+        self._cfg_file = f"{self.cfg_dir}/printer.cfg"
+        self._log = f"{self.log_dir}/klippy.log"
+        self._serial = f"{self.comms_dir}/klippy.serial"
+        self._uds = f"{self.comms_dir}/klippy.sock"
+
+    @property
+    def cfg_file(self) -> str:
+        return self._cfg_file
+
+    @property
+    def log(self) -> str:
+        return self._log
+
+    @property
+    def serial(self) -> str:
+        return self._serial
+
+    @property
+    def uds(self) -> str:
+        return self._uds
 
     def create(self) -> None:
         Logger.print_status("Creating new Klipper Instance ...")
@@ -140,8 +156,8 @@ class Klipper(BaseInstance):
         env_file_content = env_template_file_content.replace(
             "%KLIPPER_DIR%", self.klipper_dir
         )
-        env_file_content = env_file_content.replace("%CFG%", self.cfg_file)
-        env_file_content = env_file_content.replace("%SERIAL%", self.serial)
-        env_file_content = env_file_content.replace("%LOG%", self.log)
-        env_file_content = env_file_content.replace("%UDS%", self.uds)
+        env_file_content = env_file_content.replace("%CFG%", self._cfg_file)
+        env_file_content = env_file_content.replace("%SERIAL%", self._serial)
+        env_file_content = env_file_content.replace("%LOG%", self._log)
+        env_file_content = env_file_content.replace("%UDS%", self._uds)
         return env_file_content
