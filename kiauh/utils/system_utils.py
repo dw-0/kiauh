@@ -179,7 +179,7 @@ def check_package_install(packages: List[str]) -> List[str]:
     """
     not_installed = []
     for package in packages:
-        command = ["dpkg-query", "f'${Status}'", "--show", package]
+        command = ["dpkg-query", "-f'${Status}'", "--show", package]
         result = subprocess.run(
             command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True
         )
