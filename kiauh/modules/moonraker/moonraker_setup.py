@@ -103,26 +103,30 @@ def install_moonraker(
     moonraker_instances: List[Moonraker],
     klipper_instances: List[Klipper],
 ) -> None:
-    print_moonraker_overview(
-        klipper_instances, moonraker_instances, show_index=True, show_select_all=True
-    )
-
-    options = [str(i) for i in range(len(klipper_instances))]
-    options.extend(["a", "A", "b", "B"])
-    question = "Select Klipper instance to setup Moonraker for"
-    selection = get_selection_input(question, options).lower()
+    selected_klipper_instance = 0
+    if len(klipper_instances) > 1:
+        print_moonraker_overview(
+            klipper_instances,
+            moonraker_instances,
+            show_index=True,
+            show_select_all=True,
+        )
+        options = [str(i) for i in range(len(klipper_instances))]
+        options.extend(["a", "A", "b", "B"])
+        question = "Select Klipper instance to setup Moonraker for"
+        selected_klipper_instance = get_selection_input(question, options).lower()
 
     instance_names = []
-    if selection == "b":
+    if selected_klipper_instance == "b":
         Logger.print_status(EXIT_MOONRAKER_SETUP)
         return
 
-    elif selection == "a":
+    elif selected_klipper_instance == "a":
         for instance in klipper_instances:
             instance_names.append(instance.suffix)
 
     else:
-        index = int(selection)
+        index = int(selected_klipper_instance)
         instance_names.append(klipper_instances[index].suffix)
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
