@@ -38,6 +38,7 @@ from kiauh.modules.klipper.klipper_utils import (
     handle_disruptive_system_packages,
     check_user_groups,
     handle_single_to_multi_conversion,
+    create_example_printer_cfg,
 )
 from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.utils.input_utils import (
@@ -106,6 +107,8 @@ def install_klipper(
         Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
+    create_example_cfg = get_confirm("Create example printer.cfg?")
+
     if len(instance_list) < 1:
         setup_klipper_prerequesites()
 
@@ -117,13 +120,24 @@ def install_klipper(
 
     for name in instance_names:
         if convert_single_to_multi:
-            handle_single_to_multi_conversion(instance_manager, name)
+            current_instance = handle_single_to_multi_conversion(instance_manager, name)
             convert_single_to_multi = False
         else:
-            instance_manager.current_instance = Klipper(suffix=name)
+            current_instance = Klipper(suffix=name)
 
+        instance_manager.current_instance = current_instance
         instance_manager.create_instance()
         instance_manager.enable_instance()
+
+        if create_example_cfg:
+            cfg_dir = current_instance.cfg_dir
+            Logger.print_status(f"Creating example printer.cfg in '{cfg_dir}'")
+            if current_instance.cfg_file is None:
+                create_example_printer_cfg(current_instance)
+                Logger.print_ok(f"Example printer.cfg created in '{cfg_dir}'")
+            else:
+                Logger.print_info(f"printer.cfg in '{cfg_dir}' already exists.")
+
         instance_manager.start_instance()
 
     instance_manager.reload_daemon()

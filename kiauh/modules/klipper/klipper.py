@@ -31,7 +31,7 @@ class Klipper(BaseInstance):
         super().__init__(instance_type=self, suffix=suffix)
         self.klipper_dir = KLIPPER_DIR
         self.env_dir = KLIPPER_ENV_DIR
-        self._cfg_file = f"{self.cfg_dir}/printer.cfg"
+        self._cfg_file = self._get_cfg()
         self._log = f"{self.log_dir}/klippy.log"
         self._serial = f"{self.comms_dir}/klippy.serial"
         self._uds = f"{self.comms_dir}/klippy.sock"
@@ -156,8 +156,16 @@ class Klipper(BaseInstance):
         env_file_content = env_template_file_content.replace(
             "%KLIPPER_DIR%", self.klipper_dir
         )
-        env_file_content = env_file_content.replace("%CFG%", self._cfg_file)
+        env_file_content = env_file_content.replace(
+            "%CFG%", f"{self.cfg_dir}/printer.cfg"
+        )
         env_file_content = env_file_content.replace("%SERIAL%", self._serial)
         env_file_content = env_file_content.replace("%LOG%", self._log)
         env_file_content = env_file_content.replace("%UDS%", self._uds)
         return env_file_content
+
+    def _get_cfg(self):
+        cfg_file_loc = f"{self.cfg_dir}/printer.cfg"
+        if Path(cfg_file_loc).is_file():
+            return cfg_file_loc
+        return None

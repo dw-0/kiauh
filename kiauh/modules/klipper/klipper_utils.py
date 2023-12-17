@@ -12,12 +12,15 @@
 import os
 import re
 import grp
+import shutil
 import subprocess
 import textwrap
 
 from typing import List, Union
 
+from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.modules.klipper import MODULE_PATH
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,
@@ -92,7 +95,7 @@ def handle_existing_multi_instance_names(
 
 def handle_single_to_multi_conversion(
     instance_manager: InstanceManager, name: str
-) -> None:
+) -> Klipper:
     instance_list = instance_manager.instances
     instance_manager.current_instance = instance_list[0]
     old_data_dir_name = instance_manager.instances[0].data_dir
@@ -103,6 +106,7 @@ def handle_single_to_multi_conversion(
     new_data_dir_name = instance_manager.current_instance.data_dir
     try:
         os.rename(old_data_dir_name, new_data_dir_name)
+        return instance_manager.current_instance
     except OSError as e:
         log = f"Cannot rename {old_data_dir_name} to {new_data_dir_name}:\n{e}"
         Logger.print_error(log)
@@ -188,3 +192,18 @@ def has_custom_names(instance_list: List[Klipper]) -> bool:
 def get_highest_index(instance_list: List[Klipper]) -> int:
     indices = [int(instance.suffix.split("-")[-1]) for instance in instance_list]
     return max(indices)
+
+
+def create_example_printer_cfg(instance: Klipper) -> None:
+    source = os.path.join(MODULE_PATH, "res", "printer.cfg")
+    target = os.path.join(instance.cfg_dir, "printer.cfg")
+    try:
+        shutil.copy(source, target)
+    except OSError as e:
+        Logger.print_error(f"Unable to create example printer.cfg:\n{e}")
+        return
+
+    cm = ConfigManager(target)
+    cm.read_config()
+    cm.set_value("virtual_sdcard", "path", instance.gcodes_dir)
+    cm.write_config()

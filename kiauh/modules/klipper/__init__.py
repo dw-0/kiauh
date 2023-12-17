@@ -9,7 +9,10 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+import os
 from pathlib import Path
+
+MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 KLIPPER_DIR = f"{Path.home()}/klipper"
 KLIPPER_ENV_DIR = f"{Path.home()}/klippy-env"
