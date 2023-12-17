@@ -32,15 +32,17 @@ class ConfigManager:
         with open(self.config_file, "w") as cfg:
             self.config.write(cfg)
 
-    def get_value(self, section: str, key: str) -> Union[str, bool, None]:
+    def get_value(self, section: str, key: str, silent=False) -> Union[str, bool, None]:
         if not self.config.has_section(section):
-            log = f"Section not defined. Unable to read section: [{section}]."
-            Logger.print_error(log)
+            if not silent:
+                log = f"Section not defined. Unable to read section: [{section}]."
+                Logger.print_error(log)
             return None
 
         if not self.config.has_option(section, key):
-            log = f"Option not defined in section [{section}]. Unable to read option: '{key}'."
-            Logger.print_error(log)
+            if not silent:
+                log = f"Option not defined in section [{section}]. Unable to read option: '{key}'."
+                Logger.print_error(log)
             return None
 
         value = self.config.get(section, key)
