@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -35,11 +34,10 @@ from kiauh.modules.moonraker import (
     POLKIT_FILE,
     POLKIT_USR_FILE,
     POLKIT_SCRIPT,
-    DEFAULT_MOONRAKER_PORT,
-    MODULE_PATH,
 )
 from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.modules.moonraker.moonraker_dialogs import print_moonraker_overview
+from kiauh.modules.moonraker.moonraker_utils import create_example_moonraker_conf
 from kiauh.utils.input_utils import (
     get_confirm,
     get_selection_input,
@@ -52,7 +50,6 @@ from kiauh.utils.system_utils import (
     update_system_package_lists,
     install_system_packages,
     check_file_exists,
-    get_ipv4_addr,
 )
 
 
@@ -133,9 +130,9 @@ def install_moonraker(
     setup_moonraker_prerequesites()
     install_moonraker_polkit()
 
-    ports_in_use = [
-        instance.port for instance in moonraker_instances if instance.port is not None
-    ]
+    used_ports_map = {
+        instance.suffix: instance.port for instance in moonraker_instances
+    }
     for name in instance_names:
         current_instance = Moonraker(suffix=name)
 
@@ -144,13 +141,7 @@ def install_moonraker(
         instance_manager.enable_instance()
 
         if create_example_cfg:
-            cfg_dir = current_instance.cfg_dir
-            Logger.print_status(f"Creating example moonraker.conf in '{cfg_dir}'")
-            if current_instance.cfg_file is None:
-                create_example_moonraker_conf(current_instance, ports_in_use)
-                Logger.print_ok(f"Example moonraker.conf created in '{cfg_dir}'")
-            else:
-                Logger.print_info(f"moonraker.conf in '{cfg_dir}' already exists.")
+            create_example_moonraker_conf(current_instance, used_ports_map)
 
         instance_manager.start_instance()
 
@@ -324,33 +315,3 @@ def update_moonraker() -> None:
     )
     repo_manager.pull_repo()
     instance_manager.start_all_instance()
-
-
-def create_example_moonraker_conf(instance: Moonraker, ports: List[int]) -> None:
-    port = max(ports) + 1 if ports else DEFAULT_MOONRAKER_PORT
-    ports.append(port)
-    instance.port = port
-    example_cfg_path = os.path.join(MODULE_PATH, "res", "moonraker.conf")
-
-    with open(f"{instance.cfg_dir}/moonraker.conf", "w") as cfg:
-        cfg.write(_prep_example_moonraker_conf(instance, example_cfg_path))
-
-
-def _prep_example_moonraker_conf(instance: Moonraker, example_cfg_path: str) -> str:
-    try:
-        with open(example_cfg_path, "r") as cfg:
-            example_cfg_content = cfg.read()
-    except FileNotFoundError:
-        Logger.print_error(f"Unable to open {example_cfg_path} - File not found")
-        raise
-
-    example_cfg_content = example_cfg_content.replace("%PORT%", str(instance.port))
-    example_cfg_content = example_cfg_content.replace(
-        "%UDS%", f"{instance.comms_dir}/klippy.sock"
-    )
-
-    ip = get_ipv4_addr().split(".")[:2]
-    ip.extend(["0", "0/16"])
-    example_cfg_content = example_cfg_content.replace("%LAN%", ".".join(ip))
-
-    return example_cfg_content
