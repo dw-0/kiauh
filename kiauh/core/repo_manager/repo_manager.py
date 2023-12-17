@@ -19,9 +19,14 @@ from kiauh.utils.logger import Logger
 
 # noinspection PyMethodMayBeStatic
 class RepoManager:
-    def __init__(self, repo: str, branch: str, target_dir: str):
+    def __init__(
+        self,
+        repo: str,
+        target_dir: str,
+        branch: str = None,
+    ):
         self._repo = repo
-        self._branch = branch
+        self._branch = branch if branch is not None else "master"
         self._method = self._get_method()
         self._target_dir = target_dir
 
@@ -62,9 +67,8 @@ class RepoManager:
         Logger.print_status(log)
         try:
             if os.path.exists(self.target_dir):
-                if not get_confirm(
-                    "Target directory already exists. Overwrite?", default_choice=False
-                ):
+                question = f"'{self.target_dir}' already exists. Overwrite?"
+                if not get_confirm(question, default_choice=False):
                     Logger.print_info("Skipping re-clone of repository.")
                     return
                 shutil.rmtree(self.target_dir)
