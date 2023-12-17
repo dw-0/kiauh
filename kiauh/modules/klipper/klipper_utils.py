@@ -195,6 +195,11 @@ def get_highest_index(instance_list: List[Klipper]) -> int:
 
 
 def create_example_printer_cfg(instance: Klipper) -> None:
+    Logger.print_status(f"Creating example printer.cfg in '{instance.cfg_dir}'")
+    if instance.cfg_file is not None:
+        Logger.print_info(f"printer.cfg in '{instance.cfg_dir}' already exists.")
+        return
+
     source = os.path.join(MODULE_PATH, "res", "printer.cfg")
     target = os.path.join(instance.cfg_dir, "printer.cfg")
     try:
@@ -207,3 +212,4 @@ def create_example_printer_cfg(instance: Klipper) -> None:
     cm.read_config()
     cm.set_value("virtual_sdcard", "path", instance.gcodes_dir)
     cm.write_config()
+    Logger.print_ok(f"Example printer.cfg created in '{instance.cfg_dir}'")
