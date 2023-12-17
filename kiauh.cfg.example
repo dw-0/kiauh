@@ -7,6 +7,6 @@ branch: master
 method: https
 
 [moonraker]
-repository_url: https://github.com/Klipper3d/klipper
+repository_url: https://github.com/Arksine/moonraker
 branch: master
 method: https
