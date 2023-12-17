@@ -14,6 +14,7 @@ import textwrap
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper import klipper_setup
+from kiauh.modules.mainsail import mainsail_setup
 from kiauh.modules.moonraker import moonraker_setup
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
 
@@ -69,7 +70,7 @@ class InstallMenu(BaseMenu):
         moonraker_setup.run_moonraker_setup(install=True)
 
     def install_mainsail(self):
-        print("install_mainsail")
+        mainsail_setup.run_mainsail_setup(install=True)
 
     def install_fluidd(self):
         print("install_fluidd")

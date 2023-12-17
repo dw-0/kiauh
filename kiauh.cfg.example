@@ -10,3 +10,7 @@ method: https
 repository_url: https://github.com/Arksine/moonraker
 branch: master
 method: https
+
+[mainsail]
+default_port: 80
+unstable_releases: False
