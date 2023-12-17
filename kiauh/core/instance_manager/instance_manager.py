@@ -141,10 +141,25 @@ class InstanceManager:
             Logger.print_error(f"Error starting {self.instance_service_full}:")
             Logger.print_error(f"{e}")
 
+    def restart_instance(self) -> None:
+        Logger.print_status(f"Restarting {self.instance_service_full} ...")
+        try:
+            command = ["sudo", "systemctl", "restart", self.instance_service_full]
+            if subprocess.run(command, check=True):
+                Logger.print_ok(f"{self.instance_service_full} restarted.")
+        except subprocess.CalledProcessError as e:
+            Logger.print_error(f"Error restarting {self.instance_service_full}:")
+            Logger.print_error(f"{e}")
+
     def start_all_instance(self) -> None:
         for instance in self.instances:
             self.current_instance = instance
             self.start_instance()
+
+    def restart_all_instance(self) -> None:
+        for instance in self.instances:
+            self.current_instance = instance
+            self.restart_instance()
 
     def stop_instance(self) -> None:
         Logger.print_status(f"Stopping {self.instance_service_full} ...")
