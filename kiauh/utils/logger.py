@@ -36,26 +36,26 @@ class Logger:
         pass
 
     @staticmethod
-    def print_info(msg, prefix=True, end="\n") -> None:
+    def print_info(msg, prefix=True, start="", end="\n") -> None:
         message = f"[INFO] {msg}" if prefix else msg
-        print(f"{COLOR_WHITE}{message}{RESET_FORMAT}", end=end)
+        print(f"{COLOR_WHITE}{start}{message}{RESET_FORMAT}", end=end)
 
     @staticmethod
-    def print_ok(msg, prefix=True, end="\n") -> None:
+    def print_ok(msg, prefix=True, start="", end="\n") -> None:
         message = f"[OK] {msg}" if prefix else msg
-        print(f"{COLOR_GREEN}{message}{RESET_FORMAT}", end=end)
+        print(f"{COLOR_GREEN}{start}{message}{RESET_FORMAT}", end=end)
 
     @staticmethod
-    def print_warn(msg, prefix=True, end="\n") -> None:
+    def print_warn(msg, prefix=True, start="", end="\n") -> None:
         message = f"[WARN] {msg}" if prefix else msg
-        print(f"{COLOR_YELLOW}{message}{RESET_FORMAT}", end=end)
+        print(f"{COLOR_YELLOW}{start}{message}{RESET_FORMAT}", end=end)
 
     @staticmethod
-    def print_error(msg, prefix=True, end="\n") -> None:
+    def print_error(msg, prefix=True, start="", end="\n") -> None:
         message = f"[ERROR] {msg}" if prefix else msg
-        print(f"{COLOR_RED}{message}{RESET_FORMAT}", end=end)
+        print(f"{COLOR_RED}{start}{message}{RESET_FORMAT}", end=end)
 
     @staticmethod
-    def print_status(msg, prefix=True, end="\n") -> None:
+    def print_status(msg, prefix=True, start="", end="\n") -> None:
         message = f"\n###### {msg}" if prefix else msg
-        print(f"{COLOR_MAGENTA}{message}{RESET_FORMAT}", end=end)
+        print(f"{COLOR_MAGENTA}{start}{message}{RESET_FORMAT}", end=end)
