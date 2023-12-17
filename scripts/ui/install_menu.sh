@@ -35,7 +35,7 @@ function install_ui() {
 }
 
 function install_menu() {
-  clear -x && sudo -v && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
+  clear -x && sudo true && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
   print_header
   install_ui
 
