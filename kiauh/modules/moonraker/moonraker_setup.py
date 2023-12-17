@@ -64,9 +64,9 @@ def run_moonraker_setup(install: bool) -> None:
     mr_instance_list = mr_im.instances
     mr_instance_count = len(mr_instance_list)
 
-    if not (sys.version_info.major >= 4 and sys.version_info.minor >= 7):
+    if not (sys.version_info.major >= 3 and sys.version_info.minor >= 7):
         Logger.print_error("Versioncheck failed!")
-        Logger.print_error("Python 3. or newer required to run Moonraker.")
+        Logger.print_error("Python 3.7 or newer required to run Moonraker.")
         return
 
     is_klipper_installed = kl_instance_count > 0
