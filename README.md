@@ -29,7 +29,7 @@
 ### 📋 Prerequisites
 KIAUH is a script that assists you in installing Klipper on a Linux operating system that has
 already been flashed to your Raspberry Pi's (or other SBC's) SD card. As a result, you must ensure 
-that you have a functional Linux system on hand. `Raspberry Pi OS Lite (32bit)` is a recommended Linux image 
+that you have a functional Linux system on hand. `Raspberry Pi OS Lite (either 32bit or 64bit)` is a recommended Linux image 
 if you are using a Raspberry Pi. The [official Raspberry Pi Imager](https://www.raspberrypi.com/software/) 
 is the simplest way to flash an image like this to an SD card.
 
@@ -39,7 +39,7 @@ select `Choose OS -> Raspberry Pi OS (other)`: \
   <img src="https://raw.githubusercontent.com/dw-0/kiauh/master/resources/screenshots/rpi_imager1.png" alt="KIAUH logo" height="350">
 </p>
 
-* Then select `Raspberry Pi OS Lite (32bit)`:
+* Then select `Raspberry Pi OS Lite (32bit)` (or 64bit if you want to use that instead):
 <p align="center">
   <img src="https://raw.githubusercontent.com/dw-0/kiauh/master/resources/screenshots/rpi_imager2.png" alt="KIAUH logo" height="350">
 </p>
