@@ -70,7 +70,7 @@ class InstallMenu(BaseMenu):
         moonraker_setup.run_moonraker_setup(install=True)
 
     def install_mainsail(self):
-        mainsail_setup.run_mainsail_setup(install=True)
+        mainsail_setup.run_mainsail_installation()
 
     def install_fluidd(self):
         print("install_fluidd")
