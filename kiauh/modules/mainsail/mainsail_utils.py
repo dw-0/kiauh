@@ -20,6 +20,8 @@ from kiauh.modules.mainsail import MAINSAIL_CONFIG_JSON
 from kiauh.utils.logger import Logger
 
 
+# TODO: give this method an optional target dir to backup to
+#  alteratively use the BackupManager for handling this task (probably best)
 def backup_config_json() -> None:
     try:
         Logger.print_status(f"Backup '{MAINSAIL_CONFIG_JSON}' ...")
