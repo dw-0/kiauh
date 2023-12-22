@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Union, Optional, Type, TypeVar
 
 from kiauh.utils.constants import SYSTEMD, CURRENT_USER
-from kiauh.utils.system_utils import create_directory
+from kiauh.utils.filesystem_utils import create_directory
 
 B = TypeVar(name="B", bound="BaseInstance", covariant=True)
 

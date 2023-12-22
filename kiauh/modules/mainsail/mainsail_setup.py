@@ -24,35 +24,31 @@ from kiauh.modules.mainsail import (
     MAINSAIL_CONFIG_DIR,
     MAINSAIL_CONFIG_REPO_URL,
     MODULE_PATH,
-)
+    )
 from kiauh.modules.mainsail.mainsail_dialogs import (
     print_moonraker_not_found_dialog,
     print_mainsail_already_installed_dialog,
     print_install_mainsail_config_dialog,
     print_mainsail_port_select_dialog,
-)
+    )
 from kiauh.modules.mainsail.mainsail_utils import (
     restore_config_json,
     enable_mainsail_remotemode,
     backup_config_json,
     symlink_webui_nginx_log,
-)
+    )
 from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.utils.common import check_install_dependencies
+from kiauh.utils.filesystem_utils import unzip, create_upstream_nginx_cfg, create_common_vars_nginx_cfg, \
+    delete_default_nginx_cfg, create_nginx_cfg, enable_nginx_cfg
 from kiauh.utils.input_utils import get_confirm, get_number_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     download_file,
-    unzip,
-    create_upstream_nginx_cfg,
-    create_nginx_cfg,
-    delete_default_nginx_cfg,
-    enable_nginx_cfg,
     set_nginx_permissions,
     get_ipv4_addr,
     control_systemd_service,
-    create_common_vars_nginx_cfg,
-)
+    )
 
 
 def run_mainsail_installation() -> None:
