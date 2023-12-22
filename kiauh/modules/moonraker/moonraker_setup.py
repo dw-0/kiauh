@@ -181,9 +181,9 @@ def install_moonraker_packages(moonraker_dir: Path) -> None:
 def install_moonraker_polkit() -> None:
     Logger.print_status("Installing Moonraker policykit rules ...")
 
-    legacy_file_exists = check_file_exist(Path(POLKIT_LEGACY_FILE))
-    polkit_file_exists = check_file_exist(Path(POLKIT_FILE))
-    usr_file_exists = check_file_exist(Path(POLKIT_USR_FILE))
+    legacy_file_exists = check_file_exist(Path(POLKIT_LEGACY_FILE), True)
+    polkit_file_exists = check_file_exist(Path(POLKIT_FILE), True)
+    usr_file_exists = check_file_exist(Path(POLKIT_USR_FILE), True)
 
     if legacy_file_exists or (polkit_file_exists and usr_file_exists):
         Logger.print_info("Moonraker policykit rules are already installed.")

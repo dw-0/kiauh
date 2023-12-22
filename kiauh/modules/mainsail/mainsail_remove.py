@@ -41,7 +41,8 @@ def run_mainsail_removal(
         if remove_mr_updater_section:
             remove_updater_section("update_manager mainsail")
     if remove_ms_config:
-        remove_ms_config_dir()
+        remove_mainsail_cfg_dir()
+        remove_mainsail_cfg_symlink()
         if remove_mr_updater_section:
             remove_updater_section("update_manager mainsail-config")
         if remove_msc_printer_cfg_include:
@@ -63,8 +64,8 @@ def remove_mainsail_dir() -> None:
 def remove_nginx_config() -> None:
     Logger.print_status("Removing Mainsails NGINX config ...")
     try:
-        remove_file(Path(NGINX_SITES_AVAILABLE).joinpath("mainsail"), True)
-        remove_file(Path(NGINX_SITES_ENABLED).joinpath("mainsail"), True)
+        remove_file(Path(NGINX_SITES_AVAILABLE, "mainsail"), True)
+        remove_file(Path(NGINX_SITES_ENABLED, "mainsail"), True)
 
     except subprocess.CalledProcessError as e:
         log = f"Unable to remove Mainsail NGINX config:\n{e.stderr.decode()}"
@@ -82,8 +83,8 @@ def remove_nginx_logs() -> None:
             return
 
         for instance in im.instances:
-            remove_file(Path(instance.log_dir).joinpath("mainsail-access.log"))
-            remove_file(Path(instance.log_dir).joinpath("mainsail-error.log"))
+            remove_file(Path(instance.log_dir, "mainsail-access.log"))
+            remove_file(Path(instance.log_dir, "mainsail-error.log"))
 
     except (OSError, subprocess.CalledProcessError) as e:
         Logger.print_error(f"Unable to NGINX logs:\n{e}")
@@ -114,7 +115,7 @@ def remove_updater_section(name: str) -> None:
         cm.write_config()
 
 
-def remove_ms_config_dir() -> None:
+def remove_mainsail_cfg_dir() -> None:
     Logger.print_status("Removing mainsail-config ...")
     if not Path(MAINSAIL_CONFIG_DIR).exists():
         Logger.print_info(f"'{MAINSAIL_CONFIG_DIR}' does not exist. Skipping ...")
@@ -124,6 +125,17 @@ def remove_ms_config_dir() -> None:
         shutil.rmtree(MAINSAIL_CONFIG_DIR)
     except OSError as e:
         Logger.print_error(f"Unable to delete '{MAINSAIL_CONFIG_DIR}':\n{e}")
+
+
+def remove_mainsail_cfg_symlink() -> None:
+    Logger.print_status("Removing mainsail.cfg symlinks ...")
+    im = InstanceManager(Moonraker)
+    for instance in im.instances:
+        Logger.print_status(f"Removing symlink from '{instance.cfg_dir}' ...")
+        try:
+            remove_file(Path(instance.cfg_dir, "mainsail.cfg"))
+        except subprocess.CalledProcessError:
+            Logger.print_error("Failed to remove symlink!")
 
 
 def remove_printer_cfg_include() -> None:

@@ -19,15 +19,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import List, Literal
-from zipfile import ZipFile
 
-from kiauh.utils import (
-    NGINX_CONFD,
-    MODULE_PATH,
-    NGINX_SITES_AVAILABLE,
-    NGINX_SITES_ENABLED,
-)
-from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
 

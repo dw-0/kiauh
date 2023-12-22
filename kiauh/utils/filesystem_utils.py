@@ -23,19 +23,25 @@ from kiauh.utils import (
 from kiauh.utils.logger import Logger
 
 
-def check_file_exist(file_path: Path) -> bool:
+def check_file_exist(file_path: Path, sudo=False) -> bool:
     """
-    Helper function for checking the existence of a file where
-    elevated permissions are required |
+    Helper function for checking the existence of a file |
     :param file_path: the absolute path of the file to check
-    :return: True if file exists, otherwise False
+    :param sudo: use sudo if required
+    :return: True, if file exists, otherwise False
     """
-    try:
-        command = ["sudo", "find", file_path]
-        subprocess.check_output(command, stderr=subprocess.DEVNULL)
-        return True
-    except subprocess.CalledProcessError:
-        return False
+    if sudo:
+        try:
+            command = ["sudo", "find", file_path]
+            subprocess.check_output(command, stderr=subprocess.DEVNULL)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+    else:
+        if Path(file_path).exists():
+            return True
+        else:
+            return False
 
 
 def create_directory(_dir: Path) -> None:
@@ -66,8 +72,8 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
 
 def remove_file(file_path: Path, sudo=False) -> None:
     try:
-        command = f"{'sudo ' if sudo else ''}rm -f {file_path}"
-        subprocess.run(command, stderr=subprocess.PIPE, check=True, shell=True)
+        cmd = f"{'sudo ' if sudo else ''}rm -f {file_path}"
+        subprocess.run(cmd, stderr=subprocess.PIPE, check=True, shell=True)
     except subprocess.CalledProcessError as e:
         log = f"Cannot remove file {file_path}: {e.stderr.decode()}"
         Logger.print_error(log)
@@ -85,7 +91,7 @@ def unzip(file: str, target_dir: str) -> None:
         _zip.extractall(target_dir)
 
 
-def create_upstream_nginx_cfg() -> None:
+def copy_upstream_nginx_cfg() -> None:
     """
     Creates an upstream.conf in /etc/nginx/conf.d
     :return: None
@@ -101,7 +107,7 @@ def create_upstream_nginx_cfg() -> None:
         raise
 
 
-def create_common_vars_nginx_cfg() -> None:
+def copy_common_vars_nginx_cfg() -> None:
     """
     Creates a common_vars.conf in /etc/nginx/conf.d
     :return: None
@@ -152,7 +158,7 @@ def delete_default_nginx_cfg() -> None:
     :return: None
     """
     default_cfg = Path("/etc/nginx/sites-enabled/default")
-    if not check_file_exist(default_cfg):
+    if not check_file_exist(default_cfg, True):
         return
 
     try:
@@ -172,7 +178,7 @@ def enable_nginx_cfg(name: str) -> None:
     """
     source = os.path.join(NGINX_SITES_AVAILABLE, name)
     target = os.path.join(NGINX_SITES_ENABLED, name)
-    if check_file_exist(Path(target)):
+    if check_file_exist(Path(target), True):
         return
 
     try:

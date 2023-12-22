@@ -42,8 +42,8 @@ from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.utils.common import check_install_dependencies
 from kiauh.utils.filesystem_utils import (
     unzip,
-    create_upstream_nginx_cfg,
-    create_common_vars_nginx_cfg,
+    copy_upstream_nginx_cfg,
+    copy_common_vars_nginx_cfg,
     delete_default_nginx_cfg,
     create_nginx_cfg,
     enable_nginx_cfg,
@@ -130,8 +130,8 @@ def run_mainsail_installation() -> None:
             patch_printer_config(im_kl.instances)
             im_kl.restart_all_instance()
 
-        create_upstream_nginx_cfg()
-        create_common_vars_nginx_cfg()
+        copy_upstream_nginx_cfg()
+        copy_common_vars_nginx_cfg()
         create_mainsail_nginx_cfg(mainsail_port)
         if is_klipper_installed:
             symlink_webui_nginx_log(im_kl.instances)
