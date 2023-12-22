@@ -16,7 +16,6 @@ from zipfile import ZipFile
 
 from kiauh.utils import (
     NGINX_SITES_AVAILABLE,
-    NGINX_SITES_ENABLED,
     MODULE_PATH,
     NGINX_CONFD,
 )
@@ -148,43 +147,5 @@ def create_nginx_cfg(name: str, port: int, root_dir: str) -> None:
         subprocess.run(command, stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError as e:
         log = f"Unable to create '{target}': {e.stderr.decode()}"
-        Logger.print_error(log)
-        raise
-
-
-def delete_default_nginx_cfg() -> None:
-    """
-    Deletes a default NGINX config
-    :return: None
-    """
-    default_cfg = Path("/etc/nginx/sites-enabled/default")
-    if not check_file_exist(default_cfg, True):
-        return
-
-    try:
-        command = ["sudo", "rm", default_cfg]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
-        log = f"Unable to delete '{default_cfg}': {e.stderr.decode()}"
-        Logger.print_error(log)
-        raise
-
-
-def enable_nginx_cfg(name: str) -> None:
-    """
-    Helper method to enable an NGINX config |
-    :param name: name of the config to enable
-    :return: None
-    """
-    source = os.path.join(NGINX_SITES_AVAILABLE, name)
-    target = os.path.join(NGINX_SITES_ENABLED, name)
-    if check_file_exist(Path(target), True):
-        return
-
-    try:
-        command = ["sudo", "ln", "-s", source, target]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
-        log = f"Unable to create symlink: {e.stderr.decode()}"
         Logger.print_error(log)
         raise

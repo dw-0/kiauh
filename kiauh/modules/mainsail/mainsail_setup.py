@@ -39,15 +39,15 @@ from kiauh.modules.mainsail.mainsail_utils import (
     symlink_webui_nginx_log,
 )
 from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from kiauh.utils.common import check_install_dependencies
 from kiauh.utils.filesystem_utils import (
     unzip,
     copy_upstream_nginx_cfg,
     copy_common_vars_nginx_cfg,
-    delete_default_nginx_cfg,
     create_nginx_cfg,
-    enable_nginx_cfg,
     create_symlink,
+    remove_file,
 )
 from kiauh.utils.input_utils import get_confirm, get_number_input
 from kiauh.utils.logger import Logger
@@ -184,12 +184,14 @@ def create_mainsail_cfg_symlink(klipper_instances: List[Klipper]) -> None:
 
 
 def create_mainsail_nginx_cfg(port: int) -> None:
+    root_dir = MAINSAIL_DIR
+    source = Path(NGINX_SITES_AVAILABLE, "mainsail")
+    target = Path(NGINX_SITES_ENABLED, "mainsail")
     try:
         Logger.print_status("Creating NGINX config for Mainsail ...")
-        root_dir = MAINSAIL_DIR
-        delete_default_nginx_cfg()
+        remove_file(Path("/etc/nginx/sites-enabled/default"), True)
         create_nginx_cfg("mainsail", port, root_dir)
-        enable_nginx_cfg("mainsail")
+        create_symlink(source, target, True)
         set_nginx_permissions()
         Logger.print_ok("NGINX config for Mainsail successfully created.")
     except Exception:
