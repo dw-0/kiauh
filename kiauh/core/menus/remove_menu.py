@@ -29,18 +29,16 @@ class RemoveMenu(BaseMenu):
                 1: self.remove_klipper,
                 2: self.remove_moonraker,
                 3: MainsailRemoveMenu,
-                4: self.remove_mainsail_config,
                 5: self.remove_fluidd,
-                6: self.remove_fluidd_config,
-                7: self.remove_klipperscreen,
-                8: self.remove_crowsnest,
-                9: self.remove_mjpgstreamer,
-                10: self.remove_pretty_gcode,
-                11: self.remove_telegram_bot,
-                12: self.remove_obico,
-                13: self.remove_octoeverywhere,
-                14: self.remove_mobileraker,
-                15: self.remove_nginx,
+                6: self.remove_klipperscreen,
+                7: self.remove_crowsnest,
+                8: self.remove_mjpgstreamer,
+                9: self.remove_pretty_gcode,
+                10: self.remove_telegram_bot,
+                11: self.remove_obico,
+                12: self.remove_octoeverywhere,
+                13: self.remove_mobileraker,
+                14: self.remove_nginx,
             },
             footer_type=BACK_FOOTER,
         )
@@ -57,17 +55,17 @@ class RemoveMenu(BaseMenu):
             | INFO: Configurations and/or any backups will be kept! |
             |-------------------------------------------------------|
             | Firmware & API:           | Webcam Streamer:          |
-            |  1) [Klipper]             |  8) [Crowsnest]           |
-            |  2) [Moonraker]           |  9) [MJPG-Streamer]       |
+            |  1) [Klipper]             |  6) [Crowsnest]           |
+            |  2) [Moonraker]           |  7) [MJPG-Streamer]       |
             |                           |                           |
             | Klipper Webinterface:     | Other:                    |
-            |  3) [Mainsail]            | 10) [PrettyGCode]         |
-            |  4) [Mainsail-Config]     | 11) [Telegram Bot]        |
-            |  5) [Fluidd]              | 12) [Obico for Klipper]   |
-            |  6) [Fluidd-Config]       | 13) [OctoEverywhere]      |
-            |                           | 14) [Mobileraker]         |
-            | Touchscreen GUI:          | 15) [NGINX]               |
-            |  7) [KlipperScreen]       |                           |
+            |  3) [Mainsail]            |  8) [PrettyGCode]         |
+            |  4) [Fluidd]              |  9) [Telegram Bot]        |
+            |                           | 10) [Obico for Klipper]   |
+            | Touchscreen GUI:          | 11) [OctoEverywhere]      |
+            |  5) [KlipperScreen]       | 12) [Mobileraker]         |
+            |                           | 13) [NGINX]               |
+            |                           |                           |
             """
         )[1:]
         print(menu, end="")
@@ -77,12 +75,6 @@ class RemoveMenu(BaseMenu):
 
     def remove_moonraker(self):
         moonraker_setup.run_moonraker_setup(install=False)
-
-    def remove_mainsail(self):
-        mainsail_setup.run_mainsail_removal()
-
-    def remove_mainsail_config(self):
-        print("remove_mainsail_config")
 
     def remove_fluidd(self):
         print("remove_fluidd")
