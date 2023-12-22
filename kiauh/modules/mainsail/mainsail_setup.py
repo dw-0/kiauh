@@ -10,6 +10,7 @@
 # ======================================================================= #
 
 import os.path
+import subprocess
 from pathlib import Path
 from typing import List
 
@@ -24,23 +25,30 @@ from kiauh.modules.mainsail import (
     MAINSAIL_CONFIG_DIR,
     MAINSAIL_CONFIG_REPO_URL,
     MODULE_PATH,
-    )
+)
 from kiauh.modules.mainsail.mainsail_dialogs import (
     print_moonraker_not_found_dialog,
     print_mainsail_already_installed_dialog,
     print_install_mainsail_config_dialog,
     print_mainsail_port_select_dialog,
-    )
+)
 from kiauh.modules.mainsail.mainsail_utils import (
     restore_config_json,
     enable_mainsail_remotemode,
     backup_config_json,
     symlink_webui_nginx_log,
-    )
+)
 from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.utils.common import check_install_dependencies
-from kiauh.utils.filesystem_utils import unzip, create_upstream_nginx_cfg, create_common_vars_nginx_cfg, \
-    delete_default_nginx_cfg, create_nginx_cfg, enable_nginx_cfg
+from kiauh.utils.filesystem_utils import (
+    unzip,
+    create_upstream_nginx_cfg,
+    create_common_vars_nginx_cfg,
+    delete_default_nginx_cfg,
+    create_nginx_cfg,
+    enable_nginx_cfg,
+    create_symlink,
+)
 from kiauh.utils.input_utils import get_confirm, get_number_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
@@ -48,7 +56,7 @@ from kiauh.utils.system_utils import (
     set_nginx_permissions,
     get_ipv4_addr,
     control_systemd_service,
-    )
+)
 
 
 def run_mainsail_installation() -> None:
@@ -110,8 +118,9 @@ def run_mainsail_installation() -> None:
                 "mainsail-updater.conf",
             )
             im_mr.restart_all_instance()
-        if is_klipper_installed and install_ms_config:
-            download_mainsail_config()
+        if install_ms_config and is_klipper_installed:
+            download_mainsail_cfg()
+            create_mainsail_cfg_symlink(im_kl.instances)
             patch_moonraker_conf(
                 im_mr.instances,
                 "mainsail-config",
@@ -152,7 +161,7 @@ def download_mainsail() -> None:
         raise
 
 
-def download_mainsail_config() -> None:
+def download_mainsail_cfg() -> None:
     try:
         Logger.print_status("Downloading mainsail-config ...")
         rm = RepoManager(MAINSAIL_CONFIG_REPO_URL, target_dir=MAINSAIL_CONFIG_DIR)
@@ -160,6 +169,18 @@ def download_mainsail_config() -> None:
     except Exception:
         Logger.print_error("Downloading mainsail-config failed!")
         raise
+
+
+def create_mainsail_cfg_symlink(klipper_instances: List[Klipper]) -> None:
+    Logger.print_status("Create symlink of mainsail.cfg ...")
+    source = Path(MAINSAIL_CONFIG_DIR, "mainsail.cfg")
+    for instance in klipper_instances:
+        target = instance.cfg_dir
+        Logger.print_status(f"Linking {source} to {target}")
+        try:
+            create_symlink(source, target)
+        except subprocess.CalledProcessError:
+            Logger.print_error("Creating symlink failed!")
 
 
 def create_mainsail_nginx_cfg(port: int) -> None:

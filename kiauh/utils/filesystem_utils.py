@@ -14,7 +14,12 @@ import subprocess
 from pathlib import Path
 from zipfile import ZipFile
 
-from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED, MODULE_PATH, NGINX_CONFD
+from kiauh.utils import (
+    NGINX_SITES_AVAILABLE,
+    NGINX_SITES_ENABLED,
+    MODULE_PATH,
+    NGINX_CONFD,
+)
 from kiauh.utils.logger import Logger
 
 
@@ -48,6 +53,17 @@ def create_directory(_dir: Path) -> None:
         raise
 
 
+def create_symlink(source: Path, target: Path, sudo=False) -> None:
+    try:
+        cmd = ["ln", "-sf", source, target]
+        if sudo:
+            cmd.insert(0, "sudo")
+        subprocess.run(cmd, stderr=subprocess.PIPE, check=True)
+    except subprocess.CalledProcessError as e:
+        Logger.print_error(f"Failed to create symlink: {e}")
+        raise
+
+
 def remove_file(file_path: Path, sudo=False) -> None:
     try:
         command = f"{'sudo ' if sudo else ''}rm -f {file_path}"
@@ -56,6 +72,7 @@ def remove_file(file_path: Path, sudo=False) -> None:
         log = f"Cannot remove file {file_path}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
+
 
 def unzip(file: str, target_dir: str) -> None:
     """
