@@ -18,7 +18,12 @@ from kiauh.core.menus.install_menu import InstallMenu
 from kiauh.core.menus.remove_menu import RemoveMenu
 from kiauh.core.menus.settings_menu import SettingsMenu
 from kiauh.core.menus.update_menu import UpdateMenu
-from kiauh.utils.constants import COLOR_MAGENTA, COLOR_CYAN, RESET_FORMAT
+from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.modules.klipper.klipper import Klipper
+from kiauh.modules.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
+from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.utils.common import get_repo_name, get_install_status_common
+from kiauh.utils.constants import COLOR_MAGENTA, COLOR_CYAN, RESET_FORMAT, COLOR_RED
 
 
 class MainMenu(BaseMenu):
@@ -36,8 +41,40 @@ class MainMenu(BaseMenu):
             },
             footer_type=QUIT_FOOTER,
         )
+        self.kl_status = None
+        self.kl_repo = None
+        self.mr_status = None
+        self.mr_repo = None
+        self.ms_status = None
+        self.fl_status = None
+        self.ks_status = None
+        self.mb_status = None
+        self.cn_status = None
+        self.tg_status = None
+        self.ob_status = None
+        self.oe_status = None
+        self.init_status()
+
+    def init_status(self) -> None:
+        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn", "tg", "ob", "oe"]
+        for var in status_vars:
+            setattr(self, f"{var}_status", f"{COLOR_RED}Not installed!{RESET_FORMAT}")
+
+    def fetch_status(self) -> None:
+        # klipper
+        self.kl_status = get_install_status_common(
+            Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR
+        )
+        self.kl_repo = get_repo_name(KLIPPER_DIR)
+        # moonraker
+        self.mr_status = get_install_status_common(
+            Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR
+        )
+        self.mr_repo = get_repo_name(MOONRAKER_DIR)
 
     def print_menu(self):
+        self.fetch_status()
+
         header = " [ Main Menu ] "
         footer1 = "KIAUH v6.0.0"
         footer2 = f"Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT}"
@@ -48,21 +85,21 @@ class MainMenu(BaseMenu):
             /=======================================================\\
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
-            |  0) [Log-Upload] |         Klipper: <TODO>            |
-            |                  |            Repo: <TODO>            |
-            |  1) [Install]    |                                    |
-            |  2) [Update]     |       Moonraker: <TODO>            |
-            |  3) [Remove]     |            Repo: <TODO>            |
-            |  4) [Advanced]   |                                    |
-            |  5) [Backup]     |        Mainsail: <TODO>            |
-            |                  |          Fluidd: <TODO>            |
-            |  6) [Settings]   |   KlipperScreen: <TODO>            |
-            |                  |     Mobileraker: <TODO>            |
+            |  0) [Log-Upload] |   Klipper: {self.kl_status:<32} |
+            |                  |      Repo: {self.kl_repo:<32} |
+            |  1) [Install]    |------------------------------------|
+            |  2) [Update]     | Moonraker: {self.mr_status:<32} |
+            |  3) [Remove]     |      Repo: {self.mr_repo:<32} |
+            |  4) [Advanced]   |------------------------------------|
+            |  5) [Backup]     |        Mainsail: {self.ms_status:<26} |
+            |                  |          Fluidd: {self.fl_status:<26} |
+            |  6) [Settings]   |   KlipperScreen: {self.ks_status:<26} |
+            |                  |     Mobileraker: {self.mb_status:<26} |
             |                  |                                    |
-            |                  |       Crowsnest: <TODO>            |
-            |                  |    Telegram Bot: <TODO>            |
-            |                  |           Obico: <TODO>            |
-            |                  |  OctoEverywhere: <TODO>            |
+            |                  |       Crowsnest: {self.cn_status:<26} |
+            |                  |    Telegram Bot: {self.tg_status:<26} |
+            |                  |           Obico: {self.ob_status:<26} |
+            |                  |  OctoEverywhere: {self.oe_status:<26} |
             |-------------------------------------------------------|
             | {COLOR_CYAN}{footer1:^16}{RESET_FORMAT} | {footer2:^43} |
             """

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import subprocess
 
 # ======================================================================= #
 #  Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>        #
@@ -10,9 +11,18 @@
 # ======================================================================= #
 
 from datetime import datetime
-from typing import Dict, Literal, List
+from pathlib import Path
+from typing import Dict, Literal, List, Type
 
-from kiauh.utils.constants import COLOR_CYAN, RESET_FORMAT
+from kiauh.core.instance_manager.base_instance import BaseInstance
+from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.utils.constants import (
+    COLOR_CYAN,
+    RESET_FORMAT,
+    COLOR_YELLOW,
+    COLOR_GREEN,
+    COLOR_RED,
+)
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import check_package_install, install_system_packages
 
@@ -43,3 +53,44 @@ def check_install_dependencies(deps: List[str]) -> None:
         for _ in requirements:
             print(f"{COLOR_CYAN}● {_}{RESET_FORMAT}")
         install_system_packages(requirements)
+
+
+def get_repo_name(repo_dir: str) -> str:
+    """
+    Helper method to extract the organisation and name of a repository |
+    :param repo_dir: repository to extract the values from
+    :return: String in form of "<orga>/<name>"
+    """
+    try:
+        cmd = ["git", "-C", repo_dir, "config", "--get", "remote.origin.url"]
+        result = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        result = "/".join(result.decode().strip().split("/")[-2:])
+        return f"{COLOR_CYAN}{result}{RESET_FORMAT}"
+    except subprocess.CalledProcessError:
+        return f"{COLOR_YELLOW}Unknown{RESET_FORMAT}"
+
+
+def get_install_status_common(
+    instance_type: Type[BaseInstance], repo_dir: str, env_dir: str
+) -> str:
+    """
+    Helper method to get the installation status of software components,
+    which only consist of 3 major parts and if those parts exist, the
+    component can be considered as "installed". Typically, Klipper or
+    Moonraker match that criteria.
+    :param instance_type: The component type
+    :param repo_dir: the repository directory
+    :param env_dir: the python environment directory
+    :return: formatted string, containing the status
+    """
+    im = InstanceManager(instance_type)
+    dir_exist = Path(repo_dir).exists()
+    env_dir_exist = Path(env_dir).exists()
+    instances_exist = len(im.instances) > 0
+    status = [dir_exist, env_dir_exist, instances_exist]
+    if all(status):
+        return f"{COLOR_GREEN}Installed: {len(im.instances)}{RESET_FORMAT}"
+    elif not any(status):
+        return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
+    else:
+        return f"{COLOR_YELLOW}Incomplete!{RESET_FORMAT}"
