@@ -209,7 +209,6 @@ def create_example_printer_cfg(instance: Klipper) -> None:
         return
 
     cm = ConfigManager(target)
-    cm.read_config()
     cm.set_value("virtual_sdcard", "path", instance.gcodes_dir)
     cm.write_config()
     Logger.print_ok(f"Example printer.cfg created in '{instance.cfg_dir}'")

@@ -145,8 +145,6 @@ def install_klipper(
 
 def setup_klipper_prerequesites() -> None:
     cm = ConfigManager(cfg_file=KIAUH_CFG)
-    cm.read_config()
-
     repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
     branch = str(cm.get_value("klipper", "branch") or "master")
 
@@ -265,8 +263,6 @@ def update_klipper() -> None:
         return
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
-    cm.read_config()
-
     if cm.get_value("kiauh", "backup_before_update"):
         backup_manager = BackupManager(source=KLIPPER_DIR, backup_name="klipper")
         backup_manager.backup()

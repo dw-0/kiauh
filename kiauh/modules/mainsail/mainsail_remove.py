@@ -106,7 +106,6 @@ def remove_updater_section(name: str) -> None:
             continue
 
         cm = ConfigManager(instance.cfg_file)
-        cm.read_config()
         if not cm.config.has_section(name):
             Logger.print_info("Section not present. Skipped ...")
             continue
@@ -153,7 +152,6 @@ def remove_printer_cfg_include() -> None:
             continue
 
         cm = ConfigManager(instance.cfg_file)
-        cm.read_config()
         if not cm.config.has_section("include mainsail.cfg"):
             Logger.print_info("Section not present. Skipped ...")
             continue

@@ -91,7 +91,6 @@ def run_mainsail_installation() -> None:
         install_ms_config = get_confirm(question, allow_go_back=False)
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
-    cm.read_config()
     default_port = cm.get_value("mainsail", "default_port")
     mainsail_port = default_port if default_port else 80
     if not default_port:
@@ -214,7 +213,6 @@ def patch_moonraker_conf(
             return
 
         cm = ConfigManager(cfg_file)
-        cm.read_config()
         if cm.config.has_section(section_name):
             Logger.print_info("Section already exist. Skipped ...")
             return
@@ -238,7 +236,6 @@ def patch_printer_config(klipper_instances: List[Klipper]) -> None:
             return
 
         cm = ConfigManager(cfg_file)
-        cm.read_config()
         if cm.config.has_section("include mainsail.cfg"):
             Logger.print_info("Section already exist. Skipped ...")
             return

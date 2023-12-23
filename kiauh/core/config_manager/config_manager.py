@@ -10,6 +10,7 @@
 # ======================================================================= #
 
 import configparser
+from pathlib import Path
 from typing import Union
 
 from kiauh.utils.logger import Logger
@@ -20,6 +21,9 @@ class ConfigManager:
     def __init__(self, cfg_file: str):
         self.config_file = cfg_file
         self.config = CustomConfigParser()
+
+        if Path(cfg_file).is_file():
+            self.read_config()
 
     def read_config(self) -> None:
         if not self.config_file:
@@ -32,7 +36,7 @@ class ConfigManager:
         with open(self.config_file, "w") as cfg:
             self.config.write(cfg)
 
-    def get_value(self, section: str, key: str, silent=False) -> Union[str, bool, None]:
+    def get_value(self, section: str, key: str, silent=True) -> Union[str, bool, None]:
         if not self.config.has_section(section):
             if not silent:
                 log = f"Section not defined. Unable to read section: [{section}]."

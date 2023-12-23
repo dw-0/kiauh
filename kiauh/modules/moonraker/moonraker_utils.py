@@ -41,9 +41,6 @@ def create_example_moonraker_conf(
         Logger.print_error(f"Unable to create example moonraker.conf:\n{e}")
         return
 
-    cm = ConfigManager(target)
-    cm.read_config()
-
     ports = [
         ports_map.get(instance)
         for instance in ports_map
@@ -61,9 +58,11 @@ def create_example_moonraker_conf(
 
     ports_map[instance.suffix] = port
 
-    uds = f"{instance.comms_dir}/klippy.sock"
     ip = get_ipv4_addr().split(".")[:2]
     ip.extend(["0", "0/16"])
+    uds = f"{instance.comms_dir}/klippy.sock"
+
+    cm = ConfigManager(target)
     trusted_clients = f"\n{'.'.join(ip)}"
     trusted_clients += cm.get_value("authorization", "trusted_clients")
 

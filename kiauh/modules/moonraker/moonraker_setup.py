@@ -150,8 +150,6 @@ def install_moonraker(
 
 def setup_moonraker_prerequesites() -> None:
     cm = ConfigManager(cfg_file=KIAUH_CFG)
-    cm.read_config()
-
     repo = str(
         cm.get_value("moonraker", "repository_url") or DEFAULT_MOONRAKER_REPO_URL
     )
@@ -291,8 +289,6 @@ def update_moonraker() -> None:
         return
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
-    cm.read_config()
-
     if cm.get_value("kiauh", "backup_before_update"):
         backup_manager = BackupManager(source=MOONRAKER_DIR, backup_name="moonraker")
         backup_manager.backup()

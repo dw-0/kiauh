@@ -156,7 +156,6 @@ class Moonraker(BaseInstance):
             return None
 
         cm = ConfigManager(cfg_file=self.cfg_file)
-        cm.read_config()
         port = cm.get_value("server", "port")
 
         return int(port) if port is not None else port
