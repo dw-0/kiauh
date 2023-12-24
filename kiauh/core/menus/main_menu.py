@@ -18,15 +18,9 @@ from kiauh.core.menus.install_menu import InstallMenu
 from kiauh.core.menus.remove_menu import RemoveMenu
 from kiauh.core.menus.settings_menu import SettingsMenu
 from kiauh.core.menus.update_menu import UpdateMenu
-from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
-from kiauh.modules.klipper.klipper import Klipper
+from kiauh.modules.klipper.klipper_utils import get_klipper_status
 from kiauh.modules.mainsail.mainsail_utils import get_mainsail_status
-from kiauh.modules.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
-from kiauh.modules.moonraker.moonraker import Moonraker
-from kiauh.utils.common import (
-    get_repo_name,
-    get_install_status_common,
-)
+from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.utils.constants import COLOR_MAGENTA, COLOR_CYAN, RESET_FORMAT, COLOR_RED
 
 
@@ -66,15 +60,11 @@ class MainMenu(BaseMenu):
 
     def fetch_status(self) -> None:
         # klipper
-        self.kl_status = get_install_status_common(
-            Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR
-        )
-        self.kl_repo = get_repo_name(KLIPPER_DIR)
+        self.kl_status = get_klipper_status().get("status")
+        self.kl_repo = get_klipper_status().get("repo")
         # moonraker
-        self.mr_status = get_install_status_common(
-            Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR
-        )
-        self.mr_repo = get_repo_name(MOONRAKER_DIR)
+        self.mr_status = get_moonraker_status().get("status")
+        self.mr_repo = get_moonraker_status().get("repo")
         # mainsail
         self.ms_status = get_mainsail_status()
 

@@ -11,18 +11,30 @@
 
 import os
 import shutil
-from typing import List, Dict
+from typing import Dict, Literal
 
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.modules.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
+    MOONRAKER_DIR,
+    MOONRAKER_ENV_DIR,
 )
 from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.utils.common import get_install_status_common, get_repo_name
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     get_ipv4_addr,
 )
+
+
+def get_moonraker_status() -> Dict[Literal["status", "repo"], str]:
+    return {
+        "status": get_install_status_common(
+            Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR
+        ),
+        "repo": get_repo_name(MOONRAKER_DIR),
+    }
 
 
 def create_example_moonraker_conf(

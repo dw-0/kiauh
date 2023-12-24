@@ -16,20 +16,28 @@ import shutil
 import subprocess
 import textwrap
 
-from typing import List, Union
+from typing import List, Union, Literal, Dict
 
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.modules.klipper import MODULE_PATH
+from kiauh.modules.klipper import MODULE_PATH, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,
     print_select_custom_name_dialog,
 )
+from kiauh.utils.common import get_install_status_common, get_repo_name
 from kiauh.utils.constants import CURRENT_USER
 from kiauh.utils.input_utils import get_confirm, get_string_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import mask_system_service
+
+
+def get_klipper_status() -> Dict[Literal["status", "repo"], str]:
+    return {
+        "status": get_install_status_common(Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR),
+        "repo": get_repo_name(KLIPPER_DIR),
+    }
 
 
 def assign_custom_names(
