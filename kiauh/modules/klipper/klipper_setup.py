@@ -264,11 +264,9 @@ def update_klipper() -> None:
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
     if cm.get_value("kiauh", "backup_before_update"):
-        backup_manager = BackupManager(source=KLIPPER_DIR, backup_name="klipper")
-        backup_manager.backup()
-        backup_manager.backup_name = "klippy-env"
-        backup_manager.source = KLIPPER_ENV_DIR
-        backup_manager.backup()
+        bm = BackupManager()
+        bm.backup_directory("klipper", KLIPPER_DIR)
+        bm.backup_directory("klippy-env", KLIPPER_ENV_DIR)
 
     instance_manager = InstanceManager(Klipper)
     instance_manager.stop_all_instance()

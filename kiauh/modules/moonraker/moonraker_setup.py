@@ -290,11 +290,9 @@ def update_moonraker() -> None:
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
     if cm.get_value("kiauh", "backup_before_update"):
-        backup_manager = BackupManager(source=MOONRAKER_DIR, backup_name="moonraker")
-        backup_manager.backup()
-        backup_manager.backup_name = "moonraker-env"
-        backup_manager.source = MOONRAKER_ENV_DIR
-        backup_manager.backup()
+        bm = BackupManager()
+        bm.backup_directory("moonraker", MOONRAKER_DIR)
+        bm.backup_directory("moonraker-env", MOONRAKER_ENV_DIR)
 
     instance_manager = InstanceManager(Moonraker)
     instance_manager.stop_all_instance()

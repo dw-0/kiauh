@@ -11,6 +11,7 @@
 
 import shutil
 from pathlib import Path
+from typing import List
 
 from kiauh import KIAUH_BACKUP_DIR
 from kiauh.utils.common import get_current_date
@@ -19,51 +20,47 @@ from kiauh.utils.logger import Logger
 
 # noinspection PyMethodMayBeStatic
 class BackupManager:
-    def __init__(
-        self, backup_name: str, source: Path, backup_dir: Path = KIAUH_BACKUP_DIR
-    ):
-        self._backup_name = backup_name
-        self._source = source
-        self._backup_dir = backup_dir
+    def __init__(self, backup_root_dir: Path = KIAUH_BACKUP_DIR):
+        self._backup_root_dir = backup_root_dir
 
     @property
-    def backup_name(self) -> str:
-        return self._backup_name
+    def backup_root_dir(self) -> Path:
+        return self._backup_root_dir
 
-    @backup_name.setter
-    def backup_name(self, value: str):
-        self._backup_name = value
+    @backup_root_dir.setter
+    def backup_root_dir(self, value: Path):
+        self._backup_root_dir = value
 
-    @property
-    def source(self) -> Path:
-        return self._source
+    def backup_file(self, files: List[Path] = None, target: Path = None):
+        if not files:
+            raise ValueError("Parameter 'files' cannot be None or an empty List!")
 
-    @source.setter
-    def source(self, value: Path):
-        self._source = value
+        target = self.backup_root_dir if target is None else target
+        for file in files:
+            if Path(file).is_file():
+                date = get_current_date().get("date")
+                time = get_current_date().get("time")
+                filename = f"{file.stem}-{date}-{time}{file.suffix}"
+                try:
+                    Path(target).mkdir(exist_ok=True)
+                    shutil.copyfile(file, Path(target, filename))
+                except OSError as e:
+                    Logger.print_error(f"Unable to backup '{file}':\n{e}")
+                    continue
 
-    @property
-    def backup_dir(self) -> Path:
-        return self._backup_dir
-
-    @backup_dir.setter
-    def backup_dir(self, value: Path):
-        self._backup_dir = value
-
-    def backup(self) -> None:
-        if self._source is None or not Path(self._source).exists():
+    def backup_directory(self, name: str, source: Path, target: Path = None) -> None:
+        if source is None or not Path(source).exists():
             raise OSError
 
+        target = self.backup_root_dir if target is None else target
         try:
-            log = f"Creating backup of {self.backup_name} in {self.backup_dir} ..."
+            log = f"Creating backup of {name} in {target} ..."
             Logger.print_status(log)
-            date = get_current_date()
-            dest = Path(
-                f"{self.backup_dir}/{self.backup_name}/{date.get('date')}-{date.get('time')}"
-            )
-            shutil.copytree(src=self.source, dst=dest)
+            date = get_current_date().get("date")
+            time = get_current_date().get("time")
+            shutil.copytree(source, Path(target, f"{name}-{date}-{time}"))
         except OSError as e:
-            Logger.print_error(f"Unable to backup source directory. Not exist.\n{e}")
+            Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
             return
 
         Logger.print_ok("Backup successfull!")
