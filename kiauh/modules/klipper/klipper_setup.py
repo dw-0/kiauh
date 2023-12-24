@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import subprocess
 from pathlib import Path
 from typing import List, Union
@@ -163,13 +162,13 @@ def setup_klipper_prerequesites() -> None:
 
 
 def install_klipper_packages(klipper_dir: Path) -> None:
-    script = Path(f"{klipper_dir}/scripts/install-debian.sh")
+    script = klipper_dir.joinpath("scripts/install-debian.sh")
     packages = parse_packages_from_file(script)
     packages = [pkg.replace("python-dev", "python3-dev") for pkg in packages]
     # Add dfu-util for octopi-images
     packages.append("dfu-util")
     # Add dbus requirement for DietPi distro
-    if os.path.exists("/boot/dietpi/.version"):
+    if Path("/boot/dietpi/.version").exists():
         packages.append("dbus")
 
     update_system_package_lists(silent=False)

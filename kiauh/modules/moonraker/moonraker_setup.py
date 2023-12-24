@@ -163,14 +163,13 @@ def setup_moonraker_prerequesites() -> None:
     repo_manager.clone_repo()
 
     # install moonraker dependencies and create python virtualenv
-    install_moonraker_packages(Path(MOONRAKER_DIR))
-    create_python_venv(Path(MOONRAKER_ENV_DIR))
-    moonraker_py_req = Path(MOONRAKER_REQUIREMENTS_TXT)
-    install_python_requirements(Path(MOONRAKER_ENV_DIR), moonraker_py_req)
+    install_moonraker_packages(MOONRAKER_DIR)
+    create_python_venv(MOONRAKER_ENV_DIR)
+    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQUIREMENTS_TXT)
 
 
 def install_moonraker_packages(moonraker_dir: Path) -> None:
-    script = Path(f"{moonraker_dir}/scripts/install-moonraker.sh")
+    script = moonraker_dir.joinpath("scripts/install-moonraker.sh")
     packages = parse_packages_from_file(script)
     update_system_package_lists(silent=False)
     install_system_packages(packages)
@@ -179,9 +178,9 @@ def install_moonraker_packages(moonraker_dir: Path) -> None:
 def install_moonraker_polkit() -> None:
     Logger.print_status("Installing Moonraker policykit rules ...")
 
-    legacy_file_exists = check_file_exist(Path(POLKIT_LEGACY_FILE), True)
-    polkit_file_exists = check_file_exist(Path(POLKIT_FILE), True)
-    usr_file_exists = check_file_exist(Path(POLKIT_USR_FILE), True)
+    legacy_file_exists = check_file_exist(POLKIT_LEGACY_FILE, True)
+    polkit_file_exists = check_file_exist(POLKIT_FILE, True)
+    usr_file_exists = check_file_exist(POLKIT_USR_FILE, True)
 
     if legacy_file_exists or (polkit_file_exists and usr_file_exists):
         Logger.print_info("Moonraker policykit rules are already installed.")
@@ -267,7 +266,7 @@ def remove_instances(
 
 def remove_polkit_rules() -> None:
     Logger.print_status("Removing all Moonraker policykit rules ...")
-    if not Path(MOONRAKER_DIR).exists():
+    if not MOONRAKER_DIR.exists():
         log = "Cannot remove policykit rules. Moonraker directory not found."
         Logger.print_warn(log)
         return

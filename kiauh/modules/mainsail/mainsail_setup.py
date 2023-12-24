@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os.path
 import subprocess
 from pathlib import Path
 from typing import List
@@ -72,7 +71,7 @@ def run_mainsail_installation() -> None:
         else:
             return
 
-    is_mainsail_installed = Path(f"{Path.home()}/mainsail").exists()
+    is_mainsail_installed = Path.home().joinpath("mainsail").exists()
     do_reinstall = False
     if is_mainsail_installed:
         print_mainsail_already_installed_dialog()
@@ -92,9 +91,9 @@ def run_mainsail_installation() -> None:
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
     default_port = cm.get_value("mainsail", "default_port")
-    mainsail_port = default_port if default_port else 80
+    mainsail_port = default_port if default_port else "80"
     if not default_port:
-        print_mainsail_port_select_dialog(f"{mainsail_port}")
+        print_mainsail_port_select_dialog(mainsail_port)
         mainsail_port = get_number_input(
             "Configure Mainsail for port",
             min_count=mainsail_port,
@@ -148,11 +147,11 @@ def run_mainsail_installation() -> None:
 def download_mainsail() -> None:
     try:
         Logger.print_status("Downloading Mainsail ...")
-        download_file(MAINSAIL_URL, f"{Path.home()}", "mainsail.zip")
+        download_file(MAINSAIL_URL, Path.home(), "mainsail.zip")
         Logger.print_ok("Download complete!")
 
         Logger.print_status("Extracting mainsail.zip ...")
-        unzip(f"{Path.home()}/mainsail.zip", MAINSAIL_DIR)
+        unzip(Path.home().joinpath("mainsail.zip"), MAINSAIL_DIR)
         Logger.print_ok("OK!")
 
     except Exception:
@@ -184,8 +183,8 @@ def create_mainsail_cfg_symlink(klipper_instances: List[Klipper]) -> None:
 
 def create_mainsail_nginx_cfg(port: int) -> None:
     root_dir = MAINSAIL_DIR
-    source = Path(NGINX_SITES_AVAILABLE, "mainsail")
-    target = Path(NGINX_SITES_ENABLED, "mainsail")
+    source = NGINX_SITES_AVAILABLE.joinpath("mainsail")
+    target = NGINX_SITES_ENABLED.joinpath("mainsail")
     try:
         Logger.print_status("Creating NGINX config for Mainsail ...")
         remove_file(Path("/etc/nginx/sites-enabled/default"), True)
@@ -217,7 +216,7 @@ def patch_moonraker_conf(
             Logger.print_info("Section already exist. Skipped ...")
             return
 
-        template = os.path.join(MODULE_PATH, "res", template_file)
+        template = MODULE_PATH.joinpath("res", template_file)
         with open(template, "r") as t:
             template_content = "\n"
             template_content += t.read()

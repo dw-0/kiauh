@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import shutil
 from typing import Dict, Literal
 
@@ -45,8 +44,8 @@ def create_example_moonraker_conf(
         Logger.print_info(f"moonraker.conf in '{instance.cfg_dir}' already exists.")
         return
 
-    source = os.path.join(MODULE_PATH, "res", "moonraker.conf")
-    target = os.path.join(instance.cfg_dir, "moonraker.conf")
+    source = MODULE_PATH.joinpath("res/moonraker.conf")
+    target = instance.cfg_dir.joinpath("moonraker.conf")
     try:
         shutil.copy(source, target)
     except OSError as e:
@@ -72,14 +71,14 @@ def create_example_moonraker_conf(
 
     ip = get_ipv4_addr().split(".")[:2]
     ip.extend(["0", "0/16"])
-    uds = f"{instance.comms_dir}/klippy.sock"
+    uds = instance.comms_dir.joinpath("klippy.sock")
 
     cm = ConfigManager(target)
     trusted_clients = f"\n{'.'.join(ip)}"
     trusted_clients += cm.get_value("authorization", "trusted_clients")
 
     cm.set_value("server", "port", str(port))
-    cm.set_value("server", "klippy_uds_address", uds)
+    cm.set_value("server", "klippy_uds_address", str(uds))
     cm.set_value("authorization", "trusted_clients", trusted_clients)
 
     cm.write_config()

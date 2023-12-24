@@ -15,6 +15,7 @@ import grp
 import shutil
 import subprocess
 import textwrap
+from pathlib import Path
 
 from typing import List, Union, Literal, Dict
 
@@ -113,7 +114,7 @@ def handle_single_to_multi_conversion(
     instance_manager.current_instance = Klipper(suffix=name)
     new_data_dir_name = instance_manager.current_instance.data_dir
     try:
-        os.rename(old_data_dir_name, new_data_dir_name)
+        Path(old_data_dir_name).rename(new_data_dir_name)
         return instance_manager.current_instance
     except OSError as e:
         log = f"Cannot rename {old_data_dir_name} to {new_data_dir_name}:\n{e}"
@@ -208,8 +209,8 @@ def create_example_printer_cfg(instance: Klipper) -> None:
         Logger.print_info(f"printer.cfg in '{instance.cfg_dir}' already exists.")
         return
 
-    source = os.path.join(MODULE_PATH, "res", "printer.cfg")
-    target = os.path.join(instance.cfg_dir, "printer.cfg")
+    source = MODULE_PATH.joinpath("res/printer.cfg")
+    target = instance.cfg_dir.joinpath("printer.cfg")
     try:
         shutil.copy(source, target)
     except OSError as e:
@@ -217,6 +218,6 @@ def create_example_printer_cfg(instance: Klipper) -> None:
         return
 
     cm = ConfigManager(target)
-    cm.set_value("virtual_sdcard", "path", instance.gcodes_dir)
+    cm.set_value("virtual_sdcard", "path", str(instance.gcodes_dir))
     cm.write_config()
     Logger.print_ok(f"Example printer.cfg created in '{instance.cfg_dir}'")

@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -30,22 +29,22 @@ class Moonraker(BaseInstance):
 
     def __init__(self, suffix: str = None):
         super().__init__(instance_type=self, suffix=suffix)
-        self.moonraker_dir = MOONRAKER_DIR
-        self.env_dir = MOONRAKER_ENV_DIR
+        self.moonraker_dir: Path = MOONRAKER_DIR
+        self.env_dir: Path = MOONRAKER_ENV_DIR
         self.cfg_file = self._get_cfg()
         self.port = self._get_port()
-        self.backup_dir = f"{self.data_dir}/backup"
-        self.certs_dir = f"{self.data_dir}/certs"
-        self.db_dir = f"{self.data_dir}/database"
-        self.log = f"{self.log_dir}/moonraker.log"
+        self.backup_dir = self.data_dir.joinpath("backup")
+        self.certs_dir = self.data_dir.joinpath("certs")
+        self.db_dir = self.data_dir.joinpath("database")
+        self.log = self.log_dir.joinpath("moonraker.log")
 
     def create(self, create_example_cfg: bool = False) -> None:
         Logger.print_status("Creating new Moonraker Instance ...")
-        service_template_path = os.path.join(MODULE_PATH, "res", "moonraker.service")
-        env_template_file_path = os.path.join(MODULE_PATH, "res", "moonraker.env")
+        service_template_path = MODULE_PATH.joinpath("res/moonraker.service")
+        env_template_file_path = MODULE_PATH.joinpath("res/moonraker.env")
         service_file_name = self.get_service_file_name(extension=True)
-        service_file_target = f"{SYSTEMD}/{service_file_name}"
-        env_file_target = os.path.abspath(f"{self.sysd_dir}/moonraker.env")
+        service_file_target = SYSTEMD.joinpath(service_file_name)
+        env_file_target = self.sysd_dir.joinpath("moonraker.env")
 
         try:
             self.create_folders([self.backup_dir, self.certs_dir, self.db_dir])
@@ -81,8 +80,11 @@ class Moonraker(BaseInstance):
             self._delete_moonraker_remnants()
 
     def write_service_file(
-        self, service_template_path: str, service_file_target: str, env_file_target: str
-    ):
+        self,
+        service_template_path: Path,
+        service_file_target: Path,
+        env_file_target: Path,
+    ) -> None:
         service_content = self._prep_service_file(
             service_template_path, env_file_target
         )
@@ -95,7 +97,9 @@ class Moonraker(BaseInstance):
         )
         Logger.print_ok(f"Service file created: {service_file_target}")
 
-    def write_env_file(self, env_template_file_path: str, env_file_target: str):
+    def write_env_file(
+        self, env_template_file_path: Path, env_file_target: Path
+    ) -> None:
         env_file_content = self._prep_env_file(env_template_file_path)
         with open(env_file_target, "w") as env_file:
             env_file.write(env_file_content)
@@ -104,9 +108,9 @@ class Moonraker(BaseInstance):
     def _delete_moonraker_remnants(self) -> None:
         try:
             Logger.print_status(f"Delete {self.moonraker_dir} ...")
-            shutil.rmtree(Path(self.moonraker_dir))
+            shutil.rmtree(self.moonraker_dir)
             Logger.print_status(f"Delete {self.env_dir} ...")
-            shutil.rmtree(Path(self.env_dir))
+            shutil.rmtree(self.env_dir)
         except FileNotFoundError:
             Logger.print_status("Cannot delete Moonraker directories. Not found.")
         except PermissionError as e:
@@ -115,7 +119,9 @@ class Moonraker(BaseInstance):
 
         Logger.print_ok("Directories successfully deleted.")
 
-    def _prep_service_file(self, service_template_path, env_file_path):
+    def _prep_service_file(
+        self, service_template_path: Path, env_file_path: Path
+    ) -> str:
         try:
             with open(service_template_path, "r") as template_file:
                 template_content = template_file.read()
@@ -125,12 +131,14 @@ class Moonraker(BaseInstance):
             )
             raise
         service_content = template_content.replace("%USER%", self.user)
-        service_content = service_content.replace("%MOONRAKER_DIR%", self.moonraker_dir)
-        service_content = service_content.replace("%ENV%", self.env_dir)
-        service_content = service_content.replace("%ENV_FILE%", env_file_path)
+        service_content = service_content.replace(
+            "%MOONRAKER_DIR%", str(self.moonraker_dir)
+        )
+        service_content = service_content.replace("%ENV%", str(self.env_dir))
+        service_content = service_content.replace("%ENV_FILE%", str(env_file_path))
         return service_content
 
-    def _prep_env_file(self, env_template_file_path):
+    def _prep_env_file(self, env_template_file_path: Path) -> str:
         try:
             with open(env_template_file_path, "r") as env_file:
                 env_template_file_content = env_file.read()
@@ -140,14 +148,16 @@ class Moonraker(BaseInstance):
             )
             raise
         env_file_content = env_template_file_content.replace(
-            "%MOONRAKER_DIR%", self.moonraker_dir
+            "%MOONRAKER_DIR%", str(self.moonraker_dir)
         )
-        env_file_content = env_file_content.replace("%PRINTER_DATA%", self.data_dir)
+        env_file_content = env_file_content.replace(
+            "%PRINTER_DATA%", str(self.data_dir)
+        )
         return env_file_content
 
-    def _get_cfg(self):
-        cfg_file_loc = f"{self.cfg_dir}/moonraker.conf"
-        if Path(cfg_file_loc).is_file():
+    def _get_cfg(self) -> Union[Path, None]:
+        cfg_file_loc = self.cfg_dir.joinpath("moonraker.conf")
+        if cfg_file_loc.is_file():
             return cfg_file_loc
         return None
 

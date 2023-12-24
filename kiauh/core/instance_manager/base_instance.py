@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import List, Union, Optional, Type, TypeVar
 
 from kiauh.utils.constants import SYSTEMD, CURRENT_USER
-from kiauh.utils.filesystem_utils import create_directory
 
 B = TypeVar(name="B", bound="BaseInstance", covariant=True)
 
@@ -32,13 +31,13 @@ class BaseInstance(ABC):
         self._instance_type = instance_type
         self._suffix = suffix
         self._user = CURRENT_USER
-        self._data_dir_name = self.get_data_dir_from_suffix()
-        self._data_dir = f"{Path.home()}/{self._data_dir_name}_data"
-        self._cfg_dir = f"{self.data_dir}/config"
-        self._log_dir = f"{self.data_dir}/logs"
-        self._comms_dir = f"{self.data_dir}/comms"
-        self._sysd_dir = f"{self.data_dir}/systemd"
-        self._gcodes_dir = f"{self.data_dir}/gcodes"
+        self._data_dir_name = self.get_data_dir_name_from_suffix()
+        self._data_dir = Path.home().joinpath(f"{self._data_dir_name}_data")
+        self._cfg_dir = self.data_dir.joinpath("config")
+        self._log_dir = self.data_dir.joinpath("logs")
+        self._comms_dir = self.data_dir.joinpath("comms")
+        self._sysd_dir = self.data_dir.joinpath("systemd")
+        self._gcodes_dir = self.data_dir.joinpath("gcodes")
 
     @property
     def instance_type(self) -> Type["BaseInstance"]:
@@ -73,51 +72,51 @@ class BaseInstance(ABC):
         self._data_dir_name = value
 
     @property
-    def data_dir(self):
+    def data_dir(self) -> Path:
         return self._data_dir
 
     @data_dir.setter
-    def data_dir(self, value: str):
+    def data_dir(self, value: str) -> None:
         self._data_dir = value
 
     @property
-    def cfg_dir(self):
+    def cfg_dir(self) -> Path:
         return self._cfg_dir
 
     @cfg_dir.setter
-    def cfg_dir(self, value: str):
+    def cfg_dir(self, value: str) -> None:
         self._cfg_dir = value
 
     @property
-    def log_dir(self):
+    def log_dir(self) -> Path:
         return self._log_dir
 
     @log_dir.setter
-    def log_dir(self, value: str):
+    def log_dir(self, value: str) -> None:
         self._log_dir = value
 
     @property
-    def comms_dir(self):
+    def comms_dir(self) -> Path:
         return self._comms_dir
 
     @comms_dir.setter
-    def comms_dir(self, value: str):
+    def comms_dir(self, value: str) -> None:
         self._comms_dir = value
 
     @property
-    def sysd_dir(self):
+    def sysd_dir(self) -> Path:
         return self._sysd_dir
 
     @sysd_dir.setter
-    def sysd_dir(self, value: str):
+    def sysd_dir(self, value: str) -> None:
         self._sysd_dir = value
 
     @property
-    def gcodes_dir(self):
+    def gcodes_dir(self) -> Path:
         return self._gcodes_dir
 
     @gcodes_dir.setter
-    def gcodes_dir(self, value: str):
+    def gcodes_dir(self, value: str) -> None:
         self._gcodes_dir = value
 
     @abstractmethod
@@ -128,7 +127,7 @@ class BaseInstance(ABC):
     def delete(self, del_remnants: bool) -> None:
         raise NotImplementedError("Subclasses must implement the delete method")
 
-    def create_folders(self, add_dirs: List[str] = None) -> None:
+    def create_folders(self, add_dirs: List[Path] = None) -> None:
         dirs = [
             self.data_dir,
             self.cfg_dir,
@@ -141,7 +140,7 @@ class BaseInstance(ABC):
             dirs.extend(add_dirs)
 
         for _dir in dirs:
-            create_directory(Path(_dir))
+            _dir.mkdir(exist_ok=True)
 
     def get_service_file_name(self, extension: bool = False) -> str:
         name = f"{self.__class__.__name__.lower()}"
@@ -150,10 +149,10 @@ class BaseInstance(ABC):
 
         return name if not extension else f"{name}.service"
 
-    def get_service_file_path(self) -> str:
-        return f"{SYSTEMD}/{self.get_service_file_name(extension=True)}"
+    def get_service_file_path(self) -> Path:
+        return SYSTEMD.joinpath(self.get_service_file_name(extension=True))
 
-    def get_data_dir_from_suffix(self) -> str:
+    def get_data_dir_name_from_suffix(self) -> str:
         if self._suffix is None:
             return "printer"
         elif self._suffix.isdigit():

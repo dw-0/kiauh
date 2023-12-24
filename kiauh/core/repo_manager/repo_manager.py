@@ -9,9 +9,9 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import shutil
 import subprocess
+from pathlib import Path
 
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
@@ -66,7 +66,7 @@ class RepoManager:
         log = f"Cloning repository from '{self.repo}' with method '{self.method}'"
         Logger.print_status(log)
         try:
-            if os.path.exists(self.target_dir):
+            if Path(self.target_dir).exists():
                 question = f"'{self.target_dir}' already exists. Overwrite?"
                 if not get_confirm(question, default_choice=False):
                     Logger.print_info("Skipping re-clone of repository.")

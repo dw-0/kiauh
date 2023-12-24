@@ -13,6 +13,7 @@
 import shutil
 import subprocess
 from pathlib import Path
+from typing import List
 
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
@@ -64,8 +65,8 @@ def remove_mainsail_dir() -> None:
 def remove_nginx_config() -> None:
     Logger.print_status("Removing Mainsails NGINX config ...")
     try:
-        remove_file(Path(NGINX_SITES_AVAILABLE, "mainsail"), True)
-        remove_file(Path(NGINX_SITES_ENABLED, "mainsail"), True)
+        remove_file(NGINX_SITES_AVAILABLE.joinpath("mainsail"), True)
+        remove_file(NGINX_SITES_ENABLED.joinpath("mainsail"), True)
 
     except subprocess.CalledProcessError as e:
         log = f"Unable to remove Mainsail NGINX config:\n{e.stderr.decode()}"

@@ -98,7 +98,7 @@ def update_python_pip(target: Path) -> None:
     """
     Logger.print_status("Updating pip ...")
     try:
-        command = [f"{target}/bin/pip", "install", "-U", "pip"]
+        command = [target.joinpath("bin/pip"), "install", "-U", "pip"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
@@ -120,7 +120,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
     update_python_pip(target)
     Logger.print_status("Installing Python requirements ...")
     try:
-        command = [f"{target}/bin/pip", "install", "-r", f"{requirements}"]
+        command = [target.joinpath("bin/pip"), "install", "-r", f"{requirements}"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
@@ -141,9 +141,12 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     :return: None
     """
     cache_mtime = 0
-    cache_files = ["/var/lib/apt/periodic/update-success-stamp", "/var/lib/apt/lists"]
+    cache_files = [
+        Path("/var/lib/apt/periodic/update-success-stamp"),
+        Path("/var/lib/apt/lists"),
+    ]
     for cache_file in cache_files:
-        if Path(cache_file).exists():
+        if cache_file.exists():
             cache_mtime = max(cache_mtime, os.path.getmtime(cache_file))
 
     update_age = int(time.time() - cache_mtime)
@@ -244,7 +247,7 @@ def get_ipv4_addr() -> str:
 
 
 def download_file(
-    url: str, target_folder: str, target_name: str, show_progress=True
+    url: str, target_folder: Path, target_name: str, show_progress=True
 ) -> None:
     """
     Helper method for downloading files from a provided URL |
@@ -254,7 +257,7 @@ def download_file(
     :param show_progress: show download progress or not
     :return: None
     """
-    target_path = os.path.join(target_folder, target_name)
+    target_path = target_folder.joinpath(target_name)
     try:
         if show_progress:
             urllib.request.urlretrieve(url, target_path, download_progress)
@@ -298,8 +301,8 @@ def set_nginx_permissions() -> None:
     This seems to have become necessary with Ubuntu 21+. |
     :return: None
     """
-    cmd1 = f"ls -ld {Path.home()} | cut -d' ' -f1"
-    homedir_perm = subprocess.run(cmd1, shell=True, stdout=subprocess.PIPE, text=True)
+    cmd = f"ls -ld {Path.home()} | cut -d' ' -f1"
+    homedir_perm = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
     homedir_perm = homedir_perm.stdout
 
     if homedir_perm.count("x") < 3:
@@ -321,7 +324,7 @@ def control_systemd_service(
         Logger.print_status(f"{action.capitalize()} {name}.service ...")
         command = ["sudo", "systemctl", action, f"{name}.service"]
         subprocess.run(command, stderr=subprocess.PIPE, check=True)
-        Logger.print_ok(f"OK!")
+        Logger.print_ok("OK!")
     except subprocess.CalledProcessError as e:
         log = f"Failed to {action} {name}.service: {e.stderr.decode()}"
         Logger.print_error(log)

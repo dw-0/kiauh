@@ -9,14 +9,13 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 from pathlib import Path
 
-MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
+MODULE_PATH = Path(__file__).resolve().parent
 
-KLIPPER_DIR = f"{Path.home()}/klipper"
-KLIPPER_ENV_DIR = f"{Path.home()}/klippy-env"
-KLIPPER_REQUIREMENTS_TXT = f"{KLIPPER_DIR}/scripts/klippy-requirements.txt"
+KLIPPER_DIR = Path.home().joinpath("klipper")
+KLIPPER_ENV_DIR = Path.home().joinpath("klippy-env")
+KLIPPER_REQUIREMENTS_TXT = KLIPPER_DIR.joinpath("scripts/klippy-requirements.txt")
 DEFAULT_KLIPPER_REPO_URL = "https://github.com/Klipper3D/klipper"
 
 EXIT_KLIPPER_SETUP = "Exiting Klipper setup ..."

@@ -9,14 +9,13 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR, MODULE_PATH
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 
@@ -29,37 +28,36 @@ class Klipper(BaseInstance):
 
     def __init__(self, suffix: str = None):
         super().__init__(instance_type=self, suffix=suffix)
-        self.klipper_dir = KLIPPER_DIR
-        self.env_dir = KLIPPER_ENV_DIR
+        self.klipper_dir: Path = KLIPPER_DIR
+        self.env_dir: Path = KLIPPER_ENV_DIR
         self._cfg_file = self._get_cfg()
-        self._log = f"{self.log_dir}/klippy.log"
-        self._serial = f"{self.comms_dir}/klippy.serial"
-        self._uds = f"{self.comms_dir}/klippy.sock"
+        self._log = self.log_dir.joinpath("klippy.log")
+        self._serial = self.comms_dir.joinpath("klippy.serial")
+        self._uds = self.comms_dir.joinpath("klippy.sock")
 
     @property
-    def cfg_file(self) -> str:
+    def cfg_file(self) -> Path:
         return self._cfg_file
 
     @property
-    def log(self) -> str:
+    def log(self) -> Path:
         return self._log
 
     @property
-    def serial(self) -> str:
+    def serial(self) -> Path:
         return self._serial
 
     @property
-    def uds(self) -> str:
+    def uds(self) -> Path:
         return self._uds
 
     def create(self) -> None:
         Logger.print_status("Creating new Klipper Instance ...")
-        module_path = os.path.dirname(os.path.abspath(__file__))
-        service_template_path = os.path.join(module_path, "res", "klipper.service")
-        env_template_file_path = os.path.join(module_path, "res", "klipper.env")
+        service_template_path = MODULE_PATH.joinpath("res/klipper.service")
         service_file_name = self.get_service_file_name(extension=True)
-        service_file_target = f"{SYSTEMD}/{service_file_name}"
-        env_file_target = os.path.abspath(f"{self.sysd_dir}/klipper.env")
+        service_file_target = SYSTEMD.joinpath(service_file_name)
+        env_template_file_path = MODULE_PATH.joinpath("res/klipper.env")
+        env_file_target = self.sysd_dir.joinpath("klipper.env")
 
         try:
             self.create_folders()
@@ -95,8 +93,11 @@ class Klipper(BaseInstance):
             self._delete_klipper_remnants()
 
     def write_service_file(
-        self, service_template_path: str, service_file_target: str, env_file_target: str
-    ):
+        self,
+        service_template_path: Path,
+        service_file_target: Path,
+        env_file_target: Path,
+    ) -> None:
         service_content = self._prep_service_file(
             service_template_path, env_file_target
         )
@@ -109,7 +110,9 @@ class Klipper(BaseInstance):
         )
         Logger.print_ok(f"Service file created: {service_file_target}")
 
-    def write_env_file(self, env_template_file_path: str, env_file_target: str):
+    def write_env_file(
+        self, env_template_file_path: Path, env_file_target: Path
+    ) -> None:
         env_file_content = self._prep_env_file(env_template_file_path)
         with open(env_file_target, "w") as env_file:
             env_file.write(env_file_content)
@@ -129,7 +132,9 @@ class Klipper(BaseInstance):
 
         Logger.print_ok("Directories successfully deleted.")
 
-    def _prep_service_file(self, service_template_path, env_file_path):
+    def _prep_service_file(
+        self, service_template_path: Path, env_file_path: Path
+    ) -> str:
         try:
             with open(service_template_path, "r") as template_file:
                 template_content = template_file.read()
@@ -139,12 +144,14 @@ class Klipper(BaseInstance):
             )
             raise
         service_content = template_content.replace("%USER%", self.user)
-        service_content = service_content.replace("%KLIPPER_DIR%", self.klipper_dir)
-        service_content = service_content.replace("%ENV%", self.env_dir)
-        service_content = service_content.replace("%ENV_FILE%", env_file_path)
+        service_content = service_content.replace(
+            "%KLIPPER_DIR%", str(self.klipper_dir)
+        )
+        service_content = service_content.replace("%ENV%", str(self.env_dir))
+        service_content = service_content.replace("%ENV_FILE%", str(env_file_path))
         return service_content
 
-    def _prep_env_file(self, env_template_file_path):
+    def _prep_env_file(self, env_template_file_path: Path) -> str:
         try:
             with open(env_template_file_path, "r") as env_file:
                 env_template_file_content = env_file.read()
@@ -154,18 +161,18 @@ class Klipper(BaseInstance):
             )
             raise
         env_file_content = env_template_file_content.replace(
-            "%KLIPPER_DIR%", self.klipper_dir
+            "%KLIPPER_DIR%", str(self.klipper_dir)
         )
         env_file_content = env_file_content.replace(
             "%CFG%", f"{self.cfg_dir}/printer.cfg"
         )
-        env_file_content = env_file_content.replace("%SERIAL%", self._serial)
-        env_file_content = env_file_content.replace("%LOG%", self._log)
-        env_file_content = env_file_content.replace("%UDS%", self._uds)
+        env_file_content = env_file_content.replace("%SERIAL%", str(self.serial))
+        env_file_content = env_file_content.replace("%LOG%", str(self.log))
+        env_file_content = env_file_content.replace("%UDS%", str(self.uds))
         return env_file_content
 
-    def _get_cfg(self):
-        cfg_file_loc = f"{self.cfg_dir}/printer.cfg"
-        if Path(cfg_file_loc).is_file():
+    def _get_cfg(self) -> Union[Path, None]:
+        cfg_file_loc = self.cfg_dir.joinpath("printer.cfg")
+        if cfg_file_loc.is_file():
             return cfg_file_loc
         return None

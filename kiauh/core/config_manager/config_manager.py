@@ -18,11 +18,11 @@ from kiauh.utils.logger import Logger
 
 # noinspection PyMethodMayBeStatic
 class ConfigManager:
-    def __init__(self, cfg_file: str):
+    def __init__(self, cfg_file: Path):
         self.config_file = cfg_file
         self.config = CustomConfigParser()
 
-        if Path(cfg_file).is_file():
+        if cfg_file.is_file():
             self.read_config()
 
     def read_config(self) -> None:

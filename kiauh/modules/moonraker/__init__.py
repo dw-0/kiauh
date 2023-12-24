@@ -9,23 +9,24 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 from pathlib import Path
 
-MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
+MODULE_PATH = Path(__file__).resolve().parent
 
-MOONRAKER_DIR = f"{Path.home()}/moonraker"
-MOONRAKER_ENV_DIR = f"{Path.home()}/moonraker-env"
-MOONRAKER_REQUIREMENTS_TXT = f"{MOONRAKER_DIR}/scripts/moonraker-requirements.txt"
+MOONRAKER_DIR = Path.home().joinpath("moonraker")
+MOONRAKER_ENV_DIR = Path.home().joinpath("moonraker-env")
+MOONRAKER_REQUIREMENTS_TXT = MOONRAKER_DIR.joinpath(
+    "scripts/moonraker-requirements.txt"
+)
 DEFAULT_MOONRAKER_REPO_URL = "https://github.com/Arksine/moonraker"
 DEFAULT_MOONRAKER_PORT = 7125
 
 # introduced due to
 # https://github.com/Arksine/moonraker/issues/349
 # https://github.com/Arksine/moonraker/pull/346
-POLKIT_LEGACY_FILE = "/etc/polkit-1/localauthority/50-local.d/10-moonraker.pkla"
-POLKIT_FILE = "/etc/polkit-1/rules.d/moonraker.rules"
-POLKIT_USR_FILE = "/usr/share/polkit-1/rules.d/moonraker.rules"
-POLKIT_SCRIPT = f"{Path.home()}/moonraker/scripts/set-policykit-rules.sh"
+POLKIT_LEGACY_FILE = Path("/etc/polkit-1/localauthority/50-local.d/10-moonraker.pkla")
+POLKIT_FILE = Path("/etc/polkit-1/rules.d/moonraker.rules")
+POLKIT_USR_FILE = Path("/usr/share/polkit-1/rules.d/moonraker.rules")
+POLKIT_SCRIPT = Path.home().joinpath("moonraker/scripts/set-policykit-rules.sh")
 
 EXIT_MOONRAKER_SETUP = "Exiting Moonraker setup ..."

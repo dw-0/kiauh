@@ -8,7 +8,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -37,25 +36,10 @@ def check_file_exist(file_path: Path, sudo=False) -> bool:
         except subprocess.CalledProcessError:
             return False
     else:
-        if Path(file_path).exists():
+        if file_path.exists():
             return True
         else:
             return False
-
-
-def create_directory(_dir: Path) -> None:
-    """
-    Helper function for creating a directory or skipping if it already exists |
-    :param _dir: the directory to create
-    :return: None
-    """
-    try:
-        if not os.path.isdir(_dir):
-            os.makedirs(_dir, exist_ok=True)
-            Logger.print_ok(f"Created directory: {_dir}")
-    except OSError as e:
-        Logger.print_error(f"Error creating folder: {e}")
-        raise
 
 
 def create_symlink(source: Path, target: Path, sudo=False) -> None:
@@ -79,14 +63,14 @@ def remove_file(file_path: Path, sudo=False) -> None:
         raise
 
 
-def unzip(file: str, target_dir: str) -> None:
+def unzip(filepath: Path, target_dir: Path) -> None:
     """
     Helper function to unzip a zip-archive into a target directory |
-    :param file: the zip-file to unzip
+    :param filepath: the path to the zip-file to unzip
     :param target_dir: the target directory to extract the files into
     :return: None
     """
-    with ZipFile(file, "r") as _zip:
+    with ZipFile(filepath, "r") as _zip:
         _zip.extractall(target_dir)
 
 
@@ -95,8 +79,8 @@ def copy_upstream_nginx_cfg() -> None:
     Creates an upstream.conf in /etc/nginx/conf.d
     :return: None
     """
-    source = os.path.join(MODULE_PATH, "res", "upstreams.conf")
-    target = os.path.join(NGINX_CONFD, "upstreams.conf")
+    source = MODULE_PATH.joinpath("res/upstreams.conf")
+    target = NGINX_CONFD.joinpath("upstreams.conf")
     try:
         command = ["sudo", "cp", source, target]
         subprocess.run(command, stderr=subprocess.PIPE, check=True)
@@ -111,8 +95,8 @@ def copy_common_vars_nginx_cfg() -> None:
     Creates a common_vars.conf in /etc/nginx/conf.d
     :return: None
     """
-    source = os.path.join(MODULE_PATH, "res", "common_vars.conf")
-    target = os.path.join(NGINX_CONFD, "common_vars.conf")
+    source = MODULE_PATH.joinpath("res/common_vars.conf")
+    target = NGINX_CONFD.joinpath("common_vars.conf")
     try:
         command = ["sudo", "cp", source, target]
         subprocess.run(command, stderr=subprocess.PIPE, check=True)
@@ -122,7 +106,7 @@ def copy_common_vars_nginx_cfg() -> None:
         raise
 
 
-def create_nginx_cfg(name: str, port: int, root_dir: str) -> None:
+def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
     """
     Creates an NGINX config from a template file and replaces all placeholders
     :param name: name of the config to create
@@ -130,18 +114,18 @@ def create_nginx_cfg(name: str, port: int, root_dir: str) -> None:
     :param root_dir: directory of the static files
     :return: None
     """
-    tmp = f"{Path.home()}/{name}.tmp"
-    shutil.copy(os.path.join(MODULE_PATH, "res", "nginx_cfg"), tmp)
+    tmp = Path.home().joinpath(f"{name}.tmp")
+    shutil.copy(MODULE_PATH.joinpath("res/nginx_cfg"), tmp)
     with open(tmp, "r+") as f:
         content = f.read()
         content = content.replace("%NAME%", name)
         content = content.replace("%PORT%", str(port))
-        content = content.replace("%ROOT_DIR%", root_dir)
+        content = content.replace("%ROOT_DIR%", str(root_dir))
         f.seek(0)
         f.write(content)
         f.truncate()
 
-    target = os.path.join(NGINX_SITES_AVAILABLE, name)
+    target = NGINX_SITES_AVAILABLE.joinpath(name)
     try:
         command = ["sudo", "mv", tmp, target]
         subprocess.run(command, stderr=subprocess.PIPE, check=True)

@@ -11,6 +11,7 @@
 
 import os
 import pwd
+from pathlib import Path
 
 # text colors and formats
 COLOR_WHITE = "\033[37m"  # white
@@ -22,4 +23,4 @@ COLOR_CYAN = "\033[96m"  # bright cyan
 RESET_FORMAT = "\033[0m"  # reset format
 # current user
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
-SYSTEMD = "/etc/systemd/system"
+SYSTEMD = Path("/etc/systemd/system")

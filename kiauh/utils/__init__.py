@@ -8,12 +8,13 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-import os
 
-MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
+from pathlib import Path
+
+MODULE_PATH = Path(__file__).resolve().parent
 INVALID_CHOICE = "Invalid choice. Please select a valid value."
 
 # ================== NGINX =====================#
-NGINX_SITES_AVAILABLE = "/etc/nginx/sites-available"
-NGINX_SITES_ENABLED = "/etc/nginx/sites-enabled"
-NGINX_CONFD = "/etc/nginx/conf.d"
+NGINX_SITES_AVAILABLE = Path("/etc/nginx/sites-available")
+NGINX_SITES_ENABLED = Path("/etc/nginx/sites-enabled")
+NGINX_CONFD = Path("/etc/nginx/conf.d")

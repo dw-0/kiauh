@@ -56,7 +56,7 @@ def check_install_dependencies(deps: List[str]) -> None:
         install_system_packages(requirements)
 
 
-def get_repo_name(repo_dir: str) -> str:
+def get_repo_name(repo_dir: Path) -> str:
     """
     Helper method to extract the organisation and name of a repository |
     :param repo_dir: repository to extract the values from
@@ -72,7 +72,7 @@ def get_repo_name(repo_dir: str) -> str:
 
 
 def get_install_status_common(
-    instance_type: Type[BaseInstance], repo_dir: str, env_dir: str
+    instance_type: Type[BaseInstance], repo_dir: Path, env_dir: Path
 ) -> str:
     """
     Helper method to get the installation status of software components,
@@ -85,10 +85,8 @@ def get_install_status_common(
     :return: formatted string, containing the status
     """
     im = InstanceManager(instance_type)
-    dir_exist = Path(repo_dir).exists()
-    env_dir_exist = Path(env_dir).exists()
     instances_exist = len(im.instances) > 0
-    status = [dir_exist, env_dir_exist, instances_exist]
+    status = [repo_dir.exists(), env_dir.exists(), instances_exist]
     if all(status):
         return f"{COLOR_GREEN}Installed: {len(im.instances)}{RESET_FORMAT}"
     elif not any(status):
@@ -109,7 +107,7 @@ def get_install_status_webui(
     :param common_cfg: the required common_vars.conf
     :return: formatted string, containing the status
     """
-    dir_exist = Path(install_dir).exists()
+    dir_exist = install_dir.exists()
     nginx_cfg_exist = check_file_exist(nginx_cfg)
     upstreams_cfg_exist = check_file_exist(upstreams_cfg)
     common_cfg_exist = check_file_exist(common_cfg)

@@ -47,7 +47,7 @@ class BackupManager:
                 filename = custom_filename if custom_filename is not None else filename
                 try:
                     Path(target).mkdir(exist_ok=True)
-                    shutil.copyfile(file, Path(target, filename))
+                    shutil.copyfile(file, target.joinpath(filename))
                 except OSError as e:
                     Logger.print_error(f"Unable to backup '{file}':\n{e}")
                     continue
@@ -64,7 +64,7 @@ class BackupManager:
             Logger.print_status(log)
             date = get_current_date().get("date")
             time = get_current_date().get("time")
-            shutil.copytree(source, Path(target, f"{name}-{date}-{time}"))
+            shutil.copytree(source, target.joinpath(f"{name}-{date}-{time}"))
         except OSError as e:
             Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
             return

@@ -9,9 +9,9 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import re
 import subprocess
+from pathlib import Path
 from typing import List, Optional, Union, TypeVar
 
 from kiauh.core.instance_manager.base_instance import BaseInstance
@@ -194,9 +194,10 @@ class InstanceManager:
         excluded = self.instance_type.blacklist()
 
         service_list = [
-            os.path.join(SYSTEMD, service)
-            for service in os.listdir(SYSTEMD)
-            if pattern.search(service) and not any(s in service for s in excluded)
+            Path(SYSTEMD, service)
+            for service in SYSTEMD.iterdir()
+            if pattern.search(service.name)
+            and not any(s in service.name for s in excluded)
         ]
 
         instance_list = [
@@ -206,8 +207,8 @@ class InstanceManager:
 
         return instance_list
 
-    def _get_instance_suffix(self, file_path: str) -> Union[str, None]:
-        full_name = file_path.split("/")[-1].split(".")[0]
+    def _get_instance_suffix(self, file_path: Path) -> Union[str, None]:
+        full_name = file_path.name.split(".")[0]
 
         return full_name.split("-")[-1] if "-" in full_name else None
 

@@ -11,12 +11,10 @@
 
 from pathlib import Path
 
-import os
-
-MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
-MAINSAIL_DIR = os.path.join(Path.home(), "mainsail")
-MAINSAIL_CONFIG_DIR = os.path.join(Path.home(), "mainsail-config")
-MAINSAIL_CONFIG_JSON = os.path.join(MAINSAIL_DIR, "config.json")
+MODULE_PATH = Path(__file__).resolve().parent
+MAINSAIL_DIR = Path(Path.home(), "mainsail")
+MAINSAIL_CONFIG_DIR = Path(Path.home(), "mainsail-config")
+MAINSAIL_CONFIG_JSON = Path(MAINSAIL_DIR, "config.json")
 MAINSAIL_URL = (
     "https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip"
 )

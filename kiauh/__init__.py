@@ -9,9 +9,8 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from os.path import join, dirname, abspath
 from pathlib import Path
 
-APPLICATION_ROOT = dirname(dirname(abspath(__file__)))
-KIAUH_CFG = join(APPLICATION_ROOT, "kiauh.cfg")
-KIAUH_BACKUP_DIR = f"{Path.home()}/kiauh-backups"
+APPLICATION_ROOT = Path(__file__).resolve().parent.parent
+KIAUH_CFG = APPLICATION_ROOT.joinpath("kiauh.cfg")
+KIAUH_BACKUP_DIR = Path.home().joinpath("kiauh-backups")
