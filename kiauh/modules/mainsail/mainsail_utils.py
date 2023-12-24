@@ -17,8 +17,19 @@ from typing import List
 
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.mainsail import MAINSAIL_CONFIG_JSON
+from kiauh.modules.mainsail import MAINSAIL_CONFIG_JSON, MAINSAIL_DIR
+from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
+from kiauh.utils.common import get_install_status_webui
 from kiauh.utils.logger import Logger
+
+
+def get_mainsail_status() -> str:
+    return get_install_status_webui(
+        MAINSAIL_DIR,
+        Path(NGINX_SITES_AVAILABLE, "mainsail"),
+        Path(NGINX_CONFD, "upstreams.conf"),
+        Path(NGINX_CONFD, "common_vars.conf"),
+    )
 
 
 def backup_config_json(is_temp=False) -> None:

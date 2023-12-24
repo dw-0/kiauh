@@ -23,6 +23,7 @@ from kiauh.utils.constants import (
     COLOR_GREEN,
     COLOR_RED,
 )
+from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import check_package_install, install_system_packages
 
@@ -90,6 +91,31 @@ def get_install_status_common(
     status = [dir_exist, env_dir_exist, instances_exist]
     if all(status):
         return f"{COLOR_GREEN}Installed: {len(im.instances)}{RESET_FORMAT}"
+    elif not any(status):
+        return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
+    else:
+        return f"{COLOR_YELLOW}Incomplete!{RESET_FORMAT}"
+
+
+def get_install_status_webui(
+    install_dir: Path, nginx_cfg: Path, upstreams_cfg: Path, common_cfg: Path
+) -> str:
+    """
+    Helper method to get the installation status of webuis
+    like Mainsail or Fluidd |
+    :param install_dir: folder of the static webui files
+    :param nginx_cfg: the webuis NGINX config
+    :param upstreams_cfg: the required upstreams.conf
+    :param common_cfg: the required common_vars.conf
+    :return: formatted string, containing the status
+    """
+    dir_exist = Path(install_dir).exists()
+    nginx_cfg_exist = check_file_exist(nginx_cfg)
+    upstreams_cfg_exist = check_file_exist(upstreams_cfg)
+    common_cfg_exist = check_file_exist(common_cfg)
+    status = [dir_exist, nginx_cfg_exist, upstreams_cfg_exist, common_cfg_exist]
+    if all(status):
+        return f"{COLOR_GREEN}Installed!{RESET_FORMAT}"
     elif not any(status):
         return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
     else:

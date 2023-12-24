@@ -20,9 +20,13 @@ from kiauh.core.menus.settings_menu import SettingsMenu
 from kiauh.core.menus.update_menu import UpdateMenu
 from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.modules.klipper.klipper import Klipper
+from kiauh.modules.mainsail.mainsail_utils import get_mainsail_status
 from kiauh.modules.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
 from kiauh.modules.moonraker.moonraker import Moonraker
-from kiauh.utils.common import get_repo_name, get_install_status_common
+from kiauh.utils.common import (
+    get_repo_name,
+    get_install_status_common,
+)
 from kiauh.utils.constants import COLOR_MAGENTA, COLOR_CYAN, RESET_FORMAT, COLOR_RED
 
 
@@ -71,6 +75,8 @@ class MainMenu(BaseMenu):
             Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR
         )
         self.mr_repo = get_repo_name(MOONRAKER_DIR)
+        # mainsail
+        self.ms_status = get_mainsail_status()
 
     def print_menu(self):
         self.fetch_status()
