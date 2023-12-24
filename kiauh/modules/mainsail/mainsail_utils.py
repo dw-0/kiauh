@@ -15,20 +15,20 @@ import shutil
 from pathlib import Path
 from typing import List
 
+from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.mainsail import MAINSAIL_CONFIG_JSON
 from kiauh.utils.logger import Logger
 
 
-# TODO: give this method an optional target dir to backup to
-#  alteratively use the BackupManager for handling this task (probably best)
-def backup_config_json() -> None:
-    try:
-        Logger.print_status(f"Backup '{MAINSAIL_CONFIG_JSON}' ...")
-        target = os.path.join(Path.home(), "config.json.kiauh.bak")
-        shutil.copy(MAINSAIL_CONFIG_JSON, target)
-    except OSError:
-        Logger.print_info(f"Unable to backup config.json. Skipped ...")
+def backup_config_json(is_temp=False) -> None:
+    Logger.print_status(f"Backup '{MAINSAIL_CONFIG_JSON}' ...")
+    bm = BackupManager()
+    if is_temp:
+        fn = Path(Path.home(), "config.json.kiauh.bak")
+        bm.backup_file([MAINSAIL_CONFIG_JSON], custom_filename=fn)
+    else:
+        bm.backup_file([MAINSAIL_CONFIG_JSON])
 
 
 def restore_config_json() -> None:
@@ -37,7 +37,7 @@ def restore_config_json() -> None:
         source = os.path.join(Path.home(), "config.json.kiauh.bak")
         shutil.copy(source, MAINSAIL_CONFIG_JSON)
     except OSError:
-        Logger.print_info(f"Unable to restore config.json. Skipped ...")
+        Logger.print_info("Unable to restore config.json. Skipped ...")
 
 
 def enable_mainsail_remotemode() -> None:

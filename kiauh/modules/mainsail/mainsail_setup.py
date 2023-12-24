@@ -78,7 +78,7 @@ def run_mainsail_installation() -> None:
         print_mainsail_already_installed_dialog()
         do_reinstall = get_confirm("Re-install Mainsail?", allow_go_back=True)
         if do_reinstall:
-            backup_config_json()
+            backup_config_json(is_temp=True)
         else:
             return
 
