@@ -124,7 +124,7 @@ class BaseInstance(ABC):
         raise NotImplementedError("Subclasses must implement the create method")
 
     @abstractmethod
-    def delete(self, del_remnants: bool) -> None:
+    def delete(self) -> None:
         raise NotImplementedError("Subclasses must implement the delete method")
 
     def create_folders(self, add_dirs: List[Path] = None) -> None:

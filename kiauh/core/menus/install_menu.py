@@ -67,7 +67,7 @@ class InstallMenu(BaseMenu):
         klipper_setup.run_klipper_setup(install=True)
 
     def install_moonraker(self):
-        moonraker_setup.run_moonraker_setup(install=True)
+        moonraker_setup.install_moonraker()
 
     def install_mainsail(self):
         mainsail_setup.run_mainsail_installation()

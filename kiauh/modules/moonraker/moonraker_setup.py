@@ -53,53 +53,32 @@ from kiauh.utils.system_utils import (
 )
 
 
-def run_moonraker_setup(install: bool) -> None:
+def check_moonraker_install_requirements() -> bool:
     kl_im = InstanceManager(Klipper)
     kl_instance_list = kl_im.instances
     kl_instance_count = len(kl_instance_list)
-    mr_im = InstanceManager(Moonraker)
-    mr_instance_list = mr_im.instances
-    mr_instance_count = len(mr_instance_list)
 
     if not (sys.version_info.major >= 3 and sys.version_info.minor >= 7):
         Logger.print_error("Versioncheck failed!")
         Logger.print_error("Python 3.7 or newer required to run Moonraker.")
-        return
+        return False
 
     is_klipper_installed = kl_instance_count > 0
-    if install and not is_klipper_installed:
+    if not is_klipper_installed:
         Logger.print_warn("Klipper not installed!")
         Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
+        return False
+
+
+def install_moonraker() -> None:
+    if not check_moonraker_install_requirements():
         return
 
-    is_moonraker_installed = mr_instance_count > 0
-    if not install and not is_moonraker_installed:
-        Logger.print_warn("Moonraker not installed!")
-        return
+    kl_im = InstanceManager(Klipper)
+    klipper_instances = kl_im.instances
+    mr_im = InstanceManager(Moonraker)
+    moonraker_instances = mr_im.instances
 
-    if install:
-        install_moonraker(mr_im, mr_instance_list, kl_instance_list)
-
-    if not install:
-        remove_moonraker(mr_im, mr_instance_list)
-
-
-def handle_existing_instances(instance_list: List[Klipper]) -> bool:
-    instance_count = len(instance_list)
-
-    if instance_count > 0:
-        print_instance_overview(instance_list)
-        if not get_confirm("Add new instances?", allow_go_back=True):
-            return False
-
-    return True
-
-
-def install_moonraker(
-    instance_manager: InstanceManager,
-    moonraker_instances: List[Moonraker],
-    klipper_instances: List[Klipper],
-) -> None:
     selected_klipper_instance = 0
     if len(klipper_instances) > 1:
         print_moonraker_overview(
@@ -136,16 +115,16 @@ def install_moonraker(
     for name in instance_names:
         current_instance = Moonraker(suffix=name)
 
-        instance_manager.current_instance = current_instance
-        instance_manager.create_instance()
-        instance_manager.enable_instance()
+        mr_im.current_instance = current_instance
+        mr_im.create_instance()
+        mr_im.enable_instance()
 
         if create_example_cfg:
             create_example_moonraker_conf(current_instance, used_ports_map)
 
-        instance_manager.start_instance()
+        mr_im.start_instance()
 
-    instance_manager.reload_daemon()
+    mr_im.reload_daemon()
 
 
 def setup_moonraker_prerequesites() -> None:
@@ -202,84 +181,15 @@ def install_moonraker_polkit() -> None:
         Logger.print_error(log)
 
 
-def remove_moonraker(
-    instance_manager: InstanceManager, instance_list: List[Moonraker]
-) -> None:
-    print_instance_overview(instance_list, True, True)
+def handle_existing_instances(instance_list: List[Klipper]) -> bool:
+    instance_count = len(instance_list)
 
-    options = [str(i) for i in range(len(instance_list))]
-    options.extend(["a", "A", "b", "B"])
+    if instance_count > 0:
+        print_instance_overview(instance_list)
+        if not get_confirm("Add new instances?", allow_go_back=True):
+            return False
 
-    selection = get_selection_input("Select Moonraker instance to remove", options)
-
-    del_remnants = False
-    remove_polkit = False
-    instances_to_remove = []
-    if selection == "b".lower():
-        return
-    elif selection == "a".lower():
-        question = f"Delete {MOONRAKER_DIR} and {MOONRAKER_ENV_DIR}?"
-        del_remnants = get_confirm(question, False, True)
-        instances_to_remove.extend(instance_list)
-        remove_polkit = True
-        Logger.print_status("Removing all Moonraker instances ...")
-    else:
-        instance = instance_list[int(selection)]
-        instance_name = instance.get_service_file_name()
-        instances_to_remove.append(instance)
-        is_last_instance = len(instance_list) == 1
-        if is_last_instance:
-            question = f"Delete {MOONRAKER_DIR} and {MOONRAKER_ENV_DIR}?"
-            del_remnants = get_confirm(question, False, True)
-            remove_polkit = True
-        Logger.print_status(f"Removing Moonraker instance {instance_name} ...")
-
-    if del_remnants is None:
-        Logger.print_status("Exiting Moonraker Uninstaller ...")
-        return
-
-    remove_instances(
-        instance_manager,
-        instances_to_remove,
-        remove_polkit,
-        del_remnants,
-    )
-
-
-def remove_instances(
-    instance_manager: InstanceManager,
-    instance_list: List[Moonraker],
-    remove_polkit: bool,
-    del_remnants: bool,
-) -> None:
-    for instance in instance_list:
-        instance_manager.current_instance = instance
-        instance_manager.stop_instance()
-        instance_manager.disable_instance()
-        instance_manager.delete_instance(del_remnants=del_remnants)
-
-    if remove_polkit:
-        remove_polkit_rules()
-
-    instance_manager.reload_daemon()
-
-
-def remove_polkit_rules() -> None:
-    Logger.print_status("Removing all Moonraker policykit rules ...")
-    if not MOONRAKER_DIR.exists():
-        log = "Cannot remove policykit rules. Moonraker directory not found."
-        Logger.print_warn(log)
-        return
-
-    try:
-        command = [f"{MOONRAKER_DIR}/scripts/set-policykit-rules.sh", "--clear"]
-        subprocess.run(
-            command, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, check=True
-        )
-    except subprocess.CalledProcessError as e:
-        Logger.print_error(f"Error while removing policykit rules: {e}")
-
-    Logger.print_ok("Policykit rules successfully removed!")
+    return True
 
 
 def update_moonraker() -> None:

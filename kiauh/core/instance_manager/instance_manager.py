@@ -83,7 +83,7 @@ class InstanceManager:
     @property
     def instances(self) -> List[I]:
         if not self._instances:
-            self._instances = self._find_instances()
+            self._instances = self.find_instances()
 
         return sorted(self._instances, key=lambda x: self._sort_instance_list(x.suffix))
 
@@ -101,10 +101,10 @@ class InstanceManager:
         else:
             raise ValueError("current_instance cannot be None")
 
-    def delete_instance(self, del_remnants=False) -> None:
+    def delete_instance(self) -> None:
         if self.current_instance is not None:
             try:
-                self.current_instance.delete(del_remnants)
+                self.current_instance.delete()
             except (OSError, subprocess.CalledProcessError) as e:
                 Logger.print_error(f"Removing instance failed: {e}")
                 raise
@@ -188,7 +188,7 @@ class InstanceManager:
             Logger.print_error(f"{e}")
             raise
 
-    def _find_instances(self) -> List[I]:
+    def find_instances(self) -> List[I]:
         name = self.instance_type.__name__.lower()
         pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
         excluded = self.instance_type.blacklist()
