@@ -30,7 +30,7 @@ class Klipper(BaseInstance):
         super().__init__(instance_type=self, suffix=suffix)
         self.klipper_dir: Path = KLIPPER_DIR
         self.env_dir: Path = KLIPPER_ENV_DIR
-        self._cfg_file = self._get_cfg()
+        self._cfg_file = self.cfg_dir.joinpath("printer.cfg")
         self._log = self.log_dir.joinpath("klippy.log")
         self._serial = self.comms_dir.joinpath("klippy.serial")
         self._uds = self.comms_dir.joinpath("klippy.sock")
@@ -153,9 +153,3 @@ class Klipper(BaseInstance):
         env_file_content = env_file_content.replace("%LOG%", str(self.log))
         env_file_content = env_file_content.replace("%UDS%", str(self.uds))
         return env_file_content
-
-    def _get_cfg(self) -> Union[Path, None]:
-        cfg_file_loc = self.cfg_dir.joinpath("printer.cfg")
-        if cfg_file_loc.is_file():
-            return cfg_file_loc
-        return None

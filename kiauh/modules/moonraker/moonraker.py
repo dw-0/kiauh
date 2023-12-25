@@ -31,7 +31,7 @@ class Moonraker(BaseInstance):
         super().__init__(instance_type=self, suffix=suffix)
         self.moonraker_dir: Path = MOONRAKER_DIR
         self.env_dir: Path = MOONRAKER_ENV_DIR
-        self.cfg_file = self._get_cfg()
+        self.cfg_file = self.cfg_dir.joinpath("moonraker.conf")
         self.port = self._get_port()
         self.backup_dir = self.data_dir.joinpath("backup")
         self.certs_dir = self.data_dir.joinpath("certs")
@@ -138,14 +138,8 @@ class Moonraker(BaseInstance):
         )
         return env_file_content
 
-    def _get_cfg(self) -> Union[Path, None]:
-        cfg_file_loc = self.cfg_dir.joinpath("moonraker.conf")
-        if cfg_file_loc.is_file():
-            return cfg_file_loc
-        return None
-
     def _get_port(self) -> Union[int, None]:
-        if self.cfg_file is None:
+        if not self.cfg_file.is_file():
             return None
 
         cm = ConfigManager(cfg_file=self.cfg_file)
