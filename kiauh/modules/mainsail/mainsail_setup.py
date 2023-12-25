@@ -147,11 +147,13 @@ def run_mainsail_installation() -> None:
 def download_mainsail() -> None:
     try:
         Logger.print_status("Downloading Mainsail ...")
-        download_file(MAINSAIL_URL, Path.home(), "mainsail.zip")
+        target = Path.home().joinpath("mainsail.zip")
+        download_file(MAINSAIL_URL, target, True)
         Logger.print_ok("Download complete!")
 
         Logger.print_status("Extracting mainsail.zip ...")
         unzip(Path.home().joinpath("mainsail.zip"), MAINSAIL_DIR)
+        target.unlink(missing_ok=True)
         Logger.print_ok("OK!")
 
     except Exception:

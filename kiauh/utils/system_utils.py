@@ -246,24 +246,20 @@ def get_ipv4_addr() -> str:
         s.close()
 
 
-def download_file(
-    url: str, target_folder: Path, target_name: str, show_progress=True
-) -> None:
+def download_file(url: str, target: Path, show_progress=True) -> None:
     """
     Helper method for downloading files from a provided URL |
     :param url: the url to the file
-    :param target_folder: the target folder to download the file into
-    :param target_name: the name of the downloaded file
+    :param target: the target path incl filename
     :param show_progress: show download progress or not
     :return: None
     """
-    target_path = target_folder.joinpath(target_name)
     try:
         if show_progress:
-            urllib.request.urlretrieve(url, target_path, download_progress)
+            urllib.request.urlretrieve(url, target, download_progress)
             sys.stdout.write("\n")
         else:
-            urllib.request.urlretrieve(url, target_path)
+            urllib.request.urlretrieve(url, target)
     except urllib.error.HTTPError as e:
         Logger.print_error(f"Download failed! HTTP error occured: {e}")
         raise
