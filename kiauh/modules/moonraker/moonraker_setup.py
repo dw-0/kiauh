@@ -69,6 +69,8 @@ def check_moonraker_install_requirements() -> bool:
         Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
         return False
 
+    return True
+
 
 def install_moonraker() -> None:
     if not check_moonraker_install_requirements():
