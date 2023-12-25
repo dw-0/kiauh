@@ -110,7 +110,7 @@ def handle_single_to_multi_conversion(
     old_data_dir_name = instance_manager.instances[0].data_dir
     instance_manager.stop_instance()
     instance_manager.disable_instance()
-    instance_manager.delete_instance(del_remnants=False)
+    instance_manager.delete_instance()
     instance_manager.current_instance = Klipper(suffix=name)
     new_data_dir_name = instance_manager.current_instance.data_dir
     try:
