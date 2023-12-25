@@ -111,10 +111,12 @@ def get_install_status_webui(
     nginx_cfg_exist = check_file_exist(nginx_cfg)
     upstreams_cfg_exist = check_file_exist(upstreams_cfg)
     common_cfg_exist = check_file_exist(common_cfg)
-    status = [dir_exist, nginx_cfg_exist, upstreams_cfg_exist, common_cfg_exist]
-    if all(status):
+    status = [dir_exist, nginx_cfg_exist]
+    general_nginx_status = [upstreams_cfg_exist, common_cfg_exist]
+
+    if all(status) and all(general_nginx_status):
         return f"{COLOR_GREEN}Installed!{RESET_FORMAT}"
-    elif not any(status):
+    elif not all(status):
         return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
     else:
         return f"{COLOR_YELLOW}Incomplete!{RESET_FORMAT}"
