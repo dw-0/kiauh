@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 
 # ======================================================================= #
 #  Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>        #
@@ -94,16 +95,16 @@ def remove_nginx_logs() -> None:
 def remove_updater_section(name: str) -> None:
     Logger.print_status("Remove updater section from moonraker.conf ...")
     im = InstanceManager(Moonraker)
-    if not im.instances:
-        Logger.print_info("Moonraker not installed. Skipping ...")
+    instances: List[Moonraker] = im.instances
+    if not instances:
+        Logger.print_info("Moonraker not installed. Skipped ...")
         return
 
-    for instance in im.instances:
-        log = f"Remove section '{name}' in '{instance.cfg_file}' ..."
-        Logger.print_status(log)
+    for instance in instances:
+        Logger.print_status(f"Remove section '{name}' in '{instance.cfg_file}' ...")
 
-        if not Path(instance.cfg_file).exists():
-            Logger.print_info("Section not present. Skipping ...")
+        if not instance.cfg_file.is_file():
+            Logger.print_info(f"'{instance.cfg_file}' does not exist. Skipped ...")
             continue
 
         cm = ConfigManager(instance.cfg_file)
