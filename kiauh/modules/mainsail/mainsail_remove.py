@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 
 # ======================================================================= #
 #  Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>        #
@@ -53,7 +52,7 @@ def run_mainsail_removal(
 
 def remove_mainsail_dir() -> None:
     Logger.print_status("Removing Mainsail ...")
-    if not Path(MAINSAIL_DIR).exists():
+    if not MAINSAIL_DIR.exists():
         Logger.print_info(f"'{MAINSAIL_DIR}' does not exist. Skipping ...")
         return
 
@@ -81,12 +80,13 @@ def remove_nginx_logs() -> None:
         remove_file(Path("/var/log/nginx/mainsail-error.log"), True)
 
         im = InstanceManager(Klipper)
-        if not im.instances:
+        instances: List[Klipper] = im.instances
+        if not instances:
             return
 
-        for instance in im.instances:
-            remove_file(Path(instance.log_dir, "mainsail-access.log"))
-            remove_file(Path(instance.log_dir, "mainsail-error.log"))
+        for instance in instances:
+            remove_file(instance.log_dir.joinpath("mainsail-access.log"))
+            remove_file(instance.log_dir.joinpath("mainsail-error.log"))
 
     except (OSError, subprocess.CalledProcessError) as e:
         Logger.print_error(f"Unable to NGINX logs:\n{e}")
@@ -118,7 +118,7 @@ def remove_updater_section(name: str) -> None:
 
 def remove_mainsail_cfg_dir() -> None:
     Logger.print_status("Removing mainsail-config ...")
-    if not Path(MAINSAIL_CONFIG_DIR).exists():
+    if not MAINSAIL_CONFIG_DIR.exists():
         Logger.print_info(f"'{MAINSAIL_CONFIG_DIR}' does not exist. Skipping ...")
         return
 
@@ -130,11 +130,12 @@ def remove_mainsail_cfg_dir() -> None:
 
 def remove_mainsail_cfg_symlink() -> None:
     Logger.print_status("Removing mainsail.cfg symlinks ...")
-    im = InstanceManager(Moonraker)
-    for instance in im.instances:
-        Logger.print_status(f"Removing symlink from '{instance.cfg_dir}' ...")
+    im = InstanceManager(Klipper)
+    instances: List[Klipper] = im.instances
+    for instance in instances:
+        Logger.print_status(f"Removing symlink from '{instance.cfg_file}' ...")
         try:
-            remove_file(Path(instance.cfg_dir, "mainsail.cfg"))
+            remove_file(instance.cfg_dir.joinpath("mainsail.cfg"))
         except subprocess.CalledProcessError:
             Logger.print_error("Failed to remove symlink!")
 
@@ -142,15 +143,16 @@ def remove_mainsail_cfg_symlink() -> None:
 def remove_printer_cfg_include() -> None:
     Logger.print_status("Remove mainsail-config include from printer.cfg ...")
     im = InstanceManager(Klipper)
-    if not im.instances:
+    instances: List[Klipper] = im.instances
+    if not instances:
         Logger.print_info("Klipper not installed. Skipping ...")
         return
 
-    for instance in im.instances:
+    for instance in instances:
         log = f"Removing include from '{instance.cfg_file}' ..."
         Logger.print_status(log)
 
-        if not Path(instance.cfg_file).exists():
+        if not instance.cfg_file.is_file():
             continue
 
         cm = ConfigManager(instance.cfg_file)

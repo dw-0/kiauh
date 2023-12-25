@@ -40,12 +40,12 @@ def create_example_moonraker_conf(
     instance: Moonraker, ports_map: Dict[str, int]
 ) -> None:
     Logger.print_status(f"Creating example moonraker.conf in '{instance.cfg_dir}'")
-    if instance.cfg_file is not None:
-        Logger.print_info(f"moonraker.conf in '{instance.cfg_dir}' already exists.")
+    if instance.cfg_file.is_file():
+        Logger.print_info(f"'{instance.cfg_file}' already exists.")
         return
 
     source = MODULE_PATH.joinpath("res/moonraker.conf")
-    target = instance.cfg_dir.joinpath("moonraker.conf")
+    target = instance.cfg_file
     try:
         shutil.copy(source, target)
     except OSError as e:
