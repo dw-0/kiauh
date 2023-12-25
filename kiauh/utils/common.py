@@ -68,7 +68,7 @@ def get_repo_name(repo_dir: Path) -> str:
         result = "/".join(result.decode().strip().split("/")[-2:])
         return f"{COLOR_CYAN}{result}{RESET_FORMAT}"
     except subprocess.CalledProcessError:
-        return f"{COLOR_YELLOW}Unknown{RESET_FORMAT}"
+        return f"{COLOR_RED}-{RESET_FORMAT}"
 
 
 def get_install_status_common(
