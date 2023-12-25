@@ -75,7 +75,7 @@ class Klipper(BaseInstance):
             Logger.print_error(f"Error creating env file {env_file_target}: {e}")
             raise
 
-    def delete(self, del_remnants: bool) -> None:
+    def delete(self) -> None:
         service_file = self.get_service_file_name(extension=True)
         service_file_path = self.get_service_file_path()
 
@@ -88,9 +88,6 @@ class Klipper(BaseInstance):
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error deleting service file: {e}")
             raise
-
-        if del_remnants:
-            self._delete_klipper_remnants()
 
     def write_service_file(
         self,
@@ -117,20 +114,6 @@ class Klipper(BaseInstance):
         with open(env_file_target, "w") as env_file:
             env_file.write(env_file_content)
         Logger.print_ok(f"Env file created: {env_file_target}")
-
-    def _delete_klipper_remnants(self) -> None:
-        try:
-            Logger.print_status(f"Delete {self.klipper_dir} ...")
-            shutil.rmtree(Path(self.klipper_dir))
-            Logger.print_status(f"Delete {self.env_dir} ...")
-            shutil.rmtree(Path(self.env_dir))
-        except FileNotFoundError:
-            Logger.print_status("Cannot delete Klipper directories. Not found.")
-        except PermissionError as e:
-            Logger.print_error(f"Error deleting Klipper directories: {e}")
-            raise
-
-        Logger.print_ok("Directories successfully deleted.")
 
     def _prep_service_file(
         self, service_template_path: Path, env_file_path: Path

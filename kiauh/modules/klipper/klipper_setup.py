@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import subprocess
 from pathlib import Path
 from typing import List, Union
 
@@ -40,11 +39,7 @@ from kiauh.modules.klipper.klipper_utils import (
     create_example_printer_cfg,
 )
 from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.utils.input_utils import (
-    get_confirm,
-    get_number_input,
-    get_selection_input,
-)
+from kiauh.utils.input_utils import get_confirm, get_number_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     parse_packages_from_file,
@@ -55,85 +50,52 @@ from kiauh.utils.system_utils import (
 )
 
 
-def run_klipper_setup(install: bool) -> None:
-    instance_manager = InstanceManager(Klipper)
-    instance_list = instance_manager.instances
-    instances_installed = len(instance_list)
+def install_klipper() -> None:
+    im = InstanceManager(Klipper)
 
-    is_klipper_installed = instances_installed > 0
-    if not install and not is_klipper_installed:
-        Logger.print_warn("Klipper not installed!")
+    add_additional = handle_existing_instances(im.instances)
+    if len(im.instances) > 0 and not add_additional:
+        Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
-    if install:
-        add_additional = handle_existing_instances(instance_list)
-        if is_klipper_installed and not add_additional:
-            Logger.print_status(EXIT_KLIPPER_SETUP)
-            return
-
-        install_klipper(instance_manager, instance_list)
-
-    if not install:
-        if instances_installed == 1:
-            remove_single_instance(instance_manager, instance_list)
-        else:
-            remove_multi_instance(instance_manager, instance_list)
-
-
-def handle_existing_instances(instance_list: List[Klipper]) -> bool:
-    instance_count = len(instance_list)
-
-    if instance_count > 0:
-        print_instance_overview(instance_list)
-        if not get_confirm("Add new instances?", allow_go_back=True):
-            return False
-
-    return True
-
-
-def install_klipper(
-    instance_manager: InstanceManager, instance_list: List[Klipper]
-) -> None:
     print_select_instance_count_dialog()
-    question = f"Number of{' additional' if len(instance_list) > 0 else ''} Klipper instances to set up"
+    question = f"Number of{' additional' if len(im.instances) > 0 else ''} Klipper instances to set up"
     install_count = get_number_input(question, 1, default=1, allow_go_back=True)
     if install_count is None:
         Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
-    instance_names = set_instance_suffix(instance_list, install_count)
+    instance_names = set_instance_suffix(im.instances, install_count)
     if instance_names is None:
         Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
     create_example_cfg = get_confirm("Create example printer.cfg?")
 
-    if len(instance_list) < 1:
+    if len(im.instances) < 1:
         setup_klipper_prerequesites()
 
     convert_single_to_multi = (
-        len(instance_list) == 1
-        and instance_list[0].suffix is None
-        and install_count >= 1
+        len(im.instances) == 1 and im.instances[0].suffix is None and install_count >= 1
     )
 
     for name in instance_names:
         if convert_single_to_multi:
-            current_instance = handle_single_to_multi_conversion(instance_manager, name)
+            current_instance = handle_single_to_multi_conversion(im, name)
             convert_single_to_multi = False
         else:
             current_instance = Klipper(suffix=name)
 
-        instance_manager.current_instance = current_instance
-        instance_manager.create_instance()
-        instance_manager.enable_instance()
+        im.current_instance = current_instance
+        im.create_instance()
+        im.enable_instance()
 
         if create_example_cfg:
             create_example_printer_cfg(current_instance)
 
-        instance_manager.start_instance()
+        im.start_instance()
 
-    instance_manager.reload_daemon()
+    im.reload_daemon()
 
     # step 4: check/handle conflicting packages/services
     handle_disruptive_system_packages()
@@ -175,6 +137,17 @@ def install_klipper_packages(klipper_dir: Path) -> None:
     install_system_packages(packages)
 
 
+def handle_existing_instances(instance_list: List[Klipper]) -> bool:
+    instance_count = len(instance_list)
+
+    if instance_count > 0:
+        print_instance_overview(instance_list)
+        if not get_confirm("Add new instances?", allow_go_back=True):
+            return False
+
+    return True
+
+
 def set_instance_suffix(
     instance_list: List[Klipper], install_count: int
 ) -> List[Union[str, None]]:
@@ -197,63 +170,6 @@ def set_instance_suffix(
         return handle_existing_multi_instance_names(
             instance_count, install_count, instance_list
         )
-
-
-def remove_single_instance(
-    instance_manager: InstanceManager, instance_list: List[Klipper]
-) -> None:
-    question = f"Delete {KLIPPER_DIR} and {KLIPPER_ENV_DIR}?"
-    del_remnants = get_confirm(question, allow_go_back=True)
-    if del_remnants is None:
-        Logger.print_status("Exiting Klipper Uninstaller ...")
-        return
-
-    try:
-        instance_manager.current_instance = instance_list[0]
-        instance_manager.stop_instance()
-        instance_manager.disable_instance()
-        instance_manager.delete_instance(del_remnants=del_remnants)
-        instance_manager.reload_daemon()
-    except (OSError, subprocess.CalledProcessError):
-        Logger.print_error("Removing instance failed!")
-        return
-
-
-def remove_multi_instance(
-    instance_manager: InstanceManager, instance_list: List[Klipper]
-) -> None:
-    print_instance_overview(instance_list, show_index=True, show_select_all=True)
-
-    options = [str(i) for i in range(len(instance_list))]
-    options.extend(["a", "A", "b", "B"])
-
-    selection = get_selection_input("Select Klipper instance to remove", options)
-
-    if selection == "b".lower():
-        return
-    elif selection == "a".lower():
-        question = f"Delete {KLIPPER_DIR} and {KLIPPER_ENV_DIR}?"
-        del_remnants = get_confirm(question, allow_go_back=True)
-        if del_remnants is None:
-            Logger.print_status("Exiting Klipper Uninstaller ...")
-            return
-
-        Logger.print_status("Removing all Klipper instances ...")
-        for instance in instance_list:
-            instance_manager.current_instance = instance
-            instance_manager.stop_instance()
-            instance_manager.disable_instance()
-            instance_manager.delete_instance(del_remnants=del_remnants)
-    else:
-        instance = instance_list[int(selection)]
-        log = f"Removing Klipper instance: {instance.get_service_file_name()}"
-        Logger.print_status(log)
-        instance_manager.current_instance = instance
-        instance_manager.stop_instance()
-        instance_manager.disable_instance()
-        instance_manager.delete_instance(del_remnants=False)
-
-    instance_manager.reload_daemon()
 
 
 def update_klipper() -> None:

@@ -13,7 +13,7 @@ import textwrap
 
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.modules.klipper import klipper_setup
+from kiauh.modules.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from kiauh.modules.mainsail.menus.mainsail_remove_menu import MainsailRemoveMenu
 from kiauh.modules.moonraker.menus.moonraker_remove_menu import MoonrakerRemoveMenu
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
@@ -25,7 +25,7 @@ class RemoveMenu(BaseMenu):
         super().__init__(
             header=True,
             options={
-                1: self.remove_klipper,
+                1: KlipperRemoveMenu,
                 2: MoonrakerRemoveMenu,
                 3: MainsailRemoveMenu,
                 5: self.remove_fluidd,
@@ -68,9 +68,6 @@ class RemoveMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
-
-    def remove_klipper(self):
-        klipper_setup.run_klipper_setup(install=False)
 
     def remove_fluidd(self):
         print("remove_fluidd")

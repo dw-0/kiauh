@@ -64,7 +64,7 @@ class InstallMenu(BaseMenu):
         print(menu, end="")
 
     def install_klipper(self):
-        klipper_setup.run_klipper_setup(install=True)
+        klipper_setup.install_klipper()
 
     def install_moonraker(self):
         moonraker_setup.install_moonraker()
