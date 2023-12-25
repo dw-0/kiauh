@@ -57,17 +57,17 @@ class MainsailRemoveMenu(BaseMenu):
             | Enter a number and hit enter to select / deselect     |
             | the specific option for removal.                      |
             |-------------------------------------------------------|
-            |  0) Everything                                        |
+            |  0) Select everything                                 |
             |-------------------------------------------------------|
-            |  1) {o1} Remove Mainsail Web UI                        |
+            |  1) {o1} Remove Mainsail                               |
             |  2) {o2} Remove mainsail-config                        |
-            |  3) {o3} Backup Mainsail config.json                   |
+            |  3) {o3} Backup config.json                            |
             |                                                       |
             |  printer.cfg & moonraker.conf                         |
-            |  4) {o4} Remove Moonraker updater section              |
+            |  4) {o4} Remove Moonraker update section               |
             |  5) {o5} Remove printer.cfg include                    |
             |-------------------------------------------------------|
-            |  6) Start removal                                     |
+            |  6) Continue                                          |
             """
         )[1:]
         print(menu, end="")
