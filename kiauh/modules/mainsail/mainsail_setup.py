@@ -59,21 +59,22 @@ from kiauh.utils.system_utils import (
 
 
 def run_mainsail_installation() -> None:
-    im_mr = InstanceManager(Moonraker)
-    is_moonraker_installed = len(im_mr.instances) > 0
+    mr_im = InstanceManager(Moonraker)
+    mr_instances: List[Moonraker] = mr_im.instances
 
     enable_remotemode = False
-    if not is_moonraker_installed:
+    if not mr_instances:
         print_moonraker_not_found_dialog()
-        do_continue = get_confirm("Continue Mainsail installation?", allow_go_back=True)
-        if do_continue:
-            enable_remotemode = True
-        else:
+        if not get_confirm("Continue Mainsail installation?", allow_go_back=True):
             return
 
-    is_mainsail_installed = Path.home().joinpath("mainsail").exists()
+    # if moonraker is not installed or multiple instances
+    # are installed we enable mainsails remote mode
+    if not mr_instances or len(mr_instances) > 1:
+        enable_remotemode = True
+
     do_reinstall = False
-    if is_mainsail_installed:
+    if Path.home().joinpath("mainsail").exists():
         print_mainsail_already_installed_dialog()
         do_reinstall = get_confirm("Re-install Mainsail?", allow_go_back=True)
         if do_reinstall:
@@ -81,10 +82,10 @@ def run_mainsail_installation() -> None:
         else:
             return
 
-    im_kl = InstanceManager(Klipper)
-    is_klipper_installed = len(im_kl.instances) > 0
+    kl_im = InstanceManager(Klipper)
+    kl_instances = kl_im.instances
     install_ms_config = False
-    if is_klipper_installed:
+    if kl_instances:
         print_install_mainsail_config_dialog()
         question = "Download the recommended macros?"
         install_ms_config = get_confirm(question, allow_go_back=False)
@@ -108,31 +109,31 @@ def run_mainsail_installation() -> None:
             restore_config_json()
         if enable_remotemode:
             enable_mainsail_remotemode()
-        if is_moonraker_installed:
+        if mr_instances:
             patch_moonraker_conf(
-                im_mr.instances,
+                mr_instances,
                 "Mainsail",
                 "update_manager mainsail",
                 "mainsail-updater.conf",
             )
-            im_mr.restart_all_instance()
-        if install_ms_config and is_klipper_installed:
+            mr_im.restart_all_instance()
+        if install_ms_config and kl_instances:
             download_mainsail_cfg()
-            create_mainsail_cfg_symlink(im_kl.instances)
+            create_mainsail_cfg_symlink(kl_instances)
             patch_moonraker_conf(
-                im_mr.instances,
+                mr_instances,
                 "mainsail-config",
                 "update_manager mainsail-config",
                 "mainsail-config-updater.conf",
             )
-            patch_printer_config(im_kl.instances)
-            im_kl.restart_all_instance()
+            patch_printer_config(kl_instances)
+            kl_im.restart_all_instance()
 
         copy_upstream_nginx_cfg()
         copy_common_vars_nginx_cfg()
         create_mainsail_nginx_cfg(mainsail_port)
-        if is_klipper_installed:
-            symlink_webui_nginx_log(im_kl.instances)
+        if kl_instances:
+            symlink_webui_nginx_log(kl_instances)
         control_systemd_service("nginx", "restart")
 
     except Exception as e:
