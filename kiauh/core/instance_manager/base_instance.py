@@ -11,7 +11,7 @@
 
 from abc import abstractmethod, ABC
 from pathlib import Path
-from typing import List, Union, Optional, Type, TypeVar
+from typing import List, Type, TypeVar
 
 from kiauh.utils.constants import SYSTEMD, CURRENT_USER
 
@@ -25,7 +25,7 @@ class BaseInstance(ABC):
 
     def __init__(
         self,
-        suffix: Optional[str],
+        suffix: str,
         instance_type: B = B,
     ):
         self._instance_type = instance_type
@@ -52,7 +52,7 @@ class BaseInstance(ABC):
         return self._suffix
 
     @suffix.setter
-    def suffix(self, value: Union[str, None]) -> None:
+    def suffix(self, value: str) -> None:
         self._suffix = value
 
     @property
@@ -144,7 +144,7 @@ class BaseInstance(ABC):
 
     def get_service_file_name(self, extension: bool = False) -> str:
         name = f"{self.__class__.__name__.lower()}"
-        if self.suffix is not None:
+        if self.suffix != "":
             name += f"-{self.suffix}"
 
         return name if not extension else f"{name}.service"
@@ -153,7 +153,7 @@ class BaseInstance(ABC):
         return SYSTEMD.joinpath(self.get_service_file_name(extension=True))
 
     def get_data_dir_name_from_suffix(self) -> str:
-        if self._suffix is None:
+        if self._suffix == "":
             return "printer"
         elif self._suffix.isdigit():
             return f"printer_{self._suffix}"

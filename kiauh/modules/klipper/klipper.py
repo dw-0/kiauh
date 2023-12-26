@@ -9,10 +9,9 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import shutil
 import subprocess
 from pathlib import Path
-from typing import List, Union
+from typing import List
 
 from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR, MODULE_PATH
@@ -26,7 +25,7 @@ class Klipper(BaseInstance):
     def blacklist(cls) -> List[str]:
         return ["None", "mcu"]
 
-    def __init__(self, suffix: str = None):
+    def __init__(self, suffix: str = ""):
         super().__init__(instance_type=self, suffix=suffix)
         self.klipper_dir: Path = KLIPPER_DIR
         self.env_dir: Path = KLIPPER_ENV_DIR

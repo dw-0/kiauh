@@ -10,9 +10,10 @@
 # ======================================================================= #
 
 import shutil
-from typing import Dict, Literal
+from typing import Dict, Literal, List
 
 from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
@@ -83,3 +84,36 @@ def create_example_moonraker_conf(
 
     cm.write_config()
     Logger.print_ok(f"Example moonraker.conf created in '{instance.cfg_dir}'")
+
+
+def moonraker_to_multi_conversion(new_name: str) -> None:
+    """
+    Converts the first instance in the List of Moonraker instances to an instance
+    with a new name. This method will be called when converting from a single Klipper
+    instance install to a multi instance install when Moonraker is also already
+    installed with a single instance.
+    :param new_name: new name the previous single instance is renamed to
+    :return: None
+    """
+    im = InstanceManager(Moonraker)
+    instances: List[Moonraker] = im.instances
+    if not instances:
+        return
+
+    # in case there are multiple Moonraker instances, we don't want to do anything
+    if len(instances) > 1:
+        Logger.print_info("More than a single Moonraker instance found. Skipped ...")
+        return
+
+    Logger.print_status("Convert Moonraker single to multi instance ...")
+    # remove the old single instance
+    im.current_instance = im.instances[0]
+    im.stop_instance()
+    im.disable_instance()
+    im.delete_instance()
+    # create a new klipper instance with the new name
+    im.current_instance = Moonraker(suffix=new_name)
+    # create, enable and start the new moonraker instance
+    im.create_instance()
+    im.enable_instance()
+    im.start_instance()

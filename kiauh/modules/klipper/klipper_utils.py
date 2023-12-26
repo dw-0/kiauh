@@ -20,16 +20,20 @@ from pathlib import Path
 from typing import List, Union, Literal, Dict
 
 from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.instance_manager.name_scheme import NameScheme
 from kiauh.modules.klipper import MODULE_PATH, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,
-    print_select_custom_name_dialog,
+    print_instance_overview,
+    print_select_instance_count_dialog,
 )
+from kiauh.modules.moonraker.moonraker_utils import moonraker_to_multi_conversion
 from kiauh.utils.common import get_install_status_common, get_repo_name
 from kiauh.utils.constants import CURRENT_USER
-from kiauh.utils.input_utils import get_confirm, get_string_input
+from kiauh.utils.input_utils import get_confirm, get_string_input, get_number_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import mask_system_service
 
@@ -41,84 +45,57 @@ def get_klipper_status() -> Dict[Literal["status", "repo"], str]:
     }
 
 
-def assign_custom_names(
-    instance_count: int, install_count: int, instance_list: List[Klipper] = None
-) -> List[str]:
-    instance_names = []
-    exclude = Klipper.blacklist()
-
-    # if an instance_list is provided, exclude all existing instance suffixes
-    if instance_list is not None:
-        for instance in instance_list:
-            exclude.append(instance.suffix)
-
-    for i in range(instance_count + install_count):
-        question = f"Enter name for instance {i + 1}"
-        name = get_string_input(question, exclude=exclude)
-        instance_names.append(name)
-        exclude.append(name)
-
-    return instance_names
+def add_to_existing() -> bool:
+    kl_instances = InstanceManager(Klipper).instances
+    print_instance_overview(kl_instances)
+    return get_confirm("Add new instances?", allow_go_back=True)
 
 
-def handle_convert_single_to_multi_instance_names(
-    install_count: int,
-) -> Union[List[str], None]:
-    print_select_custom_name_dialog()
-    choice = get_confirm("Assign custom names?", False, allow_go_back=True)
-    if choice is True:
-        # instance_count = 0 and install_count + 1 as we want to assign a new name to the existing single install
-        return assign_custom_names(0, install_count + 1)
-    elif choice is False:
-        # "install_count + 2" as we need to account for the existing single install
-        _range = range(1, install_count + 2)
-        return [str(i) for i in _range]
-
-    return None
+def get_install_count() -> Union[int, None]:
+    kl_instances = InstanceManager(Klipper).instances
+    print_select_instance_count_dialog()
+    question = f"Number of{' additional' if len(kl_instances) > 0 else ''} Klipper instances to set up"
+    return get_number_input(question, 1, default=1, allow_go_back=True)
 
 
-def handle_new_multi_instance_names(
-    instance_count: int, install_count: int
-) -> Union[List[str], None]:
-    print_select_custom_name_dialog()
-    choice = get_confirm("Assign custom names?", False, allow_go_back=True)
-    if choice is True:
-        return assign_custom_names(instance_count, install_count)
-    elif choice is False:
-        _range = range(1, install_count + 1)
-        return [str(i) for i in _range]
-
-    return None
+def assign_custom_name(key: int, name_dict: Dict[int, str]) -> None:
+    existing_names = []
+    existing_names.extend(Klipper.blacklist())
+    existing_names.extend(name_dict[n] for n in name_dict)
+    question = f"Enter name for instance {key + 1}"
+    name_dict[key] = get_string_input(question, exclude=existing_names)
 
 
-def handle_existing_multi_instance_names(
-    instance_count: int, install_count: int, instance_list: List[Klipper]
-) -> List[str]:
-    if has_custom_names(instance_list):
-        return assign_custom_names(instance_count, install_count, instance_list)
+def handle_to_multi_instance_conversion(new_name: str) -> None:
+    Logger.print_status("Converting single instance to multi instances ...")
+    klipper_to_multi_conversion(new_name)
+    moonraker_to_multi_conversion(new_name)
+
+
+def klipper_to_multi_conversion(new_name: str) -> None:
+    Logger.print_status("Convert Klipper single to multi instance ...")
+    im = InstanceManager(Klipper)
+    im.current_instance = im.instances[0]
+    # temporarily store the data dir path
+    old_data_dir = im.instances[0].data_dir
+    # remove the old single instance
+    im.stop_instance()
+    im.disable_instance()
+    im.delete_instance()
+    # create a new klipper instance with the new name
+    im.current_instance = Klipper(suffix=new_name)
+    new_data_dir: Path = im.current_instance.data_dir
+
+    # rename the old data dir and use it for the new instance
+    Logger.print_status(f"Rename '{old_data_dir}' to '{new_data_dir}' ...")
+    if not new_data_dir.is_dir():
+        old_data_dir.rename(new_data_dir)
     else:
-        start = get_highest_index(instance_list) + 1
-        _range = range(start, start + install_count)
-        return [str(i) for i in _range]
+        Logger.print_info(f"'{new_data_dir}' already exist. Skipped ...")
 
-
-def handle_single_to_multi_conversion(
-    instance_manager: InstanceManager, name: str
-) -> Klipper:
-    instance_list = instance_manager.instances
-    instance_manager.current_instance = instance_list[0]
-    old_data_dir_name = instance_manager.instances[0].data_dir
-    instance_manager.stop_instance()
-    instance_manager.disable_instance()
-    instance_manager.delete_instance()
-    instance_manager.current_instance = Klipper(suffix=name)
-    new_data_dir_name = instance_manager.current_instance.data_dir
-    try:
-        Path(old_data_dir_name).rename(new_data_dir_name)
-        return instance_manager.current_instance
-    except OSError as e:
-        log = f"Cannot rename {old_data_dir_name} to {new_data_dir_name}:\n{e}"
-        Logger.print_error(log)
+    im.create_instance()
+    im.enable_instance()
+    im.start_instance()
 
 
 def check_user_groups():
@@ -189,13 +166,13 @@ def handle_disruptive_system_packages() -> None:
             Logger.print_warn(warn_msg)
 
 
-def has_custom_names(instance_list: List[Klipper]) -> bool:
+def detect_name_scheme(instance_list: List[BaseInstance]) -> NameScheme:
     pattern = re.compile("^\d+$")
     for instance in instance_list:
         if not pattern.match(instance.suffix):
-            return True
+            return NameScheme.CUSTOM
 
-    return False
+    return NameScheme.INDEX
 
 
 def get_highest_index(instance_list: List[Klipper]) -> int:

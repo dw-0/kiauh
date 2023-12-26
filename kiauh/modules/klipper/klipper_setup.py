@@ -10,12 +10,13 @@
 # ======================================================================= #
 
 from pathlib import Path
-from typing import List, Union
+from typing import List
 
 from kiauh import KIAUH_CFG
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.instance_manager.name_scheme import NameScheme
 from kiauh.modules.klipper import (
     EXIT_KLIPPER_SETUP,
     DEFAULT_KLIPPER_REPO_URL,
@@ -25,20 +26,21 @@ from kiauh.modules.klipper import (
 )
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
-    print_instance_overview,
-    print_select_instance_count_dialog,
     print_update_warn_dialog,
+    print_select_custom_name_dialog,
 )
 from kiauh.modules.klipper.klipper_utils import (
-    handle_convert_single_to_multi_instance_names,
-    handle_new_multi_instance_names,
-    handle_existing_multi_instance_names,
     handle_disruptive_system_packages,
     check_user_groups,
-    handle_single_to_multi_conversion,
+    handle_to_multi_instance_conversion,
     create_example_printer_cfg,
+    detect_name_scheme,
+    add_to_existing,
+    get_install_count,
+    assign_custom_name,
 )
 from kiauh.core.repo_manager.repo_manager import RepoManager
+from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.utils.input_utils import get_confirm, get_number_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
@@ -50,50 +52,81 @@ from kiauh.utils.system_utils import (
 )
 
 
+# TODO: this method needs refactoring! (but it works for now)
 def install_klipper() -> None:
     im = InstanceManager(Klipper)
+    kl_instances: List[Klipper] = im.instances
 
-    add_additional = handle_existing_instances(im.instances)
-    if len(im.instances) > 0 and not add_additional:
+    # ask to add new instances, if there are existing ones
+    if kl_instances and not add_to_existing():
         Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
-    print_select_instance_count_dialog()
-    question = f"Number of{' additional' if len(im.instances) > 0 else ''} Klipper instances to set up"
-    install_count = get_number_input(question, 1, default=1, allow_go_back=True)
+    install_count = get_install_count()
+    # install_count = None -> user entered "b" to go back
     if install_count is None:
         Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
-    instance_names = set_instance_suffix(im.instances, install_count)
-    if instance_names is None:
-        Logger.print_status(EXIT_KLIPPER_SETUP)
-        return
+    # create a dict of the size of the existing instances + install count
+    name_scheme = NameScheme.SINGLE
+    single_to_multi = len(kl_instances) == 1 and kl_instances[0].suffix == ""
+    name_dict = {c: "" for c in range(len(kl_instances) + install_count)}
+
+    if (not kl_instances and install_count > 1) or single_to_multi:
+        print_select_custom_name_dialog()
+        if get_confirm("Assign custom names?", False, allow_go_back=True):
+            name_scheme = NameScheme.CUSTOM
+        else:
+            name_scheme = NameScheme.INDEX
+
+    # if there are more moonraker instances installed than klipper, we
+    # load their names into the name_dict, as we will detect and enforce that naming scheme
+    mr_instances: List[Moonraker] = InstanceManager(Moonraker).instances
+    if len(mr_instances) > len(kl_instances):
+        for k, v in enumerate(mr_instances):
+            name_dict[k] = v.suffix
+        name_scheme = detect_name_scheme(mr_instances)
+    elif len(kl_instances) > 1:
+        for k, v in enumerate(kl_instances):
+            name_dict[k] = v.suffix
+        name_scheme = detect_name_scheme(kl_instances)
+
+    # set instance names if multiple instances will be created
+    if name_scheme != NameScheme.SINGLE:
+        for k in name_dict:
+            if name_dict[k] == "" and name_scheme == NameScheme.INDEX:
+                name_dict[k] = str(k + 1)
+            elif name_dict[k] == "" and name_scheme == NameScheme.CUSTOM:
+                assign_custom_name(k, name_dict)
 
     create_example_cfg = get_confirm("Create example printer.cfg?")
 
-    if len(im.instances) < 1:
+    if not kl_instances:
         setup_klipper_prerequesites()
 
-    convert_single_to_multi = (
-        len(im.instances) == 1 and im.instances[0].suffix is None and install_count >= 1
-    )
-
-    for name in instance_names:
-        if convert_single_to_multi:
-            current_instance = handle_single_to_multi_conversion(im, name)
-            convert_single_to_multi = False
+    count = 0
+    for name in name_dict:
+        if name_dict[name] in [n.suffix for n in kl_instances]:
+            continue
         else:
-            current_instance = Klipper(suffix=name)
+            count += 1
 
-        im.current_instance = current_instance
-        im.create_instance()
-        im.enable_instance()
+        if single_to_multi:
+            handle_to_multi_instance_conversion(name_dict[name])
+            single_to_multi = False
+            count -= 1
+        else:
+            new_instance = Klipper(suffix=name_dict[name])
+            im.current_instance = new_instance
+            im.create_instance()
+            im.enable_instance()
+            if create_example_cfg:
+                create_example_printer_cfg(new_instance)
+            im.start_instance()
 
-        if create_example_cfg:
-            create_example_printer_cfg(current_instance)
-
-        im.start_instance()
+        if count == install_count:
+            break
 
     im.reload_daemon()
 
@@ -135,41 +168,6 @@ def install_klipper_packages(klipper_dir: Path) -> None:
 
     update_system_package_lists(silent=False)
     install_system_packages(packages)
-
-
-def handle_existing_instances(instance_list: List[Klipper]) -> bool:
-    instance_count = len(instance_list)
-
-    if instance_count > 0:
-        print_instance_overview(instance_list)
-        if not get_confirm("Add new instances?", allow_go_back=True):
-            return False
-
-    return True
-
-
-def set_instance_suffix(
-    instance_list: List[Klipper], install_count: int
-) -> List[Union[str, None]]:
-    instance_count = len(instance_list)
-
-    # new single instance install
-    if instance_count == 0 and install_count == 1:
-        return [None]
-
-    # convert single instance install to multi install
-    elif instance_count == 1 and install_count >= 1 and instance_list[0].suffix is None:
-        return handle_convert_single_to_multi_instance_names(install_count)
-
-    # new multi instance install
-    elif instance_count == 0 and install_count > 1:
-        return handle_new_multi_instance_names(instance_count, install_count)
-
-    # existing multi instance install
-    elif instance_count > 1:
-        return handle_existing_multi_instance_names(
-            instance_count, install_count, instance_list
-        )
 
 
 def update_klipper() -> None:

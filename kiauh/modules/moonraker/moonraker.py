@@ -9,7 +9,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import shutil
 import subprocess
 from pathlib import Path
 from typing import List, Union
@@ -27,7 +26,7 @@ class Moonraker(BaseInstance):
     def blacklist(cls) -> List[str]:
         return ["None", "mcu"]
 
-    def __init__(self, suffix: str = None):
+    def __init__(self, suffix: str = ""):
         super().__init__(instance_type=self, suffix=suffix)
         self.moonraker_dir: Path = MOONRAKER_DIR
         self.env_dir: Path = MOONRAKER_ENV_DIR

@@ -207,10 +207,8 @@ class InstanceManager:
 
         return instance_list
 
-    def _get_instance_suffix(self, file_path: Path) -> Union[str, None]:
-        full_name = file_path.name.split(".")[0]
-
-        return full_name.split("-")[-1] if "-" in full_name else None
+    def _get_instance_suffix(self, file_path: Path) -> str:
+        return file_path.stem.split("-")[-1] if "-" in file_path.stem else ""
 
     def _sort_instance_list(self, s: Union[int, str, None]):
         if s is None:
