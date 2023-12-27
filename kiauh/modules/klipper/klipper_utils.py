@@ -29,7 +29,9 @@ from kiauh.modules.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,
     print_instance_overview,
     print_select_instance_count_dialog,
+    print_select_custom_name_dialog,
 )
+from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.modules.moonraker.moonraker_utils import moonraker_to_multi_conversion
 from kiauh.utils.common import get_install_status_common, get_repo_name
 from kiauh.utils.constants import CURRENT_USER
@@ -45,6 +47,65 @@ def get_klipper_status() -> Dict[Literal["status", "repo"], str]:
     }
 
 
+def check_is_multi_install(
+    existing_instances: List[Klipper], install_count: int
+) -> bool:
+    return not existing_instances and install_count > 1
+
+
+def check_is_single_to_multi_conversion(existing_instances: List[Klipper]) -> bool:
+    return len(existing_instances) == 1 and existing_instances[0].suffix == ""
+
+
+def init_name_scheme(
+    existing_instances: List[Klipper], install_count: int
+) -> NameScheme:
+    if check_is_multi_install(
+        existing_instances, install_count
+    ) or check_is_single_to_multi_conversion(existing_instances):
+        print_select_custom_name_dialog()
+        if get_confirm("Assign custom names?", False, allow_go_back=True):
+            return NameScheme.CUSTOM
+        else:
+            return NameScheme.INDEX
+    else:
+        return NameScheme.SINGLE
+
+
+def update_name_scheme(
+    name_scheme: NameScheme,
+    name_dict: Dict[int, str],
+    klipper_instances: List[Klipper],
+    moonraker_instances: List[Moonraker],
+) -> NameScheme:
+    # if there are more moonraker instances installed than klipper, we
+    # load their names into the name_dict, as we will detect and enforce that naming scheme
+    if len(moonraker_instances) > len(klipper_instances):
+        update_name_dict(name_dict, moonraker_instances)
+        return detect_name_scheme(moonraker_instances)
+    elif len(klipper_instances) > 1:
+        update_name_dict(name_dict, klipper_instances)
+        return detect_name_scheme(klipper_instances)
+    else:
+        return name_scheme
+
+
+def update_name_dict(name_dict: Dict[int, str], instances: List[BaseInstance]) -> None:
+    for k, v in enumerate(instances):
+        name_dict[k] = v.suffix
+
+
+def handle_instance_naming(name_dict: Dict[int, str], name_scheme: NameScheme) -> None:
+    if name_scheme == NameScheme.SINGLE:
+        return
+
+    for k in name_dict:
+        if name_dict[k] == "" and name_scheme == NameScheme.INDEX:
+            name_dict[k] = str(k + 1)
+        elif name_dict[k] == "" and name_scheme == NameScheme.CUSTOM:
+            assign_custom_name(k, name_dict)
+
+
 def add_to_existing() -> bool:
     kl_instances = InstanceManager(Klipper).instances
     print_instance_overview(kl_instances)
@@ -52,6 +113,12 @@ def add_to_existing() -> bool:
 
 
 def get_install_count() -> Union[int, None]:
+    """
+    Print a dialog for selecting the amount of Klipper instances
+    to set up with an option to navigate back. Returns None if the
+    user selected to go back, otherwise an integer greater or equal than 1 |
+    :return: Integer >= 1 or None
+    """
     kl_instances = InstanceManager(Klipper).instances
     print_select_instance_count_dialog()
     question = f"Number of{' additional' if len(kl_instances) > 0 else ''} Klipper instances to set up"
