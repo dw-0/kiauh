@@ -39,7 +39,6 @@ def run_moonraker_removal(
         else:
             Logger.print_info("No Moonraker Services installed! Skipped ...")
 
-    im.find_instances()
     if (remove_polkit or remove_dir or remove_env) and im.instances:
         Logger.print_warn("There are still other Moonraker services installed!")
         Logger.print_warn("Therefor the following parts cannot be removed:")
