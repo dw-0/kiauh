@@ -24,6 +24,8 @@ from kiauh.modules.klipper.klipper_dialogs import (
     print_update_warn_dialog,
 )
 from kiauh.core.repo_manager.repo_manager import RepoManager
+from kiauh.modules.mainsail import MAINSAIL_DIR
+from kiauh.modules.mainsail.mainsail_utils import enable_mainsail_remotemode
 from kiauh.modules.moonraker import (
     EXIT_MOONRAKER_SETUP,
     DEFAULT_MOONRAKER_REPO_URL,
@@ -129,6 +131,11 @@ def install_moonraker() -> None:
         mr_im.start_instance()
 
     mr_im.reload_daemon()
+
+    # if mainsail is installed, and we installed
+    # multiple moonraker instances, we enable mainsails remote mode
+    if MAINSAIL_DIR.exists() and len(mr_im.instances) > 1:
+        enable_mainsail_remotemode()
 
 
 def setup_moonraker_prerequesites() -> None:

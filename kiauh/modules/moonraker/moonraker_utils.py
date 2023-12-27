@@ -14,6 +14,8 @@ from typing import Dict, Literal, List
 
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.modules.mainsail import MAINSAIL_DIR
+from kiauh.modules.mainsail.mainsail_utils import enable_mainsail_remotemode
 from kiauh.modules.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
@@ -117,3 +119,7 @@ def moonraker_to_multi_conversion(new_name: str) -> None:
     im.create_instance()
     im.enable_instance()
     im.start_instance()
+
+    # if mainsail is installed, we enable mainsails remote mode
+    if MAINSAIL_DIR.exists() and len(im.instances) > 1:
+        enable_mainsail_remotemode()

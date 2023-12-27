@@ -51,10 +51,12 @@ def restore_config_json() -> None:
 
 
 def enable_mainsail_remotemode() -> None:
+    Logger.print_status("Enable Mainsails remote mode ...")
     with open(MAINSAIL_CONFIG_JSON, "r") as f:
         config_data = json.load(f)
 
     if config_data["instancesDB"] == "browser":
+        Logger.print_info("Remote mode already configured. Skipped ...")
         return
 
     Logger.print_status("Setting instance storage location to 'browser' ...")
@@ -62,6 +64,7 @@ def enable_mainsail_remotemode() -> None:
 
     with open(MAINSAIL_CONFIG_JSON, "w") as f:
         json.dump(config_data, f, indent=4)
+    Logger.print_ok("Mainsails remote mode enabled!")
 
 
 def symlink_webui_nginx_log(klipper_instances: List[Klipper]) -> None:
