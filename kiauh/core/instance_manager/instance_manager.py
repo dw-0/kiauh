@@ -82,10 +82,7 @@ class InstanceManager:
 
     @property
     def instances(self) -> List[I]:
-        if not self._instances:
-            self._instances = self.find_instances()
-
-        return sorted(self._instances, key=lambda x: self._sort_instance_list(x.suffix))
+        return self.find_instances()
 
     @instances.setter
     def instances(self, value: List[I]):
@@ -205,7 +202,7 @@ class InstanceManager:
             for service in service_list
         ]
 
-        return instance_list
+        return sorted(instance_list, key=lambda x: self._sort_instance_list(x.suffix))
 
     def _get_instance_suffix(self, file_path: Path) -> str:
         return file_path.stem.split("-")[-1] if "-" in file_path.stem else ""
