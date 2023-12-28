@@ -9,10 +9,9 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Literal, List, Type
+from typing import Dict, Literal, List, Type, Union
 
 from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.core.instance_manager.instance_manager import InstanceManager
@@ -56,24 +55,9 @@ def check_install_dependencies(deps: List[str]) -> None:
         install_system_packages(requirements)
 
 
-def get_repo_name(repo_dir: Path) -> str:
-    """
-    Helper method to extract the organisation and name of a repository |
-    :param repo_dir: repository to extract the values from
-    :return: String in form of "<orga>/<name>"
-    """
-    try:
-        cmd = ["git", "-C", repo_dir, "config", "--get", "remote.origin.url"]
-        result = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
-        result = "/".join(result.decode().strip().split("/")[-2:])
-        return f"{COLOR_CYAN}{result}{RESET_FORMAT}"
-    except subprocess.CalledProcessError:
-        return f"{COLOR_RED}-{RESET_FORMAT}"
-
-
 def get_install_status_common(
     instance_type: Type[BaseInstance], repo_dir: Path, env_dir: Path
-) -> str:
+) -> Dict[Literal["status", "status_code", "instances"], Union[str, int]]:
     """
     Helper method to get the installation status of software components,
     which only consist of 3 major parts and if those parts exist, the
@@ -82,17 +66,29 @@ def get_install_status_common(
     :param instance_type: The component type
     :param repo_dir: the repository directory
     :param env_dir: the python environment directory
-    :return: formatted string, containing the status
+    :return: Dictionary with status string, statuscode and instance count
     """
     im = InstanceManager(instance_type)
     instances_exist = len(im.instances) > 0
     status = [repo_dir.exists(), env_dir.exists(), instances_exist]
     if all(status):
-        return f"{COLOR_GREEN}Installed: {len(im.instances)}{RESET_FORMAT}"
+        return {
+            "status": "Installed:",
+            "status_code": 1,
+            "instances": len(im.instances),
+        }
     elif not any(status):
-        return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
+        return {
+            "status": "Not installed!",
+            "status_code": 2,
+            "instances": len(im.instances),
+        }
     else:
-        return f"{COLOR_YELLOW}Incomplete!{RESET_FORMAT}"
+        return {
+            "status": "Incomplete!",
+            "status_code": 3,
+            "instances": len(im.instances),
+        }
 
 
 def get_install_status_webui(

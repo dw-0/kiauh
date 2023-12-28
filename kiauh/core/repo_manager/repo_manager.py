@@ -62,6 +62,46 @@ class RepoManager:
     def target_dir(self, value) -> None:
         self._target_dir = value
 
+    @staticmethod
+    def get_repo_name(repo: Path) -> str:
+        """
+        Helper method to extract the organisation and name of a repository |
+        :param repo: repository to extract the values from
+        :return: String in form of "<orga>/<name>"
+        """
+        try:
+            cmd = ["git", "-C", repo, "config", "--get", "remote.origin.url"]
+            result = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+            return "/".join(result.decode().strip().split("/")[-2:])
+        except subprocess.CalledProcessError:
+            return "-"
+
+    @staticmethod
+    def get_local_commit(repo: Path) -> str:
+        if not repo.exists() and repo.joinpath(".git").exists():
+            return "-"
+
+        try:
+            cmd = f"cd {repo} && git describe HEAD --always --tags | cut -d '-' -f 1,2"
+            return subprocess.check_output(cmd, shell=True, text=True).strip()
+        except subprocess.CalledProcessError:
+            return "-"
+
+    @staticmethod
+    def get_remote_commit(repo: Path) -> str:
+        if not repo.exists() and repo.joinpath(".git").exists():
+            return "-"
+
+        try:
+            # get locally checked out branch
+            branch_cmd = f"cd {repo} && git branch | grep -E '\*'"
+            branch = subprocess.check_output(branch_cmd, shell=True, text=True)
+            branch = branch.split("*")[-1].strip()
+            cmd = f"cd {repo} && git describe 'origin/{branch}' --always --tags | cut -d '-' -f 1,2"
+            return subprocess.check_output(cmd, shell=True, text=True).strip()
+        except subprocess.CalledProcessError:
+            return "-"
+
     def clone_repo(self):
         log = f"Cloning repository from '{self.repo}' with method '{self.method}'"
         Logger.print_status(log)

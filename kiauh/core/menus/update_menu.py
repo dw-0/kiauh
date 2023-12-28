@@ -14,7 +14,11 @@ import textwrap
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.modules.klipper.klipper_setup import update_klipper
-from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
+from kiauh.modules.klipper.klipper_utils import (
+    get_klipper_status,
+)
+from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
+from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_WHITE
 
 
 # noinspection PyMethodMayBeStatic
@@ -39,8 +43,14 @@ class UpdateMenu(BaseMenu):
             },
             footer_type=BACK_FOOTER,
         )
+        self.kl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.kl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.mr_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.mr_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
     def print_menu(self):
+        self.fetch_update_status()
+
         header = " [ Update Menu ] "
         color = COLOR_GREEN
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -49,28 +59,28 @@ class UpdateMenu(BaseMenu):
             /=======================================================\\
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
-            |  0) [Update all]        |              |              |
-            |                         | Current:     | Latest:      |
-            | Klipper & API:          |--------------|--------------|
-            |  1) [Klipper]           |              |              |
-            |  2) [Moonraker]         |              |              |
-            |                         |              |              |
-            | Klipper Webinterface:   |--------------|--------------|
-            |  3) [Mainsail]          |              |              |
-            |  4) [Fluidd]            |              |              |
-            |                         |              |              |
-            | Touchscreen GUI:        |--------------|--------------|
-            |  5) [KlipperScreen]     |              |              |
-            |                         |              |              |
-            | Other:                  |--------------|--------------|
-            |  6) [PrettyGCode]       |              |              |
-            |  7) [Telegram Bot]      |              |              |
-            |  8) [Obico for Klipper] |              |              |
-            |  9) [OctoEverywhere]    |              |              |
-            | 10) [Mobileraker]       |              |              |
-            | 11) [Crowsnest]         |              |              |
-            |                         |-----------------------------|
-            | 12) [System]            |              |              |
+            |  0) Update all        |               |               |
+            |                       | Current:      | Latest:       |
+            | Klipper & API:        |---------------|---------------|
+            |  1) Klipper           | {self.kl_local:<22} | {self.kl_remote:<22} |
+            |  2) Moonraker         | {self.mr_local:<22} | {self.mr_remote:<22} |
+            |                       |               |               |
+            | Klipper Webinterface: |---------------|---------------|
+            |  3) Mainsail          |               |               |
+            |  4) Fluidd            |               |               |
+            |                       |               |               |
+            | Touchscreen GUI:      |---------------|---------------|
+            |  5) KlipperScreen     |               |               |
+            |                       |               |               |
+            | Other:                |---------------|---------------|
+            |  6) PrettyGCode       |               |               |
+            |  7) Telegram Bot      |               |               |
+            |  8) Obico for Klipper |               |               |
+            |  9) OctoEverywhere    |               |               |
+            | 10) Mobileraker       |               |               |
+            | 11) Crowsnest         |               |               |
+            |                       |-------------------------------|
+            | 12) System            |                               |
             """
         )[1:]
         print(menu, end="")
@@ -113,3 +123,23 @@ class UpdateMenu(BaseMenu):
 
     def upgrade_system_packages(self):
         print("upgrade_system_packages")
+
+    def fetch_update_status(self):
+        # klipper
+        kl_status = get_klipper_status()
+        self.kl_local = kl_status.get("local")
+        self.kl_remote = kl_status.get("remote")
+        if self.kl_local == self.kl_remote:
+            self.kl_local = f"{COLOR_GREEN}{self.kl_local}{RESET_FORMAT}"
+        else:
+            self.kl_local = f"{COLOR_YELLOW}{self.kl_local}{RESET_FORMAT}"
+        self.kl_remote = f"{COLOR_GREEN}{self.kl_remote}{RESET_FORMAT}"
+        # moonraker
+        mr_status = get_moonraker_status()
+        self.mr_local = mr_status.get("local")
+        self.mr_remote = mr_status.get("remote")
+        if self.mr_local == self.mr_remote:
+            self.mr_local = f"{COLOR_GREEN}{self.mr_local}{RESET_FORMAT}"
+        else:
+            self.mr_local = f"{COLOR_YELLOW}{self.mr_local}{RESET_FORMAT}"
+        self.mr_remote = f"{COLOR_GREEN}{self.mr_remote}{RESET_FORMAT}"

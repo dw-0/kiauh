@@ -21,7 +21,14 @@ from kiauh.core.menus.update_menu import UpdateMenu
 from kiauh.modules.klipper.klipper_utils import get_klipper_status
 from kiauh.modules.mainsail.mainsail_utils import get_mainsail_status
 from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
-from kiauh.utils.constants import COLOR_MAGENTA, COLOR_CYAN, RESET_FORMAT, COLOR_RED
+from kiauh.utils.constants import (
+    COLOR_MAGENTA,
+    COLOR_CYAN,
+    RESET_FORMAT,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_YELLOW,
+)
 
 
 class MainMenu(BaseMenu):
@@ -39,18 +46,18 @@ class MainMenu(BaseMenu):
             },
             footer_type=QUIT_FOOTER,
         )
-        self.kl_status = None
-        self.kl_repo = None
-        self.mr_status = None
-        self.mr_repo = None
-        self.ms_status = None
-        self.fl_status = None
-        self.ks_status = None
-        self.mb_status = None
-        self.cn_status = None
-        self.tg_status = None
-        self.ob_status = None
-        self.oe_status = None
+        self.kl_status = ""
+        self.kl_repo = ""
+        self.mr_status = ""
+        self.mr_repo = ""
+        self.ms_status = ""
+        self.fl_status = ""
+        self.ks_status = ""
+        self.mb_status = ""
+        self.cn_status = ""
+        self.tg_status = ""
+        self.ob_status = ""
+        self.oe_status = ""
         self.init_status()
 
     def init_status(self) -> None:
@@ -60,13 +67,29 @@ class MainMenu(BaseMenu):
 
     def fetch_status(self) -> None:
         # klipper
-        self.kl_status = get_klipper_status().get("status")
-        self.kl_repo = get_klipper_status().get("repo")
+        klipper_status = get_klipper_status()
+        kl_status = klipper_status.get("status")
+        kl_code = klipper_status.get("status_code")
+        kl_instances = f" {klipper_status.get('instances')}" if kl_code == 1 else ""
+        self.kl_status = self.format_status_by_code(kl_code, kl_status, kl_instances)
+        self.kl_repo = f"{COLOR_CYAN}{klipper_status.get('repo')}{RESET_FORMAT}"
         # moonraker
-        self.mr_status = get_moonraker_status().get("status")
-        self.mr_repo = get_moonraker_status().get("repo")
+        moonraker_status = get_moonraker_status()
+        mr_status = moonraker_status.get("status")
+        mr_code = moonraker_status.get("status_code")
+        mr_instances = f" {moonraker_status.get('instances')}" if mr_code == 1 else ""
+        self.mr_status = self.format_status_by_code(mr_code, mr_status, mr_instances)
+        self.mr_repo = f"{COLOR_CYAN}{moonraker_status.get('repo')}{RESET_FORMAT}"
         # mainsail
         self.ms_status = get_mainsail_status()
+
+    def format_status_by_code(self, code: int, status: str, count: str) -> str:
+        if code == 1:
+            return f"{COLOR_GREEN}{status}{count}{RESET_FORMAT}"
+        elif code == 2:
+            return f"{COLOR_RED}{status}{count}{RESET_FORMAT}"
+
+        return f"{COLOR_YELLOW}{status}{count}{RESET_FORMAT}"
 
     def print_menu(self):
         self.fetch_status()

@@ -10,10 +10,11 @@
 # ======================================================================= #
 
 import shutil
-from typing import Dict, Literal, List
+from typing import Dict, Literal, List, Union
 
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.modules.mainsail import MAINSAIL_DIR
 from kiauh.modules.mainsail.mainsail_utils import enable_mainsail_remotemode
 from kiauh.modules.moonraker import (
@@ -23,19 +24,27 @@ from kiauh.modules.moonraker import (
     MOONRAKER_ENV_DIR,
 )
 from kiauh.modules.moonraker.moonraker import Moonraker
-from kiauh.utils.common import get_install_status_common, get_repo_name
+from kiauh.utils.common import get_install_status_common
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     get_ipv4_addr,
 )
 
 
-def get_moonraker_status() -> Dict[Literal["status", "repo"], str]:
+def get_moonraker_status() -> (
+    Dict[
+        Literal["status", "status_code", "instances", "repo", "local", "remote"],
+        Union[str, int],
+    ]
+):
+    status = get_install_status_common(Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR)
     return {
-        "status": get_install_status_common(
-            Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR
-        ),
-        "repo": get_repo_name(MOONRAKER_DIR),
+        "status": status.get("status"),
+        "status_code": status.get("status_code"),
+        "instances": status.get("instances"),
+        "repo": RepoManager.get_repo_name(MOONRAKER_DIR),
+        "local": RepoManager.get_local_commit(MOONRAKER_DIR),
+        "remote": RepoManager.get_remote_commit(MOONRAKER_DIR),
     }
 
 

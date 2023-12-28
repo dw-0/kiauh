@@ -23,6 +23,7 @@ from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.core.instance_manager.name_scheme import NameScheme
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.modules.klipper import MODULE_PATH, KLIPPER_DIR, KLIPPER_ENV_DIR
 from kiauh.modules.klipper.klipper import Klipper
 from kiauh.modules.klipper.klipper_dialogs import (
@@ -33,17 +34,27 @@ from kiauh.modules.klipper.klipper_dialogs import (
 )
 from kiauh.modules.moonraker.moonraker import Moonraker
 from kiauh.modules.moonraker.moonraker_utils import moonraker_to_multi_conversion
-from kiauh.utils.common import get_install_status_common, get_repo_name
+from kiauh.utils.common import get_install_status_common
 from kiauh.utils.constants import CURRENT_USER
 from kiauh.utils.input_utils import get_confirm, get_string_input, get_number_input
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import mask_system_service
 
 
-def get_klipper_status() -> Dict[Literal["status", "repo"], str]:
+def get_klipper_status() -> (
+    Dict[
+        Literal["status", "status_code", "instances", "repo", "local", "remote"],
+        Union[str, int],
+    ]
+):
+    status = get_install_status_common(Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR)
     return {
-        "status": get_install_status_common(Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR),
-        "repo": get_repo_name(KLIPPER_DIR),
+        "status": status.get("status"),
+        "status_code": status.get("status_code"),
+        "instances": status.get("instances"),
+        "repo": RepoManager.get_repo_name(KLIPPER_DIR),
+        "local": RepoManager.get_local_commit(KLIPPER_DIR),
+        "remote": RepoManager.get_remote_commit(KLIPPER_DIR),
     }
 
 
