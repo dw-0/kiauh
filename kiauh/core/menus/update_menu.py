@@ -17,6 +17,7 @@ from kiauh.modules.klipper.klipper_setup import update_klipper
 from kiauh.modules.klipper.klipper_utils import (
     get_klipper_status,
 )
+from kiauh.modules.moonraker.moonraker_setup import update_moonraker
 from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_WHITE
 
@@ -92,7 +93,7 @@ class UpdateMenu(BaseMenu):
         update_klipper()
 
     def update_moonraker(self):
-        print("update_moonraker")
+        update_moonraker()
 
     def update_mainsail(self):
         print("update_mainsail")

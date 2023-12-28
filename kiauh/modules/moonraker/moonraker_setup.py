@@ -19,10 +19,7 @@ from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_dialogs import (
-    print_instance_overview,
-    print_update_warn_dialog,
-)
+from kiauh.modules.klipper.klipper_dialogs import print_instance_overview
 from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.modules.mainsail import MAINSAIL_DIR
 from kiauh.modules.mainsail.mainsail_utils import enable_mainsail_remotemode
@@ -204,7 +201,6 @@ def handle_existing_instances(instance_list: List[Klipper]) -> bool:
 
 
 def update_moonraker() -> None:
-    print_update_warn_dialog()
     if not get_confirm("Update Moonraker now?"):
         return
 
@@ -228,4 +224,10 @@ def update_moonraker() -> None:
         target_dir=MOONRAKER_DIR,
     )
     repo_manager.pull_repo()
+
+    # install possible new system packages
+    install_moonraker_packages(MOONRAKER_DIR)
+    # install possible new python dependencies
+    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQUIREMENTS_TXT)
+
     instance_manager.start_all_instance()

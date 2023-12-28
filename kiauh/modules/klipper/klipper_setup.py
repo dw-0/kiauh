@@ -157,6 +157,12 @@ def update_klipper() -> None:
         target_dir=KLIPPER_DIR,
     )
     repo_manager.pull_repo()
+
+    # install possible new system packages
+    install_klipper_packages(KLIPPER_DIR)
+    # install possible new python dependencies
+    install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQUIREMENTS_TXT)
+
     instance_manager.start_all_instance()
 
 
