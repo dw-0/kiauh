@@ -162,6 +162,13 @@ def download_mainsail() -> None:
         raise
 
 
+def update_mainsail() -> None:
+    Logger.print_status("Updating Mainsail ...")
+    backup_config_json(is_temp=True)
+    download_mainsail()
+    restore_config_json()
+
+
 def download_mainsail_cfg() -> None:
     try:
         Logger.print_status("Downloading mainsail-config ...")

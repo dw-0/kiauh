@@ -11,6 +11,7 @@
 
 import json
 import shutil
+import requests
 from pathlib import Path
 from typing import List
 
@@ -80,3 +81,19 @@ def symlink_webui_nginx_log(klipper_instances: List[Klipper]) -> None:
         desti_error = instance.log_dir.joinpath("mainsail-error.log")
         if not desti_error.exists():
             desti_error.symlink_to(error_log)
+
+
+def get_mainsail_local_version() -> str:
+    relinfo_file = MAINSAIL_DIR.joinpath("release_info.json")
+    if not relinfo_file.is_file():
+        return "-"
+
+    with open(relinfo_file, "r") as f:
+        return json.load(f)["version"]
+
+
+def get_mainsail_remote_version() -> str:
+    url = "https://api.github.com/repos/mainsail-crew/mainsail/tags"
+    response = requests.get(url)
+    data = json.loads(response.text)
+    return data[0]["name"]

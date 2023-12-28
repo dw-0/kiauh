@@ -17,6 +17,11 @@ from kiauh.modules.klipper.klipper_setup import update_klipper
 from kiauh.modules.klipper.klipper_utils import (
     get_klipper_status,
 )
+from kiauh.modules.mainsail.mainsail_setup import update_mainsail
+from kiauh.modules.mainsail.mainsail_utils import (
+    get_mainsail_local_version,
+    get_mainsail_remote_version,
+)
 from kiauh.modules.moonraker.moonraker_setup import update_moonraker
 from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_WHITE
@@ -48,6 +53,8 @@ class UpdateMenu(BaseMenu):
         self.kl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.mr_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.mr_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.ms_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.ms_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
     def print_menu(self):
         self.fetch_update_status()
@@ -67,7 +74,7 @@ class UpdateMenu(BaseMenu):
             |  2) Moonraker         | {self.mr_local:<22} | {self.mr_remote:<22} |
             |                       |               |               |
             | Klipper Webinterface: |---------------|---------------|
-            |  3) Mainsail          |               |               |
+            |  3) Mainsail          | {self.ms_local:<22} | {self.ms_remote:<22} |
             |  4) Fluidd            |               |               |
             |                       |               |               |
             | Touchscreen GUI:      |---------------|---------------|
@@ -96,7 +103,7 @@ class UpdateMenu(BaseMenu):
         update_moonraker()
 
     def update_mainsail(self):
-        print("update_mainsail")
+        update_mainsail()
 
     def update_fluidd(self):
         print("update_fluidd")
@@ -144,3 +151,11 @@ class UpdateMenu(BaseMenu):
         else:
             self.mr_local = f"{COLOR_YELLOW}{self.mr_local}{RESET_FORMAT}"
         self.mr_remote = f"{COLOR_GREEN}{self.mr_remote}{RESET_FORMAT}"
+        # mainsail
+        self.ms_local = get_mainsail_local_version()
+        self.ms_remote = get_mainsail_remote_version()
+        if self.ms_local == self.ms_remote:
+            self.ms_local = f"{COLOR_GREEN}{self.ms_local}{RESET_FORMAT}"
+        else:
+            self.ms_local = f"{COLOR_YELLOW}{self.ms_local}{RESET_FORMAT}"
+        self.ms_remote = f"{COLOR_GREEN}{self.ms_remote}{RESET_FORMAT}"
