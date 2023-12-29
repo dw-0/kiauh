@@ -69,6 +69,9 @@ class RepoManager:
         :param repo: repository to extract the values from
         :return: String in form of "<orga>/<name>"
         """
+        if not repo.exists() and not repo.joinpath(".git").exists():
+            return "-"
+
         try:
             cmd = ["git", "-C", repo, "config", "--get", "remote.origin.url"]
             result = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
@@ -78,7 +81,7 @@ class RepoManager:
 
     @staticmethod
     def get_local_commit(repo: Path) -> str:
-        if not repo.exists() and repo.joinpath(".git").exists():
+        if not repo.exists() and not repo.joinpath(".git").exists():
             return "-"
 
         try:
@@ -89,7 +92,7 @@ class RepoManager:
 
     @staticmethod
     def get_remote_commit(repo: Path) -> str:
-        if not repo.exists() and repo.joinpath(".git").exists():
+        if not repo.exists() and not repo.joinpath(".git").exists():
             return "-"
 
         try:
