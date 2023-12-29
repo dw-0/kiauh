@@ -17,6 +17,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import venv
 from pathlib import Path
 from typing import List, Literal
 
@@ -68,14 +69,10 @@ def create_python_venv(target: Path) -> None:
     Logger.print_status("Set up Python virtual environment ...")
     if not target.exists():
         try:
-            command = ["python3", "-m", "venv", f"{target}"]
-            result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
-            if result.returncode != 0 or result.stderr:
-                Logger.print_error(f"{result.stderr}", prefix=False)
-                Logger.print_error("Setup of virtualenv failed!")
-                return
-
+            venv.create(target, with_pip=True)
             Logger.print_ok("Setup of virtualenv successfull!")
+        except OSError as e:
+            Logger.print_error(f"Error setting up virtualenv:\n{e}")
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e.output.decode()}")
     else:

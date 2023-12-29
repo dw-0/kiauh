@@ -114,10 +114,9 @@ def setup_klipper_prerequesites() -> None:
     repo_manager.clone_repo()
 
     # install klipper dependencies and create python virtualenv
-    install_klipper_packages(Path(KLIPPER_DIR))
-    create_python_venv(Path(KLIPPER_ENV_DIR))
-    klipper_py_req = Path(KLIPPER_REQUIREMENTS_TXT)
-    install_python_requirements(Path(KLIPPER_ENV_DIR), klipper_py_req)
+    install_klipper_packages(KLIPPER_DIR)
+    create_python_venv(KLIPPER_ENV_DIR)
+    install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQUIREMENTS_TXT)
 
 
 def install_klipper_packages(klipper_dir: Path) -> None:
