@@ -73,8 +73,10 @@ def create_python_venv(target: Path) -> None:
             Logger.print_ok("Setup of virtualenv successfull!")
         except OSError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e}")
+            raise
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e.output.decode()}")
+            raise
     else:
         if get_confirm("Virtualenv already exists. Re-create?", default_choice=False):
             try:
@@ -83,6 +85,7 @@ def create_python_venv(target: Path) -> None:
             except OSError as e:
                 log = f"Error removing existing virtualenv: {e.strerror}"
                 Logger.print_error(log, False)
+                raise
         else:
             Logger.print_info("Skipping re-creation of virtualenv ...")
 
@@ -128,6 +131,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
     except subprocess.CalledProcessError as e:
         log = f"Error installing Python requirements:\n{e.output.decode()}"
         Logger.print_error(log)
+        raise
 
 
 def update_system_package_lists(silent: bool, rls_info_change=False) -> None:

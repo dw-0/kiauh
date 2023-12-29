@@ -74,25 +74,30 @@ def install_klipper() -> None:
 
     create_example_cfg = get_confirm("Create example printer.cfg?")
 
-    if not kl_im.instances:
-        setup_klipper_prerequesites()
+    try:
+        if not kl_im.instances:
+            setup_klipper_prerequesites()
 
-    count = 0
-    for name in name_dict:
-        if name_dict[name] in [n.suffix for n in kl_im.instances]:
-            continue
+        count = 0
+        for name in name_dict:
+            if name_dict[name] in [n.suffix for n in kl_im.instances]:
+                continue
 
-        if check_is_single_to_multi_conversion(kl_im.instances):
-            handle_to_multi_instance_conversion(name_dict[name])
-            continue
+            if check_is_single_to_multi_conversion(kl_im.instances):
+                handle_to_multi_instance_conversion(name_dict[name])
+                continue
 
-        count += 1
-        create_klipper_instance(name_dict[name], create_example_cfg)
+            count += 1
+            create_klipper_instance(name_dict[name], create_example_cfg)
 
-        if count == install_count:
-            break
+            if count == install_count:
+                break
 
-    kl_im.reload_daemon()
+        kl_im.reload_daemon()
+
+    except Exception:
+        Logger.print_error("Klipper installation failed!")
+        return
 
     # step 4: check/handle conflicting packages/services
     handle_disruptive_system_packages()
@@ -114,9 +119,13 @@ def setup_klipper_prerequesites() -> None:
     repo_manager.clone_repo()
 
     # install klipper dependencies and create python virtualenv
-    install_klipper_packages(KLIPPER_DIR)
-    create_python_venv(KLIPPER_ENV_DIR)
-    install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQUIREMENTS_TXT)
+    try:
+        install_klipper_packages(KLIPPER_DIR)
+        create_python_venv(KLIPPER_ENV_DIR)
+        install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQUIREMENTS_TXT)
+    except Exception:
+        Logger.print_error("Error during installation of Klipper requirements!")
+        raise
 
 
 def install_klipper_packages(klipper_dir: Path) -> None:
