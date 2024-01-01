@@ -41,7 +41,7 @@ function update_ui() {
 }
 
 function update_menu() {
-  clear -x && sudo -v && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
+  clear -x && sudo true && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
   do_action "" "update_ui"
   
   local action
