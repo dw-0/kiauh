@@ -125,7 +125,7 @@ prompt and confirm by hitting ENTER.
 <tr>
 <th><img src="https://raw.githubusercontent.com/fluidd-core/fluidd/master/docs/assets/images/logo.svg" alt="Fluidd Logo" height="64"></th>
 <th><img src="https://avatars.githubusercontent.com/u/31575189?v=4" alt="jordanruthe avatar" height="64"></th>
-<th><img src="https://github.com/OctoPrint/OctoPrint/blob/master/docs/images/octoprint-logo.png?raw=true" alt="OctoPrint Logo" height="64"></th>
+<th><img src="https://raw.githubusercontent.com/OctoPrint/OctoPrint/master/docs/images/octoprint-logo.png" alt="OctoPrint Logo" height="64"></th>
 </tr>
 <tr>
 <th>by <a href="https://github.com/fluidd-core">fluidd-core</a></th>
