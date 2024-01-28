@@ -19,6 +19,7 @@ from kiauh.core.menus.remove_menu import RemoveMenu
 from kiauh.core.menus.settings_menu import SettingsMenu
 from kiauh.core.menus.update_menu import UpdateMenu
 from kiauh.modules.klipper.klipper_utils import get_klipper_status
+from kiauh.modules.log_uploads.menus.log_upload_menu import LogUploadMenu
 from kiauh.modules.mainsail.mainsail_utils import get_mainsail_status
 from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.utils.constants import (
@@ -36,7 +37,7 @@ class MainMenu(BaseMenu):
         super().__init__(
             header=True,
             options={
-                0: None,
+                0: LogUploadMenu,
                 1: InstallMenu,
                 2: UpdateMenu,
                 3: RemoveMenu,
