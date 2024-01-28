@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ======================================================================= #
-#  Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -113,6 +113,7 @@ def install_moonraker() -> None:
     if MAINSAIL_DIR.exists() and len(mr_im.instances) > 1:
         enable_mainsail_remotemode()
 
+
 def check_moonraker_install_requirements() -> bool:
     if not (sys.version_info.major >= 3 and sys.version_info.minor >= 7):
         Logger.print_error("Versioncheck failed!")
@@ -132,6 +133,7 @@ def check_moonraker_install_requirements() -> bool:
         return False
 
     return True
+
 
 def setup_moonraker_prerequesites() -> None:
     cm = ConfigManager(cfg_file=KIAUH_CFG)
