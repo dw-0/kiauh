@@ -90,10 +90,13 @@ def install_mainsail() -> None:
         question = "Download the recommended macros?"
         install_ms_config = get_confirm(question, allow_go_back=False)
 
+    # if a default port is configured in the kiauh.cfg, we use that for the port
+    # otherwise we default to port 80, but show the user a dialog to confirm/change that port
     cm = ConfigManager(cfg_file=KIAUH_CFG)
     default_port = cm.get_value("mainsail", "default_port")
-    mainsail_port = default_port if default_port else "80"
-    if not default_port:
+    is_valid_port = default_port and default_port.isdigit()
+    mainsail_port = default_port if is_valid_port else "80"
+    if not is_valid_port:
         print_mainsail_port_select_dialog(mainsail_port)
         mainsail_port = get_number_input(
             "Configure Mainsail for port",
