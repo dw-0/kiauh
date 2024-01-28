@@ -23,6 +23,7 @@ from kiauh.utils.constants import (
     COLOR_CYAN,
     RESET_FORMAT,
 )
+from kiauh.utils.logger import Logger
 
 
 def clear():
@@ -92,6 +93,8 @@ def print_back_help_footer():
 
 
 class BaseMenu(ABC):
+    NAVI_OPTIONS = {"quit": ["q"], "back": ["b"], "back_help": ["b", "h"]}
+
     def __init__(
         self,
         options: Dict[int, Any],
@@ -130,29 +133,20 @@ class BaseMenu(ABC):
         while True:
             choice = input(f"{COLOR_CYAN}###### Perform action: {RESET_FORMAT}")
 
-            error_msg = (
-                f"{COLOR_RED}Invalid input.{RESET_FORMAT}"
-                if choice.isalpha()
-                else f"{COLOR_RED}Invalid input. Select a number between {min(self.options)} and {max(self.options)}.{RESET_FORMAT}"
-            )
-
             if choice.isdigit() and 0 <= int(choice) < len(self.options):
                 return choice
-            elif choice.isalpha():
-                allowed_input = {
-                    "quit": ["q"],
-                    "back": ["b"],
-                    "back_help": ["b", "h"],
-                }
-                if (
-                    self.footer_type in allowed_input
-                    and choice.lower() in allowed_input[self.footer_type]
-                ):
-                    return choice
-                else:
-                    print(error_msg)
+            elif choice.isalpha() and (
+                self.footer_type in self.NAVI_OPTIONS
+                and choice.lower() in self.NAVI_OPTIONS[self.footer_type]
+            ):
+                return choice
             else:
-                print(error_msg)
+                error_msg = (
+                    "Invalid input!"
+                    if choice.isalpha() or (not self.options and len(self.options) < 1)
+                    else f"Invalid input! Select a number between {min(self.options)} and {max(self.options)}."
+                )
+                Logger.print_error(error_msg, False)
 
     def start(self):
         while True:
@@ -160,7 +154,7 @@ class BaseMenu(ABC):
             choice = self.handle_user_input()
 
             if choice == "q":
-                print(f"{COLOR_GREEN}###### Happy printing!{RESET_FORMAT}")
+                Logger.print_ok("###### Happy printing!", False)
                 sys.exit(0)
             elif choice == "b":
                 return
