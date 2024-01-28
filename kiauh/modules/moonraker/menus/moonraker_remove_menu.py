@@ -17,6 +17,7 @@ from kiauh.modules.moonraker import moonraker_remove
 from kiauh.utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 
+# noinspection PyUnusedLocal
 class MoonrakerRemoveMenu(BaseMenu):
     def __init__(self):
         super().__init__(
@@ -70,29 +71,29 @@ class MoonrakerRemoveMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def toggle_all(self) -> None:
+    def toggle_all(self, **kwargs) -> None:
         self.remove_moonraker_service = True
         self.remove_moonraker_dir = True
         self.remove_moonraker_env = True
         self.remove_moonraker_polkit = True
         self.delete_moonraker_logs = True
 
-    def toggle_remove_moonraker_service(self) -> None:
+    def toggle_remove_moonraker_service(self, **kwargs) -> None:
         self.remove_moonraker_service = not self.remove_moonraker_service
 
-    def toggle_remove_moonraker_dir(self) -> None:
+    def toggle_remove_moonraker_dir(self, **kwargs) -> None:
         self.remove_moonraker_dir = not self.remove_moonraker_dir
 
-    def toggle_remove_moonraker_env(self) -> None:
+    def toggle_remove_moonraker_env(self, **kwargs) -> None:
         self.remove_moonraker_env = not self.remove_moonraker_env
 
-    def toggle_remove_moonraker_polkit(self) -> None:
+    def toggle_remove_moonraker_polkit(self, **kwargs) -> None:
         self.remove_moonraker_polkit = not self.remove_moonraker_polkit
 
-    def toggle_delete_moonraker_logs(self) -> None:
+    def toggle_delete_moonraker_logs(self, **kwargs) -> None:
         self.delete_moonraker_logs = not self.delete_moonraker_logs
 
-    def run_removal_process(self) -> None:
+    def run_removal_process(self, **kwargs) -> None:
         if (
             not self.remove_moonraker_service
             and not self.remove_moonraker_dir

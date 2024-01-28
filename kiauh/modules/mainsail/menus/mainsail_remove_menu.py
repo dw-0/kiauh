@@ -17,6 +17,7 @@ from kiauh.modules.mainsail import mainsail_remove
 from kiauh.utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 
+# noinspection PyUnusedLocal
 class MainsailRemoveMenu(BaseMenu):
     def __init__(self):
         super().__init__(
@@ -72,29 +73,29 @@ class MainsailRemoveMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def toggle_all(self) -> None:
+    def toggle_all(self, **kwargs) -> None:
         self.remove_mainsail = True
         self.remove_ms_config = True
         self.backup_config_json = True
         self.remove_updater_section = True
         self.remove_printer_cfg_include = True
 
-    def toggle_remove_mainsail(self) -> None:
+    def toggle_remove_mainsail(self, **kwargs) -> None:
         self.remove_mainsail = not self.remove_mainsail
 
-    def toggle_remove_ms_config(self) -> None:
+    def toggle_remove_ms_config(self, **kwargs) -> None:
         self.remove_ms_config = not self.remove_ms_config
 
-    def toggle_backup_config_json(self) -> None:
+    def toggle_backup_config_json(self, **kwargs) -> None:
         self.backup_config_json = not self.backup_config_json
 
-    def toggle_remove_updater_section(self) -> None:
+    def toggle_remove_updater_section(self, **kwargs) -> None:
         self.remove_updater_section = not self.remove_updater_section
 
-    def toggle_remove_printer_cfg_include(self) -> None:
+    def toggle_remove_printer_cfg_include(self, **kwargs) -> None:
         self.remove_printer_cfg_include = not self.remove_printer_cfg_include
 
-    def run_removal_process(self) -> None:
+    def run_removal_process(self, **kwargs) -> None:
         if (
             not self.remove_mainsail
             and not self.remove_ms_config

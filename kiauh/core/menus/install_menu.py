@@ -19,6 +19,7 @@ from kiauh.modules.moonraker import moonraker_setup
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
 
 
+# noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class InstallMenu(BaseMenu):
     def __init__(self):
@@ -63,35 +64,35 @@ class InstallMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def install_klipper(self):
+    def install_klipper(self, **kwargs):
         klipper_setup.install_klipper()
 
-    def install_moonraker(self):
+    def install_moonraker(self, **kwargs):
         moonraker_setup.install_moonraker()
 
-    def install_mainsail(self):
+    def install_mainsail(self, **kwargs):
         mainsail_setup.install_mainsail()
 
-    def install_fluidd(self):
+    def install_fluidd(self, **kwargs):
         print("install_fluidd")
 
-    def install_klipperscreen(self):
+    def install_klipperscreen(self, **kwargs):
         print("install_klipperscreen")
 
-    def install_pretty_gcode(self):
+    def install_pretty_gcode(self, **kwargs):
         print("install_pretty_gcode")
 
-    def install_telegram_bot(self):
+    def install_telegram_bot(self, **kwargs):
         print("install_telegram_bot")
 
-    def install_obico(self):
+    def install_obico(self, **kwargs):
         print("install_obico")
 
-    def install_octoeverywhere(self):
+    def install_octoeverywhere(self, **kwargs):
         print("install_octoeverywhere")
 
-    def install_mobileraker(self):
+    def install_mobileraker(self, **kwargs):
         print("install_mobileraker")
 
-    def install_crowsnest(self):
+    def install_crowsnest(self, **kwargs):
         print("install_crowsnest")

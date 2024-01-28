@@ -175,7 +175,7 @@ class BaseMenu(ABC):
         if isinstance(option, type) and issubclass(option, BaseMenu):
             self.navigate_to_submenu(option)
         elif callable(option):
-            option()
+            option(opt_index=choice)
         elif option is None:
             raise NotImplementedError(f"No implementation for option {choice}")
         else:

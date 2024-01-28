@@ -18,6 +18,7 @@ from kiauh.modules.moonraker import moonraker_remove
 from kiauh.utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 
+# noinspection PyUnusedLocal
 class KlipperRemoveMenu(BaseMenu):
     def __init__(self):
         super().__init__(
@@ -67,25 +68,25 @@ class KlipperRemoveMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def toggle_all(self) -> None:
+    def toggle_all(self, **kwargs) -> None:
         self.remove_klipper_service = True
         self.remove_klipper_dir = True
         self.remove_klipper_env = True
         self.delete_klipper_logs = True
 
-    def toggle_remove_klipper_service(self) -> None:
+    def toggle_remove_klipper_service(self, **kwargs) -> None:
         self.remove_klipper_service = not self.remove_klipper_service
 
-    def toggle_remove_klipper_dir(self) -> None:
+    def toggle_remove_klipper_dir(self, **kwargs) -> None:
         self.remove_klipper_dir = not self.remove_klipper_dir
 
-    def toggle_remove_klipper_env(self) -> None:
+    def toggle_remove_klipper_env(self, **kwargs) -> None:
         self.remove_klipper_env = not self.remove_klipper_env
 
-    def toggle_delete_klipper_logs(self) -> None:
+    def toggle_delete_klipper_logs(self, **kwargs) -> None:
         self.delete_klipper_logs = not self.delete_klipper_logs
 
-    def run_removal_process(self) -> None:
+    def run_removal_process(self, **kwargs) -> None:
         if (
             not self.remove_klipper_service
             and not self.remove_klipper_dir

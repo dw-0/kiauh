@@ -27,6 +27,7 @@ from kiauh.modules.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_WHITE
 
 
+# noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class UpdateMenu(BaseMenu):
     def __init__(self):
@@ -93,43 +94,43 @@ class UpdateMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def update_all(self):
+    def update_all(self, **kwargs):
         print("update_all")
 
-    def update_klipper(self):
+    def update_klipper(self, **kwargs):
         update_klipper()
 
-    def update_moonraker(self):
+    def update_moonraker(self, **kwargs):
         update_moonraker()
 
-    def update_mainsail(self):
+    def update_mainsail(self, **kwargs):
         update_mainsail()
 
-    def update_fluidd(self):
+    def update_fluidd(self, **kwargs):
         print("update_fluidd")
 
-    def update_klipperscreen(self):
+    def update_klipperscreen(self, **kwargs):
         print("update_klipperscreen")
 
-    def update_pgc_for_klipper(self):
+    def update_pgc_for_klipper(self, **kwargs):
         print("update_pgc_for_klipper")
 
-    def update_telegram_bot(self):
+    def update_telegram_bot(self, **kwargs):
         print("update_telegram_bot")
 
-    def update_moonraker_obico(self):
+    def update_moonraker_obico(self, **kwargs):
         print("update_moonraker_obico")
 
-    def update_octoeverywhere(self):
+    def update_octoeverywhere(self, **kwargs):
         print("update_octoeverywhere")
 
-    def update_mobileraker(self):
+    def update_mobileraker(self, **kwargs):
         print("update_mobileraker")
 
-    def update_crowsnest(self):
+    def update_crowsnest(self, **kwargs):
         print("update_crowsnest")
 
-    def upgrade_system_packages(self):
+    def upgrade_system_packages(self, **kwargs):
         print("upgrade_system_packages")
 
     def fetch_update_status(self):

@@ -19,6 +19,7 @@ from kiauh.modules.moonraker.menus.moonraker_remove_menu import MoonrakerRemoveM
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
 
 
+# noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class RemoveMenu(BaseMenu):
     def __init__(self):
@@ -69,35 +70,35 @@ class RemoveMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def remove_fluidd(self):
+    def remove_fluidd(self, **kwargs):
         print("remove_fluidd")
 
-    def remove_fluidd_config(self):
+    def remove_fluidd_config(self, **kwargs):
         print("remove_fluidd_config")
 
-    def remove_klipperscreen(self):
+    def remove_klipperscreen(self, **kwargs):
         print("remove_klipperscreen")
 
-    def remove_crowsnest(self):
+    def remove_crowsnest(self, **kwargs):
         print("remove_crowsnest")
 
-    def remove_mjpgstreamer(self):
+    def remove_mjpgstreamer(self, **kwargs):
         print("remove_mjpgstreamer")
 
-    def remove_pretty_gcode(self):
+    def remove_pretty_gcode(self, **kwargs):
         print("remove_pretty_gcode")
 
-    def remove_telegram_bot(self):
+    def remove_telegram_bot(self, **kwargs):
         print("remove_telegram_bot")
 
-    def remove_obico(self):
+    def remove_obico(self, **kwargs):
         print("remove_obico")
 
-    def remove_octoeverywhere(self):
+    def remove_octoeverywhere(self, **kwargs):
         print("remove_octoeverywhere")
 
-    def remove_mobileraker(self):
+    def remove_mobileraker(self, **kwargs):
         print("remove_mobileraker")
 
-    def remove_nginx(self):
+    def remove_nginx(self, **kwargs):
         print("remove_nginx")
