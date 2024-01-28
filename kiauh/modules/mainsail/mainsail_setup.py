@@ -58,7 +58,7 @@ from kiauh.utils.system_utils import (
 )
 
 
-def run_mainsail_installation() -> None:
+def install_mainsail() -> None:
     mr_im = InstanceManager(Moonraker)
     mr_instances: List[Moonraker] = mr_im.instances
 

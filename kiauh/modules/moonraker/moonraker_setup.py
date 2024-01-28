@@ -52,27 +52,6 @@ from kiauh.utils.system_utils import (
 )
 
 
-def check_moonraker_install_requirements() -> bool:
-    if not (sys.version_info.major >= 3 and sys.version_info.minor >= 7):
-        Logger.print_error("Versioncheck failed!")
-        Logger.print_error("Python 3.7 or newer required to run Moonraker.")
-        return False
-
-    kl_instance_count = len(InstanceManager(Klipper).instances)
-    if kl_instance_count < 1:
-        Logger.print_warn("Klipper not installed!")
-        Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
-        return False
-
-    mr_instance_count = len(InstanceManager(Moonraker).instances)
-    if mr_instance_count >= kl_instance_count:
-        Logger.print_warn("Unable to install more Moonraker instances!")
-        Logger.print_warn("More Klipper instances required.")
-        return False
-
-    return True
-
-
 def install_moonraker() -> None:
     if not check_moonraker_install_requirements():
         return
@@ -134,6 +113,25 @@ def install_moonraker() -> None:
     if MAINSAIL_DIR.exists() and len(mr_im.instances) > 1:
         enable_mainsail_remotemode()
 
+def check_moonraker_install_requirements() -> bool:
+    if not (sys.version_info.major >= 3 and sys.version_info.minor >= 7):
+        Logger.print_error("Versioncheck failed!")
+        Logger.print_error("Python 3.7 or newer required to run Moonraker.")
+        return False
+
+    kl_instance_count = len(InstanceManager(Klipper).instances)
+    if kl_instance_count < 1:
+        Logger.print_warn("Klipper not installed!")
+        Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
+        return False
+
+    mr_instance_count = len(InstanceManager(Moonraker).instances)
+    if mr_instance_count >= kl_instance_count:
+        Logger.print_warn("Unable to install more Moonraker instances!")
+        Logger.print_warn("More Klipper instances required.")
+        return False
+
+    return True
 
 def setup_moonraker_prerequesites() -> None:
     cm = ConfigManager(cfg_file=KIAUH_CFG)
