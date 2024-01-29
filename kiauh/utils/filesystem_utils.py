@@ -79,7 +79,7 @@ def copy_upstream_nginx_cfg() -> None:
     Creates an upstream.conf in /etc/nginx/conf.d
     :return: None
     """
-    source = MODULE_PATH.joinpath("res/upstreams.conf")
+    source = MODULE_PATH.joinpath("assets/upstreams.conf")
     target = NGINX_CONFD.joinpath("upstreams.conf")
     try:
         command = ["sudo", "cp", source, target]
@@ -95,7 +95,7 @@ def copy_common_vars_nginx_cfg() -> None:
     Creates a common_vars.conf in /etc/nginx/conf.d
     :return: None
     """
-    source = MODULE_PATH.joinpath("res/common_vars.conf")
+    source = MODULE_PATH.joinpath("assets/common_vars.conf")
     target = NGINX_CONFD.joinpath("common_vars.conf")
     try:
         command = ["sudo", "cp", source, target]
@@ -115,7 +115,7 @@ def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
     :return: None
     """
     tmp = Path.home().joinpath(f"{name}.tmp")
-    shutil.copy(MODULE_PATH.joinpath("res/nginx_cfg"), tmp)
+    shutil.copy(MODULE_PATH.joinpath("assets/nginx_cfg"), tmp)
     with open(tmp, "r+") as f:
         content = f.read()
         content = content.replace("%NAME%", name)

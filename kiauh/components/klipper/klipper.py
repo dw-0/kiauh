@@ -52,10 +52,10 @@ class Klipper(BaseInstance):
 
     def create(self) -> None:
         Logger.print_status("Creating new Klipper Instance ...")
-        service_template_path = MODULE_PATH.joinpath("res/klipper.service")
+        service_template_path = MODULE_PATH.joinpath("assets/klipper.service")
         service_file_name = self.get_service_file_name(extension=True)
         service_file_target = SYSTEMD.joinpath(service_file_name)
-        env_template_file_path = MODULE_PATH.joinpath("res/klipper.env")
+        env_template_file_path = MODULE_PATH.joinpath("assets/klipper.env")
         env_file_target = self.sysd_dir.joinpath("klipper.env")
 
         try:

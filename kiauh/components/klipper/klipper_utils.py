@@ -264,7 +264,7 @@ def create_example_printer_cfg(instance: Klipper) -> None:
         Logger.print_info(f"'{instance.cfg_file}' already exists.")
         return
 
-    source = MODULE_PATH.joinpath("res/printer.cfg")
+    source = MODULE_PATH.joinpath("assets/printer.cfg")
     target = instance.cfg_file
     try:
         shutil.copy(source, target)

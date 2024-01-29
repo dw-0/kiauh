@@ -56,7 +56,7 @@ def create_example_moonraker_conf(
         Logger.print_info(f"'{instance.cfg_file}' already exists.")
         return
 
-    source = MODULE_PATH.joinpath("res/moonraker.conf")
+    source = MODULE_PATH.joinpath("assets/moonraker.conf")
     target = instance.cfg_file
     try:
         shutil.copy(source, target)

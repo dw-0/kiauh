@@ -39,8 +39,8 @@ class Moonraker(BaseInstance):
 
     def create(self, create_example_cfg: bool = False) -> None:
         Logger.print_status("Creating new Moonraker Instance ...")
-        service_template_path = MODULE_PATH.joinpath("res/moonraker.service")
-        env_template_file_path = MODULE_PATH.joinpath("res/moonraker.env")
+        service_template_path = MODULE_PATH.joinpath("assets/moonraker.service")
+        env_template_file_path = MODULE_PATH.joinpath("assets/moonraker.env")
         service_file_name = self.get_service_file_name(extension=True)
         service_file_target = SYSTEMD.joinpath(service_file_name)
         env_file_target = self.sysd_dir.joinpath("moonraker.env")

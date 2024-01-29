@@ -229,7 +229,7 @@ def patch_moonraker_conf(
             Logger.print_info("Section already exist. Skipped ...")
             return
 
-        template = MODULE_PATH.joinpath("res", template_file)
+        template = MODULE_PATH.joinpath("assets", template_file)
         with open(template, "r") as t:
             template_content = "\n"
             template_content += t.read()
