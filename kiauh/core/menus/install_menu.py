@@ -13,9 +13,9 @@ import textwrap
 
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.modules.klipper import klipper_setup
-from kiauh.modules.mainsail import mainsail_setup
-from kiauh.modules.moonraker import moonraker_setup
+from kiauh.components.klipper import klipper_setup
+from kiauh.components.mainsail import mainsail_setup
+from kiauh.components.moonraker import moonraker_setup
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
 
 

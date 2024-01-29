@@ -14,9 +14,9 @@ import subprocess
 from typing import List, Union
 
 from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.modules.klipper.klipper_dialogs import print_instance_overview
-from kiauh.modules.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
-from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.components.klipper.klipper_dialogs import print_instance_overview
+from kiauh.components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
+from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.utils.filesystem_utils import remove_file
 from kiauh.utils.input_utils import get_selection_input
 from kiauh.utils.logger import Logger

@@ -15,8 +15,8 @@ from pathlib import Path
 import urllib.request
 
 from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.log_uploads import LogFile
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.log_uploads import LogFile
 from kiauh.utils.logger import Logger
 
 

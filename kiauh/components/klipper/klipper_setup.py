@@ -15,16 +15,16 @@ from kiauh import KIAUH_CFG
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.modules.klipper import (
+from kiauh.components.klipper import (
     EXIT_KLIPPER_SETUP,
     DEFAULT_KLIPPER_REPO_URL,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_REQUIREMENTS_TXT,
 )
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_dialogs import print_update_warn_dialog
-from kiauh.modules.klipper.klipper_utils import (
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.klipper.klipper_dialogs import print_update_warn_dialog
+from kiauh.components.klipper.klipper_utils import (
     handle_disruptive_system_packages,
     check_user_groups,
     handle_to_multi_instance_conversion,
@@ -37,7 +37,7 @@ from kiauh.modules.klipper.klipper_utils import (
     handle_instance_naming,
 )
 from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (

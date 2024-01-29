@@ -24,16 +24,16 @@ from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.core.instance_manager.name_scheme import NameScheme
 from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.modules.klipper import MODULE_PATH, KLIPPER_DIR, KLIPPER_ENV_DIR
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_dialogs import (
+from kiauh.components.klipper import MODULE_PATH, KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,
     print_instance_overview,
     print_select_instance_count_dialog,
     print_select_custom_name_dialog,
 )
-from kiauh.modules.moonraker.moonraker import Moonraker
-from kiauh.modules.moonraker.moonraker_utils import moonraker_to_multi_conversion
+from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.components.moonraker.moonraker_utils import moonraker_to_multi_conversion
 from kiauh.utils.common import get_install_status_common
 from kiauh.utils.constants import CURRENT_USER
 from kiauh.utils.input_utils import get_confirm, get_string_input, get_number_input

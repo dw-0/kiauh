@@ -15,7 +15,7 @@ from typing import List, Union
 
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.modules.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
+from kiauh.components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 

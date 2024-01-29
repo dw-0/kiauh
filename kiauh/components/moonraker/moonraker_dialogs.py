@@ -13,8 +13,8 @@ import textwrap
 from typing import List
 
 from kiauh.core.menus.base_menu import print_back_footer
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
 

@@ -16,8 +16,8 @@ from pathlib import Path
 from typing import List
 
 from kiauh.core.backup_manager.backup_manager import BackupManager
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.mainsail import MAINSAIL_CONFIG_JSON, MAINSAIL_DIR
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.mainsail import MAINSAIL_CONFIG_JSON, MAINSAIL_DIR
 from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
 from kiauh.utils.common import get_install_status_webui
 from kiauh.utils.logger import Logger

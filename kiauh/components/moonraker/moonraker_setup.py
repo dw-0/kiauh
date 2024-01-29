@@ -18,12 +18,12 @@ from kiauh import KIAUH_CFG
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_dialogs import print_instance_overview
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.klipper.klipper_dialogs import print_instance_overview
 from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.modules.mainsail import MAINSAIL_DIR
-from kiauh.modules.mainsail.mainsail_utils import enable_mainsail_remotemode
-from kiauh.modules.moonraker import (
+from kiauh.components.mainsail import MAINSAIL_DIR
+from kiauh.components.mainsail.mainsail_utils import enable_mainsail_remotemode
+from kiauh.components.moonraker import (
     EXIT_MOONRAKER_SETUP,
     DEFAULT_MOONRAKER_REPO_URL,
     MOONRAKER_DIR,
@@ -34,9 +34,9 @@ from kiauh.modules.moonraker import (
     POLKIT_USR_FILE,
     POLKIT_SCRIPT,
 )
-from kiauh.modules.moonraker.moonraker import Moonraker
-from kiauh.modules.moonraker.moonraker_dialogs import print_moonraker_overview
-from kiauh.modules.moonraker.moonraker_utils import create_example_moonraker_conf
+from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.components.moonraker.moonraker_dialogs import print_moonraker_overview
+from kiauh.components.moonraker.moonraker_utils import create_example_moonraker_conf
 from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.input_utils import (
     get_confirm,

@@ -13,9 +13,9 @@ import shutil
 from typing import List, Union
 
 from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.modules.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
-from kiauh.modules.klipper.klipper import Klipper
-from kiauh.modules.klipper.klipper_dialogs import print_instance_overview
+from kiauh.components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
+from kiauh.components.klipper.klipper import Klipper
+from kiauh.components.klipper.klipper_dialogs import print_instance_overview
 from kiauh.utils.filesystem_utils import remove_file
 from kiauh.utils.input_utils import get_selection_input
 from kiauh.utils.logger import Logger

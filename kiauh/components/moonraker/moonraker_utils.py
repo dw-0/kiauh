@@ -15,15 +15,15 @@ from typing import Dict, Literal, List, Union
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.modules.mainsail import MAINSAIL_DIR
-from kiauh.modules.mainsail.mainsail_utils import enable_mainsail_remotemode
-from kiauh.modules.moonraker import (
+from kiauh.components.mainsail import MAINSAIL_DIR
+from kiauh.components.mainsail.mainsail_utils import enable_mainsail_remotemode
+from kiauh.components.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
 )
-from kiauh.modules.moonraker.moonraker import Moonraker
+from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.utils.common import get_install_status_common
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
