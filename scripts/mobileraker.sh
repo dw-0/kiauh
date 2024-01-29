@@ -61,8 +61,8 @@ function mobileraker_setup() {
     exit 1
   fi
 
-  status_msg "Installing Mobileraker's companion ..."
-  if "${MOBILERAKER_DIR}"/scripts/install-mobileraker-companion.sh; then
+  status_msg "Starting installer of Mobileraker's companion ..."
+  if "${MOBILERAKER_DIR}"/scripts/install.sh; then
     ok_msg "Mobileraker's companion successfully installed!"
   else
     print_error "Mobileraker's companion installation failed!"
@@ -233,7 +233,7 @@ primary_branch:main
 managed_services: mobileraker
 env: ${HOME}/mobileraker-env/bin/python
 requirements: scripts/mobileraker-requirements.txt
-install_script: scripts/install-mobileraker-companion.sh
+install_script: scripts/install.sh
 MOONRAKER_CONF
 
     fi
