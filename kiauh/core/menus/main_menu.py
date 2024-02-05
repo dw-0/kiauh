@@ -37,13 +37,14 @@ class MainMenu(BaseMenu):
         super().__init__(
             header=True,
             options={
-                0: LogUploadMenu,
-                1: InstallMenu,
-                2: UpdateMenu,
-                3: RemoveMenu,
-                4: AdvancedMenu,
-                5: None,
-                6: SettingsMenu,
+                "0": LogUploadMenu,
+                "1": InstallMenu,
+                "2": UpdateMenu,
+                "3": RemoveMenu,
+                "4": AdvancedMenu,
+                "5": None,
+                "e": None,
+                "s": SettingsMenu,
             },
             footer_type=QUIT_FOOTER,
         )
@@ -113,13 +114,13 @@ class MainMenu(BaseMenu):
             |  4) [Advanced]   |------------------------------------|
             |  5) [Backup]     |        Mainsail: {self.ms_status:<26} |
             |                  |          Fluidd: {self.fl_status:<26} |
-            |  6) [Settings]   |   KlipperScreen: {self.ks_status:<26} |
+            |  E) [Extensions] |   KlipperScreen: {self.ks_status:<26} |
             |                  |     Mobileraker: {self.mb_status:<26} |
             |                  |                                    |
             |                  |       Crowsnest: {self.cn_status:<26} |
             |                  |    Telegram Bot: {self.tg_status:<26} |
             |                  |           Obico: {self.ob_status:<26} |
-            |                  |  OctoEverywhere: {self.oe_status:<26} |
+            |  S) [Settings]   |  OctoEverywhere: {self.oe_status:<26} |
             |-------------------------------------------------------|
             | {COLOR_CYAN}{footer1:^16}{RESET_FORMAT} | {footer2:^43} |
             """

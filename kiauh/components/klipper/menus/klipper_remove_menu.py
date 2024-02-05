@@ -23,12 +23,12 @@ class KlipperRemoveMenu(BaseMenu):
         super().__init__(
             header=False,
             options={
-                0: self.toggle_all,
-                1: self.toggle_remove_klipper_service,
-                2: self.toggle_remove_klipper_dir,
-                3: self.toggle_remove_klipper_env,
-                4: self.toggle_delete_klipper_logs,
-                5: self.run_removal_process,
+                "0": self.toggle_all,
+                "1": self.toggle_remove_klipper_service,
+                "2": self.toggle_remove_klipper_dir,
+                "3": self.toggle_remove_klipper_env,
+                "4": self.toggle_delete_klipper_logs,
+                "5": self.run_removal_process,
             },
             footer_type=BACK_HELP_FOOTER,
         )

@@ -23,13 +23,13 @@ class MoonrakerRemoveMenu(BaseMenu):
         super().__init__(
             header=False,
             options={
-                0: self.toggle_all,
-                1: self.toggle_remove_moonraker_service,
-                2: self.toggle_remove_moonraker_dir,
-                3: self.toggle_remove_moonraker_env,
-                4: self.toggle_remove_moonraker_polkit,
-                5: self.toggle_delete_moonraker_logs,
-                6: self.run_removal_process,
+                "0": self.toggle_all,
+                "1": self.toggle_remove_moonraker_service,
+                "2": self.toggle_remove_moonraker_dir,
+                "3": self.toggle_remove_moonraker_env,
+                "4": self.toggle_remove_moonraker_polkit,
+                "5": self.toggle_delete_moonraker_logs,
+                "6": self.run_removal_process,
             },
             footer_type=BACK_HELP_FOOTER,
         )

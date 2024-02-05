@@ -23,13 +23,13 @@ class MainsailRemoveMenu(BaseMenu):
         super().__init__(
             header=False,
             options={
-                0: self.toggle_all,
-                1: self.toggle_remove_mainsail,
-                2: self.toggle_remove_ms_config,
-                3: self.toggle_backup_config_json,
-                4: self.toggle_remove_updater_section,
-                5: self.toggle_remove_printer_cfg_include,
-                6: self.run_removal_process,
+                "0": self.toggle_all,
+                "1": self.toggle_remove_mainsail,
+                "2": self.toggle_remove_ms_config,
+                "3": self.toggle_backup_config_json,
+                "4": self.toggle_remove_updater_section,
+                "5": self.toggle_remove_printer_cfg_include,
+                "6": self.run_removal_process,
             },
             footer_type=BACK_HELP_FOOTER,
         )

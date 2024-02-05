@@ -13,7 +13,7 @@ import subprocess
 import sys
 import textwrap
 from abc import abstractmethod, ABC
-from typing import Dict, Any, Literal
+from typing import Dict, Any, Literal, Union, Callable, Type
 
 from kiauh.core.menus import QUIT_FOOTER, BACK_FOOTER, BACK_HELP_FOOTER
 from kiauh.utils.constants import (
@@ -97,7 +97,7 @@ class BaseMenu(ABC):
 
     def __init__(
         self,
-        options: Dict[int, Any],
+        options: Dict[str, Union[Callable, Type["BaseMenu"]]],
         options_offset: int = 0,
         header: bool = True,
         footer_type: Literal[
@@ -110,10 +110,10 @@ class BaseMenu(ABC):
         self.footer_type = footer_type
 
     @abstractmethod
-    def print_menu(self):
+    def print_menu(self) -> None:
         raise NotImplementedError("Subclasses must implement the print_menu method")
 
-    def print_footer(self):
+    def print_footer(self) -> None:
         footer_type_map = {
             QUIT_FOOTER: print_quit_footer,
             BACK_FOOTER: print_back_footer,
@@ -122,33 +122,29 @@ class BaseMenu(ABC):
         footer_function = footer_type_map.get(self.footer_type, print_quit_footer)
         footer_function()
 
-    def display(self):
+    def display(self) -> None:
         # clear()
         if self.header:
             print_header()
         self.print_menu()
         self.print_footer()
 
-    def handle_user_input(self):
+    def handle_user_input(self) -> str:
         while True:
             choice = input(f"{COLOR_CYAN}###### Perform action: {RESET_FORMAT}")
+            option = self.options.get(choice, None)
 
-            if choice.isdigit() and 0 <= int(choice) < len(self.options):
+            has_navi_option = self.footer_type in self.NAVI_OPTIONS
+            user_navigated = choice.lower() in self.NAVI_OPTIONS[self.footer_type]
+            if has_navi_option and user_navigated:
                 return choice
-            elif choice.isalpha() and (
-                self.footer_type in self.NAVI_OPTIONS
-                and choice.lower() in self.NAVI_OPTIONS[self.footer_type]
-            ):
+
+            if option is not None:
                 return choice
             else:
-                error_msg = (
-                    "Invalid input!"
-                    if choice.isalpha() or (not self.options and len(self.options) < 1)
-                    else f"Invalid input! Select a number between {min(self.options)} and {max(self.options)}."
-                )
-                Logger.print_error(error_msg, False)
+                Logger.print_error("Invalid input!", False)
 
-    def start(self):
+    def start(self) -> None:
         while True:
             self.display()
             choice = self.handle_user_input()
@@ -158,12 +154,12 @@ class BaseMenu(ABC):
                 sys.exit(0)
             elif choice == "b":
                 return
-            elif choice == "p":
+            elif choice == "h":
                 print("help!")
             else:
-                self.execute_option(int(choice))
+                self.execute_option(choice)
 
-    def execute_option(self, choice):
+    def execute_option(self, choice: str) -> None:
         option = self.options.get(choice, None)
 
         if isinstance(option, type) and issubclass(option, BaseMenu):
@@ -177,7 +173,7 @@ class BaseMenu(ABC):
                 f"Type {type(option)} of option {choice} not of type BaseMenu or Method"
             )
 
-    def navigate_to_submenu(self, submenu_class):
+    def navigate_to_submenu(self, submenu_class) -> None:
         submenu = submenu_class()
         submenu.previous_menu = self
         submenu.start()
