@@ -97,13 +97,14 @@ class BaseMenu(ABC):
 
     def __init__(
         self,
-        options: Dict[str, Union[Callable, Type["BaseMenu"]]],
+        options: Dict[str, Union[Callable, Any]],
         options_offset: int = 0,
         header: bool = True,
         footer_type: Literal[
             "QUIT_FOOTER", "BACK_FOOTER", "BACK_HELP_FOOTER"
         ] = QUIT_FOOTER,
     ):
+        self.previous_menu = None
         self.options = options
         self.options_offset = options_offset
         self.header = header
@@ -131,11 +132,11 @@ class BaseMenu(ABC):
 
     def handle_user_input(self) -> str:
         while True:
-            choice = input(f"{COLOR_CYAN}###### Perform action: {RESET_FORMAT}")
+            choice = input(f"{COLOR_CYAN}###### Perform action: {RESET_FORMAT}").lower()
             option = self.options.get(choice, None)
 
             has_navi_option = self.footer_type in self.NAVI_OPTIONS
-            user_navigated = choice.lower() in self.NAVI_OPTIONS[self.footer_type]
+            user_navigated = choice in self.NAVI_OPTIONS[self.footer_type]
             if has_navi_option and user_navigated:
                 return choice
 
@@ -163,7 +164,9 @@ class BaseMenu(ABC):
         option = self.options.get(choice, None)
 
         if isinstance(option, type) and issubclass(option, BaseMenu):
-            self.navigate_to_submenu(option)
+            self.navigate_to_menu(option, True)
+        elif isinstance(option, BaseMenu):
+            self.navigate_to_menu(option, False)
         elif callable(option):
             option(opt_index=choice)
         elif option is None:
@@ -173,7 +176,14 @@ class BaseMenu(ABC):
                 f"Type {type(option)} of option {choice} not of type BaseMenu or Method"
             )
 
-    def navigate_to_submenu(self, submenu_class) -> None:
-        submenu = submenu_class()
-        submenu.previous_menu = self
-        submenu.start()
+    def navigate_to_menu(self, menu, instantiate: bool) -> None:
+        """
+        Method for handling the actual menu switch. Can either take in a menu type or an already
+        instantiated menu class. Use instantiated menu classes only if the menu requires specific input parameters
+        :param menu: A menu type or menu instance
+        :param instantiate: Specify if the menu requires instantiation
+        :return: None
+        """
+        menu = menu() if instantiate else menu
+        menu.previous_menu = self
+        menu.start()
