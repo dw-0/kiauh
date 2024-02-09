@@ -14,6 +14,7 @@ import textwrap
 from kiauh.core.menus import QUIT_FOOTER
 from kiauh.core.menus.advanced_menu import AdvancedMenu
 from kiauh.core.menus.base_menu import BaseMenu
+from kiauh.core.menus.extensions_menu import ExtensionsMenu
 from kiauh.core.menus.install_menu import InstallMenu
 from kiauh.core.menus.remove_menu import RemoveMenu
 from kiauh.core.menus.settings_menu import SettingsMenu
@@ -43,7 +44,7 @@ class MainMenu(BaseMenu):
                 "3": RemoveMenu,
                 "4": AdvancedMenu,
                 "5": None,
-                "e": None,
+                "e": ExtensionsMenu,
                 "s": SettingsMenu,
             },
             footer_type=QUIT_FOOTER,
