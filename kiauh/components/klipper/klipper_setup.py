@@ -12,16 +12,13 @@
 from pathlib import Path
 
 from kiauh import KIAUH_CFG
-from kiauh.core.backup_manager.backup_manager import BackupManager
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.components.klipper import (
     EXIT_KLIPPER_SETUP,
     DEFAULT_KLIPPER_REPO_URL,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_REQUIREMENTS_TXT,
-)
+    )
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.klipper.klipper_dialogs import print_update_warn_dialog
 from kiauh.components.klipper.klipper_utils import (
@@ -35,9 +32,12 @@ from kiauh.components.klipper.klipper_utils import (
     check_is_single_to_multi_conversion,
     update_name_scheme,
     handle_instance_naming,
-)
-from kiauh.core.repo_manager.repo_manager import RepoManager
+    backup_klipper_dir,
+    )
 from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
@@ -46,7 +46,7 @@ from kiauh.utils.system_utils import (
     install_python_requirements,
     update_system_package_lists,
     install_system_packages,
-)
+    )
 
 
 def install_klipper() -> None:
@@ -149,9 +149,7 @@ def update_klipper() -> None:
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
     if cm.get_value("kiauh", "backup_before_update"):
-        bm = BackupManager()
-        bm.backup_directory("klipper", KLIPPER_DIR)
-        bm.backup_directory("klippy-env", KLIPPER_ENV_DIR)
+        backup_klipper_dir()
 
     instance_manager = InstanceManager(Klipper)
     instance_manager.stop_all_instance()

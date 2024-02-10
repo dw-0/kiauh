@@ -15,12 +15,8 @@ from pathlib import Path
 from typing import List
 
 from kiauh import KIAUH_CFG
-from kiauh.core.backup_manager.backup_manager import BackupManager
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.klipper.klipper_dialogs import print_instance_overview
-from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.components.mainsail import MAINSAIL_DIR
 from kiauh.components.mainsail.mainsail_utils import enable_mainsail_remotemode
 from kiauh.components.moonraker import (
@@ -33,15 +29,21 @@ from kiauh.components.moonraker import (
     POLKIT_FILE,
     POLKIT_USR_FILE,
     POLKIT_SCRIPT,
-)
+    )
 from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.components.moonraker.moonraker_dialogs import print_moonraker_overview
-from kiauh.components.moonraker.moonraker_utils import create_example_moonraker_conf
+from kiauh.components.moonraker.moonraker_utils import (
+    create_example_moonraker_conf,
+    backup_moonraker_dir,
+    )
+from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.input_utils import (
     get_confirm,
     get_selection_input,
-)
+    )
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     parse_packages_from_file,
@@ -49,7 +51,7 @@ from kiauh.utils.system_utils import (
     install_python_requirements,
     update_system_package_lists,
     install_system_packages,
-)
+    )
 
 
 def install_moonraker() -> None:
@@ -206,9 +208,7 @@ def update_moonraker() -> None:
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
     if cm.get_value("kiauh", "backup_before_update"):
-        bm = BackupManager()
-        bm.backup_directory("moonraker", MOONRAKER_DIR)
-        bm.backup_directory("moonraker-env", MOONRAKER_ENV_DIR)
+        backup_moonraker_dir()
 
     instance_manager = InstanceManager(Moonraker)
     instance_manager.stop_all_instance()

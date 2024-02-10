@@ -11,10 +11,14 @@
 
 from pathlib import Path
 
+from kiauh.core.backup_manager import BACKUP_ROOT_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 MOONRAKER_DIR = Path.home().joinpath("moonraker")
 MOONRAKER_ENV_DIR = Path.home().joinpath("moonraker-env")
+MOONRAKER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-backups")
+MOONRAKER_DB_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-db-backups")
 MOONRAKER_REQUIREMENTS_TXT = MOONRAKER_DIR.joinpath(
     "scripts/moonraker-requirements.txt"
 )

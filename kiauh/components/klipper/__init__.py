@@ -11,10 +11,13 @@
 
 from pathlib import Path
 
+from kiauh.core.backup_manager import BACKUP_ROOT_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 KLIPPER_DIR = Path.home().joinpath("klipper")
 KLIPPER_ENV_DIR = Path.home().joinpath("klippy-env")
+KLIPPER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("klipper-backups")
 KLIPPER_REQUIREMENTS_TXT = KLIPPER_DIR.joinpath("scripts/klippy-requirements.txt")
 DEFAULT_KLIPPER_REPO_URL = "https://github.com/Klipper3D/klipper"
 

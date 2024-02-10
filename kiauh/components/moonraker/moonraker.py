@@ -13,9 +13,9 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
+from kiauh.components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 
@@ -34,8 +34,12 @@ class Moonraker(BaseInstance):
         self.port = self._get_port()
         self.backup_dir = self.data_dir.joinpath("backup")
         self.certs_dir = self.data_dir.joinpath("certs")
-        self.db_dir = self.data_dir.joinpath("database")
+        self._db_dir = self.data_dir.joinpath("database")
         self.log = self.log_dir.joinpath("moonraker.log")
+
+    @property
+    def db_dir(self) -> Path:
+        return self._db_dir
 
     def create(self, create_example_cfg: bool = False) -> None:
         Logger.print_status("Creating new Moonraker Instance ...")
@@ -46,7 +50,7 @@ class Moonraker(BaseInstance):
         env_file_target = self.sysd_dir.joinpath("moonraker.env")
 
         try:
-            self.create_folders([self.backup_dir, self.certs_dir, self.db_dir])
+            self.create_folders([self.backup_dir, self.certs_dir, self._db_dir])
             self.write_service_file(
                 service_template_path, service_file_target, env_file_target
             )

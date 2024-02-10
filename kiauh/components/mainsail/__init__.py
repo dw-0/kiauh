@@ -11,10 +11,13 @@
 
 from pathlib import Path
 
+from kiauh.core.backup_manager import BACKUP_ROOT_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
-MAINSAIL_DIR = Path(Path.home(), "mainsail")
-MAINSAIL_CONFIG_DIR = Path(Path.home(), "mainsail-config")
-MAINSAIL_CONFIG_JSON = Path(MAINSAIL_DIR, "config.json")
+MAINSAIL_DIR = Path.home().joinpath("mainsail")
+MAINSAIL_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("mainsail-backups")
+MAINSAIL_CONFIG_DIR = Path.home().joinpath("mainsail-config")
+MAINSAIL_CONFIG_JSON = MAINSAIL_DIR.joinpath("config.json")
 MAINSAIL_URL = (
     "https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip"
 )

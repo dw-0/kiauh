@@ -11,13 +11,18 @@
 
 import json
 import shutil
-import requests
 from pathlib import Path
 from typing import List
 
-from kiauh.core.backup_manager.backup_manager import BackupManager
+import requests
+
 from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.mainsail import MAINSAIL_CONFIG_JSON, MAINSAIL_DIR
+from kiauh.components.mainsail import (
+    MAINSAIL_CONFIG_JSON,
+    MAINSAIL_DIR,
+    MAINSAIL_BACKUP_DIR,
+    )
+from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
 from kiauh.utils.common import get_install_status_webui
 from kiauh.utils.logger import Logger
@@ -97,3 +102,12 @@ def get_mainsail_remote_version() -> str:
     response = requests.get(url)
     data = json.loads(response.text)
     return data[0]["name"]
+
+
+def backup_mainsail_data() -> None:
+    with open(MAINSAIL_DIR.joinpath(".version"), "r") as v:
+        version = v.readlines()[0]
+    bm = BackupManager()
+    bm.backup_directory(f"mainsail-{version}", MAINSAIL_DIR, MAINSAIL_BACKUP_DIR)
+    bm.backup_file(MAINSAIL_CONFIG_JSON, MAINSAIL_BACKUP_DIR)
+    bm.backup_file(NGINX_SITES_AVAILABLE.joinpath("mainsail"), MAINSAIL_BACKUP_DIR)

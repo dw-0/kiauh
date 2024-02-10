@@ -11,18 +11,19 @@
 
 import textwrap
 
+from kiauh.components.klipper.klipper_utils import get_klipper_status
+from kiauh.components.log_uploads.menus.log_upload_menu import LogUploadMenu
+from kiauh.components.mainsail.mainsail_utils import get_mainsail_status
+from kiauh.components.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.core.menus import QUIT_FOOTER
 from kiauh.core.menus.advanced_menu import AdvancedMenu
+from kiauh.core.menus.backup_menu import BackupMenu
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.core.menus.extensions_menu import ExtensionsMenu
 from kiauh.core.menus.install_menu import InstallMenu
 from kiauh.core.menus.remove_menu import RemoveMenu
 from kiauh.core.menus.settings_menu import SettingsMenu
 from kiauh.core.menus.update_menu import UpdateMenu
-from kiauh.components.klipper.klipper_utils import get_klipper_status
-from kiauh.components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from kiauh.components.mainsail.mainsail_utils import get_mainsail_status
-from kiauh.components.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.utils.constants import (
     COLOR_MAGENTA,
     COLOR_CYAN,
@@ -30,9 +31,10 @@ from kiauh.utils.constants import (
     COLOR_RED,
     COLOR_GREEN,
     COLOR_YELLOW,
-)
+    )
 
 
+# noinspection PyMethodMayBeStatic
 class MainMenu(BaseMenu):
     def __init__(self):
         super().__init__(
@@ -43,7 +45,7 @@ class MainMenu(BaseMenu):
                 "2": UpdateMenu,
                 "3": RemoveMenu,
                 "4": AdvancedMenu,
-                "5": None,
+                "5": BackupMenu,
                 "e": ExtensionsMenu,
                 "s": SettingsMenu,
             },

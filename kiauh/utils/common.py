@@ -13,15 +13,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Literal, List, Type, Union
 
+from kiauh.components.klipper.klipper import Klipper
 from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.utils import PRINTER_CFG_BACKUP_DIR
 from kiauh.utils.constants import (
     COLOR_CYAN,
     RESET_FORMAT,
     COLOR_YELLOW,
     COLOR_GREEN,
     COLOR_RED,
-)
+    )
 from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import check_package_install, install_system_packages
@@ -116,3 +118,20 @@ def get_install_status_webui(
         return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
     else:
         return f"{COLOR_YELLOW}Incomplete!{RESET_FORMAT}"
+
+
+def backup_printer_config_dir():
+    # local import to prevent circular import
+    from kiauh.core.backup_manager.backup_manager import BackupManager
+
+    im = InstanceManager(Klipper)
+    instances: List[Klipper] = im.instances
+    bm = BackupManager()
+
+    for instance in instances:
+        name = f"config-{instance.data_dir_name}"
+        bm.backup_directory(
+            name,
+            source=instance.cfg_dir,
+            target=PRINTER_CFG_BACKUP_DIR,
+        )

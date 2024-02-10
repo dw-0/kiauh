@@ -13,4 +13,3 @@ from pathlib import Path
 
 APPLICATION_ROOT = Path(__file__).resolve().parent.parent
 KIAUH_CFG = APPLICATION_ROOT.joinpath("kiauh.cfg")
-KIAUH_BACKUP_DIR = Path.home().joinpath("kiauh-backups")

@@ -11,8 +11,11 @@
 
 from pathlib import Path
 
+from kiauh.core.backup_manager import BACKUP_ROOT_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
 INVALID_CHOICE = "Invalid choice. Please select a valid value."
+PRINTER_CFG_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("printer-cfg-backups")
 
 # ================== NGINX =====================#
 NGINX_SITES_AVAILABLE = Path("/etc/nginx/sites-available")

@@ -12,9 +12,6 @@
 import shutil
 from typing import Dict, Literal, List, Union
 
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.components.mainsail import MAINSAIL_DIR
 from kiauh.components.mainsail.mainsail_utils import enable_mainsail_remotemode
 from kiauh.components.moonraker import (
@@ -22,13 +19,19 @@ from kiauh.components.moonraker import (
     MODULE_PATH,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
-)
+    MOONRAKER_BACKUP_DIR,
+    MOONRAKER_DB_BACKUP_DIR,
+    )
 from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.core.backup_manager.backup_manager import BackupManager
+from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.utils.common import get_install_status_common
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     get_ipv4_addr,
-)
+    )
 
 
 def get_moonraker_status() -> (
@@ -132,3 +135,23 @@ def moonraker_to_multi_conversion(new_name: str) -> None:
     # if mainsail is installed, we enable mainsails remote mode
     if MAINSAIL_DIR.exists() and len(im.instances) > 1:
         enable_mainsail_remotemode()
+
+
+def backup_moonraker_dir():
+    bm = BackupManager()
+    bm.backup_directory("moonraker", source=MOONRAKER_DIR, target=MOONRAKER_BACKUP_DIR)
+    bm.backup_directory(
+        "moonraker-env", source=MOONRAKER_ENV_DIR, target=MOONRAKER_BACKUP_DIR
+    )
+
+
+def backup_moonraker_db_dir() -> None:
+    im = InstanceManager(Moonraker)
+    instances: List[Moonraker] = im.instances
+    bm = BackupManager()
+
+    for instance in instances:
+        name = f"database-{instance.data_dir_name}"
+        bm.backup_directory(
+            name, source=instance.db_dir, target=MOONRAKER_DB_BACKUP_DIR
+        )
