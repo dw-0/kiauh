@@ -37,9 +37,9 @@ def backup_config_json(is_temp=False) -> None:
     bm = BackupManager()
     if is_temp:
         fn = Path.home().joinpath("config.json.kiauh.bak")
-        bm.backup_file([MAINSAIL_CONFIG_JSON], custom_filename=fn)
+        bm.backup_file(MAINSAIL_CONFIG_JSON, custom_filename=fn)
     else:
-        bm.backup_file([MAINSAIL_CONFIG_JSON])
+        bm.backup_file(MAINSAIL_CONFIG_JSON)
 
 
 def restore_config_json() -> None:

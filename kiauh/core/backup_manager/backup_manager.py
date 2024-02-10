@@ -42,27 +42,27 @@ class BackupManager:
         self._ignore_folders = value
 
     def backup_file(
-        self, files: List[Path] = None, target: Path = None, custom_filename=None
+        self, file: Path = None, target: Path = None, custom_filename=None
     ):
-        if not files:
-            raise ValueError("Parameter 'files' cannot be None or an empty List!")
+        if not file:
+            raise ValueError("Parameter 'file' cannot be None!")
 
         target = self.backup_root_dir if target is None else target
-        for file in files:
-            Logger.print_status(f"Creating backup of {file} ...")
-            if Path(file).is_file():
-                date = get_current_date().get("date")
-                time = get_current_date().get("time")
-                filename = f"{file.stem}-{date}-{time}{file.suffix}"
-                filename = custom_filename if custom_filename is not None else filename
-                try:
-                    Path(target).mkdir(exist_ok=True)
-                    shutil.copyfile(file, target.joinpath(filename))
-                except OSError as e:
-                    Logger.print_error(f"Unable to backup '{file}':\n{e}")
-                    continue
-            else:
-                Logger.print_info(f"File '{file}' not found ...")
+
+        Logger.print_status(f"Creating backup of {file} ...")
+        if Path(file).is_file():
+            date = get_current_date().get("date")
+            time = get_current_date().get("time")
+            filename = f"{file.stem}-{date}-{time}{file.suffix}"
+            filename = custom_filename if custom_filename is not None else filename
+            try:
+                Path(target).mkdir(exist_ok=True)
+                shutil.copyfile(file, target.joinpath(filename))
+                Logger.print_ok("Backup successfull!")
+            except OSError as e:
+                Logger.print_error(f"Unable to backup '{file}':\n{e}")
+        else:
+            Logger.print_info(f"File '{file}' not found ...")
 
     def backup_directory(self, name: str, source: Path, target: Path = None) -> None:
         if source is None or not Path(source).exists():
@@ -79,11 +79,11 @@ class BackupManager:
                 target.joinpath(f"{name.lower()}-{date}-{time}"),
                 ignore=self.ignore_folders_func,
             )
+            Logger.print_ok("Backup successfull!")
         except OSError as e:
             Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
             return
 
-        Logger.print_ok("Backup successfull!")
 
     def ignore_folders_func(self, dirpath, filenames):
         return (

@@ -24,7 +24,7 @@ from kiauh.extensions.gcode_shell_cmd import (
     KLIPPER_DIR,
     EXAMPLE_CFG_SRC,
     KLIPPER_EXTRAS,
-)
+    )
 from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
@@ -109,7 +109,7 @@ class GcodeShellCmdExtension(BaseExtension):
         bm = BackupManager()
         for instance in instances:
             bm.backup_file(
-                [instance.cfg_file],
+                instance.cfg_file,
                 custom_filename=f"{instance.suffix}.printer.cfg",
             )
 
