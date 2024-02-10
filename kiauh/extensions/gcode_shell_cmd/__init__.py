@@ -11,7 +11,6 @@
 
 from pathlib import Path
 
-
 EXT_MODULE_NAME = "gcode_shell_command.py"
 MODULE_PATH = Path(__file__).resolve().parent
 MODULE_ASSETS = MODULE_PATH.joinpath("assets")

@@ -21,7 +21,7 @@ from kiauh.components.mainsail import (
     MAINSAIL_CONFIG_JSON,
     MAINSAIL_DIR,
     MAINSAIL_BACKUP_DIR,
-    )
+)
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
 from kiauh.utils.common import get_install_status_webui

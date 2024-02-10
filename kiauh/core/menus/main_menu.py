@@ -31,7 +31,7 @@ from kiauh.utils.constants import (
     COLOR_RED,
     COLOR_GREEN,
     COLOR_YELLOW,
-    )
+)
 
 
 # noinspection PyMethodMayBeStatic

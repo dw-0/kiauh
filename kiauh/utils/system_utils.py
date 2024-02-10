@@ -285,7 +285,7 @@ def download_progress(block_num, block_size, total_size) -> None:
     mb = 1024 * 1024
     progress = int(percent / 5)
     remaining = "-" * (20 - progress)
-    dl = f"\rDownloading: [{'#' * progress}{remaining}]{percent:.2f}% ({downloaded/mb:.2f}/{total_size/mb:.2f}MB)"
+    dl = f"\rDownloading: [{'#' * progress}{remaining}]{percent:.2f}% ({downloaded / mb:.2f}/{total_size / mb:.2f}MB)"
     sys.stdout.write(dl)
     sys.stdout.flush()
 

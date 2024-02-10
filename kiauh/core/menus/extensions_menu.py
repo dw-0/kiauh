@@ -9,10 +9,10 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import json
-import textwrap
 import importlib
 import inspect
+import json
+import textwrap
 from pathlib import Path
 from typing import List, Dict
 

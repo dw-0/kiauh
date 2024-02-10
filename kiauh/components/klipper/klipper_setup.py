@@ -18,7 +18,7 @@ from kiauh.components.klipper import (
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_REQUIREMENTS_TXT,
-    )
+)
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.klipper.klipper_dialogs import print_update_warn_dialog
 from kiauh.components.klipper.klipper_utils import (
@@ -33,7 +33,7 @@ from kiauh.components.klipper.klipper_utils import (
     update_name_scheme,
     handle_instance_naming,
     backup_klipper_dir,
-    )
+)
 from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
@@ -46,7 +46,7 @@ from kiauh.utils.system_utils import (
     install_python_requirements,
     update_system_package_lists,
     install_system_packages,
-    )
+)
 
 
 def install_klipper() -> None:

@@ -11,9 +11,9 @@
 
 import textwrap
 
+from kiauh.components.mainsail import mainsail_remove
 from kiauh.core.menus import BACK_HELP_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.components.mainsail import mainsail_remove
 from kiauh.utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 

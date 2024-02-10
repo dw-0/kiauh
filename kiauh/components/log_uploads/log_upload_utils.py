@@ -9,14 +9,13 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from typing import List
-from pathlib import Path
-
 import urllib.request
+from pathlib import Path
+from typing import List
 
-from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.log_uploads import LogFile
+from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.utils.logger import Logger
 
 

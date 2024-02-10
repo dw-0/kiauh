@@ -23,14 +23,14 @@ from kiauh.components.klipper import (
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_BACKUP_DIR,
-    )
+)
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.klipper.klipper_dialogs import (
     print_missing_usergroup_dialog,
     print_instance_overview,
     print_select_instance_count_dialog,
     print_select_custom_name_dialog,
-    )
+)
 from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.components.moonraker.moonraker_utils import moonraker_to_multi_conversion
 from kiauh.core.backup_manager.backup_manager import BackupManager
@@ -46,12 +46,10 @@ from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import mask_system_service
 
 
-def get_klipper_status() -> (
-    Dict[
-        Literal["status", "status_code", "instances", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
+def get_klipper_status() -> Dict[
+    Literal["status", "status_code", "instances", "repo", "local", "remote"],
+    Union[str, int],
+]:
     status = get_install_status_common(Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR)
     return {
         "status": status.get("status"),

@@ -13,7 +13,7 @@ import subprocess
 import sys
 import textwrap
 from abc import abstractmethod, ABC
-from typing import Dict, Any, Literal, Union, Callable, Type
+from typing import Dict, Any, Literal, Union, Callable
 
 from kiauh.core.menus import QUIT_FOOTER, BACK_FOOTER, BACK_HELP_FOOTER
 from kiauh.utils.constants import (

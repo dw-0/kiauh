@@ -11,11 +11,11 @@
 
 import textwrap
 
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from kiauh.components.mainsail.menus.mainsail_remove_menu import MainsailRemoveMenu
 from kiauh.components.moonraker.menus.moonraker_remove_menu import MoonrakerRemoveMenu
+from kiauh.core.menus import BACK_FOOTER
+from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.utils.constants import COLOR_RED, RESET_FORMAT
 
 

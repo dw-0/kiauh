@@ -16,7 +16,7 @@ from kiauh.components.mainsail.mainsail_utils import backup_mainsail_data
 from kiauh.components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
     backup_moonraker_db_dir,
-    )
+)
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.utils.common import backup_printer_config_dir
@@ -34,7 +34,7 @@ class BackupMenu(BaseMenu):
                 "2": self.backup_moonraker,
                 "3": self.backup_printer_config,
                 "4": self.backup_moonraker_db,
-                "5": self.backup_mainsail
+                "5": self.backup_mainsail,
             },
             footer_type=BACK_FOOTER,
         )

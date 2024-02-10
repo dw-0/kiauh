@@ -41,9 +41,7 @@ class BackupManager:
     def ignore_folders(self, value: List[str]):
         self._ignore_folders = value
 
-    def backup_file(
-        self, file: Path = None, target: Path = None, custom_filename=None
-    ):
+    def backup_file(self, file: Path = None, target: Path = None, custom_filename=None):
         if not file:
             raise ValueError("Parameter 'file' cannot be None!")
 
@@ -83,7 +81,6 @@ class BackupManager:
         except OSError as e:
             Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
             return
-
 
     def ignore_folders_func(self, dirpath, filenames):
         return (

@@ -11,8 +11,6 @@
 
 import textwrap
 
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.components.klipper.klipper_setup import update_klipper
 from kiauh.components.klipper.klipper_utils import (
     get_klipper_status,
@@ -24,6 +22,8 @@ from kiauh.components.mainsail.mainsail_utils import (
 )
 from kiauh.components.moonraker.moonraker_setup import update_moonraker
 from kiauh.components.moonraker.moonraker_utils import get_moonraker_status
+from kiauh.core.menus import BACK_FOOTER
+from kiauh.core.menus.base_menu import BaseMenu
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_WHITE
 
 

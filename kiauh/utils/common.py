@@ -23,7 +23,7 @@ from kiauh.utils.constants import (
     COLOR_YELLOW,
     COLOR_GREEN,
     COLOR_RED,
-    )
+)
 from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import check_package_install, install_system_packages

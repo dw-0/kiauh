@@ -12,9 +12,9 @@
 import textwrap
 from typing import List
 
-from kiauh.core.menus.base_menu import print_back_footer
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.core.menus.base_menu import print_back_footer
 from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
 
@@ -39,11 +39,11 @@ def print_moonraker_overview(
         dialog += "|                                                       |\n"
 
     instance_map = {
-        k.get_service_file_name(): k.get_service_file_name().replace(
-            "klipper", "moonraker"
+        k.get_service_file_name(): (
+            k.get_service_file_name().replace("klipper", "moonraker")
+            if k.suffix in [m.suffix for m in moonraker_instances]
+            else ""
         )
-        if k.suffix in [m.suffix for m in moonraker_instances]
-        else ""
         for k in klipper_instances
     }
 

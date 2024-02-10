@@ -29,13 +29,13 @@ from kiauh.components.moonraker import (
     POLKIT_FILE,
     POLKIT_USR_FILE,
     POLKIT_SCRIPT,
-    )
+)
 from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.components.moonraker.moonraker_dialogs import print_moonraker_overview
 from kiauh.components.moonraker.moonraker_utils import (
     create_example_moonraker_conf,
     backup_moonraker_dir,
-    )
+)
 from kiauh.core.config_manager.config_manager import ConfigManager
 from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.core.repo_manager.repo_manager import RepoManager
@@ -43,7 +43,7 @@ from kiauh.utils.filesystem_utils import check_file_exist
 from kiauh.utils.input_utils import (
     get_confirm,
     get_selection_input,
-    )
+)
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     parse_packages_from_file,
@@ -51,7 +51,7 @@ from kiauh.utils.system_utils import (
     install_python_requirements,
     update_system_package_lists,
     install_system_packages,
-    )
+)
 
 
 def install_moonraker() -> None:

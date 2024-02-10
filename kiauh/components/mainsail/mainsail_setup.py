@@ -14,9 +14,6 @@ from pathlib import Path
 from typing import List
 
 from kiauh import KIAUH_CFG
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.mainsail import (
     MAINSAIL_URL,
@@ -38,6 +35,9 @@ from kiauh.components.mainsail.mainsail_utils import (
     symlink_webui_nginx_log,
 )
 from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
+from kiauh.core.repo_manager.repo_manager import RepoManager
 from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from kiauh.utils.common import check_install_dependencies
 from kiauh.utils.filesystem_utils import (

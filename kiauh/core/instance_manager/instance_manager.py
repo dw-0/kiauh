@@ -18,7 +18,6 @@ from kiauh.core.instance_manager.base_instance import BaseInstance
 from kiauh.utils.constants import SYSTEMD
 from kiauh.utils.logger import Logger
 
-
 I = TypeVar(name="I", bound=BaseInstance, covariant=True)
 
 

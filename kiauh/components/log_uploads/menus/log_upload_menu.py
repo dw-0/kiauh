@@ -11,10 +11,10 @@
 
 import textwrap
 
+from kiauh.components.log_uploads.log_upload_utils import get_logfile_list
+from kiauh.components.log_uploads.log_upload_utils import upload_logfile
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.components.log_uploads.log_upload_utils import upload_logfile
-from kiauh.components.log_uploads.log_upload_utils import get_logfile_list
 from kiauh.utils.constants import RESET_FORMAT, COLOR_YELLOW
 
 

@@ -21,7 +21,7 @@ from kiauh.components.moonraker import (
     MOONRAKER_ENV_DIR,
     MOONRAKER_BACKUP_DIR,
     MOONRAKER_DB_BACKUP_DIR,
-    )
+)
 from kiauh.components.moonraker.moonraker import Moonraker
 from kiauh.core.backup_manager.backup_manager import BackupManager
 from kiauh.core.config_manager.config_manager import ConfigManager
@@ -31,15 +31,13 @@ from kiauh.utils.common import get_install_status_common
 from kiauh.utils.logger import Logger
 from kiauh.utils.system_utils import (
     get_ipv4_addr,
-    )
+)
 
 
-def get_moonraker_status() -> (
-    Dict[
-        Literal["status", "status_code", "instances", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
+def get_moonraker_status() -> Dict[
+    Literal["status", "status_code", "instances", "repo", "local", "remote"],
+    Union[str, int],
+]:
     status = get_install_status_common(Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR)
     return {
         "status": status.get("status"),

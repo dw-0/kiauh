@@ -15,12 +15,12 @@ import subprocess
 from pathlib import Path
 from typing import List
 
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.mainsail import MAINSAIL_DIR, MAINSAIL_CONFIG_DIR
 from kiauh.components.mainsail.mainsail_utils import backup_config_json
 from kiauh.components.moonraker.moonraker import Moonraker
+from kiauh.core.config_manager.config_manager import ConfigManager
+from kiauh.core.instance_manager.instance_manager import InstanceManager
 from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from kiauh.utils.filesystem_utils import remove_file
 from kiauh.utils.logger import Logger
