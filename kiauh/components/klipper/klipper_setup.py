@@ -132,6 +132,7 @@ def install_klipper_packages(klipper_dir: Path) -> None:
     script = klipper_dir.joinpath("scripts/install-debian.sh")
     packages = parse_packages_from_file(script)
     packages = [pkg.replace("python-dev", "python3-dev") for pkg in packages]
+    packages.append("python3-venv")
     # Add dfu-util for octopi-images
     packages.append("dfu-util")
     # Add dbus requirement for DietPi distro
