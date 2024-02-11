@@ -23,6 +23,7 @@ from typing import List, Literal
 
 from kiauh.utils.input_utils import get_confirm
 from kiauh.utils.logger import Logger
+from kiauh.utils.filesystem_utils import check_file_exist
 
 
 def kill(opt_err_msg: str = "") -> None:
@@ -98,7 +99,12 @@ def update_python_pip(target: Path) -> None:
     """
     Logger.print_status("Updating pip ...")
     try:
-        command = [target.joinpath("bin/pip"), "install", "-U", "pip"]
+        pip_location = target.joinpath("bin/pip")
+        pip_exists = check_file_exist(pip_location)
+        if not pip_exists:
+            raise FileNotFoundError("Error updating pip! Not found.")
+
+        command = [pip_location, "install", "-U", "pip"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
@@ -106,8 +112,12 @@ def update_python_pip(target: Path) -> None:
             return
 
         Logger.print_ok("Updating pip successfull!")
+    except FileNotFoundError as e:
+        Logger.print_error(e)
+        raise
     except subprocess.CalledProcessError as e:
         Logger.print_error(f"Error updating pip:\n{e.output.decode()}")
+        raise
 
 
 def install_python_requirements(target: Path, requirements: Path) -> None:
@@ -117,9 +127,9 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
     :param requirements: Path to the requirements.txt file
     :return: None
     """
-    update_python_pip(target)
     Logger.print_status("Installing Python requirements ...")
     try:
+        update_python_pip(target)
         command = [target.joinpath("bin/pip"), "install", "-r", f"{requirements}"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
         if result.returncode != 0 or result.stderr:
