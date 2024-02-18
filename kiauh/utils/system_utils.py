@@ -21,9 +21,9 @@ import venv
 from pathlib import Path
 from typing import List, Literal
 
-from kiauh.utils.input_utils import get_confirm
-from kiauh.utils.logger import Logger
-from kiauh.utils.filesystem_utils import check_file_exist
+from utils.input_utils import get_confirm
+from utils.logger import Logger
+from utils.filesystem_utils import check_file_exist
 
 
 def kill(opt_err_msg: str = "") -> None:

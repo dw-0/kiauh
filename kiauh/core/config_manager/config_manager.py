@@ -13,7 +13,7 @@ import configparser
 from pathlib import Path
 from typing import Union
 
-from kiauh.utils.logger import Logger
+from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

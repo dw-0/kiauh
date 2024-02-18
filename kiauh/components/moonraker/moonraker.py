@@ -13,11 +13,11 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
-from kiauh.components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.utils.constants import SYSTEMD
-from kiauh.utils.logger import Logger
+from components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
+from core.config_manager.config_manager import ConfigManager
+from core.instance_manager.base_instance import BaseInstance
+from utils.constants import SYSTEMD
+from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

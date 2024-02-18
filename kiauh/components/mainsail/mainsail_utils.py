@@ -17,16 +17,16 @@ from typing import List
 
 import urllib.request
 
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.mainsail import (
+from components.klipper.klipper import Klipper
+from components.mainsail import (
     MAINSAIL_CONFIG_JSON,
     MAINSAIL_DIR,
     MAINSAIL_BACKUP_DIR,
 )
-from kiauh.core.backup_manager.backup_manager import BackupManager
-from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
-from kiauh.utils.common import get_install_status_webui
-from kiauh.utils.logger import Logger
+from core.backup_manager.backup_manager import BackupManager
+from utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
+from utils.common import get_install_status_webui
+from utils.logger import Logger
 
 
 def get_mainsail_status() -> str:

@@ -11,12 +11,13 @@
 
 import textwrap
 
-from kiauh.components.klipper import klipper_setup
-from kiauh.components.mainsail import mainsail_setup
-from kiauh.components.moonraker import moonraker_setup
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT
+from components.fluidd import fluidd_setup
+from components.klipper import klipper_setup
+from components.mainsail import mainsail_setup
+from components.moonraker import moonraker_setup
+from core.menus import BACK_FOOTER
+from core.menus.base_menu import BaseMenu
+from utils.constants import COLOR_GREEN, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

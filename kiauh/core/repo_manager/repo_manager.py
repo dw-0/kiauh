@@ -13,8 +13,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from kiauh.utils.input_utils import get_confirm
-from kiauh.utils.logger import Logger
+from utils.input_utils import get_confirm
+from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

@@ -13,20 +13,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Literal, List, Type, Union
 
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.utils import PRINTER_CFG_BACKUP_DIR
-from kiauh.utils.constants import (
+from components.klipper.klipper import Klipper
+from core.instance_manager.base_instance import BaseInstance
+from core.instance_manager.instance_manager import InstanceManager
+from utils import PRINTER_CFG_BACKUP_DIR
+from utils.constants import (
     COLOR_CYAN,
     RESET_FORMAT,
     COLOR_YELLOW,
     COLOR_GREEN,
     COLOR_RED,
 )
-from kiauh.utils.filesystem_utils import check_file_exist
-from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import check_package_install, install_system_packages
+from utils.filesystem_utils import check_file_exist
+from utils.logger import Logger
+from utils.system_utils import check_package_install, install_system_packages
 
 
 def get_current_date() -> Dict[Literal["date", "time"], str]:
@@ -122,7 +122,7 @@ def get_install_status_webui(
 
 def backup_printer_config_dir():
     # local import to prevent circular import
-    from kiauh.core.backup_manager.backup_manager import BackupManager
+    from core.backup_manager.backup_manager import BackupManager
 
     im = InstanceManager(Klipper)
     instances: List[Klipper] = im.instances

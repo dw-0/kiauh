@@ -9,7 +9,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from kiauh.core.menus.base_menu import BaseMenu
+from core.menus.base_menu import BaseMenu
 
 
 # noinspection PyMethodMayBeStatic

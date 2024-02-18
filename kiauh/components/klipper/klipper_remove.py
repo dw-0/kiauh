@@ -12,13 +12,13 @@
 import shutil
 from typing import List, Union
 
-from kiauh.components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.klipper.klipper_dialogs import print_instance_overview
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.utils.filesystem_utils import remove_file
-from kiauh.utils.input_utils import get_selection_input
-from kiauh.utils.logger import Logger
+from components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
+from components.klipper.klipper import Klipper
+from components.klipper.klipper_dialogs import print_instance_overview
+from core.instance_manager.instance_manager import InstanceManager
+from utils.filesystem_utils import remove_file
+from utils.input_utils import get_selection_input
+from utils.logger import Logger
 
 
 def run_klipper_removal(

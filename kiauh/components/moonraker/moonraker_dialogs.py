@@ -12,10 +12,10 @@
 import textwrap
 from typing import List
 
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.moonraker.moonraker import Moonraker
-from kiauh.core.menus.base_menu import print_back_footer
-from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
+from components.klipper.klipper import Klipper
+from components.moonraker.moonraker import Moonraker
+from core.menus.base_menu import print_back_footer
+from utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
 
 def print_moonraker_overview(

@@ -16,10 +16,10 @@ import textwrap
 from pathlib import Path
 from typing import List, Dict
 
-from kiauh.core.base_extension import BaseExtension
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
+from core.base_extension import BaseExtension
+from core.menus import BACK_FOOTER
+from core.menus.base_menu import BaseMenu
+from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 
 
 # noinspection PyUnusedLocal

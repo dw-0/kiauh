@@ -11,16 +11,16 @@
 
 import textwrap
 
-from kiauh.components.klipper.klipper_utils import backup_klipper_dir
-from kiauh.components.mainsail.mainsail_utils import backup_mainsail_data
-from kiauh.components.moonraker.moonraker_utils import (
+from components.klipper.klipper_utils import backup_klipper_dir
+from components.mainsail.mainsail_utils import backup_mainsail_data
+from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
     backup_moonraker_db_dir,
 )
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.utils.common import backup_printer_config_dir
-from kiauh.utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
+from core.menus import BACK_FOOTER
+from core.menus.base_menu import BaseMenu
+from utils.common import backup_printer_config_dir
+from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 
 
 # noinspection PyUnusedLocal

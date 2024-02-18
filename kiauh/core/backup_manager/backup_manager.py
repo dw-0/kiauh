@@ -13,9 +13,9 @@ import shutil
 from pathlib import Path
 from typing import List
 
-from kiauh.core.backup_manager import BACKUP_ROOT_DIR
-from kiauh.utils.common import get_current_date
-from kiauh.utils.logger import Logger
+from core.backup_manager import BACKUP_ROOT_DIR
+from utils.common import get_current_date
+from utils.logger import Logger
 
 
 # noinspection PyUnusedLocal

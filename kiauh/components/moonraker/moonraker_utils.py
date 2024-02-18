@@ -12,9 +12,9 @@
 import shutil
 from typing import Dict, Literal, List, Union
 
-from kiauh.components.mainsail import MAINSAIL_DIR
-from kiauh.components.mainsail.mainsail_utils import enable_mainsail_remotemode
-from kiauh.components.moonraker import (
+from components.mainsail import MAINSAIL_DIR
+from components.mainsail.mainsail_utils import enable_mainsail_remotemode
+from components.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
     MOONRAKER_DIR,
@@ -22,14 +22,14 @@ from kiauh.components.moonraker import (
     MOONRAKER_BACKUP_DIR,
     MOONRAKER_DB_BACKUP_DIR,
 )
-from kiauh.components.moonraker.moonraker import Moonraker
-from kiauh.core.backup_manager.backup_manager import BackupManager
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.utils.common import get_install_status_common
-from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import (
+from components.moonraker.moonraker import Moonraker
+from core.backup_manager.backup_manager import BackupManager
+from core.config_manager.config_manager import ConfigManager
+from core.instance_manager.instance_manager import InstanceManager
+from core.repo_manager.repo_manager import RepoManager
+from utils.common import get_install_status_common
+from utils.logger import Logger
+from utils.system_utils import (
     get_ipv4_addr,
 )
 

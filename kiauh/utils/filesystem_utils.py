@@ -13,12 +13,12 @@ import subprocess
 from pathlib import Path
 from zipfile import ZipFile
 
-from kiauh.utils import (
+from utils import (
     NGINX_SITES_AVAILABLE,
     MODULE_PATH,
     NGINX_CONFD,
 )
-from kiauh.utils.logger import Logger
+from utils.logger import Logger
 
 
 def check_file_exist(file_path: Path, sudo=False) -> bool:

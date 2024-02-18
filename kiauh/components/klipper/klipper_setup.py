@@ -12,16 +12,16 @@
 from pathlib import Path
 
 from kiauh import KIAUH_CFG
-from kiauh.components.klipper import (
+from components.klipper import (
     EXIT_KLIPPER_SETUP,
     DEFAULT_KLIPPER_REPO_URL,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_REQUIREMENTS_TXT,
 )
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.klipper.klipper_dialogs import print_update_warn_dialog
-from kiauh.components.klipper.klipper_utils import (
+from components.klipper.klipper import Klipper
+from components.klipper.klipper_dialogs import print_update_warn_dialog
+from components.klipper.klipper_utils import (
     handle_disruptive_system_packages,
     check_user_groups,
     handle_to_multi_instance_conversion,
@@ -34,13 +34,13 @@ from kiauh.components.klipper.klipper_utils import (
     handle_instance_naming,
     backup_klipper_dir,
 )
-from kiauh.components.moonraker.moonraker import Moonraker
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.utils.input_utils import get_confirm
-from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import (
+from components.moonraker.moonraker import Moonraker
+from core.config_manager.config_manager import ConfigManager
+from core.instance_manager.instance_manager import InstanceManager
+from core.repo_manager.repo_manager import RepoManager
+from utils.input_utils import get_confirm
+from utils.logger import Logger
+from utils.system_utils import (
     parse_packages_from_file,
     create_python_venv,
     install_python_requirements,

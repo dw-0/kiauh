@@ -14,33 +14,33 @@ from pathlib import Path
 from typing import List
 
 from kiauh import KIAUH_CFG
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.mainsail import (
+from components.klipper.klipper import Klipper
+from components.mainsail import (
     MAINSAIL_URL,
     MAINSAIL_DIR,
     MAINSAIL_CONFIG_DIR,
     MAINSAIL_CONFIG_REPO_URL,
     MODULE_PATH,
 )
-from kiauh.components.mainsail.mainsail_dialogs import (
+from components.mainsail.mainsail_dialogs import (
     print_moonraker_not_found_dialog,
     print_mainsail_already_installed_dialog,
     print_install_mainsail_config_dialog,
     print_mainsail_port_select_dialog,
 )
-from kiauh.components.mainsail.mainsail_utils import (
+from components.mainsail.mainsail_utils import (
     restore_config_json,
     enable_mainsail_remotemode,
     backup_config_json,
     symlink_webui_nginx_log,
 )
-from kiauh.components.moonraker.moonraker import Moonraker
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
-from kiauh.utils.common import check_install_dependencies
-from kiauh.utils.filesystem_utils import (
+from components.moonraker.moonraker import Moonraker
+from core.config_manager.config_manager import ConfigManager
+from core.instance_manager.instance_manager import InstanceManager
+from core.repo_manager.repo_manager import RepoManager
+from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
+from utils.common import check_install_dependencies
+from utils.filesystem_utils import (
     unzip,
     copy_upstream_nginx_cfg,
     copy_common_vars_nginx_cfg,
@@ -48,9 +48,9 @@ from kiauh.utils.filesystem_utils import (
     create_symlink,
     remove_file,
 )
-from kiauh.utils.input_utils import get_confirm, get_number_input
-from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import (
+from utils.input_utils import get_confirm, get_number_input
+from utils.logger import Logger
+from utils.system_utils import (
     download_file,
     set_nginx_permissions,
     get_ipv4_addr,

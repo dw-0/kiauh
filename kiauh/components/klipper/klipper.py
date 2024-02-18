@@ -13,10 +13,10 @@ import subprocess
 from pathlib import Path
 from typing import List
 
-from kiauh.components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR, MODULE_PATH
-from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.utils.constants import SYSTEMD
-from kiauh.utils.logger import Logger
+from components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR, MODULE_PATH
+from core.instance_manager.base_instance import BaseInstance
+from utils.constants import SYSTEMD
+from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

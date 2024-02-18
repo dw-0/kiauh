@@ -14,9 +14,9 @@ import subprocess
 from pathlib import Path
 from typing import List, Optional, Union, TypeVar
 
-from kiauh.core.instance_manager.base_instance import BaseInstance
-from kiauh.utils.constants import SYSTEMD
-from kiauh.utils.logger import Logger
+from core.instance_manager.base_instance import BaseInstance
+from utils.constants import SYSTEMD
+from utils.logger import Logger
 
 I = TypeVar(name="I", bound=BaseInstance, covariant=True)
 

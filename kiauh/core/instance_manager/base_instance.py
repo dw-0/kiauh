@@ -13,7 +13,7 @@ from abc import abstractmethod, ABC
 from pathlib import Path
 from typing import List, Type, TypeVar
 
-from kiauh.utils.constants import SYSTEMD, CURRENT_USER
+from utils.constants import SYSTEMD, CURRENT_USER
 
 B = TypeVar(name="B", bound="BaseInstance", covariant=True)
 

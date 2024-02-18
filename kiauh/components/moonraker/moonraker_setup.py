@@ -15,11 +15,11 @@ from pathlib import Path
 from typing import List
 
 from kiauh import KIAUH_CFG
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.klipper.klipper_dialogs import print_instance_overview
-from kiauh.components.mainsail import MAINSAIL_DIR
-from kiauh.components.mainsail.mainsail_utils import enable_mainsail_remotemode
-from kiauh.components.moonraker import (
+from components.klipper.klipper import Klipper
+from components.klipper.klipper_dialogs import print_instance_overview
+from components.mainsail import MAINSAIL_DIR
+from components.mainsail.mainsail_utils import enable_mainsail_remotemode
+from components.moonraker import (
     EXIT_MOONRAKER_SETUP,
     DEFAULT_MOONRAKER_REPO_URL,
     MOONRAKER_DIR,
@@ -30,22 +30,22 @@ from kiauh.components.moonraker import (
     POLKIT_USR_FILE,
     POLKIT_SCRIPT,
 )
-from kiauh.components.moonraker.moonraker import Moonraker
-from kiauh.components.moonraker.moonraker_dialogs import print_moonraker_overview
-from kiauh.components.moonraker.moonraker_utils import (
+from components.moonraker.moonraker import Moonraker
+from components.moonraker.moonraker_dialogs import print_moonraker_overview
+from components.moonraker.moonraker_utils import (
     create_example_moonraker_conf,
     backup_moonraker_dir,
 )
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.core.repo_manager.repo_manager import RepoManager
-from kiauh.utils.filesystem_utils import check_file_exist
-from kiauh.utils.input_utils import (
+from core.config_manager.config_manager import ConfigManager
+from core.instance_manager.instance_manager import InstanceManager
+from core.repo_manager.repo_manager import RepoManager
+from utils.filesystem_utils import check_file_exist
+from utils.input_utils import (
     get_confirm,
     get_selection_input,
 )
-from kiauh.utils.logger import Logger
-from kiauh.utils.system_utils import (
+from utils.logger import Logger
+from utils.system_utils import (
     parse_packages_from_file,
     create_python_venv,
     install_python_requirements,

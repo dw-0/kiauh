@@ -13,21 +13,21 @@ import os
 import shutil
 from typing import List
 
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.core.backup_manager.backup_manager import BackupManager
-from kiauh.core.base_extension import BaseExtension
-from kiauh.core.config_manager.config_manager import ConfigManager
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.extensions.gcode_shell_cmd import (
+from components.klipper.klipper import Klipper
+from core.backup_manager.backup_manager import BackupManager
+from core.base_extension import BaseExtension
+from core.config_manager.config_manager import ConfigManager
+from core.instance_manager.instance_manager import InstanceManager
+from extensions.gcode_shell_cmd import (
     EXTENSION_TARGET_PATH,
     EXTENSION_SRC,
     KLIPPER_DIR,
     EXAMPLE_CFG_SRC,
     KLIPPER_EXTRAS,
 )
-from kiauh.utils.filesystem_utils import check_file_exist
-from kiauh.utils.input_utils import get_confirm
-from kiauh.utils.logger import Logger
+from utils.filesystem_utils import check_file_exist
+from utils.input_utils import get_confirm
+from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

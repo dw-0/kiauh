@@ -15,15 +15,15 @@ import textwrap
 from abc import abstractmethod, ABC
 from typing import Dict, Any, Literal, Union, Callable
 
-from kiauh.core.menus import QUIT_FOOTER, BACK_FOOTER, BACK_HELP_FOOTER
-from kiauh.utils.constants import (
+from core.menus import QUIT_FOOTER, BACK_FOOTER, BACK_HELP_FOOTER
+from utils.constants import (
     COLOR_GREEN,
     COLOR_YELLOW,
     COLOR_RED,
     COLOR_CYAN,
     RESET_FORMAT,
 )
-from kiauh.utils.logger import Logger
+from utils.logger import Logger
 
 
 def clear():

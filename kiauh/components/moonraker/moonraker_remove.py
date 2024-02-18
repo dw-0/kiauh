@@ -13,13 +13,13 @@ import shutil
 import subprocess
 from typing import List, Union
 
-from kiauh.components.klipper.klipper_dialogs import print_instance_overview
-from kiauh.components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
-from kiauh.components.moonraker.moonraker import Moonraker
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.utils.filesystem_utils import remove_file
-from kiauh.utils.input_utils import get_selection_input
-from kiauh.utils.logger import Logger
+from components.klipper.klipper_dialogs import print_instance_overview
+from components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
+from components.moonraker.moonraker import Moonraker
+from core.instance_manager.instance_manager import InstanceManager
+from utils.filesystem_utils import remove_file
+from utils.input_utils import get_selection_input
+from utils.logger import Logger
 
 
 def run_moonraker_removal(

@@ -13,10 +13,10 @@ import urllib.request
 from pathlib import Path
 from typing import List
 
-from kiauh.components.klipper.klipper import Klipper
-from kiauh.components.log_uploads import LogFile
-from kiauh.core.instance_manager.instance_manager import InstanceManager
-from kiauh.utils.logger import Logger
+from components.klipper.klipper import Klipper
+from components.log_uploads import LogFile
+from core.instance_manager.instance_manager import InstanceManager
+from utils.logger import Logger
 
 
 def get_logfile_list() -> List[LogFile]:

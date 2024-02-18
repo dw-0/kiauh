@@ -9,7 +9,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from kiauh.utils.constants import (
+from utils.constants import (
     COLOR_WHITE,
     COLOR_GREEN,
     COLOR_YELLOW,

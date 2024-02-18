@@ -11,9 +11,9 @@
 
 import textwrap
 
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.utils.constants import COLOR_YELLOW, RESET_FORMAT
+from core.menus import BACK_FOOTER
+from core.menus.base_menu import BaseMenu
+from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 
 class AdvancedMenu(BaseMenu):

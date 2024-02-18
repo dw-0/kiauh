@@ -9,8 +9,8 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from kiauh.core.menus.main_menu import MainMenu
-from kiauh.utils.logger import Logger
+from core.menus.main_menu import MainMenu
+from utils.logger import Logger
 
 
 def main():

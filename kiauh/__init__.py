@@ -9,7 +9,11 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+import sys
 from pathlib import Path
 
-APPLICATION_ROOT = Path(__file__).resolve().parent.parent
-KIAUH_CFG = APPLICATION_ROOT.joinpath("kiauh.cfg")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+KIAUH_CFG = PROJECT_ROOT.joinpath("kiauh.cfg")
+
+APPLICATION_ROOT = Path(__file__).resolve().parent
+sys.path.append(str(APPLICATION_ROOT))
