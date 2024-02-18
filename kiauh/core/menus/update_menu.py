@@ -24,7 +24,13 @@ from kiauh.components.moonraker.moonraker_setup import update_moonraker
 from kiauh.components.moonraker.moonraker_utils import get_moonraker_status
 from kiauh.core.menus import BACK_FOOTER
 from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_WHITE
+from kiauh.utils.constants import (
+    COLOR_GREEN,
+    RESET_FORMAT,
+    COLOR_YELLOW,
+    COLOR_WHITE,
+    COLOR_RED,
+)
 
 
 # noinspection PyUnusedLocal
@@ -159,4 +165,4 @@ class UpdateMenu(BaseMenu):
             self.ms_local = f"{COLOR_GREEN}{self.ms_local}{RESET_FORMAT}"
         else:
             self.ms_local = f"{COLOR_YELLOW}{self.ms_local}{RESET_FORMAT}"
-        self.ms_remote = f"{COLOR_GREEN}{self.ms_remote}{RESET_FORMAT}"
+        self.ms_remote = f"{COLOR_GREEN if self.ms_remote != 'ERROR' else COLOR_RED}{self.ms_remote}{RESET_FORMAT}"

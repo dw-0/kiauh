@@ -11,10 +11,11 @@
 
 import json
 import shutil
+from json import JSONDecodeError
 from pathlib import Path
 from typing import List
 
-import requests
+import urllib.request
 
 from kiauh.components.klipper.klipper import Klipper
 from kiauh.components.mainsail import (
@@ -99,9 +100,12 @@ def get_mainsail_local_version() -> str:
 
 def get_mainsail_remote_version() -> str:
     url = "https://api.github.com/repos/mainsail-crew/mainsail/tags"
-    response = requests.get(url)
-    data = json.loads(response.text)
-    return data[0]["name"]
+    try:
+        with urllib.request.urlopen(url) as response:
+            data = json.loads(response.read())
+        return data[0]["name"]
+    except (JSONDecodeError, TypeError):
+        return "ERROR"
 
 
 def backup_mainsail_data() -> None:
