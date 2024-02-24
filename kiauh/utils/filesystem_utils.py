@@ -7,7 +7,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -152,8 +152,9 @@ def read_ports_from_nginx_configs() -> List[str]:
             lines = cfg.readlines()
 
         for line in lines:
-            line = line.strip().replace(";", "")
-            if line.startswith("listen"):
+            line = line.replace("default_server", "")
+            line = re.sub(r"[;:\[\]]", "", line.strip())
+            if line.startswith("listen") and line.split()[-1] not in port_list:
                 port_list.append(line.split()[-1])
 
     return sorted(port_list, key=lambda x: int(x))
