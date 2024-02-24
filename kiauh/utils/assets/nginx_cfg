@@ -1,7 +1,7 @@
-# /etc/nginx/sites-available/%NAME%
-
 server {
     listen %PORT%;
+    # uncomment the next line to activate IPv6
+    # listen [::]:%PORT%;
 
     access_log /var/log/nginx/%NAME%-access.log;
     error_log /var/log/nginx/%NAME%-error.log;
@@ -55,7 +55,6 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Scheme $scheme;
-        proxy_read_timeout 600;
     }
 
     location /webcam/ {
