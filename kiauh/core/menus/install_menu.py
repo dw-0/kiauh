@@ -75,7 +75,7 @@ class InstallMenu(BaseMenu):
         mainsail_setup.install_mainsail()
 
     def install_fluidd(self, **kwargs):
-        print("install_fluidd")
+        fluidd_setup.install_fluidd()
 
     def install_klipperscreen(self, **kwargs):
         print("install_klipperscreen")

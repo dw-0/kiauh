@@ -13,10 +13,13 @@ import subprocess
 from pathlib import Path
 from zipfile import ZipFile
 
+from typing import List
+
 from utils import (
     NGINX_SITES_AVAILABLE,
     MODULE_PATH,
     NGINX_CONFD,
+    NGINX_SITES_ENABLED,
 )
 from utils.logger import Logger
 
@@ -133,3 +136,35 @@ def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
         log = f"Unable to create '{target}': {e.stderr.decode()}"
         Logger.print_error(log)
         raise
+
+
+def read_ports_from_nginx_configs() -> List[str]:
+    """
+    Helper function to iterate over all NGINX configs and read all ports defined for listen
+    :return: A sorted list of listen ports
+    """
+    if not NGINX_SITES_ENABLED.exists():
+        return []
+
+    port_list = []
+    for config in NGINX_SITES_ENABLED.iterdir():
+        with open(config, "r") as cfg:
+            lines = cfg.readlines()
+
+        for line in lines:
+            line = line.strip().replace(";", "")
+            if line.startswith("listen"):
+                port_list.append(line.split()[-1])
+
+    return sorted(port_list, key=lambda x: int(x))
+
+
+def is_valid_port(port: str, ports_in_use: List[str]) -> bool:
+    return port.isdigit() and port not in ports_in_use
+
+
+def get_next_free_port(ports_in_use: List[str]) -> str:
+    valid_ports = set(range(80, 7125))
+    used_ports = set(map(int, ports_in_use))
+
+    return str(min(valid_ports - used_ports))

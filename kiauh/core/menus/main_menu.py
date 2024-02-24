@@ -11,20 +11,21 @@
 
 import textwrap
 
-from kiauh.components.klipper.klipper_utils import get_klipper_status
-from kiauh.components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from kiauh.components.mainsail.mainsail_utils import get_mainsail_status
-from kiauh.components.moonraker.moonraker_utils import get_moonraker_status
-from kiauh.core.menus import QUIT_FOOTER
-from kiauh.core.menus.advanced_menu import AdvancedMenu
-from kiauh.core.menus.backup_menu import BackupMenu
-from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.core.menus.extensions_menu import ExtensionsMenu
-from kiauh.core.menus.install_menu import InstallMenu
-from kiauh.core.menus.remove_menu import RemoveMenu
-from kiauh.core.menus.settings_menu import SettingsMenu
-from kiauh.core.menus.update_menu import UpdateMenu
-from kiauh.utils.constants import (
+from components.fluidd.fluidd_utils import get_fluidd_status
+from components.klipper.klipper_utils import get_klipper_status
+from components.log_uploads.menus.log_upload_menu import LogUploadMenu
+from components.mainsail.mainsail_utils import get_mainsail_status
+from components.moonraker.moonraker_utils import get_moonraker_status
+from core.menus import QUIT_FOOTER
+from core.menus.advanced_menu import AdvancedMenu
+from core.menus.backup_menu import BackupMenu
+from core.menus.base_menu import BaseMenu
+from core.menus.extensions_menu import ExtensionsMenu
+from core.menus.install_menu import InstallMenu
+from core.menus.remove_menu import RemoveMenu
+from core.menus.settings_menu import SettingsMenu
+from core.menus.update_menu import UpdateMenu
+from utils.constants import (
     COLOR_MAGENTA,
     COLOR_CYAN,
     RESET_FORMAT,
@@ -87,6 +88,8 @@ class MainMenu(BaseMenu):
         self.mr_repo = f"{COLOR_CYAN}{moonraker_status.get('repo')}{RESET_FORMAT}"
         # mainsail
         self.ms_status = get_mainsail_status()
+        # fluidd
+        self.fl_status = get_fluidd_status()
 
     def format_status_by_code(self, code: int, status: str, count: str) -> str:
         if code == 1:

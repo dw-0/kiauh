@@ -12,5 +12,9 @@ branch: master
 method: https
 
 [mainsail]
-default_port: 80
+port: 80
+unstable_releases: False
+
+[fluidd]
+port: 80
 unstable_releases: False

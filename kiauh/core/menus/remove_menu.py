@@ -11,6 +11,7 @@
 
 import textwrap
 
+from components.fluidd.menus.fluidd_remove_menu import FluiddRemoveMenu
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from components.mainsail.menus.mainsail_remove_menu import MainsailRemoveMenu
 from components.moonraker.menus.moonraker_remove_menu import MoonrakerRemoveMenu
@@ -29,16 +30,16 @@ class RemoveMenu(BaseMenu):
                 "1": KlipperRemoveMenu,
                 "2": MoonrakerRemoveMenu,
                 "3": MainsailRemoveMenu,
-                "5": self.remove_fluidd,
-                "6": self.remove_klipperscreen,
-                "7": self.remove_crowsnest,
-                "8": self.remove_mjpgstreamer,
-                "9": self.remove_pretty_gcode,
-                "10": self.remove_telegram_bot,
-                "11": self.remove_obico,
-                "12": self.remove_octoeverywhere,
-                "13": self.remove_mobileraker,
-                "14": self.remove_nginx,
+                "4": FluiddRemoveMenu,
+                "5": None,
+                "6": None,
+                "7": None,
+                "8": None,
+                "9": None,
+                "10": None,
+                "11": None,
+                "12": None,
+                "13": None,
             },
             footer_type=BACK_FOOTER,
         )
@@ -69,36 +70,3 @@ class RemoveMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
-
-    def remove_fluidd(self, **kwargs):
-        print("remove_fluidd")
-
-    def remove_fluidd_config(self, **kwargs):
-        print("remove_fluidd_config")
-
-    def remove_klipperscreen(self, **kwargs):
-        print("remove_klipperscreen")
-
-    def remove_crowsnest(self, **kwargs):
-        print("remove_crowsnest")
-
-    def remove_mjpgstreamer(self, **kwargs):
-        print("remove_mjpgstreamer")
-
-    def remove_pretty_gcode(self, **kwargs):
-        print("remove_pretty_gcode")
-
-    def remove_telegram_bot(self, **kwargs):
-        print("remove_telegram_bot")
-
-    def remove_obico(self, **kwargs):
-        print("remove_obico")
-
-    def remove_octoeverywhere(self, **kwargs):
-        print("remove_octoeverywhere")
-
-    def remove_mobileraker(self, **kwargs):
-        print("remove_mobileraker")
-
-    def remove_nginx(self, **kwargs):
-        print("remove_nginx")

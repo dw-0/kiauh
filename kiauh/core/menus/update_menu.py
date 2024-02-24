@@ -11,20 +11,25 @@
 
 import textwrap
 
-from kiauh.components.klipper.klipper_setup import update_klipper
-from kiauh.components.klipper.klipper_utils import (
+from components.fluidd.fluidd_setup import update_fluidd
+from components.fluidd.fluidd_utils import (
+    get_fluidd_local_version,
+    get_fluidd_remote_version,
+)
+from components.klipper.klipper_setup import update_klipper
+from components.klipper.klipper_utils import (
     get_klipper_status,
 )
-from kiauh.components.mainsail.mainsail_setup import update_mainsail
-from kiauh.components.mainsail.mainsail_utils import (
+from components.mainsail.mainsail_setup import update_mainsail
+from components.mainsail.mainsail_utils import (
     get_mainsail_local_version,
     get_mainsail_remote_version,
 )
-from kiauh.components.moonraker.moonraker_setup import update_moonraker
-from kiauh.components.moonraker.moonraker_utils import get_moonraker_status
-from kiauh.core.menus import BACK_FOOTER
-from kiauh.core.menus.base_menu import BaseMenu
-from kiauh.utils.constants import (
+from components.moonraker.moonraker_setup import update_moonraker
+from components.moonraker.moonraker_utils import get_moonraker_status
+from core.menus import BACK_FOOTER
+from core.menus.base_menu import BaseMenu
+from utils.constants import (
     COLOR_GREEN,
     RESET_FORMAT,
     COLOR_YELLOW,
@@ -62,6 +67,8 @@ class UpdateMenu(BaseMenu):
         self.mr_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.ms_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.ms_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.fl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.fl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
     def print_menu(self):
         self.fetch_update_status()
@@ -82,7 +89,7 @@ class UpdateMenu(BaseMenu):
             |                       |               |               |
             | Klipper Webinterface: |---------------|---------------|
             |  3) Mainsail          | {self.ms_local:<22} | {self.ms_remote:<22} |
-            |  4) Fluidd            |               |               |
+            |  4) Fluidd            | {self.fl_local:<22} | {self.fl_remote:<22} |
             |                       |               |               |
             | Touchscreen GUI:      |---------------|---------------|
             |  5) KlipperScreen     |               |               |
@@ -113,7 +120,7 @@ class UpdateMenu(BaseMenu):
         update_mainsail()
 
     def update_fluidd(self, **kwargs):
-        print("update_fluidd")
+        update_fluidd()
 
     def update_klipperscreen(self, **kwargs):
         print("update_klipperscreen")
@@ -166,3 +173,11 @@ class UpdateMenu(BaseMenu):
         else:
             self.ms_local = f"{COLOR_YELLOW}{self.ms_local}{RESET_FORMAT}"
         self.ms_remote = f"{COLOR_GREEN if self.ms_remote != 'ERROR' else COLOR_RED}{self.ms_remote}{RESET_FORMAT}"
+        # fluidd
+        self.fl_local = get_fluidd_local_version()
+        self.fl_remote = get_fluidd_remote_version()
+        if self.fl_local == self.fl_remote:
+            self.fl_local = f"{COLOR_GREEN}{self.fl_local}{RESET_FORMAT}"
+        else:
+            self.fl_local = f"{COLOR_YELLOW}{self.fl_local}{RESET_FORMAT}"
+        self.fl_remote = f"{COLOR_GREEN if self.fl_remote != 'ERROR' else COLOR_RED}{self.fl_remote}{RESET_FORMAT}"
