@@ -53,12 +53,16 @@ def remove_client_config_dir(client_config: ClientConfigData) -> None:
 
 
 def remove_client_config_symlink(client_config: ClientConfigData) -> None:
-    Logger.print_status(f"Removing {client_config.get('cfg_filename')} symlinks ...")
     im = InstanceManager(Klipper)
     instances: List[Klipper] = im.instances
     for instance in instances:
         Logger.print_status(f"Removing symlink from '{instance.cfg_file}' ...")
+        symlink = instance.cfg_dir.joinpath(client_config.get("cfg_filename"))
+        if not symlink.exists():
+            Logger.print_info(f"'{symlink}' does not exist. Skipping ...")
+            continue
+
         try:
-            remove_file(instance.cfg_dir.joinpath(client_config.get("cfg_filename")))
+            remove_file(symlink)
         except subprocess.CalledProcessError:
             Logger.print_error("Failed to remove symlink!")
