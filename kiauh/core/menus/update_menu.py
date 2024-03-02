@@ -11,22 +11,22 @@
 
 import textwrap
 
-from components.fluidd.fluidd_setup import update_fluidd
-from components.fluidd.fluidd_utils import (
-    get_fluidd_local_version,
-    get_fluidd_remote_version,
-)
 from components.klipper.klipper_setup import update_klipper
 from components.klipper.klipper_utils import (
     get_klipper_status,
 )
-from components.mainsail.mainsail_setup import update_mainsail
-from components.mainsail.mainsail_utils import (
-    get_mainsail_local_version,
-    get_mainsail_remote_version,
-)
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
+from components.webui_client.client_config.client_config_setup import (
+    update_client_config,
+)
+from components.webui_client.client_setup import update_client
+from components.webui_client.client_utils import (
+    get_local_client_version,
+    get_remote_client_version,
+    load_client_data,
+    get_client_config_status,
+)
 from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import (
@@ -50,14 +50,12 @@ class UpdateMenu(BaseMenu):
                 "2": self.update_moonraker,
                 "3": self.update_mainsail,
                 "4": self.update_fluidd,
-                "5": self.update_klipperscreen,
-                "6": self.update_pgc_for_klipper,
-                "7": self.update_telegram_bot,
-                "8": self.update_moonraker_obico,
-                "9": self.update_octoeverywhere,
-                "10": self.update_mobileraker,
-                "11": self.update_crowsnest,
-                "12": self.upgrade_system_packages,
+                "5": self.update_mainsail_config,
+                "6": self.update_fluidd_config,
+                "7": self.update_klipperscreen,
+                "8": self.update_mobileraker,
+                "9": self.update_crowsnest,
+                "10": self.upgrade_system_packages,
             },
             footer_type=BACK_FOOTER,
         )
@@ -69,6 +67,10 @@ class UpdateMenu(BaseMenu):
         self.ms_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.mc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.mc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.fc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
     def print_menu(self):
         self.fetch_update_status()
@@ -87,22 +89,20 @@ class UpdateMenu(BaseMenu):
             |  1) Klipper           | {self.kl_local:<22} | {self.kl_remote:<22} |
             |  2) Moonraker         | {self.mr_local:<22} | {self.mr_remote:<22} |
             |                       |               |               |
-            | Klipper Webinterface: |---------------|---------------|
+            | Webinterface:         |---------------|---------------|
             |  3) Mainsail          | {self.ms_local:<22} | {self.ms_remote:<22} |
             |  4) Fluidd            | {self.fl_local:<22} | {self.fl_remote:<22} |
             |                       |               |               |
-            | Touchscreen GUI:      |---------------|---------------|
-            |  5) KlipperScreen     |               |               |
+            | Client-Config:        |---------------|---------------|
+            |  5) Mainsail-Config   | {self.mc_local:<22} | {self.mc_remote:<22} |
+            |  6) Fluidd-Config     | {self.fc_local:<22} | {self.fc_remote:<22} |
             |                       |               |               |
             | Other:                |---------------|---------------|
-            |  6) PrettyGCode       |               |               |
-            |  7) Telegram Bot      |               |               |
-            |  8) Obico for Klipper |               |               |
-            |  9) OctoEverywhere    |               |               |
-            | 10) Mobileraker       |               |               |
-            | 11) Crowsnest         |               |               |
+            |  7) KlipperScreen     |               |               |
+            |  8) Mobileraker       |               |               |
+            |  9) Crowsnest         |               |               |
             |                       |-------------------------------|
-            | 12) System            |                               |
+            | 10) System            |                               |
             """
         )[1:]
         print(menu, end="")
@@ -117,34 +117,24 @@ class UpdateMenu(BaseMenu):
         update_moonraker()
 
     def update_mainsail(self, **kwargs):
-        update_mainsail()
+        update_client(load_client_data("mainsail"))
+
+    def update_mainsail_config(self, **kwargs):
+        update_client_config(load_client_data("mainsail"))
 
     def update_fluidd(self, **kwargs):
-        update_fluidd()
+        update_client(load_client_data("fluidd"))
 
-    def update_klipperscreen(self, **kwargs):
-        print("update_klipperscreen")
+    def update_fluidd_config(self, **kwargs):
+        update_client_config(load_client_data("fluidd"))
 
-    def update_pgc_for_klipper(self, **kwargs):
-        print("update_pgc_for_klipper")
+    def update_klipperscreen(self, **kwargs): ...
 
-    def update_telegram_bot(self, **kwargs):
-        print("update_telegram_bot")
+    def update_mobileraker(self, **kwargs): ...
 
-    def update_moonraker_obico(self, **kwargs):
-        print("update_moonraker_obico")
+    def update_crowsnest(self, **kwargs): ...
 
-    def update_octoeverywhere(self, **kwargs):
-        print("update_octoeverywhere")
-
-    def update_mobileraker(self, **kwargs):
-        print("update_mobileraker")
-
-    def update_crowsnest(self, **kwargs):
-        print("update_crowsnest")
-
-    def upgrade_system_packages(self, **kwargs):
-        print("upgrade_system_packages")
+    def upgrade_system_packages(self, **kwargs): ...
 
     def fetch_update_status(self):
         # klipper
@@ -166,18 +156,38 @@ class UpdateMenu(BaseMenu):
             self.mr_local = f"{COLOR_YELLOW}{self.mr_local}{RESET_FORMAT}"
         self.mr_remote = f"{COLOR_GREEN}{self.mr_remote}{RESET_FORMAT}"
         # mainsail
-        self.ms_local = get_mainsail_local_version()
-        self.ms_remote = get_mainsail_remote_version()
+        mainsail_client_data = load_client_data("mainsail")
+        self.ms_local = get_local_client_version(mainsail_client_data)
+        self.ms_remote = get_remote_client_version(mainsail_client_data)
         if self.ms_local == self.ms_remote:
             self.ms_local = f"{COLOR_GREEN}{self.ms_local}{RESET_FORMAT}"
         else:
             self.ms_local = f"{COLOR_YELLOW}{self.ms_local}{RESET_FORMAT}"
         self.ms_remote = f"{COLOR_GREEN if self.ms_remote != 'ERROR' else COLOR_RED}{self.ms_remote}{RESET_FORMAT}"
         # fluidd
-        self.fl_local = get_fluidd_local_version()
-        self.fl_remote = get_fluidd_remote_version()
+        fluidd_client_data = load_client_data("fluidd")
+        self.fl_local = get_local_client_version(fluidd_client_data)
+        self.fl_remote = get_remote_client_version(fluidd_client_data)
         if self.fl_local == self.fl_remote:
             self.fl_local = f"{COLOR_GREEN}{self.fl_local}{RESET_FORMAT}"
         else:
             self.fl_local = f"{COLOR_YELLOW}{self.fl_local}{RESET_FORMAT}"
         self.fl_remote = f"{COLOR_GREEN if self.fl_remote != 'ERROR' else COLOR_RED}{self.fl_remote}{RESET_FORMAT}"
+        # mainsail-config
+        mc_status = get_client_config_status(load_client_data("mainsail"))
+        self.mc_local = mc_status.get("local")
+        self.mc_remote = mc_status.get("remote")
+        if self.mc_local == self.mc_remote:
+            self.mc_local = f"{COLOR_GREEN}{self.mc_local}{RESET_FORMAT}"
+        else:
+            self.mc_local = f"{COLOR_YELLOW}{self.mc_local}{RESET_FORMAT}"
+        self.mc_remote = f"{COLOR_GREEN}{self.mc_remote}{RESET_FORMAT}"
+        # fluidd-config
+        fc_status = get_client_config_status(load_client_data("fluidd"))
+        self.fc_local = fc_status.get("local")
+        self.fc_remote = fc_status.get("remote")
+        if self.fc_local == self.mc_remote:
+            self.fc_local = f"{COLOR_GREEN}{self.fc_local}{RESET_FORMAT}"
+        else:
+            self.fc_local = f"{COLOR_YELLOW}{self.fc_local}{RESET_FORMAT}"
+        self.fc_remote = f"{COLOR_GREEN}{self.fc_remote}{RESET_FORMAT}"

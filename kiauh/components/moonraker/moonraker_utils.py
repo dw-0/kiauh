@@ -12,8 +12,6 @@
 import shutil
 from typing import Dict, Literal, List, Union
 
-from components.mainsail import MAINSAIL_DIR
-from components.mainsail.mainsail_utils import enable_mainsail_remotemode
 from components.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
@@ -23,6 +21,8 @@ from components.moonraker import (
     MOONRAKER_DB_BACKUP_DIR,
 )
 from components.moonraker.moonraker import Moonraker
+from components.webui_client import MAINSAIL_DIR
+from components.webui_client.client_utils import enable_mainsail_remotemode
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager

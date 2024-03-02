@@ -11,11 +11,14 @@
 
 import textwrap
 
-from components.fluidd.fluidd_utils import get_fluidd_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from components.mainsail.mainsail_utils import get_mainsail_status
 from components.moonraker.moonraker_utils import get_moonraker_status
+from components.webui_client.client_utils import (
+    get_client_status,
+    load_client_data,
+    get_current_client_config,
+)
 from core.menus import QUIT_FOOTER
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
@@ -61,13 +64,11 @@ class MainMenu(BaseMenu):
         self.ks_status = ""
         self.mb_status = ""
         self.cn_status = ""
-        self.tg_status = ""
-        self.ob_status = ""
-        self.oe_status = ""
+        self.cc_status = ""
         self.init_status()
 
     def init_status(self) -> None:
-        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn", "tg", "ob", "oe"]
+        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn"]
         for var in status_vars:
             setattr(self, f"{var}_status", f"{COLOR_RED}Not installed!{RESET_FORMAT}")
 
@@ -87,9 +88,15 @@ class MainMenu(BaseMenu):
         self.mr_status = self.format_status_by_code(mr_code, mr_status, mr_instances)
         self.mr_repo = f"{COLOR_CYAN}{moonraker_status.get('repo')}{RESET_FORMAT}"
         # mainsail
-        self.ms_status = get_mainsail_status()
+        mainsail_client_data = load_client_data("mainsail")
+        self.ms_status = get_client_status(mainsail_client_data)
         # fluidd
-        self.fl_status = get_fluidd_status()
+        fluidd_client_data = load_client_data("fluidd")
+        self.fl_status = get_client_status(fluidd_client_data)
+        # client-config
+        self.cc_status = get_current_client_config(
+            [mainsail_client_data, fluidd_client_data]
+        )
 
     def format_status_by_code(self, code: int, status: str, count: str) -> str:
         if code == 1:
@@ -120,13 +127,11 @@ class MainMenu(BaseMenu):
             |  4) [Advanced]   |------------------------------------|
             |  5) [Backup]     |        Mainsail: {self.ms_status:<26} |
             |                  |          Fluidd: {self.fl_status:<26} |
-            |  E) [Extensions] |   KlipperScreen: {self.ks_status:<26} |
-            |                  |     Mobileraker: {self.mb_status:<26} |
+            |  S) [Settings]   |   Client-Config: {self.cc_status:<26} |
             |                  |                                    |
+            | Community:       |   KlipperScreen: {self.ks_status:<26} |
+            |  E) [Extensions] |     Mobileraker: {self.mb_status:<26} |
             |                  |       Crowsnest: {self.cn_status:<26} |
-            |                  |    Telegram Bot: {self.tg_status:<26} |
-            |                  |           Obico: {self.ob_status:<26} |
-            |  S) [Settings]   |  OctoEverywhere: {self.oe_status:<26} |
             |-------------------------------------------------------|
             | {COLOR_CYAN}{footer1:^16}{RESET_FORMAT} | {footer2:^43} |
             """

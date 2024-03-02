@@ -28,7 +28,7 @@ class KlipperRemoveMenu(BaseMenu):
                 "2": self.toggle_remove_klipper_dir,
                 "3": self.toggle_remove_klipper_env,
                 "4": self.toggle_delete_klipper_logs,
-                "5": self.run_removal_process,
+                "c": self.run_removal_process,
             },
             footer_type=BACK_HELP_FOOTER,
         )
@@ -62,7 +62,7 @@ class KlipperRemoveMenu(BaseMenu):
             |  3) {o3} Remove Python Environment                     |
             |  4) {o4} Delete all Log-Files                          |
             |-------------------------------------------------------|
-            |  5) Continue                                          |
+            |  C) Continue                                          |
             """
         )[1:]
         print(menu, end="")

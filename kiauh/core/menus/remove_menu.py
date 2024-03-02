@@ -11,10 +11,10 @@
 
 import textwrap
 
-from components.fluidd.menus.fluidd_remove_menu import FluiddRemoveMenu
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
-from components.mainsail.menus.mainsail_remove_menu import MainsailRemoveMenu
 from components.moonraker.menus.moonraker_remove_menu import MoonrakerRemoveMenu
+from components.webui_client.client_utils import load_client_data
+from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
 from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_RED, RESET_FORMAT
@@ -29,8 +29,8 @@ class RemoveMenu(BaseMenu):
             options={
                 "1": KlipperRemoveMenu,
                 "2": MoonrakerRemoveMenu,
-                "3": MainsailRemoveMenu,
-                "4": FluiddRemoveMenu,
+                "3": ClientRemoveMenu(client=load_client_data("mainsail")),
+                "4": ClientRemoveMenu(client=load_client_data("fluidd")),
                 "5": None,
                 "6": None,
                 "7": None,

@@ -29,7 +29,7 @@ class MoonrakerRemoveMenu(BaseMenu):
                 "3": self.toggle_remove_moonraker_env,
                 "4": self.toggle_remove_moonraker_polkit,
                 "5": self.toggle_delete_moonraker_logs,
-                "6": self.run_removal_process,
+                "c": self.run_removal_process,
             },
             footer_type=BACK_HELP_FOOTER,
         )
@@ -66,7 +66,7 @@ class MoonrakerRemoveMenu(BaseMenu):
             |  4) {o4} Remove Policy Kit Rules                       |
             |  5) {o5} Delete all Log-Files                          |
             |-------------------------------------------------------|
-            |  6) Continue                                          |
+            |  C) Continue                                          |
             """
         )[1:]
         print(menu, end="")

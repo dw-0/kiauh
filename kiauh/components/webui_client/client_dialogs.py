@@ -10,7 +10,9 @@
 # ======================================================================= #
 
 import textwrap
+from typing import List
 
+from components.webui_client import ClientData
 from core.menus.base_menu import print_back_footer
 from utils.constants import RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
@@ -36,19 +38,18 @@ def print_moonraker_not_found_dialog():
     print_back_footer()
 
 
-def print_mainsail_already_installed_dialog():
+def print_client_already_installed_dialog(name: str):
     line1 = f"{COLOR_YELLOW}WARNING:{RESET_FORMAT}"
-    line2 = f"{COLOR_YELLOW}Mainsail seems to be already installed!{RESET_FORMAT}"
+    line2 = f"{COLOR_YELLOW}{name} seems to be already installed!{RESET_FORMAT}"
+    line3 = f"If you continue, your current {name}"
     dialog = textwrap.dedent(
         f"""
         /=======================================================\\
         | {line1:<63}|
         | {line2:<63}|
         |-------------------------------------------------------|
-        | If you continue, your current Mainsail installation   |
-        | will be overwritten. You will not loose any printer   |
-        | configurations and the Moonraker database will remain |
-        | untouched.                                            |
+        | {line3:<54}|
+        | installation will be overwritten.                     |
         """
     )[1:]
 
@@ -56,38 +57,53 @@ def print_mainsail_already_installed_dialog():
     print_back_footer()
 
 
-def print_install_mainsail_config_dialog():
+def print_client_port_select_dialog(name: str, port: str, ports_in_use: List[str]):
+    port = f"{COLOR_CYAN}{port}{RESET_FORMAT}"
+    line1 = f"Please select the port, {name} should be served on."
+    line2 = f"In case you need {name} to be served on a specific"
     dialog = textwrap.dedent(
         f"""
         /=======================================================\\
-        | It is recommended to use special macros in order to   |
-        | have Mainsail fully functional and working.           |
+        | {line1:<54}|
+        | If you are unsure what to select, hit Enter to apply  |
+        | the suggested value of: {port:38} |
         |                                                       |
-        | The recommended macros for Mainsail can be seen here: |
-        | https://github.com/mainsail-crew/mainsail-config      |
-        |                                                       |
-        | If you already use these macros skip this step.       |
-        | Otherwise you should consider to answer with 'Y' to   |
-        | download the recommended macros.                      |
+        | {line2:<54}|
+        | port, you can set it now. Make sure the port is not   |
+        | used by any other application on your system!         |
         \\=======================================================/
         """
     )[1:]
 
+    if len(ports_in_use) > 0:
+        dialog += "|-------------------------------------------------------|\n"
+        dialog += "| The following ports were found to be in use already:  |\n"
+        for port in ports_in_use:
+            port = f"{COLOR_CYAN}● {port}{RESET_FORMAT}"
+            dialog += f"|  {port:60}  |\n"
+
+    dialog += "\\=======================================================/\n"
+
     print(dialog, end="")
 
 
-def print_mainsail_port_select_dialog(port: str):
-    port = f"{COLOR_CYAN}{port}{RESET_FORMAT}"
+def print_install_client_config_dialog(client: ClientData):
+    name = client.get("display_name")
+    url = client.get("client_config").get("url").replace(".git", "")
+    line1 = f"have {name} fully functional and working."
+    line2 = f"The recommended macros for {name} can be seen here:"
     dialog = textwrap.dedent(
         f"""
         /=======================================================\\
-        | Please select the port, Mainsail should be served on. |
-        | If you are unsure what to select, hit Enter to apply  |
-        | the suggested value of: {port:38} |
+        | It is recommended to use special macros in order to   |
+        | {line1:<54}|
         |                                                       |
-        | In case you need Mainsail to be served on a specific  |
-        | port, you can set it now. Make sure the port is not   |
-        | used by any other application on your system!         |
+        | {line2:<54}|
+        | {url:<54}|
+        |                                                       |
+        | If you already use these macros skip this step.       |
+        | Otherwise you should consider to answer with 'Y' to   |
+        | download the recommended macros.                      |
         \\=======================================================/
         """
     )[1:]

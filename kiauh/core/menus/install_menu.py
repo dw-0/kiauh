@@ -11,10 +11,10 @@
 
 import textwrap
 
-from components.fluidd import fluidd_setup
 from components.klipper import klipper_setup
-from components.mainsail import mainsail_setup
 from components.moonraker import moonraker_setup
+from components.webui_client import client_setup
+from components.webui_client.client_config import client_config_setup
 from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_GREEN, RESET_FORMAT
@@ -31,13 +31,11 @@ class InstallMenu(BaseMenu):
                 "2": self.install_moonraker,
                 "3": self.install_mainsail,
                 "4": self.install_fluidd,
-                "5": self.install_klipperscreen,
-                "6": self.install_pretty_gcode,
-                "7": self.install_telegram_bot,
-                "8": self.install_obico,
-                "9": self.install_octoeverywhere,
-                "10": self.install_mobileraker,
-                "11": self.install_crowsnest,
+                "5": self.install_mainsail_config,
+                "6": self.install_fluidd_config,
+                "7": None,
+                "8": None,
+                "9": None,
             },
             footer_type=BACK_FOOTER,
         )
@@ -51,16 +49,18 @@ class InstallMenu(BaseMenu):
             /=======================================================\\
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
-            | Firmware & API:          | Other:                     |
-            |  1) [Klipper]            |  6) [PrettyGCode]          |
-            |  2) [Moonraker]          |  7) [Telegram Bot]         |
-            |                          |  8) $(obico_install_title) |
-            | Klipper Webinterface:    |  9) [OctoEverywhere]       |
-            |  3) [Mainsail]           | 10) [Mobileraker]          |
-            |  4) [Fluidd]             |                            |
-            |                          | Webcam Streamer:           |
-            | Touchscreen GUI:         | 11) [Crowsnest]            |
-            |  5) [KlipperScreen]      |                            |
+            | Firmware & API:           | Touchscreen GUI:          |
+            |  1) [Klipper]             |  7) [KlipperScreen]       |
+            |  2) [Moonraker]           |                           |
+            |                           | Android / iOS:            |
+            | Webinterface:             |  8) [Mobileraker]         |
+            |  3) [Mainsail]            |                           |
+            |  4) [Fluidd]              | Webcam Streamer:          |
+            |                           |  9) [Crowsnest]           |
+            | Client-Config:            |                           |
+            |  5) [Mainsail-Config]     |                           |
+            |  6) [Fluidd-Config]       |                           |
+            |                           |                           |
             """
         )[1:]
         print(menu, end="")
@@ -72,28 +72,13 @@ class InstallMenu(BaseMenu):
         moonraker_setup.install_moonraker()
 
     def install_mainsail(self, **kwargs):
-        mainsail_setup.install_mainsail()
+        client_setup.install_client(client_name="mainsail")
+
+    def install_mainsail_config(self, **kwargs):
+        client_config_setup.install_client_config(client_name="mainsail")
 
     def install_fluidd(self, **kwargs):
-        fluidd_setup.install_fluidd()
+        client_setup.install_client(client_name="fluidd")
 
-    def install_klipperscreen(self, **kwargs):
-        print("install_klipperscreen")
-
-    def install_pretty_gcode(self, **kwargs):
-        print("install_pretty_gcode")
-
-    def install_telegram_bot(self, **kwargs):
-        print("install_telegram_bot")
-
-    def install_obico(self, **kwargs):
-        print("install_obico")
-
-    def install_octoeverywhere(self, **kwargs):
-        print("install_octoeverywhere")
-
-    def install_mobileraker(self, **kwargs):
-        print("install_mobileraker")
-
-    def install_crowsnest(self, **kwargs):
-        print("install_crowsnest")
+    def install_fluidd_config(self, **kwargs):
+        client_config_setup.install_client_config(client_name="fluidd")
