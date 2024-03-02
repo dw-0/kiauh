@@ -71,7 +71,6 @@ def print_client_port_select_dialog(name: str, port: str, ports_in_use: List[str
         | {line2:<54}|
         | port, you can set it now. Make sure the port is not   |
         | used by any other application on your system!         |
-        \\=======================================================/
         """
     )[1:]
 

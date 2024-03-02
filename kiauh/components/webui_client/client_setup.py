@@ -107,7 +107,8 @@ def install_client(client_name: ClientName) -> None:
         install_client_cfg = get_confirm(question, allow_go_back=False)
 
     cm = ConfigManager(cfg_file=KIAUH_CFG)
-    client_port = cm.get_value(client.get("name"), "port")
+    default_port = cm.get_value(client.get("name"), "port")
+    client_port = default_port if default_port and default_port.isdigit() else "80"
     ports_in_use = read_ports_from_nginx_configs()
 
     # check if configured port is a valid number and not in use already
