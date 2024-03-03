@@ -10,7 +10,7 @@
 # ======================================================================= #
 
 import shutil
-from typing import Dict, Literal, List, Union
+from typing import Dict, Literal, List, Union, Optional
 
 from components.moonraker import (
     DEFAULT_MOONRAKER_PORT,
@@ -21,7 +21,7 @@ from components.moonraker import (
     MOONRAKER_DB_BACKUP_DIR,
 )
 from components.moonraker.moonraker import Moonraker
-from components.webui_client import MAINSAIL_DIR
+from components.webui_client import MAINSAIL_DIR, ClientData
 from components.webui_client.client_utils import enable_mainsail_remotemode
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
@@ -50,7 +50,9 @@ def get_moonraker_status() -> Dict[
 
 
 def create_example_moonraker_conf(
-    instance: Moonraker, ports_map: Dict[str, int]
+    instance: Moonraker,
+    ports_map: Dict[str, int],
+    clients: Optional[List[ClientData]] = None,
 ) -> None:
     Logger.print_status(f"Creating example moonraker.conf in '{instance.cfg_dir}'")
     if instance.cfg_file.is_file():
@@ -93,6 +95,36 @@ def create_example_moonraker_conf(
     cm.set_value("server", "port", str(port))
     cm.set_value("server", "klippy_uds_address", str(uds))
     cm.set_value("authorization", "trusted_clients", trusted_clients)
+
+    # add existing client and client configs in the update section
+    if clients is not None and len(clients) > 0:
+        for c in clients:
+            # client part
+            c_section = f"update_manager {c.get('name')}"
+            c_options = [
+                ("type", "web"),
+                ("channel", "stable"),
+                ("repo", c.get("mr_conf_repo")),
+                ("path", c.get("mr_conf_path")),
+            ]
+            cm.config.add_section(section=c_section)
+            for option in c_options:
+                cm.config.set(c_section, option[0], option[1])
+
+            # client config part
+            c_config = c.get("client_config")
+            if c_config.get("dir").exists():
+                c_config_section = f"update_manager {c_config.get('name')}"
+                c_config_options = [
+                    ("type", "git_repo"),
+                    ("primary_branch", "master"),
+                    ("path", c_config.get("mr_conf_path")),
+                    ("origin", c_config.get("mr_conf_origin")),
+                    ("managed_services", "klipper"),
+                ]
+                cm.config.add_section(section=c_config_section)
+                for option in c_config_options:
+                    cm.config.set(c_config_section, option[0], option[1])
 
     cm.write_config()
     Logger.print_ok(f"Example moonraker.conf created in '{instance.cfg_dir}'")

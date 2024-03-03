@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import List
 
 from components.webui_client import MAINSAIL_DIR
+from components.webui_client.client_config.client_config_setup import get_existing_client_config, get_existing_clients
 from components.webui_client.client_utils import enable_mainsail_remotemode
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
@@ -104,7 +105,9 @@ def install_moonraker() -> None:
         mr_im.enable_instance()
 
         if create_example_cfg:
-            create_example_moonraker_conf(current_instance, used_ports_map)
+            # if a webclient and/or it's config is installed, patch its update section to the config
+            clients = get_existing_clients()
+            create_example_moonraker_conf(current_instance, used_ports_map, clients)
 
         mr_im.start_instance()
 

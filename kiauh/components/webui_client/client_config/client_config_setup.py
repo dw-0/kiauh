@@ -95,6 +95,17 @@ def config_for_other_client_exist(client_to_ignore: ClientName) -> bool:
     return True if len(clients) > 0 else False
 
 
+def get_existing_clients() -> List[ClientData]:
+    clients = list(get_args(ClientName))
+    installed_clients: List[ClientData] = []
+    for c in clients:
+        c_data: ClientData = load_client_data(c)
+        if c_data.get("dir").exists():
+            installed_clients.append(c_data)
+
+    return installed_clients
+
+
 def get_existing_client_config() -> List[ClientData]:
     clients = list(get_args(ClientName))
     installed_client_configs: List[ClientData] = []
