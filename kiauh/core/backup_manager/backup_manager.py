@@ -56,7 +56,7 @@ class BackupManager:
             try:
                 Path(target).mkdir(exist_ok=True)
                 shutil.copyfile(file, target.joinpath(filename))
-                Logger.print_ok("Backup successfull!")
+                Logger.print_ok("Backup successful!")
             except OSError as e:
                 Logger.print_error(f"Unable to backup '{file}':\n{e}")
         else:
@@ -77,7 +77,7 @@ class BackupManager:
                 target.joinpath(f"{name.lower()}-{date}-{time}"),
                 ignore=self.ignore_folders_func,
             )
-            Logger.print_ok("Backup successfull!")
+            Logger.print_ok("Backup successful!")
         except OSError as e:
             Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
             return

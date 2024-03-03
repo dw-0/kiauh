@@ -71,7 +71,7 @@ def create_python_venv(target: Path) -> None:
     if not target.exists():
         try:
             venv.create(target, with_pip=True)
-            Logger.print_ok("Setup of virtualenv successfull!")
+            Logger.print_ok("Setup of virtualenv successful!")
         except OSError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e}")
             raise
@@ -111,7 +111,7 @@ def update_python_pip(target: Path) -> None:
             Logger.print_error("Updating pip failed!")
             return
 
-        Logger.print_ok("Updating pip successfull!")
+        Logger.print_ok("Updating pip successful!")
     except FileNotFoundError as e:
         Logger.print_error(e)
         raise
@@ -140,7 +140,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
             Logger.print_error("Installing Python requirements failed!")
             return
 
-        Logger.print_ok("Installing Python requirements successfull!")
+        Logger.print_ok("Installing Python requirements successful!")
     except subprocess.CalledProcessError as e:
         log = f"Error installing Python requirements:\n{e.output.decode()}"
         Logger.print_error(log)
@@ -183,7 +183,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
             Logger.print_error("Updating system package list failed!")
             return
 
-        Logger.print_ok("System package list updated successfully!")
+        Logger.print_ok("System package list update successful!")
     except subprocess.CalledProcessError as e:
         kill(f"Error updating system package list:\n{e.stderr.decode()}")
 

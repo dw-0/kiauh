@@ -140,7 +140,7 @@ class RepoManager:
             command = ["git", "clone", self.repo, self.target_dir]
             subprocess.run(command, check=True)
 
-            Logger.print_ok("Clone successfull!")
+            Logger.print_ok("Clone successful!")
         except subprocess.CalledProcessError as e:
             log = f"Error cloning repository {self.repo}: {e.stderr.decode()}"
             Logger.print_error(log)
@@ -151,7 +151,7 @@ class RepoManager:
             command = ["git", "checkout", f"{self.branch}"]
             subprocess.run(command, cwd=self.target_dir, check=True)
 
-            Logger.print_ok("Checkout successfull!")
+            Logger.print_ok("Checkout successful!")
         except subprocess.CalledProcessError as e:
             log = f"Error checking out branch {self.branch}: {e.stderr.decode()}"
             Logger.print_error(log)

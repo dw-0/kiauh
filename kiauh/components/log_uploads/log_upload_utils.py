@@ -49,7 +49,7 @@ def upload_logfile(logfile: LogFile) -> None:
         try:
             response = urllib.request.urlopen(req)
             link = response.read().decode("utf-8")
-            Logger.print_ok("Upload successfull! Access it via the following link:")
+            Logger.print_ok("Upload successful! Access it via the following link:")
             Logger.print_ok(f">>>> {link}", False)
         except Exception as e:
             Logger.print_error(f"Uploading logfile failed!")

@@ -68,7 +68,7 @@ class GcodeShellCmdExtension(BaseExtension):
 
         im.start_all_instance()
 
-        Logger.print_ok("Installing G-Code Shell Command extension successfull!")
+        Logger.print_ok("Installing G-Code Shell Command extension successful!")
 
     def remove_extension(self, **kwargs) -> None:
         extension_installed = check_file_exist(EXTENSION_TARGET_PATH)
