@@ -34,6 +34,7 @@ from components.klipper.klipper_dialogs import (
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_utils import moonraker_to_multi_conversion
 from components.webui_client import ClientData
+from components.webui_client.client_config.client_config_setup import create_client_config_symlink
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
@@ -263,7 +264,7 @@ def get_highest_index(instance_list: List[Klipper]) -> int:
 
 
 def create_example_printer_cfg(
-    instance: Klipper, client_configs: Optional[List[ClientData]] = None
+    instance: Klipper, clients: Optional[List[ClientData]] = None
 ) -> None:
     Logger.print_status(f"Creating example printer.cfg in '{instance.cfg_dir}'")
     if instance.cfg_file.is_file():
@@ -282,10 +283,12 @@ def create_example_printer_cfg(
     cm.set_value("virtual_sdcard", "path", str(instance.gcodes_dir))
 
     # include existing client configs in the example config
-    if client_configs is not None and len(client_configs) > 0:
-        for c in client_configs:
-            section = c.get("client_config").get("printer_cfg_section")
+    if clients is not None and len(clients) > 0:
+        for c in clients:
+            client_config = c.get("client_config")
+            section = client_config.get("printer_cfg_section")
             cm.config.add_section(section=section)
+            create_client_config_symlink(client_config,[instance])
 
     cm.write_config()
 
