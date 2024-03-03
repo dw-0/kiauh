@@ -12,7 +12,7 @@
 import shutil
 import subprocess
 from pathlib import Path
-from typing import List, get_args
+from typing import List, get_args, Union, Set
 
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
@@ -40,7 +40,7 @@ def install_client_config(client_name: ClientName) -> None:
     client_config: ClientConfigData = client.get("client_config")
     d_name = client_config.get("display_name")
 
-    if check_existing_client_config_install(client_name):
+    if config_for_other_client_exist(client_name):
         Logger.print_info("Another Client-Config is already installed! Skipped ...")
         return
 
@@ -80,19 +80,31 @@ def install_client_config(client_name: ClientName) -> None:
     Logger.print_ok(f"{d_name} installation complete!", start="\n")
 
 
-def check_existing_client_config_install(client_name: ClientName) -> bool:
-    # check if any other client-configs are present
-    # as they can conflict each other, or are at least
-    # redundant to have, so we skip the installation
-    client_list = list(get_args(ClientName))
-    client_list.remove(client_name)
-    for c in client_list:
+def config_for_other_client_exist(client_to_ignore: ClientName) -> bool:
+    """
+    Check if any other client configs are present on the system.
+    It is usually not harmful, but chances are they can conflict each other.
+    Multiple client configs are, at least, redundant to have them installed
+    :param client_to_ignore: The client name to ignore for the check
+    :return: True, if other client configs were found, else False
+    """
+
+    clients = set([c["name"] for c in get_existing_client_config()])
+    clients = clients - {client_to_ignore}
+
+    return True if len(clients) > 0 else False
+
+
+def get_existing_client_config() -> List[ClientData]:
+    clients = list(get_args(ClientName))
+    installed_client_configs: List[ClientData] = []
+    for c in clients:
         c_data: ClientData = load_client_data(c)
         c_config_data: ClientConfigData = c_data.get("client_config")
         if c_config_data.get("dir").exists():
-            return True
+            installed_client_configs.append(c_data)
 
-    return False
+    return installed_client_configs
 
 
 def download_client_config(client_config: ClientConfigData) -> None:

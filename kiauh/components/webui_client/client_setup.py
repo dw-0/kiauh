@@ -21,7 +21,7 @@ from components.webui_client import (
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.client_config.client_config_setup import (
     install_client_config,
-    check_existing_client_config_install,
+    config_for_other_client_exist,
 )
 from components.webui_client.client_dialogs import (
     print_moonraker_not_found_dialog,
@@ -100,7 +100,7 @@ def install_client(client_name: ClientName) -> None:
     if (
         kl_instances
         and not client_config.get("dir").exists()
-        and not check_existing_client_config_install(client.get("name"))
+        and not config_for_other_client_exist(client_to_ignore=client.get("name"))
     ):
         print_install_client_config_dialog(client)
         question = f"Download the recommended {client_config.get('display_name')}?"

@@ -16,7 +16,7 @@ import shutil
 import subprocess
 import textwrap
 from pathlib import Path
-from typing import List, Union, Literal, Dict
+from typing import List, Union, Literal, Dict, Optional
 
 from components.klipper import (
     MODULE_PATH,
@@ -33,6 +33,7 @@ from components.klipper.klipper_dialogs import (
 )
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_utils import moonraker_to_multi_conversion
+from components.webui_client import ClientData
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
@@ -261,7 +262,9 @@ def get_highest_index(instance_list: List[Klipper]) -> int:
     return max(indices)
 
 
-def create_example_printer_cfg(instance: Klipper) -> None:
+def create_example_printer_cfg(
+    instance: Klipper, client_configs: Optional[List[ClientData]] = None
+) -> None:
     Logger.print_status(f"Creating example printer.cfg in '{instance.cfg_dir}'")
     if instance.cfg_file.is_file():
         Logger.print_info(f"'{instance.cfg_file}' already exists.")
@@ -277,7 +280,15 @@ def create_example_printer_cfg(instance: Klipper) -> None:
 
     cm = ConfigManager(target)
     cm.set_value("virtual_sdcard", "path", str(instance.gcodes_dir))
+
+    # include existing client configs in the example config
+    if client_configs is not None and len(client_configs) > 0:
+        for c in client_configs:
+            section = c.get("client_config").get("printer_cfg_section")
+            cm.config.add_section(section=section)
+
     cm.write_config()
+
     Logger.print_ok(f"Example printer.cfg created in '{instance.cfg_dir}'")
 
 

@@ -11,6 +11,9 @@
 
 from pathlib import Path
 
+from components.webui_client.client_config.client_config_setup import (
+    get_existing_client_config,
+)
 from kiauh import KIAUH_CFG
 from components.klipper import (
     EXIT_KLIPPER_SETUP,
@@ -180,5 +183,7 @@ def create_klipper_instance(name: str, create_example_cfg: bool) -> None:
     kl_im.create_instance()
     kl_im.enable_instance()
     if create_example_cfg:
-        create_example_printer_cfg(new_instance)
+        # if a client-config is installed, include it in the new example cfg
+        client_configs = get_existing_client_config()
+        create_example_printer_cfg(new_instance, client_configs)
     kl_im.start_instance()
