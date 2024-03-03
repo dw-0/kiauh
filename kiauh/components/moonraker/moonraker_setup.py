@@ -130,12 +130,6 @@ def check_moonraker_install_requirements() -> bool:
         Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
         return False
 
-    mr_instance_count = len(InstanceManager(Moonraker).instances)
-    if mr_instance_count >= kl_instance_count:
-        Logger.print_warn("Unable to install more Moonraker instances!")
-        Logger.print_warn("More Klipper instances required.")
-        return False
-
     return True
 
 
