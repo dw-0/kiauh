@@ -56,9 +56,9 @@ def remove_client_config_symlink(client_config: ClientConfigData) -> None:
     im = InstanceManager(Klipper)
     instances: List[Klipper] = im.instances
     for instance in instances:
-        Logger.print_status(f"Removing symlink from '{instance.cfg_file}' ...")
+        Logger.print_status(f"Removing symlink from '{instance.cfg_dir}' ...")
         symlink = instance.cfg_dir.joinpath(client_config.get("cfg_filename"))
-        if not symlink.exists():
+        if not symlink.is_symlink():
             Logger.print_info(f"'{symlink}' does not exist. Skipping ...")
             continue
 
