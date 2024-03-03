@@ -21,7 +21,6 @@ from components.webui_client import (
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.client_config.client_config_setup import (
     install_client_config,
-    config_for_other_client_exist,
 )
 from components.webui_client.client_dialogs import (
     print_moonraker_not_found_dialog,
@@ -33,8 +32,8 @@ from components.webui_client.client_utils import (
     restore_mainsail_config_json,
     enable_mainsail_remotemode,
     symlink_webui_nginx_log,
-    load_client_data,
-)
+    load_client_data, config_for_other_client_exist,
+    )
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
 from kiauh import KIAUH_CFG

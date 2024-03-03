@@ -13,7 +13,7 @@ import json
 import shutil
 from json import JSONDecodeError
 from pathlib import Path
-from typing import List, Optional, Dict, Literal, Union
+from typing import List, Optional, Dict, Literal, Union, get_args
 
 import urllib.request
 
@@ -43,7 +43,7 @@ from components.webui_client import (
 from core.backup_manager.backup_manager import BackupManager
 from core.repo_manager.repo_manager import RepoManager
 from utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
-from utils.common import get_install_status_webui, get_install_status_common
+from utils.common import get_install_status_webui
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 from utils.logger import Logger
 
@@ -235,3 +235,41 @@ def backup_client_config_data(client: ClientData) -> None:
     target = client_config.get("backup_dir")
     bm = BackupManager()
     bm.backup_directory(name, source, target)
+
+
+def get_existing_clients() -> List[ClientData]:
+    clients = list(get_args(ClientName))
+    installed_clients: List[ClientData] = []
+    for c in clients:
+        c_data: ClientData = load_client_data(c)
+        if c_data.get("dir").exists():
+            installed_clients.append(c_data)
+
+    return installed_clients
+
+
+def get_existing_client_config() -> List[ClientData]:
+    clients = list(get_args(ClientName))
+    installed_client_configs: List[ClientData] = []
+    for c in clients:
+        c_data: ClientData = load_client_data(c)
+        c_config_data: ClientConfigData = c_data.get("client_config")
+        if c_config_data.get("dir").exists():
+            installed_client_configs.append(c_data)
+
+    return installed_client_configs
+
+
+def config_for_other_client_exist(client_to_ignore: ClientName) -> bool:
+    """
+    Check if any other client configs are present on the system.
+    It is usually not harmful, but chances are they can conflict each other.
+    Multiple client configs are, at least, redundant to have them installed
+    :param client_to_ignore: The client name to ignore for the check
+    :return: True, if other client configs were found, else False
+    """
+
+    clients = set([c["name"] for c in get_existing_client_config()])
+    clients = clients - {client_to_ignore}
+
+    return True if len(clients) > 0 else False

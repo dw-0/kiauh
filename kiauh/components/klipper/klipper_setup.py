@@ -11,9 +11,7 @@
 
 from pathlib import Path
 
-from components.webui_client.client_config.client_config_setup import (
-    get_existing_client_config,
-)
+from components.webui_client.client_utils import get_existing_client_config
 from kiauh import KIAUH_CFG
 from components.klipper import (
     EXIT_KLIPPER_SETUP,

@@ -12,7 +12,7 @@
 import shutil
 import subprocess
 from pathlib import Path
-from typing import List, get_args, Union, Set
+from typing import List
 
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
@@ -21,8 +21,8 @@ from components.webui_client import ClientConfigData, ClientName, ClientData
 from components.webui_client.client_dialogs import print_client_already_installed_dialog
 from components.webui_client.client_utils import (
     load_client_data,
-    backup_client_config_data,
-)
+    backup_client_config_data, config_for_other_client_exist,
+    )
 from core.config_manager.config_manager import ConfigManager
 
 from core.instance_manager.instance_manager import InstanceManager
@@ -78,44 +78,6 @@ def install_client_config(client_name: ClientName) -> None:
         return
 
     Logger.print_ok(f"{d_name} installation complete!", start="\n")
-
-
-def config_for_other_client_exist(client_to_ignore: ClientName) -> bool:
-    """
-    Check if any other client configs are present on the system.
-    It is usually not harmful, but chances are they can conflict each other.
-    Multiple client configs are, at least, redundant to have them installed
-    :param client_to_ignore: The client name to ignore for the check
-    :return: True, if other client configs were found, else False
-    """
-
-    clients = set([c["name"] for c in get_existing_client_config()])
-    clients = clients - {client_to_ignore}
-
-    return True if len(clients) > 0 else False
-
-
-def get_existing_clients() -> List[ClientData]:
-    clients = list(get_args(ClientName))
-    installed_clients: List[ClientData] = []
-    for c in clients:
-        c_data: ClientData = load_client_data(c)
-        if c_data.get("dir").exists():
-            installed_clients.append(c_data)
-
-    return installed_clients
-
-
-def get_existing_client_config() -> List[ClientData]:
-    clients = list(get_args(ClientName))
-    installed_client_configs: List[ClientData] = []
-    for c in clients:
-        c_data: ClientData = load_client_data(c)
-        c_config_data: ClientConfigData = c_data.get("client_config")
-        if c_config_data.get("dir").exists():
-            installed_client_configs.append(c_data)
-
-    return installed_client_configs
 
 
 def download_client_config(client_config: ClientConfigData) -> None:

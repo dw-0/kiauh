@@ -15,8 +15,7 @@ from pathlib import Path
 from typing import List
 
 from components.webui_client import MAINSAIL_DIR
-from components.webui_client.client_config.client_config_setup import get_existing_client_config, get_existing_clients
-from components.webui_client.client_utils import enable_mainsail_remotemode
+from components.webui_client.client_utils import enable_mainsail_remotemode, get_existing_clients
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import print_instance_overview
