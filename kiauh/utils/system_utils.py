@@ -127,11 +127,14 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
     :param requirements: Path to the requirements.txt file
     :return: None
     """
-    Logger.print_status("Installing Python requirements ...")
     try:
+        # always update pip before installing requirements
         update_python_pip(target)
+
+        Logger.print_status("Installing Python requirements ...")
         command = [target.joinpath("bin/pip"), "install", "-r", f"{requirements}"]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
             Logger.print_error("Installing Python requirements failed!")
