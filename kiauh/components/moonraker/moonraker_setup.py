@@ -193,17 +193,6 @@ def install_moonraker_polkit() -> None:
         Logger.print_error(log)
 
 
-def handle_existing_instances(instance_list: List[Klipper]) -> bool:
-    instance_count = len(instance_list)
-
-    if instance_count > 0:
-        print_instance_overview(instance_list)
-        if not get_confirm("Add new instances?", allow_go_back=True):
-            return False
-
-    return True
-
-
 def update_moonraker() -> None:
     if not get_confirm("Update Moonraker now?"):
         return
