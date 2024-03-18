@@ -11,7 +11,10 @@
 
 from pathlib import Path
 
-from components.webui_client.client_utils import get_existing_client_config, get_existing_clients
+from components.webui_client.client_utils import (
+    get_existing_client_config,
+    get_existing_clients,
+)
 from kiauh import KIAUH_CFG
 from components.klipper import (
     EXIT_KLIPPER_SETUP,
@@ -96,7 +99,8 @@ def install_klipper() -> None:
 
         kl_im.reload_daemon()
 
-    except Exception:
+    except Exception as e:
+        Logger.print_error(e)
         Logger.print_error("Klipper installation failed!")
         return
 

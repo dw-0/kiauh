@@ -34,13 +34,16 @@ from components.klipper.klipper_dialogs import (
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_utils import moonraker_to_multi_conversion
 from components.webui_client import ClientData
-from components.webui_client.client_config.client_config_setup import create_client_config_symlink
+from components.webui_client.client_config.client_config_setup import (
+    create_client_config_symlink,
+)
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.instance_manager.name_scheme import NameScheme
 from core.repo_manager.repo_manager import RepoManager
+from utils import PRINTER_CFG_BACKUP_DIR
 from utils.common import get_install_status_common
 from utils.constants import CURRENT_USER
 from utils.input_utils import get_confirm, get_string_input, get_number_input
@@ -161,6 +164,15 @@ def klipper_to_multi_conversion(new_name: str) -> None:
     im.current_instance = im.instances[0]
     # temporarily store the data dir path
     old_data_dir = im.instances[0].data_dir
+    old_data_dir_name = im.instances[0].data_dir_name
+    # backup the old data_dir
+    bm = BackupManager()
+    name = f"config-{old_data_dir_name}"
+    bm.backup_directory(
+        name,
+        source=im.current_instance.cfg_dir,
+        target=PRINTER_CFG_BACKUP_DIR,
+    )
     # remove the old single instance
     im.stop_instance()
     im.disable_instance()
@@ -169,13 +181,20 @@ def klipper_to_multi_conversion(new_name: str) -> None:
     im.current_instance = Klipper(suffix=new_name)
     new_data_dir: Path = im.current_instance.data_dir
 
-    # rename the old data dir and use it for the new instance
-    Logger.print_status(f"Rename '{old_data_dir}' to '{new_data_dir}' ...")
     if not new_data_dir.is_dir():
+        # rename the old data dir and use it for the new instance
+        Logger.print_status(f"Rename '{old_data_dir}' to '{new_data_dir}' ...")
         old_data_dir.rename(new_data_dir)
     else:
-        Logger.print_info(f"'{new_data_dir}' already exist. Skipped ...")
+        Logger.print_info(f"Existing '{new_data_dir}' found ...")
 
+    # patch the virtual_sdcard sections path value to match the new printer_data foldername
+    cm = ConfigManager(im.current_instance.cfg_file)
+    if cm.config.has_section("virtual_sdcard"):
+        cm.set_value("virtual_sdcard", "path", str(im.current_instance.gcodes_dir))
+        cm.write_config()
+
+    # finalize creating the new instance
     im.create_instance()
     im.enable_instance()
     im.start_instance()
@@ -288,7 +307,7 @@ def create_example_printer_cfg(
             client_config = c.get("client_config")
             section = client_config.get("printer_cfg_section")
             cm.config.add_section(section=section)
-            create_client_config_symlink(client_config,[instance])
+            create_client_config_symlink(client_config, [instance])
 
     cm.write_config()
 
