@@ -35,11 +35,16 @@ class Moonraker(BaseInstance):
         self.backup_dir = self.data_dir.joinpath("backup")
         self.certs_dir = self.data_dir.joinpath("certs")
         self._db_dir = self.data_dir.joinpath("database")
+        self._comms_dir = self.data_dir.joinpath("comms")
         self.log = self.log_dir.joinpath("moonraker.log")
 
     @property
     def db_dir(self) -> Path:
         return self._db_dir
+
+    @property
+    def comms_dir(self) -> Path:
+        return self._comms_dir
 
     def create(self, create_example_cfg: bool = False) -> None:
         Logger.print_status("Creating new Moonraker Instance ...")

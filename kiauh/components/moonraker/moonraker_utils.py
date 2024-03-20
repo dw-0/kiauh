@@ -150,13 +150,27 @@ def moonraker_to_multi_conversion(new_name: str) -> None:
         return
 
     Logger.print_status("Convert Moonraker single to multi instance ...")
+
     # remove the old single instance
     im.current_instance = im.instances[0]
     im.stop_instance()
     im.disable_instance()
     im.delete_instance()
-    # create a new klipper instance with the new name
-    im.current_instance = Moonraker(suffix=new_name)
+
+    # create a new moonraker instance with the new name
+    new_instance = Moonraker(suffix=new_name)
+    im.current_instance = new_instance
+
+    # patch the server sections klippy_uds_address value to match the new printer_data foldername
+    cm = ConfigManager(new_instance.cfg_file)
+    if cm.config.has_section("server"):
+        cm.set_value(
+            "server",
+            "klippy_uds_address",
+            str(new_instance.comms_dir.joinpath("klippy.sock")),
+        )
+        cm.write_config()
+
     # create, enable and start the new moonraker instance
     im.create_instance()
     im.enable_instance()
