@@ -24,19 +24,13 @@ from utils.logger import Logger
 
 def run_client_config_removal(
     client_config: ClientConfigData,
-    remove_moonraker_conf_section: bool,
-    remove_printer_cfg_include: bool,
     kl_instances: List[Klipper],
     mr_instances: List[Moonraker],
 ) -> None:
     remove_client_config_dir(client_config)
     remove_client_config_symlink(client_config)
-    if remove_moonraker_conf_section:
-        remove_config_section(
-            f"update_manager {client_config.get('name')}", mr_instances
-        )
-    if remove_printer_cfg_include:
-        remove_config_section(client_config.get("printer_cfg_section"), kl_instances)
+    remove_config_section(f"update_manager {client_config.get('name')}", mr_instances)
+    remove_config_section(client_config.get("printer_cfg_section"), kl_instances)
 
 
 def remove_client_config_dir(client_config: ClientConfigData) -> None:

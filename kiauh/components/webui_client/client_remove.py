@@ -35,28 +35,27 @@ def run_client_removal(
     rm_client: bool,
     rm_client_config: bool,
     backup_ms_config_json: bool,
-    rm_moonraker_conf_section: bool,
-    rm_printer_cfg_section: bool,
 ) -> None:
     mr_im = InstanceManager(Moonraker)
     mr_instances: List[Moonraker] = mr_im.instances
     kl_im = InstanceManager(Klipper)
     kl_instances: List[Klipper] = kl_im.instances
+
     if backup_ms_config_json and client.get("name") == "mainsail":
         backup_mainsail_config_json()
+
     if rm_client:
         client_name = client.get("name")
         remove_client_dir(client)
         remove_nginx_config(client_name)
         remove_nginx_logs(client_name)
-        if rm_moonraker_conf_section:
-            section = f"update_manager {client_name}"
-            remove_config_section(section, mr_instances)
+
+        section = f"update_manager {client_name}"
+        remove_config_section(section, mr_instances)
+
     if rm_client_config:
         run_client_config_removal(
             client.get("client_config"),
-            rm_moonraker_conf_section,
-            rm_printer_cfg_section,
             kl_instances,
             mr_instances,
         )

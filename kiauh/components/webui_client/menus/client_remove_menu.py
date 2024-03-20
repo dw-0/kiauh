@@ -25,8 +25,6 @@ class ClientRemoveMenu(BaseMenu):
         self.rm_client = False
         self.rm_client_config = False
         self.backup_mainsail_config_json = False
-        self.rm_moonraker_conf_section = False
-        self.rm_printer_cfg_section = False
 
         super().__init__(
             header=False,
@@ -39,12 +37,10 @@ class ClientRemoveMenu(BaseMenu):
             "0": self.toggle_all,
             "1": self.toggle_rm_client,
             "2": self.toggle_rm_client_config,
-            "3": self.toggle_rm_printer_cfg_section,
-            "4": self.toggle_rm_moonraker_conf_section,
             "c": self.run_removal_process,
         }
         if self.client.get("name") == "mainsail":
-            options["5"] = self.toggle_backup_mainsail_config_json
+            options["3"] = self.toggle_backup_mainsail_config_json
 
         return options
 
@@ -60,8 +56,6 @@ class ClientRemoveMenu(BaseMenu):
         unchecked = "[ ]"
         o1 = checked if self.rm_client else unchecked
         o2 = checked if self.rm_client_config else unchecked
-        o3 = checked if self.rm_printer_cfg_section else unchecked
-        o4 = checked if self.rm_moonraker_conf_section else unchecked
         menu = textwrap.dedent(
             f"""
             /=======================================================\\
@@ -74,20 +68,14 @@ class ClientRemoveMenu(BaseMenu):
             |-------------------------------------------------------|
             |  1) {o1} Remove {client_name:16}                       |
             |  2) {o2} Remove {client_config_name:24}               |
-            |                                                       |
-            | printer.cfg & moonraker.conf                          |
-            |  3) {o3} Remove printer.cfg include                    |
-            |  4) {o4} Remove Moonraker update section               |
             """
         )[1:]
 
         if self.client.get("name") == "mainsail":
-            o5 = checked if self.backup_mainsail_config_json else unchecked
+            o3 = checked if self.backup_mainsail_config_json else unchecked
             menu += textwrap.dedent(
                 f"""
-                |                                                       |
-                | Mainsail config.json                                  |
-                |  5) {o5} Backup config.json                            |
+                |  3) {o3} Backup config.json                            |
                 """
             )[1:]
 
@@ -103,8 +91,6 @@ class ClientRemoveMenu(BaseMenu):
         self.rm_client = True
         self.rm_client_config = True
         self.backup_mainsail_config_json = True
-        self.rm_moonraker_conf_section = True
-        self.rm_printer_cfg_section = True
 
     def toggle_rm_client(self, **kwargs) -> None:
         self.rm_client = not self.rm_client
@@ -115,19 +101,11 @@ class ClientRemoveMenu(BaseMenu):
     def toggle_backup_mainsail_config_json(self, **kwargs) -> None:
         self.backup_mainsail_config_json = not self.backup_mainsail_config_json
 
-    def toggle_rm_moonraker_conf_section(self, **kwargs) -> None:
-        self.rm_moonraker_conf_section = not self.rm_moonraker_conf_section
-
-    def toggle_rm_printer_cfg_section(self, **kwargs) -> None:
-        self.rm_printer_cfg_section = not self.rm_printer_cfg_section
-
     def run_removal_process(self, **kwargs) -> None:
         if (
             not self.rm_client
             and not self.rm_client_config
             and not self.backup_mainsail_config_json
-            and not self.rm_moonraker_conf_section
-            and not self.rm_printer_cfg_section
         ):
             error = f"{COLOR_RED}Nothing selected ...{RESET_FORMAT}"
             print(error)
@@ -138,12 +116,8 @@ class ClientRemoveMenu(BaseMenu):
             rm_client=self.rm_client,
             rm_client_config=self.rm_client_config,
             backup_ms_config_json=self.backup_mainsail_config_json,
-            rm_moonraker_conf_section=self.rm_moonraker_conf_section,
-            rm_printer_cfg_section=self.rm_printer_cfg_section,
         )
 
         self.rm_client = False
         self.rm_client_config = False
         self.backup_mainsail_config_json = False
-        self.rm_moonraker_conf_section = False
-        self.rm_printer_cfg_section = False
