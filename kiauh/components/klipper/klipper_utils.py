@@ -162,9 +162,11 @@ def klipper_to_multi_conversion(new_name: str) -> None:
     Logger.print_status("Convert Klipper single to multi instance ...")
     im = InstanceManager(Klipper)
     im.current_instance = im.instances[0]
+
     # temporarily store the data dir path
     old_data_dir = im.instances[0].data_dir
     old_data_dir_name = im.instances[0].data_dir_name
+
     # backup the old data_dir
     bm = BackupManager()
     name = f"config-{old_data_dir_name}"
@@ -173,25 +175,27 @@ def klipper_to_multi_conversion(new_name: str) -> None:
         source=im.current_instance.cfg_dir,
         target=PRINTER_CFG_BACKUP_DIR,
     )
+
     # remove the old single instance
     im.stop_instance()
     im.disable_instance()
     im.delete_instance()
-    # create a new klipper instance with the new name
-    im.current_instance = Klipper(suffix=new_name)
-    new_data_dir: Path = im.current_instance.data_dir
 
-    if not new_data_dir.is_dir():
+    # create a new klipper instance with the new name
+    new_instance = Klipper(suffix=new_name)
+    im.current_instance = new_instance
+
+    if not new_instance.data_dir.is_dir():
         # rename the old data dir and use it for the new instance
-        Logger.print_status(f"Rename '{old_data_dir}' to '{new_data_dir}' ...")
-        old_data_dir.rename(new_data_dir)
+        Logger.print_status(f"Rename '{old_data_dir}' to '{new_instance.data_dir}' ...")
+        old_data_dir.rename(new_instance.data_dir)
     else:
-        Logger.print_info(f"Existing '{new_data_dir}' found ...")
+        Logger.print_info(f"Existing '{new_instance.data_dir}' found ...")
 
     # patch the virtual_sdcard sections path value to match the new printer_data foldername
-    cm = ConfigManager(im.current_instance.cfg_file)
+    cm = ConfigManager(new_instance.cfg_file)
     if cm.config.has_section("virtual_sdcard"):
-        cm.set_value("virtual_sdcard", "path", str(im.current_instance.gcodes_dir))
+        cm.set_value("virtual_sdcard", "path", str(new_instance.gcodes_dir))
         cm.write_config()
 
     # finalize creating the new instance
