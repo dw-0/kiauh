@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
@@ -12,7 +10,6 @@
 from pathlib import Path
 
 from components.webui_client.client_utils import (
-    get_existing_client_config,
     get_existing_clients,
 )
 from kiauh import KIAUH_CFG

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
@@ -12,13 +10,11 @@
 import subprocess
 import sys
 from pathlib import Path
-from typing import List
 
 from components.webui_client import MAINSAIL_DIR
 from components.webui_client.client_utils import enable_mainsail_remotemode, get_existing_clients
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
-from components.klipper.klipper_dialogs import print_instance_overview
 from components.moonraker import (
     EXIT_MOONRAKER_SETUP,
     DEFAULT_MOONRAKER_REPO_URL,

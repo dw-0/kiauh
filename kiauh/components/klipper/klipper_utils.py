@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
@@ -15,7 +13,6 @@ import re
 import shutil
 import subprocess
 import textwrap
-from pathlib import Path
 from typing import List, Union, Literal, Dict, Optional
 
 from components.klipper import (

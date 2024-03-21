@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
@@ -32,8 +30,9 @@ from components.webui_client.client_utils import (
     restore_mainsail_config_json,
     enable_mainsail_remotemode,
     symlink_webui_nginx_log,
-    load_client_data, config_for_other_client_exist,
-    )
+    load_client_data,
+    config_for_other_client_exist,
+)
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
 from kiauh import KIAUH_CFG
