@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
@@ -9,13 +7,12 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+from __future__ import annotations
 from abc import abstractmethod, ABC
 from pathlib import Path
-from typing import List, Type, TypeVar
+from typing import List, Optional
 
 from utils.constants import SYSTEMD, CURRENT_USER
-
-B = TypeVar(name="B", bound="BaseInstance", covariant=True)
 
 
 class BaseInstance(ABC):
@@ -26,7 +23,7 @@ class BaseInstance(ABC):
     def __init__(
         self,
         suffix: str,
-        instance_type: B = B,
+        instance_type: BaseInstance,
     ):
         self._instance_type = instance_type
         self._suffix = suffix
@@ -40,11 +37,11 @@ class BaseInstance(ABC):
         self._gcodes_dir = self.data_dir.joinpath("gcodes")
 
     @property
-    def instance_type(self) -> Type["BaseInstance"]:
+    def instance_type(self) -> BaseInstance:
         return self._instance_type
 
     @instance_type.setter
-    def instance_type(self, value: Type["BaseInstance"]) -> None:
+    def instance_type(self, value: BaseInstance) -> None:
         self._instance_type = value
 
     @property
@@ -76,7 +73,7 @@ class BaseInstance(ABC):
         return self._data_dir
 
     @data_dir.setter
-    def data_dir(self, value: str) -> None:
+    def data_dir(self, value: Path) -> None:
         self._data_dir = value
 
     @property
@@ -84,7 +81,7 @@ class BaseInstance(ABC):
         return self._cfg_dir
 
     @cfg_dir.setter
-    def cfg_dir(self, value: str) -> None:
+    def cfg_dir(self, value: Path) -> None:
         self._cfg_dir = value
 
     @property
@@ -92,7 +89,7 @@ class BaseInstance(ABC):
         return self._log_dir
 
     @log_dir.setter
-    def log_dir(self, value: str) -> None:
+    def log_dir(self, value: Path) -> None:
         self._log_dir = value
 
     @property
@@ -100,7 +97,7 @@ class BaseInstance(ABC):
         return self._comms_dir
 
     @comms_dir.setter
-    def comms_dir(self, value: str) -> None:
+    def comms_dir(self, value: Path) -> None:
         self._comms_dir = value
 
     @property
@@ -108,7 +105,7 @@ class BaseInstance(ABC):
         return self._sysd_dir
 
     @sysd_dir.setter
-    def sysd_dir(self, value: str) -> None:
+    def sysd_dir(self, value: Path) -> None:
         self._sysd_dir = value
 
     @property
@@ -116,7 +113,7 @@ class BaseInstance(ABC):
         return self._gcodes_dir
 
     @gcodes_dir.setter
-    def gcodes_dir(self, value: str) -> None:
+    def gcodes_dir(self, value: Path) -> None:
         self._gcodes_dir = value
 
     @abstractmethod
@@ -127,7 +124,7 @@ class BaseInstance(ABC):
     def delete(self) -> None:
         raise NotImplementedError("Subclasses must implement the delete method")
 
-    def create_folders(self, add_dirs: List[Path] = None) -> None:
+    def create_folders(self, add_dirs: Optional[List[Path]] = None) -> None:
         dirs = [
             self.data_dir,
             self.cfg_dir,
