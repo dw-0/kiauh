@@ -26,6 +26,7 @@ from core.config_manager.config_manager import ConfigManager
 
 from core.instance_manager.instance_manager import InstanceManager
 from core.repo_manager.repo_manager import RepoManager
+from utils.common import backup_printer_config_dir
 from utils.filesystem_utils import (
     create_symlink,
     add_config_section, add_config_section_at_top,
@@ -58,6 +59,9 @@ def install_client_config(client_name: ClientName) -> None:
     try:
         download_client_config(client_config)
         create_client_config_symlink(client_config, kl_instances)
+
+        backup_printer_config_dir()
+
         add_config_section(
             section=f"update_manager {client_config.get('name')}",
             instances=mr_instances,
