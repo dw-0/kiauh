@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
@@ -12,15 +13,15 @@
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from zipfile import ZipFile
 
-from typing import List, Type, TypeVar, Union, Tuple
+from typing import List, TypeVar, Tuple, Optional
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.config_manager.config_manager import ConfigManager
-from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from utils import (
     NGINX_SITES_AVAILABLE,
@@ -31,7 +32,7 @@ from utils import (
 from utils.logger import Logger
 
 
-B = TypeVar('B', bound='BaseInstance')
+B = TypeVar("B", Klipper, Moonraker)
 ConfigOption = Tuple[str, str]
 
 
@@ -182,7 +183,11 @@ def get_next_free_port(ports_in_use: List[str]) -> str:
     return str(min(valid_ports - used_ports))
 
 
-def add_config_section(section: str, instances: List[B], options: List[ConfigOption] = None) -> None:
+def add_config_section(
+    section: str,
+    instances: List[B],
+    options: Optional[List[ConfigOption]] = None,
+) -> None:
     for instance in instances:
         cfg_file = instance.cfg_file
         Logger.print_status(f"Add section '[{section}]' to '{cfg_file}' ...")
@@ -203,6 +208,26 @@ def add_config_section(section: str, instances: List[B], options: List[ConfigOpt
                 cm.config.set(section, option[0], option[1])
 
         cm.write_config()
+
+def add_config_section_at_top(
+    section: str,
+    instances: List[B]):
+    for instance in instances:
+        tmp_cfg = tempfile.NamedTemporaryFile(mode="w" ,delete=False)
+        tmp_cfg_path = Path(tmp_cfg.name)
+        cmt = ConfigManager(tmp_cfg_path)
+        cmt.config.add_section(section)
+        cmt.write_config()
+        tmp_cfg.close()
+
+        cfg_file = instance.cfg_file
+        with open(cfg_file, "r") as org:
+            org_content = org.readlines()
+        with open(tmp_cfg_path, "a") as tmp:
+            tmp.writelines(org_content)
+
+        cfg_file.unlink()
+        tmp_cfg_path.rename(cfg_file)
 
 
 def remove_config_section(section: str, instances: List[B]) -> None:
