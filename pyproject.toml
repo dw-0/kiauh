@@ -11,5 +11,3 @@ exclude = '''
     | scripts/
 )
 '''
-[tool.mypy]
-mypy_path = "./kiauh"
