@@ -16,34 +16,34 @@ from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD
 from utils.logger import Logger
 
-I = TypeVar(name="I", bound=BaseInstance, covariant=True)
+T = TypeVar(name="T", bound=BaseInstance, covariant=True)
 
 
 # noinspection PyMethodMayBeStatic
 class InstanceManager:
-    def __init__(self, instance_type: I) -> None:
+    def __init__(self, instance_type: T) -> None:
         self._instance_type = instance_type
-        self._current_instance: Optional[I] = None
+        self._current_instance: Optional[T] = None
         self._instance_suffix: Optional[str] = None
         self._instance_service: Optional[str] = None
         self._instance_service_full: Optional[str] = None
         self._instance_service_path: Optional[str] = None
-        self._instances: List[I] = []
+        self._instances: List[T] = []
 
     @property
-    def instance_type(self) -> I:
+    def instance_type(self) -> T:
         return self._instance_type
 
     @instance_type.setter
-    def instance_type(self, value: I):
+    def instance_type(self, value: T):
         self._instance_type = value
 
     @property
-    def current_instance(self) -> I:
+    def current_instance(self) -> T:
         return self._current_instance
 
     @current_instance.setter
-    def current_instance(self, value: I) -> None:
+    def current_instance(self, value: T) -> None:
         self._current_instance = value
         self.instance_suffix = value.suffix
         self.instance_service = value.get_service_file_name()
@@ -78,11 +78,11 @@ class InstanceManager:
         self._instance_service_path = value
 
     @property
-    def instances(self) -> List[I]:
+    def instances(self) -> List[T]:
         return self.find_instances()
 
     @instances.setter
-    def instances(self, value: List[I]):
+    def instances(self, value: List[T]):
         self._instances = value
 
     def create_instance(self) -> None:
@@ -182,7 +182,7 @@ class InstanceManager:
             Logger.print_error(f"{e}")
             raise
 
-    def find_instances(self) -> List[I]:
+    def find_instances(self) -> List[T]:
         name = self.instance_type.__name__.lower()
         pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
         excluded = self.instance_type.blacklist()

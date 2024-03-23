@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 
 # ======================================================================= #
 #  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
@@ -209,11 +208,10 @@ def add_config_section(
 
         cm.write_config()
 
-def add_config_section_at_top(
-    section: str,
-    instances: List[B]):
+
+def add_config_section_at_top(section: str, instances: List[B]):
     for instance in instances:
-        tmp_cfg = tempfile.NamedTemporaryFile(mode="w" ,delete=False)
+        tmp_cfg = tempfile.NamedTemporaryFile(mode="w", delete=False)
         tmp_cfg_path = Path(tmp_cfg.name)
         cmt = ConfigManager(tmp_cfg_path)
         cmt.config.add_section(section)

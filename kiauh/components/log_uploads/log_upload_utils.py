@@ -50,5 +50,5 @@ def upload_logfile(logfile: LogFile) -> None:
             Logger.print_ok("Upload successful! Access it via the following link:")
             Logger.print_ok(f">>>> {link}", False)
         except Exception as e:
-            Logger.print_error(f"Uploading logfile failed!")
+            Logger.print_error("Uploading logfile failed!")
             Logger.print_error(str(e))

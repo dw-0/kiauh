@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 from pathlib import Path
-from typing import Literal, TypedDict, Set
+from typing import Literal, TypedDict
 
 from core.backup_manager import BACKUP_ROOT_DIR
 

@@ -9,7 +9,7 @@
 
 import textwrap
 from enum import Enum, unique
-from typing import List, Union, Literal
+from typing import List
 
 from core.instance_manager.base_instance import BaseInstance
 from core.menus.base_menu import print_back_footer
