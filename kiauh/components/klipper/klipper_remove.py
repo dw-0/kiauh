@@ -62,7 +62,7 @@ def run_klipper_removal(
 def select_instances_to_remove(
     instances: List[Klipper],
 ) -> Union[List[Klipper], None]:
-    print_instance_overview(instances, True, True)
+    print_instance_overview(instances, show_index=True, show_select_all=True)
 
     options = [str(i) for i in range(len(instances))]
     options.extend(["a", "A", "b", "B"])

@@ -8,24 +8,37 @@
 # ======================================================================= #
 
 import textwrap
-from typing import List
+from enum import Enum, unique
+from typing import List, Union, Literal
 
 from core.instance_manager.base_instance import BaseInstance
 from core.menus.base_menu import print_back_footer
 from utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
 
+@unique
+class DisplayType(Enum):
+    SERVICE_NAME = "SERVICE_NAME"
+    PRINTER_NAME = "PRINTER_NAME"
+
+
 def print_instance_overview(
-    instances: List[BaseInstance], show_index=False, show_select_all=False
+    instances: List[BaseInstance],
+    display_type: DisplayType = DisplayType.SERVICE_NAME,
+    show_headline=True,
+    show_index=False,
+    show_select_all=False,
 ):
-    headline = f"{COLOR_GREEN}The following Klipper instances were found:{RESET_FORMAT}"
-    dialog = textwrap.dedent(
-        f"""
-        /=======================================================\\
-        |{headline:^64}|
-        |-------------------------------------------------------|
-        """
-    )[1:]
+    dialog = "/=======================================================\\\n"
+    if show_headline:
+        d_type = (
+            "Klipper instances"
+            if display_type is DisplayType.SERVICE_NAME
+            else "printer directories"
+        )
+        headline = f"{COLOR_GREEN}The following {d_type} were found:{RESET_FORMAT}"
+        dialog += f"|{headline:^64}|\n"
+        dialog += "|-------------------------------------------------------|\n"
 
     if show_select_all:
         select_all = f"{COLOR_YELLOW}a) Select all{RESET_FORMAT}"
@@ -33,7 +46,11 @@ def print_instance_overview(
         dialog += "|                                                       |\n"
 
     for i, s in enumerate(instances):
-        line = f"{COLOR_CYAN}{f'{i})' if show_index else '●'} {s.get_service_file_name()}{RESET_FORMAT}"
+        if display_type is DisplayType.SERVICE_NAME:
+            name = s.get_service_file_name()
+        else:
+            name = s.data_dir
+        line = f"{COLOR_CYAN}{f'{i})' if show_index else '●'} {name}{RESET_FORMAT}"
         dialog += f"| {line:<63}|\n"
 
     print(dialog, end="")
