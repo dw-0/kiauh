@@ -24,7 +24,7 @@ class RepoManager:
         branch: str = None,
     ):
         self._repo = repo
-        self._branch = branch if branch is not None else "master"
+        self._branch = branch
         self._method = self._get_method()
         self._target_dir = target_dir
 
@@ -110,7 +110,7 @@ class RepoManager:
             if Path(self.target_dir).exists():
                 question = f"'{self.target_dir}' already exists. Overwrite?"
                 if not get_confirm(question, default_choice=False):
-                    Logger.print_info("Skipping re-clone of repository.")
+                    Logger.print_info("Skip cloning of repository ...")
                     return
                 shutil.rmtree(self.target_dir)
 
@@ -145,6 +145,9 @@ class RepoManager:
             raise
 
     def _checkout(self):
+        if self.branch is None:
+            return
+
         try:
             command = ["git", "checkout", f"{self.branch}"]
             subprocess.run(command, cwd=self.target_dir, check=True)
