@@ -27,14 +27,18 @@ class AdvancedMenu(BaseMenu):
             /=======================================================\\
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
-            | Klipper & API:          | Mainsail:                   |
-            |  0) [Rollback]          |  5) [Theme installer]       |
-            |                         |                             |
-            | Firmware:               | System:                     |
-            |  1) [Build only]        |  6) [Change hostname]       |
-            |  2) [Flash only]        |                             |
-            |  3) [Build + Flash]     | Extras:                     |
-            |  4) [Get MCU ID]        |  7) [G-Code Shell Command]  |
+            | Repo Rollback:                                        |
+            |  1) [Klipper]                                         |
+            |  2) [Moonraker]                                       |
+            |                                                       |
+            | Klipper Firmware:                                     |
+            |  3) [Build]                                           |
+            |  4) [Flash]                                           |
+            |  5) [Build + Flash]                                   |
+            |  6) [Get MCU ID]                                      |
+            |                                                       |
+            | Mainsail:                                             |
+            |  7) [Theme installer]                                 |    
             """
         )[1:]
         print(menu, end="")
