@@ -20,7 +20,7 @@ from utils.constants import RESET_FORMAT, COLOR_YELLOW
 class LogUploadMenu(BaseMenu):
     def __init__(self):
         self.logfile_list = get_logfile_list()
-        options = {index: self.upload for index in range(len(self.logfile_list))}
+        options = {f"{index}": self.upload for index in range(len(self.logfile_list))}
         super().__init__(
             header=True,
             options=options,
@@ -49,4 +49,5 @@ class LogUploadMenu(BaseMenu):
         print(menu, end="")
 
     def upload(self, **kwargs):
-        upload_logfile(self.logfile_list[kwargs.get("opt_index")])
+        index = int(kwargs.get("opt_index"))
+        upload_logfile(self.logfile_list[index])
