@@ -26,7 +26,7 @@ class ExtensionsMenu(BaseMenu):
     def __init__(self):
         self.extensions = self.discover_extensions()
         super().__init__(
-            header=True,
+            header=False,
             options=self.get_options(),
             footer_type=BACK_FOOTER,
         )
