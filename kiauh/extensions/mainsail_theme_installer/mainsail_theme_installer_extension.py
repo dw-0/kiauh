@@ -15,7 +15,10 @@ from typing import List, Union
 from typing import TypedDict
 
 from components.klipper.klipper import Klipper
-from components.klipper.klipper_dialogs import print_instance_overview, DisplayType
+from components.klipper.klipper_dialogs import (
+    print_instance_overview,
+    DisplayType,
+)
 from core.base_extension import BaseExtension
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
@@ -50,7 +53,7 @@ class MainsailThemeInstallerExtension(BaseExtension):
             show_headline=True,
             show_index=True,
             show_select_all=True,
-            )
+        )
         printer_list = get_printer_selection(self.instances, True)
         if printer_list is None:
             return
@@ -130,7 +133,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             show_headline=True,
             show_index=True,
             show_select_all=True,
-            )
+        )
 
         printer_list = get_printer_selection(self.instances, True)
         if printer_list is None:
@@ -146,7 +149,9 @@ class MainsailThemeInstallMenu(BaseMenu):
             Logger.print_info(theme_data.get("short_note"), prefix=False, end="\n\n")
 
 
-def get_printer_selection(instances: List[BaseInstance], is_install: bool) -> Union[List[BaseInstance], None]:
+def get_printer_selection(
+    instances: List[BaseInstance], is_install: bool
+) -> Union[List[BaseInstance], None]:
     options = [str(i) for i in range(len(instances))]
     options.extend(["a", "A", "b", "B"])
 

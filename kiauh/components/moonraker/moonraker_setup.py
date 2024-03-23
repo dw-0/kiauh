@@ -12,7 +12,10 @@ import sys
 from pathlib import Path
 
 from components.webui_client import MAINSAIL_DIR
-from components.webui_client.client_utils import enable_mainsail_remotemode, get_existing_clients
+from components.webui_client.client_utils import (
+    enable_mainsail_remotemode,
+    get_existing_clients,
+)
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
 from components.moonraker import (
@@ -170,7 +173,10 @@ def install_moonraker_polkit() -> None:
     try:
         command = [POLKIT_SCRIPT, "--disable-systemctl"]
         result = subprocess.run(
-            command, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, text=True
+            command,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            text=True,
         )
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)

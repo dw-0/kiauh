@@ -108,7 +108,12 @@ class InstanceManager:
     def enable_instance(self) -> None:
         Logger.print_status(f"Enabling {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "enable", self.instance_service_full]
+            command = [
+                "sudo",
+                "systemctl",
+                "enable",
+                self.instance_service_full,
+            ]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_service_full} enabled.")
         except subprocess.CalledProcessError as e:
@@ -118,7 +123,12 @@ class InstanceManager:
     def disable_instance(self) -> None:
         Logger.print_status(f"Disabling {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "disable", self.instance_service_full]
+            command = [
+                "sudo",
+                "systemctl",
+                "disable",
+                self.instance_service_full,
+            ]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_service_full} disabled.")
         except subprocess.CalledProcessError as e:
@@ -128,7 +138,12 @@ class InstanceManager:
     def start_instance(self) -> None:
         Logger.print_status(f"Starting {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "start", self.instance_service_full]
+            command = [
+                "sudo",
+                "systemctl",
+                "start",
+                self.instance_service_full,
+            ]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_service_full} started.")
         except subprocess.CalledProcessError as e:
@@ -138,7 +153,12 @@ class InstanceManager:
     def restart_instance(self) -> None:
         Logger.print_status(f"Restarting {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "restart", self.instance_service_full]
+            command = [
+                "sudo",
+                "systemctl",
+                "restart",
+                self.instance_service_full,
+            ]
             if subprocess.run(command, check=True):
                 Logger.print_ok(f"{self.instance_service_full} restarted.")
         except subprocess.CalledProcessError as e:

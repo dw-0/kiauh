@@ -51,7 +51,11 @@ def get_confirm(
 
 
 def get_number_input(
-    question: str, min_count: int, max_count=None, default=None, allow_go_back=False
+    question: str,
+    min_count: int,
+    max_count=None,
+    default=None,
+    allow_go_back=False,
 ) -> Union[int, None]:
     """
     Helper method to get a number input from the user

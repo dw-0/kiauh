@@ -10,7 +10,9 @@
 import textwrap
 
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
-from components.moonraker.menus.moonraker_remove_menu import MoonrakerRemoveMenu
+from components.moonraker.menus.moonraker_remove_menu import (
+    MoonrakerRemoveMenu,
+)
 from components.webui_client.client_utils import load_client_data
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
 from core.menus import BACK_FOOTER

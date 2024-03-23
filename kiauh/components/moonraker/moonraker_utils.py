@@ -32,10 +32,12 @@ from utils.system_utils import (
 )
 
 
-def get_moonraker_status() -> Dict[
-    Literal["status", "status_code", "instances", "repo", "local", "remote"],
-    Union[str, int],
-]:
+def get_moonraker_status() -> (
+    Dict[
+        Literal["status", "status_code", "instances", "repo", "local", "remote"],
+        Union[str, int],
+    ]
+):
     status = get_install_status_common(Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR)
     return {
         "status": status.get("status"),

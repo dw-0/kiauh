@@ -68,7 +68,11 @@ class MainMenu(BaseMenu):
     def init_status(self) -> None:
         status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn"]
         for var in status_vars:
-            setattr(self, f"{var}_status", f"{COLOR_RED}Not installed!{RESET_FORMAT}")
+            setattr(
+                self,
+                f"{var}_status",
+                f"{COLOR_RED}Not installed!{RESET_FORMAT}",
+            )
 
     def fetch_status(self) -> None:
         # klipper

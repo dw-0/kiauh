@@ -130,9 +130,15 @@ def remove_polkit_rules() -> None:
         return
 
     try:
-        command = [f"{MOONRAKER_DIR}/scripts/set-policykit-rules.sh", "--clear"]
+        command = [
+            f"{MOONRAKER_DIR}/scripts/set-policykit-rules.sh",
+            "--clear",
+        ]
         subprocess.run(
-            command, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, check=True
+            command,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            check=True,
         )
     except subprocess.CalledProcessError as e:
         Logger.print_error(f"Error while removing policykit rules: {e}")

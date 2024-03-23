@@ -16,7 +16,9 @@ from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from components.webui_client import ClientConfigData, ClientName, ClientData
-from components.webui_client.client_dialogs import print_client_already_installed_dialog
+from components.webui_client.client_dialogs import (
+    print_client_already_installed_dialog,
+)
 from components.webui_client.client_utils import (
     load_client_data,
     backup_client_config_data,
@@ -29,8 +31,9 @@ from core.repo_manager.repo_manager import RepoManager
 from utils.common import backup_printer_config_dir
 from utils.filesystem_utils import (
     create_symlink,
-    add_config_section, add_config_section_at_top,
-    )
+    add_config_section,
+    add_config_section_at_top,
+)
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 

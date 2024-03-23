@@ -112,7 +112,9 @@ def get_client_status(client: ClientData) -> str:
     )
 
 
-def get_client_config_status(client: ClientData) -> Dict[
+def get_client_config_status(
+    client: ClientData,
+) -> Dict[
     Literal["repo", "local", "remote"],
     Union[str, int],
 ]:

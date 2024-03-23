@@ -48,10 +48,12 @@ from utils.logger import Logger
 from utils.system_utils import mask_system_service
 
 
-def get_klipper_status() -> Dict[
-    Literal["status", "status_code", "instances", "repo", "local", "remote"],
-    Union[str, int],
-]:
+def get_klipper_status() -> (
+    Dict[
+        Literal["status", "status_code", "instances", "repo", "local", "remote"],
+        Union[str, int],
+    ]
+):
     status = get_install_status_common(Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR)
     return {
         "status": status.get("status"),
@@ -69,7 +71,9 @@ def check_is_multi_install(
     return not existing_instances and install_count > 1
 
 
-def check_is_single_to_multi_conversion(existing_instances: List[Klipper]) -> bool:
+def check_is_single_to_multi_conversion(
+    existing_instances: List[Klipper],
+) -> bool:
     return len(existing_instances) == 1 and existing_instances[0].suffix == ""
 
 

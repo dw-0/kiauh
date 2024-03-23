@@ -44,7 +44,9 @@ class GcodeShellCmdExtension(BaseExtension):
         overwrite = True
         if extension_installed:
             overwrite = get_confirm(
-                "Extension seems to be installed already. Overwrite?", True, False
+                "Extension seems to be installed already. Overwrite?",
+                True,
+                False,
             )
 
         if not overwrite:

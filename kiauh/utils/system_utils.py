@@ -130,7 +130,12 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
         update_python_pip(target)
 
         Logger.print_status("Installing Python requirements ...")
-        command = [target.joinpath("bin/pip"), "install", "-r", f"{requirements}"]
+        command = [
+            target.joinpath("bin/pip"),
+            "install",
+            "-r",
+            f"{requirements}",
+        ]
         result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
 
         if result.returncode != 0 or result.stderr:
@@ -196,7 +201,10 @@ def check_package_install(packages: List[str]) -> List[str]:
     for package in packages:
         command = ["dpkg-query", "-f'${Status}'", "--show", package]
         result = subprocess.run(
-            command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
         )
         if "installed" not in result.stdout.strip("'").split():
             not_installed.append(package)
