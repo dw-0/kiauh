@@ -1,13 +1,16 @@
-[tool.black]
+[project]
+requires-python = ">=3.8"
+
+[tool.ruff]
+required-version = ">=0.3.4"
+respect-gitignore = true
+exclude = [".git",".github", "./docs"]
 line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-exclude = '''
-(
-      \.git/
-    | \.github/
-    | docs/
-    | resources/
-    | scripts/
-)
-'''
+indent-width = 4
+output-format = "full"
+
+[tool.ruff.format]
+indent-style = "space"
+line-ending = "lf"
+quote-style = "double"
+
