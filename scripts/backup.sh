@@ -43,15 +43,17 @@ function backup_config_dir() {
 
     local i=0 folder folder_name target_dir
     for folder in ${config_pathes}; do
-      status_msg "Create backup of ${folder} ..."
-
-      folder_name=$(echo "${folder}" | rev | cut -d"/" -f2 | rev)
-      target_dir="${BACKUP_DIR}/configs/${current_date}/${folder_name}"
-      mkdir -p "${target_dir}"
-      cp -r "${folder}" "${target_dir}"
-      i=$(( i + 1 ))
-
-      ok_msg "Backup created in:\n${target_dir}"
+      if [[ -d ${folder} ]]; then
+        status_msg "Create backup of ${folder} ..."
+  
+        folder_name=$(echo "${folder}" | rev | cut -d"/" -f2 | rev)
+        target_dir="${BACKUP_DIR}/configs/${current_date}/${folder_name}"
+        mkdir -p "${target_dir}"
+        cp -r "${folder}" "${target_dir}"
+        i=$(( i + 1 ))
+  
+        ok_msg "Backup created in:\n${target_dir}"
+      fi
     done
   else
     ok_msg "No config directory found! Skipping backup ..."
