@@ -1,0 +1,19 @@
+[Unit]
+Description=API Server for Klipper SV1
+Documentation=https://moonraker.readthedocs.io/
+Requires=network-online.target
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+User=%USER%
+SupplementaryGroups=moonraker-admin
+RemainAfterExit=yes
+WorkingDirectory=%MOONRAKER_DIR%
+EnvironmentFile=%ENV_FILE%
+ExecStart=%ENV%/bin/python $MOONRAKER_ARGS
+Restart=always
+RestartSec=10
