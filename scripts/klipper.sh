@@ -78,12 +78,17 @@ function start_klipper_setup() {
         python_version=3
         break;;
       2)
-        select_msg "Python 2.7\n"
+        select_msg "Python 2.x\n"
         python_version=2
         break;;
       B|b)
         clear; install_menu; break;;
       *)
+        if [[ "${input}" =~ ^[23](\.[0-9]+)?$ ]]; then
+          select_msg "Python ${input}\n"
+          python_version=$input
+          break
+        fi
         error_msg "Invalid Input!\n";;
     esac
   done && input=""
@@ -174,6 +179,7 @@ function print_dialog_user_select_python_version() {
   hr
   echo -e "|  1) [Python 3.x]  (recommended)                       | "
   echo -e "|  2) [Python 2.7]  ${yellow}(legacy)${white}                            | "
+  echo -e "|  X.Y) [Python X.Y]  (advanced)                        | "
   back_footer
 }
 
@@ -280,7 +286,7 @@ function create_klipper_virtualenv() {
   status_msg "Installing $("python${python_version}" -V) virtual environment..."
 
   if virtualenv -p "python${python_version}" "${KLIPPY_ENV}"; then
-    (( python_version == 3 )) && "${KLIPPY_ENV}"/bin/pip install -U pip
+    [[ "${python_version}" == 3* ]] && "${KLIPPY_ENV}"/bin/pip install -U pip
     "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
   else
     log_error "failure while creating python3 klippy-env"
@@ -307,15 +313,11 @@ function install_klipper_packages() {
   ### add dbus requirement for DietPi distro
   [[ -e "/boot/dietpi/.version" ]] && packages+=" dbus"
 
-  if (( python_version == 3 )); then
-    ### replace python-dev with python3-dev if python3 was selected
-    packages="${packages//python-dev/python3-dev}"
-  elif (( python_version == 2 )); then
-    ### package name 'python-dev' is deprecated (-> no installation candidate) on more modern linux distros
-    packages="${packages//python-dev/python2-dev}"
+  if [[ "${python_version}" =~ ^[23](\.[0-9]+)?$ ]]; then
+    packages="${packages//python-dev/python${python_version}-dev}"
   else
-    log_error "Internal Error: missing parameter 'python_version' during function call of ${FUNCNAME[0]}"
-    error_msg "Internal Error: missing parameter 'python_version' during function call of ${FUNCNAME[0]}"
+    log_error "Internal Error: missing or invalid parameter 'python_version' during function call of ${FUNCNAME[0]}"
+    error_msg "Internal Error: missing or invalid parameter 'python_version' during function call of ${FUNCNAME[0]}"
     exit 1
   fi
 
