@@ -9,6 +9,7 @@
 
 import textwrap
 
+from components.klipper_firmware.menus.klipper_flash_menu import KlipperFlashMenu
 from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
@@ -16,7 +17,18 @@ from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 class AdvancedMenu(BaseMenu):
     def __init__(self):
-        super().__init__(header=True, options={}, footer_type=BACK_FOOTER)
+        super().__init__(
+            header=True,
+            options={
+                "1": None,
+                "2": None,
+                "3": None,
+                "4": KlipperFlashMenu,
+                "5": None,
+                "6": None,
+            },
+            footer_type=BACK_FOOTER,
+        )
 
     def print_menu(self):
         header = " [ Advanced Menu ] "
@@ -35,10 +47,7 @@ class AdvancedMenu(BaseMenu):
             |  3) [Build]                                           |
             |  4) [Flash]                                           |
             |  5) [Build + Flash]                                   |
-            |  6) [Get MCU ID]                                      |
-            |                                                       |
-            | Mainsail:                                             |
-            |  7) [Theme installer]                                 |    
+            |  6) [Get MCU ID]                                      |   
             """
         )[1:]
         print(menu, end="")
