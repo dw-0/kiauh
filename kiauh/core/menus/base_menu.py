@@ -153,8 +153,6 @@ class BaseMenu(ABC):
                 sys.exit(0)
             elif choice == "b":
                 return
-            elif choice == "h":
-                print("help!")
             else:
                 self.execute_option(choice)
 
