@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=======================================================================#
-# Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>       #
+# Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>       #
 #                                                                       #
 # This file is part of KIAUH - Klipper Installation And Update Helper   #
 # https://github.com/dw-0/kiauh                                         #
@@ -77,10 +77,12 @@ function change_klipper_repo_menu() {
               error_msg "Invalid command!";;
           esac
         done
+        break
       else
         status_msg "Set custom Klipper repository to:\n       ● Repository: ${repos[${option}]}\n       ● Branch: ${branches[${option}]}"
         set_custom_klipper_repo "${repos[${option}]}" "${branches[${option}]}"
         ok_msg "This repo will now be used for new Klipper installations!\n"
+        break
       fi
 
     elif [[ ${option} =~ ${back} ]]; then

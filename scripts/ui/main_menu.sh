@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=======================================================================#
-# Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>       #
+# Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>       #
 #                                                                       #
 # This file is part of KIAUH - Klipper Installation And Update Helper   #
 # https://github.com/dw-0/kiauh                                         #
@@ -57,7 +57,7 @@ function print_status() {
   elif [[ ${status} == "Incomplete!" ]]; then
     status="${yellow}${status}${white}"
   elif [[ ${status} == "Not linked!" ]]; then
-    ### "Not linked!" is only required for Moonraker-obico
+    ### "Not linked!" is only required for Obico for Klipper
     status="${yellow}${status}${white}"
   else
     status="${green}${status}${white}"

@@ -29,7 +29,7 @@
 ### 📋 Prerequisites
 KIAUH is a script that assists you in installing Klipper on a Linux operating system that has
 already been flashed to your Raspberry Pi's (or other SBC's) SD card. As a result, you must ensure 
-that you have a functional Linux system on hand. `Raspberry Pi OS Lite (32bit)` is a recommended Linux image 
+that you have a functional Linux system on hand. `Raspberry Pi OS Lite (either 32bit or 64bit)` is a recommended Linux image 
 if you are using a Raspberry Pi. The [official Raspberry Pi Imager](https://www.raspberrypi.com/software/) 
 is the simplest way to flash an image like this to an SD card.
 
@@ -39,7 +39,7 @@ select `Choose OS -> Raspberry Pi OS (other)`: \
   <img src="https://raw.githubusercontent.com/dw-0/kiauh/master/resources/screenshots/rpi_imager1.png" alt="KIAUH logo" height="350">
 </p>
 
-* Then select `Raspberry Pi OS Lite (32bit)`:
+* Then select `Raspberry Pi OS Lite (32bit)` (or 64bit if you want to use that instead):
 <p align="center">
   <img src="https://raw.githubusercontent.com/dw-0/kiauh/master/resources/screenshots/rpi_imager2.png" alt="KIAUH logo" height="350">
 </p>
@@ -125,7 +125,7 @@ prompt and confirm by hitting ENTER.
 <tr>
 <th><img src="https://raw.githubusercontent.com/fluidd-core/fluidd/master/docs/assets/images/logo.svg" alt="Fluidd Logo" height="64"></th>
 <th><img src="https://avatars.githubusercontent.com/u/31575189?v=4" alt="jordanruthe avatar" height="64"></th>
-<th><img src="https://camo.githubusercontent.com/627be7fc67195b626b298af9b9677d7c58e698c67305e54324cffbe06130d4a4/68747470733a2f2f6f63746f7072696e742e6f72672f6173736574732f696d672f6c6f676f2e706e67" alt="OctoPrint Logo" height="64"></th>
+<th><img src="https://raw.githubusercontent.com/OctoPrint/OctoPrint/master/docs/images/octoprint-logo.png" alt="OctoPrint Logo" height="64"></th>
 </tr>
 <tr>
 <th>by <a href="https://github.com/fluidd-core">fluidd-core</a></th>

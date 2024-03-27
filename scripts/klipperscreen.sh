@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=======================================================================#
-# Copyright (C) 2020 - 2023 Dominik Willner <th33xitus@gmail.com>       #
+# Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>       #
 #                                                                       #
 # This file is part of KIAUH - Klipper Installation And Update Helper   #
 # https://github.com/dw-0/kiauh                                         #
@@ -119,6 +119,8 @@ function update_klipperscreen() {
   old_md5=$(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1)
 
   do_action_service "stop" "KlipperScreen"
+  backup_before_update "klipperscreen"
+
   cd "${KLIPPERSCREEN_DIR}"
   git pull origin master -q && ok_msg "Fetch successfull!"
   git checkout -f master && ok_msg "Checkout successfull"
