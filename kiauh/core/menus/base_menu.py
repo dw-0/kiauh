@@ -7,6 +7,8 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+from __future__ import annotations
+
 import subprocess
 import sys
 import textwrap
@@ -97,14 +99,19 @@ class BaseMenu(ABC):
         self,
         options: Dict[str, Union[Callable, Any]],
         options_offset: int = 0,
+        default_option: Union[str, None] = None,
+        input_label_txt: Union[str, None] = None,
         header: bool = True,
+        previous_menu: BaseMenu = None,
         footer_type: Literal[
             "QUIT_FOOTER", "BACK_FOOTER", "BACK_HELP_FOOTER"
         ] = QUIT_FOOTER,
     ):
-        self.previous_menu = None
+        self.previous_menu = previous_menu
         self.options = options
+        self.default_option = default_option
         self.options_offset = options_offset
+        self.input_label_txt = input_label_txt
         self.header = header
         self.footer_type = footer_type
 
@@ -130,7 +137,12 @@ class BaseMenu(ABC):
 
     def handle_user_input(self) -> str:
         while True:
-            choice = input(f"{COLOR_CYAN}###### Perform action: {RESET_FORMAT}").lower()
+            label_text = (
+                "Perform action"
+                if self.input_label_txt is None or self.input_label_txt == ""
+                else self.input_label_txt
+            )
+            choice = input(f"{COLOR_CYAN}###### {label_text}: {RESET_FORMAT}").lower()
             option = self.options.get(choice, None)
 
             has_navi_option = self.footer_type in self.NAVI_OPTIONS
@@ -140,6 +152,8 @@ class BaseMenu(ABC):
 
             if option is not None:
                 return choice
+            elif option is None and self.default_option is not None:
+                return self.default_option
             else:
                 Logger.print_error("Invalid input!", False)
 
