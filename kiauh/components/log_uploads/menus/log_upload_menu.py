@@ -41,8 +41,7 @@ class LogUploadMenu(BaseMenu):
             """
         )[1:]
 
-        logfile_list = get_logfile_list()
-        for logfile in enumerate(logfile_list):
+        for logfile in enumerate(self.logfile_list):
             line = f"{logfile[0]}) {logfile[1].get('display_name')}"
             menu += f"| {line:<54}|\n"
 
