@@ -19,7 +19,6 @@ from components.webui_client.client_utils import (
     load_client_data,
     backup_client_config_data,
 )
-from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.common import backup_printer_config_dir
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
@@ -29,21 +28,18 @@ from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 # noinspection PyMethodMayBeStatic
 class BackupMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={
-                "1": self.backup_klipper,
-                "2": self.backup_moonraker,
-                "3": self.backup_printer_config,
-                "4": self.backup_moonraker_db,
-                "5": self.backup_mainsail,
-                "6": self.backup_fluidd,
-                "7": self.backup_mainsail_config,
-                "8": self.backup_fluidd_config,
-                "9": self.backup_klipperscreen,
-            },
-            footer_type=BACK_FOOTER,
-        )
+        super().__init__()
+        self.options = {
+            "1": self.backup_klipper,
+            "2": self.backup_moonraker,
+            "3": self.backup_printer_config,
+            "4": self.backup_moonraker_db,
+            "5": self.backup_mainsail,
+            "6": self.backup_fluidd,
+            "7": self.backup_mainsail_config,
+            "8": self.backup_fluidd_config,
+            "9": self.backup_klipperscreen,
+        }
 
     def print_menu(self):
         header = " [ Backup Menu ] "

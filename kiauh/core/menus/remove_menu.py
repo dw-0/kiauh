@@ -15,7 +15,6 @@ from components.moonraker.menus.moonraker_remove_menu import (
 )
 from components.webui_client.client_utils import load_client_data
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
-from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_RED, RESET_FORMAT
 
@@ -24,25 +23,22 @@ from utils.constants import COLOR_RED, RESET_FORMAT
 # noinspection PyMethodMayBeStatic
 class RemoveMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={
-                "1": KlipperRemoveMenu,
-                "2": MoonrakerRemoveMenu,
-                "3": ClientRemoveMenu(client=load_client_data("mainsail")),
-                "4": ClientRemoveMenu(client=load_client_data("fluidd")),
-                "5": None,
-                "6": None,
-                "7": None,
-                "8": None,
-                "9": None,
-                "10": None,
-                "11": None,
-                "12": None,
-                "13": None,
-            },
-            footer_type=BACK_FOOTER,
-        )
+        super().__init__()
+        self.options = {
+            "1": KlipperRemoveMenu,
+            "2": MoonrakerRemoveMenu,
+            "3": ClientRemoveMenu(client=load_client_data("mainsail")),
+            "4": ClientRemoveMenu(client=load_client_data("fluidd")),
+            "5": None,
+            "6": None,
+            "7": None,
+            "8": None,
+            "9": None,
+            "10": None,
+            "11": None,
+            "12": None,
+            "13": None,
+        }
 
     def print_menu(self):
         header = " [ Remove Menu ] "

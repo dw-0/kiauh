@@ -11,7 +11,6 @@ import textwrap
 
 from components.log_uploads.log_upload_utils import get_logfile_list
 from components.log_uploads.log_upload_utils import upload_logfile
-from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_YELLOW
 
@@ -19,13 +18,11 @@ from utils.constants import RESET_FORMAT, COLOR_YELLOW
 # noinspection PyMethodMayBeStatic
 class LogUploadMenu(BaseMenu):
     def __init__(self):
+        super().__init__()
+        self.header = True
         self.logfile_list = get_logfile_list()
         options = {f"{index}": self.upload for index in range(len(self.logfile_list))}
-        super().__init__(
-            header=True,
-            options=options,
-            footer_type=BACK_FOOTER,
-        )
+        self.options = options
 
     def print_menu(self):
         header = " [ Log Upload ] "

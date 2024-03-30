@@ -12,11 +12,10 @@ import inspect
 import json
 import textwrap
 from pathlib import Path
-from typing import List, Dict
+from typing import List
 
 from core.base_extension import BaseExtension
-from core.menus import BACK_FOOTER
-from core.menus.base_menu import BaseMenu
+from core.menus.base_menu import BaseMenu, Options
 from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 
 
@@ -24,12 +23,11 @@ from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 # noinspection PyMethodMayBeStatic
 class ExtensionsMenu(BaseMenu):
     def __init__(self):
+        super().__init__()
+        self.header = False
+        self.options: Options = self.get_options()
+
         self.extensions = self.discover_extensions()
-        super().__init__(
-            header=False,
-            options=self.get_options(),
-            footer_type=BACK_FOOTER,
-        )
 
     def discover_extensions(self) -> List[BaseExtension]:
         extensions = []
@@ -58,8 +56,8 @@ class ExtensionsMenu(BaseMenu):
 
         return sorted(extensions, key=lambda ex: ex.metadata.get("index"))
 
-    def get_options(self) -> Dict[str, BaseMenu]:
-        options = {}
+    def get_options(self) -> Options:
+        options: Options = {}
         for extension in self.extensions:
             index = extension.metadata.get("index")
             options[f"{index}"] = ExtensionSubmenu(extension)
@@ -93,17 +91,16 @@ class ExtensionsMenu(BaseMenu):
 # noinspection PyMethodMayBeStatic
 class ExtensionSubmenu(BaseMenu):
     def __init__(self, extension: BaseExtension):
+        super().__init__()
+        self.header = False
+        self.options = {
+            "1": extension.install_extension,
+            "2": extension.remove_extension,
+        }
+
         self.extension = extension
         self.extension_name = extension.metadata.get("display_name")
         self.extension_desc = extension.metadata.get("description")
-        super().__init__(
-            header=False,
-            options={
-                "1": extension.install_extension,
-                "2": extension.remove_extension,
-            },
-            footer_type=BACK_FOOTER,
-        )
 
     def print_menu(self) -> None:
         header = f" [ {self.extension_name} ] "

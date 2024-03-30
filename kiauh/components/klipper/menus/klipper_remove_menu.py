@@ -10,7 +10,7 @@
 import textwrap
 
 from components.klipper import klipper_remove
-from core.menus import BACK_HELP_FOOTER
+from core.menus import FooterType
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
@@ -18,18 +18,18 @@ from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 # noinspection PyUnusedLocal
 class KlipperRemoveMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=False,
-            options={
-                "0": self.toggle_all,
-                "1": self.toggle_remove_klipper_service,
-                "2": self.toggle_remove_klipper_dir,
-                "3": self.toggle_remove_klipper_env,
-                "4": self.toggle_delete_klipper_logs,
-                "c": self.run_removal_process,
-            },
-            footer_type=BACK_HELP_FOOTER,
-        )
+        super().__init__()
+        self.header = False
+        self.options = {
+            "0": self.toggle_all,
+            "1": self.toggle_remove_klipper_service,
+            "2": self.toggle_remove_klipper_dir,
+            "3": self.toggle_remove_klipper_env,
+            "4": self.toggle_delete_klipper_logs,
+            "c": self.run_removal_process,
+        }
+        self.footer_type = FooterType.BACK_HELP
+
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
         self.remove_klipper_env = False

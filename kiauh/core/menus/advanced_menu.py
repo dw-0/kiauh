@@ -9,26 +9,25 @@
 
 import textwrap
 
-from components.klipper_firmware.menus.klipper_flash_menu import KlipperFlashMethodMenu
-from core.menus import BACK_FOOTER
+from components.klipper_firmware.menus.klipper_flash_menu import (
+    KlipperFlashMethodMenu,
+    KlipperSelectMcuConnectionMenu,
+)
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 
 class AdvancedMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={
-                "1": None,
-                "2": None,
-                "3": None,
-                "4": KlipperFlashMethodMenu,
-                "5": None,
-                "6": None,
-            },
-            footer_type=BACK_FOOTER,
-        )
+        super().__init__()
+        self.options = {
+            "1": None,
+            "2": None,
+            "3": None,
+            "4": KlipperFlashMethodMenu,
+            "5": None,
+            "6": KlipperSelectMcuConnectionMenu,
+        }
 
     def print_menu(self):
         header = " [ Advanced Menu ] "

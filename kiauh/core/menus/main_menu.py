@@ -17,7 +17,7 @@ from components.webui_client.client_utils import (
     load_client_data,
     get_current_client_config,
 )
-from core.menus import QUIT_FOOTER
+from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
 from core.menus.base_menu import BaseMenu
@@ -39,20 +39,19 @@ from utils.constants import (
 # noinspection PyMethodMayBeStatic
 class MainMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={
-                "0": LogUploadMenu,
-                "1": InstallMenu,
-                "2": UpdateMenu,
-                "3": RemoveMenu,
-                "4": AdvancedMenu,
-                "5": BackupMenu,
-                "e": ExtensionsMenu,
-                "s": SettingsMenu,
-            },
-            footer_type=QUIT_FOOTER,
-        )
+        super().__init__()
+        self.options = {
+            "0": LogUploadMenu,
+            "1": InstallMenu,
+            "2": UpdateMenu,
+            "3": RemoveMenu,
+            "4": AdvancedMenu,
+            "5": BackupMenu,
+            "e": ExtensionsMenu,
+            "s": SettingsMenu,
+        }
+        self.footer_type = FooterType.QUIT
+
         self.kl_status = ""
         self.kl_repo = ""
         self.mr_status = ""

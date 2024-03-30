@@ -13,7 +13,7 @@ from components.klipper import klipper_setup
 from components.moonraker import moonraker_setup
 from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
-from core.menus import BACK_FOOTER
+
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_GREEN, RESET_FORMAT
 
@@ -22,21 +22,18 @@ from utils.constants import COLOR_GREEN, RESET_FORMAT
 # noinspection PyMethodMayBeStatic
 class InstallMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={
-                "1": self.install_klipper,
-                "2": self.install_moonraker,
-                "3": self.install_mainsail,
-                "4": self.install_fluidd,
-                "5": self.install_mainsail_config,
-                "6": self.install_fluidd_config,
-                "7": None,
-                "8": None,
-                "9": None,
-            },
-            footer_type=BACK_FOOTER,
-        )
+        super().__init__()
+        self.options = {
+            "1": self.install_klipper,
+            "2": self.install_moonraker,
+            "3": self.install_mainsail,
+            "4": self.install_fluidd,
+            "5": self.install_mainsail_config,
+            "6": self.install_fluidd_config,
+            "7": None,
+            "8": None,
+            "9": None,
+        }
 
     def print_menu(self):
         header = " [ Installation Menu ] "

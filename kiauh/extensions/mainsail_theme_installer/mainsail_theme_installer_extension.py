@@ -22,7 +22,6 @@ from components.klipper.klipper_dialogs import (
 from core.base_extension import BaseExtension
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
-from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from core.repo_manager.repo_manager import RepoManager
 from utils.constants import COLOR_YELLOW, COLOR_CYAN, RESET_FORMAT
@@ -44,7 +43,7 @@ class MainsailThemeInstallerExtension(BaseExtension):
 
     def install_extension(self, **kwargs) -> None:
         install_menu = MainsailThemeInstallMenu(self.instances)
-        install_menu.start()
+        install_menu.run()
 
     def remove_extension(self, **kwargs) -> None:
         print_instance_overview(
@@ -79,14 +78,13 @@ class MainsailThemeInstallMenu(BaseMenu):
     )
 
     def __init__(self, instances: List[Klipper]):
-        self.instances = instances
+        super().__init__()
+        self.header = False
         self.themes: List[ThemeData] = self.load_themes()
         options = {f"{index}": self.install_theme for index in range(len(self.themes))}
-        super().__init__(
-            header=False,
-            options=options,
-            footer_type=BACK_FOOTER,
-        )
+        self.options = options
+
+        self.instances = instances
 
     def print_menu(self) -> None:
         header = " [ Mainsail Theme Installer ] "

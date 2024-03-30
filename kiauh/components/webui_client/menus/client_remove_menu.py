@@ -11,7 +11,6 @@ import textwrap
 from typing import Callable, Dict
 
 from components.webui_client import client_remove, ClientData
-from core.menus import BACK_HELP_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
@@ -19,25 +18,23 @@ from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 # noinspection PyUnusedLocal
 class ClientRemoveMenu(BaseMenu):
     def __init__(self, client: ClientData):
+        super().__init__()
+        self.header = False
+        self.options = self.get_options(client)
+
         self.client = client
         self.rm_client = False
         self.rm_client_config = False
         self.backup_mainsail_config_json = False
 
-        super().__init__(
-            header=False,
-            options=self.get_options(),
-            footer_type=BACK_HELP_FOOTER,
-        )
-
-    def get_options(self) -> Dict[str, Callable]:
+    def get_options(self, client: ClientData) -> Dict[str, Callable]:
         options = {
             "0": self.toggle_all,
             "1": self.toggle_rm_client,
             "2": self.toggle_rm_client_config,
             "c": self.run_removal_process,
         }
-        if self.client.get("name") == "mainsail":
+        if client.get("name") == "mainsail":
             options["3"] = self.toggle_backup_mainsail_config_json
 
         return options

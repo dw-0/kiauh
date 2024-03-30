@@ -13,9 +13,9 @@ import subprocess
 import sys
 import textwrap
 from abc import abstractmethod, ABC
-from typing import Dict, Any, Literal, Union, Callable
+from typing import Dict, Union, Callable, Type
 
-from core.menus import QUIT_FOOTER, BACK_FOOTER, BACK_HELP_FOOTER
+from core.menus import FooterType, NAVI_OPTIONS
 from utils.constants import (
     COLOR_GREEN,
     COLOR_YELLOW,
@@ -92,74 +92,86 @@ def print_back_help_footer():
     print(footer, end="")
 
 
-class BaseMenu(ABC):
-    NAVI_OPTIONS = {"quit": ["q"], "back": ["b"], "back_help": ["b", "h"]}
+Option = Union[Callable, Type["BaseMenu"], "BaseMenu"]
+Options = Dict[str, Option]
 
-    def __init__(
-        self,
-        options: Dict[str, Union[Callable, Any]],
-        options_offset: int = 0,
-        default_option: Union[str, None] = None,
-        input_label_txt: Union[str, None] = None,
-        header: bool = True,
-        previous_menu: BaseMenu = None,
-        footer_type: Literal[
-            "QUIT_FOOTER", "BACK_FOOTER", "BACK_HELP_FOOTER"
-        ] = QUIT_FOOTER,
-    ):
-        self.previous_menu = previous_menu
-        self.options = options
-        self.default_option = default_option
-        self.options_offset = options_offset
-        self.input_label_txt = input_label_txt
-        self.header = header
-        self.footer_type = footer_type
+
+class BaseMenu(ABC):
+    options: Options = None
+    options_offset: int = 0
+    default_option: Union[Option, None] = None
+    input_label_txt: str = "Perform action"
+    header: bool = True
+    previous_menu: Union[Type[BaseMenu], BaseMenu] = None
+    footer_type: FooterType = FooterType.BACK
+
+    def __init__(self):
+        if type(self) is BaseMenu:
+            raise NotImplementedError("BaseMenu cannot be instantiated directly.")
 
     @abstractmethod
     def print_menu(self) -> None:
         raise NotImplementedError("Subclasses must implement the print_menu method")
 
     def print_footer(self) -> None:
-        footer_type_map = {
-            QUIT_FOOTER: print_quit_footer,
-            BACK_FOOTER: print_back_footer,
-            BACK_HELP_FOOTER: print_back_help_footer,
-        }
-        footer_function = footer_type_map.get(self.footer_type, print_quit_footer)
-        footer_function()
+        if self.footer_type is FooterType.QUIT:
+            print_quit_footer()
+        elif self.footer_type is FooterType.BACK:
+            print_back_footer()
+        elif self.footer_type is FooterType.BACK_HELP:
+            print_back_help_footer()
+        else:
+            raise NotImplementedError("Method for printing footer not implemented.")
 
-    def display(self) -> None:
+    def display_menu(self) -> None:
         # clear()
         if self.header:
             print_header()
         self.print_menu()
         self.print_footer()
 
-    def handle_user_input(self) -> str:
+    def validate_user_input(self, usr_input: str) -> Union[Option, str, None]:
+        """
+        Validate the user input and either return an Option, a string or None
+        :param usr_input: The user input in form of a string
+        :return: Option, str or None
+        """
+        usr_input = usr_input.lower()
+        option = self.options.get(usr_input, None)
+
+        # check if usr_input contains a character used for basic navigation, e.g. b, h or q
+        # and if the current menu has the appropriate footer to allow for that action
+        is_valid_navigation = self.footer_type in NAVI_OPTIONS
+        user_navigated = usr_input in NAVI_OPTIONS[self.footer_type]
+        if is_valid_navigation and user_navigated:
+            return usr_input
+
+        # if usr_input is None or an empty string, we execute the menues default option if specified
+        if option is None or option == "" and self.default_option is not None:
+            return self.default_option
+
+        # user selected a regular option
+        if option is not None:
+            return option
+
+        return None
+
+    def handle_user_input(self) -> Union[Option, str]:
+        """Handle the user input, return the validated input or print an error."""
         while True:
-            label_text = (
-                "Perform action"
-                if self.input_label_txt is None or self.input_label_txt == ""
-                else self.input_label_txt
-            )
-            choice = input(f"{COLOR_CYAN}###### {label_text}: {RESET_FORMAT}").lower()
-            option = self.options.get(choice, None)
+            print(f"{COLOR_CYAN}###### {self.input_label_txt}: {RESET_FORMAT}", end="")
+            usr_input = input().lower()
+            validated_input = self.validate_user_input(usr_input)
 
-            has_navi_option = self.footer_type in self.NAVI_OPTIONS
-            user_navigated = choice in self.NAVI_OPTIONS[self.footer_type]
-            if has_navi_option and user_navigated:
-                return choice
-
-            if option is not None:
-                return choice
-            elif option is None and self.default_option is not None:
-                return self.default_option
+            if validated_input is not None:
+                return validated_input
             else:
                 Logger.print_error("Invalid input!", False)
 
-    def start(self) -> None:
+    def run(self) -> None:
+        """Start the menu lifecycle. When this function returns, the lifecycle of the menu ends."""
         while True:
-            self.display()
+            self.display_menu()
             choice = self.handle_user_input()
 
             if choice == "q":
@@ -170,21 +182,16 @@ class BaseMenu(ABC):
             else:
                 self.execute_option(choice)
 
-    def execute_option(self, choice: str) -> None:
-        option = self.options.get(choice, None)
+    def execute_option(self, option: Option) -> None:
+        if option is None:
+            raise NotImplementedError(f"No implementation for {option}")
 
         if isinstance(option, type) and issubclass(option, BaseMenu):
             self.navigate_to_menu(option, True)
         elif isinstance(option, BaseMenu):
             self.navigate_to_menu(option, False)
         elif callable(option):
-            option(opt_index=choice)
-        elif option is None:
-            raise NotImplementedError(f"No implementation for option {choice}")
-        else:
-            raise TypeError(
-                f"Type {type(option)} of option {choice} not of type BaseMenu or Method"
-            )
+            option()
 
     def navigate_to_menu(self, menu, instantiate: bool) -> None:
         """
@@ -196,4 +203,4 @@ class BaseMenu(ABC):
         """
         menu = menu() if instantiate else menu
         menu.previous_menu = self
-        menu.start()
+        menu.run()

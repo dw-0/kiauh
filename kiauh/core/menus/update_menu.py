@@ -25,7 +25,6 @@ from components.webui_client.client_utils import (
     load_client_data,
     get_client_config_status,
 )
-from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import (
     COLOR_GREEN,
@@ -40,23 +39,21 @@ from utils.constants import (
 # noinspection PyMethodMayBeStatic
 class UpdateMenu(BaseMenu):
     def __init__(self):
-        super().__init__(
-            header=True,
-            options={
-                "0": self.update_all,
-                "1": self.update_klipper,
-                "2": self.update_moonraker,
-                "3": self.update_mainsail,
-                "4": self.update_fluidd,
-                "5": self.update_mainsail_config,
-                "6": self.update_fluidd_config,
-                "7": self.update_klipperscreen,
-                "8": self.update_mobileraker,
-                "9": self.update_crowsnest,
-                "10": self.upgrade_system_packages,
-            },
-            footer_type=BACK_FOOTER,
-        )
+        super().__init__()
+        self.options = {
+            "0": self.update_all,
+            "1": self.update_klipper,
+            "2": self.update_moonraker,
+            "3": self.update_mainsail,
+            "4": self.update_fluidd,
+            "5": self.update_mainsail_config,
+            "6": self.update_fluidd_config,
+            "7": self.update_klipperscreen,
+            "8": self.update_mobileraker,
+            "9": self.update_crowsnest,
+            "10": self.upgrade_system_packages,
+        }
+
         self.kl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.kl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.mr_local = f"{COLOR_WHITE}{RESET_FORMAT}"

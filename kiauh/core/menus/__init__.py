@@ -7,6 +7,17 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-QUIT_FOOTER = "quit"
-BACK_FOOTER = "back"
-BACK_HELP_FOOTER = "back_help"
+from enum import Enum
+
+
+class FooterType(Enum):
+    QUIT = "QUIT"
+    BACK = "BACK"
+    BACK_HELP = "BACK_HELP"
+
+
+NAVI_OPTIONS = {
+    FooterType.QUIT: ["q"],
+    FooterType.BACK: ["b"],
+    FooterType.BACK_HELP: ["b", "h"],
+}
