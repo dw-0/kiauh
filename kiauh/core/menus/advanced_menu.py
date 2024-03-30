@@ -9,7 +9,7 @@
 
 import textwrap
 
-from components.klipper_firmware.menus.klipper_flash_menu import KlipperFlashMenu
+from components.klipper_firmware.menus.klipper_flash_menu import KlipperFlashMethodMenu
 from core.menus import BACK_FOOTER
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
@@ -23,7 +23,7 @@ class AdvancedMenu(BaseMenu):
                 "1": None,
                 "2": None,
                 "3": None,
-                "4": KlipperFlashMenu,
+                "4": KlipperFlashMethodMenu,
                 "5": None,
                 "6": None,
             },

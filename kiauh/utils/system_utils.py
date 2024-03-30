@@ -10,7 +10,7 @@
 import os
 import shutil
 import socket
-import subprocess
+from subprocess import Popen, PIPE, CalledProcessError, run, DEVNULL
 import sys
 import time
 import urllib.error
@@ -18,6 +18,8 @@ import urllib.request
 import venv
 from pathlib import Path
 from typing import List, Literal
+
+import select
 
 from utils.input_utils import get_confirm
 from utils.logger import Logger
@@ -73,7 +75,7 @@ def create_python_venv(target: Path) -> None:
         except OSError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e}")
             raise
-        except subprocess.CalledProcessError as e:
+        except CalledProcessError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e.output.decode()}")
             raise
     else:
@@ -103,7 +105,7 @@ def update_python_pip(target: Path) -> None:
             raise FileNotFoundError("Error updating pip! Not found.")
 
         command = [pip_location, "install", "-U", "pip"]
-        result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+        result = run(command, stderr=PIPE, text=True)
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
             Logger.print_error("Updating pip failed!")
@@ -113,7 +115,7 @@ def update_python_pip(target: Path) -> None:
     except FileNotFoundError as e:
         Logger.print_error(e)
         raise
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         Logger.print_error(f"Error updating pip:\n{e.output.decode()}")
         raise
 
@@ -136,7 +138,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
             "-r",
             f"{requirements}",
         ]
-        result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+        result = run(command, stderr=PIPE, text=True)
 
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
@@ -144,7 +146,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
             return
 
         Logger.print_ok("Installing Python requirements successful!")
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         log = f"Error installing Python requirements:\n{e.output.decode()}"
         Logger.print_error(log)
         raise
@@ -180,14 +182,14 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         if rls_info_change:
             command.append("--allow-releaseinfo-change")
 
-        result = subprocess.run(command, stderr=subprocess.PIPE, text=True)
+        result = run(command, stderr=PIPE, text=True)
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
             Logger.print_error("Updating system package list failed!")
             return
 
         Logger.print_ok("System package list update successful!")
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         kill(f"Error updating system package list:\n{e.stderr.decode()}")
 
 
@@ -200,10 +202,10 @@ def check_package_install(packages: List[str]) -> List[str]:
     not_installed = []
     for package in packages:
         command = ["dpkg-query", "-f'${Status}'", "--show", package]
-        result = subprocess.run(
+        result = run(
             command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
+            stdout=PIPE,
+            stderr=DEVNULL,
             text=True,
         )
         if "installed" not in result.stdout.strip("'").split():
@@ -224,10 +226,10 @@ def install_system_packages(packages: List[str]) -> None:
         command = ["sudo", "apt-get", "install", "-y"]
         for pkg in packages:
             command.append(pkg)
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
+        run(command, stderr=PIPE, check=True)
 
         Logger.print_ok("Packages installed successfully.")
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         kill(f"Error installing packages:\n{e.stderr.decode()}")
 
 
@@ -239,8 +241,8 @@ def mask_system_service(service_name: str) -> None:
     """
     try:
         command = ["sudo", "systemctl", "mask", service_name]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
+        run(command, stderr=PIPE, check=True)
+    except CalledProcessError as e:
         log = f"Unable to mask system service {service_name}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
@@ -318,12 +320,12 @@ def set_nginx_permissions() -> None:
     :return: None
     """
     cmd = f"ls -ld {Path.home()} | cut -d' ' -f1"
-    homedir_perm = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
+    homedir_perm = run(cmd, shell=True, stdout=PIPE, text=True)
     homedir_perm = homedir_perm.stdout
 
     if homedir_perm.count("x") < 3:
         Logger.print_status("Granting NGINX the required permissions ...")
-        subprocess.run(["chmod", "og+x", Path.home()])
+        run(["chmod", "og+x", Path.home()])
         Logger.print_ok("Permissions granted.")
 
 
@@ -339,9 +341,30 @@ def control_systemd_service(
     try:
         Logger.print_status(f"{action.capitalize()} {name}.service ...")
         command = ["sudo", "systemctl", action, f"{name}.service"]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
+        run(command, stderr=PIPE, check=True)
         Logger.print_ok("OK!")
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         log = f"Failed to {action} {name}.service: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
+
+
+def log_process(process: Popen) -> None:
+    """
+    Helper method to print stdout of a process in near realtime to the console.
+    :param process: Process to log the output from
+    :return: None
+    """
+    while True:
+        reads = [process.stdout.fileno()]
+        ret = select.select(reads, [], [])
+        for fd in ret[0]:
+            if fd == process.stdout.fileno():
+                line = process.stdout.readline()
+                if line:
+                    print(line.strip(), flush=True)
+                else:
+                    break
+
+        if process.poll() is not None:
+            break
