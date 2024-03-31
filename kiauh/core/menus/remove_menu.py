@@ -22,13 +22,19 @@ from utils.constants import COLOR_RED, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class RemoveMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
         self.options = {
-            "1": KlipperRemoveMenu,
-            "2": MoonrakerRemoveMenu,
-            "3": ClientRemoveMenu(client=load_client_data("mainsail")),
-            "4": ClientRemoveMenu(client=load_client_data("fluidd")),
+            "1": lambda: KlipperRemoveMenu(previous_menu=self).run(),
+            "2": lambda: MoonrakerRemoveMenu(previous_menu=self).run(),
+            "3": lambda: ClientRemoveMenu(
+                previous_menu=self, client=load_client_data("mainsail")
+            ).run(),
+            "4": lambda: ClientRemoveMenu(
+                previous_menu=self, client=load_client_data("fluidd")
+            ).run(),
             "5": None,
             "6": None,
             "7": None,

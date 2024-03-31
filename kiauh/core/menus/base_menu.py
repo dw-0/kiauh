@@ -15,7 +15,7 @@ import textwrap
 from abc import abstractmethod, ABC
 from typing import Dict, Union, Callable, Type
 
-from core.menus import FooterType, NAVI_OPTIONS
+from core.menus import FooterType, NAVI_OPTIONS, ExitAppException, GoBackException
 from utils.constants import (
     COLOR_GREEN,
     COLOR_YELLOW,
@@ -92,16 +92,15 @@ def print_back_help_footer():
     print(footer, end="")
 
 
-Option = Union[Callable, Type["BaseMenu"], "BaseMenu"]
-Options = Dict[str, Option]
+Options = Dict[str, Callable]
 
 
 class BaseMenu(ABC):
-    options: Options = None
+    options: Options = {}
     options_offset: int = 0
-    default_option: Union[Option, None] = None
+    default_option: Union[Callable, None] = None
     input_label_txt: str = "Perform action"
-    header: bool = True
+    header: bool = False
     previous_menu: Union[Type[BaseMenu], BaseMenu] = None
     footer_type: FooterType = FooterType.BACK
 
@@ -130,7 +129,7 @@ class BaseMenu(ABC):
         self.print_menu()
         self.print_footer()
 
-    def validate_user_input(self, usr_input: str) -> Union[Option, str, None]:
+    def validate_user_input(self, usr_input: str) -> Callable:
         """
         Validate the user input and either return an Option, a string or None
         :param usr_input: The user input in form of a string
@@ -144,26 +143,27 @@ class BaseMenu(ABC):
         is_valid_navigation = self.footer_type in NAVI_OPTIONS
         user_navigated = usr_input in NAVI_OPTIONS[self.footer_type]
         if is_valid_navigation and user_navigated:
-            return usr_input
+            if usr_input == "q":
+                raise ExitAppException()
+            elif usr_input == "b":
+                raise GoBackException()
+            elif usr_input == "h":
+                return option
 
         # if usr_input is None or an empty string, we execute the menues default option if specified
-        if option is None or option == "" and self.default_option is not None:
+        if usr_input == "" and self.default_option is not None:
             return self.default_option
 
         # user selected a regular option
-        if option is not None:
-            return option
+        return option
 
-        return None
-
-    def handle_user_input(self) -> Union[Option, str]:
+    def handle_user_input(self) -> Callable:
         """Handle the user input, return the validated input or print an error."""
         while True:
             print(f"{COLOR_CYAN}###### {self.input_label_txt}: {RESET_FORMAT}", end="")
             usr_input = input().lower()
-            validated_input = self.validate_user_input(usr_input)
 
-            if validated_input is not None:
+            if (validated_input := self.validate_user_input(usr_input)) is not None:
                 return validated_input
             else:
                 Logger.print_error("Invalid input!", False)
@@ -171,36 +171,11 @@ class BaseMenu(ABC):
     def run(self) -> None:
         """Start the menu lifecycle. When this function returns, the lifecycle of the menu ends."""
         while True:
-            self.display_menu()
-            choice = self.handle_user_input()
-
-            if choice == "q":
+            try:
+                self.display_menu()
+                self.handle_user_input()()
+            except GoBackException:
+                return
+            except ExitAppException:
                 Logger.print_ok("###### Happy printing!", False)
                 sys.exit(0)
-            elif choice == "b":
-                return
-            else:
-                self.execute_option(choice)
-
-    def execute_option(self, option: Option) -> None:
-        if option is None:
-            raise NotImplementedError(f"No implementation for {option}")
-
-        if isinstance(option, type) and issubclass(option, BaseMenu):
-            self.navigate_to_menu(option, True)
-        elif isinstance(option, BaseMenu):
-            self.navigate_to_menu(option, False)
-        elif callable(option):
-            option()
-
-    def navigate_to_menu(self, menu, instantiate: bool) -> None:
-        """
-        Method for handling the actual menu switch. Can either take in a menu type or an already
-        instantiated menu class. Use instantiated menu classes only if the menu requires specific input parameters
-        :param menu: A menu type or menu instance
-        :param instantiate: Specify if the menu requires instantiation
-        :return: None
-        """
-        menu = menu() if instantiate else menu
-        menu.previous_menu = self
-        menu.run()

@@ -17,9 +17,9 @@ from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 # noinspection PyUnusedLocal
 class ClientRemoveMenu(BaseMenu):
-    def __init__(self, client: ClientData):
+    def __init__(self, previous_menu: BaseMenu, client: ClientData):
         super().__init__()
-        self.header = False
+        self.previous_menu = previous_menu
         self.options = self.get_options(client)
 
         self.client = client

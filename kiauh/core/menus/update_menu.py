@@ -38,8 +38,10 @@ from utils.constants import (
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class UpdateMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu):
         super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
         self.options = {
             "0": self.update_all,
             "1": self.update_klipper,

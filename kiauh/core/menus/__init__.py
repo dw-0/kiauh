@@ -21,3 +21,11 @@ NAVI_OPTIONS = {
     FooterType.BACK: ["b"],
     FooterType.BACK_HELP: ["b", "h"],
 }
+
+
+class ExitAppException(Exception):
+    pass
+
+
+class GoBackException(Exception):
+    pass

@@ -18,15 +18,17 @@ from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 
 class AdvancedMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
         self.options = {
             "1": None,
             "2": None,
             "3": None,
-            "4": KlipperFlashMethodMenu,
+            "4": lambda: KlipperFlashMethodMenu(previous_menu=self).run(),
             "5": None,
-            "6": KlipperSelectMcuConnectionMenu,
+            "6": lambda: KlipperSelectMcuConnectionMenu(previous_menu=self).run(),
         }
 
     def print_menu(self):

@@ -21,8 +21,10 @@ from utils.constants import COLOR_GREEN, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class InstallMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
         self.options = {
             "1": self.install_klipper,
             "2": self.install_moonraker,

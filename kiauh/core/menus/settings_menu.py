@@ -12,8 +12,10 @@ from core.menus.base_menu import BaseMenu
 
 # noinspection PyMethodMayBeStatic
 class SettingsMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
 
     def print_menu(self):
         print("self")

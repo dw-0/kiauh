@@ -40,16 +40,19 @@ from utils.constants import (
 class MainMenu(BaseMenu):
     def __init__(self):
         super().__init__()
+
         self.options = {
-            "0": LogUploadMenu,
-            "1": InstallMenu,
-            "2": UpdateMenu,
-            "3": RemoveMenu,
-            "4": AdvancedMenu,
-            "5": BackupMenu,
-            "e": ExtensionsMenu,
-            "s": SettingsMenu,
+            "0": lambda: LogUploadMenu(previous_menu=self).run(),
+            "1": lambda: InstallMenu(previous_menu=self).run(),
+            "2": lambda: UpdateMenu(previous_menu=self).run(),
+            "3": lambda: RemoveMenu(previous_menu=self).run(),
+            "4": lambda: AdvancedMenu(previous_menu=self).run(),
+            "5": lambda: BackupMenu(previous_menu=self).run(),
+            "6": None,
+            "e": lambda: ExtensionsMenu(previous_menu=self).run(),
+            "s": lambda: SettingsMenu(previous_menu=self).run(),
         }
+        self.header = True
         self.footer_type = FooterType.QUIT
 
         self.kl_status = ""

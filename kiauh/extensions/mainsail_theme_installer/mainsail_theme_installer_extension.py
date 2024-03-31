@@ -79,7 +79,6 @@ class MainsailThemeInstallMenu(BaseMenu):
 
     def __init__(self, instances: List[Klipper]):
         super().__init__()
-        self.header = False
         self.themes: List[ThemeData] = self.load_themes()
         options = {f"{index}": self.install_theme for index in range(len(self.themes))}
         self.options = options

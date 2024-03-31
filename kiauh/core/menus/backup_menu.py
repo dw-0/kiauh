@@ -27,8 +27,10 @@ from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class BackupMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
         self.options = {
             "1": self.backup_klipper,
             "2": self.backup_moonraker,

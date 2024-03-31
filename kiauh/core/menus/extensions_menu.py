@@ -22,12 +22,12 @@ from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class ExtensionsMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
-        self.header = False
-        self.options: Options = self.get_options()
 
+        self.previous_menu: BaseMenu = previous_menu
         self.extensions = self.discover_extensions()
+        self.options: Options = self.get_options(self.extensions)
 
     def discover_extensions(self) -> List[BaseExtension]:
         extensions = []
@@ -56,11 +56,11 @@ class ExtensionsMenu(BaseMenu):
 
         return sorted(extensions, key=lambda ex: ex.metadata.get("index"))
 
-    def get_options(self) -> Options:
+    def get_options(self, extensions: List[BaseExtension]) -> Options:
         options: Options = {}
-        for extension in self.extensions:
+        for extension in extensions:
             index = extension.metadata.get("index")
-            options[f"{index}"] = ExtensionSubmenu(extension)
+            options[f"{index}"] = lambda: ExtensionSubmenu(self, extension).run()
 
         return options
 
@@ -90,9 +90,10 @@ class ExtensionsMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class ExtensionSubmenu(BaseMenu):
-    def __init__(self, extension: BaseExtension):
+    def __init__(self, previous_menu: BaseMenu, extension: BaseExtension):
         super().__init__()
-        self.header = False
+
+        self.previous_menu = previous_menu
         self.options = {
             "1": extension.install_extension,
             "2": extension.remove_extension,

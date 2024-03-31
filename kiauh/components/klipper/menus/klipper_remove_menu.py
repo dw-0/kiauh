@@ -17,9 +17,10 @@ from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 # noinspection PyUnusedLocal
 class KlipperRemoveMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: BaseMenu):
         super().__init__()
-        self.header = False
+
+        self.previous_menu: BaseMenu = previous_menu
         self.options = {
             "0": self.toggle_all,
             "1": self.toggle_remove_klipper_service,
