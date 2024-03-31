@@ -36,21 +36,21 @@ from utils.constants import (
 )
 
 
+# noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class MainMenu(BaseMenu):
     def __init__(self):
         super().__init__()
 
         self.options = {
-            "0": lambda: LogUploadMenu(previous_menu=self).run(),
-            "1": lambda: InstallMenu(previous_menu=self).run(),
-            "2": lambda: UpdateMenu(previous_menu=self).run(),
-            "3": lambda: RemoveMenu(previous_menu=self).run(),
-            "4": lambda: AdvancedMenu(previous_menu=self).run(),
-            "5": lambda: BackupMenu(previous_menu=self).run(),
-            "6": None,
-            "e": lambda: ExtensionsMenu(previous_menu=self).run(),
-            "s": lambda: SettingsMenu(previous_menu=self).run(),
+            "0": self.log_upload_menu,
+            "1": self.install_menu,
+            "2": self.update_menu,
+            "3": self.remove_menu,
+            "4": self.advanced_menu,
+            "5": self.backup_menu,
+            "e": self.extension_menu,
+            "s": self.settings_menu,
         }
         self.header = True
         self.footer_type = FooterType.QUIT
@@ -141,3 +141,27 @@ class MainMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
+
+    def log_upload_menu(self, **kwargs):
+        LogUploadMenu(previous_menu=self).run()
+
+    def install_menu(self, **kwargs):
+        InstallMenu(previous_menu=self).run()
+
+    def update_menu(self, **kwargs):
+        UpdateMenu(previous_menu=self).run()
+
+    def remove_menu(self, **kwargs):
+        RemoveMenu(previous_menu=self).run()
+
+    def advanced_menu(self, **kwargs):
+        AdvancedMenu(previous_menu=self).run()
+
+    def backup_menu(self, **kwargs):
+        BackupMenu(previous_menu=self).run()
+
+    def settings_menu(self, **kwargs):
+        SettingsMenu(previous_menu=self).run()
+
+    def extension_menu(self, **kwargs):
+        ExtensionsMenu(previous_menu=self).run()

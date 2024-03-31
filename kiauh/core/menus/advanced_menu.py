@@ -17,6 +17,7 @@ from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 
+# noinspection PyUnusedLocal
 class AdvancedMenu(BaseMenu):
     def __init__(self, previous_menu: BaseMenu):
         super().__init__()
@@ -26,9 +27,9 @@ class AdvancedMenu(BaseMenu):
             "1": None,
             "2": None,
             "3": None,
-            "4": lambda: KlipperFlashMethodMenu(previous_menu=self).run(),
+            "4": self.flash,
             "5": None,
-            "6": lambda: KlipperSelectMcuConnectionMenu(previous_menu=self).run(),
+            "6": self.get_id,
         }
 
     def print_menu(self):
@@ -52,3 +53,9 @@ class AdvancedMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
+
+    def flash(self, **kwargs):
+        KlipperFlashMethodMenu(previous_menu=self).run()
+
+    def get_id(self, **kwargs):
+        KlipperSelectMcuConnectionMenu(previous_menu=self).run()

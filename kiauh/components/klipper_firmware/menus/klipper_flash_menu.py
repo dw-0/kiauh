@@ -39,7 +39,7 @@ class KlipperFlashMethodMenu(BaseMenu):
         self.options = {
             "1": self.select_regular,
             "2": self.select_sdcard,
-            "h": lambda: KlipperFlashMethodHelpMenu(self).run(),
+            "h": self.help_menu,
         }
         self.input_label_txt = "Select flash method"
         self.footer_type = FooterType.BACK_HELP
@@ -78,6 +78,9 @@ class KlipperFlashMethodMenu(BaseMenu):
     def goto_next_menu(self, **kwargs):
         KlipperFlashCommandMenu(previous_menu=self).run()
 
+    def help_menu(self, **kwargs):
+        KlipperFlashMethodHelpMenu(previous_menu=self).run()
+
 
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
@@ -89,7 +92,7 @@ class KlipperFlashCommandMenu(BaseMenu):
         self.options = {
             "1": self.select_flash,
             "2": self.select_serialflash,
-            "h": lambda: KlipperFlashCommandHelpMenu(previous_menu=self).run(),
+            "h": self.help_menu,
         }
         self.default_option = self.select_flash
         self.input_label_txt = "Select flash command"
@@ -121,6 +124,9 @@ class KlipperFlashCommandMenu(BaseMenu):
     def goto_next_menu(self, **kwargs):
         KlipperSelectMcuConnectionMenu(previous_menu=self).run()
 
+    def help_menu(self, **kwargs):
+        KlipperFlashCommandHelpMenu(previous_menu=self).run()
+
 
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
@@ -133,7 +139,7 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
             "1": self.select_usb,
             "2": self.select_dfu,
             "3": self.select_usb_dfu,
-            "h": lambda: KlipperMcuConnectionHelpMenu(previous_menu=self).run(),
+            "h": self.help_menu,
         }
         self.input_label_txt = "Select connection type"
         self.footer_type = FooterType.BACK_HELP
@@ -192,6 +198,9 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
 
     def goto_next_menu(self, **kwargs):
         KlipperSelectMcuIdMenu(previous_menu=self).run()
+
+    def help_menu(self, **kwargs):
+        KlipperMcuConnectionHelpMenu(previous_menu=self).run()
 
 
 # noinspection PyUnusedLocal

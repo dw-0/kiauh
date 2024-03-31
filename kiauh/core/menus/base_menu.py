@@ -13,7 +13,7 @@ import subprocess
 import sys
 import textwrap
 from abc import abstractmethod, ABC
-from typing import Dict, Union, Callable, Type
+from typing import Dict, Union, Callable, Type, Tuple
 
 from core.menus import FooterType, NAVI_OPTIONS, ExitAppException, GoBackException
 from utils.constants import (
@@ -129,7 +129,7 @@ class BaseMenu(ABC):
         self.print_menu()
         self.print_footer()
 
-    def validate_user_input(self, usr_input: str) -> Callable:
+    def validate_user_input(self, usr_input: str) -> Tuple[Callable, str]:
         """
         Validate the user input and either return an Option, a string or None
         :param usr_input: The user input in form of a string
@@ -148,16 +148,16 @@ class BaseMenu(ABC):
             elif usr_input == "b":
                 raise GoBackException()
             elif usr_input == "h":
-                return option
+                return option, usr_input
 
         # if usr_input is None or an empty string, we execute the menues default option if specified
         if usr_input == "" and self.default_option is not None:
-            return self.default_option
+            return self.default_option, usr_input
 
         # user selected a regular option
-        return option
+        return option, usr_input
 
-    def handle_user_input(self) -> Callable:
+    def handle_user_input(self) -> Tuple[Callable, str]:
         """Handle the user input, return the validated input or print an error."""
         while True:
             print(f"{COLOR_CYAN}###### {self.input_label_txt}: {RESET_FORMAT}", end="")
@@ -173,7 +173,8 @@ class BaseMenu(ABC):
         while True:
             try:
                 self.display_menu()
-                self.handle_user_input()()
+                option = self.handle_user_input()
+                option[0](opt_index=option[1])
             except GoBackException:
                 return
             except ExitAppException:

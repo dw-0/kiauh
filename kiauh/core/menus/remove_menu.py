@@ -27,14 +27,10 @@ class RemoveMenu(BaseMenu):
 
         self.previous_menu: BaseMenu = previous_menu
         self.options = {
-            "1": lambda: KlipperRemoveMenu(previous_menu=self).run(),
-            "2": lambda: MoonrakerRemoveMenu(previous_menu=self).run(),
-            "3": lambda: ClientRemoveMenu(
-                previous_menu=self, client=load_client_data("mainsail")
-            ).run(),
-            "4": lambda: ClientRemoveMenu(
-                previous_menu=self, client=load_client_data("fluidd")
-            ).run(),
+            "1": self.remove_klipper,
+            "2": self.remove_moonraker,
+            "3": self.remove_mainsail,
+            "4": self.remove_fluidd,
             "5": None,
             "6": None,
             "7": None,
@@ -72,3 +68,15 @@ class RemoveMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
+
+    def remove_klipper(self, **kwargs):
+        KlipperRemoveMenu(previous_menu=self).run()
+
+    def remove_moonraker(self, **kwargs):
+        MoonrakerRemoveMenu(previous_menu=self).run()
+
+    def remove_mainsail(self, **kwargs):
+        ClientRemoveMenu(previous_menu=self, client=load_client_data("mainsail")).run()
+
+    def remove_fluidd(self, **kwargs):
+        ClientRemoveMenu(previous_menu=self, client=load_client_data("fluidd")).run()
