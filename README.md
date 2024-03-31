@@ -161,7 +161,7 @@ prompt and confirm by hitting ENTER.
 <tr>
 <th><a href="https://github.com/Clon1998/mobileraker_companion"><img src="https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png" alt="OctoEverywhere Logo" height="64"></th>
 <th><a href="https://octoeverywhere.com/?source=kiauh_readme"><img src="https://octoeverywhere.com/img/logo.svg" alt="OctoEverywhere Logo" height="64"></a></th>
-<th><a href="https://octoeverywhere.com/?source=kiauh_readme"><img src="https://firebasestorage.googleapis.com/v0/b/octoapp-4e438.appspot.com/o/resources%2Foctoeverywhere%2FA.svg?alt=media&token=b5c9ac00-f6ca-484b-8dbf-34db944b8e0a" alt="OctoApp Logo" height="64"></a></th>
+<th><a href="https://octoapp.eu/?source=kiauh_readme"><img src="https://octoapp.eu/octoapp.webp" alt="OctoApp Logo" height="64"></a></th>
 </tr>
 
 <tr>
