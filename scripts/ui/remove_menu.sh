@@ -31,6 +31,7 @@ function remove_ui() {
   echo -e "|  7) [KlipperScreen]       | 14) [OctoEverywhere]      |"
   echo -e "|                           | 15) [Mobileraker]         |"
   echo -e "|                           | 16) [NGINX]               |"
+  echo -e "|                           | 17) [OctoApp]             |"
   back_footer
 }
 
@@ -73,6 +74,8 @@ function remove_menu() {
         do_action "remove_mobileraker" "remove_ui";;
       16)
         do_action "remove_nginx" "remove_ui";;
+      17)
+        do_action "remove_octoapp" "remove_ui";;
       B|b)
         clear; main_menu; break;;
       *)
