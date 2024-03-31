@@ -7,7 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from dataclasses import field, dataclass
+from dataclasses import field
 from enum import Enum
 from typing import Union, List
 
@@ -28,15 +28,14 @@ class ConnectionType(Enum):
     UART = "UART"
 
 
-@dataclass
 class FlashOptions:
     _instance = None
-    flash_method: Union[FlashMethod, None] = None
-    flash_command: Union[FlashCommand, None] = None
-    connection_type: Union[ConnectionType, None] = None
-    mcu_list: List[str] = field(default_factory=list)
-    selected_mcu: str = ""
-    selected_board: str = ""
+    _flash_method: Union[FlashMethod, None] = None
+    _flash_command: Union[FlashCommand, None] = None
+    _connection_type: Union[ConnectionType, None] = None
+    _mcu_list: List[str] = field(default_factory=list)
+    _selected_mcu: str = ""
+    _selected_board: str = ""
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -46,3 +45,51 @@ class FlashOptions:
     @classmethod
     def destroy(cls):
         cls._instance = None
+
+    @property
+    def flash_method(self) -> Union[FlashMethod, None]:
+        return self._flash_method
+
+    @flash_method.setter
+    def flash_method(self, value: Union[FlashMethod, None]):
+        self._flash_method = value
+
+    @property
+    def flash_command(self) -> Union[FlashCommand, None]:
+        return self._flash_command
+
+    @flash_command.setter
+    def flash_command(self, value: Union[FlashCommand, None]):
+        self._flash_command = value
+
+    @property
+    def connection_type(self) -> Union[ConnectionType, None]:
+        return self._connection_type
+
+    @connection_type.setter
+    def connection_type(self, value: Union[ConnectionType, None]):
+        self._connection_type = value
+
+    @property
+    def mcu_list(self) -> List[str]:
+        return self._mcu_list
+
+    @mcu_list.setter
+    def mcu_list(self, value: List[str]) -> None:
+        self._mcu_list = value
+
+    @property
+    def selected_mcu(self) -> str:
+        return self._selected_mcu
+
+    @selected_mcu.setter
+    def selected_mcu(self, value: str) -> None:
+        self._selected_mcu = value
+
+    @property
+    def selected_board(self) -> str:
+        return self._selected_board
+
+    @selected_board.setter
+    def selected_board(self, value: str) -> None:
+        self._selected_board = value

@@ -184,8 +184,6 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
             Logger.print_status("Identifying MCU connected via USB in DFU mode ...")
             self.flash_options.mcu_list = find_usb_dfu_device()
 
-        print(self.flash_options.mcu_list)
-
         if len(self.flash_options.mcu_list) < 1:
             Logger.print_warn("No MCUs found!")
             Logger.print_warn("Make sure they are connected and repeat this step.")
@@ -205,7 +203,6 @@ class KlipperSelectMcuIdMenu(BaseMenu):
         self.previous_menu: BaseMenu = previous_menu
         self.flash_options = FlashOptions()
         self.mcu_list = self.flash_options.mcu_list
-        print(self.mcu_list)
         options = {f"{index}": self.flash_mcu for index in range(len(self.mcu_list))}
         self.options = options
         self.input_label_txt = "Select MCU to flash"
