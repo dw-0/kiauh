@@ -73,14 +73,12 @@ function octoapp_setup_dialog() {
         done
       fi
       blank_line
-      echo -e "| The setup will apply the same names to                |"
-      echo -e "| OctoApp                                        |"
+      echo -e "| The setup will apply the same names to OctoApp        |"
       blank_line
-      echo -e "| Please select the number of OctoApp instances  |"
-      echo -e "| to install. Usually one OctoApp instance per   |"
-      echo -e "| Moonraker instance is required, but you may not       |"
-      echo -e "| install more OctoApp instances than available  |"
-      echo -e "| Moonraker instances.                                  |"
+      echo -e "| Please select the number of OctoApp instances to      |"
+      echo -e "| install. Usually one OctoApp instance per Moonraker   |"
+      echo -e "| instance is required, but you may not install more    |"
+      echo -e "| OctoApp instances than available Moonraker instances. |"
       bottom_border
 
       ### ask for amount of instances
