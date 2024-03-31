@@ -35,8 +35,9 @@ function update_ui() {
   echo -e "|  9) [OctoEverywhere]   |$(compare_octoeverywhere_versions)|"
   echo -e "| 10) [Mobileraker]      |$(compare_mobileraker_versions)|"
   echo -e "| 11) [Crowsnest]        |$(compare_crowsnest_versions)|"
+  echo -e "| 12) [OctoApp]          |$(compare_octoapp_versions)|"
   echo -e "|                        |------------------------------|"
-  echo -e "| 12) [System]           |  $(check_system_updates)   |"
+  echo -e "| 13) [System]           |  $(check_system_updates)   |"
   back_footer
 }
 
@@ -73,6 +74,8 @@ function update_menu() {
       11)
         do_action "update_crowsnest" "update_ui";;
       12)
+        do_action "update_octoapp" "update_ui";;
+      13)
         do_action "upgrade_system_packages" "update_ui";;
       a)
         do_action "update_all" "update_ui";;
@@ -128,7 +131,10 @@ function update_all() {
     echo -e "|  ${cyan}● OctoEverywhere${white}                                     |"
 
     [[ "${update_arr[*]}" =~ "mobileraker" ]] && \
-    echo -e "|  ${cyan}● Mobileraker${white}                                     |"
+    echo -e "|  ${cyan}● Mobileraker${white}                                        |"
+
+    [[ "${update_arr[*]}" =~ "octoapp" ]] && \
+    echo -e "|  ${cyan}● OctoApp${white}                                            |"
 
     [[ "${update_arr[*]}" =~ "system" ]] && \
     echo -e "|  ${cyan}● System${white}                                             |"

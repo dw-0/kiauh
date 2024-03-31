@@ -83,4 +83,8 @@ function set_globals() {
   MOBILERAKER_DIR="${HOME}/mobileraker_companion"
   MOBILERAKER_REPO="https://github.com/Clon1998/mobileraker_companion.git"
 
+  #=============== OCTOAPP ================#
+  OCTOAPP_ENV="${HOME}/octoapp-env"
+  OCTOAPP_DIR="${HOME}/octoapp"
+  OCTOAPP_REPO="https://github.com/crysxd/OctoApp-Plugin.git"
 }

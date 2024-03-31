@@ -28,9 +28,10 @@ function install_ui() {
   echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
   echo -e "|                          | 10) [OctoEverywhere]       |"
   echo -e "|                          | 11) [Mobileraker]          |"
-  echo -e "| Touchscreen GUI:         |                            |"
-  echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
-  echo -e "|                          | 12) [Crowsnest]            |"
+  echo -e "| Touchscreen GUI:         | 12) [OctoApp for Klipper]  |"
+  echo -e "|  5) [KlipperScreen]      |                            |"
+  echo -e "|                          | Webcam Streamer:           |"
+  echo -e "|                          | 13) [Crowsnest]            |"
   back_footer
 }
 
@@ -72,6 +73,8 @@ function install_menu() {
       11)
         do_action "install_mobileraker" "install_ui";;
       12)
+        do_action "octoapp_setup_dialog" "install_ui";;
+      13)
         do_action "install_crowsnest" "install_ui";;
       B|b)
         clear; main_menu; break;;
