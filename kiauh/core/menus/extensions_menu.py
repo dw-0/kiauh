@@ -12,10 +12,10 @@ import inspect
 import json
 import textwrap
 from pathlib import Path
-from typing import List
+from typing import Type, Dict
 
 from core.base_extension import BaseExtension
-from core.menus.base_menu import BaseMenu, Options
+from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 
 
@@ -27,42 +27,44 @@ class ExtensionsMenu(BaseMenu):
 
         self.previous_menu: BaseMenu = previous_menu
         self.extensions = self.discover_extensions()
-        self.options: Options = self.get_options(self.extensions)
+        self.options = {ext: self.extension_submenu for ext in self.extensions}
 
-    def discover_extensions(self) -> List[BaseExtension]:
-        extensions = []
+    def discover_extensions(self) -> Dict[str, BaseExtension]:
+        ext_dict = {}
         extensions_dir = Path(__file__).resolve().parents[2].joinpath("extensions")
 
-        for extension in extensions_dir.iterdir():
-            metadata_json = Path(extension).joinpath("metadata.json")
+        for ext in extensions_dir.iterdir():
+            metadata_json = Path(ext).joinpath("metadata.json")
             if not metadata_json.exists():
                 continue
 
             try:
                 with open(metadata_json, "r") as m:
+                    # read extension metadata from json
                     metadata = json.load(m).get("metadata")
-                    module_name = (
-                        f"kiauh.extensions.{extension.name}.{metadata.get('module')}"
-                    )
-                    name, extension = inspect.getmembers(
-                        importlib.import_module(module_name),
+                    module_name = metadata.get("module")
+                    module_path = f"kiauh.extensions.{ext.name}.{module_name}"
+
+                    # get the class name of the extension
+                    ext_class: Type[BaseExtension] = inspect.getmembers(
+                        importlib.import_module(module_path),
                         predicate=lambda o: inspect.isclass(o)
                         and issubclass(o, BaseExtension)
                         and o != BaseExtension,
-                    )[0]
-                    extensions.append(extension(metadata))
+                    )[0][1]
+
+                    # instantiate the extension with its metadata and add to dict
+                    ext_instance: BaseExtension = ext_class(metadata)
+                    ext_dict[f"{metadata.get('index')}"] = ext_instance
+
             except (IOError, json.JSONDecodeError, ImportError) as e:
-                print(f"Failed loading extension {extension}: {e}")
+                print(f"Failed loading extension {ext}: {e}")
 
-        return sorted(extensions, key=lambda ex: ex.metadata.get("index"))
+        return ext_dict
 
-    def get_options(self, extensions: List[BaseExtension]) -> Options:
-        options: Options = {}
-        for extension in extensions:
-            index = extension.metadata.get("index")
-            options[f"{index}"] = lambda: ExtensionSubmenu(self, extension).run()
-
-        return options
+    def extension_submenu(self, **kwargs):
+        extension = self.extensions.get(kwargs.get("opt_index"))
+        ExtensionSubmenu(self, extension).run()
 
     def print_menu(self):
         header = " [ Extensions Menu ] "
@@ -80,7 +82,7 @@ class ExtensionsMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-        for extension in self.extensions:
+        for extension in self.extensions.values():
             index = extension.metadata.get("index")
             name = extension.metadata.get("display_name")
             row = f"{index}) {name}"
