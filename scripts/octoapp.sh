@@ -159,20 +159,6 @@ function octoapp_setup_dialog() {
   fi  # (( allowed_octoapp_count > 0 ))
 }
 
-function clone_octoapp() {
-  local repo=${1}
-
-  status_msg "Cloning OctoApp..."
-  ### force remove existing repos
-  [[ -d "${OCTOAPP_DIR}" ]] && rm -rf "${OCTOAPP_DIR}"
-
-  cd "${HOME}" || exit 1
-  if ! git clone "${repo}" "${OCTOAPP_DIR}"; then
-    print_error "Cloning OctoApp from\n ${repo}\n failed!"
-    exit 1
-  fi
-}
-
 function octoapp_install() {
   "${OCTOAPP_DIR}/install.sh" "$@"
 }
