@@ -19,8 +19,9 @@ from components.moonraker import (
     MOONRAKER_DB_BACKUP_DIR,
 )
 from components.moonraker.moonraker import Moonraker
-from components.webui_client import MAINSAIL_DIR, ClientData
+from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_utils import enable_mainsail_remotemode
+from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
@@ -52,7 +53,7 @@ def get_moonraker_status() -> (
 def create_example_moonraker_conf(
     instance: Moonraker,
     ports_map: Dict[str, int],
-    clients: Optional[List[ClientData]] = None,
+    clients: Optional[List[BaseWebClient]] = None,
 ) -> None:
     Logger.print_status(f"Creating example moonraker.conf in '{instance.cfg_dir}'")
     if instance.cfg_file.is_file():
@@ -100,26 +101,26 @@ def create_example_moonraker_conf(
     if clients is not None and len(clients) > 0:
         for c in clients:
             # client part
-            c_section = f"update_manager {c.get('name')}"
+            c_section = f"update_manager {c.name}"
             c_options = [
                 ("type", "web"),
                 ("channel", "stable"),
-                ("repo", c.get("mr_conf_repo")),
-                ("path", c.get("mr_conf_path")),
+                ("repo", c.repo_path),
+                ("path", c.client_dir),
             ]
             cm.config.add_section(section=c_section)
             for option in c_options:
                 cm.config.set(c_section, option[0], option[1])
 
             # client config part
-            c_config = c.get("client_config")
-            if c_config.get("dir").exists():
-                c_config_section = f"update_manager {c_config.get('name')}"
+            c_config = c.client_config
+            if c_config.config_dir.exists():
+                c_config_section = f"update_manager {c_config.name}"
                 c_config_options = [
                     ("type", "git_repo"),
                     ("primary_branch", "master"),
-                    ("path", c_config.get("mr_conf_path")),
-                    ("origin", c_config.get("mr_conf_origin")),
+                    ("path", c_config.config_dir),
+                    ("origin", c_config.repo_url),
                     ("managed_services", "klipper"),
                 ]
                 cm.config.add_section(section=c_config_section)
@@ -177,7 +178,7 @@ def moonraker_to_multi_conversion(new_name: str) -> None:
     im.start_instance()
 
     # if mainsail is installed, we enable mainsails remote mode
-    if MAINSAIL_DIR.exists() and len(im.instances) > 1:
+    if MainsailData().client_dir.exists() and len(im.instances) > 1:
         enable_mainsail_remotemode()
 
 

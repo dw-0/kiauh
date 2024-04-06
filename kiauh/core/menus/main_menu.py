@@ -14,9 +14,10 @@ from components.log_uploads.menus.log_upload_menu import LogUploadMenu
 from components.moonraker.moonraker_utils import get_moonraker_status
 from components.webui_client.client_utils import (
     get_client_status,
-    load_client_data,
     get_current_client_config,
 )
+from components.webui_client.fluidd_data import FluiddData
+from components.webui_client.mainsail_data import MainsailData
 from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
@@ -92,15 +93,11 @@ class MainMenu(BaseMenu):
         self.mr_status = self.format_status_by_code(mr_code, mr_status, mr_instances)
         self.mr_repo = f"{COLOR_CYAN}{moonraker_status.get('repo')}{RESET_FORMAT}"
         # mainsail
-        mainsail_client_data = load_client_data("mainsail")
-        self.ms_status = get_client_status(mainsail_client_data)
+        self.ms_status = get_client_status(MainsailData())
         # fluidd
-        fluidd_client_data = load_client_data("fluidd")
-        self.fl_status = get_client_status(fluidd_client_data)
+        self.fl_status = get_client_status(FluiddData())
         # client-config
-        self.cc_status = get_current_client_config(
-            [mainsail_client_data, fluidd_client_data]
-        )
+        self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
 
     def format_status_by_code(self, code: int, status: str, count: str) -> str:
         if code == 1:

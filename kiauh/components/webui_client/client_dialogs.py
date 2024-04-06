@@ -10,7 +10,7 @@
 import textwrap
 from typing import List
 
-from components.webui_client import ClientData
+from components.webui_client.base_data import BaseWebClient
 from core.menus.base_menu import print_back_footer
 from utils.constants import RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
 
@@ -84,9 +84,9 @@ def print_client_port_select_dialog(name: str, port: str, ports_in_use: List[str
     print(dialog, end="")
 
 
-def print_install_client_config_dialog(client: ClientData):
-    name = client.get("display_name")
-    url = client.get("client_config").get("url").replace(".git", "")
+def print_install_client_config_dialog(client: BaseWebClient):
+    name = client.display_name
+    url = client.client_config.repo_url.replace(".git", "")
     line1 = f"have {name} fully functional and working."
     line2 = f"The recommended macros for {name} can be seen here:"
     dialog = textwrap.dedent(

@@ -13,7 +13,10 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
-from components.webui_client import ClientData
+from components.webui_client.base_data import (
+    BaseWebClient,
+    WebClientType,
+)
 from components.webui_client.client_config.client_config_remove import (
     run_client_config_removal,
 )
@@ -29,7 +32,7 @@ from utils.logger import Logger
 
 
 def run_client_removal(
-    client: ClientData,
+    client: BaseWebClient,
     rm_client: bool,
     rm_client_config: bool,
     backup_ms_config_json: bool,
@@ -39,11 +42,11 @@ def run_client_removal(
     kl_im = InstanceManager(Klipper)
     kl_instances: List[Klipper] = kl_im.instances
 
-    if backup_ms_config_json and client.get("name") == "mainsail":
+    if backup_ms_config_json and client.client == WebClientType.MAINSAIL:
         backup_mainsail_config_json()
 
     if rm_client:
-        client_name = client.get("name")
+        client_name = client.name
         remove_client_dir(client)
         remove_nginx_config(client_name)
         remove_nginx_logs(client_name)
@@ -53,16 +56,16 @@ def run_client_removal(
 
     if rm_client_config:
         run_client_config_removal(
-            client.get("client_config"),
+            client.client_config,
             kl_instances,
             mr_instances,
         )
 
 
-def remove_client_dir(client: ClientData) -> None:
-    Logger.print_status(f"Removing {client.get('display_name')} ...")
-    client_dir = client.get("dir")
-    if not client.get("dir").exists():
+def remove_client_dir(client: BaseWebClient) -> None:
+    Logger.print_status(f"Removing {client.display_name} ...")
+    client_dir = client.client_dir
+    if not client.client_dir.exists():
         Logger.print_info(f"'{client_dir}' does not exist. Skipping ...")
         return
 

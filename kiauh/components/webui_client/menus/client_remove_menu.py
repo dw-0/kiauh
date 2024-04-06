@@ -10,14 +10,15 @@
 import textwrap
 from typing import Callable, Dict
 
-from components.webui_client import client_remove, ClientData
+from components.webui_client import client_remove
+from components.webui_client.base_data import BaseWebClient, WebClientType
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 
 # noinspection PyUnusedLocal
 class ClientRemoveMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu, client: ClientData):
+    def __init__(self, previous_menu: BaseMenu, client: BaseWebClient):
         super().__init__()
         self.previous_menu = previous_menu
         self.options = self.get_options(client)
@@ -27,22 +28,22 @@ class ClientRemoveMenu(BaseMenu):
         self.rm_client_config = False
         self.backup_mainsail_config_json = False
 
-    def get_options(self, client: ClientData) -> Dict[str, Callable]:
+    def get_options(self, client: BaseWebClient) -> Dict[str, Callable]:
         options = {
             "0": self.toggle_all,
             "1": self.toggle_rm_client,
             "2": self.toggle_rm_client_config,
             "c": self.run_removal_process,
         }
-        if client.get("name") == "mainsail":
+        if client.client == WebClientType.MAINSAIL:
             options["3"] = self.toggle_backup_mainsail_config_json
 
         return options
 
     def print_menu(self) -> None:
-        client_name = self.client.get("display_name")
-        client_config = self.client.get("client_config")
-        client_config_name = client_config.get("display_name")
+        client_name = self.client.display_name
+        client_config = self.client.client_config
+        client_config_name = client_config.display_name
 
         header = f" [ Remove {client_name} ] "
         color = COLOR_RED
@@ -66,7 +67,7 @@ class ClientRemoveMenu(BaseMenu):
             """
         )[1:]
 
-        if self.client.get("name") == "mainsail":
+        if self.client.client == WebClientType.MAINSAIL:
             o3 = checked if self.backup_mainsail_config_json else unchecked
             menu += textwrap.dedent(
                 f"""

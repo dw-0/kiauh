@@ -11,11 +11,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from components.webui_client import MAINSAIL_DIR
 from components.webui_client.client_utils import (
     enable_mainsail_remotemode,
     get_existing_clients,
 )
+from components.webui_client.mainsail_data import MainsailData
 from kiauh import KIAUH_CFG
 from components.klipper.klipper import Klipper
 from components.moonraker import (
@@ -113,7 +113,7 @@ def install_moonraker() -> None:
 
     # if mainsail is installed, and we installed
     # multiple moonraker instances, we enable mainsails remote mode
-    if MAINSAIL_DIR.exists() and len(mr_im.instances) > 1:
+    if MainsailData().client_dir.exists() and len(mr_im.instances) > 1:
         enable_mainsail_remotemode()
 
 

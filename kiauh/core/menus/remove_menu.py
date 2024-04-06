@@ -13,7 +13,8 @@ from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from components.moonraker.menus.moonraker_remove_menu import (
     MoonrakerRemoveMenu,
 )
-from components.webui_client.client_utils import load_client_data
+from components.webui_client.fluidd_data import FluiddData
+from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_RED, RESET_FORMAT
@@ -76,7 +77,7 @@ class RemoveMenu(BaseMenu):
         MoonrakerRemoveMenu(previous_menu=self).run()
 
     def remove_mainsail(self, **kwargs):
-        ClientRemoveMenu(previous_menu=self, client=load_client_data("mainsail")).run()
+        ClientRemoveMenu(previous_menu=self, client=MainsailData()).run()
 
     def remove_fluidd(self, **kwargs):
-        ClientRemoveMenu(previous_menu=self, client=load_client_data("fluidd")).run()
+        ClientRemoveMenu(previous_menu=self, client=FluiddData()).run()

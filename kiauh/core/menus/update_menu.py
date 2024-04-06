@@ -22,9 +22,10 @@ from components.webui_client.client_setup import update_client
 from components.webui_client.client_utils import (
     get_local_client_version,
     get_remote_client_version,
-    load_client_data,
     get_client_config_status,
 )
+from components.webui_client.fluidd_data import FluiddData
+from components.webui_client.mainsail_data import MainsailData
 from core.menus.base_menu import BaseMenu
 from utils.constants import (
     COLOR_GREEN,
@@ -68,6 +69,9 @@ class UpdateMenu(BaseMenu):
         self.mc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+
+        self.mainsail_cient = MainsailData()
+        self.fluidd_client = FluiddData()
 
     def print_menu(self):
         self.fetch_update_status()
@@ -114,16 +118,16 @@ class UpdateMenu(BaseMenu):
         update_moonraker()
 
     def update_mainsail(self, **kwargs):
-        update_client(load_client_data("mainsail"))
+        update_client(self.mainsail_cient)
 
     def update_mainsail_config(self, **kwargs):
-        update_client_config(load_client_data("mainsail"))
+        update_client_config(self.mainsail_cient)
 
     def update_fluidd(self, **kwargs):
-        update_client(load_client_data("fluidd"))
+        update_client(self.fluidd_client)
 
     def update_fluidd_config(self, **kwargs):
-        update_client_config(load_client_data("fluidd"))
+        update_client_config(self.fluidd_client)
 
     def update_klipperscreen(self, **kwargs): ...
 
@@ -153,25 +157,23 @@ class UpdateMenu(BaseMenu):
             self.mr_local = f"{COLOR_YELLOW}{self.mr_local}{RESET_FORMAT}"
         self.mr_remote = f"{COLOR_GREEN}{self.mr_remote}{RESET_FORMAT}"
         # mainsail
-        mainsail_client_data = load_client_data("mainsail")
-        self.ms_local = get_local_client_version(mainsail_client_data)
-        self.ms_remote = get_remote_client_version(mainsail_client_data)
+        self.ms_local = get_local_client_version(self.mainsail_cient)
+        self.ms_remote = get_remote_client_version(self.mainsail_cient)
         if self.ms_local == self.ms_remote:
             self.ms_local = f"{COLOR_GREEN}{self.ms_local}{RESET_FORMAT}"
         else:
             self.ms_local = f"{COLOR_YELLOW}{self.ms_local}{RESET_FORMAT}"
         self.ms_remote = f"{COLOR_GREEN if self.ms_remote != 'ERROR' else COLOR_RED}{self.ms_remote}{RESET_FORMAT}"
         # fluidd
-        fluidd_client_data = load_client_data("fluidd")
-        self.fl_local = get_local_client_version(fluidd_client_data)
-        self.fl_remote = get_remote_client_version(fluidd_client_data)
+        self.fl_local = get_local_client_version(self.fluidd_client)
+        self.fl_remote = get_remote_client_version(self.fluidd_client)
         if self.fl_local == self.fl_remote:
             self.fl_local = f"{COLOR_GREEN}{self.fl_local}{RESET_FORMAT}"
         else:
             self.fl_local = f"{COLOR_YELLOW}{self.fl_local}{RESET_FORMAT}"
         self.fl_remote = f"{COLOR_GREEN if self.fl_remote != 'ERROR' else COLOR_RED}{self.fl_remote}{RESET_FORMAT}"
         # mainsail-config
-        mc_status = get_client_config_status(load_client_data("mainsail"))
+        mc_status = get_client_config_status(self.mainsail_cient)
         self.mc_local = mc_status.get("local")
         self.mc_remote = mc_status.get("remote")
         if self.mc_local == self.mc_remote:
@@ -180,7 +182,7 @@ class UpdateMenu(BaseMenu):
             self.mc_local = f"{COLOR_YELLOW}{self.mc_local}{RESET_FORMAT}"
         self.mc_remote = f"{COLOR_GREEN}{self.mc_remote}{RESET_FORMAT}"
         # fluidd-config
-        fc_status = get_client_config_status(load_client_data("fluidd"))
+        fc_status = get_client_config_status(self.fluidd_client)
         self.fc_local = fc_status.get("local")
         self.fc_remote = fc_status.get("remote")
         if self.fc_local == self.mc_remote:

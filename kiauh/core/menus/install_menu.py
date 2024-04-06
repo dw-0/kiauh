@@ -13,6 +13,8 @@ from components.klipper import klipper_setup
 from components.moonraker import moonraker_setup
 from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
+from components.webui_client.fluidd_data import FluiddData
+from components.webui_client.mainsail_data import MainsailData
 
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_GREEN, RESET_FORMAT
@@ -69,13 +71,13 @@ class InstallMenu(BaseMenu):
         moonraker_setup.install_moonraker()
 
     def install_mainsail(self, **kwargs):
-        client_setup.install_client(client_name="mainsail")
+        client_setup.install_client(MainsailData())
 
     def install_mainsail_config(self, **kwargs):
-        client_config_setup.install_client_config(client_name="mainsail")
+        client_config_setup.install_client_config(MainsailData())
 
     def install_fluidd(self, **kwargs):
-        client_setup.install_client(client_name="fluidd")
+        client_setup.install_client(FluiddData())
 
     def install_fluidd_config(self, **kwargs):
-        client_config_setup.install_client_config(client_name="fluidd")
+        client_config_setup.install_client_config(FluiddData())

@@ -30,7 +30,7 @@ from components.klipper.klipper_dialogs import (
 )
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_utils import moonraker_to_multi_conversion
-from components.webui_client import ClientData
+from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_config.client_config_setup import (
     create_client_config_symlink,
 )
@@ -288,7 +288,7 @@ def get_highest_index(instance_list: List[Klipper]) -> int:
 
 
 def create_example_printer_cfg(
-    instance: Klipper, clients: Optional[List[ClientData]] = None
+    instance: Klipper, clients: Optional[List[BaseWebClient]] = None
 ) -> None:
     Logger.print_status(f"Creating example printer.cfg in '{instance.cfg_dir}'")
     if instance.cfg_file.is_file():
@@ -309,8 +309,8 @@ def create_example_printer_cfg(
     # include existing client configs in the example config
     if clients is not None and len(clients) > 0:
         for c in clients:
-            client_config = c.get("client_config")
-            section = client_config.get("printer_cfg_section")
+            client_config = c.client_config
+            section = client_config.config_section
             cm.config.add_section(section=section)
             create_client_config_symlink(client_config, [instance])
 

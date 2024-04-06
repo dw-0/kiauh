@@ -16,9 +16,10 @@ from components.moonraker.moonraker_utils import (
 )
 from components.webui_client.client_utils import (
     backup_client_data,
-    load_client_data,
     backup_client_config_data,
 )
+from components.webui_client.fluidd_data import FluiddData
+from components.webui_client.mainsail_data import MainsailData
 from core.menus.base_menu import BaseMenu
 from utils.common import backup_printer_config_dir
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
@@ -81,16 +82,16 @@ class BackupMenu(BaseMenu):
         backup_moonraker_db_dir()
 
     def backup_mainsail(self, **kwargs):
-        backup_client_data(load_client_data("mainsail"))
+        backup_client_data(MainsailData().get())
 
     def backup_fluidd(self, **kwargs):
-        backup_client_data(load_client_data("fluidd"))
+        backup_client_data(FluiddData().get())
 
     def backup_mainsail_config(self, **kwargs):
-        backup_client_config_data(load_client_data("mainsail"))
+        backup_client_config_data(MainsailData().get())
 
     def backup_fluidd_config(self, **kwargs):
-        backup_client_config_data(load_client_data("fluidd"))
+        backup_client_config_data(FluiddData().get())
 
     def backup_klipperscreen(self, **kwargs):
         pass
