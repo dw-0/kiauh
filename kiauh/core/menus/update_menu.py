@@ -70,7 +70,7 @@ class UpdateMenu(BaseMenu):
         self.fc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
-        self.mainsail_cient = MainsailData()
+        self.mainsail_client = MainsailData()
         self.fluidd_client = FluiddData()
 
     def print_menu(self):
@@ -118,10 +118,10 @@ class UpdateMenu(BaseMenu):
         update_moonraker()
 
     def update_mainsail(self, **kwargs):
-        update_client(self.mainsail_cient)
+        update_client(self.mainsail_client)
 
     def update_mainsail_config(self, **kwargs):
-        update_client_config(self.mainsail_cient)
+        update_client_config(self.mainsail_client)
 
     def update_fluidd(self, **kwargs):
         update_client(self.fluidd_client)
@@ -140,53 +140,46 @@ class UpdateMenu(BaseMenu):
     def fetch_update_status(self):
         # klipper
         kl_status = get_klipper_status()
-        self.kl_local = kl_status.get("local")
+        self.kl_local = self.format_local_status(
+            kl_status.get("local"), kl_status.get("remote")
+        )
         self.kl_remote = kl_status.get("remote")
-        if self.kl_local == self.kl_remote:
-            self.kl_local = f"{COLOR_GREEN}{self.kl_local}{RESET_FORMAT}"
-        else:
-            self.kl_local = f"{COLOR_YELLOW}{self.kl_local}{RESET_FORMAT}"
-        self.kl_remote = f"{COLOR_GREEN}{self.kl_remote}{RESET_FORMAT}"
+        self.kl_remote = f"{COLOR_GREEN}{kl_status.get('remote')}{RESET_FORMAT}"
+
         # moonraker
         mr_status = get_moonraker_status()
-        self.mr_local = mr_status.get("local")
-        self.mr_remote = mr_status.get("remote")
-        if self.mr_local == self.mr_remote:
-            self.mr_local = f"{COLOR_GREEN}{self.mr_local}{RESET_FORMAT}"
-        else:
-            self.mr_local = f"{COLOR_YELLOW}{self.mr_local}{RESET_FORMAT}"
-        self.mr_remote = f"{COLOR_GREEN}{self.mr_remote}{RESET_FORMAT}"
+        self.mr_local = self.format_local_status(
+            mr_status.get("local"), mr_status.get("remote")
+        )
+        self.mr_remote = f"{COLOR_GREEN}{mr_status.get('remote')}{RESET_FORMAT}"
+
         # mainsail
-        self.ms_local = get_local_client_version(self.mainsail_cient)
-        self.ms_remote = get_remote_client_version(self.mainsail_cient)
-        if self.ms_local == self.ms_remote:
-            self.ms_local = f"{COLOR_GREEN}{self.ms_local}{RESET_FORMAT}"
-        else:
-            self.ms_local = f"{COLOR_YELLOW}{self.ms_local}{RESET_FORMAT}"
-        self.ms_remote = f"{COLOR_GREEN if self.ms_remote != 'ERROR' else COLOR_RED}{self.ms_remote}{RESET_FORMAT}"
+        ms_local_ver = get_local_client_version(self.mainsail_client)
+        ms_remote_ver = get_remote_client_version(self.mainsail_client)
+        self.ms_local = self.format_local_status(ms_local_ver, ms_remote_ver)
+        self.ms_remote = f"{COLOR_GREEN if ms_remote_ver != 'ERROR' else COLOR_RED}{ms_remote_ver}{RESET_FORMAT}"
+
         # fluidd
-        self.fl_local = get_local_client_version(self.fluidd_client)
-        self.fl_remote = get_remote_client_version(self.fluidd_client)
-        if self.fl_local == self.fl_remote:
-            self.fl_local = f"{COLOR_GREEN}{self.fl_local}{RESET_FORMAT}"
-        else:
-            self.fl_local = f"{COLOR_YELLOW}{self.fl_local}{RESET_FORMAT}"
-        self.fl_remote = f"{COLOR_GREEN if self.fl_remote != 'ERROR' else COLOR_RED}{self.fl_remote}{RESET_FORMAT}"
+        fl_local_ver = get_local_client_version(self.fluidd_client)
+        fl_remote_ver = get_remote_client_version(self.fluidd_client)
+        self.fl_local = self.format_local_status(fl_local_ver, fl_remote_ver)
+        self.fl_remote = f"{COLOR_GREEN if fl_remote_ver != 'ERROR' else COLOR_RED}{fl_remote_ver}{RESET_FORMAT}"
+
         # mainsail-config
-        mc_status = get_client_config_status(self.mainsail_cient)
-        self.mc_local = mc_status.get("local")
-        self.mc_remote = mc_status.get("remote")
-        if self.mc_local == self.mc_remote:
-            self.mc_local = f"{COLOR_GREEN}{self.mc_local}{RESET_FORMAT}"
-        else:
-            self.mc_local = f"{COLOR_YELLOW}{self.mc_local}{RESET_FORMAT}"
-        self.mc_remote = f"{COLOR_GREEN}{self.mc_remote}{RESET_FORMAT}"
+        mc_status = get_client_config_status(self.mainsail_client)
+        self.mc_local = self.format_local_status(
+            mc_status.get("local"), mc_status.get("remote")
+        )
+        self.mc_remote = f"{COLOR_GREEN}{mc_status.get('remote')}{RESET_FORMAT}"
+
         # fluidd-config
         fc_status = get_client_config_status(self.fluidd_client)
-        self.fc_local = fc_status.get("local")
-        self.fc_remote = fc_status.get("remote")
-        if self.fc_local == self.mc_remote:
-            self.fc_local = f"{COLOR_GREEN}{self.fc_local}{RESET_FORMAT}"
-        else:
-            self.fc_local = f"{COLOR_YELLOW}{self.fc_local}{RESET_FORMAT}"
-        self.fc_remote = f"{COLOR_GREEN}{self.fc_remote}{RESET_FORMAT}"
+        self.fc_local = self.format_local_status(
+            fc_status.get("local"), fc_status.get("remote")
+        )
+        self.fc_remote = f"{COLOR_GREEN}{fc_status.get('remote')}{RESET_FORMAT}"
+
+    def format_local_status(self, local_version, remote_version) -> str:
+        if local_version == remote_version:
+            return f"{COLOR_GREEN}{local_version}{RESET_FORMAT}"
+        return f"{COLOR_YELLOW}{local_version}{RESET_FORMAT}"
