@@ -14,7 +14,8 @@ import textwrap
 from pathlib import Path
 from typing import Type, Dict
 
-from core.base_extension import BaseExtension
+from extensions import EXTENSION_ROOT
+from extensions.base_extension import BaseExtension
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 
@@ -31,9 +32,8 @@ class ExtensionsMenu(BaseMenu):
 
     def discover_extensions(self) -> Dict[str, BaseExtension]:
         ext_dict = {}
-        extensions_dir = Path(__file__).resolve().parents[2].joinpath("extensions")
 
-        for ext in extensions_dir.iterdir():
+        for ext in EXTENSION_ROOT.iterdir():
             metadata_json = Path(ext).joinpath("metadata.json")
             if not metadata_json.exists():
                 continue
@@ -95,15 +95,17 @@ class ExtensionSubmenu(BaseMenu):
     def __init__(self, previous_menu: BaseMenu, extension: BaseExtension):
         super().__init__()
 
-        self.previous_menu = previous_menu
-        self.options = {
-            "1": extension.install_extension,
-            "2": extension.remove_extension,
-        }
-
         self.extension = extension
         self.extension_name = extension.metadata.get("display_name")
         self.extension_desc = extension.metadata.get("description")
+
+        self.previous_menu = previous_menu
+        self.options["1"] = extension.install_extension
+        if self.extension.metadata.get("updates"):
+            self.options["2"] = extension.update_extension
+            self.options["3"] = extension.remove_extension
+        else:
+            self.options["2"] = extension.remove_extension
 
     def print_menu(self) -> None:
         header = f" [ {self.extension_name} ] "
@@ -127,7 +129,13 @@ class ExtensionSubmenu(BaseMenu):
             """
             |-------------------------------------------------------|
             | 1) Install                                            |
-            | 2) Remove                                             |
             """
         )[1:]
+
+        if self.extension.metadata.get("updates"):
+            menu += "| 2) Update                                             |\n"
+            menu += "| 3) Remove                                             |\n"
+        else:
+            menu += "| 2) Remove                                             |\n"
+
         print(menu, end="")

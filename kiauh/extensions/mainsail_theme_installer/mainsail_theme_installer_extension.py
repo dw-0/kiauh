@@ -19,7 +19,7 @@ from components.klipper.klipper_dialogs import (
     print_instance_overview,
     DisplayType,
 )
-from core.base_extension import BaseExtension
+from extensions.base_extension import BaseExtension
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.menus.base_menu import BaseMenu

@@ -19,12 +19,11 @@ class BaseExtension(ABC):
 
     @abstractmethod
     def install_extension(self, **kwargs) -> None:
-        raise NotImplementedError(
-            "Subclasses must implement the install_extension method"
-        )
+        raise NotImplementedError
+
+    def update_extension(self, **kwargs) -> None:
+        raise NotImplementedError
 
     @abstractmethod
     def remove_extension(self, **kwargs) -> None:
-        raise NotImplementedError(
-            "Subclasses must implement the remove_extension method"
-        )
+        raise NotImplementedError

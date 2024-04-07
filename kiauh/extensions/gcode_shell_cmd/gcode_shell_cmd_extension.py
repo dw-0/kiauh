@@ -13,7 +13,7 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
-from core.base_extension import BaseExtension
+from extensions.base_extension import BaseExtension
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
 from extensions.gcode_shell_cmd import (

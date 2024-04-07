@@ -22,7 +22,7 @@ from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
 from core.menus.base_menu import BaseMenu
-from core.menus.extensions_menu import ExtensionsMenu
+from extensions.extensions_menu import ExtensionsMenu
 from core.menus.install_menu import InstallMenu
 from core.menus.remove_menu import RemoveMenu
 from core.menus.settings_menu import SettingsMenu
