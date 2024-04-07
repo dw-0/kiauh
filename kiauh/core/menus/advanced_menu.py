@@ -58,4 +58,4 @@ class AdvancedMenu(BaseMenu):
         KlipperFlashMethodMenu(previous_menu=self).run()
 
     def get_id(self, **kwargs):
-        KlipperSelectMcuConnectionMenu(previous_menu=self).run()
+        KlipperSelectMcuConnectionMenu(previous_menu=self, standalone=True).run()

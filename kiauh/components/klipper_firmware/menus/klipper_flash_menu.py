@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import textwrap
+import time
 
 from components.klipper_firmware.flash_options import (
     FlashOptions,
@@ -131,9 +132,10 @@ class KlipperFlashCommandMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperSelectMcuConnectionMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self, previous_menu: BaseMenu, standalone: bool = False):
         super().__init__()
 
+        self.__standalone = standalone
         self.previous_menu: BaseMenu = previous_menu
         self.options = {
             "1": self.select_usb,
@@ -193,8 +195,16 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         if len(self.flash_options.mcu_list) < 1:
             Logger.print_warn("No MCUs found!")
             Logger.print_warn("Make sure they are connected and repeat this step.")
-        else:
-            self.goto_next_menu()
+
+        # if standalone is True, we only display the MCUs to the user and return
+        if self.__standalone and len(self.flash_options.mcu_list) > 0:
+            Logger.print_ok("The following MCUs were found:", prefix=False)
+            for i, mcu in enumerate(self.flash_options.mcu_list):
+                print(f"   ● MCU #{i}: {COLOR_CYAN}{mcu}{RESET_FORMAT}")
+            time.sleep(3)
+            return
+
+        self.goto_next_menu()
 
     def goto_next_menu(self, **kwargs):
         KlipperSelectMcuIdMenu(previous_menu=self).run()
