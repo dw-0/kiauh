@@ -12,10 +12,10 @@ from __future__ import annotations
 import subprocess
 import sys
 import textwrap
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 from typing import Dict, Union, Callable, Type, Tuple
 
-from core.menus import FooterType, NAVI_OPTIONS, ExitAppException, GoBackException
+from core.menus import FooterType, ExitAppException, GoBackException
 from utils.constants import (
     COLOR_GREEN,
     COLOR_YELLOW,
@@ -96,21 +96,50 @@ def print_blank_footer():
     print("\=======================================================/")
 
 
-Options = Dict[str, Callable]
+class PostInitCaller(type):
+    def __call__(cls, *args, **kwargs):
+        obj = type.__call__(cls, *args, **kwargs)
+        obj.__post_init__()
+        return obj
 
 
-class BaseMenu(ABC):
-    options: Options = {}
+# noinspection PyUnusedLocal
+# noinspection PyMethodMayBeStatic
+class BaseMenu(metaclass=PostInitCaller):
+    options: Dict[str, Callable] = {}
     options_offset: int = 0
     default_option: Union[Callable, None] = None
     input_label_txt: str = "Perform action"
     header: bool = False
     previous_menu: Union[Type[BaseMenu], BaseMenu] = None
+    help_menu: Type[BaseMenu] = None
     footer_type: FooterType = FooterType.BACK
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         if type(self) is BaseMenu:
             raise NotImplementedError("BaseMenu cannot be instantiated directly.")
+
+    def __post_init__(self):
+        # conditionally add options based on footer type
+        if self.footer_type is FooterType.QUIT:
+            self.options["q"] = self.__exit
+        if self.footer_type is FooterType.BACK:
+            self.options["b"] = self.__go_back
+        if self.footer_type is FooterType.BACK_HELP:
+            self.options["b"] = self.__go_back
+            self.options["h"] = self.__go_to_help
+        # if defined, add the default option to the options dict
+        if self.default_option is not None:
+            self.options[""] = self.default_option
+
+    def __go_back(self, **kwargs):
+        raise GoBackException()
+
+    def __go_to_help(self, **kwargs):
+        self.help_menu(previous_menu=self).run()
+
+    def __exit(self, **kwargs):
+        raise ExitAppException()
 
     @abstractmethod
     def print_menu(self) -> None:
@@ -144,20 +173,8 @@ class BaseMenu(ABC):
         usr_input = usr_input.lower()
         option = self.options.get(usr_input, None)
 
-        # check if usr_input contains a character used for basic navigation, e.g. b, h or q
-        # and if the current menu has the appropriate footer to allow for that action
-        is_valid_navigation = self.footer_type in NAVI_OPTIONS
-        user_navigated = usr_input in NAVI_OPTIONS[self.footer_type]
-        if is_valid_navigation and user_navigated:
-            if usr_input == "q":
-                raise ExitAppException()
-            elif usr_input == "b":
-                raise GoBackException()
-            elif usr_input == "h":
-                return option, usr_input
-
-        # if usr_input is None or an empty string, we execute the menues default option if specified
-        if usr_input == "" and self.default_option is not None:
+        # if option/usr_input is None/empty string, we execute the menus default option if specified
+        if (option is None or usr_input == "") and self.default_option is not None:
             return self.default_option, usr_input
 
         # user selected a regular option
@@ -168,8 +185,10 @@ class BaseMenu(ABC):
         while True:
             print(f"{COLOR_CYAN}###### {self.input_label_txt}: {RESET_FORMAT}", end="")
             usr_input = input().lower()
+            validated_input = self.validate_user_input(usr_input)
+            method_to_call = validated_input[0]
 
-            if (validated_input := self.validate_user_input(usr_input)) is not None:
+            if method_to_call is not None:
                 return validated_input
             else:
                 Logger.print_error("Invalid input!", False)

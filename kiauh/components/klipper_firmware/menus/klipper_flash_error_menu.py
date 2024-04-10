@@ -21,8 +21,7 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
         super().__init__()
 
         self.flash_options = FlashOptions()
-        self.options = {"": self.go_back}
-        self.default_options = self.go_back
+        self.default_option = self.go_back
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Advanced Menu]"
 
@@ -64,8 +63,7 @@ class KlipperNoBoardTypesErrorMenu(BaseMenu):
     def __init__(self):
         super().__init__()
 
-        self.options = {"": self.go_back}
-        self.default_options = self.go_back
+        self.default_option = self.go_back
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Main Menu]"
 

@@ -17,14 +17,6 @@ class FooterType(Enum):
     BLANK = "BLANK"
 
 
-NAVI_OPTIONS = {
-    FooterType.QUIT: ["q"],
-    FooterType.BACK: ["b"],
-    FooterType.BACK_HELP: ["b", "h"],
-    FooterType.BLANK: [],
-}
-
-
 class ExitAppException(Exception):
     pass
 
