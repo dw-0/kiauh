@@ -19,10 +19,12 @@ from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 # noinspection PyUnusedLocal
 class AdvancedMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: BaseMenu = MainMenu()
         self.options = {
             "1": None,
             "2": None,

@@ -20,13 +20,24 @@ from components.klipper_firmware.flash_utils import (
     find_usb_device_by_id,
     find_uart_device,
     find_usb_dfu_device,
-    flash_device,
+    get_sd_flash_board_list,
+    start_flash_process,
+    find_firmware_file,
+)
+from components.klipper_firmware.menus.klipper_flash_error_menu import (
+    KlipperNoBoardTypesErrorMenu,
+    KlipperNoFirmwareErrorMenu,
+)
+from components.klipper_firmware.menus.klipper_flash_help_menu import (
+    KlipperMcuConnectionHelpMenu,
+    KlipperFlashCommandHelpMenu,
+    KlipperFlashMethodHelpMenu,
 )
 from core.menus import FooterType
 
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW, COLOR_RED
-from utils.input_utils import get_confirm
+from utils.input_utils import get_number_input
 from utils.logger import Logger
 
 
@@ -48,7 +59,11 @@ class KlipperFlashMethodMenu(BaseMenu):
         self.flash_options = FlashOptions()
 
     def print_menu(self) -> None:
-        header = " [ Flash MCU ] "
+        header = " [ MCU Flash Menu ] "
+        subheader = f"{COLOR_YELLOW}ATTENTION:{RESET_FORMAT}"
+        subline1 = f"{COLOR_YELLOW}Make sure to select the correct method for the  MCU!{RESET_FORMAT}"
+        subline2 = f"{COLOR_YELLOW}Not all MCUs support both methods!{RESET_FORMAT}"
+
         color = COLOR_CYAN
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
@@ -56,9 +71,11 @@ class KlipperFlashMethodMenu(BaseMenu):
             /=======================================================\\
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
-            | Please select the flashing method to flash your MCU.  |
-            | Make sure to only select a method your MCU supports.  |
-            | Not all MCUs support both methods!                    |
+            | Select the flash method for flashing the MCU.         |
+            |                                                       |
+            | {subheader:<62} |
+            | {subline1:<62} |
+            | {subline2:<62} |
             |-------------------------------------------------------|
             |                                                       |
             | 1) Regular flashing method                            |
@@ -77,7 +94,10 @@ class KlipperFlashMethodMenu(BaseMenu):
         self.goto_next_menu()
 
     def goto_next_menu(self, **kwargs):
-        KlipperFlashCommandMenu(previous_menu=self).run()
+        if find_firmware_file(self.flash_options.flash_method):
+            KlipperFlashCommandMenu(previous_menu=self).run()
+        else:
+            KlipperNoFirmwareErrorMenu().run()
 
     def help_menu(self, **kwargs):
         KlipperFlashMethodHelpMenu(previous_menu=self).run()
@@ -256,132 +276,139 @@ class KlipperSelectMcuIdMenu(BaseMenu):
         selected_mcu = self.mcu_list[index]
         self.flash_options.selected_mcu = selected_mcu
 
-        print(f"{COLOR_CYAN}###### You selected:{RESET_FORMAT}")
-        print(f"● MCU #{index}: {selected_mcu}\n")
+        if self.flash_options.flash_method == FlashMethod.SD_CARD:
+            KlipperSelectSDFlashBoardMenu(previous_menu=self).run()
+        elif self.flash_options.flash_method == FlashMethod.REGULAR:
+            KlipperFlashOverviewMenu(previous_menu=self).run()
 
-        if get_confirm("Continue", allow_go_back=True):
-            Logger.print_status(f"Flashing '{selected_mcu}' ...")
-            flash_device(self.flash_options)
 
-        self.goto_next_menu()
+# noinspection PyUnusedLocal
+# noinspection PyMethodMayBeStatic
+class KlipperSelectSDFlashBoardMenu(BaseMenu):
+    def __init__(self, previous_menu: BaseMenu):
+        super().__init__()
 
-    def goto_next_menu(self, **kwargs):
-        from core.menus.main_menu import MainMenu
+        self.previous_menu: BaseMenu = previous_menu
+        self.flash_options = FlashOptions()
+        self.available_boards = get_sd_flash_board_list()
+        self.input_label_txt = "Select board type"
+
+        options = {f"{i}": self.board_select for i in range(len(self.available_boards))}
+        self.options = options
+
+    def print_menu(self) -> None:
+        if len(self.available_boards) < 1:
+            KlipperNoBoardTypesErrorMenu().run()
+        else:
+            menu = textwrap.dedent(
+                """
+                /=======================================================\\
+                | Please select the type of board that corresponds to   |
+                | the currently selected MCU ID you chose before.       |
+                |                                                       |
+                | The following boards are currently supported:         |
+                |-------------------------------------------------------|
+                """
+            )[1:]
+
+            for i, board in enumerate(self.available_boards):
+                line = f" {i}) {board}"
+                menu += f"|{line:<55}|\n"
+
+            print(menu, end="")
+
+    def board_select(self, **kwargs):
+        board = int(kwargs.get("opt_index"))
+        self.flash_options.selected_board = self.available_boards[board]
+        self.baudrate_select()
+
+    def baudrate_select(self, **kwargs):
+        menu = textwrap.dedent(
+            """
+            /=======================================================\\
+            | If your board is flashed with firmware that connects  |
+            | at a custom baud rate, please change it now.          |
+            |                                                       |
+            | If you are unsure, stick to the default 250000!       |
+            \\=======================================================/
+            """
+        )[1:]
+        print(menu, end="")
+        self.flash_options.selected_baudrate = get_number_input(
+            question="Please set the baud rate",
+            default=250000,
+            min_count=0,
+            allow_go_back=True,
+        )
+        KlipperFlashOverviewMenu(previous_menu=self).run()
+
+
+# noinspection PyUnusedLocal
+# noinspection PyMethodMayBeStatic
+class KlipperFlashOverviewMenu(BaseMenu):
+    def __init__(self, previous_menu: BaseMenu):
+        super().__init__()
+
+        self.previous_menu: BaseMenu = previous_menu
+        self.flash_options = FlashOptions()
+        self.options = {"Y": self.execute_flash, "N": self.abort_process}
+        self.input_label_txt = "Perform action (default=Y)"
+        self.default_option = self.execute_flash
+
+    def print_menu(self) -> None:
+        header = "!!! ATTENTION !!!"
+        color = COLOR_RED
+        count = 62 - len(color) - len(RESET_FORMAT)
+
+        method = self.flash_options.flash_method.value
+        command = self.flash_options.flash_command.value
+        conn_type = self.flash_options.connection_type.value
+        mcu = self.flash_options.selected_mcu
+        board = self.flash_options.selected_board
+        baudrate = self.flash_options.selected_baudrate
+        subheader = f"[{COLOR_CYAN}Overview{RESET_FORMAT}]"
+        menu = textwrap.dedent(
+            f"""
+            /=======================================================\\
+            | {color}{header:^{count}}{RESET_FORMAT} |
+            |-------------------------------------------------------|
+            | Before contuining the flashing process, please check  |
+            | if all parameters were set correctly! Once you made   |
+            | sure everything is correct, start the process. If any |
+            | parameter needs to be changed, you can go back (B)    |
+            | step by step or abort and start from the beginning.   |
+            |{subheader:-^64}|
+            
+            """
+        )[1:]
+
+        menu += f"   ● MCU: {COLOR_CYAN}{mcu}{RESET_FORMAT}\n"
+        menu += f"   ● Connection: {COLOR_CYAN}{conn_type}{RESET_FORMAT}\n"
+        menu += f"   ● Flash method: {COLOR_CYAN}{method}{RESET_FORMAT}\n"
+        menu += f"   ● Flash command: {COLOR_CYAN}{command}{RESET_FORMAT}\n"
+
+        if self.flash_options.flash_method is FlashMethod.SD_CARD:
+            menu += f"   ● Board type: {COLOR_CYAN}{board}{RESET_FORMAT}\n"
+            menu += f"   ● Baudrate: {COLOR_CYAN}{baudrate}{RESET_FORMAT}\n"
+
+        menu += textwrap.dedent(
+            """
+            |-------------------------------------------------------|
+            |  Y) Start flash process                               |
+            |  N) Abort - Return to Advanced Menu                   |
+            """
+        )
+        print(menu, end="")
+
+    def execute_flash(self, **kwargs):
         from core.menus.advanced_menu import AdvancedMenu
 
-        AdvancedMenu(previous_menu=MainMenu()).run()
+        start_flash_process(self.flash_options)
+        Logger.print_info("Returning to MCU Flash Menu in 5 seconds ...")
+        time.sleep(5)
+        KlipperFlashMethodMenu(previous_menu=AdvancedMenu()).run()
 
+    def abort_process(self, **kwargs):
+        from core.menus.advanced_menu import AdvancedMenu
 
-class KlipperFlashMethodHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
-        super().__init__()
-
-        self.previous_menu: BaseMenu = previous_menu
-
-    def print_menu(self) -> None:
-        header = " < ? > Help: Flash MCU < ? > "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
-        subheader1 = f"{COLOR_CYAN}Regular flashing method:{RESET_FORMAT}"
-        subheader2 = f"{COLOR_CYAN}Updating via SD-Card Update:{RESET_FORMAT}"
-        menu = textwrap.dedent(
-            f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {subheader1:<62} |
-            | The default method to flash controller boards which   |
-            | are connected and updated over USB and not by placing |
-            | a compiled firmware file onto an internal SD-Card.    |
-            |                                                       |
-            | Common controllers that get flashed that way are:     |
-            | - Arduino Mega 2560                                   |
-            | - Fysetc F6 / S6 (used without a Display + SD-Slot)   |
-            |                                                       |
-            | {subheader2:<62} |
-            | Many popular controller boards ship with a bootloader |
-            | capable of updating the firmware via SD-Card.         |
-            | Choose this method if your controller board supports  |
-            | this way of updating. This method ONLY works for up-  |
-            | grading firmware. The initial flashing procedure must |
-            | be done manually per the instructions that apply to   |
-            | your controller board.                                |
-            |                                                       |
-            | Common controllers that can be flashed that way are:  |
-            | - BigTreeTech SKR 1.3 / 1.4 (Turbo) / E3 / Mini E3    |
-            | - Fysetc F6 / S6 (used with a Display + SD-Slot)      |
-            | - Fysetc Spider                                       |
-            |                                                       |
-            """
-        )[1:]
-        print(menu, end="")
-
-
-class KlipperFlashCommandHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
-        super().__init__()
-
-        self.previous_menu: BaseMenu = previous_menu
-
-    def print_menu(self) -> None:
-        header = " < ? > Help: Flash MCU < ? > "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
-        subheader1 = f"{COLOR_CYAN}make flash:{RESET_FORMAT}"
-        subheader2 = f"{COLOR_CYAN}make serialflash:{RESET_FORMAT}"
-        menu = textwrap.dedent(
-            f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {subheader1:<62} |
-            | The default command to flash controller board, it     |
-            | will detect selected microcontroller and use suitable |
-            | tool for flashing it.                                 |
-            |                                                       |
-            | {subheader2:<62} |
-            | Special command to flash STM32 microcontrollers in    |
-            | DFU mode but connected via serial. stm32flash command |
-            | will be used internally.                              |
-            |                                                       |
-            """
-        )[1:]
-        print(menu, end="")
-
-
-class KlipperMcuConnectionHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
-        super().__init__()
-
-        self.previous_menu: BaseMenu = previous_menu
-
-    def print_menu(self) -> None:
-        header = " < ? > Help: Flash MCU < ? > "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
-        subheader1 = f"{COLOR_CYAN}USB:{RESET_FORMAT}"
-        subheader2 = f"{COLOR_CYAN}UART:{RESET_FORMAT}"
-        menu = textwrap.dedent(
-            f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {subheader1:<62} |
-            | Selecting USB as the connection method will scan the  |
-            | USB ports for connected controller boards. This will  |
-            | be similar to the 'ls /dev/serial/by-id/*' command    |
-            | suggested by the official Klipper documentation for   |
-            | determining successfull USB connections!              |
-            |                                                       |
-            | {subheader2:<62} |
-            | Selecting UART as the connection method will list all |
-            | possible UART serial ports. Note: This method ALWAYS  |
-            | returns something as it seems impossible to determine |
-            | if a valid Klipper controller board is connected or   |
-            | not. Because of that, you MUST know which UART serial |
-            | port your controller board is connected to when using |
-            | this connection method.                               |
-            |                                                       |
-            """
-        )[1:]
-        print(menu, end="")
+        AdvancedMenu().run()

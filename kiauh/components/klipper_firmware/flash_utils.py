@@ -7,13 +7,33 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+import subprocess
 from subprocess import CalledProcessError, check_output, Popen, PIPE, STDOUT
 from typing import List
 
 from components.klipper import KLIPPER_DIR
-from components.klipper_firmware.flash_options import FlashOptions, FlashCommand
+from components.klipper_firmware import SD_FLASH_SCRIPT
+from components.klipper_firmware.flash_options import (
+    FlashOptions,
+    FlashMethod,
+)
 from utils.logger import Logger
 from utils.system_utils import log_process
+
+
+def find_firmware_file(method: FlashMethod) -> bool:
+    target = KLIPPER_DIR.joinpath("out")
+    target_exists = target.exists()
+    if method is FlashMethod.REGULAR:
+        f1 = "klipper.elf.hex"
+        f2 = "klipper.elf"
+        fw_file_exists = target.joinpath(f1).exists() and target.joinpath(f2).exists()
+    elif method is FlashMethod.SD_CARD:
+        fw_file_exists = target.joinpath("klipper.bin").exists()
+    else:
+        raise Exception("Unknown flash method")
+
+    return target_exists and fw_file_exists
 
 
 def find_usb_device_by_id() -> List[str]:
@@ -49,28 +69,62 @@ def find_usb_dfu_device() -> List[str]:
         return []
 
 
-def flash_device(flash_options: FlashOptions) -> None:
+def get_sd_flash_board_list() -> List[str]:
+    if not KLIPPER_DIR.exists() or not SD_FLASH_SCRIPT.exists():
+        return []
+
     try:
+        cmd = f"{SD_FLASH_SCRIPT} -l"
+        blist = subprocess.check_output(cmd, shell=True, text=True)
+        return blist.splitlines()[1:]
+    except subprocess.CalledProcessError as e:
+        Logger.print_error(f"An unexpected error occured:\n{e}")
+
+
+def start_flash_process(flash_options: FlashOptions) -> None:
+    Logger.print_status(f"Flashing '{flash_options.selected_mcu}' ...")
+    try:
+        if not flash_options.flash_method:
+            raise Exception("Missing value for flash_method!")
+        if not flash_options.flash_command:
+            raise Exception("Missing value for flash_command!")
         if not flash_options.selected_mcu:
             raise Exception("Missing value for selected_mcu!")
+        if not flash_options.connection_type:
+            raise Exception("Missing value for connection_type!")
+        if (
+            flash_options.flash_method == FlashMethod.SD_CARD
+            and not flash_options.selected_board
+        ):
+            raise Exception("Missing value for selected_board!")
 
-        if flash_options.flash_command is FlashCommand.FLASH:
-            command = [
+        if flash_options.flash_method is FlashMethod.REGULAR:
+            cmd = [
                 "make",
                 flash_options.flash_command.value,
                 f"FLASH_DEVICE={flash_options.selected_mcu}",
             ]
-            process = Popen(
-                command, cwd=KLIPPER_DIR, stdout=PIPE, stderr=STDOUT, text=True
-            )
+        elif flash_options.flash_method is FlashMethod.SD_CARD:
+            if not SD_FLASH_SCRIPT.exists():
+                raise Exception("Unable to find Klippers sdcard flash script!")
+            cmd = [
+                SD_FLASH_SCRIPT,
+                "-b",
+                flash_options.selected_baudrate,
+                flash_options.selected_mcu,
+                flash_options.selected_board,
+            ]
+        else:
+            raise Exception("Invalid value for flash_method!")
 
-            log_process(process)
+        process = Popen(cmd, cwd=KLIPPER_DIR, stdout=PIPE, stderr=STDOUT, text=True)
+        log_process(process)
 
-            rc = process.returncode
-            if rc != 0:
-                raise Exception(f"Flashing failed with returncode: {rc}")
-            else:
-                Logger.print_ok("Flashing successfull!", start="\n", end="\n\n")
+        rc = process.returncode
+        if rc != 0:
+            raise Exception(f"Flashing failed with returncode: {rc}")
+        else:
+            Logger.print_ok("Flashing successfull!", start="\n", end="\n\n")
 
     except (Exception, CalledProcessError):
         Logger.print_error("Flashing failed!", start="\n")

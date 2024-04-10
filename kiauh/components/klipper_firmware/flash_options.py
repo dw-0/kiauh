@@ -13,8 +13,8 @@ from typing import Union, List
 
 
 class FlashMethod(Enum):
-    REGULAR = "REGULAR"
-    SD_CARD = "SD_CARD"
+    REGULAR = "Regular"
+    SD_CARD = "SD Card"
 
 
 class FlashCommand(Enum):
@@ -24,7 +24,7 @@ class FlashCommand(Enum):
 
 class ConnectionType(Enum):
     USB = "USB"
-    USB_DFU = "USB_DFU"
+    USB_DFU = "USB (DFU)"
     UART = "UART"
 
 
@@ -36,6 +36,7 @@ class FlashOptions:
     _mcu_list: List[str] = field(default_factory=list)
     _selected_mcu: str = ""
     _selected_board: str = ""
+    _selected_baudrate: int = 250000
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -93,3 +94,11 @@ class FlashOptions:
     @selected_board.setter
     def selected_board(self, value: str) -> None:
         self._selected_board = value
+
+    @property
+    def selected_baudrate(self) -> int:
+        return self._selected_baudrate
+
+    @selected_baudrate.setter
+    def selected_baudrate(self, value: int) -> None:
+        self._selected_baudrate = value

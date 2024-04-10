@@ -14,12 +14,14 @@ class FooterType(Enum):
     QUIT = "QUIT"
     BACK = "BACK"
     BACK_HELP = "BACK_HELP"
+    BLANK = "BLANK"
 
 
 NAVI_OPTIONS = {
     FooterType.QUIT: ["q"],
     FooterType.BACK: ["b"],
     FooterType.BACK_HELP: ["b", "h"],
+    FooterType.BLANK: [],
 }
 
 

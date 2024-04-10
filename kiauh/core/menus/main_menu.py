@@ -152,7 +152,7 @@ class MainMenu(BaseMenu):
         RemoveMenu(previous_menu=self).run()
 
     def advanced_menu(self, **kwargs):
-        AdvancedMenu(previous_menu=self).run()
+        AdvancedMenu().run()
 
     def backup_menu(self, **kwargs):
         BackupMenu(previous_menu=self).run()

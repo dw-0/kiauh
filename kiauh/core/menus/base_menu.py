@@ -92,6 +92,10 @@ def print_back_help_footer():
     print(footer, end="")
 
 
+def print_blank_footer():
+    print("\=======================================================/")
+
+
 Options = Dict[str, Callable]
 
 
@@ -119,6 +123,8 @@ class BaseMenu(ABC):
             print_back_footer()
         elif self.footer_type is FooterType.BACK_HELP:
             print_back_help_footer()
+        elif self.footer_type is FooterType.BLANK:
+            print_blank_footer()
         else:
             raise NotImplementedError("Method for printing footer not implemented.")
 
