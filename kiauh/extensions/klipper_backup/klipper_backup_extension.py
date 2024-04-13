@@ -13,7 +13,7 @@ import subprocess
 
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
-    DEFAULT_KLIPPERBACKUP_REPO_URL,
+    KLIPPERBACKUP_REPO_URL,
     KLIPPERBACKUP_DIR,
     KLIPPERBACKUP_CONFIG_DIR,
 )
@@ -26,7 +26,7 @@ from utils.logger import Logger
 class KlipperbackupExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
         if not KLIPPERBACKUP_DIR.exists():
-            subprocess.run(["git", "clone", str(DEFAULT_KLIPPERBACKUP_REPO_URL), str(KLIPPERBACKUP_DIR)])
+            subprocess.run(["git", "clone", str(KLIPPERBACKUP_REPO_URL), str(KLIPPERBACKUP_DIR)])
             subprocess.run(["git", "-C", str(KLIPPERBACKUP_DIR), "checkout", "installer-dev"])
             subprocess.run(["chmod", "+x", str(KLIPPERBACKUP_DIR / "install.sh")])
         subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "kiauh", "install_repo"])
