@@ -13,7 +13,6 @@ import subprocess
 
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
-    EXTENSION_TARGET_PATH,
     DEFAULT_KLIPPERBACKUP_REPO_URL,
     KLIPPERBACKUP_DIR,
     KLIPPERBACKUP_CONFIG_DIR,
@@ -33,7 +32,7 @@ class KlipperbackupExtension(BaseExtension):
         subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "kiauh", "install_repo"])
 
     def update_extension(self, **kwargs) -> None:
-        extension_installed = check_file_exist(EXTENSION_TARGET_PATH)
+        extension_installed = check_file_exist(KLIPPERBACKUP_DIR)
         if not extension_installed:
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
@@ -41,7 +40,7 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "kiauh", "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
-        extension_installed = check_file_exist(EXTENSION_TARGET_PATH)
+        extension_installed = check_file_exist(KLIPPERBACKUP_DIR)
         if not extension_installed:
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
@@ -49,8 +48,8 @@ class KlipperbackupExtension(BaseExtension):
         question = "Do you really want to remove the extension?"
         if get_confirm(question, True, False):
             try:
-                Logger.print_status(f"Removing '{EXTENSION_TARGET_PATH}' ...")
-                shutil.rmtree(EXTENSION_TARGET_PATH)
+                Logger.print_status(f"Removing '{KLIPPERBACKUP_DIR}' ...")
+                shutil.rmtree(KLIPPERBACKUP_DIR)
                 config_backup_exists = check_file_exist(KLIPPERBACKUP_CONFIG_DIR)
                 if config_backup_exists:
                     shutil.rmtree(KLIPPERBACKUP_CONFIG_DIR)

@@ -14,6 +14,4 @@ EXT_MODULE_NAME = "klipper_backup_extension.py"
 MODULE_PATH = Path(__file__).resolve().parent
 KLIPPERBACKUP_DIR = Path.home().joinpath("klipper-backup")
 KLIPPERBACKUP_CONFIG_DIR = Path.home().joinpath("config_backup")
-DEFAULT_KLIPPERBACKUP_REPO_URL = "https://github.com/staubgeborener/klipper-backup"
-EXTENSION_SRC = MODULE_ASSETS.joinpath(EXT_MODULE_NAME)
-EXTENSION_TARGET_PATH = KLIPPERBACKUP_DIR
+KLIPPERBACKUP_REPO_URL = "https://github.com/staubgeborener/klipper-backup"
