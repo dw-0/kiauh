@@ -1,5 +1,6 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2023 - 2024 Staubgeborener                               #
+#  https://github.com/Staubgeborener/klipper-backup                       #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -7,25 +8,15 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import os
 import shutil
 import subprocess
-from typing import List
 
-from components.klipper.klipper import Klipper
-from core.backup_manager.backup_manager import BackupManager
 from extensions.base_extension import BaseExtension
-from core.config_manager.config_manager import ConfigManager
-from core.instance_manager.instance_manager import InstanceManager
 from extensions.klipper_backup import (
     EXTENSION_TARGET_PATH,
-    EXTENSION_SRC,
-    KLIPPER_DIR,
     DEFAULT_KLIPPERBACKUP_REPO_URL,
     KLIPPERBACKUP_DIR,
     KLIPPERBACKUP_CONFIG_DIR,
-    EXAMPLE_CFG_SRC,
-    KLIPPER_EXTRAS,
 )
 from utils.filesystem_utils import check_file_exist
 from utils.input_utils import get_confirm
