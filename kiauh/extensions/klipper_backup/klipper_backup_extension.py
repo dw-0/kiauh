@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2023 - 2024 Staubgeborener and Tylerjet                  #
+#  Copyright (C) 2023 - 2024 Staubgeborener                               #
 #  https://github.com/Staubgeborener/klipper-backup                       #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
@@ -62,6 +62,16 @@ class KlipperbackupExtension(BaseExtension):
                 except subprocess.CalledProcessError:
                     Logger.print_error(f"Error uninstalling the service {service_name}.")
 
+        def check_crontab_entry(entry):
+            try:
+                crontab_content = subprocess.check_output(["crontab", "-l"], stderr=subprocess.DEVNULL, text=True)
+            except subprocess.CalledProcessError:
+                return False
+
+            for line in crontab_content.splitlines():
+                if entry in line:
+                    return True
+            return False
 
         extension_installed = check_file_exist(KLIPPERBACKUP_DIR)
         if not extension_installed:
@@ -80,6 +90,7 @@ class KlipperbackupExtension(BaseExtension):
             except OSError as e:
                 Logger.print_error(f"Unable to remove extension: {e}")
 
+            # Remove Klipper-Backup services
             service_names = ["klipper-backup-on-boot.service", "klipper-backup-filewatch.service"]
 
             for service_name in service_names:
@@ -87,3 +98,12 @@ class KlipperbackupExtension(BaseExtension):
                     uninstall_service(service_name)
                 else:
                     Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
+
+            # Remove Klipper-Backup cron
+            entry_to_check = "$HOME/klipper-backup/script.sh"
+            if check_crontab_entry(entry_to_check):
+                command = "crontab -l | grep -v '$HOME/klipper-backup/script.sh' | crontab -"
+                subprocess.run(command, shell=True, check=True)
+                Logger.print_ok("Der Eintrag wurde aus dem crontab entfernt.")
+            else:
+                Logger.print_info("Der Eintrag ist nicht im crontab vorhanden. Skipping ...")
