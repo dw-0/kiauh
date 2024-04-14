@@ -30,7 +30,7 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run(["git", "clone", str(KLIPPERBACKUP_REPO_URL), str(KLIPPERBACKUP_DIR)])
             subprocess.run(["git", "-C", str(KLIPPERBACKUP_DIR), "checkout", "installer-dev"])
             subprocess.run(["chmod", "+x", str(KLIPPERBACKUP_DIR / "install.sh")])
-        subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "kiauh", "install_repo"])
+        subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh")])
 
     def update_extension(self, **kwargs) -> None:
         extension_installed = check_file_exist(KLIPPERBACKUP_DIR)
@@ -38,25 +38,30 @@ class KlipperbackupExtension(BaseExtension):
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
         else:
-            subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "kiauh", "check_updates"])
+            subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
 
-        def is_service_installed(service_name):
-            try:
-                with open(os.devnull, 'w') as devnull:
-                    subprocess.run(["systemctl", "status", service_name], stdout=devnull, stderr=devnull, check=True)
-                return True
-            except subprocess.CalledProcessError:
-                return False
+        def is_service_installed(service_names):
+            installed = True
+            for service_name in service_names:
+                try:
+                    with open(os.devnull, 'w') as devnull:
+                        subprocess.run(["systemctl", "status", service_name], stdout=devnull, stderr=devnull, check=True)
+                except subprocess.CalledProcessError:
+                    installed = False
+                    break
+            return installed
 
-        def uninstall_service(service_name):
-           try:
-                subprocess.run(["sudo", "systemctl", "disable", service_name], check=True)
-                subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
-                Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
-           except subprocess.CalledProcessError:
-                Logger.print_error(f"Error uninstalling the service {service_name}.")
+        def uninstall_service(service_names):
+            for service_name in service_names:
+                try:
+                    subprocess.run(["sudo", "systemctl", "disable", service_name], check=True)
+                    subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
+                    Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
+                except subprocess.CalledProcessError:
+                    Logger.print_error(f"Error uninstalling the service {service_name}.")
+
 
         extension_installed = check_file_exist(KLIPPERBACKUP_DIR)
         if not extension_installed:
@@ -75,16 +80,10 @@ class KlipperbackupExtension(BaseExtension):
             except OSError as e:
                 Logger.print_error(f"Unable to remove extension: {e}")
 
-        service_name = "klipper-backup-on-boot.service"
+            service_names = ["klipper-backup-on-boot.service", "klipper-backup-filewatch.service"]
 
-        if is_service_installed(service_name):
-            uninstall_service(service_name)
-        else:
-            Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
-
-        service_name = "klipper-backup-filewatch.service"
-
-        if is_service_installed(service_name):
-            uninstall_service(service_name)
-        else:
-            Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
+            for service_name in service_names:
+                if is_service_installed(service_name):
+                    uninstall_service(service_name)
+                else:
+                    Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
