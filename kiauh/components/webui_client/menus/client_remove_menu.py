@@ -8,35 +8,42 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Callable, Dict
+from typing import Dict, Type, Optional
 
 from components.webui_client import client_remove
 from components.webui_client.base_data import BaseWebClient, WebClientType
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 
 # noinspection PyUnusedLocal
 class ClientRemoveMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu, client: BaseWebClient):
+    def __init__(
+        self, client: BaseWebClient, previous_menu: Optional[Type[BaseMenu]] = None
+    ):
         super().__init__()
-        self.previous_menu = previous_menu
-        self.options = self.get_options(client)
-
         self.client = client
         self.rm_client = False
         self.rm_client_config = False
         self.backup_mainsail_config_json = False
 
-    def get_options(self, client: BaseWebClient) -> Dict[str, Callable]:
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.remove_menu import RemoveMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else RemoveMenu
+        )
+
+    def set_options(self) -> Dict[str, Option]:
         options = {
-            "0": self.toggle_all,
-            "1": self.toggle_rm_client,
-            "2": self.toggle_rm_client_config,
-            "c": self.run_removal_process,
+            "0": Option(method=self.toggle_all, menu=False),
+            "1": Option(method=self.toggle_rm_client, menu=False),
+            "2": Option(method=self.toggle_rm_client_config, menu=False),
+            "c": Option(method=self.run_removal_process, menu=False),
         }
-        if client.client == WebClientType.MAINSAIL:
-            options["3"] = self.toggle_backup_mainsail_config_json
+        if self.client.client == WebClientType.MAINSAIL:
+            options["3"] = Option(self.toggle_backup_mainsail_config_json, False)
 
         return options
 

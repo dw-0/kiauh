@@ -7,7 +7,25 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+from dataclasses import dataclass
 from enum import Enum
+from typing import Callable, Any, Union
+
+
+@dataclass
+class Option:
+    """
+    Represents a menu option.
+    :param method: Method that will be used to call the menu option
+    :param menu: Flag for singaling that another menu will be opened
+    :param opt_index: Can be used to pass the user input to the menu option
+    :param opt_data: Can be used to pass any additional data to the menu option
+    """
+
+    method: Union[Callable, None] = None
+    menu: bool = False
+    opt_index: str = ""
+    opt_data: Any = None
 
 
 class FooterType(Enum):
@@ -15,11 +33,3 @@ class FooterType(Enum):
     BACK = "BACK"
     BACK_HELP = "BACK_HELP"
     BLANK = "BLANK"
-
-
-class ExitAppException(Exception):
-    pass
-
-
-class GoBackException(Exception):
-    pass

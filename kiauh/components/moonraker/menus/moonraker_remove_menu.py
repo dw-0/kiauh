@@ -8,33 +8,41 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.moonraker import moonraker_remove
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 
 
 # noinspection PyUnusedLocal
 class MoonrakerRemoveMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
-
-        self.previous_menu: BaseMenu = previous_menu
-        self.options = {
-            "0": self.toggle_all,
-            "1": self.toggle_remove_moonraker_service,
-            "2": self.toggle_remove_moonraker_dir,
-            "3": self.toggle_remove_moonraker_env,
-            "4": self.toggle_remove_moonraker_polkit,
-            "5": self.toggle_delete_moonraker_logs,
-            "c": self.run_removal_process,
-        }
-
         self.remove_moonraker_service = False
         self.remove_moonraker_dir = False
         self.remove_moonraker_env = False
         self.remove_moonraker_polkit = False
         self.delete_moonraker_logs = False
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.remove_menu import RemoveMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else RemoveMenu
+        )
+
+    def set_options(self) -> None:
+        self.options = {
+            "0": Option(method=self.toggle_all, menu=False),
+            "1": Option(method=self.toggle_remove_moonraker_service, menu=False),
+            "2": Option(method=self.toggle_remove_moonraker_dir, menu=False),
+            "3": Option(method=self.toggle_remove_moonraker_env, menu=False),
+            "4": Option(method=self.toggle_remove_moonraker_polkit, menu=False),
+            "5": Option(method=self.toggle_delete_moonraker_logs, menu=False),
+            "c": Option(method=self.run_removal_process, menu=False),
+        }
 
     def print_menu(self) -> None:
         header = " [ Remove Moonraker ] "

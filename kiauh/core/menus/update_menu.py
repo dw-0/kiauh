@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.klipper.klipper_setup import update_klipper
 from components.klipper.klipper_utils import (
@@ -26,6 +27,7 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import (
     COLOR_GREEN,
@@ -39,23 +41,8 @@ from utils.constants import (
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class UpdateMenu(BaseMenu):
-    def __init__(self, previous_menu):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
-
-        self.previous_menu: BaseMenu = previous_menu
-        self.options = {
-            "0": self.update_all,
-            "1": self.update_klipper,
-            "2": self.update_moonraker,
-            "3": self.update_mainsail,
-            "4": self.update_fluidd,
-            "5": self.update_mainsail_config,
-            "6": self.update_fluidd_config,
-            "7": self.update_klipperscreen,
-            "8": self.update_mobileraker,
-            "9": self.update_crowsnest,
-            "10": self.upgrade_system_packages,
-        }
 
         self.kl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.kl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
@@ -72,6 +59,28 @@ class UpdateMenu(BaseMenu):
 
         self.mainsail_client = MainsailData()
         self.fluidd_client = FluiddData()
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self) -> None:
+        self.options = {
+            "0": Option(self.update_all, menu=False),
+            "1": Option(self.update_klipper, menu=False),
+            "2": Option(self.update_moonraker, menu=False),
+            "3": Option(self.update_mainsail, menu=False),
+            "4": Option(self.update_fluidd, menu=False),
+            "5": Option(self.update_mainsail_config, menu=False),
+            "6": Option(self.update_fluidd_config, menu=False),
+            "7": Option(self.update_klipperscreen, menu=False),
+            "8": Option(self.update_mobileraker, menu=False),
+            "9": Option(self.update_crowsnest, menu=False),
+            "10": Option(self.upgrade_system_packages, menu=False),
+        }
 
     def print_menu(self):
         self.fetch_update_status()

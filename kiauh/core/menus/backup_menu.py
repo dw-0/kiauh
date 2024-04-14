@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.klipper.klipper_utils import backup_klipper_dir
 from components.moonraker.moonraker_utils import (
@@ -20,6 +21,7 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.common import backup_printer_config_dir
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
@@ -28,20 +30,27 @@ from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class BackupMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self) -> None:
         self.options = {
-            "1": self.backup_klipper,
-            "2": self.backup_moonraker,
-            "3": self.backup_printer_config,
-            "4": self.backup_moonraker_db,
-            "5": self.backup_mainsail,
-            "6": self.backup_fluidd,
-            "7": self.backup_mainsail_config,
-            "8": self.backup_fluidd_config,
-            "9": self.backup_klipperscreen,
+            "1": Option(method=self.backup_klipper, menu=False),
+            "2": Option(method=self.backup_moonraker, menu=False),
+            "3": Option(method=self.backup_printer_config, menu=False),
+            "4": Option(method=self.backup_moonraker_db, menu=False),
+            "5": Option(method=self.backup_mainsail, menu=False),
+            "6": Option(method=self.backup_fluidd, menu=False),
+            "7": Option(method=self.backup_mainsail_config, menu=False),
+            "8": Option(method=self.backup_fluidd_config, menu=False),
+            "9": Option(method=self.backup_klipperscreen, menu=False),
         }
 
     def print_menu(self):
@@ -82,16 +91,16 @@ class BackupMenu(BaseMenu):
         backup_moonraker_db_dir()
 
     def backup_mainsail(self, **kwargs):
-        backup_client_data(MainsailData().get())
+        backup_client_data(MainsailData())
 
     def backup_fluidd(self, **kwargs):
-        backup_client_data(FluiddData().get())
+        backup_client_data(FluiddData())
 
     def backup_mainsail_config(self, **kwargs):
-        backup_client_config_data(MainsailData().get())
+        backup_client_config_data(MainsailData())
 
     def backup_fluidd_config(self, **kwargs):
-        backup_client_config_data(FluiddData().get())
+        backup_client_config_data(FluiddData())
 
     def backup_klipperscreen(self, **kwargs):
         pass

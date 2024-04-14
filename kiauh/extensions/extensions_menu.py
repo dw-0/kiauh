@@ -12,8 +12,9 @@ import inspect
 import json
 import textwrap
 from pathlib import Path
-from typing import Type, Dict
+from typing import Type, Dict, Optional
 
+from core.menus import Option
 from extensions import EXTENSION_ROOT
 from extensions.base_extension import BaseExtension
 from core.menus.base_menu import BaseMenu
@@ -23,12 +24,24 @@ from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class ExtensionsMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.extensions: Dict[str, BaseExtension] = self.discover_extensions()
 
-        self.previous_menu: BaseMenu = previous_menu
-        self.extensions = self.discover_extensions()
-        self.options = {ext: self.extension_submenu for ext in self.extensions}
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self) -> None:
+        self.options = {
+            i: Option(
+                self.extension_submenu, menu=True, opt_data=self.extensions.get(i)
+            )
+            for i in self.extensions
+        }
 
     def discover_extensions(self) -> Dict[str, BaseExtension]:
         ext_dict = {}
@@ -63,8 +76,7 @@ class ExtensionsMenu(BaseMenu):
         return ext_dict
 
     def extension_submenu(self, **kwargs):
-        extension = self.extensions.get(kwargs.get("opt_index"))
-        ExtensionSubmenu(self, extension).run()
+        ExtensionSubmenu(kwargs.get("opt_data"), self.__class__).run()
 
     def print_menu(self):
         header = " [ Extensions Menu ] "
@@ -92,28 +104,32 @@ class ExtensionsMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class ExtensionSubmenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu, extension: BaseExtension):
+    def __init__(
+        self, extension: BaseExtension, previous_menu: Optional[Type[BaseMenu]] = None
+    ):
         super().__init__()
-
         self.extension = extension
-        self.extension_name = extension.metadata.get("display_name")
-        self.extension_desc = extension.metadata.get("description")
 
-        self.previous_menu = previous_menu
-        self.options["1"] = extension.install_extension
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else ExtensionsMenu
+        )
+
+    def set_options(self) -> None:
+        self.options["1"] = Option(self.extension.install_extension, menu=False)
         if self.extension.metadata.get("updates"):
-            self.options["2"] = extension.update_extension
-            self.options["3"] = extension.remove_extension
+            self.options["2"] = Option(self.extension.update_extension, menu=False)
+            self.options["3"] = Option(self.extension.remove_extension, menu=False)
         else:
-            self.options["2"] = extension.remove_extension
+            self.options["2"] = Option(self.extension.remove_extension, menu=False)
 
     def print_menu(self) -> None:
-        header = f" [ {self.extension_name} ] "
+        header = f" [ {self.extension.metadata.get('display_name')} ] "
         color = COLOR_YELLOW
         count = 62 - len(color) - len(RESET_FORMAT)
 
         wrapper = textwrap.TextWrapper(55, initial_indent="| ", subsequent_indent="| ")
-        lines = wrapper.wrap(self.extension_desc)
+        lines = wrapper.wrap(self.extension.metadata.get("description"))
         formatted_lines = [f"{line:<55} |" for line in lines]
         description_text = "\n".join(formatted_lines)
 

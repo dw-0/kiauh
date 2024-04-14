@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.klipper.klipper_utils import get_klipper_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
@@ -21,7 +22,7 @@ from components.webui_client.mainsail_data import MainsailData
 from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
-from core.menus.base_menu import BaseMenu
+from core.menus.base_menu import BaseMenu, Option
 from extensions.extensions_menu import ExtensionsMenu
 from core.menus.install_menu import InstallMenu
 from core.menus.remove_menu import RemoveMenu
@@ -43,16 +44,6 @@ class MainMenu(BaseMenu):
     def __init__(self):
         super().__init__()
 
-        self.options = {
-            "0": self.log_upload_menu,
-            "1": self.install_menu,
-            "2": self.update_menu,
-            "3": self.remove_menu,
-            "4": self.advanced_menu,
-            "5": self.backup_menu,
-            "e": self.extension_menu,
-            "s": self.settings_menu,
-        }
         self.header = True
         self.footer_type = FooterType.QUIT
 
@@ -67,6 +58,22 @@ class MainMenu(BaseMenu):
         self.cn_status = ""
         self.cc_status = ""
         self.init_status()
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        """MainMenu does not have a previous menu"""
+        pass
+
+    def set_options(self) -> None:
+        self.options = {
+            "0": Option(method=self.log_upload_menu, menu=True),
+            "1": Option(method=self.install_menu, menu=True),
+            "2": Option(method=self.update_menu, menu=True),
+            "3": Option(method=self.remove_menu, menu=True),
+            "4": Option(method=self.advanced_menu, menu=True),
+            "5": Option(method=self.backup_menu, menu=True),
+            "e": Option(method=self.extension_menu, menu=True),
+            "s": Option(method=self.settings_menu, menu=True),
+        }
 
     def init_status(self) -> None:
         status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn"]
@@ -140,25 +147,25 @@ class MainMenu(BaseMenu):
         print(menu, end="")
 
     def log_upload_menu(self, **kwargs):
-        LogUploadMenu(previous_menu=self).run()
+        LogUploadMenu().run()
 
     def install_menu(self, **kwargs):
-        InstallMenu(previous_menu=self).run()
+        InstallMenu(previous_menu=self.__class__).run()
 
     def update_menu(self, **kwargs):
-        UpdateMenu(previous_menu=self).run()
+        UpdateMenu(previous_menu=self.__class__).run()
 
     def remove_menu(self, **kwargs):
-        RemoveMenu(previous_menu=self).run()
+        RemoveMenu(previous_menu=self.__class__).run()
 
     def advanced_menu(self, **kwargs):
-        AdvancedMenu().run()
+        AdvancedMenu(previous_menu=self.__class__).run()
 
     def backup_menu(self, **kwargs):
-        BackupMenu(previous_menu=self).run()
+        BackupMenu(previous_menu=self.__class__).run()
 
     def settings_menu(self, **kwargs):
-        SettingsMenu(previous_menu=self).run()
+        SettingsMenu().run()
 
     def extension_menu(self, **kwargs):
-        ExtensionsMenu(previous_menu=self).run()
+        ExtensionsMenu(previous_menu=self.__class__).run()

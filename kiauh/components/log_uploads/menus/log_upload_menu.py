@@ -8,22 +8,33 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.log_uploads.log_upload_utils import get_logfile_list
 from components.log_uploads.log_upload_utils import upload_logfile
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import RESET_FORMAT, COLOR_YELLOW
 
 
 # noinspection PyMethodMayBeStatic
 class LogUploadMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self):
         super().__init__()
-
-        self.previous_menu: BaseMenu = previous_menu
         self.logfile_list = get_logfile_list()
-        options = {f"{index}": self.upload for index in range(len(self.logfile_list))}
-        self.options = options
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self) -> None:
+        self.options = {
+            f"{index}": Option(self.upload, False, opt_index=f"{index}")
+            for index in range(len(self.logfile_list))
+        }
 
     def print_menu(self):
         header = " [ Log Upload ] "

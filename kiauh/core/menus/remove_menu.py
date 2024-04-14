@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from components.moonraker.menus.moonraker_remove_menu import (
@@ -16,6 +17,7 @@ from components.moonraker.menus.moonraker_remove_menu import (
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_RED, RESET_FORMAT
 
@@ -23,24 +25,22 @@ from utils.constants import COLOR_RED, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class RemoveMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self):
         self.options = {
-            "1": self.remove_klipper,
-            "2": self.remove_moonraker,
-            "3": self.remove_mainsail,
-            "4": self.remove_fluidd,
-            "5": None,
-            "6": None,
-            "7": None,
-            "8": None,
-            "9": None,
-            "10": None,
-            "11": None,
-            "12": None,
-            "13": None,
+            "1": Option(method=self.remove_klipper, menu=True),
+            "2": Option(method=self.remove_moonraker, menu=True),
+            "3": Option(method=self.remove_mainsail, menu=True),
+            "4": Option(method=self.remove_fluidd, menu=True),
         }
 
     def print_menu(self):
@@ -71,13 +71,13 @@ class RemoveMenu(BaseMenu):
         print(menu, end="")
 
     def remove_klipper(self, **kwargs):
-        KlipperRemoveMenu(previous_menu=self).run()
+        KlipperRemoveMenu(previous_menu=self.__class__).run()
 
     def remove_moonraker(self, **kwargs):
-        MoonrakerRemoveMenu(previous_menu=self).run()
+        MoonrakerRemoveMenu(previous_menu=self.__class__).run()
 
     def remove_mainsail(self, **kwargs):
-        ClientRemoveMenu(previous_menu=self, client=MainsailData()).run()
+        ClientRemoveMenu(previous_menu=self.__class__, client=MainsailData()).run()
 
     def remove_fluidd(self, **kwargs):
-        ClientRemoveMenu(previous_menu=self, client=FluiddData()).run()
+        ClientRemoveMenu(previous_menu=self.__class__, client=FluiddData()).run()

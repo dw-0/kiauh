@@ -13,9 +13,9 @@ import subprocess
 import sys
 import textwrap
 from abc import abstractmethod
-from typing import Dict, Union, Callable, Type, Tuple
+from typing import Type, Dict, Optional
 
-from core.menus import FooterType, ExitAppException, GoBackException
+from core.menus import FooterType, Option
 from utils.constants import (
     COLOR_GREEN,
     COLOR_YELLOW,
@@ -106,12 +106,12 @@ class PostInitCaller(type):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class BaseMenu(metaclass=PostInitCaller):
-    options: Dict[str, Callable] = {}
+    options: Dict[str, Option] = {}
     options_offset: int = 0
-    default_option: Union[Callable, None] = None
+    default_option: Option = None
     input_label_txt: str = "Perform action"
     header: bool = False
-    previous_menu: Union[Type[BaseMenu], BaseMenu] = None
+    previous_menu: Type[BaseMenu] = None
     help_menu: Type[BaseMenu] = None
     footer_type: FooterType = FooterType.BACK
 
@@ -120,30 +120,42 @@ class BaseMenu(metaclass=PostInitCaller):
             raise NotImplementedError("BaseMenu cannot be instantiated directly.")
 
     def __post_init__(self):
+        self.set_previous_menu(self.previous_menu)
+        self.set_options()
+
         # conditionally add options based on footer type
         if self.footer_type is FooterType.QUIT:
-            self.options["q"] = self.__exit
+            self.options["q"] = Option(method=self.__exit, menu=False)
         if self.footer_type is FooterType.BACK:
-            self.options["b"] = self.__go_back
+            self.options["b"] = Option(method=self.__go_back, menu=False)
         if self.footer_type is FooterType.BACK_HELP:
-            self.options["b"] = self.__go_back
-            self.options["h"] = self.__go_to_help
+            self.options["b"] = Option(method=self.__go_back, menu=False)
+            self.options["h"] = Option(method=self.__go_to_help, menu=False)
         # if defined, add the default option to the options dict
         if self.default_option is not None:
             self.options[""] = self.default_option
 
     def __go_back(self, **kwargs):
-        raise GoBackException()
+        self.previous_menu().run()
 
     def __go_to_help(self, **kwargs):
         self.help_menu(previous_menu=self).run()
 
     def __exit(self, **kwargs):
-        raise ExitAppException()
+        Logger.print_ok("###### Happy printing!", False)
+        sys.exit(0)
+
+    @abstractmethod
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_options(self) -> None:
+        raise NotImplementedError
 
     @abstractmethod
     def print_menu(self) -> None:
-        raise NotImplementedError("Subclasses must implement the print_menu method")
+        raise NotImplementedError
 
     def print_footer(self) -> None:
         if self.footer_type is FooterType.QUIT:
@@ -155,53 +167,50 @@ class BaseMenu(metaclass=PostInitCaller):
         elif self.footer_type is FooterType.BLANK:
             print_blank_footer()
         else:
-            raise NotImplementedError("Method for printing footer not implemented.")
+            raise NotImplementedError
 
     def display_menu(self) -> None:
-        # clear()
         if self.header:
             print_header()
         self.print_menu()
         self.print_footer()
 
-    def validate_user_input(self, usr_input: str) -> Tuple[Callable, str]:
+    def validate_user_input(self, usr_input: str) -> Option:
         """
         Validate the user input and either return an Option, a string or None
         :param usr_input: The user input in form of a string
         :return: Option, str or None
         """
         usr_input = usr_input.lower()
-        option = self.options.get(usr_input, None)
+        option = self.options.get(usr_input, Option(None, False, "", None))
 
         # if option/usr_input is None/empty string, we execute the menus default option if specified
         if (option is None or usr_input == "") and self.default_option is not None:
-            return self.default_option, usr_input
+            self.default_option.opt_index = usr_input
+            return self.default_option
 
         # user selected a regular option
-        return option, usr_input
+        option.opt_index = usr_input
+        return option
 
-    def handle_user_input(self) -> Tuple[Callable, str]:
+    def handle_user_input(self) -> Option:
         """Handle the user input, return the validated input or print an error."""
         while True:
             print(f"{COLOR_CYAN}###### {self.input_label_txt}: {RESET_FORMAT}", end="")
             usr_input = input().lower()
             validated_input = self.validate_user_input(usr_input)
-            method_to_call = validated_input[0]
 
-            if method_to_call is not None:
+            if validated_input.method is not None:
                 return validated_input
             else:
                 Logger.print_error("Invalid input!", False)
 
     def run(self) -> None:
         """Start the menu lifecycle. When this function returns, the lifecycle of the menu ends."""
-        while True:
-            try:
-                self.display_menu()
-                option = self.handle_user_input()
-                option[0](opt_index=option[1])
-            except GoBackException:
-                return
-            except ExitAppException:
-                Logger.print_ok("###### Happy printing!", False)
-                sys.exit(0)
+        try:
+            self.display_menu()
+            option = self.handle_user_input()
+            option.method(opt_index=option.opt_index, opt_data=option.opt_data)
+            self.run()
+        except Exception as e:
+            Logger.print_error(f"An unexpecred error occured:\n{e}")

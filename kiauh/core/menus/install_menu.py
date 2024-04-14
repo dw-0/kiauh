@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
 from components.klipper import klipper_setup
 from components.moonraker import moonraker_setup
@@ -15,6 +16,7 @@ from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.menus import Option
 
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_GREEN, RESET_FORMAT
@@ -23,20 +25,24 @@ from utils.constants import COLOR_GREEN, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class InstallMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from core.menus.main_menu import MainMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self) -> None:
         self.options = {
-            "1": self.install_klipper,
-            "2": self.install_moonraker,
-            "3": self.install_mainsail,
-            "4": self.install_fluidd,
-            "5": self.install_mainsail_config,
-            "6": self.install_fluidd_config,
-            "7": None,
-            "8": None,
-            "9": None,
+            "1": Option(method=self.install_klipper, menu=False),
+            "2": Option(method=self.install_moonraker, menu=False),
+            "3": Option(method=self.install_mainsail, menu=False),
+            "4": Option(method=self.install_fluidd, menu=False),
+            "5": Option(method=self.install_mainsail_config, menu=False),
+            "6": Option(method=self.install_fluidd_config, menu=False),
         }
 
     def print_menu(self):
