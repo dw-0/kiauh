@@ -44,17 +44,14 @@ class KlipperbackupExtension(BaseExtension):
 
         def is_service_installed(service_name):
             try:
-                # Führe den Befehl aus und leite stdout und stderr in den Null-Geräte
                 with open(os.devnull, 'w') as devnull:
                     subprocess.run(["systemctl", "status", service_name], stdout=devnull, stderr=devnull, check=True)
                 return True
             except subprocess.CalledProcessError:
-                # Wenn ein Fehler auftritt, bedeutet das, dass der Dienst nicht installiert ist
                 return False
 
         def uninstall_service(service_name):
            try:
-                # Deinstalliere den Dienst, indem du den Befehl "systemctl disable" und "systemctl stop" ausführst
                 subprocess.run(["sudo", "systemctl", "disable", service_name], check=True)
                 subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
                 Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
