@@ -8,6 +8,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
+import os
 import shutil
 import subprocess
 
@@ -40,6 +41,26 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "kiauh", "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
+
+        def is_service_installed(service_name):
+            try:
+                # Führe den Befehl aus und leite stdout und stderr in den Null-Geräte
+                with open(os.devnull, 'w') as devnull:
+                    subprocess.run(["systemctl", "status", service_name], stdout=devnull, stderr=devnull, check=True)
+                return True
+            except subprocess.CalledProcessError:
+                # Wenn ein Fehler auftritt, bedeutet das, dass der Dienst nicht installiert ist
+                return False
+
+        def uninstall_service(service_name):
+           try:
+                # Deinstalliere den Dienst, indem du den Befehl "systemctl disable" und "systemctl stop" ausführst
+                subprocess.run(["sudo", "systemctl", "disable", service_name], check=True)
+                subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
+                Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
+           except subprocess.CalledProcessError:
+                Logger.print_error(f"Error uninstalling the service {service_name}.")
+
         extension_installed = check_file_exist(KLIPPERBACKUP_DIR)
         if not extension_installed:
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
@@ -56,3 +77,17 @@ class KlipperbackupExtension(BaseExtension):
                 Logger.print_ok("Extension successfully removed!")
             except OSError as e:
                 Logger.print_error(f"Unable to remove extension: {e}")
+
+        service_name = "klipper-backup-on-boot.service"
+
+        if is_service_installed(service_name):
+            uninstall_service(service_name)
+        else:
+            Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
+
+        service_name = "klipper-backup-filewatch.service"
+
+        if is_service_installed(service_name):
+            uninstall_service(service_name)
+        else:
+            Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
