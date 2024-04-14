@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2023 - 2024 Staubgeborener                               #
+#  Copyright (C) 2023 - 2024 Staubgeborener and Tylerjet                  #
 #  https://github.com/Staubgeborener/klipper-backup                       #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
