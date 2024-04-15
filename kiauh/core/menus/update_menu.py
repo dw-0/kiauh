@@ -43,6 +43,7 @@ from utils.constants import (
 class UpdateMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
 
         self.kl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.kl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"

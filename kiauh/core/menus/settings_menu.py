@@ -13,8 +13,9 @@ from core.menus.base_menu import BaseMenu
 
 # noinspection PyMethodMayBeStatic
 class SettingsMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from core.menus.main_menu import MainMenu

@@ -26,6 +26,7 @@ from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
 class ExtensionsMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
         self.extensions: Dict[str, BaseExtension] = self.discover_extensions()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
@@ -109,6 +110,7 @@ class ExtensionSubmenu(BaseMenu):
     ):
         super().__init__()
         self.extension = extension
+        self.previous_menu = previous_menu
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         self.previous_menu: Type[BaseMenu] = (

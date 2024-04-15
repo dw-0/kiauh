@@ -20,6 +20,7 @@ from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 class MoonrakerRemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
         self.remove_moonraker_service = False
         self.remove_moonraker_dir = False
         self.remove_moonraker_env = False

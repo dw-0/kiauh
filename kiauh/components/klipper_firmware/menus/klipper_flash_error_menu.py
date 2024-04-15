@@ -18,18 +18,16 @@ from utils.constants import COLOR_RED, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperNoFirmwareErrorMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
-
-        self.set_previous_menu(None)
-        self.set_options()
+        self.previous_menu = previous_menu
 
         self.flash_options = FlashOptions()
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Advanced Menu]"
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        pass
+        self.previous_menu = previous_menu
 
     def set_options(self) -> None:
         self.default_option = Option(self.go_back, False)
@@ -69,13 +67,14 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperNoBoardTypesErrorMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Main Menu]"
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        pass
+        self.previous_menu = previous_menu
 
     def set_options(self) -> None:
         self.default_option = Option(self.go_back, False)

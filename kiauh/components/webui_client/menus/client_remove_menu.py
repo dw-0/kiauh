@@ -23,6 +23,7 @@ class ClientRemoveMenu(BaseMenu):
         self, client: BaseWebClient, previous_menu: Optional[Type[BaseMenu]] = None
     ):
         super().__init__()
+        self.previous_menu = previous_menu
         self.client = client
         self.rm_client = False
         self.rm_client_config = False

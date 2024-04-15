@@ -161,6 +161,7 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         self, previous_menu: Optional[Type[BaseMenu]] = None, standalone: bool = False
     ):
         super().__init__()
+        self.previous_menu = previous_menu
         self.__standalone = standalone
         self.help_menu = KlipperMcuConnectionHelpMenu
         self.input_label_txt = "Select connection type"

@@ -32,6 +32,7 @@ from utils.system_utils import (
 class KlipperBuildFirmwareMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
         self.deps = ["build-essential", "dpkg-dev", "make"]
         self.missing_deps = check_package_install(self.deps)
 

@@ -15,8 +15,9 @@ from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 
 # noinspection DuplicatedCode
 class KlipperFlashMethodHelpMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from components.klipper_firmware.menus.klipper_flash_menu import (
@@ -71,8 +72,9 @@ class KlipperFlashMethodHelpMenu(BaseMenu):
 
 # noinspection DuplicatedCode
 class KlipperFlashCommandHelpMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from components.klipper_firmware.menus.klipper_flash_menu import (
@@ -114,8 +116,9 @@ class KlipperFlashCommandHelpMenu(BaseMenu):
 
 # noinspection DuplicatedCode
 class KlipperMcuConnectionHelpMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from components.klipper_firmware.menus.klipper_flash_menu import (

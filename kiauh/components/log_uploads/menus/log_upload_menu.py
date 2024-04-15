@@ -19,8 +19,9 @@ from utils.constants import RESET_FORMAT, COLOR_YELLOW
 
 # noinspection PyMethodMayBeStatic
 class LogUploadMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
         self.logfile_list = get_logfile_list()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:

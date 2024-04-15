@@ -20,6 +20,7 @@ from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
 class KlipperRemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
+        self.previous_menu = previous_menu
         self.footer_type = FooterType.BACK_HELP
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
