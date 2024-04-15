@@ -213,4 +213,4 @@ class BaseMenu(metaclass=PostInitCaller):
             option.method(opt_index=option.opt_index, opt_data=option.opt_data)
             self.run()
         except Exception as e:
-            Logger.print_error(f"An unexpecred error occured:\n{e}")
+            Logger.print_error(f"An unexpected error occured:\n{e}")
