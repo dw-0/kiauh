@@ -53,7 +53,11 @@ class KlipperFlashMethodMenu(BaseMenu):
         self.flash_options = FlashOptions()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = previous_menu
+        from core.menus.advanced_menu import AdvancedMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else AdvancedMenu
+        )
 
     def set_options(self) -> None:
         self.options = {
