@@ -7,9 +7,10 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import textwrap
+from typing import Optional, Type
 
 from components.klipper_firmware.flash_options import FlashOptions, FlashMethod
-from core.menus import FooterType
+from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_RED, RESET_FORMAT
 
@@ -20,10 +21,18 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
     def __init__(self):
         super().__init__()
 
+        self.set_previous_menu(None)
+        self.set_options()
+
         self.flash_options = FlashOptions()
-        self.default_option = self.go_back
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Advanced Menu]"
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        pass
+
+    def set_options(self) -> None:
+        self.default_option = Option(self.go_back, False)
 
     def print_menu(self) -> None:
         header = "!!! NO FIRMWARE FILE FOUND !!!"
@@ -62,10 +71,14 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
 class KlipperNoBoardTypesErrorMenu(BaseMenu):
     def __init__(self):
         super().__init__()
-
-        self.default_option = self.go_back
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Main Menu]"
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        pass
+
+    def set_options(self) -> None:
+        self.default_option = Option(self.go_back, False)
 
     def print_menu(self) -> None:
         header = "!!! ERROR GETTING BOARD LIST !!!"

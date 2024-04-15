@@ -7,16 +7,28 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import textwrap
+from typing import Type, Optional
 
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
 
 
+# noinspection DuplicatedCode
 class KlipperFlashMethodHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from components.klipper_firmware.menus.klipper_flash_menu import (
+            KlipperFlashMethodMenu,
+        )
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else KlipperFlashMethodMenu
+        )
+
+    def set_options(self) -> None:
+        pass
 
     def print_menu(self) -> None:
         header = " < ? > Help: Flash MCU < ? > "
@@ -57,11 +69,22 @@ class KlipperFlashMethodHelpMenu(BaseMenu):
         print(menu, end="")
 
 
+# noinspection DuplicatedCode
 class KlipperFlashCommandHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from components.klipper_firmware.menus.klipper_flash_menu import (
+            KlipperFlashCommandMenu,
+        )
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else KlipperFlashCommandMenu
+        )
+
+    def set_options(self) -> None:
+        pass
 
     def print_menu(self) -> None:
         header = " < ? > Help: Flash MCU < ? > "
@@ -89,11 +112,24 @@ class KlipperFlashCommandHelpMenu(BaseMenu):
         print(menu, end="")
 
 
+# noinspection DuplicatedCode
 class KlipperMcuConnectionHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: BaseMenu):
+    def __init__(self):
         super().__init__()
 
-        self.previous_menu: BaseMenu = previous_menu
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from components.klipper_firmware.menus.klipper_flash_menu import (
+            KlipperSelectMcuConnectionMenu,
+        )
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu
+            if previous_menu is not None
+            else KlipperSelectMcuConnectionMenu
+        )
+
+    def set_options(self) -> None:
+        pass
 
     def print_menu(self) -> None:
         header = " < ? > Help: Flash MCU < ? > "

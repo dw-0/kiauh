@@ -8,30 +8,37 @@
 # ======================================================================= #
 
 import textwrap
+from typing import Type, Optional
 
+from components.klipper_firmware.menus.klipper_build_menu import (
+    KlipperBuildFirmwareMenu,
+)
 from components.klipper_firmware.menus.klipper_flash_menu import (
     KlipperFlashMethodMenu,
     KlipperSelectMcuConnectionMenu,
 )
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal
 class AdvancedMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
 
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: BaseMenu = MainMenu()
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else MainMenu
+        )
+
+    def set_options(self):
         self.options = {
-            "1": None,
-            "2": None,
-            "3": None,
-            "4": self.flash,
-            "5": None,
-            "6": self.get_id,
+            "3": Option(method=self.build, menu=True),
+            "4": Option(method=self.flash, menu=False),
+            "6": Option(method=self.get_id, menu=False),
         }
 
     def print_menu(self):
@@ -56,8 +63,14 @@ class AdvancedMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
+    def build(self, **kwargs):
+        KlipperBuildFirmwareMenu(previous_menu=self.__class__).run()
+
     def flash(self, **kwargs):
-        KlipperFlashMethodMenu(previous_menu=self).run()
+        KlipperFlashMethodMenu(previous_menu=self.__class__).run()
 
     def get_id(self, **kwargs):
-        KlipperSelectMcuConnectionMenu(previous_menu=self, standalone=True).run()
+        KlipperSelectMcuConnectionMenu(
+            previous_menu=self.__class__,
+            standalone=True,
+        ).run()

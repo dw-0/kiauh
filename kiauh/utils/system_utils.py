@@ -190,7 +190,8 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
 
         Logger.print_ok("System package list update successful!")
     except CalledProcessError as e:
-        kill(f"Error updating system package list:\n{e.stderr.decode()}")
+        Logger.print_error(f"Error updating system package list:\n{e.stderr.decode()}")
+        raise
 
 
 def check_package_install(packages: List[str]) -> List[str]:
@@ -210,8 +211,6 @@ def check_package_install(packages: List[str]) -> List[str]:
         )
         if "installed" not in result.stdout.strip("'").split():
             not_installed.append(package)
-        else:
-            Logger.print_ok(f"{package} already installed.")
 
     return not_installed
 
@@ -230,7 +229,8 @@ def install_system_packages(packages: List[str]) -> None:
 
         Logger.print_ok("Packages installed successfully.")
     except CalledProcessError as e:
-        kill(f"Error installing packages:\n{e.stderr.decode()}")
+        Logger.print_error(f"Error installing packages:\n{e.stderr.decode()}")
+        raise
 
 
 def mask_system_service(service_name: str) -> None:
