@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2023 - 2024 Staubgeborener                               #
+#  Copyright (C) 2023 - 2024 Staubgeborener and Tylerjet                  #
 #  https://github.com/Staubgeborener/klipper-backup                       #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
@@ -12,12 +12,14 @@ import os
 import shutil
 import subprocess
 
+from components.moonraker import MOONRAKER_DIR
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
     KLIPPERBACKUP_REPO_URL,
     KLIPPERBACKUP_DIR,
     KLIPPERBACKUP_CONFIG_DIR,
 )
+
 from utils.filesystem_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
@@ -41,7 +43,6 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
-
         def is_service_installed(service_names):
             installed = True
             for service_name in service_names:
@@ -78,23 +79,35 @@ class KlipperbackupExtension(BaseExtension):
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
 
+        def remove_moonraker_entry():
+            original_file_path = os.path.join(str(MOONRAKER_DIR), 'printer_data', 'config', 'moonraker.conf')
+            comparison_file_path = os.path.join(str(KLIPPERBACKUP_DIR), 'install-files', 'moonraker.conf')
+
+            if not os.path.exists(original_file_path) or not os.path.exists(comparison_file_path):
+                Logger.print_error(f"Unknown error, either the moonraker.conf is not found or the klipper-backup entry under ~/klipper-backup/install-files/moonraker.conf. Skipping ...")
+                return
+
+            with open(original_file_path, 'r') as original_file, open(comparison_file_path, 'r') as comparison_file:
+                original_content = original_file.read()
+                comparison_content = comparison_file.read()
+
+            if comparison_content in original_content:
+                modified_content = original_content.replace(comparison_content, '')
+                with open(original_file_path, 'w') as original_file:
+                    original_file.write(modified_content)
+                    Logger.print_ok("Klipper backup entry in moonraker.conf removed)
+            else:
+                Logger.print_ok(f"Klipper-Backup entry not found in moonraker.conf. Skipping ...")
+
         question = "Do you really want to remove the extension?"
         if get_confirm(question, True, False):
-            try:
-                Logger.print_status(f"Removing '{KLIPPERBACKUP_DIR}' ...")
-                shutil.rmtree(KLIPPERBACKUP_DIR)
-                config_backup_exists = check_file_exist(KLIPPERBACKUP_CONFIG_DIR)
-                if config_backup_exists:
-                    shutil.rmtree(KLIPPERBACKUP_CONFIG_DIR)
-                Logger.print_ok("Extension successfully removed!")
-            except OSError as e:
-                Logger.print_error(f"Unable to remove extension: {e}")
-
+            
             # Remove Klipper-Backup services
             service_names = ["klipper-backup-on-boot.service", "klipper-backup-filewatch.service"]
-
             for service_name in service_names:
+                Logger.print_info(f"Check whether the service {service_name} is installed ...")
                 if is_service_installed(service_name):
+                    Logger.print_ok(f"Service {service_name} detected.")
                     uninstall_service(service_name)
                 else:
                     Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
@@ -104,6 +117,21 @@ class KlipperbackupExtension(BaseExtension):
             if check_crontab_entry(entry_to_check):
                 command = "crontab -l | grep -v '$HOME/klipper-backup/script.sh' | crontab -"
                 subprocess.run(command, shell=True, check=True)
-                Logger.print_ok("Der Eintrag wurde aus dem crontab entfernt.")
+                Logger.print_ok("The klipper-backup entry has been removed from the crontab.")
             else:
-                Logger.print_info("Der Eintrag ist nicht im crontab vorhanden. Skipping ...")
+                Logger.print_info("The klipper-backup entry is not present in the crontab. Skipping ...")
+
+            # Remove Moonraker entry
+            Logger.print_ok("Check for klipper-backup moonraker entry ...")
+            remove_moonraker_entry()
+
+            # Remove Klipper-Backup
+            try:
+                Logger.print_status(f"Removing '{KLIPPERBACKUP_DIR}' ...")
+                shutil.rmtree(KLIPPERBACKUP_DIR)
+                config_backup_exists = check_file_exist(KLIPPERBACKUP_CONFIG_DIR)
+                if config_backup_exists:
+                    shutil.rmtree(KLIPPERBACKUP_CONFIG_DIR)
+                Logger.print_ok("Extension successfully removed!")
+            except OSError as e:
+                Logger.print_error(f"Unable to remove extension: {e}")
