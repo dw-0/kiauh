@@ -20,17 +20,16 @@ from utils.logger import Logger
 from utils.system_utils import log_process
 
 
-def find_firmware_file(method: FlashMethod) -> bool:
+def find_firmware_file() -> bool:
     target = KLIPPER_DIR.joinpath("out")
     target_exists = target.exists()
-    if method is FlashMethod.REGULAR:
-        f1 = "klipper.elf.hex"
-        f2 = "klipper.elf"
-        fw_file_exists = target.joinpath(f1).exists() and target.joinpath(f2).exists()
-    elif method is FlashMethod.SD_CARD:
-        fw_file_exists = target.joinpath("klipper.bin").exists()
-    else:
-        raise Exception("Unknown flash method")
+
+    f1 = "klipper.elf.hex"
+    f2 = "klipper.elf"
+    f3 = "klipper.bin"
+    fw_file_exists = (
+        target.joinpath(f1).exists() and target.joinpath(f2).exists()
+    ) or target.joinpath(f3).exists()
 
     return target_exists and fw_file_exists
 

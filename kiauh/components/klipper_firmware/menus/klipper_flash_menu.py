@@ -101,7 +101,7 @@ class KlipperFlashMethodMenu(BaseMenu):
         self.goto_next_menu()
 
     def goto_next_menu(self, **kwargs):
-        if find_firmware_file(self.flash_options.flash_method):
+        if find_firmware_file():
             KlipperFlashCommandMenu(previous_menu=self.__class__).run()
         else:
             KlipperNoFirmwareErrorMenu().run()
