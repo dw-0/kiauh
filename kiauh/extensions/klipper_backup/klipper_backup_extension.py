@@ -18,6 +18,7 @@ from extensions.klipper_backup import (
     KLIPPERBACKUP_REPO_URL,
     KLIPPERBACKUP_DIR,
     KLIPPERBACKUP_CONFIG_DIR,
+    MOONRAKER_CONF,
 )
 
 from utils.filesystem_utils import check_file_exist
@@ -79,7 +80,7 @@ class KlipperbackupExtension(BaseExtension):
             return
 
         def remove_moonraker_entry():
-            original_file_path = os.path.join(str(MOONRAKER_DIR), 'printer_data', 'config', 'moonraker.conf')
+            original_file_path = MOONRAKER_CONF
             comparison_file_path = os.path.join(str(KLIPPERBACKUP_DIR), 'install-files', 'moonraker.conf')
             if not os.path.exists(original_file_path) or not os.path.exists(comparison_file_path):
                 return False
@@ -87,7 +88,8 @@ class KlipperbackupExtension(BaseExtension):
                 original_content = original_file.read()
                 comparison_content = comparison_file.read().strip()
             if comparison_content in original_content:
-                modified_content = original_content.replace(comparison_content, '')
+                modified_content = original_content.replace(comparison_content, '').strip()
+                modified_content = "\n".join(line for line in modified_content.split("\n") if line.strip())
                 with open(original_file_path, 'w') as original_file:
                     original_file.write(modified_content)
                     return True
