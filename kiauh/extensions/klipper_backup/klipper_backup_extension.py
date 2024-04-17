@@ -12,7 +12,6 @@ import os
 import shutil
 import subprocess
 
-from components.moonraker import MOONRAKER_DIR
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
     KLIPPERBACKUP_REPO_URL,
