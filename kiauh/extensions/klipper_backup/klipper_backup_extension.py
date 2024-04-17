@@ -67,7 +67,6 @@ class KlipperbackupExtension(BaseExtension):
                 crontab_content = subprocess.check_output(["crontab", "-l"], stderr=subprocess.DEVNULL, text=True)
             except subprocess.CalledProcessError:
                 return False
-
             for line in crontab_content.splitlines():
                 if entry in line:
                     return True
@@ -81,14 +80,11 @@ class KlipperbackupExtension(BaseExtension):
         def remove_moonraker_entry():
             original_file_path = os.path.join(str(MOONRAKER_DIR), 'printer_data', 'config', 'moonraker.conf')
             comparison_file_path = os.path.join(str(KLIPPERBACKUP_DIR), 'install-files', 'moonraker.conf')
-
             if not os.path.exists(original_file_path) or not os.path.exists(comparison_file_path):
                 return False
-
             with open(original_file_path, 'r') as original_file, open(comparison_file_path, 'r') as comparison_file:
                 original_content = original_file.read()
                 comparison_content = comparison_file.read().strip()
-
             if comparison_content in original_content:
                 modified_content = original_content.replace(comparison_content, '')
                 with open(original_file_path, 'w') as original_file:
