@@ -43,25 +43,24 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
-        def is_service_installed(service_names):
-            installed = True
-            for service_name in service_names:
-                try:
-                    with open(os.devnull, 'w') as devnull:
-                        subprocess.run(["systemctl", "status", service_name], stdout=devnull, stderr=devnull, check=True)
-                except subprocess.CalledProcessError:
-                    installed = False
-                    break
-            return installed
+        def is_service_installed(service_name):
+            command = ["systemctl", "status", service_name]
+            result = subprocess.run(command, capture_output=True, text=True)
+            if "Loaded:" in result.stdout:
+                return True
+            else:
+                return False
 
-        def uninstall_service(service_names):
-            for service_name in service_names:
-                try:
-                    subprocess.run(["sudo", "systemctl", "disable", service_name], check=True)
-                    subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
-                    Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
-                except subprocess.CalledProcessError:
-                    Logger.print_error(f"Error uninstalling the service {service_name}.")
+        def uninstall_service(service_name):
+            try:
+                subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
+                subprocess.run(["sudo", "systemctl", "disable", service_name], check=True)
+                subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True)
+                service_path = f'/etc/systemd/system/{service_name}'
+                os.system(f'sudo rm {service_path}')
+                Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
+            except subprocess.CalledProcessError:
+                Logger.print_error(f"Error uninstalling the service {service_name}.")
 
         def check_crontab_entry(entry):
             try:
@@ -84,54 +83,67 @@ class KlipperbackupExtension(BaseExtension):
             comparison_file_path = os.path.join(str(KLIPPERBACKUP_DIR), 'install-files', 'moonraker.conf')
 
             if not os.path.exists(original_file_path) or not os.path.exists(comparison_file_path):
-                Logger.print_error(f"Unknown error, either the moonraker.conf is not found or the klipper-backup entry under ~/klipper-backup/install-files/moonraker.conf. Skipping ...")
-                return
+                return False
 
             with open(original_file_path, 'r') as original_file, open(comparison_file_path, 'r') as comparison_file:
                 original_content = original_file.read()
-                comparison_content = comparison_file.read()
+                comparison_content = comparison_file.read().strip()
 
             if comparison_content in original_content:
                 modified_content = original_content.replace(comparison_content, '')
                 with open(original_file_path, 'w') as original_file:
                     original_file.write(modified_content)
-                    Logger.print_ok("Klipper backup entry in moonraker.conf removed)
+                    return True
             else:
-                Logger.print_ok(f"Klipper-Backup entry not found in moonraker.conf. Skipping ...")
+                return False
 
         question = "Do you really want to remove the extension?"
         if get_confirm(question, True, False):
-            
+
             # Remove Klipper-Backup services
             service_names = ["klipper-backup-on-boot.service", "klipper-backup-filewatch.service"]
             for service_name in service_names:
-                Logger.print_info(f"Check whether the service {service_name} is installed ...")
-                if is_service_installed(service_name):
-                    Logger.print_ok(f"Service {service_name} detected.")
-                    uninstall_service(service_name)
-                else:
-                    Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
+                try:
+                    Logger.print_status(f"Check whether the service {service_name} is installed ...")
+                    if is_service_installed(service_name):
+                        Logger.print_info(f"Service {service_name} detected.")
+                        uninstall_service(service_name)
+                    else:
+                        Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
+                except:
+                    Logger.print_error(f"Unable to remove the service {service_name}")
 
             # Remove Klipper-Backup cron
-            entry_to_check = "$HOME/klipper-backup/script.sh"
-            if check_crontab_entry(entry_to_check):
-                command = "crontab -l | grep -v '$HOME/klipper-backup/script.sh' | crontab -"
-                subprocess.run(command, shell=True, check=True)
-                Logger.print_ok("The klipper-backup entry has been removed from the crontab.")
-            else:
-                Logger.print_info("The klipper-backup entry is not present in the crontab. Skipping ...")
+            Logger.print_status("Check for Klipper-Backup cron entry ...")
+            entry_to_check = "/klipper-backup/script.sh"
+            try:
+                if check_crontab_entry(entry_to_check):
+                    crontab_content = subprocess.check_output(["crontab", "-l"], text=True)
+                    modified_content = "\n".join(line for line in crontab_content.splitlines() if entry_to_check not in line)
+                    subprocess.run(["crontab", "-"], input=modified_content, text=True, check=True)
+                    Logger.print_ok("The Klipper-Backup entry has been removed from the crontab.")
+                else:
+                    Logger.print_info("The Klipper-Backup entry is not present in the crontab. Skipping ...")
+            except:
+                Logger.print_error("Unable to remove the Klipper-Backup cron entry")
 
             # Remove Moonraker entry
-            Logger.print_ok("Check for klipper-backup moonraker entry ...")
-            remove_moonraker_entry()
+            Logger.print_status(f"Check for Klipper-Backup moonraker entry ...")
+            try:
+                if remove_moonraker_entry():
+                    Logger.print_ok("Klipper-Backup entry in moonraker.conf removed")
+                else:
+                    Logger.print_info("Klipper-Backup entry not found in moonraker.conf. Skipping ...")
+            except:
+                Logger.print_error("Unknown error, either the moonraker.conf is not found or the Klipper-Backup entry under ~/klipper-backup/install-files/moonraker.conf. Skipping ...")
 
             # Remove Klipper-Backup
+            Logger.print_status(f"Removing '{KLIPPERBACKUP_DIR}' ...")
             try:
-                Logger.print_status(f"Removing '{KLIPPERBACKUP_DIR}' ...")
                 shutil.rmtree(KLIPPERBACKUP_DIR)
                 config_backup_exists = check_file_exist(KLIPPERBACKUP_CONFIG_DIR)
                 if config_backup_exists:
                     shutil.rmtree(KLIPPERBACKUP_CONFIG_DIR)
-                Logger.print_ok("Extension successfully removed!")
+                Logger.print_ok("Extension Klipper-Backup successfully removed!")
             except OSError as e:
                 Logger.print_error(f"Unable to remove extension: {e}")
