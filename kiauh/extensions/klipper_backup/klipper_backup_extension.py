@@ -46,6 +46,7 @@ class KlipperbackupExtension(BaseExtension):
         def is_service_installed(service_name):
             command = ["systemctl", "status", service_name]
             result = subprocess.run(command, capture_output=True, text=True)
+            # Doesn't matter whether the service is active or not, what matters is whether it is installed. So let's search for "Loaded:" in stdout
             if "Loaded:" in result.stdout:
                 return True
             else:
@@ -58,9 +59,9 @@ class KlipperbackupExtension(BaseExtension):
                 subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True)
                 service_path = f'/etc/systemd/system/{service_name}'
                 os.system(f'sudo rm {service_path}')
-                Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
+                return True
             except subprocess.CalledProcessError:
-                Logger.print_error(f"Error uninstalling the service {service_name}.")
+                return False
 
         def check_crontab_entry(entry):
             try:
@@ -103,7 +104,10 @@ class KlipperbackupExtension(BaseExtension):
                     Logger.print_status(f"Check whether the service {service_name} is installed ...")
                     if is_service_installed(service_name):
                         Logger.print_info(f"Service {service_name} detected.")
-                        uninstall_service(service_name)
+                        if uninstall_service(service_name):
+                            Logger.print_ok(f"The service {service_name} has been successfully uninstalled.")
+                        else:
+                            Logger.print_error(f"Error uninstalling the service {service_name}.")
                     else:
                         Logger.print_info(f"The service {service_name} is not installed. Skipping ...")
                 except:
