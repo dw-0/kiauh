@@ -12,6 +12,7 @@ from pathlib import Path
 
 EXT_MODULE_NAME = "klipper_backup_extension.py"
 MODULE_PATH = Path(__file__).resolve().parent
+MOONRAKER_CONF = Path.home().joinpath("printer_data", "config", "moonraker.conf")
 KLIPPERBACKUP_DIR = Path.home().joinpath("klipper-backup")
 KLIPPERBACKUP_CONFIG_DIR = Path.home().joinpath("config_backup")
 KLIPPERBACKUP_REPO_URL = "https://github.com/staubgeborener/klipper-backup"
