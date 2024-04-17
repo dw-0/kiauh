@@ -432,12 +432,10 @@ class KlipperFlashOverviewMenu(BaseMenu):
         print(menu, end="")
 
     def execute_flash(self, **kwargs):
-        from core.menus.advanced_menu import AdvancedMenu
-
         start_flash_process(self.flash_options)
         Logger.print_info("Returning to MCU Flash Menu in 5 seconds ...")
         time.sleep(5)
-        KlipperFlashMethodMenu(previous_menu=AdvancedMenu).run()
+        KlipperFlashMethodMenu().run()
 
     def abort_process(self, **kwargs):
         from core.menus.advanced_menu import AdvancedMenu

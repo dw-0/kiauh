@@ -39,6 +39,7 @@ class AdvancedMenu(BaseMenu):
         self.options = {
             "3": Option(method=self.build, menu=True),
             "4": Option(method=self.flash, menu=False),
+            "5": Option(method=self.build_flash, menu=False),
             "6": Option(method=self.get_id, menu=False),
         }
 
@@ -68,6 +69,10 @@ class AdvancedMenu(BaseMenu):
         KlipperBuildFirmwareMenu(previous_menu=self.__class__).run()
 
     def flash(self, **kwargs):
+        KlipperFlashMethodMenu(previous_menu=self.__class__).run()
+
+    def build_flash(self, **kwargs):
+        KlipperBuildFirmwareMenu(previous_menu=KlipperFlashMethodMenu).run()
         KlipperFlashMethodMenu(previous_menu=self.__class__).run()
 
     def get_id(self, **kwargs):
