@@ -11,11 +11,13 @@ from subprocess import CalledProcessError, check_output, Popen, PIPE, STDOUT, ru
 from typing import List
 
 from components.klipper import KLIPPER_DIR
+from components.klipper.klipper import Klipper
 from components.klipper_firmware import SD_FLASH_SCRIPT
 from components.klipper_firmware.flash_options import (
     FlashOptions,
     FlashMethod,
 )
+from core.instance_manager.instance_manager import InstanceManager
 from utils.logger import Logger
 from utils.system_utils import log_process
 
@@ -106,17 +108,21 @@ def start_flash_process(flash_options: FlashOptions) -> None:
             if not SD_FLASH_SCRIPT.exists():
                 raise Exception("Unable to find Klippers sdcard flash script!")
             cmd = [
-                SD_FLASH_SCRIPT,
-                "-b",
-                flash_options.selected_baudrate,
+                SD_FLASH_SCRIPT.as_posix(),
+                f"-b {flash_options.selected_baudrate}",
                 flash_options.selected_mcu,
                 flash_options.selected_board,
             ]
         else:
             raise Exception("Invalid value for flash_method!")
 
+        instance_manager = InstanceManager(Klipper)
+        instance_manager.stop_all_instance()
+
         process = Popen(cmd, cwd=KLIPPER_DIR, stdout=PIPE, stderr=STDOUT, text=True)
         log_process(process)
+
+        instance_manager.start_all_instance()
 
         rc = process.returncode
         if rc != 0:
