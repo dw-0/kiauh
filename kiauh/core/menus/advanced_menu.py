@@ -10,6 +10,8 @@
 import textwrap
 from typing import Type, Optional
 
+from components.klipper import KLIPPER_DIR
+from components.klipper.klipper import Klipper
 from components.klipper_firmware.menus.klipper_build_menu import (
     KlipperBuildFirmwareMenu,
 )
@@ -17,12 +19,16 @@ from components.klipper_firmware.menus.klipper_flash_menu import (
     KlipperFlashMethodMenu,
     KlipperSelectMcuConnectionMenu,
 )
+from components.moonraker import MOONRAKER_DIR
+from components.moonraker.moonraker import Moonraker
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
+from utils.git_utils import rollback_repository
 
 
 # noinspection PyUnusedLocal
+# noinspection PyMethodMayBeStatic
 class AdvancedMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
@@ -37,6 +43,8 @@ class AdvancedMenu(BaseMenu):
 
     def set_options(self):
         self.options = {
+            "1": Option(method=self.klipper_rollback, menu=True),
+            "2": Option(method=self.moonraker_rollback, menu=True),
             "3": Option(method=self.build, menu=True),
             "4": Option(method=self.flash, menu=False),
             "5": Option(method=self.build_flash, menu=False),
@@ -64,6 +72,12 @@ class AdvancedMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
+
+    def klipper_rollback(self, **kwargs):
+        rollback_repository(KLIPPER_DIR, Klipper)
+
+    def moonraker_rollback(self, **kwargs):
+        rollback_repository(MOONRAKER_DIR, Moonraker)
 
     def build(self, **kwargs):
         KlipperBuildFirmwareMenu(previous_menu=self.__class__).run()
