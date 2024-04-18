@@ -85,7 +85,7 @@ class KlipperbackupExtension(BaseExtension):
                 return False
             with open(original_file_path, 'r') as original_file, open(comparison_file_path, 'r') as comparison_file:
                 original_content = original_file.read()
-                comparison_content = comparison_file.read().strip()
+                comparison_content = comparison_file.read()
             if comparison_content in original_content:
                 modified_content = original_content.replace(comparison_content, '').strip()
                 modified_content = "\n".join(line for line in modified_content.split("\n") if line.strip())
