@@ -30,7 +30,7 @@ class KlipperbackupExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
         if not KLIPPERBACKUP_DIR.exists():
             subprocess.run(["git", "clone", str(KLIPPERBACKUP_REPO_URL), str(KLIPPERBACKUP_DIR)])
-            subprocess.run(["git", "-C", str(KLIPPERBACKUP_DIR), "checkout", "installer-dev"])
+            #subprocess.run(["git", "-C", str(KLIPPERBACKUP_DIR), "checkout", "installer-dev"]) # Only for testing
             subprocess.run(["chmod", "+x", str(KLIPPERBACKUP_DIR / "install.sh")])
         subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh")])
 
