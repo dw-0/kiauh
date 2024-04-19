@@ -74,7 +74,7 @@ class ExtensionsMenu(BaseMenu):
             except (IOError, json.JSONDecodeError, ImportError) as e:
                 print(f"Failed loading extension {ext}: {e}")
 
-        return ext_dict
+        return dict(sorted(ext_dict.items()))
 
     def extension_submenu(self, **kwargs):
         ExtensionSubmenu(kwargs.get("opt_data"), self.__class__).run()
