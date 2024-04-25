@@ -55,17 +55,13 @@ class RemoveMenu(BaseMenu):
             |-------------------------------------------------------|
             | INFO: Configurations and/or any backups will be kept! |
             |-------------------------------------------------------|
-            | Firmware & API:           | Webcam Streamer:          |
-            |  1) [Klipper]             |  6) [Crowsnest]           |
-            |  2) [Moonraker]           |  7) [MJPG-Streamer]       |
-            |                           |                           |
-            | Klipper Webinterface:     | Other:                    |
-            |  3) [Mainsail]            |  8) [PrettyGCode]         |
-            |  4) [Fluidd]              |  9) [Telegram Bot]        |
-            |                           | 10) [Obico for Klipper]   |
-            | Touchscreen GUI:          | 11) [OctoEverywhere]      |
-            |  5) [KlipperScreen]       | 12) [Mobileraker]         |
-            |                           | 13) [NGINX]               |
+            | Firmware & API:           | Touchscreen GUI:          |
+            |  1) [Klipper]             |  5) [KlipperScreen]       |
+            |  2) [Moonraker]           |                           |
+            |                           | Webcam Streamer:          |
+            | Klipper Webinterface:     |  6) [Crowsnest]           |
+            |  3) [Mainsail]            |                           |
+            |  4) [Fluidd]              |                           |
             |                           |                           |
             """
         )[1:]
