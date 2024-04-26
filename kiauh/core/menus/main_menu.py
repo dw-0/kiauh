@@ -85,28 +85,29 @@ class MainMenu(BaseMenu):
             )
 
     def fetch_status(self) -> None:
-        # klipper
-        klipper_status = get_klipper_status()
-        kl_status = klipper_status.get("status")
-        kl_code = klipper_status.get("status_code")
-        kl_instances = f" {klipper_status.get('instances')}" if kl_code == 1 else ""
-        self.kl_status = self.format_status_by_code(kl_code, kl_status, kl_instances)
-        self.kl_repo = f"{COLOR_CYAN}{klipper_status.get('repo')}{RESET_FORMAT}"
-        # moonraker
-        moonraker_status = get_moonraker_status()
-        mr_status = moonraker_status.get("status")
-        mr_code = moonraker_status.get("status_code")
-        mr_instances = f" {moonraker_status.get('instances')}" if mr_code == 1 else ""
-        self.mr_status = self.format_status_by_code(mr_code, mr_status, mr_instances)
-        self.mr_repo = f"{COLOR_CYAN}{moonraker_status.get('repo')}{RESET_FORMAT}"
-        # mainsail
+        self._update_status("kl", get_klipper_status)
+        self._update_status("mr", get_moonraker_status)
         self.ms_status = get_client_status(MainsailData())
-        # fluidd
         self.fl_status = get_client_status(FluiddData())
-        # client-config
         self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
 
-    def format_status_by_code(self, code: int, status: str, count: str) -> str:
+    def _update_status(self, status_name: str, status_fn: callable) -> None:
+        status_data = status_fn()
+        status = status_data.get("status")
+        code = status_data.get("status_code")
+        instances = f" {status_data.get('instances')}" if code == 1 else ""
+        setattr(
+            self,
+            f"{status_name}_status",
+            self._format_status_by_code(code, status, instances),
+        )
+        setattr(
+            self,
+            f"{status_name}_repo",
+            f"{COLOR_CYAN}{status_data.get('repo')}{RESET_FORMAT}",
+        )
+
+    def _format_status_by_code(self, code: int, status: str, count: str) -> str:
         if code == 1:
             return f"{COLOR_GREEN}{status}{count}{RESET_FORMAT}"
         elif code == 2:
