@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import List
 
 from components.webui_client.base_data import BaseWebClient, BaseWebClientConfig
-from kiauh import KIAUH_CFG
+from core.settings.kiauh_settings import KiauhSettings
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.client_dialogs import (
@@ -23,7 +23,6 @@ from components.webui_client.client_utils import (
     backup_client_config_data,
     config_for_other_client_exist,
 )
-from core.config_manager.config_manager import ConfigManager
 
 from core.instance_manager.instance_manager import InstanceManager
 from core.repo_manager.repo_manager import RepoManager
@@ -108,8 +107,8 @@ def update_client_config(client: BaseWebClient) -> None:
         )
         return
 
-    cm = ConfigManager(cfg_file=KIAUH_CFG)
-    if cm.get_value("kiauh", "backup_before_update"):
+    settings = KiauhSettings()
+    if settings.get("kiauh", "backup_before_update"):
         backup_client_config_data(client)
 
     repo_manager = RepoManager(

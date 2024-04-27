@@ -16,11 +16,10 @@ from components.webui_client.client_utils import (
     get_existing_clients,
 )
 from components.webui_client.mainsail_data import MainsailData
-from kiauh import KIAUH_CFG
+from core.settings.kiauh_settings import KiauhSettings
 from components.klipper.klipper import Klipper
 from components.moonraker import (
     EXIT_MOONRAKER_SETUP,
-    DEFAULT_MOONRAKER_REPO_URL,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
     MOONRAKER_REQUIREMENTS_TXT,
@@ -35,7 +34,6 @@ from components.moonraker.moonraker_utils import (
     create_example_moonraker_conf,
     backup_moonraker_dir,
 )
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.repo_manager.repo_manager import RepoManager
 from utils.filesystem_utils import check_file_exist
@@ -133,11 +131,9 @@ def check_moonraker_install_requirements() -> bool:
 
 
 def setup_moonraker_prerequesites() -> None:
-    cm = ConfigManager(cfg_file=KIAUH_CFG)
-    repo = str(
-        cm.get_value("moonraker", "repository_url") or DEFAULT_MOONRAKER_REPO_URL
-    )
-    branch = str(cm.get_value("moonraker", "branch") or "master")
+    settings = KiauhSettings()
+    repo = settings.get("moonraker", "repo_url")
+    branch = settings.get("moonraker", "branch")
 
     repo_manager = RepoManager(
         repo=repo,
@@ -193,21 +189,16 @@ def update_moonraker() -> None:
     if not get_confirm("Update Moonraker now?"):
         return
 
-    cm = ConfigManager(cfg_file=KIAUH_CFG)
-    if cm.get_value("kiauh", "backup_before_update"):
+    settings = KiauhSettings()
+    if settings.get("kiauh", "backup_before_update"):
         backup_moonraker_dir()
 
     instance_manager = InstanceManager(Moonraker)
     instance_manager.stop_all_instance()
 
-    repo = str(
-        cm.get_value("moonraker", "repository_url") or DEFAULT_MOONRAKER_REPO_URL
-    )
-    branch = str(cm.get_value("moonraker", "branch") or "master")
-
     repo_manager = RepoManager(
-        repo=repo,
-        branch=branch,
+        repo=settings.get("moonraker", "repo_url"),
+        branch=settings.get("moonraker", "branch"),
         target_dir=MOONRAKER_DIR,
     )
     repo_manager.pull_repo()

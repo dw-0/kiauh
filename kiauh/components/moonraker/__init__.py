@@ -20,7 +20,6 @@ MOONRAKER_DB_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-db-backups")
 MOONRAKER_REQUIREMENTS_TXT = MOONRAKER_DIR.joinpath(
     "scripts/moonraker-requirements.txt"
 )
-DEFAULT_MOONRAKER_REPO_URL = "https://github.com/Arksine/moonraker"
 DEFAULT_MOONRAKER_PORT = 7125
 
 # introduced due to

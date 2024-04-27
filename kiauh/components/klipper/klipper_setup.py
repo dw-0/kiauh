@@ -12,10 +12,9 @@ from pathlib import Path
 from components.webui_client.client_utils import (
     get_existing_clients,
 )
-from kiauh import KIAUH_CFG
+from core.settings.kiauh_settings import KiauhSettings
 from components.klipper import (
     EXIT_KLIPPER_SETUP,
-    DEFAULT_KLIPPER_REPO_URL,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_REQUIREMENTS_TXT,
@@ -36,7 +35,6 @@ from components.klipper.klipper_utils import (
     backup_klipper_dir,
 )
 from components.moonraker.moonraker import Moonraker
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.repo_manager.repo_manager import RepoManager
 from utils.input_utils import get_confirm
@@ -109,13 +107,10 @@ def install_klipper() -> None:
 
 
 def setup_klipper_prerequesites() -> None:
-    cm = ConfigManager(cfg_file=KIAUH_CFG)
-    repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
-    branch = str(cm.get_value("klipper", "branch") or "master")
-
+    settings = KiauhSettings()
     repo_manager = RepoManager(
-        repo=repo,
-        branch=branch,
+        repo=settings.get("klipper", "repo_url"),
+        branch=settings.get("klipper", "branch"),
         target_dir=KLIPPER_DIR,
     )
     repo_manager.clone_repo()
@@ -150,19 +145,16 @@ def update_klipper() -> None:
     if not get_confirm("Update Klipper now?"):
         return
 
-    cm = ConfigManager(cfg_file=KIAUH_CFG)
-    if cm.get_value("kiauh", "backup_before_update"):
+    settings = KiauhSettings()
+    if settings.get("kiauh", "backup_before_update"):
         backup_klipper_dir()
 
     instance_manager = InstanceManager(Klipper)
     instance_manager.stop_all_instance()
 
-    repo = str(cm.get_value("klipper", "repository_url") or DEFAULT_KLIPPER_REPO_URL)
-    branch = str(cm.get_value("klipper", "branch") or "master")
-
     repo_manager = RepoManager(
-        repo=repo,
-        branch=branch,
+        repo=settings.get("klipper", "repo_url"),
+        branch=settings.get("klipper", "branch"),
         target_dir=KLIPPER_DIR,
     )
     repo_manager.pull_repo()

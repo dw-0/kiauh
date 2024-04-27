@@ -8,11 +8,13 @@
 # ======================================================================= #
 
 from core.menus.main_menu import MainMenu
+from core.settings.kiauh_settings import KiauhSettings
 from utils.logger import Logger
 
 
 def main():
     try:
+        KiauhSettings()
         MainMenu().run()
     except KeyboardInterrupt:
         Logger.print_ok("\nHappy printing!\n", prefix=False)

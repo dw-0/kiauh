@@ -33,9 +33,8 @@ from components.webui_client.client_utils import (
     symlink_webui_nginx_log,
     config_for_other_client_exist,
 )
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
-from kiauh import KIAUH_CFG
+from core.settings.kiauh_settings import KiauhSettings
 from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
 from utils.filesystem_utils import (
@@ -104,24 +103,23 @@ def install_client(client: BaseWebClient) -> None:
         question = f"Download the recommended {client_config.display_name}?"
         install_client_cfg = get_confirm(question, allow_go_back=False)
 
-    cm = ConfigManager(cfg_file=KIAUH_CFG)
-    default_port = cm.get_value(client.name, "port")
-    client_port = default_port if default_port and default_port.isdigit() else "80"
+    settings = KiauhSettings()
+    port = settings.get(client.name, "port")
     ports_in_use = read_ports_from_nginx_configs()
 
     # check if configured port is a valid number and not in use already
-    valid_port = is_valid_port(client_port, ports_in_use)
+    valid_port = is_valid_port(port, ports_in_use)
     while not valid_port:
         next_port = get_next_free_port(ports_in_use)
         print_client_port_select_dialog(client.display_name, next_port, ports_in_use)
-        client_port = str(
+        port = str(
             get_number_input(
                 f"Configure {client.display_name} for port",
                 min_count=int(next_port),
                 default=next_port,
             )
         )
-        valid_port = is_valid_port(client_port, ports_in_use)
+        valid_port = is_valid_port(port, ports_in_use)
 
     check_install_dependencies(["nginx"])
 
@@ -146,7 +144,7 @@ def install_client(client: BaseWebClient) -> None:
 
         copy_upstream_nginx_cfg()
         copy_common_vars_nginx_cfg()
-        create_client_nginx_cfg(client, client_port)
+        create_client_nginx_cfg(client, port)
         if kl_instances:
             symlink_webui_nginx_log(kl_instances)
         control_systemd_service("nginx", "restart")
@@ -155,7 +153,7 @@ def install_client(client: BaseWebClient) -> None:
         Logger.print_error(f"{client.display_name} installation failed!\n{e}")
         return
 
-    log = f"Open {client.display_name} now on: http://{get_ipv4_addr()}:{client_port}"
+    log = f"Open {client.display_name} now on: http://{get_ipv4_addr()}:{port}"
     Logger.print_ok(f"{client.display_name} installation complete!", start="\n")
     Logger.print_ok(log, prefix=False, end="\n\n")
 
