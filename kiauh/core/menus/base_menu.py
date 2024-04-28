@@ -12,6 +12,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import textwrap
+import traceback
 from abc import abstractmethod
 from typing import Type, Dict, Optional
 
@@ -213,4 +214,6 @@ class BaseMenu(metaclass=PostInitCaller):
             option.method(opt_index=option.opt_index, opt_data=option.opt_data)
             self.run()
         except Exception as e:
-            Logger.print_error(f"An unexpected error occured:\n{e}")
+            Logger.print_error(
+                f"An unexpected error occured:\n{e}\n{traceback.format_exc()}"
+            )
