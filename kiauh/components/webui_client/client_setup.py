@@ -160,8 +160,10 @@ def download_client(client: BaseWebClient) -> None:
     zipfile = f"{client.name.lower()}.zip"
     target = Path().home().joinpath(zipfile)
     try:
-        Logger.print_status(f"Downloading {zipfile} ...")
-        download_file(client.stable_url, target, True)
+        Logger.print_status(
+            f"Downloading {client.display_name} from {client.download_url} ..."
+        )
+        download_file(client.download_url, target, True)
         Logger.print_ok("Download complete!")
 
         Logger.print_status(f"Extracting {zipfile} ...")
@@ -170,7 +172,7 @@ def download_client(client: BaseWebClient) -> None:
         Logger.print_ok("OK!")
 
     except Exception:
-        Logger.print_error(f"Downloading {zipfile} failed!")
+        Logger.print_error(f"Downloading {client.display_name} failed!")
         raise
 
 
