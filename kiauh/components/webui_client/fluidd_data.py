@@ -18,8 +18,8 @@ from components.webui_client.base_data import (
     WebClientType,
     BaseWebClient,
 )
+from components.webui_client.client_utils import get_download_url
 from core.backup_manager import BACKUP_ROOT_DIR
-from utils.git_utils import get_latest_unstable_tag
 
 
 @dataclass(frozen=True)
@@ -46,19 +46,8 @@ class FluiddData(BaseWebClient):
     repo_path: str = "fluidd-core/fluidd"
 
     @property
-    def stable_url(self) -> str:
-        return f"{self.BASE_DL_URL}/latest/download/fluidd.zip"
-
-    @property
-    def unstable_url(self) -> str:
-        try:
-            unstable_tag = get_latest_unstable_tag(self.repo_path)
-            if unstable_tag != "":
-                return f"{self.BASE_DL_URL}/download/{unstable_tag}/fluidd.zip"
-            else:
-                raise Exception
-        except Exception:
-            return self.stable_url
+    def download_url(self) -> str:
+        return get_download_url(self.BASE_DL_URL, self)
 
     @property
     def client_config(self) -> BaseWebClientConfig:

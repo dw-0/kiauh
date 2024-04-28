@@ -59,12 +59,7 @@ class BaseWebClient(ABC):
 
     @property
     @abstractmethod
-    def stable_url(self) -> str:
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def unstable_url(self) -> str:
+    def download_url(self) -> str:
         raise NotImplementedError
 
     @property

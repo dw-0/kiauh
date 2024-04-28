@@ -19,7 +19,6 @@ from components.webui_client.base_data import (
     BaseWebClient,
 )
 from core.backup_manager import BACKUP_ROOT_DIR
-from utils.git_utils import get_latest_unstable_tag
 
 
 @dataclass(frozen=True)
@@ -46,19 +45,10 @@ class MainsailData(BaseWebClient):
     repo_path: str = "mainsail-crew/mainsail"
 
     @property
-    def stable_url(self) -> str:
-        return f"{self.BASE_DL_URL}/latest/download/mainsail.zip"
+    def download_url(self) -> str:
+        from components.webui_client.client_utils import get_download_url
 
-    @property
-    def unstable_url(self) -> str:
-        try:
-            unstable_tag = get_latest_unstable_tag(self.repo_path)
-            if unstable_tag != "":
-                return f"{self.BASE_DL_URL}/download/{unstable_tag}/mainsail.zip"
-            else:
-                raise Exception
-        except Exception:
-            return self.stable_url
+        return get_download_url(self.BASE_DL_URL, self)
 
     @property
     def client_config(self) -> BaseWebClientConfig:

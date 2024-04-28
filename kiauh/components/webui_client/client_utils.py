@@ -22,10 +22,11 @@ from components.webui_client.base_data import (
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.repo_manager.repo_manager import RepoManager
+from core.settings.kiauh_settings import KiauhSettings
 from utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
 from utils.common import get_install_status_webui
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
-from utils.git_utils import get_latest_tag
+from utils.git_utils import get_latest_tag, get_latest_unstable_tag
 from utils.logger import Logger
 
 
@@ -201,3 +202,20 @@ def config_for_other_client_exist(client_to_ignore: WebClientType) -> bool:
     clients = clients - {client_to_ignore.value}
 
     return True if len(clients) > 0 else False
+
+
+def get_download_url(base_url: str, client: BaseWebClient) -> str:
+    settings = KiauhSettings()
+    use_unstable = settings.get(client.name, "unstable_releases")
+    stable_url = f"{base_url}/latest/download/{client.name}.zip"
+
+    if not use_unstable:
+        return stable_url
+
+    try:
+        unstable_tag = get_latest_unstable_tag(client.repo_path)
+        if unstable_tag == "":
+            raise Exception
+        return f"{base_url}/download/{unstable_tag}/{client.name}.zip"
+    except Exception:
+        return stable_url
