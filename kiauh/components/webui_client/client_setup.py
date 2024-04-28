@@ -104,20 +104,18 @@ def install_client(client: BaseWebClient) -> None:
         install_client_cfg = get_confirm(question, allow_go_back=False)
 
     settings = KiauhSettings()
-    port = settings.get(client.name, "port")
-    ports_in_use = read_ports_from_nginx_configs()
+    port: int = settings.get(client.name, "port")
+    ports_in_use: List[int] = read_ports_from_nginx_configs()
 
     # check if configured port is a valid number and not in use already
     valid_port = is_valid_port(port, ports_in_use)
     while not valid_port:
         next_port = get_next_free_port(ports_in_use)
         print_client_port_select_dialog(client.display_name, next_port, ports_in_use)
-        port = str(
-            get_number_input(
-                f"Configure {client.display_name} for port",
-                min_count=int(next_port),
-                default=next_port,
-            )
+        port = get_number_input(
+            f"Configure {client.display_name} for port",
+            min_count=int(next_port),
+            default=next_port,
         )
         valid_port = is_valid_port(port, ports_in_use)
 

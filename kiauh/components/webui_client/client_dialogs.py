@@ -55,7 +55,7 @@ def print_client_already_installed_dialog(name: str):
     print_back_footer()
 
 
-def print_client_port_select_dialog(name: str, port: str, ports_in_use: List[str]):
+def print_client_port_select_dialog(name: str, port: int, ports_in_use: List[int]):
     port = f"{COLOR_CYAN}{port}{RESET_FORMAT}"
     line1 = f"Please select the port, {name} should be served on."
     line2 = f"In case you need {name} to be served on a specific"

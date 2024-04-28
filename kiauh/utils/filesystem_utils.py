@@ -149,7 +149,7 @@ def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
         raise
 
 
-def read_ports_from_nginx_configs() -> List[str]:
+def read_ports_from_nginx_configs() -> List[int]:
     """
     Helper function to iterate over all NGINX configs and read all ports defined for listen
     :return: A sorted list of listen ports
@@ -168,18 +168,19 @@ def read_ports_from_nginx_configs() -> List[str]:
             if line.startswith("listen") and line.split()[-1] not in port_list:
                 port_list.append(line.split()[-1])
 
-    return sorted(port_list, key=lambda x: int(x))
+    ports_to_ints_list = [int(port) for port in port_list]
+    return sorted(ports_to_ints_list, key=lambda x: int(x))
 
 
-def is_valid_port(port: str, ports_in_use: List[str]) -> bool:
-    return port.isdigit() and port not in ports_in_use
+def is_valid_port(port: int, ports_in_use: List[int]) -> bool:
+    return port not in ports_in_use
 
 
-def get_next_free_port(ports_in_use: List[str]) -> str:
+def get_next_free_port(ports_in_use: List[int]) -> int:
     valid_ports = set(range(80, 7125))
     used_ports = set(map(int, ports_in_use))
 
-    return str(min(valid_ports - used_ports))
+    return min(valid_ports - used_ports)
 
 
 def add_config_section(
