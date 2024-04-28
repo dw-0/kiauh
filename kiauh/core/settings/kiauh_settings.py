@@ -9,8 +9,9 @@
 
 import textwrap
 import configparser
-from configparser import ConfigParser
 from typing import Dict, Union
+
+from core.config_manager.config_manager import CustomConfigParser
 from kiauh import PROJECT_ROOT
 from utils.constants import RESET_FORMAT, COLOR_RED
 from utils.logger import Logger
@@ -34,33 +35,32 @@ class KiauhSettings:
         if self.__initialized:
             return
         self.__initialized = True
+        self.config = CustomConfigParser()
         self.settings: Dict[str, Dict[str, Union[str, int, bool]]] = {}
+        self._load_settings()
 
-        self.config = ConfigParser()
-        if self._custom_cfg.exists():
-            self.config.read(self._custom_cfg)
-        elif self._default_cfg.exists():
-            self.config.read(self._default_cfg)
-        else:
-            self._kill()
+    def get(self, section: str, option: str) -> Union[str, int, bool]:
+        return self.settings[section][option]
 
-        sections = self.config.sections()
-        for s in sections:
-            self.settings[s] = dict(self.config[s])
-
-        self._validate_cfg()
-
-    def get(self, key: str, value: Union[str, int, bool]) -> Union[str, int, bool]:
-        return self.settings[key][value]
-
-    def set(self, key: str, value: Union[str, int, bool]) -> None:
-        self.settings[key][value] = value
+    def set(self, section: str, option: str, value: Union[str, int, bool]) -> None:
+        self.settings[section][option] = value
 
     def save(self) -> None:
         for section, option in self.settings.items():
             self.config[section] = option
         with open(self._custom_cfg, "w") as configfile:
             self.config.write(configfile)
+        self._load_settings()
+
+    def _load_settings(self) -> None:
+        if self._custom_cfg.exists():
+            self.config.read(self._custom_cfg)
+        elif self._default_cfg.exists():
+            self.config.read(self._default_cfg)
+        else:
+            self._kill()
+        self._validate_cfg()
+        self._parse_settings()
 
     def _validate_cfg(self) -> None:
         try:
@@ -101,6 +101,19 @@ class KiauhSettings:
         v = self.config.get(section, option)
         if v.isdigit() or v.lower() == "true" or v.lower() == "false":
             raise ValueError
+
+    def _parse_settings(self):
+        for s in self.config.sections():
+            self.settings[s] = {}
+            for o, v in self.config.items(s):
+                if v.lower() == "true":
+                    self.settings[s][o] = True
+                elif v.lower() == "false":
+                    self.settings[s][o] = False
+                elif v.isdigit():
+                    self.settings[s][o] = int(v)
+                else:
+                    self.settings[s][o] = v
 
     def _kill(self) -> None:
         l1 = "!!! ERROR !!!"

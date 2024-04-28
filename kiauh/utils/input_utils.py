@@ -7,7 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from typing import Optional, List, Union
+from typing import List, Union
 
 from utils import INVALID_CHOICE
 from utils.constants import COLOR_CYAN, RESET_FORMAT
@@ -82,23 +82,33 @@ def get_number_input(
             Logger.print_error(INVALID_CHOICE)
 
 
-def get_string_input(question: str, exclude=Optional[List], default=None) -> str:
+def get_string_input(
+    question: str,
+    exclude: Union[List, None] = None,
+    allow_special_chars=False,
+    default=None,
+) -> str:
     """
     Helper method to get a string input from the user
     :param question: The question to display
     :param exclude: List of strings which are not allowed
+    :param allow_special_chars: Wheter to allow special characters in the input
     :param default: Optional default value
     :return: The validated string value
     """
+    _exclude = [] if exclude is None else exclude
+    _question = format_question(question, default)
     while True:
-        _input = input(format_question(question, default)).strip()
+        _input = input(_question)
 
-        if _input.isalnum() and _input.lower() not in exclude:
-            return _input
-
-        Logger.print_error(INVALID_CHOICE)
-        if _input in exclude:
+        if _input.lower() in _exclude:
             Logger.print_error("This value is already in use/reserved.")
+        elif allow_special_chars:
+            return _input
+        elif not allow_special_chars and _input.isalnum():
+            return _input
+        else:
+            Logger.print_error(INVALID_CHOICE)
 
 
 def get_selection_input(question: str, option_list: List, default=None) -> str:

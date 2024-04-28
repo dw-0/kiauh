@@ -166,7 +166,7 @@ class MainMenu(BaseMenu):
         BackupMenu(previous_menu=self.__class__).run()
 
     def settings_menu(self, **kwargs):
-        SettingsMenu().run()
+        SettingsMenu(previous_menu=self.__class__).run()
 
     def extension_menu(self, **kwargs):
         ExtensionsMenu(previous_menu=self.__class__).run()
