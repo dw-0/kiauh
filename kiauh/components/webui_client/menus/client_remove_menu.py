@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Dict, Type, Optional
+from typing import Type, Optional
 
 from components.webui_client import client_remove
 from components.webui_client.base_data import BaseWebClient, WebClientType
@@ -36,17 +36,15 @@ class ClientRemoveMenu(BaseMenu):
             previous_menu if previous_menu is not None else RemoveMenu
         )
 
-    def set_options(self) -> Dict[str, Option]:
-        options = {
+    def set_options(self) -> None:
+        self.options = {
             "0": Option(method=self.toggle_all, menu=False),
             "1": Option(method=self.toggle_rm_client, menu=False),
             "2": Option(method=self.toggle_rm_client_config, menu=False),
             "c": Option(method=self.run_removal_process, menu=False),
         }
         if self.client.client == WebClientType.MAINSAIL:
-            options["3"] = Option(self.toggle_backup_mainsail_config_json, False)
-
-        return options
+            self.options["3"] = Option(self.toggle_backup_mainsail_config_json, False)
 
     def print_menu(self) -> None:
         client_name = self.client.display_name
