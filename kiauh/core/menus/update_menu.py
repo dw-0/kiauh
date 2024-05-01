@@ -10,6 +10,7 @@
 import textwrap
 from typing import Type, Optional
 
+from components.crowsnest.crowsnest import get_crowsnest_status, update_crowsnest
 from components.klipper.klipper_setup import update_klipper
 from components.klipper.klipper_utils import (
     get_klipper_status,
@@ -57,6 +58,8 @@ class UpdateMenu(BaseMenu):
         self.mc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.cn_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.cn_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
         self.mainsail_client = MainsailData()
         self.fluidd_client = FluiddData()
@@ -111,7 +114,7 @@ class UpdateMenu(BaseMenu):
             | Other:                |---------------|---------------|
             |  7) KlipperScreen     |               |               |
             |  8) Mobileraker       |               |               |
-            |  9) Crowsnest         |               |               |
+            |  9) Crowsnest         | {self.cn_local:<22} | {self.cn_remote:<22} |
             |                       |-------------------------------|
             | 10) System            |                               |
             """
@@ -143,7 +146,8 @@ class UpdateMenu(BaseMenu):
 
     def update_mobileraker(self, **kwargs): ...
 
-    def update_crowsnest(self, **kwargs): ...
+    def update_crowsnest(self, **kwargs):
+        update_crowsnest()
 
     def upgrade_system_packages(self, **kwargs): ...
 
@@ -188,6 +192,13 @@ class UpdateMenu(BaseMenu):
             fc_status.get("local"), fc_status.get("remote")
         )
         self.fc_remote = f"{COLOR_GREEN}{fc_status.get('remote')}{RESET_FORMAT}"
+
+        # crowsnest
+        cn_status = get_crowsnest_status()
+        self.cn_local = self.format_local_status(
+            cn_status.get("local"), cn_status.get("remote")
+        )
+        self.cn_remote = f"{COLOR_GREEN}{cn_status.get('remote')}{RESET_FORMAT}"
 
     def format_local_status(self, local_version, remote_version) -> str:
         if local_version == remote_version:
