@@ -11,14 +11,13 @@
 
 import re
 import shutil
-import subprocess
 from pathlib import Path
 from zipfile import ZipFile
+from subprocess import run, check_output, CalledProcessError, PIPE, DEVNULL
 
 from typing import List
 
 from components.klipper.klipper import Klipper
-from core.instance_manager.instance_manager import InstanceManager
 from utils import (
     NGINX_SITES_AVAILABLE,
     MODULE_PATH,
@@ -38,9 +37,9 @@ def check_file_exist(file_path: Path, sudo=False) -> bool:
     if sudo:
         try:
             command = ["sudo", "find", file_path]
-            subprocess.check_output(command, stderr=subprocess.DEVNULL)
+            check_output(command, stderr=DEVNULL)
             return True
-        except subprocess.CalledProcessError:
+        except CalledProcessError:
             return False
     else:
         if file_path.exists():
@@ -54,8 +53,8 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
         cmd = ["ln", "-sf", source, target]
         if sudo:
             cmd.insert(0, "sudo")
-        subprocess.run(cmd, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
+        run(cmd, stderr=PIPE, check=True)
+    except CalledProcessError as e:
         Logger.print_error(f"Failed to create symlink: {e}")
         raise
 
@@ -63,8 +62,8 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
 def remove_file(file_path: Path, sudo=False) -> None:
     try:
         cmd = f"{'sudo ' if sudo else ''}rm -f {file_path}"
-        subprocess.run(cmd, stderr=subprocess.PIPE, check=True, shell=True)
-    except subprocess.CalledProcessError as e:
+        run(cmd, stderr=PIPE, check=True, shell=True)
+    except CalledProcessError as e:
         log = f"Cannot remove file {file_path}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
@@ -90,8 +89,8 @@ def copy_upstream_nginx_cfg() -> None:
     target = NGINX_CONFD.joinpath("upstreams.conf")
     try:
         command = ["sudo", "cp", source, target]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
+        run(command, stderr=PIPE, check=True)
+    except CalledProcessError as e:
         log = f"Unable to create upstreams.conf: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
@@ -106,8 +105,8 @@ def copy_common_vars_nginx_cfg() -> None:
     target = NGINX_CONFD.joinpath("common_vars.conf")
     try:
         command = ["sudo", "cp", source, target]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
+        run(command, stderr=PIPE, check=True)
+    except CalledProcessError as e:
         log = f"Unable to create upstreams.conf: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
@@ -135,8 +134,8 @@ def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
     target = NGINX_SITES_AVAILABLE.joinpath(name)
     try:
         command = ["sudo", "mv", tmp, target]
-        subprocess.run(command, stderr=subprocess.PIPE, check=True)
-    except subprocess.CalledProcessError as e:
+        run(command, stderr=PIPE, check=True)
+    except CalledProcessError as e:
         log = f"Unable to create '{target}': {e.stderr.decode()}"
         Logger.print_error(log)
         raise
@@ -182,19 +181,17 @@ def remove_nginx_config(name: str) -> None:
         remove_file(NGINX_SITES_AVAILABLE.joinpath(name), True)
         remove_file(NGINX_SITES_ENABLED.joinpath(name), True)
 
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         log = f"Unable to remove NGINX config '{name}':\n{e.stderr.decode()}"
         Logger.print_error(log)
 
 
-def remove_nginx_logs(name: str) -> None:
+def remove_nginx_logs(name: str, instances: List[Klipper]) -> None:
     Logger.print_status(f"Removing NGINX logs for {name.capitalize()} ...")
     try:
         remove_file(Path(f"/var/log/nginx/{name}-access.log"), True)
         remove_file(Path(f"/var/log/nginx/{name}-error.log"), True)
 
-        im = InstanceManager(Klipper)
-        instances: List[Klipper] = im.instances
         if not instances:
             return
 
@@ -202,5 +199,5 @@ def remove_nginx_logs(name: str) -> None:
             remove_file(instance.log_dir.joinpath(f"{name}-access.log"))
             remove_file(instance.log_dir.joinpath(f"{name}-error.log"))
 
-    except (OSError, subprocess.CalledProcessError) as e:
+    except (OSError, CalledProcessError) as e:
         Logger.print_error(f"Unable to remove NGINX logs:\n{e}")

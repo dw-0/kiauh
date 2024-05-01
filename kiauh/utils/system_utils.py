@@ -21,9 +21,9 @@ from typing import List, Literal
 
 import select
 
+from utils.filesystem_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
-from utils.filesystem_utils import check_file_exist
 
 
 def kill(opt_err_msg: str = "") -> None:
@@ -240,8 +240,7 @@ def mask_system_service(service_name: str) -> None:
     :return: None
     """
     try:
-        command = ["sudo", "systemctl", "mask", service_name]
-        run(command, stderr=PIPE, check=True)
+        control_systemd_service(service_name, "mask")
     except CalledProcessError as e:
         log = f"Unable to mask system service {service_name}: {e.stderr.decode()}"
         Logger.print_error(log)
@@ -330,7 +329,7 @@ def set_nginx_permissions() -> None:
 
 
 def control_systemd_service(
-    name: str, action: Literal["start", "stop", "restart", "disable"]
+    name: str, action: Literal["start", "stop", "restart", "enable", "disable", "mask"]
 ) -> None:
     """
     Helper method to execute several actions for a specific systemd service. |
@@ -339,12 +338,12 @@ def control_systemd_service(
     :return: None
     """
     try:
-        Logger.print_status(f"{action.capitalize()} {name}.service ...")
-        command = ["sudo", "systemctl", action, f"{name}.service"]
+        Logger.print_status(f"{action.capitalize()} {name} ...")
+        command = ["sudo", "systemctl", action, name]
         run(command, stderr=PIPE, check=True)
         Logger.print_ok("OK!")
     except CalledProcessError as e:
-        log = f"Failed to {action} {name}.service: {e.stderr.decode()}"
+        log = f"Failed to {action} {name}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
 

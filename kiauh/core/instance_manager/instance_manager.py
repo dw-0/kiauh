@@ -15,6 +15,7 @@ from typing import List, Optional, Union, TypeVar
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD
 from utils.logger import Logger
+from utils.system_utils import control_systemd_service
 
 T = TypeVar(name="T", bound=BaseInstance, covariant=True)
 
@@ -108,14 +109,7 @@ class InstanceManager:
     def enable_instance(self) -> None:
         Logger.print_status(f"Enabling {self.instance_service_full} ...")
         try:
-            command = [
-                "sudo",
-                "systemctl",
-                "enable",
-                self.instance_service_full,
-            ]
-            if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service_full} enabled.")
+            control_systemd_service(self.instance_service_full, "enable")
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error enabling service {self.instance_service_full}:")
             Logger.print_error(f"{e}")
@@ -123,14 +117,7 @@ class InstanceManager:
     def disable_instance(self) -> None:
         Logger.print_status(f"Disabling {self.instance_service_full} ...")
         try:
-            command = [
-                "sudo",
-                "systemctl",
-                "disable",
-                self.instance_service_full,
-            ]
-            if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service_full} disabled.")
+            control_systemd_service(self.instance_service_full, "disable")
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error disabling {self.instance_service_full}:")
             Logger.print_error(f"{e}")
@@ -138,14 +125,7 @@ class InstanceManager:
     def start_instance(self) -> None:
         Logger.print_status(f"Starting {self.instance_service_full} ...")
         try:
-            command = [
-                "sudo",
-                "systemctl",
-                "start",
-                self.instance_service_full,
-            ]
-            if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service_full} started.")
+            control_systemd_service(self.instance_service_full, "start")
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error starting {self.instance_service_full}:")
             Logger.print_error(f"{e}")
@@ -153,14 +133,7 @@ class InstanceManager:
     def restart_instance(self) -> None:
         Logger.print_status(f"Restarting {self.instance_service_full} ...")
         try:
-            command = [
-                "sudo",
-                "systemctl",
-                "restart",
-                self.instance_service_full,
-            ]
-            if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service_full} restarted.")
+            control_systemd_service(self.instance_service_full, "restart")
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error restarting {self.instance_service_full}:")
             Logger.print_error(f"{e}")
@@ -178,9 +151,7 @@ class InstanceManager:
     def stop_instance(self) -> None:
         Logger.print_status(f"Stopping {self.instance_service_full} ...")
         try:
-            command = ["sudo", "systemctl", "stop", self.instance_service_full]
-            if subprocess.run(command, check=True):
-                Logger.print_ok(f"{self.instance_service_full} stopped.")
+            control_systemd_service(self.instance_service_full, "stop")
         except subprocess.CalledProcessError as e:
             Logger.print_error(f"Error stopping {self.instance_service_full}:")
             Logger.print_error(f"{e}")

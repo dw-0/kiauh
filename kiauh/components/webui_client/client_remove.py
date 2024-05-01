@@ -49,7 +49,7 @@ def run_client_removal(
         client_name = client.name
         remove_client_dir(client)
         remove_nginx_config(client_name)
-        remove_nginx_logs(client_name)
+        remove_nginx_logs(client_name, kl_instances)
 
         section = f"update_manager {client_name}"
         remove_config_section(section, mr_instances)
