@@ -33,6 +33,7 @@ from utils.system_utils import (
     install_system_packages,
     parse_packages_from_file,
     update_system_package_lists,
+    control_systemd_service,
 )
 
 
@@ -102,11 +103,7 @@ def install_crowsnest() -> None:
 
 def update_crowsnest() -> None:
     try:
-        stop_cn = "sudo systemctl stop crowsnest"
-        restart_cn = "sudo systemctl restart crowsnest"
-
-        Logger.print_status("Stopping Crowsnest service ...")
-        run(stop_cn, shell=True, check=True)
+        control_systemd_service("crowsnest", "stop")
 
         if not CROWSNEST_DIR.exists():
             git_clone_wrapper(CROWSNEST_REPO, "master", CROWSNEST_DIR)
@@ -121,8 +118,7 @@ def update_crowsnest() -> None:
             update_system_package_lists(silent=False)
             install_system_packages(packages)
 
-        Logger.print_status("Restarting Crowsnest service ...")
-        run(restart_cn, shell=True, check=True)
+        control_systemd_service("crowsnest", "restart")
 
         Logger.print_ok("Crowsnest updated successfully.", end="\n\n")
     except CalledProcessError as e:
