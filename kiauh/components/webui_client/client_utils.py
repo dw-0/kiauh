@@ -45,8 +45,7 @@ def get_client_config_status(
     Literal["repo", "local", "remote"],
     Union[str, int],
 ]:
-    client_config = client.client_config
-    client_config = client_config.config_dir
+    client_config = client.client_config.config_dir
 
     return {
         "repo": RepoManager.get_repo_name(client_config),
