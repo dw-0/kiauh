@@ -11,7 +11,7 @@ import csv
 import shutil
 import textwrap
 import urllib.request
-from typing import List, Union
+from typing import List, Union, Optional, Type
 from typing import TypedDict
 
 from components.klipper.klipper import Klipper
@@ -19,6 +19,7 @@ from components.klipper.klipper_dialogs import (
     print_instance_overview,
     DisplayType,
 )
+from core.menus import Option
 from extensions.base_extension import BaseExtension
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
@@ -42,8 +43,7 @@ class MainsailThemeInstallerExtension(BaseExtension):
     instances: List[Klipper] = im.instances
 
     def install_extension(self, **kwargs) -> None:
-        install_menu = MainsailThemeInstallMenu(self.instances)
-        install_menu.run()
+        MainsailThemeInstallMenu(self.instances).run()
 
     def remove_extension(self, **kwargs) -> None:
         print_instance_overview(
@@ -80,10 +80,20 @@ class MainsailThemeInstallMenu(BaseMenu):
     def __init__(self, instances: List[Klipper]):
         super().__init__()
         self.themes: List[ThemeData] = self.load_themes()
-        options = {f"{index}": self.install_theme for index in range(len(self.themes))}
-        self.options = options
-
         self.instances = instances
+
+    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+        from extensions.extensions_menu import ExtensionsMenu
+
+        self.previous_menu: Type[BaseMenu] = (
+            previous_menu if previous_menu is not None else ExtensionsMenu
+        )
+
+    def set_options(self) -> None:
+        self.options = {
+            f"{index}": Option(self.install_theme, False, opt_index=f"{index}")
+            for index in range(len(self.themes))
+        }
 
     def print_menu(self) -> None:
         header = " [ Mainsail Theme Installer ] "
