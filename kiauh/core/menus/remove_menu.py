@@ -10,6 +10,7 @@
 import textwrap
 from typing import Type, Optional
 
+from components.crowsnest.crowsnest import remove_crowsnest
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from components.moonraker.menus.moonraker_remove_menu import (
     MoonrakerRemoveMenu,
@@ -42,6 +43,7 @@ class RemoveMenu(BaseMenu):
             "2": Option(method=self.remove_moonraker, menu=True),
             "3": Option(method=self.remove_mainsail, menu=True),
             "4": Option(method=self.remove_fluidd, menu=True),
+            "6": Option(method=self.remove_crowsnest, menu=True),
         }
 
     def print_menu(self):
@@ -78,3 +80,6 @@ class RemoveMenu(BaseMenu):
 
     def remove_fluidd(self, **kwargs):
         ClientRemoveMenu(previous_menu=self.__class__, client=FluiddData()).run()
+
+    def remove_crowsnest(self, **kwargs):
+        remove_crowsnest()
