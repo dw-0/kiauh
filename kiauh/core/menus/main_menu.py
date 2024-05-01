@@ -10,6 +10,7 @@
 import textwrap
 from typing import Type, Optional
 
+from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
 from components.moonraker.moonraker_utils import get_moonraker_status
@@ -90,16 +91,23 @@ class MainMenu(BaseMenu):
         self.ms_status = get_client_status(MainsailData())
         self.fl_status = get_client_status(FluiddData())
         self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
+        self._update_status("cn", get_crowsnest_status)
 
     def _update_status(self, status_name: str, status_fn: callable) -> None:
         status_data = status_fn()
         status = status_data.get("status")
         code = status_data.get("status_code")
-        instances = f" {status_data.get('instances')}" if code == 1 else ""
+
+        instance_count = status_data.get("instances")
+
+        count: str = ""
+        if instance_count and code == 1:
+            count = f" {instance_count}"
+
         setattr(
             self,
             f"{status_name}_status",
-            self._format_status_by_code(code, status, instances),
+            self._format_status_by_code(code, status, count),
         )
         setattr(
             self,

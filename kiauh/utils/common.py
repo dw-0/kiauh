@@ -55,6 +55,22 @@ def check_install_dependencies(deps: List[str]) -> None:
         install_system_packages(requirements)
 
 
+def get_install_status(
+    repo_dir: Path, opt_files: List[Path]
+) -> Dict[Literal["status", "status_code", "instances"], Union[str, int]]:
+    status = [repo_dir.exists()]
+
+    for f in opt_files:
+        status.append(f.exists())
+
+    if all(status):
+        return {"status": "Installed!", "status_code": 1}
+    elif not any(status):
+        return {"status": "Not installed!", "status_code": 2}
+    else:
+        return {"status": "Incomplete!", "status_code": 3}
+
+
 def get_install_status_common(
     instance_type: Type[BaseInstance], repo_dir: Path, env_dir: Path
 ) -> Dict[Literal["status", "status_code", "instances"], Union[str, int]]:

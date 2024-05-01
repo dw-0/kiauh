@@ -12,16 +12,28 @@ import shutil
 import textwrap
 from pathlib import Path
 from subprocess import run, CalledProcessError
-from typing import List
+from typing import List, Dict, Literal, Union
 
 from components.crowsnest import CROWSNEST_REPO, CROWSNEST_DIR
 from components.klipper.klipper import Klipper
 from core.instance_manager.instance_manager import InstanceManager
+from utils.common import get_install_status
 from utils.constants import COLOR_CYAN, RESET_FORMAT, CURRENT_USER
-from utils.git_utils import git_clone_wrapper
+from utils.git_utils import (
+    git_clone_wrapper,
+    get_repo_name,
+    get_local_commit,
+    get_remote_commit,
+    git_pull_wrapper,
+)
 from utils.input_utils import get_confirm
 from utils.logger import Logger
-from utils.system_utils import check_package_install, install_system_packages
+from utils.system_utils import (
+    check_package_install,
+    install_system_packages,
+    parse_packages_from_file,
+    update_system_package_lists,
+)
 
 
 def install_crowsnest() -> None:
@@ -89,7 +101,54 @@ def install_crowsnest() -> None:
 
 
 def update_crowsnest() -> None:
-    pass
+    try:
+        stop_cn = "sudo systemctl stop crowsnest"
+        restart_cn = "sudo systemctl restart crowsnest"
+
+        Logger.print_status("Stopping Crowsnest service ...")
+        run(stop_cn, shell=True, check=True)
+
+        if not CROWSNEST_DIR.exists():
+            git_clone_wrapper(CROWSNEST_REPO, "master", CROWSNEST_DIR)
+        else:
+            Logger.print_status("Updating Crowsnest ...")
+
+            git_pull_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
+
+            script = CROWSNEST_DIR.joinpath("tools/install.sh")
+            deps = parse_packages_from_file(script)
+            packages = check_package_install(deps)
+            update_system_package_lists(silent=False)
+            install_system_packages(packages)
+
+        Logger.print_status("Restarting Crowsnest service ...")
+        run(restart_cn, shell=True, check=True)
+
+        Logger.print_ok("Crowsnest updated successfully.", end="\n\n")
+    except CalledProcessError as e:
+        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        return
+
+
+def get_crowsnest_status() -> (
+    Dict[
+        Literal["status", "status_code", "repo", "local", "remote"],
+        Union[str, int],
+    ]
+):
+    files = [
+        Path("/usr/local/bin/crowsnest"),
+        Path("/etc/logrotate.d/crowsnest"),
+        Path("/etc/systemd/system/crowsnest.service"),
+    ]
+    status = get_install_status(CROWSNEST_DIR, files)
+    return {
+        "status": status.get("status"),
+        "status_code": status.get("status_code"),
+        "repo": get_repo_name(CROWSNEST_DIR),
+        "local": get_local_commit(CROWSNEST_DIR),
+        "remote": get_remote_commit(CROWSNEST_DIR),
+    }
 
 
 def remove_crowsnest() -> None:
