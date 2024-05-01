@@ -37,6 +37,7 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
+from utils.config_utils import add_config_section
 from utils.filesystem_utils import (
     unzip,
     copy_upstream_nginx_cfg,
@@ -44,7 +45,6 @@ from utils.filesystem_utils import (
     create_nginx_cfg,
     create_symlink,
     remove_file,
-    add_config_section,
     read_ports_from_nginx_configs,
     is_valid_port,
     get_next_free_port,

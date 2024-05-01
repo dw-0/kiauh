@@ -26,11 +26,8 @@ from components.webui_client.client_utils import (
 
 from core.instance_manager.instance_manager import InstanceManager
 from utils.common import backup_printer_config_dir
-from utils.filesystem_utils import (
-    create_symlink,
-    add_config_section,
-    add_config_section_at_top,
-)
+from utils.config_utils import add_config_section, add_config_section_at_top
+from utils.filesystem_utils import create_symlink
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import Logger

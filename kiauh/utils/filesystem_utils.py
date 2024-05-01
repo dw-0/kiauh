@@ -12,15 +12,12 @@
 import re
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 from zipfile import ZipFile
 
-from typing import List, TypeVar, Tuple, Optional
+from typing import List
 
 from components.klipper.klipper import Klipper
-from components.moonraker.moonraker import Moonraker
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
 from utils import (
     NGINX_SITES_AVAILABLE,
@@ -29,10 +26,6 @@ from utils import (
     NGINX_SITES_ENABLED,
 )
 from utils.logger import Logger
-
-
-B = TypeVar("B", Klipper, Moonraker)
-ConfigOption = Tuple[str, str]
 
 
 def check_file_exist(file_path: Path, sudo=False) -> bool:
@@ -181,98 +174,6 @@ def get_next_free_port(ports_in_use: List[int]) -> int:
     used_ports = set(map(int, ports_in_use))
 
     return min(valid_ports - used_ports)
-
-
-def add_config_section(
-    section: str,
-    instances: List[B],
-    options: Optional[List[ConfigOption]] = None,
-) -> None:
-    for instance in instances:
-        cfg_file = instance.cfg_file
-        Logger.print_status(f"Add section '[{section}]' to '{cfg_file}' ...")
-
-        if not Path(cfg_file).exists():
-            Logger.print_warn(f"'{cfg_file}' not found!")
-            continue
-
-        cm = ConfigManager(cfg_file)
-        if cm.config.has_section(section):
-            Logger.print_info("Section already exist. Skipped ...")
-            continue
-
-        cm.config.add_section(section)
-
-        if options is not None:
-            for option in options:
-                cm.config.set(section, option[0], option[1])
-
-        cm.write_config()
-
-
-def add_config_section_at_top(section: str, instances: List[B]):
-    for instance in instances:
-        tmp_cfg = tempfile.NamedTemporaryFile(mode="w", delete=False)
-        tmp_cfg_path = Path(tmp_cfg.name)
-        cmt = ConfigManager(tmp_cfg_path)
-        cmt.config.add_section(section)
-        cmt.write_config()
-        tmp_cfg.close()
-
-        cfg_file = instance.cfg_file
-        with open(cfg_file, "r") as org:
-            org_content = org.readlines()
-        with open(tmp_cfg_path, "a") as tmp:
-            tmp.writelines(org_content)
-
-        cfg_file.unlink()
-        tmp_cfg_path.rename(cfg_file)
-
-
-def remove_config_section(section: str, instances: List[B]) -> None:
-    for instance in instances:
-        cfg_file = instance.cfg_file
-        Logger.print_status(f"Remove section '[{section}]' from '{cfg_file}' ...")
-
-        if not Path(cfg_file).exists():
-            Logger.print_warn(f"'{cfg_file}' not found!")
-            continue
-
-        cm = ConfigManager(cfg_file)
-        if not cm.config.has_section(section):
-            Logger.print_info("Section does not exist. Skipped ...")
-            continue
-
-        cm.config.remove_section(section)
-        cm.write_config()
-
-
-def patch_moonraker_conf(
-    moonraker_instances: List[Moonraker],
-    name: str,
-    section_name: str,
-    template_file: str,
-) -> None:
-    for instance in moonraker_instances:
-        cfg_file = instance.cfg_file
-        Logger.print_status(f"Add {name} update section to '{cfg_file}' ...")
-
-        if not Path(cfg_file).exists():
-            Logger.print_warn(f"'{cfg_file}' not found!")
-            return
-
-        cm = ConfigManager(cfg_file)
-        if cm.config.has_section(section_name):
-            Logger.print_info("Section already exist. Skipped ...")
-            return
-
-        template = MODULE_PATH.joinpath("assets", template_file)
-        with open(template, "r") as t:
-            template_content = "\n"
-            template_content += t.read()
-
-        with open(cfg_file, "a") as f:
-            f.write(template_content)
 
 
 def remove_nginx_config(name: str) -> None:
