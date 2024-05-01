@@ -25,13 +25,13 @@ from components.webui_client.client_utils import (
 )
 
 from core.instance_manager.instance_manager import InstanceManager
-from core.repo_manager.repo_manager import RepoManager
 from utils.common import backup_printer_config_dir
 from utils.filesystem_utils import (
     create_symlink,
     add_config_section,
     add_config_section_at_top,
 )
+from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 
@@ -86,11 +86,9 @@ def install_client_config(client_data: BaseWebClient) -> None:
 def download_client_config(client_config: BaseWebClientConfig) -> None:
     try:
         Logger.print_status(f"Downloading {client_config.display_name} ...")
-        rm = RepoManager(
-            client_config.repo_url,
-            target_dir=str(client_config.config_dir),
-        )
-        rm.clone_repo()
+        repo = client_config.repo_url
+        target_dir = client_config.config_dir
+        git_clone_wrapper(repo, None, target_dir)
     except Exception:
         Logger.print_error(f"Downloading {client_config.display_name} failed!")
         raise
@@ -111,12 +109,7 @@ def update_client_config(client: BaseWebClient) -> None:
     if settings.get("kiauh", "backup_before_update"):
         backup_client_config_data(client)
 
-    repo_manager = RepoManager(
-        repo=client_config.repo_url,
-        branch="master",
-        target_dir=str(client_config.config_dir),
-    )
-    repo_manager.pull_repo()
+    git_pull_wrapper(client_config.repo_url, client_config.config_dir)
 
     Logger.print_ok(f"Successfully updated {client_config.display_name}.")
     Logger.print_info("Restart Klipper to reload the configuration!")

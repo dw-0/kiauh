@@ -18,9 +18,9 @@ from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from core.repo_manager.repo_manager import RepoManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_GREEN, COLOR_YELLOW
+from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_string_input, get_confirm
 from utils.logger import Logger
 
@@ -199,8 +199,7 @@ class SettingsMenu(BaseMenu):
 
         repo = self.kiauh_settings.get(name, "repo_url")
         branch = self.kiauh_settings.get(name, "branch")
-        repman = RepoManager(repo, str(target_dir), branch)
-        repman.clone_repo()
+        git_clone_wrapper(repo, branch, target_dir)
 
         im.start_all_instance()
 

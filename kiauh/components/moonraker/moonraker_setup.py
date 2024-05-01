@@ -35,8 +35,8 @@ from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
 )
 from core.instance_manager.instance_manager import InstanceManager
-from core.repo_manager.repo_manager import RepoManager
 from utils.filesystem_utils import check_file_exist
+from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import (
     get_confirm,
     get_selection_input,
@@ -135,12 +135,7 @@ def setup_moonraker_prerequesites() -> None:
     repo = settings.get("moonraker", "repo_url")
     branch = settings.get("moonraker", "branch")
 
-    repo_manager = RepoManager(
-        repo=repo,
-        branch=branch,
-        target_dir=MOONRAKER_DIR,
-    )
-    repo_manager.clone_repo()
+    git_clone_wrapper(repo, branch, MOONRAKER_DIR)
 
     # install moonraker dependencies and create python virtualenv
     install_moonraker_packages(MOONRAKER_DIR)
@@ -196,12 +191,9 @@ def update_moonraker() -> None:
     instance_manager = InstanceManager(Moonraker)
     instance_manager.stop_all_instance()
 
-    repo_manager = RepoManager(
-        repo=settings.get("moonraker", "repo_url"),
-        branch=settings.get("moonraker", "branch"),
-        target_dir=MOONRAKER_DIR,
+    git_pull_wrapper(
+        repo=settings.get("moonraker", "repo_url"), target_dir=MOONRAKER_DIR
     )
-    repo_manager.pull_repo()
 
     # install possible new system packages
     install_moonraker_packages(MOONRAKER_DIR)

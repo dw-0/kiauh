@@ -36,7 +36,7 @@ from components.klipper.klipper_utils import (
 )
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
-from core.repo_manager.repo_manager import RepoManager
+from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.system_utils import (
@@ -108,12 +108,10 @@ def install_klipper() -> None:
 
 def setup_klipper_prerequesites() -> None:
     settings = KiauhSettings()
-    repo_manager = RepoManager(
-        repo=settings.get("klipper", "repo_url"),
-        branch=settings.get("klipper", "branch"),
-        target_dir=KLIPPER_DIR,
-    )
-    repo_manager.clone_repo()
+    repo = settings.get("klipper", "repo_url")
+    branch = settings.get("klipper", "branch")
+
+    git_clone_wrapper(repo, branch, KLIPPER_DIR)
 
     # install klipper dependencies and create python virtualenv
     try:
@@ -152,12 +150,7 @@ def update_klipper() -> None:
     instance_manager = InstanceManager(Klipper)
     instance_manager.stop_all_instance()
 
-    repo_manager = RepoManager(
-        repo=settings.get("klipper", "repo_url"),
-        branch=settings.get("klipper", "branch"),
-        target_dir=KLIPPER_DIR,
-    )
-    repo_manager.pull_repo()
+    git_pull_wrapper(repo=settings.get("klipper", "repo_url"), target_dir=KLIPPER_DIR)
 
     # install possible new system packages
     install_klipper_packages(KLIPPER_DIR)

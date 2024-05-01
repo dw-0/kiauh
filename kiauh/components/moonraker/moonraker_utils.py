@@ -25,8 +25,8 @@ from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
-from core.repo_manager.repo_manager import RepoManager
 from utils.common import get_install_status_common
+from utils.git_utils import get_repo_name, get_local_commit, get_remote_commit
 from utils.logger import Logger
 from utils.system_utils import (
     get_ipv4_addr,
@@ -44,9 +44,9 @@ def get_moonraker_status() -> (
         "status": status.get("status"),
         "status_code": status.get("status_code"),
         "instances": status.get("instances"),
-        "repo": RepoManager.get_repo_name(MOONRAKER_DIR),
-        "local": RepoManager.get_local_commit(MOONRAKER_DIR),
-        "remote": RepoManager.get_remote_commit(MOONRAKER_DIR),
+        "repo": get_repo_name(MOONRAKER_DIR),
+        "local": get_local_commit(MOONRAKER_DIR),
+        "remote": get_remote_commit(MOONRAKER_DIR),
     }
 
 

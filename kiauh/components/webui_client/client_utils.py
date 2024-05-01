@@ -21,12 +21,17 @@ from components.webui_client.base_data import (
 )
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
-from core.repo_manager.repo_manager import RepoManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
 from utils.common import get_install_status_webui
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
-from utils.git_utils import get_latest_tag, get_latest_unstable_tag
+from utils.git_utils import (
+    get_latest_tag,
+    get_latest_unstable_tag,
+    get_repo_name,
+    get_local_commit,
+    get_remote_commit,
+)
 from utils.logger import Logger
 
 
@@ -48,9 +53,9 @@ def get_client_config_status(
     client_config = client.client_config.config_dir
 
     return {
-        "repo": RepoManager.get_repo_name(client_config),
-        "local": RepoManager.get_local_commit(client_config),
-        "remote": RepoManager.get_remote_commit(client_config),
+        "repo": get_repo_name(client_config),
+        "local": get_local_commit(client_config),
+        "remote": get_remote_commit(client_config),
     }
 
 

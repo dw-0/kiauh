@@ -39,10 +39,10 @@ from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.instance_manager.name_scheme import NameScheme
-from core.repo_manager.repo_manager import RepoManager
 from utils import PRINTER_CFG_BACKUP_DIR
 from utils.common import get_install_status_common
 from utils.constants import CURRENT_USER
+from utils.git_utils import get_repo_name, get_remote_commit, get_local_commit
 from utils.input_utils import get_confirm, get_string_input, get_number_input
 from utils.logger import Logger
 from utils.system_utils import mask_system_service
@@ -59,9 +59,9 @@ def get_klipper_status() -> (
         "status": status.get("status"),
         "status_code": status.get("status_code"),
         "instances": status.get("instances"),
-        "repo": RepoManager.get_repo_name(KLIPPER_DIR),
-        "local": RepoManager.get_local_commit(KLIPPER_DIR),
-        "remote": RepoManager.get_remote_commit(KLIPPER_DIR),
+        "repo": get_repo_name(KLIPPER_DIR),
+        "local": get_local_commit(KLIPPER_DIR),
+        "remote": get_remote_commit(KLIPPER_DIR),
     }
 
 

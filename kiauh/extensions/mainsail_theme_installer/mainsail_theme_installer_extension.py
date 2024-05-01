@@ -23,8 +23,8 @@ from extensions.base_extension import BaseExtension
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.menus.base_menu import BaseMenu
-from core.repo_manager.repo_manager import RepoManager
 from utils.constants import COLOR_YELLOW, COLOR_CYAN, RESET_FORMAT
+from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_selection_input
 from utils.logger import Logger
 
@@ -136,10 +136,8 @@ class MainsailThemeInstallMenu(BaseMenu):
         if printer_list is None:
             return
 
-        repo_manager = RepoManager(theme_repo_url, "")
         for printer in printer_list:
-            repo_manager.target_dir = printer.cfg_dir.joinpath(".theme")
-            repo_manager.clone_repo()
+            git_clone_wrapper(theme_repo_url, None, printer.cfg_dir.joinpath(".theme"))
 
         if len(theme_data.get("short_note", "")) > 1:
             Logger.print_warn("Info from the creator:", prefix=False, start="\n")
