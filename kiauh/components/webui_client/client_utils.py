@@ -127,11 +127,19 @@ def symlink_webui_nginx_log(klipper_instances: List[Klipper]) -> None:
 
 def get_local_client_version(client: BaseWebClient) -> str:
     relinfo_file = client.client_dir.joinpath("release_info.json")
-    if not relinfo_file.is_file():
-        return "-"
+    version_file = client.client_dir.joinpath(".version")
 
-    with open(relinfo_file, "r") as f:
-        return json.load(f)["version"]
+    if not client.client_dir.exists():
+        return "-"
+    if not relinfo_file.is_file() and not version_file.is_file():
+        return "n/a"
+
+    if relinfo_file.is_file():
+        with open(relinfo_file, "r") as f:
+            return json.load(f)["version"]
+    else:
+        with open(version_file, "r") as f:
+            return f.readlines()[0]
 
 
 def get_remote_client_version(client: BaseWebClient) -> str:
