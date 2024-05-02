@@ -60,6 +60,15 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
         raise
 
 
+def remove_with_sudo(file_path: Path) -> None:
+    try:
+        cmd = ["sudo", "rm", "-f", file_path]
+        run(cmd, stderr=PIPE, check=True)
+    except CalledProcessError as e:
+        Logger.print_error(f"Failed to remove file: {e}")
+        raise
+
+
 @deprecated(info="Use remove_with_sudo instead", replaced_by=remove_with_sudo)
 def remove_file(file_path: Path, sudo=False) -> None:
     try:
