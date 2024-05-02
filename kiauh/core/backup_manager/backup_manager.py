@@ -39,13 +39,15 @@ class BackupManager:
     def ignore_folders(self, value: List[str]):
         self._ignore_folders = value
 
-    def backup_file(self, file: Path = None, target: Path = None, custom_filename=None):
-        if not file:
-            raise ValueError("Parameter 'file' cannot be None!")
+    def backup_file(self, file: Path, target: Path = None, custom_filename=None):
+        Logger.print_status(f"Creating backup of {file} ...")
+
+        if not file.exists():
+            Logger.print_info("File does not exist! Skipping ...")
+            return
 
         target = self.backup_root_dir if target is None else target
 
-        Logger.print_status(f"Creating backup of {file} ...")
         if Path(file).is_file():
             date = get_current_date().get("date")
             time = get_current_date().get("time")
@@ -61,13 +63,14 @@ class BackupManager:
             Logger.print_info(f"File '{file}' not found ...")
 
     def backup_directory(self, name: str, source: Path, target: Path = None) -> None:
+        Logger.print_status(f"Creating backup of {name} in {target} ...")
+
         if source is None or not Path(source).exists():
-            raise OSError("Parameter 'source' is None or Path does not exist!")
+            Logger.print_info("Source directory does not exist! Skipping ...")
+            return
 
         target = self.backup_root_dir if target is None else target
         try:
-            log = f"Creating backup of {name} in {target} ..."
-            Logger.print_status(log)
             date = get_current_date().get("date")
             time = get_current_date().get("time")
             shutil.copytree(
