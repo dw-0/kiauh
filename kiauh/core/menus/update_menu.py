@@ -15,6 +15,10 @@ from components.klipper.klipper_setup import update_klipper
 from components.klipper.klipper_utils import (
     get_klipper_status,
 )
+from components.klipperscreen.klipperscreen import (
+    update_klipperscreen,
+    get_klipperscreen_status,
+)
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
 from components.webui_client.client_config.client_config_setup import (
@@ -58,6 +62,8 @@ class UpdateMenu(BaseMenu):
         self.mc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.ks_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.ks_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.cn_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.cn_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
@@ -112,7 +118,7 @@ class UpdateMenu(BaseMenu):
             |  6) Fluidd-Config     | {self.fc_local:<22} | {self.fc_remote:<22} |
             |                       |               |               |
             | Other:                |---------------|---------------|
-            |  7) KlipperScreen     |               |               |
+            |  7) KlipperScreen     | {self.ks_local:<22} | {self.ks_remote:<22} |
             |  8) Mobileraker       |               |               |
             |  9) Crowsnest         | {self.cn_local:<22} | {self.cn_remote:<22} |
             |                       |-------------------------------|
@@ -142,7 +148,8 @@ class UpdateMenu(BaseMenu):
     def update_fluidd_config(self, **kwargs):
         update_client_config(self.fluidd_client)
 
-    def update_klipperscreen(self, **kwargs): ...
+    def update_klipperscreen(self, **kwargs):
+        update_klipperscreen()
 
     def update_mobileraker(self, **kwargs): ...
 
@@ -192,6 +199,13 @@ class UpdateMenu(BaseMenu):
             fc_status.get("local"), fc_status.get("remote")
         )
         self.fc_remote = f"{COLOR_GREEN}{fc_status.get('remote')}{RESET_FORMAT}"
+
+        # klipperscreen
+        ks_status = get_klipperscreen_status()
+        self.ks_local = self.format_local_status(
+            ks_status.get("local"), ks_status.get("remote")
+        )
+        self.ks_remote = f"{COLOR_GREEN}{ks_status.get('remote')}{RESET_FORMAT}"
 
         # crowsnest
         cn_status = get_crowsnest_status()

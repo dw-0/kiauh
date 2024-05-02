@@ -11,6 +11,7 @@ import textwrap
 from typing import Type, Optional
 
 from components.klipper.klipper_utils import backup_klipper_dir
+from components.klipperscreen.klipperscreen import backup_klipperscreen_dir
 from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
     backup_moonraker_db_dir,
@@ -104,4 +105,4 @@ class BackupMenu(BaseMenu):
         backup_client_config_data(FluiddData())
 
     def backup_klipperscreen(self, **kwargs):
-        pass
+        backup_klipperscreen_dir()
