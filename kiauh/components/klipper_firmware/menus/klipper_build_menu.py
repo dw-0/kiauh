@@ -90,7 +90,7 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             install_system_packages(self.missing_deps)
         except Exception as e:
             Logger.print_error(e)
-            Logger.print_error("Installding dependencies failed!")
+            Logger.print_error("Installing dependencies failed!")
         finally:
             # restart this menu
             KlipperBuildFirmwareMenu().run()
