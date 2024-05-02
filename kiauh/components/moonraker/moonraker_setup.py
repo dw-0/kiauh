@@ -34,6 +34,7 @@ from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
 )
 from core.instance_manager.instance_manager import InstanceManager
+from utils.common import check_install_dependencies
 from utils.fs_utils import check_file_exist
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import (
@@ -45,8 +46,6 @@ from utils.sys_utils import (
     parse_packages_from_file,
     create_python_venv,
     install_python_requirements,
-    update_system_package_lists,
-    install_system_packages,
     check_python_version,
 )
 
@@ -143,8 +142,7 @@ def setup_moonraker_prerequesites() -> None:
 def install_moonraker_packages(moonraker_dir: Path) -> None:
     script = moonraker_dir.joinpath("scripts/install-moonraker.sh")
     packages = parse_packages_from_file(script)
-    update_system_package_lists(silent=False)
-    install_system_packages(packages)
+    check_install_dependencies(packages)
 
 
 def install_moonraker_polkit() -> None:

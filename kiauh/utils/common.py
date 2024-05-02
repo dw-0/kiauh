@@ -23,7 +23,11 @@ from utils.constants import (
     COLOR_RED,
 )
 from utils.logger import Logger
-from utils.sys_utils import check_package_install, install_system_packages
+from utils.sys_utils import (
+    check_package_install,
+    install_system_packages,
+    update_system_package_lists,
+)
 
 
 def get_current_date() -> Dict[Literal["date", "time"], str]:
@@ -51,6 +55,7 @@ def check_install_dependencies(deps: List[str]) -> None:
         Logger.print_info("The following packages need installation:")
         for _ in requirements:
             print(f"{COLOR_CYAN}● {_}{RESET_FORMAT}")
+        update_system_package_lists(silent=False)
         install_system_packages(requirements)
 
 

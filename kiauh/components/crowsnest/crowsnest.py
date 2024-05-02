@@ -17,7 +17,7 @@ from typing import List, Dict, Literal, Union
 from components.crowsnest import CROWSNEST_REPO, CROWSNEST_DIR
 from components.klipper.klipper import Klipper
 from core.instance_manager.instance_manager import InstanceManager
-from utils.common import get_install_status
+from utils.common import get_install_status, check_install_dependencies
 from utils.constants import COLOR_CYAN, RESET_FORMAT, CURRENT_USER
 from utils.git_utils import (
     git_clone_wrapper,
@@ -29,10 +29,7 @@ from utils.git_utils import (
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.sys_utils import (
-    check_package_install,
-    install_system_packages,
     parse_packages_from_file,
-    update_system_package_lists,
     control_systemd_service,
 )
 
@@ -42,9 +39,7 @@ def install_crowsnest() -> None:
     git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
 
     # Step 2: Install dependencies
-    requirements: List[str] = check_package_install(["make"])
-    if requirements:
-        install_system_packages(requirements)
+    check_install_dependencies(["make"])
 
     # Step 3: Check for Multi Instance
     im = InstanceManager(Klipper)
@@ -114,9 +109,7 @@ def update_crowsnest() -> None:
 
             script = CROWSNEST_DIR.joinpath("tools/install.sh")
             deps = parse_packages_from_file(script)
-            packages = check_package_install(deps)
-            update_system_package_lists(silent=False)
-            install_system_packages(packages)
+            check_install_dependencies(deps)
 
         control_systemd_service("crowsnest", "restart")
 

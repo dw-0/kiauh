@@ -22,7 +22,7 @@ from components.moonraker.moonraker import Moonraker
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils.common import get_install_status
+from utils.common import get_install_status, check_install_dependencies
 from utils.config_utils import add_config_section, remove_config_section
 from utils.constants import SYSTEMD
 from utils.fs_utils import remove_with_sudo
@@ -37,8 +37,6 @@ from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.sys_utils import (
     check_python_version,
-    check_package_install,
-    install_system_packages,
     control_systemd_service,
     install_python_requirements,
 )
@@ -62,9 +60,7 @@ def install_klipperscreen() -> None:
             return
 
     package_list = ["wget", "curl", "unzip", "dfu-util"]
-    packages = check_package_install(package_list)
-    if packages:
-        install_system_packages(packages)
+    check_install_dependencies(package_list)
 
     git_clone_wrapper(KLIPPERSCREEN_REPO, KLIPPERSCREEN_DIR)
 
