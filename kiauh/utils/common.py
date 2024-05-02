@@ -22,9 +22,9 @@ from utils.constants import (
     COLOR_GREEN,
     COLOR_RED,
 )
-from utils.filesystem_utils import check_file_exist
+from utils.fs_utils import check_file_exist
 from utils.logger import Logger
-from utils.system_utils import check_package_install, install_system_packages
+from utils.sys_utils import check_package_install, install_system_packages
 
 
 def get_current_date() -> Dict[Literal["date", "time"], str]:

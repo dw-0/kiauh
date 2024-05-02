@@ -45,7 +45,7 @@ from utils.constants import CURRENT_USER
 from utils.git_utils import get_repo_name, get_remote_commit, get_local_commit
 from utils.input_utils import get_confirm, get_string_input, get_number_input
 from utils.logger import Logger
-from utils.system_utils import control_systemd_service
+from utils.sys_utils import control_systemd_service
 
 
 def get_klipper_status() -> (

@@ -15,7 +15,7 @@ from typing import List, Optional, Union, TypeVar
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD
 from utils.logger import Logger
-from utils.system_utils import control_systemd_service
+from utils.sys_utils import control_systemd_service
 
 T = TypeVar(name="T", bound=BaseInstance, covariant=True)
 

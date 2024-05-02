@@ -28,7 +28,7 @@ from utils.git_utils import (
 )
 from utils.input_utils import get_confirm
 from utils.logger import Logger
-from utils.system_utils import (
+from utils.sys_utils import (
     check_package_install,
     install_system_packages,
     parse_packages_from_file,

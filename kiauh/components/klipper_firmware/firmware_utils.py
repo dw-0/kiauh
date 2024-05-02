@@ -19,7 +19,7 @@ from components.klipper_firmware.flash_options import (
 )
 from core.instance_manager.instance_manager import InstanceManager
 from utils.logger import Logger
-from utils.system_utils import log_process
+from utils.sys_utils import log_process
 
 
 def find_firmware_file() -> bool:

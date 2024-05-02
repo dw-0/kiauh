@@ -15,7 +15,7 @@ from core.config_manager.config_manager import CustomConfigParser
 from kiauh import PROJECT_ROOT
 from utils.constants import RESET_FORMAT, COLOR_RED
 from utils.logger import Logger
-from utils.system_utils import kill
+from utils.sys_utils import kill
 
 
 # noinspection PyUnusedLocal

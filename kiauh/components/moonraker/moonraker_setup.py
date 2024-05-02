@@ -35,14 +35,14 @@ from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
 )
 from core.instance_manager.instance_manager import InstanceManager
-from utils.filesystem_utils import check_file_exist
+from utils.fs_utils import check_file_exist
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import (
     get_confirm,
     get_selection_input,
 )
 from utils.logger import Logger
-from utils.system_utils import (
+from utils.sys_utils import (
     parse_packages_from_file,
     create_python_venv,
     install_python_requirements,

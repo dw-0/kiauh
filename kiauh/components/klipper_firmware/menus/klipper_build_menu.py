@@ -20,7 +20,7 @@ from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_GREEN, COLOR_RED
 from utils.logger import Logger
-from utils.system_utils import (
+from utils.sys_utils import (
     check_package_install,
     update_system_package_lists,
     install_system_packages,

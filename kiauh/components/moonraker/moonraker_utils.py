@@ -28,7 +28,7 @@ from core.instance_manager.instance_manager import InstanceManager
 from utils.common import get_install_status_common
 from utils.git_utils import get_repo_name, get_local_commit, get_remote_commit
 from utils.logger import Logger
-from utils.system_utils import (
+from utils.sys_utils import (
     get_ipv4_addr,
 )
 

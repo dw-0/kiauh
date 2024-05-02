@@ -23,7 +23,7 @@ from extensions.gcode_shell_cmd import (
     EXAMPLE_CFG_SRC,
     KLIPPER_EXTRAS,
 )
-from utils.filesystem_utils import check_file_exist
+from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 

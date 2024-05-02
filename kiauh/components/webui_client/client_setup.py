@@ -38,7 +38,7 @@ from core.settings.kiauh_settings import KiauhSettings
 from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
-from utils.filesystem_utils import (
+from utils.fs_utils import (
     unzip,
     copy_upstream_nginx_cfg,
     copy_common_vars_nginx_cfg,
@@ -51,7 +51,7 @@ from utils.filesystem_utils import (
 )
 from utils.input_utils import get_confirm, get_number_input
 from utils.logger import Logger
-from utils.system_utils import (
+from utils.sys_utils import (
     download_file,
     set_nginx_permissions,
     get_ipv4_addr,

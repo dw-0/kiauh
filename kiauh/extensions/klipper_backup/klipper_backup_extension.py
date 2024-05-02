@@ -20,7 +20,7 @@ from extensions.klipper_backup import (
     MOONRAKER_CONF,
 )
 
-from utils.filesystem_utils import check_file_exist
+from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 
@@ -167,7 +167,7 @@ class KlipperbackupExtension(BaseExtension):
                 Logger.print_error("Unable to remove the Klipper-Backup cron entry")
 
             # Remove Moonraker entry
-            Logger.print_status(f"Check for Klipper-Backup moonraker entry ...")
+            Logger.print_status("Check for Klipper-Backup moonraker entry ...")
             try:
                 if remove_moonraker_entry():
                     Logger.print_ok("Klipper-Backup entry in moonraker.conf removed")
