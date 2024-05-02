@@ -39,6 +39,20 @@ def kill(opt_err_msg: str = "") -> None:
     sys.exit(1)
 
 
+def check_python_version(major: int, minor: int) -> bool:
+    """
+    Checks the python version and returns True if it's at least the given version
+    :param major: the major version to check
+    :param minor: the minor version to check
+    :return: bool
+    """
+    if not (sys.version_info.major >= major and sys.version_info.minor >= minor):
+        Logger.print_error("Versioncheck failed!")
+        Logger.print_error(f"Python {major}.{minor} or newer required.")
+        return False
+    return True
+
+
 def parse_packages_from_file(source_file: Path) -> List[str]:
     """
     Read the package names from bash scripts, when defined like:

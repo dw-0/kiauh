@@ -8,7 +8,6 @@
 # ======================================================================= #
 
 import subprocess
-import sys
 from pathlib import Path
 
 from components.webui_client.client_utils import (
@@ -48,6 +47,7 @@ from utils.sys_utils import (
     install_python_requirements,
     update_system_package_lists,
     install_system_packages,
+    check_python_version,
 )
 
 
@@ -116,18 +116,15 @@ def install_moonraker() -> None:
 
 
 def check_moonraker_install_requirements() -> bool:
-    if not (sys.version_info.major >= 3 and sys.version_info.minor >= 7):
-        Logger.print_error("Versioncheck failed!")
-        Logger.print_error("Python 3.7 or newer required to run Moonraker.")
-        return False
+    def check_klipper_instances() -> bool:
+        if len(InstanceManager(Klipper).instances) >= 1:
+            return True
 
-    kl_instance_count = len(InstanceManager(Klipper).instances)
-    if kl_instance_count < 1:
         Logger.print_warn("Klipper not installed!")
         Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
         return False
 
-    return True
+    return check_python_version(3, 7) and check_klipper_instances()
 
 
 def setup_moonraker_prerequesites() -> None:
