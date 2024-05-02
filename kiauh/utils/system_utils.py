@@ -233,20 +233,6 @@ def install_system_packages(packages: List[str]) -> None:
         raise
 
 
-def mask_system_service(service_name: str) -> None:
-    """
-    Mask a system service to prevent it from starting |
-    :param service_name: name of the service to mask
-    :return: None
-    """
-    try:
-        control_systemd_service(service_name, "mask")
-    except CalledProcessError as e:
-        log = f"Unable to mask system service {service_name}: {e.stderr.decode()}"
-        Logger.print_error(log)
-        raise
-
-
 # this feels hacky and not quite right, but for now it works
 # see: https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
 def get_ipv4_addr() -> str:
