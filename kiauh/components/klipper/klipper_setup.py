@@ -111,7 +111,7 @@ def setup_klipper_prerequesites() -> None:
     repo = settings.get("klipper", "repo_url")
     branch = settings.get("klipper", "branch")
 
-    git_clone_wrapper(repo, branch, KLIPPER_DIR)
+    git_clone_wrapper(repo, KLIPPER_DIR, branch)
 
     # install klipper dependencies and create python virtualenv
     try:

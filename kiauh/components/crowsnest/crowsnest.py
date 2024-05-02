@@ -39,7 +39,7 @@ from utils.sys_utils import (
 
 def install_crowsnest() -> None:
     # Step 1: Clone crowsnest repo
-    git_clone_wrapper(CROWSNEST_REPO, "master", CROWSNEST_DIR)
+    git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
 
     # Step 2: Install dependencies
     requirements: List[str] = check_package_install(["make"])
@@ -106,7 +106,7 @@ def update_crowsnest() -> None:
         control_systemd_service("crowsnest", "stop")
 
         if not CROWSNEST_DIR.exists():
-            git_clone_wrapper(CROWSNEST_REPO, "master", CROWSNEST_DIR)
+            git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
         else:
             Logger.print_status("Updating Crowsnest ...")
 

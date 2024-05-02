@@ -199,7 +199,7 @@ class SettingsMenu(BaseMenu):
 
         repo = self.kiauh_settings.get(name, "repo_url")
         branch = self.kiauh_settings.get(name, "branch")
-        git_clone_wrapper(repo, branch, target_dir)
+        git_clone_wrapper(repo, target_dir, branch)
 
         im.start_all_instance()
 

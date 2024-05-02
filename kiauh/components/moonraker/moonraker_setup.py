@@ -132,7 +132,7 @@ def setup_moonraker_prerequesites() -> None:
     repo = settings.get("moonraker", "repo_url")
     branch = settings.get("moonraker", "branch")
 
-    git_clone_wrapper(repo, branch, MOONRAKER_DIR)
+    git_clone_wrapper(repo, MOONRAKER_DIR, branch)
 
     # install moonraker dependencies and create python virtualenv
     install_moonraker_packages(MOONRAKER_DIR)

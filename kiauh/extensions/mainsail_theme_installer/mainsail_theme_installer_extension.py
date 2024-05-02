@@ -147,7 +147,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             return
 
         for printer in printer_list:
-            git_clone_wrapper(theme_repo_url, None, printer.cfg_dir.joinpath(".theme"))
+            git_clone_wrapper(theme_repo_url, printer.cfg_dir.joinpath(".theme"))
 
         if len(theme_data.get("short_note", "")) > 1:
             Logger.print_warn("Info from the creator:", prefix=False, start="\n")

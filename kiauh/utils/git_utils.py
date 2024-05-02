@@ -13,7 +13,9 @@ from utils.input_utils import get_number_input, get_confirm
 from utils.logger import Logger
 
 
-def git_clone_wrapper(repo: str, branch: Optional[str], target_dir: Path) -> None:
+def git_clone_wrapper(
+    repo: str, target_dir: Path, branch: Optional[str] = None
+) -> None:
     """
     Clones a repository from the given URL and checks out the specified branch if given.
 

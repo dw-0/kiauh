@@ -85,7 +85,7 @@ def download_client_config(client_config: BaseWebClientConfig) -> None:
         Logger.print_status(f"Downloading {client_config.display_name} ...")
         repo = client_config.repo_url
         target_dir = client_config.config_dir
-        git_clone_wrapper(repo, None, target_dir)
+        git_clone_wrapper(repo, target_dir)
     except Exception:
         Logger.print_error(f"Downloading {client_config.display_name} failed!")
         raise
