@@ -22,7 +22,6 @@ from utils.constants import (
     COLOR_GREEN,
     COLOR_RED,
 )
-from utils.fs_utils import check_file_exist
 from utils.logger import Logger
 from utils.sys_utils import check_package_install, install_system_packages
 
@@ -119,12 +118,8 @@ def get_install_status_webui(
     :param common_cfg: the required common_vars.conf
     :return: formatted string, containing the status
     """
-    dir_exist = install_dir.exists()
-    nginx_cfg_exist = check_file_exist(nginx_cfg)
-    upstreams_cfg_exist = check_file_exist(upstreams_cfg)
-    common_cfg_exist = check_file_exist(common_cfg)
-    status = [dir_exist, nginx_cfg_exist]
-    general_nginx_status = [upstreams_cfg_exist, common_cfg_exist]
+    status = [install_dir.exists(), nginx_cfg.exists()]
+    general_nginx_status = [upstreams_cfg.exists(), common_cfg.exists()]
 
     if all(status) and all(general_nginx_status):
         return f"{COLOR_GREEN}Installed!{RESET_FORMAT}"
