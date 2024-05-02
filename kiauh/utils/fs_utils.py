@@ -24,6 +24,7 @@ from utils import (
     NGINX_CONFD,
     NGINX_SITES_ENABLED,
 )
+from utils.decorators import deprecated
 from utils.logger import Logger
 
 
@@ -59,6 +60,7 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
         raise
 
 
+@deprecated(info="Use remove_with_sudo instead", replaced_by=remove_with_sudo)
 def remove_file(file_path: Path, sudo=False) -> None:
     try:
         cmd = f"{'sudo ' if sudo else ''}rm -f {file_path}"
