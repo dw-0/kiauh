@@ -34,7 +34,7 @@ from utils.git_utils import (
     get_remote_commit,
 )
 from utils.input_utils import get_confirm
-from utils.logger import Logger
+from utils.logger import Logger, DialogType
 from utils.sys_utils import (
     check_python_version,
     control_systemd_service,
@@ -51,10 +51,16 @@ def install_klipperscreen() -> None:
     mr_im = InstanceManager(Moonraker)
     mr_instances = mr_im.instances
     if not mr_instances:
-        # TODO: add moonraker not found dialog
-        print("Moonraker not found!")
+        warn_msg = [
+            "Moonraker not found! KlipperScreen will not properly work "
+            "without a working Moonraker installation.",
+            "KlipperScreens update manager configuration for Moonraker "
+            "will not be added to any moonraker.conf.",
+        ]
+        Logger.print_dialog(DialogType.WARNING, warn_msg)
         if not get_confirm(
             "Continue KlipperScreen installation?",
+            default_choice=False,
             allow_go_back=True,
         ):
             return
