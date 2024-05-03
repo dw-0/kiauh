@@ -37,7 +37,7 @@ from utils.input_utils import get_confirm
 from utils.logger import Logger, DialogType
 from utils.sys_utils import (
     check_python_version,
-    control_systemd_service,
+    cmd_sysctl_service,
     install_python_requirements,
 )
 
@@ -104,7 +104,7 @@ def patch_klipperscreen_update_manager(instances: List[Moonraker]) -> None:
 
 def update_klipperscreen() -> None:
     try:
-        control_systemd_service("KlipperScreen", "stop")
+        cmd_sysctl_service("KlipperScreen", "stop")
 
         if not KLIPPERSCREEN_DIR.exists():
             Logger.print_info(
@@ -114,7 +114,7 @@ def update_klipperscreen() -> None:
 
         Logger.print_status("Updating KlipperScreen ...")
 
-        control_systemd_service("KlipperScreen", "stop")
+        cmd_sysctl_service("KlipperScreen", "stop")
 
         settings = KiauhSettings()
         if settings.get("kiauh", "backup_before_update"):
@@ -127,7 +127,7 @@ def update_klipperscreen() -> None:
         )
         install_python_requirements(KLIPPERSCREEN_ENV, requirements)
 
-        control_systemd_service("KlipperScreen", "start")
+        cmd_sysctl_service("KlipperScreen", "start")
 
         Logger.print_ok("KlipperScreen updated successfully.", end="\n\n")
     except CalledProcessError as e:
@@ -176,8 +176,8 @@ def remove_klipperscreen() -> None:
         service = SYSTEMD.joinpath("KlipperScreen.service")
         if service.exists():
             Logger.print_status("Removing KlipperScreen service ...")
-            control_systemd_service(service, "stop")
-            control_systemd_service(service, "disable")
+            cmd_sysctl_service(service, "stop")
+            cmd_sysctl_service(service, "disable")
             remove_with_sudo(service)
             Logger.print_ok("KlipperScreen service successfully removed!")
 

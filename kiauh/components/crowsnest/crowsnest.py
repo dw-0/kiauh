@@ -30,7 +30,7 @@ from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.sys_utils import (
     parse_packages_from_file,
-    control_systemd_service,
+    cmd_sysctl_service,
 )
 
 
@@ -98,7 +98,7 @@ def install_crowsnest() -> None:
 
 def update_crowsnest() -> None:
     try:
-        control_systemd_service("crowsnest", "stop")
+        cmd_sysctl_service("crowsnest", "stop")
 
         if not CROWSNEST_DIR.exists():
             git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
@@ -111,7 +111,7 @@ def update_crowsnest() -> None:
             deps = parse_packages_from_file(script)
             check_install_dependencies(deps)
 
-        control_systemd_service("crowsnest", "restart")
+        cmd_sysctl_service("crowsnest", "restart")
 
         Logger.print_ok("Crowsnest updated successfully.", end="\n\n")
     except CalledProcessError as e:

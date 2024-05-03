@@ -55,7 +55,7 @@ from utils.sys_utils import (
     download_file,
     set_nginx_permissions,
     get_ipv4_addr,
-    control_systemd_service,
+    cmd_sysctl_service,
 )
 
 
@@ -145,7 +145,7 @@ def install_client(client: BaseWebClient) -> None:
         create_client_nginx_cfg(client, port)
         if kl_instances:
             symlink_webui_nginx_log(kl_instances)
-        control_systemd_service("nginx", "restart")
+        cmd_sysctl_service("nginx", "restart")
 
     except Exception as e:
         Logger.print_error(f"{client.display_name} installation failed!\n{e}")

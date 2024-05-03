@@ -45,7 +45,7 @@ from utils.constants import CURRENT_USER
 from utils.git_utils import get_repo_name, get_remote_commit, get_local_commit
 from utils.input_utils import get_confirm, get_string_input, get_number_input
 from utils.logger import Logger
-from utils.sys_utils import control_systemd_service
+from utils.sys_utils import cmd_sysctl_service
 
 
 def get_klipper_status() -> (
@@ -258,7 +258,7 @@ def handle_disruptive_system_packages() -> None:
 
     for service in services if services else []:
         try:
-            control_systemd_service(service, "mask")
+            cmd_sysctl_service(service, "mask")
         except subprocess.CalledProcessError:
             warn_msg = textwrap.dedent(
                 f"""

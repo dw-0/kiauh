@@ -26,6 +26,19 @@ from utils.input_utils import get_confirm
 from utils.logger import Logger
 
 
+SysCtlServiceAction = Literal[
+    "start",
+    "stop",
+    "restart",
+    "reload",
+    "enable",
+    "disable",
+    "mask",
+    "unmask",
+]
+SysCtlManageAction = Literal["deamon-reload", "reset-failed"]
+
+
 def kill(opt_err_msg: str = "") -> None:
     """
     Kills the application |
@@ -328,9 +341,7 @@ def set_nginx_permissions() -> None:
         Logger.print_ok("Permissions granted.")
 
 
-def control_systemd_service(
-    name: str, action: Literal["start", "stop", "restart", "enable", "disable", "mask"]
-) -> None:
+def cmd_sysctl_service(name: str, action: SysCtlServiceAction) -> None:
     """
     Helper method to execute several actions for a specific systemd service. |
     :param name: the service name
@@ -339,11 +350,19 @@ def control_systemd_service(
     """
     try:
         Logger.print_status(f"{action.capitalize()} {name} ...")
-        command = ["sudo", "systemctl", action, name]
-        run(command, stderr=PIPE, check=True)
+        run(["sudo", "systemctl", action, name], stderr=PIPE, check=True)
         Logger.print_ok("OK!")
     except CalledProcessError as e:
         log = f"Failed to {action} {name}: {e.stderr.decode()}"
+        Logger.print_error(log)
+        raise
+
+
+def cmd_sysctl_manage(action: SysCtlManageAction) -> None:
+    try:
+        run(["sudo", "systemctl", action], stderr=PIPE, check=True)
+    except CalledProcessError as e:
+        log = f"Failed to run {action}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
 
