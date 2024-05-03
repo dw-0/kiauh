@@ -35,13 +35,18 @@ from utils.git_utils import (
 from utils.logger import Logger
 
 
-def get_client_status(client: BaseWebClient) -> str:
-    return get_install_status_webui(
+def get_client_status(
+    client: BaseWebClient, fetch_remote: bool = False
+) -> Dict[Literal["status", "local", "remote"], str]:
+    status = get_install_status_webui(
         client.client_dir,
         NGINX_SITES_AVAILABLE.joinpath(client.name),
         NGINX_CONFD.joinpath("upstreams.conf"),
         NGINX_CONFD.joinpath("common_vars.conf"),
     )
+    local = get_local_client_version(client)
+    remote = get_remote_client_version(client) if fetch_remote else None
+    return {"status": status, "local": local, "remote": remote}
 
 
 def get_client_config_status(

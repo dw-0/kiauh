@@ -49,16 +49,9 @@ class MainMenu(BaseMenu):
         self.header = True
         self.footer_type = FooterType.QUIT
 
-        self.kl_status = ""
-        self.kl_repo = ""
-        self.mr_status = ""
-        self.mr_repo = ""
-        self.ms_status = ""
-        self.fl_status = ""
-        self.ks_status = ""
-        self.mb_status = ""
-        self.cn_status = ""
-        self.cc_status = ""
+        self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
+        self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
+        self.cn_status = self.cc_status = ""
         self.init_status()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
@@ -87,18 +80,19 @@ class MainMenu(BaseMenu):
             )
 
     def fetch_status(self) -> None:
-        self._update_status("kl", get_klipper_status)
-        self._update_status("mr", get_moonraker_status)
-        self.ms_status = get_client_status(MainsailData())
-        self.fl_status = get_client_status(FluiddData())
+        self._get_component_status("kl", get_klipper_status)
+        self._get_component_status("mr", get_moonraker_status)
+        self._get_component_status("ms", get_client_status, MainsailData())
+        self._get_component_status("fl", get_client_status, FluiddData())
         self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
-        self._update_status("ks", get_klipperscreen_status)
-        self._update_status("cn", get_crowsnest_status)
+        self._get_component_status("ks", get_klipperscreen_status)
+        self._get_component_status("cn", get_crowsnest_status)
 
-    def _update_status(self, status_name: str, status_fn: callable) -> None:
-        status_data = status_fn()
+    def _get_component_status(self, name: str, status_fn: callable, *args) -> None:
+        status_data = status_fn(*args)
         status = status_data.get("status")
         code = status_data.get("status_code")
+        repo = status_data.get("repo")
 
         instance_count = status_data.get("instances")
 
@@ -106,18 +100,10 @@ class MainMenu(BaseMenu):
         if instance_count and code == 1:
             count = f" {instance_count}"
 
-        setattr(
-            self,
-            f"{status_name}_status",
-            self._format_status_by_code(code, status, count),
-        )
-        setattr(
-            self,
-            f"{status_name}_repo",
-            f"{COLOR_CYAN}{status_data.get('repo')}{RESET_FORMAT}",
-        )
+        setattr(self, f"{name}_status", self._format_by_code(code, status, count))
+        setattr(self, f"{name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT}")
 
-    def _format_status_by_code(self, code: int, status: str, count: str) -> str:
+    def _format_by_code(self, code: int, status: str, count: str) -> str:
         if code == 1:
             return f"{COLOR_GREEN}{status}{count}{RESET_FORMAT}"
         elif code == 2:
@@ -144,8 +130,8 @@ class MainMenu(BaseMenu):
             |  2) [Update]     | Moonraker: {self.mr_status:<32} |
             |  3) [Remove]     |      Repo: {self.mr_repo:<32} |
             |  4) [Advanced]   |------------------------------------|
-            |  5) [Backup]     |        Mainsail: {self.ms_status:<26} |
-            |                  |          Fluidd: {self.fl_status:<26} |
+            |  5) [Backup]     |        Mainsail: {self.ms_status:<35} |
+            |                  |          Fluidd: {self.fl_status:<35} |
             |  S) [Settings]   |   Client-Config: {self.cc_status:<26} |
             |                  |                                    |
             | Community:       |   KlipperScreen: {self.ks_status:<26} |

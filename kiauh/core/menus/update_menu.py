@@ -30,9 +30,8 @@ from components.webui_client.client_config.client_config_setup import (
 )
 from components.webui_client.client_setup import update_client
 from components.webui_client.client_utils import (
-    get_local_client_version,
-    get_remote_client_version,
     get_client_config_status,
+    get_client_status,
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
@@ -42,7 +41,6 @@ from utils.constants import (
     COLOR_GREEN,
     RESET_FORMAT,
     COLOR_YELLOW,
-    COLOR_WHITE,
     COLOR_RED,
 )
 
@@ -54,27 +52,15 @@ class UpdateMenu(BaseMenu):
         super().__init__()
         self.previous_menu = previous_menu
 
-        self.kl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.kl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.mr_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.mr_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.ms_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.ms_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.fl_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.fl_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.mc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.mc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.fc_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.ks_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.ks_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.mb_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.mb_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.cn_local = f"{COLOR_WHITE}{RESET_FORMAT}"
-        self.cn_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.kl_local = self.kl_remote = self.mr_local = self.mr_remote = ""
+        self.ms_local = self.ms_remote = self.fl_local = self.fl_remote = ""
+        self.mc_local = self.mc_remote = self.fc_local = self.fc_remote = ""
+        self.ks_local = self.ks_remote = self.mb_local = self.mb_remote = ""
+        self.cn_local = self.cn_remote = ""
 
-        self.mainsail_client = MainsailData()
-        self.fluidd_client = FluiddData()
+        self.mainsail_data = MainsailData()
+        self.fluidd_data = FluiddData()
+        self._fetch_update_status()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from core.menus.main_menu import MainMenu
@@ -99,7 +85,7 @@ class UpdateMenu(BaseMenu):
         }
 
     def print_menu(self):
-        self.fetch_update_status()
+        self._fetch_update_status()
 
         header = " [ Update Menu ] "
         color = COLOR_GREEN
@@ -143,16 +129,16 @@ class UpdateMenu(BaseMenu):
         update_moonraker()
 
     def update_mainsail(self, **kwargs):
-        update_client(self.mainsail_client)
+        update_client(self.mainsail_data)
 
     def update_mainsail_config(self, **kwargs):
-        update_client_config(self.mainsail_client)
+        update_client_config(self.mainsail_data)
 
     def update_fluidd(self, **kwargs):
-        update_client(self.fluidd_client)
+        update_client(self.fluidd_data)
 
     def update_fluidd_config(self, **kwargs):
-        update_client_config(self.fluidd_client)
+        update_client_config(self.fluidd_data)
 
     def update_klipperscreen(self, **kwargs):
         update_klipperscreen()
@@ -165,70 +151,35 @@ class UpdateMenu(BaseMenu):
 
     def upgrade_system_packages(self, **kwargs): ...
 
-    def fetch_update_status(self):
+    def _fetch_update_status(self):
         # klipper
-        kl_status = get_klipper_status()
-        self.kl_local = self.format_local_status(
-            kl_status.get("local"), kl_status.get("remote")
-        )
-        self.kl_remote = kl_status.get("remote")
-        self.kl_remote = f"{COLOR_GREEN}{kl_status.get('remote')}{RESET_FORMAT}"
-
+        self._get_update_status("kl", get_klipper_status)
         # moonraker
-        mr_status = get_moonraker_status()
-        self.mr_local = self.format_local_status(
-            mr_status.get("local"), mr_status.get("remote")
-        )
-        self.mr_remote = f"{COLOR_GREEN}{mr_status.get('remote')}{RESET_FORMAT}"
-
+        self._get_update_status("mr", get_moonraker_status)
         # mainsail
-        ms_local_ver = get_local_client_version(self.mainsail_client)
-        ms_remote_ver = get_remote_client_version(self.mainsail_client)
-        self.ms_local = self.format_local_status(ms_local_ver, ms_remote_ver)
-        self.ms_remote = f"{COLOR_GREEN if ms_remote_ver != 'ERROR' else COLOR_RED}{ms_remote_ver}{RESET_FORMAT}"
-
-        # fluidd
-        fl_local_ver = get_local_client_version(self.fluidd_client)
-        fl_remote_ver = get_remote_client_version(self.fluidd_client)
-        self.fl_local = self.format_local_status(fl_local_ver, fl_remote_ver)
-        self.fl_remote = f"{COLOR_GREEN if fl_remote_ver != 'ERROR' else COLOR_RED}{fl_remote_ver}{RESET_FORMAT}"
-
+        self._get_update_status("ms", get_client_status, self.mainsail_data, True)
         # mainsail-config
-        mc_status = get_client_config_status(self.mainsail_client)
-        self.mc_local = self.format_local_status(
-            mc_status.get("local"), mc_status.get("remote")
-        )
-        self.mc_remote = f"{COLOR_GREEN}{mc_status.get('remote')}{RESET_FORMAT}"
-
+        self._get_update_status("mc", get_client_config_status, self.mainsail_data)
+        # fluidd
+        self._get_update_status("fl", get_client_status, self.fluidd_data, True)
         # fluidd-config
-        fc_status = get_client_config_status(self.fluidd_client)
-        self.fc_local = self.format_local_status(
-            fc_status.get("local"), fc_status.get("remote")
-        )
-        self.fc_remote = f"{COLOR_GREEN}{fc_status.get('remote')}{RESET_FORMAT}"
-
+        self._get_update_status("fc", get_client_config_status, self.fluidd_data)
         # klipperscreen
-        ks_status = get_klipperscreen_status()
-        self.ks_local = self.format_local_status(
-            ks_status.get("local"), ks_status.get("remote")
-        )
-        self.ks_remote = f"{COLOR_GREEN}{ks_status.get('remote')}{RESET_FORMAT}"
-
+        self._get_update_status("ks", get_klipperscreen_status)
         # mobileraker
-        mb_status = get_mobileraker_status()
-        self.mb_local = self.format_local_status(
-            mb_status.get("local"), mb_status.get("remote")
-        )
-        self.mb_remote = f"{COLOR_GREEN}{mb_status.get('remote')}{RESET_FORMAT}"
-
+        self._get_update_status("mb", get_mobileraker_status)
         # crowsnest
-        cn_status = get_crowsnest_status()
-        self.cn_local = self.format_local_status(
-            cn_status.get("local"), cn_status.get("remote")
-        )
-        self.cn_remote = f"{COLOR_GREEN}{cn_status.get('remote')}{RESET_FORMAT}"
+        self._get_update_status("cn", get_crowsnest_status)
 
-    def format_local_status(self, local_version, remote_version) -> str:
+    def _format_local_status(self, local_version, remote_version) -> str:
         if local_version == remote_version:
             return f"{COLOR_GREEN}{local_version}{RESET_FORMAT}"
         return f"{COLOR_YELLOW}{local_version}{RESET_FORMAT}"
+
+    def _get_update_status(self, name: str, status_fn: callable, *args) -> None:
+        status_data = status_fn(*args)
+        local_ver = status_data.get("local")
+        remote_ver = status_data.get("remote")
+        color = COLOR_GREEN if remote_ver != "ERROR" else COLOR_RED
+        setattr(self, f"{name}_local", self._format_local_status(local_ver, remote_ver))
+        setattr(self, f"{name}_remote", f"{color}{remote_ver}{RESET_FORMAT}")
