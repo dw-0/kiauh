@@ -14,6 +14,7 @@ from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
+from components.mobileraker.mobileraker import get_mobileraker_status
 from components.moonraker.moonraker_utils import get_moonraker_status
 from components.webui_client.client_utils import (
     get_client_status,
@@ -86,6 +87,7 @@ class MainMenu(BaseMenu):
         self._get_component_status("fl", get_client_status, FluiddData())
         self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
         self._get_component_status("ks", get_klipperscreen_status)
+        self._get_component_status("mb", get_mobileraker_status)
         self._get_component_status("cn", get_crowsnest_status)
 
     def _get_component_status(self, name: str, status_fn: callable, *args) -> None:
