@@ -8,6 +8,7 @@
 # ======================================================================= #
 import textwrap
 from enum import Enum
+from typing import List
 
 from utils.constants import (
     COLOR_WHITE,
@@ -85,7 +86,7 @@ class Logger:
     @staticmethod
     def print_dialog(
         title: DialogType,
-        content: str,
+        content: List[str],
         custom_title: str = None,
         custom_color: DialogCustomColor = None,
     ) -> None:
@@ -138,11 +139,18 @@ class Logger:
             return "\n"
 
     @staticmethod
-    def _format_dialog_content(content: str, line_width: int) -> str:
+    def _format_dialog_content(content: List[str], line_width: int) -> str:
         border_left = "┃"
         border_right = "┃"
         wrapper = textwrap.TextWrapper(line_width)
-        lines = wrapper.wrap(content)
+
+        lines = []
+        for i, c in enumerate(content):
+            paragraph = wrapper.wrap(c)
+            lines.extend(paragraph)
+            if i < len(content) - 1:
+                lines.append(" " * line_width)
+
         formatted_lines = [
             f"{border_left} {line:<{line_width}} {border_right}" for line in lines
         ]
