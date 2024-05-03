@@ -132,7 +132,7 @@ def update_klipperscreen() -> None:
 
         Logger.print_ok("KlipperScreen updated successfully.", end="\n\n")
     except CalledProcessError as e:
-        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        Logger.print_error(f"Error updating KlipperScreen:\n{e}")
         return
 
 
@@ -215,8 +215,12 @@ def remove_klipperscreen() -> None:
 def backup_klipperscreen_dir() -> None:
     bm = BackupManager()
     bm.backup_directory(
-        "KlipperScreen", source=KLIPPERSCREEN_DIR, target=KLIPPERSCREEN_BACKUP_DIR
+        "KlipperScreen",
+        source=KLIPPERSCREEN_DIR,
+        target=KLIPPERSCREEN_BACKUP_DIR,
     )
     bm.backup_directory(
-        "KlipperScreen-env", source=KLIPPERSCREEN_ENV, target=KLIPPERSCREEN_BACKUP_DIR
+        "KlipperScreen-env",
+        source=KLIPPERSCREEN_ENV,
+        target=KLIPPERSCREEN_BACKUP_DIR,
     )
