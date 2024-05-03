@@ -13,6 +13,7 @@ from typing import Type, Optional
 from components.crowsnest.crowsnest import install_crowsnest
 from components.klipper import klipper_setup
 from components.klipperscreen.klipperscreen import install_klipperscreen
+from components.mobileraker.mobileraker import install_mobileraker
 from components.moonraker import moonraker_setup
 from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
@@ -47,6 +48,7 @@ class InstallMenu(BaseMenu):
             "5": Option(method=self.install_mainsail_config, menu=False),
             "6": Option(method=self.install_fluidd_config, menu=False),
             "7": Option(method=self.install_klipperscreen, menu=False),
+            "8": Option(method=self.install_mobileraker, menu=False),
             "9": Option(method=self.install_crowsnest, menu=False),
         }
 
@@ -95,6 +97,9 @@ class InstallMenu(BaseMenu):
 
     def install_klipperscreen(self, **kwargs):
         install_klipperscreen()
+
+    def install_mobileraker(self, **kwargs):
+        install_mobileraker()
 
     def install_crowsnest(self, **kwargs):
         install_crowsnest()

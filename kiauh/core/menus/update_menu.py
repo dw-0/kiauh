@@ -19,6 +19,10 @@ from components.klipperscreen.klipperscreen import (
     update_klipperscreen,
     get_klipperscreen_status,
 )
+from components.mobileraker.mobileraker import (
+    update_mobileraker,
+    get_mobileraker_status,
+)
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
 from components.webui_client.client_config.client_config_setup import (
@@ -64,6 +68,8 @@ class UpdateMenu(BaseMenu):
         self.fc_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.ks_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.ks_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.mb_local = f"{COLOR_WHITE}{RESET_FORMAT}"
+        self.mb_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.cn_local = f"{COLOR_WHITE}{RESET_FORMAT}"
         self.cn_remote = f"{COLOR_WHITE}{RESET_FORMAT}"
 
@@ -119,7 +125,7 @@ class UpdateMenu(BaseMenu):
             |                       |               |               |
             | Other:                |---------------|---------------|
             |  7) KlipperScreen     | {self.ks_local:<22} | {self.ks_remote:<22} |
-            |  8) Mobileraker       |               |               |
+            |  8) Mobileraker       | {self.mb_local:<22} | {self.mb_remote:<22} |
             |  9) Crowsnest         | {self.cn_local:<22} | {self.cn_remote:<22} |
             |                       |-------------------------------|
             | 10) System            |                               |
@@ -151,7 +157,8 @@ class UpdateMenu(BaseMenu):
     def update_klipperscreen(self, **kwargs):
         update_klipperscreen()
 
-    def update_mobileraker(self, **kwargs): ...
+    def update_mobileraker(self, **kwargs):
+        update_mobileraker()
 
     def update_crowsnest(self, **kwargs):
         update_crowsnest()
@@ -206,6 +213,13 @@ class UpdateMenu(BaseMenu):
             ks_status.get("local"), ks_status.get("remote")
         )
         self.ks_remote = f"{COLOR_GREEN}{ks_status.get('remote')}{RESET_FORMAT}"
+
+        # mobileraker
+        mb_status = get_mobileraker_status()
+        self.mb_local = self.format_local_status(
+            mb_status.get("local"), mb_status.get("remote")
+        )
+        self.mb_remote = f"{COLOR_GREEN}{mb_status.get('remote')}{RESET_FORMAT}"
 
         # crowsnest
         cn_status = get_crowsnest_status()
