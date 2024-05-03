@@ -39,6 +39,7 @@ from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_service,
     install_python_requirements,
+    cmd_sysctl_manage,
 )
 
 
@@ -179,6 +180,8 @@ def remove_klipperscreen() -> None:
             cmd_sysctl_service(service, "stop")
             cmd_sysctl_service(service, "disable")
             remove_with_sudo(service)
+            cmd_sysctl_manage("deamon-reload")
+            cmd_sysctl_manage("reset-failed")
             Logger.print_ok("KlipperScreen service successfully removed!")
 
         logfile = Path("/tmp/KlipperScreen.log")
