@@ -148,7 +148,10 @@ class Logger:
         for i, c in enumerate(content):
             paragraph = wrapper.wrap(c)
             lines.extend(paragraph)
-            if i < len(content) - 1:
+
+            # add a full blank line if we have a double newline
+            # character unless we are at the end of the list
+            if c == "\n\n" and i < len(content) - 1:
                 lines.append(" " * line_width)
 
         formatted_lines = [

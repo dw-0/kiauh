@@ -55,6 +55,7 @@ def install_klipperscreen() -> None:
         warn_msg = [
             "Moonraker not found! KlipperScreen will not properly work "
             "without a working Moonraker installation.",
+            "\n\n",
             "KlipperScreens update manager configuration for Moonraker "
             "will not be added to any moonraker.conf.",
         ]
