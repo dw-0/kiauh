@@ -14,9 +14,11 @@ from pathlib import Path
 from subprocess import run, CalledProcessError
 from typing import List, Dict, Literal, Union
 
-from components.crowsnest import CROWSNEST_REPO, CROWSNEST_DIR
+from components.crowsnest import CROWSNEST_REPO, CROWSNEST_DIR, CROWSNEST_BACKUP_DIR
 from components.klipper.klipper import Klipper
+from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
+from core.settings.kiauh_settings import KiauhSettings
 from utils.common import get_install_status, check_install_dependencies
 from utils.constants import COLOR_CYAN, RESET_FORMAT, CURRENT_USER
 from utils.git_utils import (
@@ -104,6 +106,15 @@ def update_crowsnest() -> None:
             git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
         else:
             Logger.print_status("Updating Crowsnest ...")
+
+            settings = KiauhSettings()
+            if settings.get("kiauh", "backup_before_update"):
+                bm = BackupManager()
+                bm.backup_directory(
+                    "crowsnest",
+                    source=CROWSNEST_DIR,
+                    target=CROWSNEST_BACKUP_DIR,
+                )
 
             git_pull_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
 
