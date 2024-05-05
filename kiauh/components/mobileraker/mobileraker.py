@@ -180,7 +180,7 @@ def remove_mobileraker() -> None:
             cmd_sysctl_service(service, "stop")
             cmd_sysctl_service(service, "disable")
             remove_with_sudo(service)
-            cmd_sysctl_manage("deamon-reload")
+            cmd_sysctl_manage("daemon-reload")
             cmd_sysctl_manage("reset-failed")
             Logger.print_ok("Mobileraker's companion service successfully removed!")
 

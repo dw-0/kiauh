@@ -36,7 +36,7 @@ SysCtlServiceAction = Literal[
     "mask",
     "unmask",
 ]
-SysCtlManageAction = Literal["deamon-reload", "reset-failed"]
+SysCtlManageAction = Literal["daemon-reload", "reset-failed"]
 
 
 def kill(opt_err_msg: str = "") -> None:
