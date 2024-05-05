@@ -174,7 +174,9 @@ class InstanceManager:
             raise
 
     def find_instances(self) -> List[T]:
-        name = self.instance_type.__name__.lower()
+        from utils.common import convert_camelcase_to_kebabcase
+
+        name = convert_camelcase_to_kebabcase(self.instance_type.__name__)
         pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
         excluded = self.instance_type.blacklist()
 

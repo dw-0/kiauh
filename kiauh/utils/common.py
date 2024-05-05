@@ -6,7 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Literal, List, Type, Union
@@ -28,6 +28,10 @@ from utils.sys_utils import (
     install_system_packages,
     update_system_package_lists,
 )
+
+
+def convert_camelcase_to_kebabcase(name: str) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "-", name).lower()
 
 
 def get_current_date() -> Dict[Literal["date", "time"], str]:

@@ -140,7 +140,9 @@ class BaseInstance(ABC):
             _dir.mkdir(exist_ok=True)
 
     def get_service_file_name(self, extension: bool = False) -> str:
-        name = f"{self.__class__.__name__.lower()}"
+        from utils.common import convert_camelcase_to_kebabcase
+
+        name = convert_camelcase_to_kebabcase(self.__class__.__name__)
         if self.suffix != "":
             name += f"-{self.suffix}"
 
