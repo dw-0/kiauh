@@ -89,6 +89,7 @@ class Logger:
         content: List[str],
         custom_title: str = None,
         custom_color: DialogCustomColor = None,
+        end: str = "\n",
     ) -> None:
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
@@ -99,7 +100,7 @@ class Logger:
 
         print(
             f"{top}{dialog_title_formatted}{dialog_content}{bottom}",
-            end="",
+            end=end,
         )
 
     @staticmethod
