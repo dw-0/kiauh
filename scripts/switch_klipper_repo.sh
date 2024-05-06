@@ -22,7 +22,9 @@ function change_klipper_repo_menu() {
 
   ### generate the repolist from the klipper_repos.txt textfile
   while IFS="," read -r repo branch; do
-    repo=$(echo "${repo}" | sed -r "s/^http(s)?:\/\/github.com\///" | sed "s/\.git$//" )
+    if [[ $repo != *://* ]]; then
+      repo="https://github.com/${repo}"
+    fi
     repos+=("${repo}")
     ### if branch is not given, default to 'master'
     [[ -z ${branch} ]] && branch="master"
