@@ -1,6 +1,7 @@
 # ======================================================================= #
 #  Copyright (C) 2023 - 2024 Staubgeborener and Tylerjet                  #
 #  https://github.com/Staubgeborener/klipper-backup                       #
+#  https://klipperbackup.xyz                                              #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -32,7 +33,6 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run(
                 ["git", "clone", str(KLIPPERBACKUP_REPO_URL), str(KLIPPERBACKUP_DIR)]
             )
-            # subprocess.run(["git", "-C", str(KLIPPERBACKUP_DIR), "checkout", "installer-dev"]) # Only for testing
             subprocess.run(["chmod", "+x", str(KLIPPERBACKUP_DIR / "install.sh")])
         subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh")])
 
