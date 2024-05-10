@@ -28,7 +28,6 @@ from utils.git_utils import (
     get_remote_commit,
     git_pull_wrapper,
 )
-from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.sys_utils import (
     parse_packages_from_file,
@@ -78,10 +77,6 @@ def configure_multi_instance(instances: List[Klipper]) -> None:
         print(f"● {instance.data_dir_name}")
 
     Logger.print_status("\nLaunching crowsnest's configuration tool ...")
-
-    if not get_confirm("Continue with configuration?", False, allow_go_back=True):
-        Logger.print_info("Installation aborted by user ... Exiting!")
-        return
 
     config = Path(CROWSNEST_DIR).joinpath("tools/.config")
     try:
