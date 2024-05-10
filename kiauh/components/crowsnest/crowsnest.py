@@ -48,18 +48,36 @@ def install_crowsnest() -> None:
     instances: List[Klipper] = im.find_instances()
 
     if len(instances) > 1:
-        Logger.print_status("Multi instance install detected ...")
-        info = textwrap.dedent("""
-            Crowsnest is NOT designed to support multi instances.
-            A workaround for this is to choose the most used instance as a 'master'
-            Use this instance to set up your 'crowsnest.conf' and steering it's service.
-            Found the following instances:
-            """)[:-1]
-        print(info, end="")
-        for instance in instances:
-            print(f"● {instance.data_dir_name}")
+        configure_multi_instance(instances)
 
-        Logger.print_status("\nLaunching crowsnest's configuration tool ...")
+    # Step 4: Launch crowsnest installer
+    print(f"{COLOR_CYAN}Installer will prompt you for sudo password!{RESET_FORMAT}")
+    Logger.print_status("Launching crowsnest installer ...")
+    try:
+        run(
+            f"sudo make install BASE_USER={CURRENT_USER}",
+            cwd=CROWSNEST_DIR,
+            shell=True,
+            check=True,
+        )
+    except CalledProcessError as e:
+        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        return
+
+
+def configure_multi_instance(instances: List[Klipper]) -> None:
+    Logger.print_status("Multi instance install detected ...")
+    info = textwrap.dedent("""
+        Crowsnest is NOT designed to support multi instances.
+        A workaround for this is to choose the most used instance as a 'master'
+        Use this instance to set up your 'crowsnest.conf' and steering it's service.
+        Found the following instances:
+        """)[:-1]
+    print(info, end="")
+    for instance in instances:
+        print(f"● {instance.data_dir_name}")
+
+    Logger.print_status("\nLaunching crowsnest's configuration tool ...")
 
     if not get_confirm("Continue with configuration?", False, allow_go_back=True):
         Logger.print_info("Installation aborted by user ... Exiting!")
@@ -81,20 +99,6 @@ def install_crowsnest() -> None:
 
     if not config.exists():
         Logger.print_error("Generating .config failed, installation aborted")
-        return
-
-    # Step 4: Launch crowsnest installer
-    print(f"{COLOR_CYAN}Installer will prompt you for sudo password!{RESET_FORMAT}")
-    Logger.print_status("Launching crowsnest installer ...")
-    try:
-        run(
-            f"sudo make install BASE_USER={CURRENT_USER}",
-            cwd=CROWSNEST_DIR,
-            shell=True,
-            check=True,
-        )
-    except CalledProcessError as e:
-        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
         return
 
 
