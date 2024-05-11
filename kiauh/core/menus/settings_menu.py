@@ -9,7 +9,7 @@
 import shutil
 import textwrap
 from pathlib import Path
-from typing import Type, Optional, Tuple
+from typing import Optional, Tuple, Type
 
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
@@ -19,10 +19,10 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings
-from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_GREEN, COLOR_YELLOW
+from utils.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
 from utils.git_utils import git_clone_wrapper
-from utils.input_utils import get_string_input, get_confirm
-from utils.logger import Logger
+from utils.input_utils import get_confirm, get_string_input
+from utils.logger import DialogType, Logger
 
 
 # noinspection PyUnusedLocal
@@ -88,7 +88,7 @@ class SettingsMenu(BaseMenu):
             | 3) Toggle unstable Mainsail releases                  |
             | 4) Toggle unstable Fluidd releases                    |
             |                                                       |
-            | 5) Toggle automatic backups before updates            |   
+            | 5) Toggle automatic backups before updates            |
             """
         )[1:]
         print(menu, end="")
@@ -100,12 +100,17 @@ class SettingsMenu(BaseMenu):
         self._format_repo_str("moonraker")
 
         self.auto_backups_enabled = self.kiauh_settings.get(
-            "kiauh", "backup_before_update"
+            "kiauh",
+            "backup_before_update",
         )
         self.mainsail_unstable = self.kiauh_settings.get(
-            "mainsail", "unstable_releases"
+            "mainsail",
+            "unstable_releases",
         )
-        self.fluidd_unstable = self.kiauh_settings.get("fluidd", "unstable_releases")
+        self.fluidd_unstable = self.kiauh_settings.get(
+            "fluidd",
+            "unstable_releases",
+        )
 
     def _format_repo_str(self, repo_name: str) -> None:
         repo = self.kiauh_settings.get(repo_name, "repo_url")
@@ -115,20 +120,16 @@ class SettingsMenu(BaseMenu):
         setattr(self, f"{repo_name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT} {branch}")
 
     def _gather_input(self) -> Tuple[str, str]:
-        l2 = "Make sure your input is correct!"
-        error = textwrap.dedent(
-            f"""\n
-            {COLOR_YELLOW}/=======================================================\\
-            | ATTENTION:                                            |
-            | There is no input validation in place! Make sure your |
-            | input is valid and has no typos! For any change to    | 
-            | take effect, the repository must be cloned again.     |
-            | Make sure you don't have any ongoing prints running,  | 
-            | as the services will be restarted!                    |
-            \=======================================================/{RESET_FORMAT}
-            """
-        )[1:]
-        print(error, end="\n")
+        Logger.print_dialog(
+            DialogType.ATTENTION,
+            [
+                "There is no input validation in place! Make sure your"
+                " input is valid and has no typos! For any change to"
+                " take effect, the repository must be cloned again. "
+                "Make sure you don't have any ongoing prints running, "
+                "as the services will be restarted!"
+            ],
+        )
         repo = get_string_input(
             "Enter new repository URL",
             allow_special_chars=True,
@@ -140,44 +141,35 @@ class SettingsMenu(BaseMenu):
 
         return repo, branch
 
-    def _display_summary(self, name: str, repo: str, branch: str):
-        l1 = f"New {name} repository URL:"
-        l2 = f"● {repo}"
-        l3 = f"New {name} repository branch:"
-        l4 = f"● {branch}"
-        summary = textwrap.dedent(
-            f"""\n
-            /=======================================================\\
-            |  {l1:<52} |
-            |  {l2:<52} |
-            |  {l3:<52} |
-            |  {l4:<52} |
-            \=======================================================/
-            """
-        )[1:]
-        print(summary, end="")
-
     def _set_repo(self, repo_name: str):
-        repo, branch = self._gather_input()
-        self._display_summary(repo_name.capitalize(), repo, branch)
+        repo_url, branch = self._gather_input()
+        display_name = repo_name.capitalize()
+        Logger.print_dialog(
+            DialogType.CUSTOM,
+            [
+                f"New {display_name} repository URL:",
+                f"● {repo_url}",
+                f"New {display_name} repository branch:",
+                f"● {branch}",
+            ],
+            end="",
+        )
 
         if get_confirm("Apply changes?", allow_go_back=True):
-            self.kiauh_settings.set(repo_name, "repo_url", repo)
+            self.kiauh_settings.set(repo_name, "repo_url", repo_url)
             self.kiauh_settings.set(repo_name, "branch", branch)
             self.kiauh_settings.save()
             self._load_settings()
             Logger.print_ok("Changes saved!")
         else:
             Logger.print_info(
-                f"Skipping change of {repo_name.capitalize()} source repository  ..."
+                f"Skipping change of {display_name} source repository  ..."
             )
             return
 
-        Logger.print_status(
-            f"Switching to {repo_name.capitalize()}'s new source repository ..."
-        )
+        Logger.print_status(f"Switching to {display_name}'s new source repository ...")
         self._switch_repo(repo_name)
-        Logger.print_ok(f"Switched to {repo} at branch {branch}!")
+        Logger.print_ok(f"Switched to {repo_url} at branch {branch}!")
 
     def _switch_repo(self, name: str) -> None:
         target_dir: Path
@@ -211,17 +203,27 @@ class SettingsMenu(BaseMenu):
 
     def toggle_mainsail_release(self, **kwargs):
         self.mainsail_unstable = not self.mainsail_unstable
-        self.kiauh_settings.set("mainsail", "unstable_releases", self.mainsail_unstable)
+        self.kiauh_settings.set(
+            "mainsail",
+            "unstable_releases",
+            self.mainsail_unstable,
+        )
         self.kiauh_settings.save()
 
     def toggle_fluidd_release(self, **kwargs):
         self.fluidd_unstable = not self.fluidd_unstable
-        self.kiauh_settings.set("fluidd", "unstable_releases", self.fluidd_unstable)
+        self.kiauh_settings.set(
+            "fluidd",
+            "unstable_releases",
+            self.fluidd_unstable,
+        )
         self.kiauh_settings.save()
 
     def toggle_backup_before_update(self, **kwargs):
         self.auto_backups_enabled = not self.auto_backups_enabled
         self.kiauh_settings.set(
-            "kiauh", "backup_before_update", self.auto_backups_enabled
+            "kiauh",
+            "backup_before_update",
+            self.auto_backups_enabled,
         )
         self.kiauh_settings.save()
