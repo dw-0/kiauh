@@ -52,14 +52,17 @@ def install_klipperscreen() -> None:
     mr_im = InstanceManager(Moonraker)
     mr_instances = mr_im.instances
     if not mr_instances:
-        warn_msg = [
-            "Moonraker not found! KlipperScreen will not properly work "
-            "without a working Moonraker installation.",
-            "\n\n",
-            "KlipperScreens update manager configuration for Moonraker "
-            "will not be added to any moonraker.conf.",
-        ]
-        Logger.print_dialog(DialogType.WARNING, warn_msg)
+        Logger.print_dialog(
+            DialogType.WARNING,
+            [
+                "Moonraker not found! KlipperScreen will not properly work "
+                "without a working Moonraker installation.",
+                "\n\n",
+                "KlipperScreens update manager configuration for Moonraker "
+                "will not be added to any moonraker.conf.",
+            ],
+            end="",
+        )
         if not get_confirm(
             "Continue KlipperScreen installation?",
             default_choice=False,
@@ -67,7 +70,7 @@ def install_klipperscreen() -> None:
         ):
             return
 
-    package_list = ["wget", "curl", "unzip", "dfu-util"]
+    package_list = ["git", "wget", "curl", "unzip", "dfu-util"]
     check_install_dependencies(package_list)
 
     git_clone_wrapper(KLIPPERSCREEN_REPO, KLIPPERSCREEN_DIR)
@@ -80,7 +83,8 @@ def install_klipperscreen() -> None:
             mr_im.restart_all_instance()
         else:
             Logger.print_info(
-                "Moonraker is not installed! Cannot add KlipperScreen to update manager!"
+                "Moonraker is not installed! Cannot add "
+                "KlipperScreen to update manager!"
             )
         Logger.print_ok("KlipperScreen successfully installed!")
     except CalledProcessError as e:

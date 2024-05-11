@@ -6,7 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import json
 import subprocess
 from pathlib import Path
 
@@ -86,32 +86,40 @@ def install_moonraker() -> None:
         instance_names.append(klipper_instances[index].suffix)
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
-    setup_moonraker_prerequesites()
-    install_moonraker_polkit()
 
-    used_ports_map = {
-        instance.suffix: instance.port for instance in moonraker_instances
-    }
-    for name in instance_names:
-        current_instance = Moonraker(suffix=name)
+    try:
+        check_install_dependencies(["git"])
+        setup_moonraker_prerequesites()
+        install_moonraker_polkit()
 
-        mr_im.current_instance = current_instance
-        mr_im.create_instance()
-        mr_im.enable_instance()
+        used_ports_map = {
+            instance.suffix: instance.port for instance in moonraker_instances
+        }
+        for name in instance_names:
+            current_instance = Moonraker(suffix=name)
 
-        if create_example_cfg:
-            # if a webclient and/or it's config is installed, patch its update section to the config
-            clients = get_existing_clients()
-            create_example_moonraker_conf(current_instance, used_ports_map, clients)
+            mr_im.current_instance = current_instance
+            mr_im.create_instance()
+            mr_im.enable_instance()
 
-        mr_im.start_instance()
+            if create_example_cfg:
+                # if a webclient and/or it's config is installed, patch
+                # its update section to the config
+                clients = get_existing_clients()
+                create_example_moonraker_conf(current_instance, used_ports_map, clients)
 
-    mr_im.reload_daemon()
+            mr_im.start_instance()
 
-    # if mainsail is installed, and we installed
-    # multiple moonraker instances, we enable mainsails remote mode
-    if MainsailData().client_dir.exists() and len(mr_im.instances) > 1:
-        enable_mainsail_remotemode()
+        mr_im.reload_daemon()
+
+        # if mainsail is installed, and we installed
+        # multiple moonraker instances, we enable mainsails remote mode
+        if MainsailData().client_dir.exists() and len(mr_im.instances) > 1:
+            enable_mainsail_remotemode()
+
+    except Exception as e:
+        Logger.print_error(f"Error while installing Moonraker: {e}")
+        return
 
 
 def check_moonraker_install_requirements() -> bool:
@@ -140,9 +148,19 @@ def setup_moonraker_prerequesites() -> None:
 
 
 def install_moonraker_packages(moonraker_dir: Path) -> None:
-    script = moonraker_dir.joinpath("scripts/install-moonraker.sh")
-    packages = parse_packages_from_file(script)
-    check_install_dependencies(packages)
+    install_script = moonraker_dir.joinpath("scripts/install-moonraker.sh")
+    deps_json = MOONRAKER_DIR.joinpath("scripts/system-dependencies.json")
+    moonraker_deps = []
+
+    if deps_json.exists():
+        moonraker_deps = json.load(deps_json).get("debian", [])
+    elif install_script.exists():
+        moonraker_deps = parse_packages_from_file(install_script)
+
+    if not moonraker_deps:
+        raise ValueError("Error reading Moonraker dependencies!")
+
+    check_install_dependencies(moonraker_deps)
 
 
 def install_moonraker_polkit() -> None:

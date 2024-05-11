@@ -74,6 +74,7 @@ def install_klipper() -> None:
 
     try:
         if not kl_im.instances:
+            check_install_dependencies(["git"])
             setup_klipper_prerequesites()
 
         count = 0

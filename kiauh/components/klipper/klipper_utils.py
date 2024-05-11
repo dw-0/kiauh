@@ -260,10 +260,11 @@ def handle_disruptive_system_packages() -> None:
         try:
             cmd_sysctl_service(service, "mask")
         except subprocess.CalledProcessError:
+            # todo: replace with Logger.print_dialog
             warn_msg = textwrap.dedent(
                 f"""
-                KIAUH was unable to mask the {service} system service. 
-                Please fix the problem manually. Otherwise, this may have 
+                KIAUH was unable to mask the {service} system service.
+                Please fix the problem manually. Otherwise, this may have
                 undesirable effects on the operation of Klipper.
                 """
             )[1:]
