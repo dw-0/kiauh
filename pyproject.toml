@@ -17,3 +17,5 @@ indent-style = "space"
 line-ending = "lf"
 quote-style = "double"
 
+[tool.ruff.lint]
+extend-select = ["I"]
