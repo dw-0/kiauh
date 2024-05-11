@@ -11,21 +11,21 @@ import grp
 import os
 import re
 import shutil
-import subprocess
-from typing import List, Union, Literal, Dict, Optional
+from subprocess import CalledProcessError, run
+from typing import Dict, List, Literal, Optional, Union
 
 from components.klipper import (
-    MODULE_PATH,
+    KLIPPER_BACKUP_DIR,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
-    KLIPPER_BACKUP_DIR,
+    MODULE_PATH,
 )
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import (
-    print_missing_usergroup_dialog,
     print_instance_overview,
-    print_select_instance_count_dialog,
+    print_missing_usergroup_dialog,
     print_select_custom_name_dialog,
+    print_select_instance_count_dialog,
 )
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_utils import moonraker_to_multi_conversion
@@ -41,9 +41,9 @@ from core.instance_manager.name_scheme import NameScheme
 from utils import PRINTER_CFG_BACKUP_DIR
 from utils.common import get_install_status_common
 from utils.constants import CURRENT_USER
-from utils.git_utils import get_repo_name, get_remote_commit, get_local_commit
-from utils.input_utils import get_confirm, get_string_input, get_number_input
-from utils.logger import Logger, DialogType
+from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
+from utils.input_utils import get_confirm, get_number_input, get_string_input
+from utils.logger import DialogType, Logger
 from utils.sys_utils import cmd_sysctl_service
 
 
@@ -232,9 +232,9 @@ def check_user_groups():
         for group in missing_groups:
             Logger.print_status(f"Adding user '{CURRENT_USER}' to group {group} ...")
             command = ["sudo", "usermod", "-a", "-G", group, CURRENT_USER]
-            subprocess.run(command, check=True)
+            run(command, check=True)
             Logger.print_ok(f"Group {group} assigned to user '{CURRENT_USER}'.")
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         Logger.print_error(f"Unable to add user to usergroups: {e}")
         raise
 
@@ -246,13 +246,13 @@ def handle_disruptive_system_packages() -> None:
     services = []
 
     command = ["systemctl", "is-enabled", "brltty"]
-    brltty_status = subprocess.run(command, capture_output=True, text=True)
+    brltty_status = run(command, capture_output=True, text=True)
 
     command = ["systemctl", "is-enabled", "brltty-udev"]
-    brltty_udev_status = subprocess.run(command, capture_output=True, text=True)
+    brltty_udev_status = run(command, capture_output=True, text=True)
 
     command = ["systemctl", "is-enabled", "ModemManager"]
-    modem_manager_status = subprocess.run(command, capture_output=True, text=True)
+    modem_manager_status = run(command, capture_output=True, text=True)
 
     if "enabled" in brltty_status.stdout:
         services.append("brltty")
@@ -264,7 +264,7 @@ def handle_disruptive_system_packages() -> None:
     for service in services if services else []:
         try:
             cmd_sysctl_service(service, "mask")
-        except subprocess.CalledProcessError:
+        except CalledProcessError:
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
@@ -286,8 +286,7 @@ def detect_name_scheme(instance_list: List[BaseInstance]) -> NameScheme:
 
 
 def get_highest_index(instance_list: List[Klipper]) -> int:
-    indices = [int(instance.suffix.split("-")[-1]) for instance in instance_list]
-    return max(indices)
+    return max([int(instance.suffix.split("-")[-1]) for instance in instance_list])
 
 
 def create_example_printer_cfg(
