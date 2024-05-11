@@ -9,29 +9,30 @@
 from __future__ import annotations
 
 import shutil
-import textwrap
+import time
 from pathlib import Path
-from subprocess import run, CalledProcessError
-from typing import List, Dict, Literal, Union
+from subprocess import CalledProcessError, run
+from typing import Dict, List, Literal, Union
 
-from components.crowsnest import CROWSNEST_REPO, CROWSNEST_DIR, CROWSNEST_BACKUP_DIR
+from components.crowsnest import CROWSNEST_BACKUP_DIR, CROWSNEST_DIR, CROWSNEST_REPO
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils.common import get_install_status, check_install_dependencies
-from utils.constants import COLOR_CYAN, RESET_FORMAT, CURRENT_USER
+from utils.common import check_install_dependencies, get_install_status
+from utils.constants import CURRENT_USER
 from utils.git_utils import (
-    git_clone_wrapper,
-    get_repo_name,
     get_local_commit,
     get_remote_commit,
+    get_repo_name,
+    git_clone_wrapper,
     git_pull_wrapper,
 )
-from utils.logger import Logger
+from utils.input_utils import get_confirm
+from utils.logger import DialogType, Logger
 from utils.sys_utils import (
-    parse_packages_from_file,
     cmd_sysctl_service,
+    parse_packages_from_file,
 )
 
 
@@ -44,14 +45,22 @@ def install_crowsnest() -> None:
 
     # Step 3: Check for Multi Instance
     im = InstanceManager(Klipper)
-    instances: List[Klipper] = im.find_instances()
+    instances: List[Klipper] = im.instances
 
     if len(instances) > 1:
-        configure_multi_instance(instances)
+        print_multi_instance_warning(instances)
+
+        if not get_confirm("Do you want to continue with the installation?"):
+            Logger.print_info("Crowsnest installation aborted!")
+            return
+
+        Logger.print_status("Launching crowsnest's install configurator ...")
+        time.sleep(3)
+        configure_multi_instance()
 
     # Step 4: Launch crowsnest installer
-    print(f"{COLOR_CYAN}Installer will prompt you for sudo password!{RESET_FORMAT}")
     Logger.print_status("Launching crowsnest installer ...")
+    Logger.print_info("Installer will prompt you for sudo password!")
     try:
         run(
             f"sudo make install BASE_USER={CURRENT_USER}",
@@ -64,20 +73,25 @@ def install_crowsnest() -> None:
         return
 
 
-def configure_multi_instance(instances: List[Klipper]) -> None:
-    Logger.print_status("Multi instance install detected ...")
-    info = textwrap.dedent("""
-        Crowsnest is NOT designed to support multi instances.
-        A workaround for this is to choose the most used instance as a 'master'
-        Use this instance to set up your 'crowsnest.conf' and steering it's service.
-        Found the following instances:
-        """)[:-1]
-    print(info, end="")
-    for instance in instances:
-        print(f"● {instance.data_dir_name}")
+def print_multi_instance_warning(instances: List[Klipper]) -> None:
+    _instances = [f"● {instance.data_dir_name}" for instance in instances]
+    Logger.print_dialog(
+        DialogType.WARNING,
+        [
+            "Multi instance install detected!",
+            "\n\n",
+            "Crowsnest is NOT designed to support multi instances. A workaround "
+            "for this is to choose the most used instance as a 'master' and use "
+            "this instance to set up your 'crowsnest.conf' and steering it's service.",
+            "\n\n",
+            "The following instances were found:",
+            *_instances,
+        ],
+        end="",
+    )
 
-    Logger.print_status("\nLaunching crowsnest's configuration tool ...")
 
+def configure_multi_instance() -> None:
     config = Path(CROWSNEST_DIR).joinpath("tools/.config")
     try:
         run(
@@ -94,7 +108,6 @@ def configure_multi_instance(instances: List[Klipper]) -> None:
 
     if not config.exists():
         Logger.print_error("Generating .config failed, installation aborted")
-        return
 
 
 def update_crowsnest() -> None:
