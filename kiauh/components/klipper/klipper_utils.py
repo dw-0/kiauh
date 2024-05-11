@@ -12,7 +12,6 @@ import os
 import re
 import shutil
 import subprocess
-import textwrap
 from typing import List, Union, Literal, Dict, Optional
 
 from components.klipper import (
@@ -44,7 +43,7 @@ from utils.common import get_install_status_common
 from utils.constants import CURRENT_USER
 from utils.git_utils import get_repo_name, get_remote_commit, get_local_commit
 from utils.input_utils import get_confirm, get_string_input, get_number_input
-from utils.logger import Logger
+from utils.logger import Logger, DialogType
 from utils.sys_utils import cmd_sysctl_service
 
 
@@ -98,8 +97,9 @@ def update_name_scheme(
     klipper_instances: List[Klipper],
     moonraker_instances: List[Moonraker],
 ) -> NameScheme:
-    # if there are more moonraker instances installed than klipper, we
-    # load their names into the name_dict, as we will detect and enforce that naming scheme
+    # if there are more moonraker instances installed
+    # than klipper, we load their names into the name_dict,
+    # as we will detect and enforce that naming scheme
     if len(moonraker_instances) > len(klipper_instances):
         update_name_dict(name_dict, moonraker_instances)
         return detect_name_scheme(moonraker_instances)
@@ -141,7 +141,11 @@ def get_install_count() -> Union[int, None]:
     """
     kl_instances = InstanceManager(Klipper).instances
     print_select_instance_count_dialog()
-    question = f"Number of{' additional' if len(kl_instances) > 0 else ''} Klipper instances to set up"
+    question = (
+        f"Number of"
+        f"{' additional' if len(kl_instances) > 0 else ''} "
+        f"Klipper instances to set up"
+    )
     return get_number_input(question, 1, default=1, allow_go_back=True)
 
 
@@ -193,7 +197,8 @@ def klipper_to_multi_conversion(new_name: str) -> None:
     else:
         Logger.print_info(f"Existing '{new_instance.data_dir}' found ...")
 
-    # patch the virtual_sdcard sections path value to match the new printer_data foldername
+    # patch the virtual_sdcard sections path
+    # value to match the new printer_data foldername
     cm = ConfigManager(new_instance.cfg_file)
     if cm.config.has_section("virtual_sdcard"):
         cm.set_value("virtual_sdcard", "path", str(new_instance.gcodes_dir))
@@ -260,15 +265,15 @@ def handle_disruptive_system_packages() -> None:
         try:
             cmd_sysctl_service(service, "mask")
         except subprocess.CalledProcessError:
-            # todo: replace with Logger.print_dialog
-            warn_msg = textwrap.dedent(
-                f"""
-                KIAUH was unable to mask the {service} system service.
-                Please fix the problem manually. Otherwise, this may have
-                undesirable effects on the operation of Klipper.
-                """
-            )[1:]
-            Logger.print_warn(warn_msg)
+            Logger.print_dialog(
+                DialogType.WARNING,
+                [
+                    f"KIAUH was unable to mask the {service} system service. "
+                    "Please fix the problem manually. Otherwise, this may have "
+                    "undesirable effects on the operation of Klipper."
+                ],
+                end="",
+            )
 
 
 def detect_name_scheme(instance_list: List[BaseInstance]) -> NameScheme:
