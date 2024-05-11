@@ -1,6 +1,9 @@
 [project]
 requires-python = ">=3.8"
 
+[project.optional-dependencies]
+dev=["ruff"]
+
 [tool.ruff]
 required-version = ">=0.3.4"
 respect-gitignore = true
