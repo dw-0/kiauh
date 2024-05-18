@@ -8,38 +8,38 @@
 # ======================================================================= #
 import shutil
 from pathlib import Path
-from subprocess import run, CalledProcessError
-from typing import List, Dict, Literal, Union
+from subprocess import CalledProcessError, run
+from typing import Dict, List, Literal, Union
 
 from components.klipper.klipper import Klipper
 from components.mobileraker import (
-    MOBILERAKER_REPO,
+    MOBILERAKER_BACKUP_DIR,
     MOBILERAKER_DIR,
     MOBILERAKER_ENV,
-    MOBILERAKER_BACKUP_DIR,
+    MOBILERAKER_REPO,
 )
 from components.moonraker.moonraker import Moonraker
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils.common import get_install_status, check_install_dependencies
+from utils.common import check_install_dependencies, get_install_status
 from utils.config_utils import add_config_section, remove_config_section
 from utils.constants import SYSTEMD
 from utils.fs_utils import remove_with_sudo
 from utils.git_utils import (
-    git_clone_wrapper,
-    git_pull_wrapper,
-    get_repo_name,
     get_local_commit,
     get_remote_commit,
+    get_repo_name,
+    git_clone_wrapper,
+    git_pull_wrapper,
 )
 from utils.input_utils import get_confirm
-from utils.logger import Logger, DialogType
+from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     check_python_version,
+    cmd_sysctl_manage,
     cmd_sysctl_service,
     install_python_requirements,
-    cmd_sysctl_manage,
 )
 
 
@@ -111,8 +111,6 @@ def patch_mobileraker_update_manager(instances: List[Moonraker]) -> None:
 
 def update_mobileraker() -> None:
     try:
-        cmd_sysctl_service("KlipperScreen", "stop")
-
         if not MOBILERAKER_DIR.exists():
             Logger.print_info(
                 "Mobileraker's companion does not seem to be installed! Skipping ..."
