@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
@@ -26,19 +26,20 @@ from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
 from core.menus.base_menu import BaseMenu, Option
-from extensions.extensions_menu import ExtensionsMenu
 from core.menus.install_menu import InstallMenu
 from core.menus.remove_menu import RemoveMenu
 from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
+from extensions.extensions_menu import ExtensionsMenu
 from utils.constants import (
-    COLOR_MAGENTA,
     COLOR_CYAN,
-    RESET_FORMAT,
-    COLOR_RED,
     COLOR_GREEN,
+    COLOR_MAGENTA,
+    COLOR_RED,
     COLOR_YELLOW,
+    RESET_FORMAT,
 )
+from utils.types import ComponentStatus
 
 
 # noinspection PyUnusedLocal
@@ -91,18 +92,17 @@ class MainMenu(BaseMenu):
         self._get_component_status("cn", get_crowsnest_status)
 
     def _get_component_status(self, name: str, status_fn: callable, *args) -> None:
-        status_data = status_fn(*args)
-        status = status_data.get("status")
-        code = status_data.get("status_code")
-        repo = status_data.get("repo")
+        status_data: ComponentStatus = status_fn(*args)
+        code: int = status_data.get("status").value.code
+        status: str = status_data.get("status").value.txt
+        repo: str = status_data.get("repo")
+        instance_count: int = status_data.get("instances")
 
-        instance_count = status_data.get("instances")
+        count_txt: str = ""
+        if instance_count > 0 and code == 1:
+            count_txt = f": {instance_count}"
 
-        count: str = ""
-        if instance_count and code == 1:
-            count = f" {instance_count}"
-
-        setattr(self, f"{name}_status", self._format_by_code(code, status, count))
+        setattr(self, f"{name}_status", self._format_by_code(code, status, count_txt))
         setattr(self, f"{name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT}")
 
     def _format_by_code(self, code: int, status: str, count: str) -> str:
@@ -121,24 +121,26 @@ class MainMenu(BaseMenu):
         footer2 = f"Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT}"
         color = COLOR_CYAN
         count = 62 - len(color) - len(RESET_FORMAT)
+        pad1 = 32
+        pad2 = 26
         menu = textwrap.dedent(
             f"""
             /=======================================================\\
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
-            |  0) [Log-Upload] |   Klipper: {self.kl_status:<32} |
-            |                  |      Repo: {self.kl_repo:<32} |
+            |  0) [Log-Upload] |   Klipper: {self.kl_status:<{pad1}} |
+            |                  |      Repo: {self.kl_repo:<{pad1}} |
             |  1) [Install]    |------------------------------------|
-            |  2) [Update]     | Moonraker: {self.mr_status:<32} |
-            |  3) [Remove]     |      Repo: {self.mr_repo:<32} |
+            |  2) [Update]     | Moonraker: {self.mr_status:<{pad1}} |
+            |  3) [Remove]     |      Repo: {self.mr_repo:<{pad1}} |
             |  4) [Advanced]   |------------------------------------|
-            |  5) [Backup]     |        Mainsail: {self.ms_status:<35} |
-            |                  |          Fluidd: {self.fl_status:<35} |
-            |  S) [Settings]   |   Client-Config: {self.cc_status:<26} |
+            |  5) [Backup]     |        Mainsail: {self.ms_status:<{pad2}} |
+            |                  |          Fluidd: {self.fl_status:<{pad2}} |
+            |  S) [Settings]   |   Client-Config: {self.cc_status:<{pad2}} |
             |                  |                                    |
-            | Community:       |   KlipperScreen: {self.ks_status:<26} |
-            |  E) [Extensions] |     Mobileraker: {self.mb_status:<26} |
-            |                  |       Crowsnest: {self.cn_status:<26} |
+            | Community:       |   KlipperScreen: {self.ks_status:<{pad2}} |
+            |  E) [Extensions] |     Mobileraker: {self.mb_status:<{pad2}} |
+            |                  |       Crowsnest: {self.cn_status:<{pad2}} |
             |-------------------------------------------------------|
             | {COLOR_CYAN}{footer1:^16}{RESET_FORMAT} | {footer2:^43} |
             """

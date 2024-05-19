@@ -9,7 +9,7 @@
 import shutil
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import Dict, List, Literal, Union
+from typing import List
 
 from components.klipper.klipper import Klipper
 from components.mobileraker import (
@@ -27,9 +27,6 @@ from utils.config_utils import add_config_section, remove_config_section
 from utils.constants import SYSTEMD
 from utils.fs_utils import remove_with_sudo
 from utils.git_utils import (
-    get_local_commit,
-    get_remote_commit,
-    get_repo_name,
     git_clone_wrapper,
     git_pull_wrapper,
 )
@@ -41,6 +38,7 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     install_python_requirements,
 )
+from utils.types import ComponentStatus
 
 
 def install_mobileraker() -> None:
@@ -138,25 +136,12 @@ def update_mobileraker() -> None:
         return
 
 
-def get_mobileraker_status() -> (
-    Dict[
-        Literal["status", "status_code", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
-    files = [
+def get_mobileraker_status() -> ComponentStatus:
+    return get_install_status(
         MOBILERAKER_DIR,
         MOBILERAKER_ENV,
-        SYSTEMD.joinpath("mobileraker.service"),
-    ]
-    status = get_install_status(MOBILERAKER_DIR, files)
-    return {
-        "status": status.get("status"),
-        "status_code": status.get("status_code"),
-        "repo": get_repo_name(MOBILERAKER_DIR),
-        "local": get_local_commit(MOBILERAKER_DIR),
-        "remote": get_remote_commit(MOBILERAKER_DIR),
-    }
+        files=[SYSTEMD.joinpath("mobileraker.service")],
+    )
 
 
 def remove_mobileraker() -> None:

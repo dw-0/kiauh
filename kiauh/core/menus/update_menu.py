@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status, update_crowsnest
 from components.klipper.klipper_setup import update_klipper
@@ -16,12 +16,12 @@ from components.klipper.klipper_utils import (
     get_klipper_status,
 )
 from components.klipperscreen.klipperscreen import (
-    update_klipperscreen,
     get_klipperscreen_status,
+    update_klipperscreen,
 )
 from components.mobileraker.mobileraker import (
-    update_mobileraker,
     get_mobileraker_status,
+    update_mobileraker,
 )
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
@@ -39,10 +39,11 @@ from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import (
     COLOR_GREEN,
-    RESET_FORMAT,
-    COLOR_YELLOW,
     COLOR_RED,
+    COLOR_YELLOW,
+    RESET_FORMAT,
 )
+from utils.types import ComponentStatus
 
 
 # noinspection PyUnusedLocal
@@ -177,7 +178,7 @@ class UpdateMenu(BaseMenu):
         return f"{COLOR_YELLOW}{local_version}{RESET_FORMAT}"
 
     def _get_update_status(self, name: str, status_fn: callable, *args) -> None:
-        status_data = status_fn(*args)
+        status_data: ComponentStatus = status_fn(*args)
         local_ver = status_data.get("local")
         remote_ver = status_data.get("remote")
         color = COLOR_GREEN if remote_ver != "ERROR" else COLOR_RED

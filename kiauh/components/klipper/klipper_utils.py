@@ -12,7 +12,7 @@ import os
 import re
 import shutil
 from subprocess import CalledProcessError, run
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from components.klipper import (
     KLIPPER_BACKUP_DIR,
@@ -39,29 +39,16 @@ from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.instance_manager.name_scheme import NameScheme
 from utils import PRINTER_CFG_BACKUP_DIR
-from utils.common import get_install_status_common
+from utils.common import get_install_status
 from utils.constants import CURRENT_USER
-from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.logger import DialogType, Logger
 from utils.sys_utils import cmd_sysctl_service
+from utils.types import ComponentStatus
 
 
-def get_klipper_status() -> (
-    Dict[
-        Literal["status", "status_code", "instances", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
-    status = get_install_status_common(Klipper, KLIPPER_DIR, KLIPPER_ENV_DIR)
-    return {
-        "status": status.get("status"),
-        "status_code": status.get("status_code"),
-        "instances": status.get("instances"),
-        "repo": get_repo_name(KLIPPER_DIR),
-        "local": get_local_commit(KLIPPER_DIR),
-        "remote": get_remote_commit(KLIPPER_DIR),
-    }
+def get_klipper_status() -> ComponentStatus:
+    return get_install_status(KLIPPER_DIR, KLIPPER_ENV_DIR, Klipper)
 
 
 def check_is_multi_install(

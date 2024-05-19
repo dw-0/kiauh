@@ -7,61 +7,53 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import json
+import json  # noqa: I001
 import shutil
 from pathlib import Path
-from typing import List, Dict, Literal, Union, get_args
-
+from typing import List, get_args
 
 from components.klipper.klipper import Klipper
 from components.webui_client.base_data import (
-    WebClientType,
     BaseWebClient,
     BaseWebClientConfig,
+    WebClientType,
 )
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils import NGINX_SITES_AVAILABLE, NGINX_CONFD
-from utils.common import get_install_status_webui
-from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
+from utils import NGINX_CONFD, NGINX_SITES_AVAILABLE
+from utils.common import get_install_status
+from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from utils.git_utils import (
     get_latest_tag,
     get_latest_unstable_tag,
-    get_repo_name,
-    get_local_commit,
-    get_remote_commit,
 )
 from utils.logger import Logger
+from utils.types import ComponentStatus, InstallStatus
 
 
 def get_client_status(
     client: BaseWebClient, fetch_remote: bool = False
-) -> Dict[Literal["status", "local", "remote"], str]:
-    status = get_install_status_webui(
-        client.client_dir,
+) -> ComponentStatus:
+    files = [
         NGINX_SITES_AVAILABLE.joinpath(client.name),
         NGINX_CONFD.joinpath("upstreams.conf"),
         NGINX_CONFD.joinpath("common_vars.conf"),
-    )
-    local = get_local_client_version(client)
-    remote = get_remote_client_version(client) if fetch_remote else None
-    return {"status": status, "local": local, "remote": remote}
+    ]
+    status = get_install_status(client.client_dir, files=files)
+
+    # if the client dir does not exist, set the status to not
+    # installed even if the other files are present
+    if not client.client_dir.exists():
+        status["status"] = InstallStatus.NOT_INSTALLED
+
+    status["local"] = get_local_client_version(client)
+    status["remote"] = get_remote_client_version(client) if fetch_remote else None
+    return status
 
 
-def get_client_config_status(
-    client: BaseWebClient,
-) -> Dict[
-    Literal["repo", "local", "remote"],
-    Union[str, int],
-]:
-    client_config = client.client_config.config_dir
-
-    return {
-        "repo": get_repo_name(client_config),
-        "local": get_local_commit(client_config),
-        "remote": get_remote_commit(client_config),
-    }
+def get_client_config_status(client: BaseWebClient) -> ComponentStatus:
+    return get_install_status(client.client_config.config_dir)
 
 
 def get_current_client_config(clients: List[BaseWebClient]) -> str:

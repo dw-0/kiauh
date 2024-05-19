@@ -8,15 +8,15 @@
 # ======================================================================= #
 
 import shutil
-from typing import Dict, Literal, List, Union, Optional
+from typing import Dict, List, Optional
 
 from components.moonraker import (
     DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
-    MOONRAKER_DIR,
-    MOONRAKER_ENV_DIR,
     MOONRAKER_BACKUP_DIR,
     MOONRAKER_DB_BACKUP_DIR,
+    MOONRAKER_DIR,
+    MOONRAKER_ENV_DIR,
 )
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClient
@@ -25,29 +25,16 @@ from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
-from utils.common import get_install_status_common
-from utils.git_utils import get_repo_name, get_local_commit, get_remote_commit
+from utils.common import get_install_status
 from utils.logger import Logger
 from utils.sys_utils import (
     get_ipv4_addr,
 )
+from utils.types import ComponentStatus
 
 
-def get_moonraker_status() -> (
-    Dict[
-        Literal["status", "status_code", "instances", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
-    status = get_install_status_common(Moonraker, MOONRAKER_DIR, MOONRAKER_ENV_DIR)
-    return {
-        "status": status.get("status"),
-        "status_code": status.get("status_code"),
-        "instances": status.get("instances"),
-        "repo": get_repo_name(MOONRAKER_DIR),
-        "local": get_local_commit(MOONRAKER_DIR),
-        "remote": get_remote_commit(MOONRAKER_DIR),
-    }
+def get_moonraker_status() -> ComponentStatus:
+    return get_install_status(MOONRAKER_DIR, MOONRAKER_ENV_DIR, Moonraker)
 
 
 def create_example_moonraker_conf(

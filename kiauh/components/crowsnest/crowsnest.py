@@ -12,19 +12,19 @@ import shutil
 import time
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import Dict, List, Literal, Union
+from typing import List
 
 from components.crowsnest import CROWSNEST_BACKUP_DIR, CROWSNEST_DIR, CROWSNEST_REPO
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils.common import check_install_dependencies, get_install_status
+from utils.common import (
+    check_install_dependencies,
+    get_install_status,
+)
 from utils.constants import CURRENT_USER
 from utils.git_utils import (
-    get_local_commit,
-    get_remote_commit,
-    get_repo_name,
     git_clone_wrapper,
     git_pull_wrapper,
 )
@@ -34,6 +34,7 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     parse_packages_from_file,
 )
+from utils.types import ComponentStatus
 
 
 def install_crowsnest() -> None:
@@ -142,25 +143,13 @@ def update_crowsnest() -> None:
         return
 
 
-def get_crowsnest_status() -> (
-    Dict[
-        Literal["status", "status_code", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
+def get_crowsnest_status() -> ComponentStatus:
     files = [
         Path("/usr/local/bin/crowsnest"),
         Path("/etc/logrotate.d/crowsnest"),
         Path("/etc/systemd/system/crowsnest.service"),
     ]
-    status = get_install_status(CROWSNEST_DIR, files)
-    return {
-        "status": status.get("status"),
-        "status_code": status.get("status_code"),
-        "repo": get_repo_name(CROWSNEST_DIR),
-        "local": get_local_commit(CROWSNEST_DIR),
-        "remote": get_remote_commit(CROWSNEST_DIR),
-    }
+    return get_install_status(CROWSNEST_DIR, files=files)
 
 
 def remove_crowsnest() -> None:

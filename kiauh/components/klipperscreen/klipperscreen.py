@@ -8,39 +8,40 @@
 # ======================================================================= #
 import shutil
 from pathlib import Path
-from subprocess import run, CalledProcessError
-from typing import List, Dict, Literal, Union
+from subprocess import CalledProcessError, run
+from typing import List
 
 from components.klipper.klipper import Klipper
 from components.klipperscreen import (
-    KLIPPERSCREEN_DIR,
-    KLIPPERSCREEN_REPO,
-    KLIPPERSCREEN_ENV,
     KLIPPERSCREEN_BACKUP_DIR,
+    KLIPPERSCREEN_DIR,
+    KLIPPERSCREEN_ENV,
+    KLIPPERSCREEN_REPO,
 )
 from components.moonraker.moonraker import Moonraker
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils.common import get_install_status, check_install_dependencies
+from utils.common import (
+    check_install_dependencies,
+    get_install_status,
+)
 from utils.config_utils import add_config_section, remove_config_section
 from utils.constants import SYSTEMD
 from utils.fs_utils import remove_with_sudo
 from utils.git_utils import (
     git_clone_wrapper,
     git_pull_wrapper,
-    get_repo_name,
-    get_local_commit,
-    get_remote_commit,
 )
 from utils.input_utils import get_confirm
-from utils.logger import Logger, DialogType
+from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     check_python_version,
+    cmd_sysctl_manage,
     cmd_sysctl_service,
     install_python_requirements,
-    cmd_sysctl_manage,
 )
+from utils.types import ComponentStatus
 
 
 def install_klipperscreen() -> None:
@@ -141,25 +142,12 @@ def update_klipperscreen() -> None:
         return
 
 
-def get_klipperscreen_status() -> (
-    Dict[
-        Literal["status", "status_code", "repo", "local", "remote"],
-        Union[str, int],
-    ]
-):
-    files = [
+def get_klipperscreen_status() -> ComponentStatus:
+    return get_install_status(
         KLIPPERSCREEN_DIR,
         KLIPPERSCREEN_ENV,
-        SYSTEMD.joinpath("KlipperScreen.service"),
-    ]
-    status = get_install_status(KLIPPERSCREEN_DIR, files)
-    return {
-        "status": status.get("status"),
-        "status_code": status.get("status_code"),
-        "repo": get_repo_name(KLIPPERSCREEN_DIR),
-        "local": get_local_commit(KLIPPERSCREEN_DIR),
-        "remote": get_remote_commit(KLIPPERSCREEN_DIR),
-    }
+        files=[SYSTEMD.joinpath("KlipperScreen.service")],
+    )
 
 
 def remove_klipperscreen() -> None:

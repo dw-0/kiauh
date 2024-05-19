@@ -9,7 +9,7 @@
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Literal, List, Type, Union
+from typing import Dict, List, Literal, Optional, Type
 
 from components.klipper.klipper import Klipper
 from core.instance_manager.base_instance import BaseInstance
@@ -18,16 +18,15 @@ from utils import PRINTER_CFG_BACKUP_DIR
 from utils.constants import (
     COLOR_CYAN,
     RESET_FORMAT,
-    COLOR_YELLOW,
-    COLOR_GREEN,
-    COLOR_RED,
 )
+from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
 from utils.logger import Logger
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
     update_system_package_lists,
 )
+from utils.types import ComponentStatus, InstallStatus
 
 
 def convert_camelcase_to_kebabcase(name: str) -> str:
@@ -64,78 +63,50 @@ def check_install_dependencies(deps: List[str]) -> None:
 
 
 def get_install_status(
-    repo_dir: Path, opt_files: List[Path]
-) -> Dict[Literal["status", "status_code", "instances"], Union[str, int]]:
-    status = [repo_dir.exists()]
-
-    for f in opt_files:
-        status.append(f.exists())
-
-    if all(status):
-        return {"status": "Installed!", "status_code": 1}
-    elif not any(status):
-        return {"status": "Not installed!", "status_code": 2}
-    else:
-        return {"status": "Incomplete!", "status_code": 3}
-
-
-def get_install_status_common(
-    instance_type: Type[BaseInstance], repo_dir: Path, env_dir: Path
-) -> Dict[Literal["status", "status_code", "instances"], Union[str, int]]:
+    repo_dir: Path,
+    env_dir: Optional[Path] = None,
+    instance_type: Optional[Type[BaseInstance]] = None,
+    files: Optional[List[Path]] = None,
+) -> ComponentStatus:
     """
-    Helper method to get the installation status of software components,
-    which only consist of 3 major parts and if those parts exist, the
-    component can be considered as "installed". Typically, Klipper or
-    Moonraker match that criteria.
-    :param instance_type: The component type
+    Helper method to get the installation status of software components
     :param repo_dir: the repository directory
     :param env_dir: the python environment directory
+    :param instance_type: The component type
+    :param files: List of optional files to check for existence
     :return: Dictionary with status string, statuscode and instance count
     """
+    checks = [repo_dir.exists()]
+
+    if env_dir is not None:
+        checks.append(env_dir.exists())
+
     im = InstanceManager(instance_type)
-    instances_exist = len(im.instances) > 0
-    status = [repo_dir.exists(), env_dir.exists(), instances_exist]
-    if all(status):
-        return {
-            "status": "Installed:",
-            "status_code": 1,
-            "instances": len(im.instances),
-        }
-    elif not any(status):
-        return {
-            "status": "Not installed!",
-            "status_code": 2,
-            "instances": len(im.instances),
-        }
+    instances = 0
+    if instance_type is not None:
+        instances = len(im.instances)
+        checks.append(instances > 0)
+
+    if files is not None:
+        for f in files:
+            checks.append(f.exists())
+
+    if all(checks):
+        status = InstallStatus.INSTALLED
+
+    elif not any(checks):
+        status = InstallStatus.NOT_INSTALLED
+
     else:
-        return {
-            "status": "Incomplete!",
-            "status_code": 3,
-            "instances": len(im.instances),
-        }
+        status = InstallStatus.INCOMPLETE
 
-
-def get_install_status_webui(
-    install_dir: Path, nginx_cfg: Path, upstreams_cfg: Path, common_cfg: Path
-) -> str:
-    """
-    Helper method to get the installation status of webuis
-    like Mainsail or Fluidd |
-    :param install_dir: folder of the static webui files
-    :param nginx_cfg: the webuis NGINX config
-    :param upstreams_cfg: the required upstreams.conf
-    :param common_cfg: the required common_vars.conf
-    :return: formatted string, containing the status
-    """
-    status = [install_dir.exists(), nginx_cfg.exists()]
-    general_nginx_status = [upstreams_cfg.exists(), common_cfg.exists()]
-
-    if all(status) and all(general_nginx_status):
-        return f"{COLOR_GREEN}Installed!{RESET_FORMAT}"
-    elif not all(status):
-        return f"{COLOR_RED}Not installed!{RESET_FORMAT}"
-    else:
-        return f"{COLOR_YELLOW}Incomplete!{RESET_FORMAT}"
+    return ComponentStatus(
+        status=status,
+        instances=instances,
+        repo=get_repo_name(repo_dir),
+        local=get_local_commit(repo_dir),
+        remote=get_remote_commit(repo_dir),
+    )
 
 
 def backup_printer_config_dir():
