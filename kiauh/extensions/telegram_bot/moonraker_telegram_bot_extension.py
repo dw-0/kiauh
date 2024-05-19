@@ -14,22 +14,22 @@ from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from extensions.base_extension import BaseExtension
 from extensions.telegram_bot.moonraker_telegram_bot import (
-    MoonrakerTelegramBot,
-    TELEGRAM_BOT_REPO,
     TELEGRAM_BOT_DIR,
     TELEGRAM_BOT_ENV,
+    TELEGRAM_BOT_REPO,
+    MoonrakerTelegramBot,
 )
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section, remove_config_section
 from utils.fs_utils import remove_file
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
-from utils.logger import Logger, DialogType
+from utils.logger import DialogType, Logger
 from utils.sys_utils import (
-    parse_packages_from_file,
+    cmd_sysctl_manage,
     create_python_venv,
     install_python_requirements,
-    cmd_sysctl_manage,
+    parse_packages_from_file,
 )
 
 
@@ -44,7 +44,8 @@ class TelegramBotExtension(BaseExtension):
                 DialogType.WARNING,
                 [
                     "No Moonraker instances found!",
-                    "Moonraker Telegram Bot requires Moonraker to be installed. Please install Moonraker first!",
+                    "Moonraker Telegram Bot requires Moonraker to be installed. "
+                    "Please install Moonraker first!",
                 ],
             )
             return

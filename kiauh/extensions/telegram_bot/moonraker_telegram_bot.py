@@ -7,14 +7,13 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import subprocess
 from pathlib import Path
+from subprocess import DEVNULL, CalledProcessError, run
 from typing import List
 
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD
 from utils.logger import Logger
-
 
 MODULE_PATH = Path(__file__).resolve().parent
 
@@ -64,7 +63,7 @@ class MoonrakerTelegramBot(BaseInstance):
             )
             self.write_env_file(env_template_file_path, env_file_target)
 
-        except subprocess.CalledProcessError as e:
+        except CalledProcessError as e:
             Logger.print_error(
                 f"Error creating service file {service_file_target}: {e}"
             )
@@ -81,9 +80,9 @@ class MoonrakerTelegramBot(BaseInstance):
 
         try:
             command = ["sudo", "rm", "-f", service_file_path]
-            subprocess.run(command, check=True)
+            run(command, check=True)
             Logger.print_ok(f"Service file deleted: {service_file_path}")
-        except subprocess.CalledProcessError as e:
+        except CalledProcessError as e:
             Logger.print_error(f"Error deleting service file: {e}")
             raise
 
@@ -97,10 +96,10 @@ class MoonrakerTelegramBot(BaseInstance):
             service_template_path, env_file_target
         )
         command = ["sudo", "tee", service_file_target]
-        subprocess.run(
+        run(
             command,
             input=service_content.encode(),
-            stdout=subprocess.DEVNULL,
+            stdout=DEVNULL,
             check=True,
         )
         Logger.print_ok(f"Service file created: {service_file_target}")
