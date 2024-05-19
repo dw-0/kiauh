@@ -4,12 +4,12 @@ import urllib.request
 from http.client import HTTPResponse
 from json import JSONDecodeError
 from pathlib import Path
-from subprocess import CalledProcessError, PIPE, run, check_output, DEVNULL
-from typing import List, Type, Optional
+from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
+from typing import List, Optional, Type
 
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
-from utils.input_utils import get_number_input, get_confirm
+from utils.input_utils import get_confirm, get_number_input
 from utils.logger import Logger
 
 
@@ -68,7 +68,7 @@ def get_repo_name(repo: Path) -> str:
     :param repo: repository to extract the values from
     :return: String in form of "<orga>/<name>"
     """
-    if not repo.exists() and not repo.joinpath(".git").exists():
+    if not repo.exists() or not repo.joinpath(".git").exists():
         return "-"
 
     try:
@@ -130,7 +130,7 @@ def get_latest_unstable_tag(repo_path: str) -> str:
 
 
 def get_local_commit(repo: Path) -> str:
-    if not repo.exists() and not repo.joinpath(".git").exists():
+    if not repo.exists() or not repo.joinpath(".git").exists():
         return "-"
 
     try:
@@ -141,7 +141,7 @@ def get_local_commit(repo: Path) -> str:
 
 
 def get_remote_commit(repo: Path) -> str:
-    if not repo.exists() and not repo.joinpath(".git").exists():
+    if not repo.exists() or not repo.joinpath(".git").exists():
         return "-"
 
     try:
