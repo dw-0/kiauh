@@ -12,6 +12,7 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
+from components.webui_client import MODULE_PATH
 from components.webui_client.base_data import (
     BaseWebClient,
     BaseWebClientConfig,
@@ -34,18 +35,15 @@ from components.webui_client.client_utils import (
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
-from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import (
     copy_common_vars_nginx_cfg,
     copy_upstream_nginx_cfg,
     create_nginx_cfg,
-    create_symlink,
     get_next_free_port,
     is_valid_port,
     read_ports_from_nginx_configs,
-    remove_file,
     unzip,
 )
 from utils.input_utils import get_confirm, get_number_input
@@ -54,7 +52,6 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     download_file,
     get_ipv4_addr,
-    set_nginx_permissions,
 )
 
 
@@ -141,7 +138,15 @@ def install_client(client: BaseWebClient) -> None:
 
         copy_upstream_nginx_cfg()
         copy_common_vars_nginx_cfg()
-        create_client_nginx_cfg(client, port)
+        create_nginx_cfg(
+            display_name=client.display_name,
+            cfg_name=client.name,
+            template_src=MODULE_PATH.joinpath("assets/nginx_cfg"),
+            PORT=port,
+            ROOT_DIR=client.client_dir,
+            NAME=client.name,
+        )
+
         if kl_instances:
             symlink_webui_nginx_log(kl_instances)
         cmd_sysctl_service("nginx", "restart")
@@ -190,20 +195,3 @@ def update_client(client: BaseWebClient) -> None:
 
     if client.client == WebClientType.MAINSAIL:
         restore_mainsail_config_json()
-
-
-def create_client_nginx_cfg(client: BaseWebClient, port: int) -> None:
-    display_name = client.display_name
-    root_dir = client.client_dir
-    source = NGINX_SITES_AVAILABLE.joinpath(client.name)
-    target = NGINX_SITES_ENABLED.joinpath(client.name)
-    try:
-        Logger.print_status(f"Creating NGINX config for {display_name} ...")
-        remove_file(Path("/etc/nginx/sites-enabled/default"), True)
-        create_nginx_cfg(client.name, port, root_dir)
-        create_symlink(source, target, True)
-        set_nginx_permissions()
-        Logger.print_ok(f"NGINX config for {display_name} successfully created.")
-    except Exception:
-        Logger.print_error(f"Creating NGINX config for {display_name} failed!")
-        raise

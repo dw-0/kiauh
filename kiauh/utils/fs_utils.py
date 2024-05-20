@@ -122,21 +122,23 @@ def copy_common_vars_nginx_cfg() -> None:
         raise
 
 
-def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
+def generate_nginx_cfg_from_template(name: str, template_src: Path, **kwargs) -> None:
     """
-    Creates an NGINX config from a template file and replaces all placeholders
+    Creates an NGINX config from a template file and
+    replaces all placeholders passed as kwargs. A placeholder must be defined
+    in the template file as %{placeholder}%.
     :param name: name of the config to create
-    :param port: listen port
-    :param root_dir: directory of the static files
+    :param template_src: the path to the template file
     :return: None
     """
     tmp = Path.home().joinpath(f"{name}.tmp")
-    shutil.copy(MODULE_PATH.joinpath("assets/nginx_cfg"), tmp)
+    shutil.copy(template_src, tmp)
     with open(tmp, "r+") as f:
         content = f.read()
-        content = content.replace("%NAME%", name)
-        content = content.replace("%PORT%", str(port))
-        content = content.replace("%ROOT_DIR%", str(root_dir))
+
+        for key, value in kwargs.items():
+            content = content.replace(f"%{key}%", str(value))
+
         f.seek(0)
         f.write(content)
         f.truncate()
@@ -148,6 +150,30 @@ def create_nginx_cfg(name: str, port: int, root_dir: Path) -> None:
     except CalledProcessError as e:
         log = f"Unable to create '{target}': {e.stderr.decode()}"
         Logger.print_error(log)
+        raise
+
+
+def create_nginx_cfg(
+    display_name: str,
+    cfg_name: str,
+    template_src: Path,
+    **kwargs,
+) -> None:
+    from utils.sys_utils import set_nginx_permissions
+
+    try:
+        Logger.print_status(f"Creating NGINX config for {display_name} ...")
+
+        source = NGINX_SITES_AVAILABLE.joinpath(cfg_name)
+        target = NGINX_SITES_ENABLED.joinpath(cfg_name)
+        remove_file(Path("/etc/nginx/sites-enabled/default"), True)
+        generate_nginx_cfg_from_template(cfg_name, template_src=template_src, **kwargs)
+        create_symlink(source, target, True)
+        set_nginx_permissions()
+
+        Logger.print_ok(f"NGINX config for {display_name} successfully created.")
+    except Exception:
+        Logger.print_error(f"Creating NGINX config for {display_name} failed!")
         raise
 
 
