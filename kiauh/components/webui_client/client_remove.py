@@ -21,7 +21,6 @@ from components.webui_client.client_config.client_config_remove import (
     run_client_config_removal,
 )
 from components.webui_client.client_utils import backup_mainsail_config_json
-
 from core.instance_manager.instance_manager import InstanceManager
 from utils.config_utils import remove_config_section
 from utils.fs_utils import (

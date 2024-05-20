@@ -12,7 +12,7 @@ from typing import List
 
 from components.webui_client.base_data import BaseWebClient
 from core.menus.base_menu import print_back_footer
-from utils.constants import RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
+from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 
 
 def print_moonraker_not_found_dialog():

@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.crowsnest.crowsnest import remove_crowsnest
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu

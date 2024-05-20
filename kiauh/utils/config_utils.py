@@ -8,7 +8,7 @@
 # ======================================================================= #
 import tempfile
 from pathlib import Path
-from typing import List, TypeVar, Tuple, Optional
+from typing import List, Optional, Tuple, TypeVar
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker

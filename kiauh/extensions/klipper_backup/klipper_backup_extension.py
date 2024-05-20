@@ -15,12 +15,11 @@ import subprocess
 
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
-    KLIPPERBACKUP_REPO_URL,
-    KLIPPERBACKUP_DIR,
     KLIPPERBACKUP_CONFIG_DIR,
+    KLIPPERBACKUP_DIR,
+    KLIPPERBACKUP_REPO_URL,
     MOONRAKER_CONF,
 )
-
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger

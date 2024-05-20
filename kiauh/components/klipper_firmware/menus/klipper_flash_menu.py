@@ -9,35 +9,34 @@
 
 import textwrap
 import time
-from typing import Type, Optional
+from typing import Optional, Type
 
-from components.klipper_firmware.flash_options import (
-    FlashOptions,
-    FlashMethod,
-    FlashCommand,
-    ConnectionType,
-)
 from components.klipper_firmware.firmware_utils import (
-    find_usb_device_by_id,
+    find_firmware_file,
     find_uart_device,
+    find_usb_device_by_id,
     find_usb_dfu_device,
     get_sd_flash_board_list,
     start_flash_process,
-    find_firmware_file,
+)
+from components.klipper_firmware.flash_options import (
+    ConnectionType,
+    FlashCommand,
+    FlashMethod,
+    FlashOptions,
 )
 from components.klipper_firmware.menus.klipper_flash_error_menu import (
     KlipperNoBoardTypesErrorMenu,
     KlipperNoFirmwareErrorMenu,
 )
 from components.klipper_firmware.menus.klipper_flash_help_menu import (
-    KlipperMcuConnectionHelpMenu,
     KlipperFlashCommandHelpMenu,
     KlipperFlashMethodHelpMenu,
+    KlipperMcuConnectionHelpMenu,
 )
 from core.menus import FooterType, Option
-
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW, COLOR_RED
+from utils.constants import COLOR_CYAN, COLOR_RED, COLOR_YELLOW, RESET_FORMAT
 from utils.input_utils import get_number_input
 from utils.logger import Logger
 

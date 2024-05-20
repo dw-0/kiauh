@@ -7,7 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import Dict
 
 

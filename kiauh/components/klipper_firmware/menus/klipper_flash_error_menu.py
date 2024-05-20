@@ -9,7 +9,7 @@
 import textwrap
 from typing import Optional, Type
 
-from components.klipper_firmware.flash_options import FlashOptions, FlashMethod
+from components.klipper_firmware.flash_options import FlashMethod, FlashOptions
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_RED, RESET_FORMAT

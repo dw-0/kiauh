@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 from pathlib import Path
-from typing import Dict, Union, Literal
+from typing import Dict, Literal, Union
 
 FileKey = Literal["filepath", "display_name"]
 LogFile = Dict[FileKey, Union[str, Path]]

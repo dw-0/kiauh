@@ -7,10 +7,10 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_CYAN, RESET_FORMAT, COLOR_YELLOW
+from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 
 
 # noinspection DuplicatedCode

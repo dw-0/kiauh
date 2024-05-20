@@ -13,14 +13,14 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
-from extensions.base_extension import BaseExtension
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
+from extensions.base_extension import BaseExtension
 from extensions.gcode_shell_cmd import (
-    EXTENSION_TARGET_PATH,
-    EXTENSION_SRC,
-    KLIPPER_DIR,
     EXAMPLE_CFG_SRC,
+    EXTENSION_SRC,
+    EXTENSION_TARGET_PATH,
+    KLIPPER_DIR,
     KLIPPER_EXTRAS,
 )
 from utils.fs_utils import check_file_exist

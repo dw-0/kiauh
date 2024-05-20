@@ -8,13 +8,12 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
-from components.log_uploads.log_upload_utils import get_logfile_list
-from components.log_uploads.log_upload_utils import upload_logfile
+from components.log_uploads.log_upload_utils import get_logfile_list, upload_logfile
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import RESET_FORMAT, COLOR_YELLOW
+from utils.constants import COLOR_YELLOW, RESET_FORMAT
 
 
 # noinspection PyMethodMayBeStatic

@@ -9,7 +9,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Any, Union
+from typing import Any, Callable, Union
 
 
 @dataclass

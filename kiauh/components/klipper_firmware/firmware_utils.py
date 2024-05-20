@@ -7,15 +7,15 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from subprocess import CalledProcessError, check_output, Popen, PIPE, STDOUT, run
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen, check_output, run
 from typing import List
 
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from components.klipper_firmware import SD_FLASH_SCRIPT
 from components.klipper_firmware.flash_options import (
-    FlashOptions,
     FlashMethod,
+    FlashOptions,
 )
 from core.instance_manager.instance_manager import InstanceManager
 from utils.logger import Logger

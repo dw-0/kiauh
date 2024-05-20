@@ -12,16 +12,15 @@
 import re
 import shutil
 from pathlib import Path
-from zipfile import ZipFile
-from subprocess import run, check_output, CalledProcessError, PIPE, DEVNULL
-
+from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
 from typing import List
+from zipfile import ZipFile
 
 from components.klipper.klipper import Klipper
 from utils import (
-    NGINX_SITES_AVAILABLE,
     MODULE_PATH,
     NGINX_CONFD,
+    NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
 from utils.decorators import deprecated

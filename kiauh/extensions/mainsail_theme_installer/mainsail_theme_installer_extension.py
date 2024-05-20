@@ -11,20 +11,19 @@ import csv
 import shutil
 import textwrap
 import urllib.request
-from typing import List, Union, Optional, Type
-from typing import TypedDict
+from typing import List, Optional, Type, TypedDict, Union
 
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import (
-    print_instance_overview,
     DisplayType,
+    print_instance_overview,
 )
-from core.menus import Option
-from extensions.base_extension import BaseExtension
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
+from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_YELLOW, COLOR_CYAN, RESET_FORMAT
+from extensions.base_extension import BaseExtension
+from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_selection_input
 from utils.logger import Logger
@@ -106,7 +105,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             | {color}{header:~^{count}}{RESET_FORMAT} |
             |-------------------------------------------------------|
             | {line1:<62} |
-            | https://docs.mainsail.xyz/theming/themes              | 
+            | https://docs.mainsail.xyz/theming/themes              |
             |-------------------------------------------------------|
             """
         )[1:]

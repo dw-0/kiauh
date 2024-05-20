@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.crowsnest.crowsnest import install_crowsnest
 from components.klipper import klipper_setup
@@ -20,7 +20,6 @@ from components.webui_client.client_config import client_config_setup
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.menus import Option
-
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_GREEN, RESET_FORMAT
 

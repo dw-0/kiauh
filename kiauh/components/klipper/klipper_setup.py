@@ -9,10 +9,6 @@
 
 from pathlib import Path
 
-from components.webui_client.client_utils import (
-    get_existing_clients,
-)
-from core.settings.kiauh_settings import KiauhSettings
 from components.klipper import (
     EXIT_KLIPPER_SETUP,
     KLIPPER_DIR,
@@ -22,28 +18,32 @@ from components.klipper import (
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import print_update_warn_dialog
 from components.klipper.klipper_utils import (
-    handle_disruptive_system_packages,
-    check_user_groups,
-    handle_to_multi_instance_conversion,
-    create_example_printer_cfg,
     add_to_existing,
-    get_install_count,
-    init_name_scheme,
-    check_is_single_to_multi_conversion,
-    update_name_scheme,
-    handle_instance_naming,
     backup_klipper_dir,
+    check_is_single_to_multi_conversion,
+    check_user_groups,
+    create_example_printer_cfg,
+    get_install_count,
+    handle_disruptive_system_packages,
+    handle_instance_naming,
+    handle_to_multi_instance_conversion,
+    init_name_scheme,
+    update_name_scheme,
 )
 from components.moonraker.moonraker import Moonraker
+from components.webui_client.client_utils import (
+    get_existing_clients,
+)
 from core.instance_manager.instance_manager import InstanceManager
+from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.sys_utils import (
-    parse_packages_from_file,
     create_python_venv,
     install_python_requirements,
+    parse_packages_from_file,
 )
 
 

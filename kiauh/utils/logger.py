@@ -11,13 +11,13 @@ from enum import Enum
 from typing import List
 
 from utils.constants import (
-    COLOR_WHITE,
-    COLOR_GREEN,
-    COLOR_YELLOW,
-    COLOR_RED,
-    COLOR_MAGENTA,
-    RESET_FORMAT,
     COLOR_CYAN,
+    COLOR_GREEN,
+    COLOR_MAGENTA,
+    COLOR_RED,
+    COLOR_WHITE,
+    COLOR_YELLOW,
+    RESET_FORMAT,
 )
 
 

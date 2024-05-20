@@ -12,13 +12,13 @@ import inspect
 import json
 import textwrap
 from pathlib import Path
-from typing import Type, Dict, Optional
+from typing import Dict, Optional, Type
 
 from core.menus import Option
+from core.menus.base_menu import BaseMenu
 from extensions import EXTENSION_ROOT
 from extensions.base_extension import BaseExtension
-from core.menus.base_menu import BaseMenu
-from utils.constants import RESET_FORMAT, COLOR_CYAN, COLOR_YELLOW
+from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

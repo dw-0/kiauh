@@ -8,11 +8,12 @@
 # ======================================================================= #
 
 from __future__ import annotations
-from abc import abstractmethod, ABC
+
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional
 
-from utils.constants import SYSTEMD, CURRENT_USER
+from utils.constants import CURRENT_USER, SYSTEMD
 
 
 class BaseInstance(ABC):

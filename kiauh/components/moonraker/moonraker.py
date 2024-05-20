@@ -11,7 +11,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
-from components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR, MODULE_PATH
+from components.moonraker import MODULE_PATH, MOONRAKER_DIR, MOONRAKER_ENV_DIR
 from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD

@@ -10,30 +10,30 @@ import json
 import subprocess
 from pathlib import Path
 
-from components.webui_client.client_utils import (
-    enable_mainsail_remotemode,
-    get_existing_clients,
-)
-from components.webui_client.mainsail_data import MainsailData
-from core.settings.kiauh_settings import KiauhSettings
 from components.klipper.klipper import Klipper
 from components.moonraker import (
     EXIT_MOONRAKER_SETUP,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
     MOONRAKER_REQUIREMENTS_TXT,
-    POLKIT_LEGACY_FILE,
     POLKIT_FILE,
-    POLKIT_USR_FILE,
+    POLKIT_LEGACY_FILE,
     POLKIT_SCRIPT,
+    POLKIT_USR_FILE,
 )
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_dialogs import print_moonraker_overview
 from components.moonraker.moonraker_utils import (
-    create_example_moonraker_conf,
     backup_moonraker_dir,
+    create_example_moonraker_conf,
 )
+from components.webui_client.client_utils import (
+    enable_mainsail_remotemode,
+    get_existing_clients,
+)
+from components.webui_client.mainsail_data import MainsailData
 from core.instance_manager.instance_manager import InstanceManager
+from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.fs_utils import check_file_exist
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
@@ -43,10 +43,10 @@ from utils.input_utils import (
 )
 from utils.logger import Logger
 from utils.sys_utils import (
-    parse_packages_from_file,
+    check_python_version,
     create_python_venv,
     install_python_requirements,
-    check_python_version,
+    parse_packages_from_file,
 )
 
 

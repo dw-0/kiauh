@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper

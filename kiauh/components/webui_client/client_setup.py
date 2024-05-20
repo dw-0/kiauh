@@ -11,27 +11,26 @@ from pathlib import Path
 from typing import List
 
 from components.klipper.klipper import Klipper
-
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import (
-    WebClientType,
     BaseWebClient,
     BaseWebClientConfig,
+    WebClientType,
 )
 from components.webui_client.client_config.client_config_setup import (
     install_client_config,
 )
 from components.webui_client.client_dialogs import (
-    print_moonraker_not_found_dialog,
     print_client_port_select_dialog,
     print_install_client_config_dialog,
+    print_moonraker_not_found_dialog,
 )
 from components.webui_client.client_utils import (
     backup_mainsail_config_json,
-    restore_mainsail_config_json,
-    enable_mainsail_remotemode,
-    symlink_webui_nginx_log,
     config_for_other_client_exist,
+    enable_mainsail_remotemode,
+    restore_mainsail_config_json,
+    symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
@@ -39,23 +38,23 @@ from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import (
-    unzip,
-    copy_upstream_nginx_cfg,
     copy_common_vars_nginx_cfg,
+    copy_upstream_nginx_cfg,
     create_nginx_cfg,
     create_symlink,
-    remove_file,
-    read_ports_from_nginx_configs,
-    is_valid_port,
     get_next_free_port,
+    is_valid_port,
+    read_ports_from_nginx_configs,
+    remove_file,
+    unzip,
 )
 from utils.input_utils import get_confirm, get_number_input
 from utils.logger import Logger
 from utils.sys_utils import (
-    download_file,
-    set_nginx_permissions,
-    get_ipv4_addr,
     cmd_sysctl_service,
+    download_file,
+    get_ipv4_addr,
+    set_nginx_permissions,
 )
 
 

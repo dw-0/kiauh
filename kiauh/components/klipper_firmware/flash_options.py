@@ -9,7 +9,7 @@
 
 from dataclasses import field
 from enum import Enum
-from typing import Union, List
+from typing import List, Union
 
 
 class FlashMethod(Enum):

@@ -8,12 +8,12 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.klipper import klipper_remove
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
+from utils.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

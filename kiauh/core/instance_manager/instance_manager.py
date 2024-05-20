@@ -10,7 +10,7 @@
 import re
 import subprocess
 from pathlib import Path
-from typing import List, Optional, Union, TypeVar
+from typing import List, Optional, TypeVar, Union
 
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD

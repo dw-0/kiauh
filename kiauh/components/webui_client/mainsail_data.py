@@ -13,10 +13,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from components.webui_client.base_data import (
+    BaseWebClient,
     BaseWebClientConfig,
     WebClientConfigType,
     WebClientType,
-    BaseWebClient,
 )
 from core.backup_manager import BACKUP_ROOT_DIR
 

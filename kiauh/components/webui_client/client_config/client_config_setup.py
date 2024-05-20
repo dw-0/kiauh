@@ -12,10 +12,9 @@ import subprocess
 from pathlib import Path
 from typing import List
 
-from components.webui_client.base_data import BaseWebClient, BaseWebClientConfig
-from core.settings.kiauh_settings import KiauhSettings
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
+from components.webui_client.base_data import BaseWebClient, BaseWebClientConfig
 from components.webui_client.client_dialogs import (
     print_client_already_installed_dialog,
 )
@@ -23,8 +22,8 @@ from components.webui_client.client_utils import (
     backup_client_config_data,
     config_for_other_client_exist,
 )
-
 from core.instance_manager.instance_manager import InstanceManager
+from core.settings.kiauh_settings import KiauhSettings
 from utils.common import backup_printer_config_dir
 from utils.config_utils import add_config_section, add_config_section_at_top
 from utils.fs_utils import create_symlink

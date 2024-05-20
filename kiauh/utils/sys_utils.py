@@ -8,23 +8,21 @@
 # ======================================================================= #
 
 import os
+import select
 import shutil
 import socket
-from subprocess import Popen, PIPE, CalledProcessError, run, DEVNULL
 import sys
 import time
 import urllib.error
 import urllib.request
 import venv
 from pathlib import Path
+from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, run
 from typing import List, Literal
-
-import select
 
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
-
 
 SysCtlServiceAction = Literal[
     "start",

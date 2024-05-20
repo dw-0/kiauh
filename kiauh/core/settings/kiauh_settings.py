@@ -7,15 +7,16 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import textwrap
 import configparser
+import textwrap
 from typing import Dict, Union
 
 from core.config_manager.config_manager import CustomConfigParser
-from kiauh import PROJECT_ROOT
-from utils.constants import RESET_FORMAT, COLOR_RED
+from utils.constants import COLOR_RED, RESET_FORMAT
 from utils.logger import Logger
 from utils.sys_utils import kill
+
+from kiauh import PROJECT_ROOT
 
 
 # noinspection PyUnusedLocal

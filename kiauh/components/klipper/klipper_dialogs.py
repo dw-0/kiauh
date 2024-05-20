@@ -13,7 +13,7 @@ from typing import List
 
 from core.instance_manager.base_instance import BaseInstance
 from core.menus.base_menu import print_back_footer
-from utils.constants import COLOR_GREEN, RESET_FORMAT, COLOR_YELLOW, COLOR_CYAN
+from utils.constants import COLOR_CYAN, COLOR_GREEN, COLOR_YELLOW, RESET_FORMAT
 
 
 @unique

@@ -14,14 +14,14 @@ import sys
 import textwrap
 import traceback
 from abc import abstractmethod
-from typing import Type, Dict, Optional
+from typing import Dict, Optional, Type
 
 from core.menus import FooterType, Option
 from utils.constants import (
-    COLOR_GREEN,
-    COLOR_YELLOW,
-    COLOR_RED,
     COLOR_CYAN,
+    COLOR_GREEN,
+    COLOR_RED,
+    COLOR_YELLOW,
     RESET_FORMAT,
 )
 from utils.logger import Logger

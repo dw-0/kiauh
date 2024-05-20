@@ -8,13 +8,13 @@
 # ======================================================================= #
 
 import textwrap
-from typing import Type, Optional
+from typing import Optional, Type
 
 from components.webui_client import client_remove
 from components.webui_client.base_data import BaseWebClient, WebClientType
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import RESET_FORMAT, COLOR_RED, COLOR_CYAN
+from utils.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal
