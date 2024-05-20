@@ -94,7 +94,7 @@ class Logger:
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
         dialog_title_formatted = Logger._format_dialog_title(dialog_title)
-        dialog_content = Logger._format_dialog_content(content, LINE_WIDTH)
+        dialog_content = Logger.format_content(content, LINE_WIDTH)
         top = Logger._format_top_border(dialog_color)
         bottom = Logger._format_bottom_border()
 
@@ -140,9 +140,12 @@ class Logger:
             return "\n"
 
     @staticmethod
-    def _format_dialog_content(content: List[str], line_width: int) -> str:
-        border_left = "┃"
-        border_right = "┃"
+    def format_content(
+        content: List[str],
+        line_width: int,
+        border_left: str = "┃",
+        border_right: str = "┃",
+    ) -> str:
         wrapper = textwrap.TextWrapper(line_width)
 
         lines = []

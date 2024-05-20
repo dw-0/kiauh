@@ -12,13 +12,14 @@ import inspect
 import json
 import textwrap
 from pathlib import Path
-from typing import Dict, Optional, Type
+from typing import Dict, List, Optional, Type
 
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from extensions import EXTENSION_ROOT
 from extensions.base_extension import BaseExtension
 from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
+from utils.logger import Logger
 
 
 # noinspection PyUnusedLocal
@@ -129,11 +130,14 @@ class ExtensionSubmenu(BaseMenu):
         header = f" [ {self.extension.metadata.get('display_name')} ] "
         color = COLOR_YELLOW
         count = 62 - len(color) - len(RESET_FORMAT)
-
-        wrapper = textwrap.TextWrapper(55, initial_indent="| ", subsequent_indent="| ")
-        lines = wrapper.wrap(self.extension.metadata.get("description"))
-        formatted_lines = [f"{line:<55} |" for line in lines]
-        description_text = "\n".join(formatted_lines)
+        line_width = 53
+        description: List[str] = self.extension.metadata.get("description", [])
+        description_text = Logger.format_content(
+            description,
+            line_width,
+            border_left="|",
+            border_right="|",
+        )
 
         menu = textwrap.dedent(
             f"""
