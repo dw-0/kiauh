@@ -196,7 +196,7 @@ class TelegramBotExtension(BaseExtension):
             instance_manager.disable_instance()
             instance_manager.delete_instance()
 
-        instance_manager.reload_daemon()
+        cmd_sysctl_manage("daemon-reload")
 
     def _remove_bot_dir(self) -> None:
         if not TELEGRAM_BOT_DIR.exists():

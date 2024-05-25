@@ -44,6 +44,7 @@ from utils.input_utils import (
 from utils.logger import Logger
 from utils.sys_utils import (
     check_python_version,
+    cmd_sysctl_manage,
     create_python_venv,
     install_python_requirements,
     parse_packages_from_file,
@@ -110,7 +111,7 @@ def install_moonraker() -> None:
 
             mr_im.start_instance()
 
-        mr_im.reload_daemon()
+        cmd_sysctl_manage("daemon-reload")
 
         # if mainsail is installed, and we installed
         # multiple moonraker instances, we enable mainsails remote mode

@@ -41,6 +41,7 @@ from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 from utils.sys_utils import (
+    cmd_sysctl_manage,
     create_python_venv,
     install_python_requirements,
     parse_packages_from_file,
@@ -92,7 +93,7 @@ def install_klipper() -> None:
             if count == install_count:
                 break
 
-        kl_im.reload_daemon()
+        cmd_sysctl_manage("daemon-reload")
 
     except Exception as e:
         Logger.print_error(e)

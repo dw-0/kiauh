@@ -18,6 +18,7 @@ from core.instance_manager.instance_manager import InstanceManager
 from utils.fs_utils import remove_file
 from utils.input_utils import get_selection_input
 from utils.logger import Logger
+from utils.sys_utils import cmd_sysctl_manage
 
 
 def run_moonraker_removal(
@@ -98,7 +99,7 @@ def remove_instances(
         instance_manager.disable_instance()
         instance_manager.delete_instance()
 
-    instance_manager.reload_daemon()
+    cmd_sysctl_manage("daemon-reload")
 
 
 def remove_moonraker_dir() -> None:

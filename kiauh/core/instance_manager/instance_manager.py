@@ -157,17 +157,6 @@ class InstanceManager:
             self.current_instance = instance
             self.stop_instance()
 
-    def reload_daemon(self) -> None:
-        Logger.print_status("Reloading systemd manager configuration ...")
-        try:
-            command = ["sudo", "systemctl", "daemon-reload"]
-            if subprocess.run(command, check=True):
-                Logger.print_ok("Systemd manager configuration reloaded")
-        except subprocess.CalledProcessError as e:
-            Logger.print_error("Error reloading systemd manager configuration:")
-            Logger.print_error(f"{e}")
-            raise
-
     def find_instances(self) -> List[T]:
         from utils.common import convert_camelcase_to_kebabcase
 
