@@ -312,9 +312,10 @@ class ObicoExtension(BaseExtension):
                 end="",
             )
             if not get_confirm("Do you want to link the printers now?"):
-                self._link_obico_instances(unlinked_instances)
-            else:
-                Logger.print_info("Linking to server skipped ...")
+                Logger.print_info("Linking to Obico server skipped ...")
+                return
+
+            self._link_obico_instances(unlinked_instances)
 
     def _remove_obico_instances(
         self,
