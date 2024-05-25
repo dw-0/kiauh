@@ -172,14 +172,18 @@ class InstanceManager:
         ]
 
         instance_list = [
-            self.instance_type(suffix=self._get_instance_suffix(service))
+            self.instance_type(suffix=self._get_instance_suffix(name, service))
             for service in service_list
         ]
 
         return sorted(instance_list, key=lambda x: self._sort_instance_list(x.suffix))
 
-    def _get_instance_suffix(self, file_path: Path) -> str:
-        return file_path.stem.split("-")[-1] if "-" in file_path.stem else ""
+    def _get_instance_suffix(self, name: str, file_path: Path) -> str:
+        # to get the suffix of the instance, we remove the name of the instance from
+        # the file name, if the remaining part an empty string we return it
+        # otherwise there is and hyphen left, and we return the part after the hyphen
+        suffix = file_path.stem[len(name) :]
+        return suffix[1:] if suffix else ""
 
     def _sort_instance_list(self, s: Union[int, str, None]):
         if s is None:
