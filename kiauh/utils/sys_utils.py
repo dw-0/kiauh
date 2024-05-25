@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import os
+import re
 import select
 import shutil
 import socket
@@ -20,6 +21,7 @@ from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, run
 from typing import List, Literal
 
+from utils.constants import SYSTEMD
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
@@ -73,7 +75,6 @@ def parse_packages_from_file(source_file: Path) -> List[str]:
     """
 
     packages = []
-    print("Reading dependencies...")
     with open(source_file, "r") as file:
         for line in file:
             line = line.strip()
@@ -363,6 +364,23 @@ def cmd_sysctl_manage(action: SysCtlManageAction) -> None:
         log = f"Failed to run {action}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
+
+
+def service_instance_exists(name: str, exclude: List[str] = None) -> bool:
+    """
+    Checks if a systemd service instance exists.
+    :param name: the service name
+    :param exclude: List of strings of service names to exclude
+    :return: True if the service exists, False otherwise
+    """
+    exclude = exclude or []
+    pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
+    service_list = [
+        Path(SYSTEMD, service)
+        for service in SYSTEMD.iterdir()
+        if pattern.search(service.name) and not any(s in service.name for s in exclude)
+    ]
+    return any(service_list)
 
 
 def log_process(process: Popen) -> None:
