@@ -20,7 +20,7 @@ from utils.constants import (
     RESET_FORMAT,
 )
 from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
-from utils.logger import Logger
+from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
@@ -124,3 +124,33 @@ def backup_printer_config_dir():
             source=instance.cfg_dir,
             target=PRINTER_CFG_BACKUP_DIR,
         )
+
+
+def moonraker_exists(name: str = "") -> bool:
+    """
+    Helper method to check if a Moonraker instance exists
+    :param name: Optional name of an installer where the check is performed
+    :return: True if at least one Moonraker instance exists, False otherwise
+    """
+    from components.moonraker.moonraker import Moonraker
+
+    mr_im = InstanceManager(Moonraker)
+    mr_instances: List[Moonraker] = mr_im.instances
+
+    info = (
+        f"{name} requires Moonraker to be installed"
+        if name
+        else "A Moonraker installation is required"
+    )
+
+    if not mr_instances:
+        Logger.print_dialog(
+            DialogType.WARNING,
+            [
+                "No Moonraker instances found!",
+                f"{info}. Please install Moonraker first!",
+            ],
+            end="",
+        )
+        return False
+    return True
