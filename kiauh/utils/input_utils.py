@@ -6,7 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import re
 from typing import List, Union
 
 from utils import INVALID_CHOICE
@@ -84,6 +84,7 @@ def get_number_input(
 
 def get_string_input(
     question: str,
+    regex: Union[str, None] = None,
     exclude: Union[List, None] = None,
     allow_special_chars=False,
     default=None,
@@ -91,6 +92,7 @@ def get_string_input(
     """
     Helper method to get a string input from the user
     :param question: The question to display
+    :param regex: An optional regex pattern to validate the input against
     :param exclude: List of strings which are not allowed
     :param allow_special_chars: Wheter to allow special characters in the input
     :param default: Optional default value
@@ -98,11 +100,18 @@ def get_string_input(
     """
     _exclude = [] if exclude is None else exclude
     _question = format_question(question, default)
+    _pattern = re.compile(regex) if regex is not None else None
     while True:
         _input = input(_question)
 
+        print(_input)
+
         if _input.lower() in _exclude:
             Logger.print_error("This value is already in use/reserved.")
+        elif default is not None and _input == "":
+            return default
+        elif _pattern is not None and _pattern.match(_input):
+            return _input
         elif allow_special_chars:
             return _input
         elif not allow_special_chars and _input.isalnum():
