@@ -22,7 +22,7 @@ from utils.logger import Logger
 class Moonraker(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
-        return ["None", "mcu"]
+        return ["None", "mcu", "obico"]
 
     def __init__(self, suffix: str = ""):
         super().__init__(instance_type=self, suffix=suffix)
