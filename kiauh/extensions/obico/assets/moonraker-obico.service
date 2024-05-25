@@ -1,0 +1,16 @@
+#Systemd service file for moonraker-obico
+[Unit]
+Description=Moonraker-Obico
+After=network-online.target moonraker.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+User=%USER%
+WorkingDirectory=%OBICO_DIR%
+EnvironmentFile=%ENV_FILE%
+ExecStart=%ENV%/bin/python3 $OBICO_ARGS
+Restart=always
+RestartSec=5
