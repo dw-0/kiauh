@@ -107,7 +107,6 @@ class InstanceManager:
             raise ValueError("current_instance cannot be None")
 
     def enable_instance(self) -> None:
-        Logger.print_status(f"Enabling {self.instance_service_full} ...")
         try:
             cmd_sysctl_service(self.instance_service_full, "enable")
         except subprocess.CalledProcessError as e:
@@ -115,7 +114,6 @@ class InstanceManager:
             Logger.print_error(f"{e}")
 
     def disable_instance(self) -> None:
-        Logger.print_status(f"Disabling {self.instance_service_full} ...")
         try:
             cmd_sysctl_service(self.instance_service_full, "disable")
         except subprocess.CalledProcessError as e:
@@ -123,7 +121,6 @@ class InstanceManager:
             Logger.print_error(f"{e}")
 
     def start_instance(self) -> None:
-        Logger.print_status(f"Starting {self.instance_service_full} ...")
         try:
             cmd_sysctl_service(self.instance_service_full, "start")
         except subprocess.CalledProcessError as e:
@@ -131,7 +128,6 @@ class InstanceManager:
             Logger.print_error(f"{e}")
 
     def restart_instance(self) -> None:
-        Logger.print_status(f"Restarting {self.instance_service_full} ...")
         try:
             cmd_sysctl_service(self.instance_service_full, "restart")
         except subprocess.CalledProcessError as e:
@@ -149,7 +145,6 @@ class InstanceManager:
             self.restart_instance()
 
     def stop_instance(self) -> None:
-        Logger.print_status(f"Stopping {self.instance_service_full} ...")
         try:
             cmd_sysctl_service(self.instance_service_full, "stop")
         except subprocess.CalledProcessError as e:
