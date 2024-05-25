@@ -87,6 +87,7 @@ class Logger:
     def print_dialog(
         title: DialogType,
         content: List[str],
+        center_content: bool = False,
         custom_title: str = None,
         custom_color: DialogCustomColor = None,
         end: str = "\n",
@@ -94,7 +95,7 @@ class Logger:
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
         dialog_title_formatted = Logger._format_dialog_title(dialog_title)
-        dialog_content = Logger.format_content(content, LINE_WIDTH)
+        dialog_content = Logger.format_content(content, LINE_WIDTH, center_content)
         top = Logger._format_top_border(dialog_color)
         bottom = Logger._format_bottom_border()
 
@@ -143,6 +144,7 @@ class Logger:
     def format_content(
         content: List[str],
         line_width: int,
+        center_content: bool = False,
         border_left: str = "┃",
         border_right: str = "┃",
     ) -> str:
@@ -158,7 +160,13 @@ class Logger:
             if c == "\n\n" and i < len(content) - 1:
                 lines.append(" " * line_width)
 
-        formatted_lines = [
-            f"{border_left} {line:<{line_width}} {border_right}" for line in lines
-        ]
+        if not center_content:
+            formatted_lines = [
+                f"{border_left} {line:<{line_width}} {border_right}" for line in lines
+            ]
+        else:
+            formatted_lines = [
+                f"{border_left} {line:^{line_width}} {border_right}" for line in lines
+            ]
+
         return "\n".join(formatted_lines)
