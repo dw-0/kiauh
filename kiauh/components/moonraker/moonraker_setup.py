@@ -154,7 +154,8 @@ def install_moonraker_packages(moonraker_dir: Path) -> None:
     moonraker_deps = []
 
     if deps_json.exists():
-        moonraker_deps = json.load(deps_json).get("debian", [])
+        with open(deps_json, "r") as deps:
+            moonraker_deps = json.load(deps).get("debian", [])
     elif install_script.exists():
         moonraker_deps = parse_packages_from_file(install_script)
 
