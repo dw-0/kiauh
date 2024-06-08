@@ -183,3 +183,25 @@ function start_install_script() {
   fi
 }
 
+function get_spoolman_status() {
+  local -a files
+  files=(
+      "${SPOOLMAN_DIR}"
+      "${SYSTEMD}/Spoolman.service"
+    )
+
+  local count
+  count=0
+
+  for file in "${files[@]}"; do
+    [[ -e "${file}" ]] && count=$(( count +1 ))
+  done
+
+  if [[ "${count}" -eq "${#files[*]}" ]]; then
+    echo "Installed"
+  elif [[ "${count}" -gt 0 ]]; then
+    echo "Incomplete!"
+  else
+    echo "Not installed!"
+  fi
+}
