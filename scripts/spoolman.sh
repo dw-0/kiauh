@@ -71,7 +71,7 @@ function remove_spoolman(){
 }
 
 function update_moonraker_configs() {
-  local patched moonraker_configs regex env_port
+  local moonraker_configs regex
   regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
