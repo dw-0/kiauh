@@ -90,5 +90,6 @@ function set_globals() {
 
   #=============== Spoolman ================#
   SPOOLMAN_DIR="${HOME}/spoolman"
+  SPOOLMAN_DB_DIR="${HOME}/.local/share/spoolman"
   SPOOLMAN_REPO="https://api.github.com/repos/Donkie/Spoolman/releases/latest"
 }

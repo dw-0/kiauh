@@ -69,9 +69,9 @@ function remove_spoolman(){
     ok_msg "Spoolman directory removed!"
   fi
 
-  if [[ -d "${HOME}/.local/share/spoolman" ]]; then
+  if [[ -d "${SPOOLMAN_DB_DIR}" ]]; then
     status_msg "Removing spoolman db..."
-    rm -rf "${HOME}/.local/share/spoolman"
+    rm -rf "${SPOOLMAN_DB_DIR}"
     ok_msg "Spoolman db removed!"
   fi
 
@@ -231,7 +231,7 @@ function get_spoolman_status() {
   files=(
       "${SPOOLMAN_DIR}"
       "${SYSTEMD}/Spoolman.service"
-      "${HOME}/.local/share/spoolman"
+      "${SPOOLMAN_DB_DIR}"
     )
 
   local count
