@@ -37,6 +37,8 @@ function install_spoolman() {
 
   enable_moonraker_integration_prompt
   patch_spoolman_update_manager
+
+  do_action_service "restart" "moonraker"
 }
 
 function update_spoolman() {
@@ -75,7 +77,6 @@ function update_moonraker_configs() {
   regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
-  patched="false"
   for conf in ${moonraker_configs}; do
     if ! grep -Eq "^\[update_manager KlipperScreen\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
@@ -84,13 +85,7 @@ function update_moonraker_configs() {
 ${1}
 MOONRAKER_CONF
     fi
-
-    patched="true"
   done
-
-  if [[ ${patched} == "true" ]]; then
-    do_action_service "restart" "moonraker"
-  fi
 }
 
 function enable_moonraker_integration() {
