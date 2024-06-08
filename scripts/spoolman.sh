@@ -38,6 +38,22 @@ function install_spoolman() {
   enable_moonraker_integration_prompt
   patch_spoolman_update_manager
 }
+
+function update_spoolman() {
+  ### stop and disable old spoolman service
+  do_action_service "stop" "Spoolman"
+  do_action_service "disable" "Spoolman"
+
+  mv "${SPOOLMAN_DIR}" "${SPOOLMAN_DIR}_old"
+
+  setup_spoolman_folder
+  cp "${SPOOLMAN_DIR}_old/.env" "${SPOOLMAN_DIR}/.env"
+
+  start_install_script
+
+  rm -rf "${SPOOLMAN_DIR}_old"
+}
+
 function update_moonraker_configs() {
   local patched moonraker_configs regex env_port
   regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"
@@ -204,4 +220,34 @@ function get_spoolman_status() {
   else
     echo "Not installed!"
   fi
+}
+
+function get_local_spoolman_version() {
+  local version
+  version=$(jq -r '.version' "${SPOOLMAN_DIR}"/release_info.json)
+  echo "${version}"
+}
+
+function get_remote_spoolman_version() {
+  local version
+  version=$(curl -s "${SPOOLMAN_REPO}" | jq -r '.tag_name')
+  echo "${version}"
+}
+
+function compare_spoolman_versions() {
+  local local_ver remote_ver
+  local_ver="$(get_local_spoolman_version)"
+  remote_ver="$(get_remote_spoolman_version)"
+
+  if [[ ${local_ver} != "${remote_ver}" ]]; then
+    versions="${yellow}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+    # add spoolman to application_updates_available in kiauh.ini
+    add_to_application_updates "spoolman"
+  else
+    versions="${green}$(printf " %-14s" "${local_ver}")${white}"
+    versions+="|${green}$(printf " %-13s" "${remote_ver}")${white}"
+  fi
+
+  echo "${versions}"
 }
