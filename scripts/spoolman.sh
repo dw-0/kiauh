@@ -54,6 +54,22 @@ function update_spoolman() {
   rm -rf "${SPOOLMAN_DIR}_old"
 }
 
+function remove_spoolman(){
+  if [[ -d "${SPOOLMAN_DIR}" ]]; then
+    status_msg "Removing spoolman service..."
+    do_action_service "stop" "Spoolman"
+    do_action_service "disable" "Spoolman"
+    sudo rm -f "${SYSTEMD}/Spoolman.service"
+    ok_msg "Spoolman service removed!"
+
+    status_msg "Removing spoolman directory..."
+    rm -rf "${SPOOLMAN_DIR}"
+    ok_msg "Spoolman directory removed!"
+  fi
+
+  print_confirm "Spoolman successfully removed!"
+}
+
 function update_moonraker_configs() {
   local patched moonraker_configs regex env_port
   regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/moonraker\.conf"

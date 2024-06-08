@@ -18,20 +18,20 @@ function remove_ui() {
   echo -e "| ${yellow}INFO: Configurations and/or any backups will be kept!${white} |"
   hr
   echo -e "| Firmware & API:           | 3rd Party Webinterface:   |"
-  echo -e "|  1) [Klipper]             |  8) [OctoPrint]           |"
+  echo -e "|  1) [Klipper]             |  9) [OctoPrint]           |"
   echo -e "|  2) [Moonraker]           |                           |"
   echo -e "|                           | Webcam Streamer:          |"
-  echo -e "| Klipper Webinterface:     |  9) [Crowsnest]           |"
-  echo -e "|  3) [Mainsail]            | 10) [MJPG-Streamer]       |"
+  echo -e "| Klipper Webinterface:     | 10) [Crowsnest]           |"
+  echo -e "|  3) [Mainsail]            | 11) [MJPG-Streamer]       |"
   echo -e "|  4) [Mainsail-Config]     |                           |"
   echo -e "|  5) [Fluidd]              | Other:                    |"
-  echo -e "|  6) [Fluidd-Config]       | 11) [PrettyGCode]         |"
-  echo -e "|                           | 12) [Telegram Bot]        |"
-  echo -e "| Touchscreen GUI:          | 13) [Obico for Klipper]   |"
-  echo -e "|  7) [KlipperScreen]       | 14) [OctoEverywhere]      |"
-  echo -e "|                           | 15) [Mobileraker]         |"
-  echo -e "|                           | 16) [NGINX]               |"
-  echo -e "|                           | 17) [OctoApp]             |"
+  echo -e "|  6) [Fluidd-Config]       | 12) [PrettyGCode]         |"
+  echo -e "|                           | 13) [Telegram Bot]        |"
+  echo -e "| Touchscreen GUI:          | 14) [Obico for Klipper]   |"
+  echo -e "|  7) [KlipperScreen]       | 15) [OctoEverywhere]      |"
+  echo -e "|                           | 16) [Mobileraker]         |"
+  echo -e "| Spool Manager:            | 17) [NGINX]               |"
+  echo -e "|  8) [Spoolman]            | 18) [OctoApp]             |"
   back_footer
 }
 
@@ -57,24 +57,26 @@ function remove_menu() {
       7)
         do_action "remove_klipperscreen" "remove_ui";;
       8)
-        do_action "remove_octoprint" "remove_ui";;
+        do_action "remove_spoolman" "remove_ui";;
       9)
-        do_action "remove_crowsnest" "remove_ui";;
+        do_action "remove_octoprint" "remove_ui";;
       10)
-        do_action "remove_mjpg-streamer" "remove_ui";;
+        do_action "remove_crowsnest" "remove_ui";;
       11)
-        do_action "remove_prettygcode" "remove_ui";;
+        do_action "remove_mjpg-streamer" "remove_ui";;
       12)
-        do_action "remove_telegram_bot" "remove_ui";;
+        do_action "remove_prettygcode" "remove_ui";;
       13)
-        do_action "remove_moonraker_obico" "remove_ui";;
+        do_action "remove_telegram_bot" "remove_ui";;
       14)
-        do_action "remove_octoeverywhere" "remove_ui";;
+        do_action "remove_moonraker_obico" "remove_ui";;
       15)
-        do_action "remove_mobileraker" "remove_ui";;
+        do_action "remove_octoeverywhere" "remove_ui";;
       16)
-        do_action "remove_nginx" "remove_ui";;
+        do_action "remove_mobileraker" "remove_ui";;
       17)
+        do_action "remove_nginx" "remove_ui";;
+      18)
         do_action "remove_octoapp" "remove_ui";;
       B|b)
         clear; main_menu; break;;
