@@ -125,6 +125,16 @@ managed_services: Spoolman
 "
 
   update_moonraker_configs "${updater_str}"
+
+  # add spoolman service to moonraker.asvc
+  local moonraker_asvc regex
+  regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/moonraker\.asvc"
+  moonraker_asvc=$(find "${HOME}" -maxdepth 2 -type f -regextype posix-extended -regex "${regex}" | sort)
+
+  if [[ -n ${moonraker_asvc} ]]; then
+    status_msg "Adding Spoolman service to moonraker.asvc..."
+    /bin/sh -c "echo 'Spoolman' >> ${moonraker_asvc}"
+  fi
 }
 
 function advanced_config_prompt() {
