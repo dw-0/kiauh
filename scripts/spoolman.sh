@@ -221,6 +221,7 @@ function get_spoolman_status() {
   files=(
       "${SPOOLMAN_DIR}"
       "${SYSTEMD}/Spoolman.service"
+      "${HOME}/.local/share/spoolman"
     )
 
   local count
