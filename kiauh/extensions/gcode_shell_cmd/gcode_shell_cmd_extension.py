@@ -13,8 +13,10 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from extensions.base_extension import BaseExtension
 from extensions.gcode_shell_cmd import (
     EXAMPLE_CFG_SRC,
@@ -118,10 +120,11 @@ class GcodeShellCmdExtension(BaseExtension):
         cfg_files = [instance.cfg_file for instance in instances]
         for cfg_file in cfg_files:
             Logger.print_status(f"Include shell_command.cfg in '{cfg_file}' ...")
-            cm = ConfigManager(cfg_file)
-            if cm.config.has_section(section):
+            scp = SimpleConfigParser()
+            scp.read(cfg_file)
+            if scp.has_section(section):
                 Logger.print_info("Section already defined! Skipping ...")
                 continue
-            cm.config.add_section(section)
-            cm.write_config()
+            scp.add_section(section)
+            scp.write(cfg_file)
             Logger.print_ok("Done!")

@@ -12,7 +12,9 @@ from typing import List, Optional, Tuple, TypeVar
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
-from core.config_manager.config_manager import ConfigManager
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from utils.logger import Logger
 
 B = TypeVar("B", Klipper, Moonraker)
@@ -32,27 +34,30 @@ def add_config_section(
             Logger.print_warn(f"'{cfg_file}' not found!")
             continue
 
-        cm = ConfigManager(cfg_file)
-        if cm.config.has_section(section):
+        scp = SimpleConfigParser()
+        scp.read(cfg_file)
+        if scp.has_section(section):
             Logger.print_info("Section already exist. Skipped ...")
             continue
 
-        cm.config.add_section(section)
+        scp.add_section(section)
 
         if options is not None:
             for option in options:
-                cm.config.set(section, option[0], option[1])
+                scp.set(section, option[0], option[1])
 
-        cm.write_config()
+        scp.write(cfg_file)
 
 
 def add_config_section_at_top(section: str, instances: List[B]):
+    # TODO: this could be implemented natively in SimpleConfigParser
     for instance in instances:
         tmp_cfg = tempfile.NamedTemporaryFile(mode="w", delete=False)
         tmp_cfg_path = Path(tmp_cfg.name)
-        cmt = ConfigManager(tmp_cfg_path)
-        cmt.config.add_section(section)
-        cmt.write_config()
+        scp = SimpleConfigParser()
+        scp.read(tmp_cfg_path)
+        scp.add_section(section)
+        scp.write(tmp_cfg_path)
         tmp_cfg.close()
 
         cfg_file = instance.cfg_file
@@ -74,10 +79,11 @@ def remove_config_section(section: str, instances: List[B]) -> None:
             Logger.print_warn(f"'{cfg_file}' not found!")
             continue
 
-        cm = ConfigManager(cfg_file)
-        if not cm.config.has_section(section):
+        scp = SimpleConfigParser()
+        scp.read(cfg_file)
+        if not scp.has_section(section):
             Logger.print_info("Section does not exist. Skipped ...")
             continue
 
-        cm.config.remove_section(section)
-        cm.write_config()
+        scp.remove_section(section)
+        scp.write(cfg_file)
