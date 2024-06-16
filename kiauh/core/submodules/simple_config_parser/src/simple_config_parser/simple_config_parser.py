@@ -185,7 +185,9 @@ class SimpleConfigParser:
 
         return self._all_options.get(section)
 
-    def get(self, section: str, option: str, fallback: str | _UNSET = _UNSET) -> str:
+    def get(
+        self, section: str, option: str, fallback: str | _UNSET = _UNSET
+    ) -> str | List[str]:
         """
         Return the value of the given option in the given section
 
@@ -260,7 +262,7 @@ class SimpleConfigParser:
         option: str,
         value: str,
         multiline: bool = False,
-        indent: int = 2,
+        indent: int = 4,
     ) -> None:
         """Set the given option to the given value in the given section
 
@@ -312,8 +314,13 @@ class SimpleConfigParser:
         else:
             for _option in self._config[section]["body"]:
                 if _option["option"] == option:
-                    # we preserve inline comments by replacing the old value with the new one
-                    _option["_raw"] = _option["_raw"].replace(_option["value"], _value)
+                    if multiline:
+                        _option["_raw"] = _raw
+                    else:
+                        # we preserve inline comments by replacing the old value with the new one
+                        _option["_raw"] = _option["_raw"].replace(
+                            _option["value"], _value
+                        )
                     _option["value"] = _value
                     if _raw_value is not None:
                         _option["_raw_value"] = _raw_value
