@@ -94,28 +94,19 @@ class SettingsMenu(BaseMenu):
         print(menu, end="")
 
     def _load_settings(self):
-        self.kiauh_settings = KiauhSettings()
+        self.settings = KiauhSettings()
 
         self._format_repo_str("klipper")
         self._format_repo_str("moonraker")
 
-        self.auto_backups_enabled = self.kiauh_settings.get(
-            "kiauh",
-            "backup_before_update",
-        )
-        self.mainsail_unstable = self.kiauh_settings.get(
-            "mainsail",
-            "unstable_releases",
-        )
-        self.fluidd_unstable = self.kiauh_settings.get(
-            "fluidd",
-            "unstable_releases",
-        )
+        self.auto_backups_enabled = self.settings.kiauh.backup_before_update
+        self.mainsail_unstable = self.settings.mainsail.unstable_releases
+        self.fluidd_unstable = self.settings.fluidd.unstable_releases
 
     def _format_repo_str(self, repo_name: str) -> None:
-        repo = self.kiauh_settings.get(repo_name, "repo_url")
+        repo = self.settings.get(repo_name, "repo_url")
         repo = f"{'/'.join(repo.rsplit('/', 2)[-2:])}"
-        branch = self.kiauh_settings.get(repo_name, "branch")
+        branch = self.settings.get(repo_name, "branch")
         branch = f"({COLOR_CYAN}@ {branch}{RESET_FORMAT})"
         setattr(self, f"{repo_name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT} {branch}")
 
@@ -156,9 +147,9 @@ class SettingsMenu(BaseMenu):
         )
 
         if get_confirm("Apply changes?", allow_go_back=True):
-            self.kiauh_settings.set(repo_name, "repo_url", repo_url)
-            self.kiauh_settings.set(repo_name, "branch", branch)
-            self.kiauh_settings.save()
+            self.settings.set(repo_name, "repo_url", repo_url)
+            self.settings.set(repo_name, "branch", branch)
+            self.settings.save()
             self._load_settings()
             Logger.print_ok("Changes saved!")
         else:
@@ -189,8 +180,8 @@ class SettingsMenu(BaseMenu):
         im = InstanceManager(_type)
         im.stop_all_instance()
 
-        repo = self.kiauh_settings.get(name, "repo_url")
-        branch = self.kiauh_settings.get(name, "branch")
+        repo = self.settings.get(name, "repo_url")
+        branch = self.settings.get(name, "branch")
         git_clone_wrapper(repo, target_dir, branch)
 
         im.start_all_instance()
@@ -203,27 +194,15 @@ class SettingsMenu(BaseMenu):
 
     def toggle_mainsail_release(self, **kwargs):
         self.mainsail_unstable = not self.mainsail_unstable
-        self.kiauh_settings.set(
-            "mainsail",
-            "unstable_releases",
-            self.mainsail_unstable,
-        )
-        self.kiauh_settings.save()
+        self.settings.mainsail.unstable_releases = self.mainsail_unstable
+        self.settings.save()
 
     def toggle_fluidd_release(self, **kwargs):
         self.fluidd_unstable = not self.fluidd_unstable
-        self.kiauh_settings.set(
-            "fluidd",
-            "unstable_releases",
-            self.fluidd_unstable,
-        )
-        self.kiauh_settings.save()
+        self.settings.fluidd.unstable_releases = self.fluidd_unstable
+        self.settings.save()
 
     def toggle_backup_before_update(self, **kwargs):
         self.auto_backups_enabled = not self.auto_backups_enabled
-        self.kiauh_settings.set(
-            "kiauh",
-            "backup_before_update",
-            self.auto_backups_enabled,
-        )
-        self.kiauh_settings.save()
+        self.settings.kiauh.backup_before_update = self.auto_backups_enabled
+        self.settings.save()

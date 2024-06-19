@@ -6,17 +6,50 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
-import configparser
 import textwrap
-from typing import Dict, Union
+from typing import Union
 
-from core.config_manager.config_manager import CustomConfigParser
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    NoOptionError,
+    NoSectionError,
+    SimpleConfigParser,
+)
 from utils.constants import COLOR_RED, RESET_FORMAT
 from utils.logger import Logger
 from utils.sys_utils import kill
 
 from kiauh import PROJECT_ROOT
+
+
+class AppSettings:
+    def __init__(self) -> None:
+        self.backup_before_update = None
+
+
+class KlipperSettings:
+    def __init__(self) -> None:
+        self.repo_url = None
+        self.branch = None
+
+
+class MoonrakerSettings:
+    def __init__(self) -> None:
+        self.repo_url = None
+        self.branch = None
+
+
+class MainsailSettings:
+    def __init__(self) -> None:
+        self.port = None
+        self.unstable_releases = None
+
+
+class FluiddSettings:
+    def __init__(self) -> None:
+        self.port = None
+        self.unstable_releases = None
 
 
 # noinspection PyUnusedLocal
@@ -36,32 +69,69 @@ class KiauhSettings:
         if self.__initialized:
             return
         self.__initialized = True
-        self.config = CustomConfigParser()
-        self.settings: Dict[str, Dict[str, Union[str, int, bool]]] = {}
-        self._load_settings()
+        self.config = SimpleConfigParser()
+        self.kiauh = AppSettings()
+        self.klipper = KlipperSettings()
+        self.moonraker = MoonrakerSettings()
+        self.mainsail = MainsailSettings()
+        self.fluidd = FluiddSettings()
+
+        self.kiauh.backup_before_update = None
+        self.klipper.repo_url = None
+        self.klipper.branch = None
+        self.moonraker.repo_url = None
+        self.moonraker.branch = None
+        self.mainsail.port = None
+        self.mainsail.unstable_releases = None
+        self.fluidd.port = None
+        self.fluidd.unstable_releases = None
+
+        self._load_config()
 
     def get(self, section: str, option: str) -> Union[str, int, bool]:
-        return self.settings[section][option]
+        """
+        Get a value from the settings state by providing the section and option name as strings.
+        Prefer direct access to the properties, as it is usually safer!
+        :param section: The section name as string.
+        :param option: The option name as string.
+        :return: The value of the option as string, int or bool.
+        """
+
+        try:
+            section = getattr(self, section)
+            value = getattr(section, option)
+            return value
+        except AttributeError:
+            raise
 
     def set(self, section: str, option: str, value: Union[str, int, bool]) -> None:
-        self.settings[section][option] = value
+        """
+        Set a value in the settings state by providing the section and option name as strings.
+        Prefer direct access to the properties, as it is usually safer!
+        :param section: The section name as string.
+        :param option: The option name as string.
+        :param value: The value to set as string, int or bool.
+        """
+        try:
+            section = getattr(self, section)
+            section.option = value
+        except AttributeError:
+            raise
 
     def save(self) -> None:
-        for section, option in self.settings.items():
-            self.config[section] = option
-        with open(self._custom_cfg, "w") as configfile:
-            self.config.write(configfile)
-        self._load_settings()
+        self._set_config_options()
+        self.config.write(self._custom_cfg)
+        self._load_config()
 
-    def _load_settings(self) -> None:
-        if self._custom_cfg.exists():
-            self.config.read(self._custom_cfg)
-        elif self._default_cfg.exists():
-            self.config.read(self._default_cfg)
-        else:
+    def _load_config(self) -> None:
+        if not self._custom_cfg.exists() or not self._default_cfg.exists():
             self._kill()
+
+        cfg = self._custom_cfg if self._custom_cfg.exists() else self._default_cfg
+        self.config.read(cfg)
+
         self._validate_cfg()
-        self._parse_settings()
+        self._read_settings()
 
     def _validate_cfg(self) -> None:
         try:
@@ -80,11 +150,11 @@ class KiauhSettings:
             err = f"Invalid value for option '{self._v_option}' in section '{self._v_section}'"
             Logger.print_error(err)
             kill()
-        except configparser.NoSectionError:
+        except NoSectionError:
             err = f"Missing section '{self._v_section}' in config file"
             Logger.print_error(err)
             kill()
-        except configparser.NoOptionError:
+        except NoOptionError:
             err = f"Missing option '{self._v_option}' in section '{self._v_section}'"
             Logger.print_error(err)
             kill()
@@ -103,18 +173,43 @@ class KiauhSettings:
         if v.isdigit() or v.lower() == "true" or v.lower() == "false":
             raise ValueError
 
-    def _parse_settings(self):
-        for s in self.config.sections():
-            self.settings[s] = {}
-            for o, v in self.config.items(s):
-                if v.lower() == "true":
-                    self.settings[s][o] = True
-                elif v.lower() == "false":
-                    self.settings[s][o] = False
-                elif v.isdigit():
-                    self.settings[s][o] = int(v)
-                else:
-                    self.settings[s][o] = v
+    def _read_settings(self):
+        self.kiauh.backup_before_update = self.config.getboolean(
+            "kiauh", "backup_before_update"
+        )
+        self.klipper.repo_url = self.config.get("klipper", "repo_url")
+        self.klipper.branch = self.config.get("klipper", "branch")
+        self.moonraker.repo_url = self.config.get("moonraker", "repo_url")
+        self.moonraker.branch = self.config.get("moonraker", "branch")
+        self.mainsail.port = self.config.getint("mainsail", "port")
+        self.mainsail.unstable_releases = self.config.getboolean(
+            "mainsail", "unstable_releases"
+        )
+        self.fluidd.port = self.config.getint("fluidd", "port")
+        self.fluidd.unstable_releases = self.config.getboolean(
+            "fluidd", "unstable_releases"
+        )
+
+    def _set_config_options(self):
+        self.config.set(
+            "kiauh",
+            "backup_before_update",
+            str(self.kiauh.backup_before_update),
+        )
+        self.config.set("klipper", "repo_url", self.klipper.repo_url)
+        self.config.set("klipper", "branch", self.klipper.branch)
+        self.config.set("moonraker", "repo_url", self.moonraker.repo_url)
+        self.config.set("moonraker", "branch", self.moonraker.branch)
+        self.config.set("mainsail", "port", str(self.mainsail.port))
+        self.config.set(
+            "mainsail",
+            "unstable_releases",
+            str(self.mainsail.unstable_releases),
+        )
+        self.config.set("fluidd", "port", str(self.fluidd.port))
+        self.config.set(
+            "fluidd", "unstable_releases", str(self.fluidd.unstable_releases)
+        )
 
     def _kill(self) -> None:
         l1 = "!!! ERROR !!!"

@@ -124,7 +124,7 @@ def update_klipperscreen() -> None:
         cmd_sysctl_service("KlipperScreen", "stop")
 
         settings = KiauhSettings()
-        if settings.get("kiauh", "backup_before_update"):
+        if settings.kiauh.backup_before_update:
             backup_klipperscreen_dir()
 
         git_pull_wrapper(KLIPPERSCREEN_REPO, KLIPPERSCREEN_DIR)
