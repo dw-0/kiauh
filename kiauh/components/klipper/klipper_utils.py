@@ -34,10 +34,12 @@ from components.webui_client.client_config.client_config_setup import (
     create_client_config_symlink,
 )
 from core.backup_manager.backup_manager import BackupManager
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.instance_manager.name_scheme import NameScheme
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from utils import PRINTER_CFG_BACKUP_DIR
 from utils.common import get_install_status
 from utils.constants import CURRENT_USER
@@ -186,10 +188,11 @@ def klipper_to_multi_conversion(new_name: str) -> None:
 
     # patch the virtual_sdcard sections path
     # value to match the new printer_data foldername
-    cm = ConfigManager(new_instance.cfg_file)
-    if cm.config.has_section("virtual_sdcard"):
-        cm.set_value("virtual_sdcard", "path", str(new_instance.gcodes_dir))
-        cm.write_config()
+    scp = SimpleConfigParser()
+    scp.read(new_instance.cfg_file)
+    if scp.has_section("virtual_sdcard"):
+        scp.set("virtual_sdcard", "path", str(new_instance.gcodes_dir))
+        scp.write(new_instance.cfg_file)
 
     # finalize creating the new instance
     im.create_instance()
@@ -292,18 +295,19 @@ def create_example_printer_cfg(
         Logger.print_error(f"Unable to create example printer.cfg:\n{e}")
         return
 
-    cm = ConfigManager(target)
-    cm.set_value("virtual_sdcard", "path", str(instance.gcodes_dir))
+    scp = SimpleConfigParser()
+    scp.read(target)
+    scp.set("virtual_sdcard", "path", str(instance.gcodes_dir))
 
     # include existing client configs in the example config
     if clients is not None and len(clients) > 0:
         for c in clients:
             client_config = c.client_config
             section = client_config.config_section
-            cm.config.add_section(section=section)
+            scp.add_section(section=section)
             create_client_config_symlink(client_config, [instance])
 
-    cm.write_config()
+    scp.write(target)
 
     Logger.print_ok(f"Example printer.cfg created in '{instance.cfg_dir}'")
 

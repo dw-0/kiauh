@@ -102,7 +102,7 @@ def update_client_config(client: BaseWebClient) -> None:
         return
 
     settings = KiauhSettings()
-    if settings.get("kiauh", "backup_before_update"):
+    if settings.kiauh.backup_before_update:
         backup_client_config_data(client)
 
     git_pull_wrapper(client_config.repo_url, client_config.config_dir)

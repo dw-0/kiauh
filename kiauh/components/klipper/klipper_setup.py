@@ -109,8 +109,8 @@ def install_klipper() -> None:
 
 def setup_klipper_prerequesites() -> None:
     settings = KiauhSettings()
-    repo = settings.get("klipper", "repo_url")
-    branch = settings.get("klipper", "branch")
+    repo = settings.klipper.repo_url
+    branch = settings.klipper.branch
 
     git_clone_wrapper(repo, KLIPPER_DIR, branch)
 
@@ -144,13 +144,13 @@ def update_klipper() -> None:
         return
 
     settings = KiauhSettings()
-    if settings.get("kiauh", "backup_before_update"):
+    if settings.kiauh.backup_before_update:
         backup_klipper_dir()
 
     instance_manager = InstanceManager(Klipper)
     instance_manager.stop_all_instance()
 
-    git_pull_wrapper(repo=settings.get("klipper", "repo_url"), target_dir=KLIPPER_DIR)
+    git_pull_wrapper(repo=settings.klipper.repo_url, target_dir=KLIPPER_DIR)
 
     # install possible new system packages
     install_klipper_packages(KLIPPER_DIR)

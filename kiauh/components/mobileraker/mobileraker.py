@@ -120,7 +120,7 @@ def update_mobileraker() -> None:
         cmd_sysctl_service("mobileraker", "stop")
 
         settings = KiauhSettings()
-        if settings.get("kiauh", "backup_before_update"):
+        if settings.kiauh.backup_before_update:
             backup_mobileraker_dir()
 
         git_pull_wrapper(MOBILERAKER_REPO, MOBILERAKER_DIR)

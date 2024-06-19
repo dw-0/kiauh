@@ -121,7 +121,7 @@ def update_crowsnest() -> None:
             Logger.print_status("Updating Crowsnest ...")
 
             settings = KiauhSettings()
-            if settings.get("kiauh", "backup_before_update"):
+            if settings.kiauh.backup_before_update:
                 bm = BackupManager()
                 bm.backup_directory(
                     "crowsnest",

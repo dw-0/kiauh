@@ -137,8 +137,8 @@ def check_moonraker_install_requirements() -> bool:
 
 def setup_moonraker_prerequesites() -> None:
     settings = KiauhSettings()
-    repo = settings.get("moonraker", "repo_url")
-    branch = settings.get("moonraker", "branch")
+    repo = settings.moonraker.repo_url
+    branch = settings.moonraker.branch
 
     git_clone_wrapper(repo, MOONRAKER_DIR, branch)
 
@@ -200,14 +200,14 @@ def update_moonraker() -> None:
         return
 
     settings = KiauhSettings()
-    if settings.get("kiauh", "backup_before_update"):
+    if settings.kiauh.backup_before_update:
         backup_moonraker_dir()
 
     instance_manager = InstanceManager(Moonraker)
     instance_manager.stop_all_instance()
 
     git_pull_wrapper(
-        repo=settings.get("moonraker", "repo_url"), target_dir=MOONRAKER_DIR
+        repo=settings.moonraker.repo_url, target_dir=MOONRAKER_DIR
     )
 
     # install possible new system packages

@@ -23,8 +23,10 @@ from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_utils import enable_mainsail_remotemode
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from utils.common import get_install_status
 from utils.logger import Logger
 from utils.sys_utils import (
@@ -76,13 +78,21 @@ def create_example_moonraker_conf(
     ip.extend(["0", "0/16"])
     uds = instance.comms_dir.joinpath("klippy.sock")
 
-    cm = ConfigManager(target)
-    trusted_clients = f"\n{'.'.join(ip)}"
-    trusted_clients += cm.get_value("authorization", "trusted_clients")
+    scp = SimpleConfigParser()
+    scp.read(target)
+    trusted_clients: List[str] = [
+        ".".join(ip),
+        *scp.get("authorization", "trusted_clients"),
+    ]
 
-    cm.set_value("server", "port", str(port))
-    cm.set_value("server", "klippy_uds_address", str(uds))
-    cm.set_value("authorization", "trusted_clients", trusted_clients)
+    scp.set("server", "port", str(port))
+    scp.set("server", "klippy_uds_address", str(uds))
+    scp.set(
+        "authorization",
+        "trusted_clients",
+        "\n".join(trusted_clients),
+        True,
+    )
 
     # add existing client and client configs in the update section
     if clients is not None and len(clients) > 0:
@@ -95,9 +105,9 @@ def create_example_moonraker_conf(
                 ("repo", c.repo_path),
                 ("path", c.client_dir),
             ]
-            cm.config.add_section(section=c_section)
+            scp.add_section(section=c_section)
             for option in c_options:
-                cm.config.set(c_section, option[0], option[1])
+                scp.set(c_section, option[0], option[1])
 
             # client config part
             c_config = c.client_config
@@ -110,11 +120,11 @@ def create_example_moonraker_conf(
                     ("origin", c_config.repo_url),
                     ("managed_services", "klipper"),
                 ]
-                cm.config.add_section(section=c_config_section)
+                scp.add_section(section=c_config_section)
                 for option in c_config_options:
-                    cm.config.set(c_config_section, option[0], option[1])
+                    scp.set(c_config_section, option[0], option[1])
 
-    cm.write_config()
+    scp.write(target)
     Logger.print_ok(f"Example moonraker.conf created in '{instance.cfg_dir}'")
 
 
@@ -150,14 +160,15 @@ def moonraker_to_multi_conversion(new_name: str) -> None:
     im.current_instance = new_instance
 
     # patch the server sections klippy_uds_address value to match the new printer_data foldername
-    cm = ConfigManager(new_instance.cfg_file)
-    if cm.config.has_section("server"):
-        cm.set_value(
+    scp = SimpleConfigParser()
+    scp.read(new_instance.cfg_file)
+    if scp.has_section("server"):
+        scp.set(
             "server",
             "klippy_uds_address",
             str(new_instance.comms_dir.joinpath("klippy.sock")),
         )
-        cm.write_config()
+        scp.write(new_instance.cfg_file)
 
     # create, enable and start the new moonraker instance
     im.create_instance()

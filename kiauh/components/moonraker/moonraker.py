@@ -6,14 +6,17 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-from typing import List, Union
+from typing import List
 
 from components.moonraker import MODULE_PATH, MOONRAKER_DIR, MOONRAKER_ENV_DIR
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.base_instance import BaseInstance
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from utils.constants import SYSTEMD
 from utils.logger import Logger
 
@@ -144,11 +147,12 @@ class Moonraker(BaseInstance):
         )
         return env_file_content
 
-    def _get_port(self) -> Union[int, None]:
+    def _get_port(self) -> int | None:
         if not self.cfg_file.is_file():
             return None
 
-        cm = ConfigManager(cfg_file=self.cfg_file)
-        port = cm.get_value("server", "port")
+        scp = SimpleConfigParser()
+        scp.read(self.cfg_file)
+        port = scp.getint("server", "port", fallback=None)
 
-        return int(port) if port is not None else port
+        return port
