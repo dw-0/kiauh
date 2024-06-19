@@ -23,6 +23,7 @@ from extensions.klipper_backup import (
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
 from utils.logger import Logger
+from utils.sys_utils import service_instance_exists
 
 
 # noinspection PyMethodMayBeStatic
@@ -44,14 +45,6 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
-        def is_service_installed(service_name):
-            command = ["systemctl", "status", service_name]
-            result = subprocess.run(command, capture_output=True, text=True)
-            # Doesn't matter whether the service is active or not, what matters is whether it is installed. So let's search for "Loaded:" in stdout
-            if "Loaded:" in result.stdout:
-                return True
-            else:
-                return False
 
         def uninstall_service(service_name):
             try:
@@ -60,7 +53,7 @@ class KlipperbackupExtension(BaseExtension):
                     ["sudo", "systemctl", "disable", service_name], check=True
                 )
                 subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True)
-                service_path = f"/etc/systemd/system/{service_name}"
+                service_path = f"/etc/systemd/system/{service_name}.service"
                 os.system(f"sudo rm {service_path}")
                 return True
             except subprocess.CalledProcessError:
@@ -114,30 +107,28 @@ class KlipperbackupExtension(BaseExtension):
         if get_confirm(question, True, False):
             # Remove Klipper-Backup services
             service_names = [
-                "klipper-backup-on-boot.service",
-                "klipper-backup-filewatch.service",
+                "klipper-backup-on-boot",
+                "klipper-backup-filewatch",
             ]
             for service_name in service_names:
                 try:
                     Logger.print_status(
-                        f"Check whether the service {service_name} is installed ..."
+                        f"Check whether the {service_name} service is installed ..."
                     )
-                    if is_service_installed(service_name):
+                    if service_instance_exists(service_name):
                         Logger.print_info(f"Service {service_name} detected.")
                         if uninstall_service(service_name):
                             Logger.print_ok(
-                                f"The service {service_name} has been successfully uninstalled."
+                                f"The {service_name} service has been successfully uninstalled."
                             )
                         else:
                             Logger.print_error(
-                                f"Error uninstalling the service {service_name}."
-                            )
+                               f"Error uninstalling the {service_name} service."
+                           )
                     else:
-                        Logger.print_info(
-                            f"The service {service_name} is not installed. Skipping ..."
-                        )
+                        Logger.print_info(f"Service {service_name} NOT detected.")
                 except:
-                    Logger.print_error(f"Unable to remove the service {service_name}")
+                    Logger.print_error(f"Unable to remove the {service_name} service")
 
             # Remove Klipper-Backup cron
             Logger.print_status("Check for Klipper-Backup cron entry ...")
