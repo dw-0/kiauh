@@ -12,8 +12,10 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
-from core.config_manager.config_manager import ConfigManager
 from core.instance_manager.instance_manager import InstanceManager
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from extensions.base_extension import BaseExtension
 from extensions.obico.moonraker_obico import (
     OBICO_DIR,
@@ -122,7 +124,7 @@ class ObicoExtension(BaseExtension):
             )
 
         except Exception as e:
-            Logger.print_error(f"Error during Obico for Klipper installation: {e}")
+            Logger.print_error(f"Error during Obico for Klipper installation:\n{e}")
 
     def update_extension(self, **kwargs) -> None:
         Logger.print_status("Updating Obico for Klipper ...")
@@ -137,7 +139,7 @@ class ObicoExtension(BaseExtension):
             Logger.print_ok("Obico for Klipper successfully updated!")
 
         except Exception as e:
-            Logger.print_error(f"Error during Obico for Klipper update: {e}")
+            Logger.print_error(f"Error during Obico for Klipper update:\n{e}")
 
     def remove_extension(self, **kwargs) -> None:
         Logger.print_status("Removing Obico for Klipper ...")
@@ -163,7 +165,7 @@ class ObicoExtension(BaseExtension):
             )
 
         except Exception as e:
-            Logger.print_error(f"Error during Obico for Klipper removal: {e}")
+            Logger.print_error(f"Error during Obico for Klipper removal:\n{e}")
 
     def _obico_server_url_prompt(self) -> None:
         Logger.print_dialog(
@@ -243,9 +245,18 @@ class ObicoExtension(BaseExtension):
                 f"Obico macros in {moonraker.cfg_dir} already exists! Skipped ..."
             )
 
-    def _create_obico_cfg(self, current_instance, moonraker) -> None:
+    def _create_obico_cfg(
+        self, current_instance: MoonrakerObico, moonraker: Moonraker
+    ) -> None:
         cfg_template = OBICO_DIR.joinpath("moonraker-obico.cfg.sample")
         cfg_target_file = current_instance.cfg_file
+
+        if not cfg_template.exists():
+            Logger.print_error(
+                f"Obico config template file {cfg_target_file} does not exist!"
+            )
+            return
+
         if not cfg_target_file.exists():
             run(["cp", cfg_template, cfg_target_file], check=True)
             self._patch_obico_cfg(moonraker, current_instance)
@@ -255,11 +266,12 @@ class ObicoExtension(BaseExtension):
             )
 
     def _patch_obico_cfg(self, moonraker: Moonraker, obico: MoonrakerObico) -> None:
-        cm = ConfigManager(obico.cfg_file)
-        cm.set_value("server", "url", self.server_url)
-        cm.set_value("moonraker", "port", str(moonraker.port))
-        cm.set_value("logging", "path", str(obico.log))
-        cm.write_config()
+        scp = SimpleConfigParser()
+        scp.read(obico.cfg_file)
+        scp.set("server", "url", self.server_url)
+        scp.set("moonraker", "port", str(moonraker.port))
+        scp.set("logging", "path", str(obico.log))
+        scp.write(obico.cfg_file)
 
     def _patch_obico_macros(self, klipper: List[Klipper]) -> None:
         add_config_section(

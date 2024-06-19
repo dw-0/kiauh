@@ -12,6 +12,9 @@ from subprocess import DEVNULL, CalledProcessError, run
 from typing import List
 
 from core.instance_manager.base_instance import BaseInstance
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from utils.constants import SYSTEMD
 from utils.logger import Logger
 
@@ -160,8 +163,9 @@ class MoonrakerObico(BaseInstance):
         return env_file_content
 
     def _check_link_status(self) -> bool:
-        from core.config_manager.config_manager import ConfigManager
+        if not self.cfg_file.exists():
+            return False
 
-        cm = ConfigManager(self.cfg_file)
-
-        return cm.get_value("server", "auth_token") is not None
+        scp = SimpleConfigParser()
+        scp.read(self.cfg_file)
+        return scp.get("server", "auth_token", None) is not None
