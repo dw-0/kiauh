@@ -45,14 +45,6 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
-        def is_service_installed(service_name):
-            command = ["systemctl", "status", service_name]
-            result = subprocess.run(command, capture_output=True, text=True)
-            # Doesn't matter whether the service is active or not, what matters is whether it is installed. So let's search for "Loaded:" in stdout
-            if "Loaded:" in result.stdout:
-                return True
-            else:
-                return False
 
         def uninstall_service(service_name):
             try:
