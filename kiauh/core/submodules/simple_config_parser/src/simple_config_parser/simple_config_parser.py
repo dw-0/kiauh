@@ -111,7 +111,13 @@ class SimpleConfigParser:
         self.in_option_block: bool = False  # whether we are in a multiline option block
 
     def read(self, file: Path) -> None:
-        """Read the given file and store the result in the internal state"""
+        """
+        Read the given file and store the result in the internal state.
+        Call this method before using any other methods. Calling this method
+        multiple times will reset the internal state on each call.
+        """
+
+        self._reset_state()
 
         try:
             with open(file, "r") as f:
@@ -119,6 +125,16 @@ class SimpleConfigParser:
 
         except OSError:
             raise
+
+    def _reset_state(self):
+        """Reset the internal state."""
+
+        self._config.clear()
+        self._header.clear()
+        self._all_sections.clear()
+        self._all_options.clear()
+        self.section_name = ""
+        self.in_option_block = False
 
     def write(self, filename):
         """Write the internal state to the given file"""
