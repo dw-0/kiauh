@@ -119,11 +119,11 @@ class KlipperbackupExtension(BaseExtension):
                         Logger.print_info(f"Service {service_name} detected.")
                         if uninstall_service(service_name):
                             Logger.print_ok(
-                                f"The service {service_name} has been successfully uninstalled."
+                                f"The {service_name} service has been successfully uninstalled."
                             )
                         else:
                             Logger.print_error(
-                               f"Error uninstalling the service {service_name}."
+                               f"Error uninstalling the {service_name} service."
                            )
                     else:
                         Logger.print_info(f"Service {service_name} NOT detected.")
