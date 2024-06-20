@@ -124,7 +124,7 @@ class KiauhSettings:
         self._load_config()
 
     def _load_config(self) -> None:
-        if not self._custom_cfg.exists() or not self._default_cfg.exists():
+        if not self._custom_cfg.exists() and not self._default_cfg.exists():
             self._kill()
 
         cfg = self._custom_cfg if self._custom_cfg.exists() else self._default_cfg
