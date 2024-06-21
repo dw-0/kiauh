@@ -7,7 +7,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import shutil
-from subprocess import run
 from typing import List
 
 from components.klipper.klipper import Klipper
@@ -18,13 +17,21 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 )
 from extensions.base_extension import BaseExtension
 from extensions.obico.moonraker_obico import (
+    OBICO_CFG_SAMPLE,
     OBICO_DIR,
     OBICO_ENV,
+    OBICO_LOG,
+    OBICO_MACROS_CFG,
     OBICO_REPO,
+    OBICO_UPDATE_CFG,
+    OBICO_UPDATE_CFG_SAMPLE,
     MoonrakerObico,
 )
 from utils.common import check_install_dependencies, moonraker_exists
-from utils.config_utils import add_config_section, remove_config_section
+from utils.config_utils import (
+    add_config_section,
+    remove_config_section,
+)
 from utils.fs_utils import remove_file
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm, get_selection_input, get_string_input
@@ -102,16 +109,19 @@ class ObicoExtension(BaseExtension):
                 # create obico macros
                 self._create_obico_macros_cfg(moonraker)
 
+                # create obico update manager
+                self._create_obico_update_manager_cfg(moonraker)
+
                 obico_im.start_instance()
 
             cmd_sysctl_manage("daemon-reload")
 
             # add to klippers config
-            self._patch_obico_macros(kl_instances)
+            self._patch_printer_cfg(kl_instances)
             kl_im.restart_all_instance()
 
             # add to moonraker update manager
-            self._patch_update_manager(mr_instances)
+            self._patch_moonraker_conf(mr_instances)
             mr_im.restart_all_instance()
 
             # check linking of / ask for linking instances
@@ -154,9 +164,8 @@ class ObicoExtension(BaseExtension):
             self._remove_obico_instances(ob_im, ob_instances)
             self._remove_obico_dir()
             self._remove_obico_env()
-            remove_config_section("include moonraker_obico_macros.cfg", kl_instances)
-            remove_config_section("update_manager moonraker-obico", mr_instances)
-            remove_config_section("include moonraker-obico-update.cfg", mr_instances)
+            remove_config_section(f"include {OBICO_MACROS_CFG}", kl_instances)
+            remove_config_section(f"include {OBICO_UPDATE_CFG}", mr_instances)
             self._delete_obico_logs(ob_instances)
             Logger.print_dialog(
                 DialogType.SUCCESS,
@@ -236,19 +245,29 @@ class ObicoExtension(BaseExtension):
         install_python_requirements(OBICO_ENV, requirements)
 
     def _create_obico_macros_cfg(self, moonraker) -> None:
-        macros_cfg = OBICO_DIR.joinpath("include_cfgs/moonraker_obico_macros.cfg")
-        macros_target = moonraker.cfg_dir.joinpath("moonraker_obico_macros.cfg")
+        macros_cfg = OBICO_DIR.joinpath(f"include_cfgs/{OBICO_MACROS_CFG}")
+        macros_target = moonraker.cfg_dir.joinpath(OBICO_MACROS_CFG)
         if not macros_target.exists():
-            run(["cp", macros_cfg, macros_target], check=True)
+            shutil.copy(macros_cfg, macros_target)
         else:
             Logger.print_info(
-                f"Obico macros in {moonraker.cfg_dir} already exists! Skipped ..."
+                f"Obico's '{OBICO_MACROS_CFG}' in {moonraker.cfg_dir} already exists! Skipped ..."
+            )
+
+    def _create_obico_update_manager_cfg(self, moonraker) -> None:
+        update_cfg = OBICO_DIR.joinpath(OBICO_UPDATE_CFG_SAMPLE)
+        update_cfg_target = moonraker.cfg_dir.joinpath(OBICO_UPDATE_CFG)
+        if not update_cfg_target.exists():
+            shutil.copy(update_cfg, update_cfg_target)
+        else:
+            Logger.print_info(
+                f"Obico's '{OBICO_UPDATE_CFG}' in {moonraker.cfg_dir} already exists! Skipped ..."
             )
 
     def _create_obico_cfg(
         self, current_instance: MoonrakerObico, moonraker: Moonraker
     ) -> None:
-        cfg_template = OBICO_DIR.joinpath("moonraker-obico.cfg.sample")
+        cfg_template = OBICO_DIR.joinpath(OBICO_CFG_SAMPLE)
         cfg_target_file = current_instance.cfg_file
 
         if not cfg_template.exists():
@@ -258,7 +277,7 @@ class ObicoExtension(BaseExtension):
             return
 
         if not cfg_target_file.exists():
-            run(["cp", cfg_template, cfg_target_file], check=True)
+            shutil.copy(cfg_template, cfg_target_file)
             self._patch_obico_cfg(moonraker, current_instance)
         else:
             Logger.print_info(
@@ -273,27 +292,11 @@ class ObicoExtension(BaseExtension):
         scp.set("logging", "path", str(obico.log))
         scp.write(obico.cfg_file)
 
-    def _patch_obico_macros(self, klipper: List[Klipper]) -> None:
-        add_config_section(
-            section="include moonraker_obico_macros.cfg",
-            instances=klipper,
-        )
+    def _patch_printer_cfg(self, klipper: List[Klipper]) -> None:
+        add_config_section(section=f"include {OBICO_MACROS_CFG}", instances=klipper)
 
-    def _patch_update_manager(self, instances: List[Moonraker]) -> None:
-        env_py = f"{OBICO_ENV}/bin/python"
-        add_config_section(
-            section="update_manager moonraker-obico",
-            instances=instances,
-            options=[
-                ("type", "git_repo"),
-                ("path", str(OBICO_DIR)),
-                ("orgin", OBICO_REPO),
-                ("env", env_py),
-                ("requirements", "requirements.txt"),
-                ("install_script", "install.sh"),
-                ("managed_services", "moonraker-obico"),
-            ],
-        )
+    def _patch_moonraker_conf(self, instances: List[Moonraker]) -> None:
+        add_config_section(section=f"include {OBICO_UPDATE_CFG}", instances=instances)
 
     def _link_obico_instances(self, unlinked_instances):
         for obico in unlinked_instances:
@@ -373,7 +376,7 @@ class ObicoExtension(BaseExtension):
         Logger.print_status("Removing Obico logs ...")
         all_logfiles = []
         for instance in instances:
-            all_logfiles = list(instance.log_dir.glob("moonraker-obico.log*"))
+            all_logfiles = list(instance.log_dir.glob(f"{OBICO_LOG}*"))
         if not all_logfiles:
             Logger.print_info("No Obico logs found. Skipped ...")
             return

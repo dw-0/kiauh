@@ -24,6 +24,13 @@ OBICO_DIR = Path.home().joinpath("moonraker-obico")
 OBICO_ENV = Path.home().joinpath("moonraker-obico-env")
 OBICO_REPO = "https://github.com/TheSpaghettiDetective/moonraker-obico.git"
 
+OBICO_CFG = "moonraker-obico.cfg"
+OBICO_CFG_SAMPLE = "moonraker-obico.cfg.sample"
+OBICO_LOG = "moonraker-obico.log"
+OBICO_UPDATE_CFG = "moonraker-obico-update.cfg"
+OBICO_UPDATE_CFG_SAMPLE = "moonraker-obico-update.cfg.sample"
+OBICO_MACROS_CFG = "moonraker_obico_macros.cfg"
+
 
 # noinspection PyMethodMayBeStatic
 class MoonrakerObico(BaseInstance):
