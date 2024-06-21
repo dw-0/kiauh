@@ -34,6 +34,7 @@ class TestInternalStateChanges:
         parser._store_internal_state_section(given, given)
 
         assert parser._all_sections == [given]
+        assert parser._all_options[given] == {}
         assert parser._config[given]["body"] == []
         assert parser._config[given]["_raw"] == given
 
