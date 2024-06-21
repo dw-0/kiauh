@@ -85,7 +85,7 @@ class DuplicateOptionError(Exception):
 class SimpleConfigParser:
     """A customized config parser targeted at handling Klipper style config files"""
 
-    _SECTION_RE = re.compile(r"\s*\[(\w+\s?[\w\-]+)]\s*([#;].*)?$")
+    _SECTION_RE = re.compile(r"\s*\[(\w+\s?.+)]\s*([#;].*)?$")
     _OPTION_RE = re.compile(r"^\s*(\w+)\s*[:=]\s*([^=:].*)\s*([#;].*)?$")
     _MLOPTION_RE = re.compile(r"^\s*(\w+)\s*[:=]\s*([#;].*)?$")
     _COMMENT_RE = re.compile(r"^\s*([#;].*)?$")
