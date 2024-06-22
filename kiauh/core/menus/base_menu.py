@@ -39,11 +39,11 @@ def print_header():
     count = 62 - len(color) - len(RESET_FORMAT)
     header = textwrap.dedent(
         f"""
-        /=======================================================\\
-        | {color}{line1:~^{count}}{RESET_FORMAT} |
-        | {color}{line2:^{count}}{RESET_FORMAT} |
-        | {color}{line3:~^{count}}{RESET_FORMAT} |
-        \=======================================================/
+        ╔═══════════════════════════════════════════════════════╗
+        ║ {color}{line1:~^{count}}{RESET_FORMAT} ║
+        ║ {color}{line2:^{count}}{RESET_FORMAT} ║
+        ║ {color}{line3:~^{count}}{RESET_FORMAT} ║
+        ╚═══════════════════════════════════════════════════════╝
         """
     )[1:]
     print(header, end="")
@@ -55,9 +55,8 @@ def print_quit_footer():
     count = 62 - len(color) - len(RESET_FORMAT)
     footer = textwrap.dedent(
         f"""
-        |-------------------------------------------------------|
-        | {color}{text:^{count}}{RESET_FORMAT} |
-        \=======================================================/
+        ║ {color}{text:^{count}}{RESET_FORMAT} ║
+        ╚═══════════════════════════════════════════════════════╝
         """
     )[1:]
     print(footer, end="")
@@ -69,9 +68,8 @@ def print_back_footer():
     count = 62 - len(color) - len(RESET_FORMAT)
     footer = textwrap.dedent(
         f"""
-        |-------------------------------------------------------|
-        | {color}{text:^{count}}{RESET_FORMAT} |
-        \=======================================================/
+        ║ {color}{text:^{count}}{RESET_FORMAT} ║
+        ╚═══════════════════════════════════════════════════════╝
         """
     )[1:]
     print(footer, end="")
@@ -85,16 +83,15 @@ def print_back_help_footer():
     count = 34 - len(color1) - len(RESET_FORMAT)
     footer = textwrap.dedent(
         f"""
-        |-------------------------------------------------------|
-        | {color1}{text1:^{count}}{RESET_FORMAT} | {color2}{text2:^{count}}{RESET_FORMAT} |
-        \=======================================================/
+        ║ {color1}{text1:^{count}}{RESET_FORMAT} │ {color2}{text2:^{count}}{RESET_FORMAT} ║
+        ╚═══════════════════════════╧═══════════════════════════╝
         """
     )[1:]
     print(footer, end="")
 
 
 def print_blank_footer():
-    print("\=======================================================/")
+    print("╚═══════════════════════════════════════════════════════╝")
 
 
 class PostInitCaller(type):
@@ -168,7 +165,7 @@ class BaseMenu(metaclass=PostInitCaller):
         elif self.footer_type is FooterType.BLANK:
             print_blank_footer()
         else:
-            raise NotImplementedError
+            raise NotImplementedError("FooterType not correctly implemented!")
 
     def display_menu(self) -> None:
         if self.header:

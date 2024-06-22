@@ -87,11 +87,11 @@ class ExtensionsMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {line1:<62} |
-            |                                                       |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ {line1:<62} ║
+            ║                                                       ║
             """
         )[1:]
         print(menu, end="")
@@ -100,7 +100,8 @@ class ExtensionsMenu(BaseMenu):
             index = extension.metadata.get("index")
             name = extension.metadata.get("display_name")
             row = f"{index}) {name}"
-            print(f"| {row:<53} |")
+            print(f"║ {row:<53} ║")
+        print("╟───────────────────────────────────────────────────────╢")
 
 
 # noinspection PyUnusedLocal
@@ -135,29 +136,30 @@ class ExtensionSubmenu(BaseMenu):
         description_text = Logger.format_content(
             description,
             line_width,
-            border_left="|",
-            border_right="|",
+            border_left="║",
+            border_right="║",
         )
 
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         menu += f"{description_text}\n"
         menu += textwrap.dedent(
             """
-            |-------------------------------------------------------|
-            | 1) Install                                            |
+            ╟───────────────────────────────────────────────────────╢
+            ║ 1) Install                                            ║
             """
         )[1:]
 
         if self.extension.metadata.get("updates"):
-            menu += "| 2) Update                                             |\n"
-            menu += "| 3) Remove                                             |\n"
+            menu += "║ 2) Update                                             ║\n"
+            menu += "║ 3) Remove                                             ║\n"
         else:
-            menu += "| 2) Remove                                             |\n"
+            menu += "║ 2) Remove                                             ║\n"
+        menu += "╟───────────────────────────────────────────────────────╢\n"
 
         print(menu, end="")

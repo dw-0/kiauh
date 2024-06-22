@@ -42,17 +42,18 @@ class LogUploadMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | You can select the following logfiles for uploading:  |
-            |                                                       |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ You can select the following logfiles for uploading:  ║
+            ║                                                       ║
             """
         )[1:]
 
         for logfile in enumerate(self.logfile_list):
             line = f"{logfile[0]}) {logfile[1].get('display_name')}"
-            menu += f"| {line:<54}|\n"
+            menu += f"║ {line:<54}║\n"
+        menu += "╟───────────────────────────────────────────────────────╢\n"
 
         print(menu, end="")
 

@@ -57,21 +57,22 @@ class InstallMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Firmware & API:           | Touchscreen GUI:          |
-            |  1) [Klipper]             |  7) [KlipperScreen]       |
-            |  2) [Moonraker]           |                           |
-            |                           | Android / iOS:            |
-            | Webinterface:             |  8) [Mobileraker]         |
-            |  3) [Mainsail]            |                           |
-            |  4) [Fluidd]              | Webcam Streamer:          |
-            |                           |  9) [Crowsnest]           |
-            | Client-Config:            |                           |
-            |  5) [Mainsail-Config]     |                           |
-            |  6) [Fluidd-Config]       |                           |
-            |                           |                           |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────┬───────────────────────────╢
+            ║ Firmware & API:           │ Touchscreen GUI:          ║
+            ║  1) [Klipper]             │  7) [KlipperScreen]       ║
+            ║  2) [Moonraker]           │                           ║
+            ║                           │ Android / iOS:            ║
+            ║ Webinterface:             │  8) [Mobileraker]         ║
+            ║  3) [Mainsail]            │                           ║
+            ║  4) [Fluidd]              │ Webcam Streamer:          ║
+            ║                           │  9) [Crowsnest]           ║
+            ║ Client-Config:            │                           ║
+            ║  5) [Mainsail-Config]     │                           ║
+            ║  6) [Fluidd-Config]       │                           ║
+            ║                           │                           ║
+            ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
         print(menu, end="")

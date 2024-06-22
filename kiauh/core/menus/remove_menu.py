@@ -56,19 +56,20 @@ class RemoveMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | INFO: Configurations and/or any backups will be kept! |
-            |-------------------------------------------------------|
-            | Firmware & API:           | Touchscreen GUI:          |
-            |  1) [Klipper]             |  5) [KlipperScreen]       |
-            |  2) [Moonraker]           |                           |
-            |                           | Android / iOS:            |
-            | Klipper Webinterface:     |  6) [Mobileraker]         |
-            |  3) [Mainsail]            |                           |
-            |  4) [Fluidd]              | Webcam Streamer:          |
-            |                           |  7) [Crowsnest]           |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ INFO: Configurations and/or any backups will be kept! ║
+            ╟───────────────────────────┬───────────────────────────╢
+            ║ Firmware & API:           │ Touchscreen GUI:          ║
+            ║  1) [Klipper]             │  5) [KlipperScreen]       ║
+            ║  2) [Moonraker]           │                           ║
+            ║                           │ Android / iOS:            ║
+            ║ Klipper Webinterface:     │  6) [Mobileraker]         ║
+            ║  3) [Mainsail]            │                           ║
+            ║  4) [Fluidd]              │ Webcam Streamer:          ║
+            ║                           │  7) [Crowsnest]           ║
+            ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
         print(menu, end="")

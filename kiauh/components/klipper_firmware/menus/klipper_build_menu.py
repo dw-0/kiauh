@@ -57,11 +57,11 @@ class KlipperBuildFirmwareMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | The following dependencies are required:              |
-            |                                                       |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ The following dependencies are required:              ║
+            ║                                                       ║
             """
         )[1:]
 
@@ -71,15 +71,15 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             status = status_missing if d in self.missing_deps else status_ok
             padding = 39 - len(d) + len(status) + (len(status_ok) - len(status))
             d = f" {COLOR_CYAN}● {d}{RESET_FORMAT}"
-            menu += f"| {d}{status:>{padding}} |\n"
+            menu += f"║ {d}{status:>{padding}} ║\n"
+        menu += "║                                                       ║\n"
 
-        menu += "|                                                       |\n"
         if len(self.missing_deps) == 0:
             line = f"{COLOR_GREEN}All dependencies are met!{RESET_FORMAT}"
         else:
             line = f"{COLOR_RED}Dependencies are missing!{RESET_FORMAT}"
 
-        menu += f"| {line:<62} |\n"
+        menu += f"║ {line:<62} ║\n"
 
         print(menu, end="")
 
