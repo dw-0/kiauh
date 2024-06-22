@@ -25,16 +25,16 @@ def print_moonraker_overview(
     headline = f"{COLOR_GREEN}The following instances were found:{RESET_FORMAT}"
     dialog = textwrap.dedent(
         f"""
-        /=======================================================\\
-        |{headline:^64}|
-        |-------------------------------------------------------|
+        ╔═══════════════════════════════════════════════════════╗
+        ║{headline:^64}║
+        ╟───────────────────────────────────────────────────────╢
         """
     )[1:]
 
     if show_select_all:
         select_all = f"{COLOR_YELLOW}a) Select all{RESET_FORMAT}"
-        dialog += f"| {select_all:<63}|\n"
-        dialog += "|                                                       |\n"
+        dialog += f"║ {select_all:<63}║\n"
+        dialog += "║                                                       ║\n"
 
     instance_map = {
         k.get_service_file_name(): (
@@ -49,18 +49,19 @@ def print_moonraker_overview(
         mr_name = instance_map.get(k)
         m = f"<-> {mr_name}" if mr_name != "" else ""
         line = f"{COLOR_CYAN}{f'{i})' if show_index else '●'} {k} {m} {RESET_FORMAT}"
-        dialog += f"| {line:<63}|\n"
+        dialog += f"║ {line:<63}║\n"
 
     warn_l1 = f"{COLOR_YELLOW}PLEASE NOTE: {RESET_FORMAT}"
     warn_l2 = f"{COLOR_YELLOW}If you select an instance with an existing Moonraker{RESET_FORMAT}"
     warn_l3 = f"{COLOR_YELLOW}instance, that Moonraker instance will be re-created!{RESET_FORMAT}"
     warning = textwrap.dedent(
         f"""
-        |                                                       |
-        |-------------------------------------------------------|
-        | {warn_l1:<63}|
-        | {warn_l2:<63}|
-        | {warn_l3:<63}|
+        ║                                                       ║
+        ╟───────────────────────────────────────────────────────╢
+        ║ {warn_l1:<63}║
+        ║ {warn_l2:<63}║
+        ║ {warn_l3:<63}║
+        ╟───────────────────────────────────────────────────────╢
         """
     )[1:]
 
