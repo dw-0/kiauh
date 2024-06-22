@@ -85,7 +85,7 @@ class DuplicateOptionError(Exception):
 class SimpleConfigParser:
     """A customized config parser targeted at handling Klipper style config files"""
 
-    _SECTION_RE = re.compile(r"\s*\[(\w+ ?\w+)]\s*([#;].*)?$")
+    _SECTION_RE = re.compile(r"\s*\[(\w+\s?.+)]\s*([#;].*)?$")
     _OPTION_RE = re.compile(r"^\s*(\w+)\s*[:=]\s*([^=:].*)\s*([#;].*)?$")
     _MLOPTION_RE = re.compile(r"^\s*(\w+)\s*[:=]\s*([#;].*)?$")
     _COMMENT_RE = re.compile(r"^\s*([#;].*)?$")
@@ -192,9 +192,9 @@ class SimpleConfigParser:
         if section not in self._all_sections:
             raise NoSectionError(section)
 
-        del self._all_sections[self._all_sections.index(section)]
-        del self._all_options[section]
-        del self._config[section]
+        self._all_sections.pop(self._all_sections.index(section))
+        self._all_options.pop(section)
+        self._config.pop(section)
 
     def options(self, section) -> List[str]:
         """Return a list of option names for the given section name"""
@@ -453,6 +453,7 @@ class SimpleConfigParser:
 
         self.section_name = section
         self._all_sections.append(section)
+        self._all_options[section] = {}
         self._config[section]: Section = {"_raw": raw_value, "body": []}
 
     def _parse_option(self, line: str) -> None:

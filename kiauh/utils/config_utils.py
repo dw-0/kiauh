@@ -43,7 +43,7 @@ def add_config_section(
         scp.add_section(section)
 
         if options is not None:
-            for option in options:
+            for option in reversed(options):
                 scp.set(section, option[0], option[1])
 
         scp.write(cfg_file)

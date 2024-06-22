@@ -123,7 +123,7 @@ class KiauhSettings:
         self._load_config()
 
     def _load_config(self) -> None:
-        if not CUSTOM_CFG.exists() or not DEFAULT_CFG.exists():
+        if not CUSTOM_CFG.exists() and not DEFAULT_CFG.exists():
             self._kill()
 
         cfg = CUSTOM_CFG if CUSTOM_CFG.exists() else DEFAULT_CFG

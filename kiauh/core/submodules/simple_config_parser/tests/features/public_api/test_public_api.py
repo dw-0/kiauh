@@ -108,7 +108,7 @@ class TestPublicAPI:
         assert parser._config[section]["body"][0]["option"] == option
 
         values = ["value1", "value2", "value3"]
-        raw_values = ["  value1\n", "  value2\n", "  value3\n"]
+        raw_values = ["    value1\n", "    value2\n", "    value3\n"]
         assert parser._config[section]["body"][0]["value"] == values
         assert parser._config[section]["body"][0]["_raw"] == f"{option}:\n"
         assert parser._config[section]["body"][0]["_raw_value"] == raw_values
