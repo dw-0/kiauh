@@ -23,7 +23,6 @@ from components.klipper import (
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import (
     print_instance_overview,
-    print_missing_usergroup_dialog,
     print_select_custom_name_dialog,
     print_select_instance_count_dialog,
 )
@@ -201,18 +200,29 @@ def klipper_to_multi_conversion(new_name: str) -> None:
 
 
 def check_user_groups():
-    current_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
-
-    missing_groups = []
-    if "tty" not in current_groups:
-        missing_groups.append("tty")
-    if "dialout" not in current_groups:
-        missing_groups.append("dialout")
+    user_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
+    missing_groups = [g for g in user_groups if g == "tty" or g == "dialout"]
 
     if not missing_groups:
         return
 
-    print_missing_usergroup_dialog(missing_groups)
+    Logger.print_dialog(
+        DialogType.ATTENTION,
+        [
+            "Your current user is not in group:",
+            *[f"● {g}" for g in missing_groups],
+            "\n\n",
+            "It is possible that you won't be able to successfully connect and/or "
+            "flash the controller board without your user being a member of that "
+            "group. If you want to add the current user to the group(s) listed above, "
+            "answer with 'Y'. Else skip with 'n'.",
+            "\n\n",
+            "INFO:",
+            "Relog required for group assignments to take effect!",
+        ],
+        end="",
+    )
+
     if not get_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
         log = "Skipped adding user to required groups. You might encounter issues."
         Logger.warn(log)

@@ -16,7 +16,6 @@ from components.klipper import (
     KLIPPER_REQUIREMENTS_TXT,
 )
 from components.klipper.klipper import Klipper
-from components.klipper.klipper_dialogs import print_update_warn_dialog
 from components.klipper.klipper_utils import (
     add_to_existing,
     backup_klipper_dir,
@@ -39,7 +38,7 @@ from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
-from utils.logger import Logger
+from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_manage,
     create_python_venv,
@@ -139,7 +138,16 @@ def install_klipper_packages(klipper_dir: Path) -> None:
 
 
 def update_klipper() -> None:
-    print_update_warn_dialog()
+    Logger.print_dialog(
+        DialogType.WARNING,
+        [
+            "Do NOT continue if there are ongoing prints running!",
+            "All Klipper instances will be restarted during the update process and "
+            "ongoing prints WILL FAIL.",
+        ],
+        end="",
+    )
+
     if not get_confirm("Update Klipper now?"):
         return
 
