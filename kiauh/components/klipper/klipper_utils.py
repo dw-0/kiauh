@@ -201,7 +201,7 @@ def klipper_to_multi_conversion(new_name: str) -> None:
 
 def check_user_groups():
     user_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
-    missing_groups = [g for g in user_groups if g == "tty" or g == "dialout"]
+    missing_groups = [g for g in ["tty", "dialout"] if g not in user_groups]
 
     if not missing_groups:
         return
