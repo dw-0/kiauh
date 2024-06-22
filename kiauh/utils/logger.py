@@ -120,15 +120,19 @@ class Logger:
 
     @staticmethod
     def _format_top_border(color: str) -> str:
-        return textwrap.dedent(f"""
+        return textwrap.dedent(
+            f"""
             {color}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            """)[:-1]
+            """
+        )[1:-1]
 
     @staticmethod
     def _format_bottom_border() -> str:
-        return textwrap.dedent(f"""
+        return textwrap.dedent(
+            f"""
             ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            {RESET_FORMAT}""")
+            {RESET_FORMAT}"""
+        )
 
     @staticmethod
     def _format_dialog_title(title: str) -> str:

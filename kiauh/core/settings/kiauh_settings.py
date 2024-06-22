@@ -8,7 +8,6 @@
 # ======================================================================= #
 from __future__ import annotations
 
-import textwrap
 from typing import Union
 
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
@@ -16,11 +15,13 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
     NoSectionError,
     SimpleConfigParser,
 )
-from utils.constants import COLOR_RED, RESET_FORMAT
-from utils.logger import Logger
+from utils.logger import DialogType, Logger
 from utils.sys_utils import kill
 
 from kiauh import PROJECT_ROOT
+
+DEFAULT_CFG = PROJECT_ROOT.joinpath("default.kiauh.cfg")
+CUSTOM_CFG = PROJECT_ROOT.joinpath("kiauh.cfg")
 
 
 class AppSettings:
@@ -56,8 +57,6 @@ class FluiddSettings:
 # noinspection PyMethodMayBeStatic
 class KiauhSettings:
     _instance = None
-    _default_cfg = PROJECT_ROOT.joinpath("default_kiauh.cfg")
-    _custom_cfg = PROJECT_ROOT.joinpath("kiauh.cfg")
 
     def __new__(cls, *args, **kwargs) -> "KiauhSettings":
         if cls._instance is None:
@@ -120,14 +119,14 @@ class KiauhSettings:
 
     def save(self) -> None:
         self._set_config_options()
-        self.config.write(self._custom_cfg)
+        self.config.write(CUSTOM_CFG)
         self._load_config()
 
     def _load_config(self) -> None:
-        if not self._custom_cfg.exists() and not self._default_cfg.exists():
+        if not CUSTOM_CFG.exists() and not DEFAULT_CFG.exists():
             self._kill()
 
-        cfg = self._custom_cfg if self._custom_cfg.exists() else self._default_cfg
+        cfg = CUSTOM_CFG if CUSTOM_CFG.exists() else DEFAULT_CFG
         self.config.read(cfg)
 
         self._validate_cfg()
@@ -212,15 +211,14 @@ class KiauhSettings:
         )
 
     def _kill(self) -> None:
-        l1 = "!!! ERROR !!!"
-        l2 = "No KIAUH configuration file found!"
-        error = textwrap.dedent(
-            f"""
-            {COLOR_RED}/=======================================================\\
-            | {l1:^53} |
-            | {l2:^53} |
-            \=======================================================/{RESET_FORMAT}
-            """
-        )[1:]
-        print(error, end="")
+        Logger.print_dialog(
+            DialogType.ERROR,
+            [
+                "No KIAUH configuration file found! Please make sure you have at least "
+                "one of the following configuration files in KIAUH's root directory:",
+                "● default.kiauh.cfg",
+                "● kiauh.cfg",
+            ],
+            end="",
+        )
         kill()

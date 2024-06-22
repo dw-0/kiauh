@@ -43,12 +43,12 @@ class AdvancedMenu(BaseMenu):
 
     def set_options(self):
         self.options = {
-            "1": Option(method=self.klipper_rollback, menu=True),
-            "2": Option(method=self.moonraker_rollback, menu=True),
-            "3": Option(method=self.build, menu=True),
-            "4": Option(method=self.flash, menu=False),
-            "5": Option(method=self.build_flash, menu=False),
-            "6": Option(method=self.get_id, menu=False),
+            "1": Option(method=self.build, menu=True),
+            "2": Option(method=self.flash, menu=False),
+            "3": Option(method=self.build_flash, menu=False),
+            "4": Option(method=self.get_id, menu=False),
+            "5": Option(method=self.klipper_rollback, menu=True),
+            "6": Option(method=self.moonraker_rollback, menu=True),
         }
 
     def print_menu(self):
@@ -57,18 +57,15 @@ class AdvancedMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Repo Rollback:                                        |
-            |  1) [Klipper]                                         |
-            |  2) [Moonraker]                                       |
-            |                                                       |
-            | Klipper Firmware:                                     |
-            |  3) [Build]                                           |
-            |  4) [Flash]                                           |
-            |  5) [Build + Flash]                                   |
-            |  6) [Get MCU ID]                                      |   
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────┬───────────────────────────╢
+            ║ Klipper Firmware:         │ Repository Rollback:      ║
+            ║  1) [Build]               │  5) [Klipper]             ║
+            ║  2) [Flash]               │  6) [Moonraker]           ║
+            ║  3) [Build + Flash]       │                           ║
+            ║  4) [Get MCU ID]          │                           ║
+            ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
         print(menu, end="")

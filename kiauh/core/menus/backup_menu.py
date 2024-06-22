@@ -62,20 +62,21 @@ class BackupMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {line1:^62} |
-            |-------------------------------------------------------|
-            | Klipper & Moonraker API:  | Client-Config:            |
-            |  1) [Klipper]             |  7) [Mainsail-Config]     |
-            |  2) [Moonraker]           |  8) [Fluidd-Config]       |
-            |  3) [Config Folder]       |                           |
-            |  4) [Moonraker Database]  | Touchscreen GUI:          |
-            |                           |  9) [KlipperScreen]       |
-            | Webinterface:             |                           |
-            |  5) [Mainsail]            |                           |
-            |  6) [Fluidd]              |                           |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ {line1:^62} ║
+            ╟───────────────────────────┬───────────────────────────╢
+            ║ Klipper & Moonraker API:  │ Client-Config:            ║
+            ║  1) [Klipper]             │  7) [Mainsail-Config]     ║
+            ║  2) [Moonraker]           │  8) [Fluidd-Config]       ║
+            ║  3) [Config Folder]       │                           ║
+            ║  4) [Moonraker Database]  │ Touchscreen GUI:          ║
+            ║                           │  9) [KlipperScreen]       ║
+            ║ Webinterface:             │                           ║
+            ║  5) [Mainsail]            │                           ║
+            ║  6) [Fluidd]              │                           ║
+            ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
         print(menu, end="")

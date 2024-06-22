@@ -38,7 +38,7 @@ from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_CYAN, COLOR_RED, COLOR_YELLOW, RESET_FORMAT
 from utils.input_utils import get_number_input
-from utils.logger import Logger
+from utils.logger import DialogType, Logger
 
 
 # noinspection PyUnusedLocal
@@ -74,19 +74,18 @@ class KlipperFlashMethodMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Select the flash method for flashing the MCU.         |
-            |                                                       |
-            | {subheader:<62} |
-            | {subline1:<62} |
-            | {subline2:<62} |
-            |-------------------------------------------------------|
-            |                                                       |
-            | 1) Regular flashing method                            |
-            | 2) Updating via SD-Card Update                        |
-            |                                                       |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Select the flash method for flashing the MCU.         ║
+            ║                                                       ║
+            ║ {subheader:<62} ║
+            ║ {subline1:<62} ║
+            ║ {subline2:<62} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ 1) Regular flashing method                            ║
+            ║ 2) Updating via SD-Card Update                        ║
+            ╟───────────────────────────┬───────────────────────────╢
             """
         )[1:]
         print(menu, end="")
@@ -131,12 +130,12 @@ class KlipperFlashCommandMenu(BaseMenu):
     def print_menu(self) -> None:
         menu = textwrap.dedent(
             """
-            /=======================================================\\
-            |                                                       |
-            | Which flash command to use for flashing the MCU?      |
-            | 1) make flash (default)                               |
-            | 2) make serialflash (stm32flash)                      |
-            |                                                       |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ Which flash command to use for flashing the MCU?      ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ 1) make flash (default)                               ║
+            ║ 2) make serialflash (stm32flash)                      ║
+            ╟───────────────────────────┬───────────────────────────╢
             """
         )[1:]
         print(menu, end="")
@@ -185,15 +184,15 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            |                                                       |
-            | How is the controller board connected to the host?    |
-            | 1) USB                                                |
-            | 2) UART                                               |
-            | 3) USB (DFU mode)                                     |
-            |                                                       |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ How is the controller board connected to the host?    ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ 1) USB                                                ║
+            ║ 2) UART                                               ║
+            ║ 3) USB (DFU mode)                                     ║
+            ╟───────────────────────────┬───────────────────────────╢
             """
         )[1:]
         print(menu, end="")
@@ -271,20 +270,20 @@ class KlipperSelectMcuIdMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Make sure, to select the correct MCU!                 |
-            | ONLY flash a firmware created for the respective MCU! |
-            |                                                       |
-            |{header2:-^64}|
-            
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Make sure, to select the correct MCU!                 ║
+            ║ ONLY flash a firmware created for the respective MCU! ║
+            ║                                                       ║
+            ╟{header2:─^64}╢
             """
         )[1:]
 
         for i, mcu in enumerate(self.mcu_list):
             mcu = mcu.split("/")[-1]
             menu += f"   ● MCU #{i}: {COLOR_CYAN}{mcu}{RESET_FORMAT}\n"
+        menu += "╟───────────────────────────┬───────────────────────────╢"
 
         print(menu, end="\n")
 
@@ -325,12 +324,12 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
         else:
             menu = textwrap.dedent(
                 """
-                /=======================================================\\
-                | Please select the type of board that corresponds to   |
-                | the currently selected MCU ID you chose before.       |
-                |                                                       |
-                | The following boards are currently supported:         |
-                |-------------------------------------------------------|
+                ╔═══════════════════════════════════════════════════════╗
+                ║ Please select the type of board that corresponds to   ║
+                ║ the currently selected MCU ID you chose before.       ║
+                ║                                                       ║
+                ║ The following boards are currently supported:         ║
+                ╟───────────────────────────────────────────────────────╢
                 """
             )[1:]
 
@@ -346,17 +345,16 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
         self.baudrate_select()
 
     def baudrate_select(self, **kwargs):
-        menu = textwrap.dedent(
-            """
-            /=======================================================\\
-            | If your board is flashed with firmware that connects  |
-            | at a custom baud rate, please change it now.          |
-            |                                                       |
-            | If you are unsure, stick to the default 250000!       |
-            \\=======================================================/
-            """
-        )[1:]
-        print(menu, end="")
+        Logger.print_dialog(
+            DialogType.CUSTOM,
+            [
+                "If your board is flashed with firmware that connects "
+                "at a custom baud rate, please change it now.",
+                "\n\n",
+                "If you are unsure, stick to the default 250000!",
+            ],
+            end="",
+        )
         self.flash_options.selected_baudrate = get_number_input(
             question="Please set the baud rate",
             default=250000,
@@ -399,16 +397,15 @@ class KlipperFlashOverviewMenu(BaseMenu):
         subheader = f"[{COLOR_CYAN}Overview{RESET_FORMAT}]"
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Before contuining the flashing process, please check  |
-            | if all parameters were set correctly! Once you made   |
-            | sure everything is correct, start the process. If any |
-            | parameter needs to be changed, you can go back (B)    |
-            | step by step or abort and start from the beginning.   |
-            |{subheader:-^64}|
-            
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Before contuining the flashing process, please check  ║
+            ║ if all parameters were set correctly! Once you made   ║
+            ║ sure everything is correct, start the process. If any ║
+            ║ parameter needs to be changed, you can go back (B)    ║
+            ║ step by step or abort and start from the beginning.   ║
+            ║{subheader:-^64}║
             """
         )[1:]
 
@@ -423,9 +420,9 @@ class KlipperFlashOverviewMenu(BaseMenu):
 
         menu += textwrap.dedent(
             """
-            |-------------------------------------------------------|
-            |  Y) Start flash process                               |
-            |  N) Abort - Return to Advanced Menu                   |
+            ╟───────────────────────────────────────────────────────╢
+            ║  Y) Start flash process                               ║
+            ║  N) Abort - Return to Advanced Menu                   ║
             """
         )
         print(menu, end="")

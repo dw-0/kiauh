@@ -65,30 +65,31 @@ class SettingsMenu(BaseMenu):
         o3 = checked if self.auto_backups_enabled else unchecked
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Klipper source repository:                            |
-            |   ● {self.klipper_repo:<67} |
-            |                                                       |
-            | Moonraker source repository:                          |
-            |   ● {self.moonraker_repo:<67} |
-            |                                                       |
-            | Install unstable Webinterface releases:               |
-            |  {o1} Mainsail                                         |
-            |  {o2} Fluidd                                           |
-            |                                                       |
-            | Auto-Backup:                                          |
-            |  {o3} Automatic backup before update                   |
-            |                                                       |
-            |-------------------------------------------------------|
-            | 1) Set Klipper source repository                      |
-            | 2) Set Moonraker source repository                    |
-            |                                                       |
-            | 3) Toggle unstable Mainsail releases                  |
-            | 4) Toggle unstable Fluidd releases                    |
-            |                                                       |
-            | 5) Toggle automatic backups before updates            |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Klipper source repository:                            ║
+            ║   ● {self.klipper_repo:<67} ║
+            ║                                                       ║
+            ║ Moonraker source repository:                          ║
+            ║   ● {self.moonraker_repo:<67} ║
+            ║                                                       ║
+            ║ Install unstable Webinterface releases:               ║
+            ║  {o1} Mainsail                                         ║
+            ║  {o2} Fluidd                                           ║
+            ║                                                       ║
+            ║ Auto-Backup:                                          ║
+            ║  {o3} Automatic backup before update                   ║
+            ║                                                       ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ 1) Set Klipper source repository                      ║
+            ║ 2) Set Moonraker source repository                    ║
+            ║                                                       ║
+            ║ 3) Toggle unstable Mainsail releases                  ║
+            ║ 4) Toggle unstable Fluidd releases                    ║
+            ║                                                       ║
+            ║ 5) Toggle automatic backups before updates            ║
+            ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         print(menu, end="")

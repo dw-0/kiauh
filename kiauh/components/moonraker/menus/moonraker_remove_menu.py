@@ -58,21 +58,22 @@ class MoonrakerRemoveMenu(BaseMenu):
         o5 = checked if self.delete_moonraker_logs else unchecked
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Enter a number and hit enter to select / deselect     |
-            | the specific option for removal.                      |
-            |-------------------------------------------------------|
-            |  0) Select everything                                 |
-            |-------------------------------------------------------|
-            |  1) {o1} Remove Service                                |
-            |  2) {o2} Remove Local Repository                       |
-            |  3) {o3} Remove Python Environment                     |
-            |  4) {o4} Remove Policy Kit Rules                       |
-            |  5) {o5} Delete all Log-Files                          |
-            |-------------------------------------------------------|
-            |  C) Continue                                          |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Enter a number and hit enter to select / deselect     ║
+            ║ the specific option for removal.                      ║
+            ╟───────────────────────────────────────────────────────╢
+            ║  0) Select everything                                 ║
+            ╟───────────────────────────────────────────────────────╢
+            ║  1) {o1} Remove Service                                ║
+            ║  2) {o2} Remove Local Repository                       ║
+            ║  3) {o3} Remove Python Environment                     ║
+            ║  4) {o4} Remove Policy Kit Rules                       ║
+            ║  5) {o5} Delete all Log-Files                          ║
+            ╟───────────────────────────────────────────────────────╢
+            ║  C) Continue                                          ║
+            ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         print(menu, end="")

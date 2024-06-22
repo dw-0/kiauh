@@ -6,7 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import sys
 import textwrap
 from typing import Optional, Type
 
@@ -39,6 +39,7 @@ from utils.constants import (
     COLOR_YELLOW,
     RESET_FORMAT,
 )
+from utils.logger import Logger
 from utils.types import ComponentStatus
 
 
@@ -117,7 +118,7 @@ class MainMenu(BaseMenu):
         self.fetch_status()
 
         header = " [ Main Menu ] "
-        footer1 = "KIAUH v6.0.0"
+        footer1 = f"{COLOR_CYAN}KIAUH v6.0.0{RESET_FORMAT}"
         footer2 = f"Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT}"
         color = COLOR_CYAN
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -125,27 +126,32 @@ class MainMenu(BaseMenu):
         pad2 = 26
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            |  0) [Log-Upload] |   Klipper: {self.kl_status:<{pad1}} |
-            |                  |      Repo: {self.kl_repo:<{pad1}} |
-            |  1) [Install]    |------------------------------------|
-            |  2) [Update]     | Moonraker: {self.mr_status:<{pad1}} |
-            |  3) [Remove]     |      Repo: {self.mr_repo:<{pad1}} |
-            |  4) [Advanced]   |------------------------------------|
-            |  5) [Backup]     |        Mainsail: {self.ms_status:<{pad2}} |
-            |                  |          Fluidd: {self.fl_status:<{pad2}} |
-            |  S) [Settings]   |   Client-Config: {self.cc_status:<{pad2}} |
-            |                  |                                    |
-            | Community:       |   KlipperScreen: {self.ks_status:<{pad2}} |
-            |  E) [Extensions] |     Mobileraker: {self.mb_status:<{pad2}} |
-            |                  |       Crowsnest: {self.cn_status:<{pad2}} |
-            |-------------------------------------------------------|
-            | {COLOR_CYAN}{footer1:^16}{RESET_FORMAT} | {footer2:^43} |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟──────────────────┬────────────────────────────────────╢
+            ║  0) [Log-Upload] │   Klipper: {self.kl_status:<{pad1}} ║
+            ║                  │      Repo: {self.kl_repo:<{pad1}} ║
+            ║  1) [Install]    ├────────────────────────────────────╢
+            ║  2) [Update]     │ Moonraker: {self.mr_status:<{pad1}} ║
+            ║  3) [Remove]     │      Repo: {self.mr_repo:<{pad1}} ║
+            ║  4) [Advanced]   ├────────────────────────────────────╢
+            ║  5) [Backup]     │        Mainsail: {self.ms_status:<{pad2}} ║
+            ║                  │          Fluidd: {self.fl_status:<{pad2}} ║
+            ║  S) [Settings]   │   Client-Config: {self.cc_status:<{pad2}} ║
+            ║                  │                                    ║
+            ║ Community:       │   KlipperScreen: {self.ks_status:<{pad2}} ║
+            ║  E) [Extensions] │     Mobileraker: {self.mb_status:<{pad2}} ║
+            ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
+            ╟──────────────────┼────────────────────────────────────╢
+            ║ {footer1:^25} │ {footer2:^43} ║
+            ╟──────────────────┴────────────────────────────────────╢
             """
         )[1:]
         print(menu, end="")
+
+    def exit(self, **kwargs):
+        Logger.print_ok("###### Happy printing!", False)
+        sys.exit(0)
 
     def log_upload_menu(self, **kwargs):
         LogUploadMenu().run()

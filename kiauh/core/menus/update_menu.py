@@ -93,29 +93,30 @@ class UpdateMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            |  0) Update all        |               |               |
-            |                       | Current:      | Latest:       |
-            | Klipper & API:        |---------------|---------------|
-            |  1) Klipper           | {self.kl_local:<22} | {self.kl_remote:<22} |
-            |  2) Moonraker         | {self.mr_local:<22} | {self.mr_remote:<22} |
-            |                       |               |               |
-            | Webinterface:         |---------------|---------------|
-            |  3) Mainsail          | {self.ms_local:<22} | {self.ms_remote:<22} |
-            |  4) Fluidd            | {self.fl_local:<22} | {self.fl_remote:<22} |
-            |                       |               |               |
-            | Client-Config:        |---------------|---------------|
-            |  5) Mainsail-Config   | {self.mc_local:<22} | {self.mc_remote:<22} |
-            |  6) Fluidd-Config     | {self.fc_local:<22} | {self.fc_remote:<22} |
-            |                       |               |               |
-            | Other:                |---------------|---------------|
-            |  7) KlipperScreen     | {self.ks_local:<22} | {self.ks_remote:<22} |
-            |  8) Mobileraker       | {self.mb_local:<22} | {self.mb_remote:<22} |
-            |  9) Crowsnest         | {self.cn_local:<22} | {self.cn_remote:<22} |
-            |                       |-------------------------------|
-            | 10) System            |                               |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────┬───────────────┬───────────────╢
+            ║  0) Update all        │               │               ║
+            ║                       │ Current:      │ Latest:       ║
+            ║ Klipper & API:        ├───────────────┼───────────────╢
+            ║  1) Klipper           │ {self.kl_local:<22} │ {self.kl_remote:<22} ║
+            ║  2) Moonraker         │ {self.mr_local:<22} │ {self.mr_remote:<22} ║
+            ║                       │               │               ║
+            ║ Webinterface:         ├───────────────┼───────────────╢
+            ║  3) Mainsail          │ {self.ms_local:<22} │ {self.ms_remote:<22} ║
+            ║  4) Fluidd            │ {self.fl_local:<22} │ {self.fl_remote:<22} ║
+            ║                       │               │               ║
+            ║ Client-Config:        ├───────────────┼───────────────╢
+            ║  5) Mainsail-Config   │ {self.mc_local:<22} │ {self.mc_remote:<22} ║
+            ║  6) Fluidd-Config     │ {self.fc_local:<22} │ {self.fc_remote:<22} ║
+            ║                       │               │               ║
+            ║ Other:                ├───────────────┼───────────────╢
+            ║  7) KlipperScreen     │ {self.ks_local:<22} │ {self.ks_remote:<22} ║
+            ║  8) Mobileraker       │ {self.mb_local:<22} │ {self.mb_remote:<22} ║
+            ║  9) Crowsnest         │ {self.cn_local:<22} │ {self.cn_remote:<22} ║
+            ║                       ├───────────────┴───────────────╢
+            ║ 10) System            │                               ║
+            ╟───────────────────────┴───────────────────────────────╢
             """
         )[1:]
         print(menu, end="")

@@ -60,16 +60,16 @@ class ClientRemoveMenu(BaseMenu):
         o2 = checked if self.rm_client_config else unchecked
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | Enter a number and hit enter to select / deselect     |
-            | the specific option for removal.                      |
-            |-------------------------------------------------------|
-            |  0) Select everything                                 |
-            |-------------------------------------------------------|
-            |  1) {o1} Remove {client_name:16}                       |
-            |  2) {o2} Remove {client_config_name:24}               |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Enter a number and hit enter to select / deselect     ║
+            ║ the specific option for removal.                      ║
+            ╟───────────────────────────────────────────────────────╢
+            ║  0) Select everything                                 ║
+            ╟───────────────────────────────────────────────────────╢
+            ║  1) {o1} Remove {client_name:16}                       ║
+            ║  2) {o2} Remove {client_config_name:24}               ║
             """
         )[1:]
 
@@ -77,14 +77,15 @@ class ClientRemoveMenu(BaseMenu):
             o3 = checked if self.backup_mainsail_config_json else unchecked
             menu += textwrap.dedent(
                 f"""
-                |  3) {o3} Backup config.json                            |
+                ║  3) {o3} Backup config.json                            ║
                 """
             )[1:]
 
         menu += textwrap.dedent(
             """
-            |-------------------------------------------------------|
-            |  C) Continue                                          |
+            ╟───────────────────────────────────────────────────────╢
+            ║  C) Continue                                          ║
+            ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         print(menu, end="")

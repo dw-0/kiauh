@@ -39,22 +39,22 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
         line1 = f"{color}Unable to find a compiled firmware file!{RESET_FORMAT}"
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {line1:<62} |
-            |                                                       |
-            | Make sure, that:                                      |
-            | ● the folder '~/klipper/out' and its content exist    |
-            | ● the folder contains the following file:             |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ {line1:<62} ║
+            ║                                                       ║
+            ║ Make sure, that:                                      ║
+            ║ ● the folder '~/klipper/out' and its content exist    ║
+            ║ ● the folder contains the following file:             ║
             """
         )[1:]
 
         if self.flash_options.flash_method is FlashMethod.REGULAR:
-            menu += "|   ● 'klipper.elf'                                     |\n"
-            menu += "|   ● 'klipper.elf.hex'                                 |\n"
+            menu += "║   ● 'klipper.elf'                                     ║\n"
+            menu += "║   ● 'klipper.elf.hex'                                 ║\n"
         else:
-            menu += "|   ● 'klipper.bin'                                     |\n"
+            menu += "║   ● 'klipper.bin'                                     ║\n"
 
         print(menu, end="")
 
@@ -86,19 +86,19 @@ class KlipperNoBoardTypesErrorMenu(BaseMenu):
         line1 = f"{color}Reading the list of supported boards failed!{RESET_FORMAT}"
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {line1:<62} |
-            |                                                       |
-            | Make sure, that:                                      |
-            | ● the folder '~/klipper' and all its content exist    |
-            | ● the content of folder '~/klipper' is not currupted  |
-            | ● the file '~/klipper/scripts/flash-sd.py' exist      |
-            | ● your current user has access to those files/folders |
-            |                                                       |
-            | If in doubt or this process continues to fail, please |
-            | consider to download Klipper again.                   |
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ {line1:<62} ║
+            ║                                                       ║
+            ║ Make sure, that:                                      ║
+            ║ ● the folder '~/klipper' and all its content exist    ║
+            ║ ● the content of folder '~/klipper' is not currupted  ║
+            ║ ● the file '~/klipper/scripts/flash-sd.py' exist      ║
+            ║ ● your current user has access to those files/folders ║
+            ║                                                       ║
+            ║ If in doubt or this process continues to fail, please ║
+            ║ consider to download Klipper again.                   ║
             """
         )[1:]
         print(menu, end="")
