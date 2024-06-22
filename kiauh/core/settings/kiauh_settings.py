@@ -212,15 +212,14 @@ class KiauhSettings:
         )
 
     def _kill(self) -> None:
-        l1 = "!!! ERROR !!!"
-        l2 = "No KIAUH configuration file found!"
-        error = textwrap.dedent(
-            f"""
-            {COLOR_RED}/=======================================================\\
-            | {l1:^53} |
-            | {l2:^53} |
-            \=======================================================/{RESET_FORMAT}
-            """
-        )[1:]
-        print(error, end="")
+        Logger.print_dialog(
+            DialogType.ERROR,
+            [
+                "No KIAUH configuration file found! Please make sure you have at least "
+                "one of the following configuration files in KIAUH's root directory:",
+                "● default.kiauh.cfg",
+                "● kiauh.cfg",
+            ],
+            end="",
+        )
         kill()
