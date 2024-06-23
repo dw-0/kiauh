@@ -69,12 +69,6 @@ function remove_spoolman(){
     ok_msg "Spoolman directory removed!"
   fi
 
-  if [[ -d "${SPOOLMAN_DB_DIR}" ]]; then
-    status_msg "Removing spoolman db..."
-    rm -rf "${SPOOLMAN_DB_DIR}"
-    ok_msg "Spoolman db removed!"
-  fi
-
   print_confirm "Spoolman successfully removed!"
 }
 
