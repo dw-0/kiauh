@@ -84,7 +84,7 @@ function update_moonraker_configs() {
   moonraker_configs=$(find "${HOME}" -maxdepth 3 -type f -regextype posix-extended -regex "${regex}" | sort)
 
   for conf in ${moonraker_configs}; do
-    if ! grep -Eq "^\[update_manager KlipperScreen\]\s*$" "${conf}"; then
+    if ! grep -Eq "^\[update_manager Spoolman\]\s*$" "${conf}"; then
       ### add new line to conf if it doesn't end with one
       [[ $(tail -c1 "${conf}" | wc -l) -eq 0 ]] && echo "" >> "${conf}"
       /bin/sh -c "cat >> ${conf}" << MOONRAKER_CONF
