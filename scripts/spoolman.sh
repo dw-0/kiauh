@@ -62,6 +62,8 @@ function remove_spoolman(){
     do_action_service "stop" "Spoolman"
     do_action_service "disable" "Spoolman"
     sudo rm -f "${SYSTEMD}/Spoolman.service"
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
     ok_msg "Spoolman service removed!"
 
     status_msg "Removing spoolman directory..."
