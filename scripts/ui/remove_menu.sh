@@ -29,7 +29,7 @@ function remove_ui() {
   echo -e "|                           | 15) [Mobileraker]         |"
   echo -e "| Touchscreen GUI:          | 16) [NGINX]               |"
   echo -e "|  7) [KlipperScreen]       | 17) [OctoApp]             |"
-  echo -e "|                           | 18) [Spoolman]             |"
+  echo -e "|                           | 18) [Spoolman]            |"
   echo -e "| 3rd Party Webinterface:   |                           |"
   echo -e "|  8) [OctoPrint]           |                           |"
   back_footer
