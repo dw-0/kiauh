@@ -87,4 +87,9 @@ function set_globals() {
   OCTOAPP_ENV="${HOME}/octoapp-env"
   OCTOAPP_DIR="${HOME}/octoapp"
   OCTOAPP_REPO="https://github.com/crysxd/OctoApp-Plugin.git"
+
+  #=============== Spoolman ================#
+  SPOOLMAN_DIR="${HOME}/spoolman"
+  SPOOLMAN_DB_DIR="${HOME}/.local/share/spoolman"
+  SPOOLMAN_REPO="https://api.github.com/repos/Donkie/Spoolman/releases/latest"
 }
