@@ -54,7 +54,7 @@ class MainMenu(BaseMenu):
 
         self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
         self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
-        self.cn_status = self.cc_status = ""
+        self.cn_status = self.cc_status = self.oe_status = ""
         self.init_status()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
@@ -74,12 +74,12 @@ class MainMenu(BaseMenu):
         }
 
     def init_status(self) -> None:
-        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn"]
+        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn", "oe"]
         for var in status_vars:
             setattr(
                 self,
                 f"{var}_status",
-                f"{COLOR_RED}Not installed!{RESET_FORMAT}",
+                f"{COLOR_RED}Not installed{RESET_FORMAT}",
             )
 
     def fetch_status(self) -> None:
@@ -141,6 +141,7 @@ class MainMenu(BaseMenu):
             ║                  │                                    ║
             ║ Community:       │   KlipperScreen: {self.ks_status:<{pad2}} ║
             ║  E) [Extensions] │     Mobileraker: {self.mb_status:<{pad2}} ║
+            ║                  │  OctoEverywhere: {self.oe_status:<{pad2}} ║
             ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
             ╟──────────────────┼────────────────────────────────────╢
             ║ {footer1:^25} │ {footer2:^43} ║
