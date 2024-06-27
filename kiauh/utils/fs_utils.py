@@ -79,6 +79,30 @@ def remove_file(file_path: Path, sudo=False) -> None:
         raise
 
 
+def run_remove_routines(file: Path) -> None:
+    try:
+        if not file.exists():
+            Logger.print_info(f"File '{file}' does not exist. Skipped ...")
+            return
+
+        if file.is_dir():
+            shutil.rmtree(file)
+        elif file.is_file():
+            file.unlink()
+        else:
+            raise OSError(f"File '{file}' is neither a file nor a directory!")
+        Logger.print_ok("Successfully removed!")
+    except OSError as e:
+        Logger.print_error(f"Unable to delete '{file}':\n{e}")
+        try:
+            Logger.print_info("Trying to remove with sudo ...")
+            remove_with_sudo(file)
+            Logger.print_ok("Successfully removed!")
+        except CalledProcessError as e:
+            Logger.print_error(f"Error deleting '{file}' with sudo:\n{e}")
+            Logger.print_error("Remove this directory manually!")
+
+
 def unzip(filepath: Path, target_dir: Path) -> None:
     """
     Helper function to unzip a zip-archive into a target directory |

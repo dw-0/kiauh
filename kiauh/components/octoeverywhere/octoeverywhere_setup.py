@@ -7,7 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import json
-import shutil
+from pathlib import Path
 from typing import List
 
 from components.moonraker.moonraker import Moonraker
@@ -28,7 +28,7 @@ from utils.config_utils import (
     add_config_section,
     remove_config_section,
 )
-from utils.fs_utils import remove_file
+from utils.fs_utils import run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import DialogType, Logger
@@ -47,8 +47,6 @@ def install_octoeverywhere() -> None:
     if not moonraker_exists():
         return
 
-    # if obico is already installed, ask if the user wants to repair an
-    # incomplete installation or link to the obico server
     oe_im = InstanceManager(Octoeverywhere)
     oe_instances: List[Octoeverywhere] = oe_im.instances
     if oe_instances:
@@ -59,7 +57,6 @@ def install_octoeverywhere() -> None:
                 "It is save to run the installer again to link your "
                 "printer or repair any issues.",
             ],
-            end="",
         )
         if not get_confirm("Re-run OctoEverywhere installation?"):
             Logger.print_info("Exiting OctoEverywhere for Klipper installation ...")
@@ -80,7 +77,6 @@ def install_octoeverywhere() -> None:
                 "\n\n",
                 "The setup will apply the same names to OctoEverywhere!",
             ],
-            end="",
         )
 
     if not get_confirm(
@@ -193,36 +189,40 @@ def remove_oe_instances(
 
 
 def remove_oe_dir() -> None:
+    Logger.print_status("Removing OctoEverywhere for Klipper directory ...")
+
     if not OE_DIR.exists():
         Logger.print_info(f"'{OE_DIR}' does not exist. Skipped ...")
         return
 
-    try:
-        shutil.rmtree(OE_DIR)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{OE_DIR}':\n{e}")
+    run_remove_routines(OE_DIR)
 
 
 def remove_oe_env() -> None:
+    Logger.print_status("Removing OctoEverywhere for Klipper environment ...")
+
     if not OE_ENV_DIR.exists():
         Logger.print_info(f"'{OE_ENV_DIR}' does not exist. Skipped ...")
         return
 
-    try:
-        shutil.rmtree(OE_ENV_DIR)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{OE_ENV_DIR}':\n{e}")
+    run_remove_routines(OE_ENV_DIR)
 
 
 def delete_oe_logs(instances: List[Octoeverywhere]) -> None:
     Logger.print_status("Removing OctoEverywhere logs ...")
+
     all_logfiles = []
     for instance in instances:
         all_logfiles = list(instance.log_dir.glob(f"{OE_LOG_NAME}*"))
+
+    install_log = Path.home().joinpath("octoeverywhere-installer.log")
+    if install_log.exists():
+        all_logfiles.append(install_log)
+
     if not all_logfiles:
         Logger.print_info("No OctoEverywhere logs found. Skipped ...")
         return
 
     for log in all_logfiles:
         Logger.print_status(f"Remove '{log}'")
-        remove_file(log)
+        run_remove_routines(log)

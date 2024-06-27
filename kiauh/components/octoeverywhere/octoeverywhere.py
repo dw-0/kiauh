@@ -62,11 +62,17 @@ class Octoeverywhere(BaseInstance):
             raise
 
     def delete(self) -> None:
-        Logger.print_status("Removing OctoEverywhere for Klipper Instance ...")
+        service_file = self.get_service_file_name(extension=True)
+        service_file_path = self.get_service_file_path()
+
+        Logger.print_status(
+            f"Deleting OctoEverywhere for Klipper Instance: {service_file}"
+        )
 
         try:
-            cmd = f"OE_REMOVE_SCRIPT {self.cfg_dir}/moonraker.conf"
-            run(cmd, check=True, shell=True)
+            command = ["sudo", "rm", "-f", service_file_path]
+            run(command, check=True)
+            Logger.print_ok(f"Service file deleted: {service_file_path}")
         except CalledProcessError as e:
-            Logger.print_error(f"Error deleting instance: {e}")
+            Logger.print_error(f"Error deleting service file: {e}")
             raise
