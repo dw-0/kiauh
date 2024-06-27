@@ -59,9 +59,9 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
         raise
 
 
-def remove_with_sudo(file_path: Path) -> None:
+def remove_with_sudo(file: Path) -> None:
     try:
-        cmd = ["sudo", "rm", "-f", file_path]
+        cmd = ["sudo", "rm", "-rf", file]
         run(cmd, stderr=PIPE, check=True)
     except CalledProcessError as e:
         Logger.print_error(f"Failed to remove file: {e}")
