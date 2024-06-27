@@ -192,7 +192,6 @@ class ObicoExtension(BaseExtension):
                 "http://server_ip:port",
                 "For instance, 'http://192.168.0.5:3334'.",
             ],
-            end="",
         )
 
     def _print_moonraker_instances(self, mr_instances) -> None:
@@ -206,7 +205,6 @@ class ObicoExtension(BaseExtension):
                     "\n\n",
                     "The setup will apply the same names to Obico!",
                 ],
-                end="",
             )
 
     def _print_is_already_installed(self) -> None:
@@ -221,7 +219,6 @@ class ObicoExtension(BaseExtension):
                 "L) Link printer to the Obico server",
                 "R) Repair installation",
             ],
-            end="",
         )
 
     def _get_server_url(self) -> None:
@@ -324,7 +321,6 @@ class ObicoExtension(BaseExtension):
                     "If you don't want to link the printer now, you can restart the "
                     "linking process later by running this installer again.",
                 ],
-                end="",
             )
             if not get_confirm("Do you want to link the printers now?"):
                 Logger.print_info("Linking to Obico server skipped ...")

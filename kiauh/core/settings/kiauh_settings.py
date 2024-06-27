@@ -219,6 +219,5 @@ class KiauhSettings:
                 "● default.kiauh.cfg",
                 "● kiauh.cfg",
             ],
-            end="",
         )
         kill()

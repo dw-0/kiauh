@@ -353,7 +353,6 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
                 "\n\n",
                 "If you are unsure, stick to the default 250000!",
             ],
-            end="",
         )
         self.flash_options.selected_baudrate = get_number_input(
             question="Please set the baud rate",

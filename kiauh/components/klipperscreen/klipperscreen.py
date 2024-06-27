@@ -62,7 +62,6 @@ def install_klipperscreen() -> None:
                 "KlipperScreens update manager configuration for Moonraker "
                 "will not be added to any moonraker.conf.",
             ],
-            end="",
         )
         if not get_confirm(
             "Continue KlipperScreen installation?",

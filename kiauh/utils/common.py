@@ -150,7 +150,6 @@ def moonraker_exists(name: str = "") -> bool:
                 "No Moonraker instances found!",
                 f"{info}. Please install Moonraker first!",
             ],
-            end="",
         )
         return False
     return True
