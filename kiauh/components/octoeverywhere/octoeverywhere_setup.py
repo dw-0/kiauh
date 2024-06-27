@@ -98,14 +98,7 @@ def install_octoeverywhere() -> None:
         for moonraker in mr_instances:
             oe_im.current_instance = Octoeverywhere(suffix=moonraker.suffix)
             oe_im.create_instance()
-            oe_im.enable_instance()
-            oe_im.start_instance()
 
-        cmd_sysctl_manage("daemon-reload")
-
-        # TODO: probably done by OE already?
-        # add to moonraker update manager
-        patch_moonraker_conf(mr_instances)
         mr_im.restart_all_instance()
 
         Logger.print_dialog(
