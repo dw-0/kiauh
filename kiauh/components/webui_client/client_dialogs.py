@@ -13,6 +13,7 @@ from typing import List
 from components.webui_client.base_data import BaseWebClient
 from core.menus.base_menu import print_back_footer
 from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
+from utils.logger import DialogType, Logger
 
 
 def print_moonraker_not_found_dialog():
@@ -84,25 +85,35 @@ def print_client_port_select_dialog(name: str, port: int, ports_in_use: List[int
     print(dialog, end="")
 
 
-def print_install_client_config_dialog(client: BaseWebClient):
+def print_install_client_config_dialog(client: BaseWebClient) -> None:
     name = client.display_name
     url = client.client_config.repo_url.replace(".git", "")
-    line1 = f"have {name} fully functional and working."
-    line2 = f"The recommended macros for {name} can be seen here:"
-    dialog = textwrap.dedent(
-        f"""
-        /=======================================================\\
-        | It is recommended to use special macros in order to   |
-        | {line1:<54}|
-        |                                                       |
-        | {line2:<54}|
-        | {url:<54}|
-        |                                                       |
-        | If you already use these macros skip this step.       |
-        | Otherwise you should consider to answer with 'Y' to   |
-        | download the recommended macros.                      |
-        \\=======================================================/
-        """
-    )[1:]
+    Logger.print_dialog(
+        DialogType.INFO,
+        [
+            f"It is recommended to use special macros in order to have {name} fully "
+            f"functional and working.",
+            "\n\n",
+            f"The recommended macros for {name} can be seen here:",
+            url,
+            "\n\n",
+            "If you already use these macros skip this step. Otherwise you should "
+            "consider to answer with 'Y' to download the recommended macros.",
+        ],
+        end="",
+    )
 
-    print(dialog, end="")
+
+def print_ipv6_warning_dialog() -> None:
+    Logger.print_dialog(
+        DialogType.WARNING,
+        [
+            "It looks like IPv6 is enabled on this system!",
+            "This may cause issues with the installation of NGINX in the following "
+            "steps! It is recommended to disable IPv6 on your system to avoid this issue.",
+            "\n\n",
+            "If you think this warning is a false alarm, and you are sure that "
+            "IPv6 is disabled, you can continue with the installation.",
+        ],
+        end="",
+    )
