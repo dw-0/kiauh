@@ -247,16 +247,16 @@ function get_spoolman_status() {
 }
 
 function get_local_spoolman_version() {
+  [[ ! -d "${SPOOLMAN_DIR}" ]] && return
+  
   local version
-  if [[ -d "${SPOOLMAN_DIR}" ]]; then
-    version=$(grep -o '"version":\s*"[^"]*' "${SPOOLMAN_DIR}"/release_info.json | cut -d'"' -f4)
-  else
-    version=""
-  fi
+  version=$(grep -o '"version":\s*"[^"]*' "${SPOOLMAN_DIR}"/release_info.json | cut -d'"' -f4)
   echo "${version}"
 }
 
 function get_remote_spoolman_version() {
+  [[ ! -d "${SPOOLMAN_DIR}" ]] && return
+
   local version
   version=$(curl -s "${SPOOLMAN_REPO}" | grep -o '"tag_name":\s*"v[^"]*"' | cut -d'"' -f4)
   echo "${version}"
