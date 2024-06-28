@@ -14,7 +14,7 @@ from utils.logger import Logger
 
 
 def git_clone_wrapper(
-    repo: str, target_dir: Path, branch: Optional[str] = None
+    repo: str, target_dir: Path, branch: Optional[str] = None, force: bool = False
 ) -> None:
     """
     Clones a repository from the given URL and checks out the specified branch if given.
@@ -22,6 +22,7 @@ def git_clone_wrapper(
     :param repo: The URL of the repository to clone.
     :param branch: The branch to check out. If None, the default branch will be checked out.
     :param target_dir: The directory where the repository will be cloned.
+    :param force: Force the cloning of the repository even if it already exists.
     :return: None
     """
     log = f"Cloning repository from '{repo}'"
@@ -29,7 +30,7 @@ def git_clone_wrapper(
     try:
         if Path(target_dir).exists():
             question = f"'{target_dir}' already exists. Overwrite?"
-            if not get_confirm(question, default_choice=False):
+            if not force and not get_confirm(question, default_choice=False):
                 Logger.print_info("Skip cloning of repository ...")
                 return
             shutil.rmtree(target_dir)

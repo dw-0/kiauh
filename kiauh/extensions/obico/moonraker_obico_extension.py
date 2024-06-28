@@ -57,6 +57,7 @@ class ObicoExtension(BaseExtension):
 
         # if obico is already installed, ask if the user wants to repair an
         # incomplete installation or link to the obico server
+        force_clone = False
         obico_im = InstanceManager(MoonrakerObico)
         obico_instances: List[MoonrakerObico] = obico_im.instances
         if obico_instances:
@@ -74,6 +75,7 @@ class ObicoExtension(BaseExtension):
                 return
             else:
                 Logger.print_status("Re-Installing Obico for Klipper ...")
+                force_clone = True
 
         # let the user confirm installation
         kl_im = InstanceManager(Klipper)
@@ -89,7 +91,7 @@ class ObicoExtension(BaseExtension):
             return
 
         try:
-            git_clone_wrapper(OBICO_REPO, OBICO_DIR)
+            git_clone_wrapper(OBICO_REPO, OBICO_DIR, force=force_clone)
             self._install_dependencies()
 
             # ask the user for the obico server url

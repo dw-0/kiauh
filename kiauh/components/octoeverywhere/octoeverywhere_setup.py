@@ -54,6 +54,7 @@ def install_octoeverywhere() -> None:
     if not moonraker_exists():
         return
 
+    force_clone = False
     oe_im = InstanceManager(Octoeverywhere)
     oe_instances: List[Octoeverywhere] = oe_im.instances
     if oe_instances:
@@ -72,6 +73,7 @@ def install_octoeverywhere() -> None:
             return
         else:
             Logger.print_status("Re-Installing OctoEverywhere for Klipper ...")
+            force_clone = True
 
     mr_im = InstanceManager(Moonraker)
     mr_instances: List[Moonraker] = mr_im.instances
@@ -99,7 +101,7 @@ def install_octoeverywhere() -> None:
         return
 
     try:
-        git_clone_wrapper(OE_REPO, OE_DIR)
+        git_clone_wrapper(OE_REPO, OE_DIR, force=force_clone)
 
         for moonraker in mr_instances:
             oe_im.current_instance = Octoeverywhere(suffix=moonraker.suffix)
