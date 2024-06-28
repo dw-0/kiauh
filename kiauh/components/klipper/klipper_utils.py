@@ -271,7 +271,6 @@ def handle_disruptive_system_packages() -> None:
                     "Please fix the problem manually. Otherwise, this may have "
                     "undesirable effects on the operation of Klipper."
                 ],
-                padding_bottom="",
             )
 
 
