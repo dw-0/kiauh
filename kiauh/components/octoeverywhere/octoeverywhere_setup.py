@@ -32,7 +32,7 @@ from utils.config_utils import (
     remove_config_section,
 )
 from utils.fs_utils import run_remove_routines
-from utils.git_utils import git_clone_wrapper, git_pull_wrapper
+from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_confirm
 from utils.logger import DialogType, Logger
 from utils.sys_utils import (
@@ -122,14 +122,12 @@ def install_octoeverywhere() -> None:
 def update_octoeverywhere() -> None:
     Logger.print_status("Updating OctoEverywhere for Klipper ...")
     try:
-        oe_im = InstanceManager(Octoeverywhere)
-        oe_im.stop_all_instance()
-
-        git_pull_wrapper(OE_REPO, OE_DIR)
-        install_oe_dependencies()
-
-        oe_im.start_all_instance()
-        Logger.print_ok("OctoEverywhere for Klipper successfully updated!")
+        Octoeverywhere.update()
+        Logger.print_dialog(
+            DialogType.SUCCESS,
+            ["OctoEverywhere for Klipper successfully updated!"],
+            center_content=True,
+        )
 
     except Exception as e:
         Logger.print_error(f"Error during OctoEverywhere for Klipper update:\n{e}")

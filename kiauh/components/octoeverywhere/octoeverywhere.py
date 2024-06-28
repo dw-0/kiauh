@@ -19,6 +19,7 @@ from components.octoeverywhere import (
     OE_LOG_NAME,
     OE_STORE_DIR,
     OE_SYS_CFG_NAME,
+    OE_UPDATE_SCRIPT,
 )
 from core.instance_manager.base_instance import BaseInstance
 from utils.logger import Logger
@@ -59,6 +60,15 @@ class Octoeverywhere(BaseInstance):
 
         except CalledProcessError as e:
             Logger.print_error(f"Error creating instance: {e}")
+            raise
+
+    @staticmethod
+    def update():
+        try:
+            run(str(OE_UPDATE_SCRIPT), check=True, shell=True, cwd=OE_DIR)
+
+        except CalledProcessError as e:
+            Logger.print_error(f"Error updating OctoEverywhere for Klipper: {e}")
             raise
 
     def delete(self) -> None:
