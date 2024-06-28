@@ -212,7 +212,7 @@ class ObicoExtension(BaseExtension):
             DialogType.INFO,
             [
                 "Obico is already installed!",
-                "It is save to run the installer again to link your "
+                "It is safe to run the installer again to link your "
                 "printer or repair any issues.",
                 "\n\n",
                 "You can perform the following actions:",

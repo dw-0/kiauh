@@ -61,7 +61,7 @@ def install_octoeverywhere() -> None:
             DialogType.INFO,
             [
                 "OctoEverywhere is already installed!",
-                "It is save to run the installer again to link your "
+                "It is safe to run the installer again to link your "
                 "printer or repair any issues.",
             ],
             padding_top=0,
