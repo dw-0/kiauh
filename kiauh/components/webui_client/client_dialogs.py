@@ -100,7 +100,6 @@ def print_install_client_config_dialog(client: BaseWebClient) -> None:
             "If you already use these macros skip this step. Otherwise you should "
             "consider to answer with 'Y' to download the recommended macros.",
         ],
-        end="",
     )
 
 
@@ -115,5 +114,4 @@ def print_ipv6_warning_dialog() -> None:
             "If you think this warning is a false alarm, and you are sure that "
             "IPv6 is disabled, you can continue with the installation.",
         ],
-        end="",
     )

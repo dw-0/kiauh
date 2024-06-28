@@ -16,6 +16,7 @@ from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
 from components.mobileraker.mobileraker import get_mobileraker_status
 from components.moonraker.moonraker_utils import get_moonraker_status
+from components.octoeverywhere.octoeverywhere_setup import get_octoeverywhere_status
 from components.webui_client.client_utils import (
     get_client_status,
     get_current_client_config,
@@ -54,7 +55,7 @@ class MainMenu(BaseMenu):
 
         self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
         self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
-        self.cn_status = self.cc_status = ""
+        self.cn_status = self.cc_status = self.oe_status = ""
         self.init_status()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
@@ -74,12 +75,12 @@ class MainMenu(BaseMenu):
         }
 
     def init_status(self) -> None:
-        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn"]
+        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn", "oe"]
         for var in status_vars:
             setattr(
                 self,
                 f"{var}_status",
-                f"{COLOR_RED}Not installed!{RESET_FORMAT}",
+                f"{COLOR_RED}Not installed{RESET_FORMAT}",
             )
 
     def fetch_status(self) -> None:
@@ -91,6 +92,7 @@ class MainMenu(BaseMenu):
         self._get_component_status("ks", get_klipperscreen_status)
         self._get_component_status("mb", get_mobileraker_status)
         self._get_component_status("cn", get_crowsnest_status)
+        self._get_component_status("oe", get_octoeverywhere_status)
 
     def _get_component_status(self, name: str, status_fn: callable, *args) -> None:
         status_data: ComponentStatus = status_fn(*args)
@@ -141,6 +143,7 @@ class MainMenu(BaseMenu):
             ║                  │                                    ║
             ║ Community:       │   KlipperScreen: {self.ks_status:<{pad2}} ║
             ║  E) [Extensions] │     Mobileraker: {self.mb_status:<{pad2}} ║
+            ║                  │  OctoEverywhere: {self.oe_status:<{pad2}} ║
             ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
             ╟──────────────────┼────────────────────────────────────╢
             ║ {footer1:^25} │ {footer2:^43} ║

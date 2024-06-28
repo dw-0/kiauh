@@ -145,7 +145,6 @@ def update_klipper() -> None:
             "All Klipper instances will be restarted during the update process and "
             "ongoing prints WILL FAIL.",
         ],
-        end="",
     )
 
     if not get_confirm("Update Klipper now?"):

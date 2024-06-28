@@ -15,6 +15,7 @@ from components.klipper import klipper_setup
 from components.klipperscreen.klipperscreen import install_klipperscreen
 from components.mobileraker.mobileraker import install_mobileraker
 from components.moonraker import moonraker_setup
+from components.octoeverywhere.octoeverywhere_setup import install_octoeverywhere
 from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
 from components.webui_client.fluidd_data import FluiddData
@@ -49,6 +50,7 @@ class InstallMenu(BaseMenu):
             "7": Option(method=self.install_klipperscreen, menu=False),
             "8": Option(method=self.install_mobileraker, menu=False),
             "9": Option(method=self.install_crowsnest, menu=False),
+            "10": Option(method=self.install_octoeverywhere, menu=False),
         }
 
     def print_menu(self):
@@ -69,8 +71,8 @@ class InstallMenu(BaseMenu):
             ║  4) [Fluidd]              │ Webcam Streamer:          ║
             ║                           │  9) [Crowsnest]           ║
             ║ Client-Config:            │                           ║
-            ║  5) [Mainsail-Config]     │                           ║
-            ║  6) [Fluidd-Config]       │                           ║
+            ║  5) [Mainsail-Config]     │ Remote Access:            ║
+            ║  6) [Fluidd-Config]       │ 10) [OctoEverywhere]      ║
             ║                           │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
@@ -103,3 +105,6 @@ class InstallMenu(BaseMenu):
 
     def install_crowsnest(self, **kwargs):
         install_crowsnest()
+
+    def install_octoeverywhere(self, **kwargs):
+        install_octoeverywhere()

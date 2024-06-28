@@ -144,7 +144,6 @@ class SettingsMenu(BaseMenu):
                 f"New {display_name} repository branch:",
                 f"● {branch}",
             ],
-            end="",
         )
 
         if get_confirm("Apply changes?", allow_go_back=True):

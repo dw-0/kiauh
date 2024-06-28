@@ -88,7 +88,6 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
             "The following instances were found:",
             *_instances,
         ],
-        end="",
     )
 
 

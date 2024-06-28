@@ -90,7 +90,8 @@ class Logger:
         center_content: bool = False,
         custom_title: str = None,
         custom_color: DialogCustomColor = None,
-        end: str = "\n",
+        padding_top: int = 1,
+        padding_bottom: int = 1,
     ) -> None:
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
@@ -99,10 +100,12 @@ class Logger:
         top = Logger._format_top_border(dialog_color)
         bottom = Logger._format_bottom_border()
 
+        print("\n" * padding_top)
         print(
             f"{top}{dialog_title_formatted}{dialog_content}{bottom}",
-            end=end,
+            end="",
         )
+        print("\n" * padding_bottom)
 
     @staticmethod
     def _get_dialog_title(title: DialogType, custom_title: str = None) -> str:
@@ -120,18 +123,12 @@ class Logger:
 
     @staticmethod
     def _format_top_border(color: str) -> str:
-        return textwrap.dedent(
-            f"""
-            {color}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            """
-        )[1:-1]
+        return f"{color}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
 
     @staticmethod
     def _format_bottom_border() -> str:
-        return textwrap.dedent(
-            f"""
-            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            {RESET_FORMAT}"""
+        return (
+            f"\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{RESET_FORMAT}"
         )
 
     @staticmethod

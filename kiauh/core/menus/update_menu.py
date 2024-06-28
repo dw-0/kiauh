@@ -25,6 +25,10 @@ from components.mobileraker.mobileraker import (
 )
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
+from components.octoeverywhere.octoeverywhere_setup import (
+    get_octoeverywhere_status,
+    update_octoeverywhere,
+)
 from components.webui_client.client_config.client_config_setup import (
     update_client_config,
 )
@@ -57,7 +61,7 @@ class UpdateMenu(BaseMenu):
         self.ms_local = self.ms_remote = self.fl_local = self.fl_remote = ""
         self.mc_local = self.mc_remote = self.fc_local = self.fc_remote = ""
         self.ks_local = self.ks_remote = self.mb_local = self.mb_remote = ""
-        self.cn_local = self.cn_remote = ""
+        self.cn_local = self.cn_remote = self.oe_local = self.oe_remote = ""
 
         self.mainsail_data = MainsailData()
         self.fluidd_data = FluiddData()
@@ -82,7 +86,8 @@ class UpdateMenu(BaseMenu):
             "7": Option(self.update_klipperscreen, menu=False),
             "8": Option(self.update_mobileraker, menu=False),
             "9": Option(self.update_crowsnest, menu=False),
-            "10": Option(self.upgrade_system_packages, menu=False),
+            "10": Option(self.update_octoeverywhere, menu=False),
+            "11": Option(self.upgrade_system_packages, menu=False),
         }
 
     def print_menu(self):
@@ -114,8 +119,9 @@ class UpdateMenu(BaseMenu):
             ║  7) KlipperScreen     │ {self.ks_local:<22} │ {self.ks_remote:<22} ║
             ║  8) Mobileraker       │ {self.mb_local:<22} │ {self.mb_remote:<22} ║
             ║  9) Crowsnest         │ {self.cn_local:<22} │ {self.cn_remote:<22} ║
+            ║ 10) OctoEverywhere    │ {self.oe_local:<22} │ {self.oe_remote:<22} ║
             ║                       ├───────────────┴───────────────╢
-            ║ 10) System            │                               ║
+            ║ 11) System            │                               ║
             ╟───────────────────────┴───────────────────────────────╢
             """
         )[1:]
@@ -151,6 +157,9 @@ class UpdateMenu(BaseMenu):
     def update_crowsnest(self, **kwargs):
         update_crowsnest()
 
+    def update_octoeverywhere(self, **kwargs):
+        update_octoeverywhere()
+
     def upgrade_system_packages(self, **kwargs): ...
 
     def _fetch_update_status(self):
@@ -172,6 +181,8 @@ class UpdateMenu(BaseMenu):
         self._get_update_status("mb", get_mobileraker_status)
         # crowsnest
         self._get_update_status("cn", get_crowsnest_status)
+        # octoeverywhere
+        self._get_update_status("oe", get_octoeverywhere_status)
 
     def _format_local_status(self, local_version, remote_version) -> str:
         if local_version == remote_version:

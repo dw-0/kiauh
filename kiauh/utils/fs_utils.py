@@ -59,9 +59,9 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
         raise
 
 
-def remove_with_sudo(file_path: Path) -> None:
+def remove_with_sudo(file: Path) -> None:
     try:
-        cmd = ["sudo", "rm", "-f", file_path]
+        cmd = ["sudo", "rm", "-rf", file]
         run(cmd, stderr=PIPE, check=True)
     except CalledProcessError as e:
         Logger.print_error(f"Failed to remove file: {e}")
@@ -77,6 +77,30 @@ def remove_file(file_path: Path, sudo=False) -> None:
         log = f"Cannot remove file {file_path}: {e.stderr.decode()}"
         Logger.print_error(log)
         raise
+
+
+def run_remove_routines(file: Path) -> None:
+    try:
+        if not file.exists():
+            Logger.print_info(f"File '{file}' does not exist. Skipped ...")
+            return
+
+        if file.is_dir():
+            shutil.rmtree(file)
+        elif file.is_file():
+            file.unlink()
+        else:
+            raise OSError(f"File '{file}' is neither a file nor a directory!")
+        Logger.print_ok("Successfully removed!")
+    except OSError as e:
+        Logger.print_error(f"Unable to delete '{file}':\n{e}")
+        try:
+            Logger.print_info("Trying to remove with sudo ...")
+            remove_with_sudo(file)
+            Logger.print_ok("Successfully removed!")
+        except CalledProcessError as e:
+            Logger.print_error(f"Error deleting '{file}' with sudo:\n{e}")
+            Logger.print_error("Remove this directory manually!")
 
 
 def unzip(filepath: Path, target_dir: Path) -> None:

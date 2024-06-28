@@ -220,7 +220,6 @@ def check_user_groups():
             "INFO:",
             "Relog required for group assignments to take effect!",
         ],
-        end="",
     )
 
     if not get_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
@@ -272,7 +271,6 @@ def handle_disruptive_system_packages() -> None:
                     "Please fix the problem manually. Otherwise, this may have "
                     "undesirable effects on the operation of Klipper."
                 ],
-                end="",
             )
 
 

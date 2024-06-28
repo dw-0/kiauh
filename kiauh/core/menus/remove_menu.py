@@ -17,6 +17,7 @@ from components.mobileraker.mobileraker import remove_mobileraker
 from components.moonraker.menus.moonraker_remove_menu import (
     MoonrakerRemoveMenu,
 )
+from components.octoeverywhere.octoeverywhere_setup import remove_octoeverywhere
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
@@ -48,6 +49,7 @@ class RemoveMenu(BaseMenu):
             "5": Option(method=self.remove_klipperscreen, menu=True),
             "6": Option(method=self.remove_mobileraker, menu=True),
             "7": Option(method=self.remove_crowsnest, menu=True),
+            "8": Option(method=self.remove_octoeverywhere, menu=True),
         }
 
     def print_menu(self):
@@ -61,14 +63,16 @@ class RemoveMenu(BaseMenu):
             ╟───────────────────────────────────────────────────────╢
             ║ INFO: Configurations and/or any backups will be kept! ║
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Firmware & API:           │ Touchscreen GUI:          ║
-            ║  1) [Klipper]             │  5) [KlipperScreen]       ║
+            ║ Firmware & API:           │ Android / iOS:            ║
+            ║  1) [Klipper]             │  6) [Mobileraker]         ║
             ║  2) [Moonraker]           │                           ║
-            ║                           │ Android / iOS:            ║
-            ║ Klipper Webinterface:     │  6) [Mobileraker]         ║
+            ║                           │ Webcam Streamer:          ║
+            ║ Klipper Webinterface:     │  7) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
-            ║  4) [Fluidd]              │ Webcam Streamer:          ║
-            ║                           │  7) [Crowsnest]           ║
+            ║  4) [Fluidd]              │ Remote Access:            ║
+            ║                           │  8) [OctoEverywhere]      ║
+            ║ Touchscreen GUI:          │                           ║
+            ║  5) [KlipperScreen]       │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -94,3 +98,6 @@ class RemoveMenu(BaseMenu):
 
     def remove_crowsnest(self, **kwargs):
         remove_crowsnest()
+
+    def remove_octoeverywhere(self, **kwargs):
+        remove_octoeverywhere()

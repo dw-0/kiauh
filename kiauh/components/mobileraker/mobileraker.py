@@ -58,7 +58,6 @@ def install_mobileraker() -> None:
                 "Mobileraker's companion's update manager configuration for Moonraker "
                 "will not be added to any moonraker.conf.",
             ],
-            end="",
         )
         if not get_confirm(
             "Continue Mobileraker's companion installation?",
