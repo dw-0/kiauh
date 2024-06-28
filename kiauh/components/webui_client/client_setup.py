@@ -73,10 +73,7 @@ def install_client(client: BaseWebClient) -> None:
     enable_remotemode = False
     if not mr_instances:
         print_moonraker_not_found_dialog()
-        if not get_confirm(
-            f"Continue {client.display_name} installation?",
-            allow_go_back=True,
-        ):
+        if not get_confirm(f"Continue {client.display_name} installation?"):
             return
 
     # if moonraker is not installed or multiple instances
