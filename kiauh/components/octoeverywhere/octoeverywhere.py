@@ -27,7 +27,7 @@ from utils.logger import Logger
 class Octoeverywhere(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
-        return ["None", "mcu"]
+        return ["None", "mcu", "bambu", "companion"]
 
     def __init__(self, suffix: str = ""):
         super().__init__(instance_type=self, suffix=suffix)
