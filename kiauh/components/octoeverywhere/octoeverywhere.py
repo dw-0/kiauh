@@ -23,10 +23,7 @@ from components.octoeverywhere import (
 from core.instance_manager.base_instance import BaseInstance
 from utils.logger import Logger
 
-MODULE_PATH = Path(__file__).resolve().parent
 
-
-# noinspection PyMethodMayBeStatic
 class Octoeverywhere(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
@@ -46,6 +43,10 @@ class Octoeverywhere(BaseInstance):
         return self._cfg_file
 
     @property
+    def sys_cfg_file(self) -> Path:
+        return self._sys_cfg_file
+
+    @property
     def log(self) -> Path:
         return self._log
 
@@ -54,7 +55,6 @@ class Octoeverywhere(BaseInstance):
 
         try:
             cmd = f"{OE_INSTALL_SCRIPT} {self.cfg_dir}/moonraker.conf"
-            print(cmd)
             run(cmd, check=True, shell=True)
 
         except CalledProcessError as e:
