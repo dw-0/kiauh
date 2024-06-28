@@ -23,9 +23,12 @@ from components.octoeverywhere import (
 )
 from components.octoeverywhere.octoeverywhere import Octoeverywhere
 from core.instance_manager.instance_manager import InstanceManager
-from utils.common import check_install_dependencies, moonraker_exists
+from utils.common import (
+    check_install_dependencies,
+    get_install_status,
+    moonraker_exists,
+)
 from utils.config_utils import (
-    add_config_section,
     remove_config_section,
 )
 from utils.fs_utils import run_remove_routines
@@ -34,10 +37,14 @@ from utils.input_utils import get_confirm
 from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_manage,
-    create_python_venv,
     install_python_requirements,
     parse_packages_from_file,
 )
+from utils.types import ComponentStatus
+
+
+def get_octoeverywhere_status() -> ComponentStatus:
+    return get_install_status(OE_DIR, OE_ENV_DIR, Octoeverywhere)
 
 
 def install_octoeverywhere() -> None:
@@ -89,7 +96,6 @@ def install_octoeverywhere() -> None:
 
     try:
         git_clone_wrapper(OE_REPO, OE_DIR)
-        install_oe_dependencies()
 
         for moonraker in mr_instances:
             oe_im.current_instance = Octoeverywhere(suffix=moonraker.suffix)
@@ -160,14 +166,7 @@ def install_oe_dependencies() -> None:
         raise ValueError("Error reading OctoEverywhere dependencies!")
 
     check_install_dependencies(oe_deps)
-
-    # create virtualenv
-    create_python_venv(OE_ENV_DIR)
     install_python_requirements(OE_ENV_DIR, OE_REQ_FILE)
-
-
-def patch_moonraker_conf(instances: List[Moonraker]) -> None:
-    add_config_section(section=f"include {OE_SYS_CFG_NAME}", instances=instances)
 
 
 def remove_oe_instances(
