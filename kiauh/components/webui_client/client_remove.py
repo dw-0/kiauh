@@ -32,8 +32,8 @@ from utils.logger import Logger
 
 def run_client_removal(
     client: BaseWebClient,
-    rm_client: bool,
-    rm_client_config: bool,
+    remove_client: bool,
+    remove_client_cfg: bool,
     backup_ms_config_json: bool,
 ) -> None:
     mr_im = InstanceManager(Moonraker)
@@ -44,7 +44,7 @@ def run_client_removal(
     if backup_ms_config_json and client.client == WebClientType.MAINSAIL:
         backup_mainsail_config_json()
 
-    if rm_client:
+    if remove_client:
         client_name = client.name
         remove_client_dir(client)
         remove_nginx_config(client_name)
@@ -53,7 +53,7 @@ def run_client_removal(
         section = f"update_manager {client_name}"
         remove_config_section(section, mr_instances)
 
-    if rm_client_config:
+    if remove_client_cfg:
         run_client_config_removal(
             client.client_config,
             kl_instances,
