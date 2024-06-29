@@ -21,7 +21,7 @@ class KlipperRemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
         super().__init__()
         self.previous_menu = previous_menu
-        self.footer_type = FooterType.BACK_HELP
+        self.footer_type = FooterType.BACK
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
         self.remove_klipper_env = False
