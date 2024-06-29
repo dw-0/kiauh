@@ -8,8 +8,6 @@
 # ======================================================================= #
 
 
-import shutil
-import subprocess
 from typing import List
 
 from components.klipper.klipper import Klipper
@@ -17,7 +15,7 @@ from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClientConfig
 from core.instance_manager.instance_manager import InstanceManager
 from utils.config_utils import remove_config_section
-from utils.fs_utils import remove_file
+from utils.fs_utils import run_remove_routines
 from utils.logger import Logger
 
 
@@ -33,29 +31,12 @@ def run_client_config_removal(
 
 
 def remove_client_config_dir(client_config: BaseWebClientConfig) -> None:
-    Logger.print_status(f"Removing {client_config.name} ...")
-    client_config_dir = client_config.config_dir
-    if not client_config_dir.exists():
-        Logger.print_info(f"'{client_config_dir}' does not exist. Skipping ...")
-        return
-
-    try:
-        shutil.rmtree(client_config_dir)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{client_config_dir}':\n{e}")
+    Logger.print_status(f"Removing {client_config.display_name} ...")
+    run_remove_routines(client_config.config_dir)
 
 
 def remove_client_config_symlink(client_config: BaseWebClientConfig) -> None:
     im = InstanceManager(Klipper)
     instances: List[Klipper] = im.instances
     for instance in instances:
-        Logger.print_status(f"Removing symlink from '{instance.cfg_dir}' ...")
-        symlink = instance.cfg_dir.joinpath(client_config.config_filename)
-        if not symlink.is_symlink():
-            Logger.print_info(f"'{symlink}' does not exist. Skipping ...")
-            continue
-
-        try:
-            remove_file(symlink)
-        except subprocess.CalledProcessError:
-            Logger.print_error("Failed to remove symlink!")
+        run_remove_routines(instance.cfg_dir.joinpath(client_config.config_filename))

@@ -7,14 +7,13 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import shutil
 from typing import List, Union
 
 from components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import print_instance_overview
 from core.instance_manager.instance_manager import InstanceManager
-from utils.fs_utils import remove_file
+from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
 from utils.logger import Logger
 from utils.sys_utils import cmd_sysctl_manage
@@ -49,10 +48,10 @@ def run_klipper_removal(
     else:
         if remove_dir:
             Logger.print_status("Removing Klipper local repository ...")
-            remove_klipper_dir()
+            run_remove_routines(KLIPPER_DIR)
         if remove_env:
             Logger.print_status("Removing Klipper Python environment ...")
-            remove_klipper_env()
+            run_remove_routines(KLIPPER_ENV_DIR)
 
     # delete klipper logs of all instances
     if delete_logs:
@@ -96,28 +95,6 @@ def remove_instances(
     cmd_sysctl_manage("daemon-reload")
 
 
-def remove_klipper_dir() -> None:
-    if not KLIPPER_DIR.exists():
-        Logger.print_info(f"'{KLIPPER_DIR}' does not exist. Skipped ...")
-        return
-
-    try:
-        shutil.rmtree(KLIPPER_DIR)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{KLIPPER_DIR}':\n{e}")
-
-
-def remove_klipper_env() -> None:
-    if not KLIPPER_ENV_DIR.exists():
-        Logger.print_info(f"'{KLIPPER_ENV_DIR}' does not exist. Skipped ...")
-        return
-
-    try:
-        shutil.rmtree(KLIPPER_ENV_DIR)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{KLIPPER_ENV_DIR}':\n{e}")
-
-
 def delete_klipper_logs(instances: List[Klipper]) -> None:
     all_logfiles = []
     for instance in instances:
@@ -128,4 +105,4 @@ def delete_klipper_logs(instances: List[Klipper]) -> None:
 
     for log in all_logfiles:
         Logger.print_status(f"Remove '{log}'")
-        remove_file(log)
+        run_remove_routines(log)

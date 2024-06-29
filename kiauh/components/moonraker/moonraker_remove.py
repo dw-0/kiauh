@@ -7,15 +7,14 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import shutil
-import subprocess
+from subprocess import DEVNULL, PIPE, CalledProcessError, run
 from typing import List, Union
 
 from components.klipper.klipper_dialogs import print_instance_overview
 from components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
-from utils.fs_utils import remove_file
+from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
 from utils.logger import Logger
 from utils.sys_utils import cmd_sysctl_manage
@@ -55,10 +54,10 @@ def run_moonraker_removal(
             remove_polkit_rules()
         if remove_dir:
             Logger.print_status("Removing Moonraker local repository ...")
-            remove_moonraker_dir()
+            run_remove_routines(MOONRAKER_DIR)
         if remove_env:
             Logger.print_status("Removing Moonraker Python environment ...")
-            remove_moonraker_env()
+            run_remove_routines(MOONRAKER_ENV_DIR)
 
     # delete moonraker logs of all instances
     if delete_logs:
@@ -102,28 +101,6 @@ def remove_instances(
     cmd_sysctl_manage("daemon-reload")
 
 
-def remove_moonraker_dir() -> None:
-    if not MOONRAKER_DIR.exists():
-        Logger.print_info(f"'{MOONRAKER_DIR}' does not exist. Skipped ...")
-        return
-
-    try:
-        shutil.rmtree(MOONRAKER_DIR)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{MOONRAKER_DIR}':\n{e}")
-
-
-def remove_moonraker_env() -> None:
-    if not MOONRAKER_ENV_DIR.exists():
-        Logger.print_info(f"'{MOONRAKER_ENV_DIR}' does not exist. Skipped ...")
-        return
-
-    try:
-        shutil.rmtree(MOONRAKER_ENV_DIR)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{MOONRAKER_ENV_DIR}':\n{e}")
-
-
 def remove_polkit_rules() -> None:
     if not MOONRAKER_DIR.exists():
         log = "Cannot remove policykit rules. Moonraker directory not found."
@@ -131,17 +108,9 @@ def remove_polkit_rules() -> None:
         return
 
     try:
-        command = [
-            f"{MOONRAKER_DIR}/scripts/set-policykit-rules.sh",
-            "--clear",
-        ]
-        subprocess.run(
-            command,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
-            check=True,
-        )
-    except subprocess.CalledProcessError as e:
+        cmd = [f"{MOONRAKER_DIR}/scripts/set-policykit-rules.sh", "--clear"]
+        run(cmd, stderr=PIPE, stdout=DEVNULL, check=True)
+    except CalledProcessError as e:
         Logger.print_error(f"Error while removing policykit rules: {e}")
 
     Logger.print_ok("Policykit rules successfully removed!")
@@ -157,4 +126,4 @@ def delete_moonraker_logs(instances: List[Moonraker]) -> None:
 
     for log in all_logfiles:
         Logger.print_status(f"Remove '{log}'")
-        remove_file(log)
+        run_remove_routines(log)

@@ -74,7 +74,6 @@ def get_current_client_config(clients: List[BaseWebClient]) -> str:
 
 def backup_mainsail_config_json(is_temp=False) -> None:
     c_json = MainsailData().client_dir.joinpath("config.json")
-    Logger.print_status(f"Backup '{c_json}' ...")
     bm = BackupManager()
     if is_temp:
         fn = Path.home().joinpath("config.json.kiauh.bak")

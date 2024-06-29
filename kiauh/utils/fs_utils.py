@@ -237,27 +237,20 @@ def get_next_free_port(ports_in_use: List[int]) -> int:
 
 def remove_nginx_config(name: str) -> None:
     Logger.print_status(f"Removing NGINX config for {name.capitalize()} ...")
-    try:
-        remove_file(NGINX_SITES_AVAILABLE.joinpath(name), True)
-        remove_file(NGINX_SITES_ENABLED.joinpath(name), True)
 
-    except CalledProcessError as e:
-        log = f"Unable to remove NGINX config '{name}':\n{e.stderr.decode()}"
-        Logger.print_error(log)
+    run_remove_routines(NGINX_SITES_AVAILABLE.joinpath(name))
+    run_remove_routines(NGINX_SITES_ENABLED.joinpath(name))
 
 
 def remove_nginx_logs(name: str, instances: List[Klipper]) -> None:
     Logger.print_status(f"Removing NGINX logs for {name.capitalize()} ...")
-    try:
-        remove_file(Path(f"/var/log/nginx/{name}-access.log"), True)
-        remove_file(Path(f"/var/log/nginx/{name}-error.log"), True)
 
-        if not instances:
-            return
+    run_remove_routines(Path(f"/var/log/nginx/{name}-access.log"))
+    run_remove_routines(Path(f"/var/log/nginx/{name}-error.log"))
 
-        for instance in instances:
-            remove_file(instance.log_dir.joinpath(f"{name}-access.log"))
-            remove_file(instance.log_dir.joinpath(f"{name}-error.log"))
+    if not instances:
+        return
 
-    except (OSError, CalledProcessError) as e:
-        Logger.print_error(f"Unable to remove NGINX logs:\n{e}")
+    for instance in instances:
+        run_remove_routines(instance.log_dir.joinpath(f"{name}-access.log"))
+        run_remove_routines(instance.log_dir.joinpath(f"{name}-error.log"))

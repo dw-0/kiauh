@@ -8,7 +8,6 @@
 # ======================================================================= #
 
 
-import shutil
 from typing import List
 
 from components.klipper.klipper import Klipper
@@ -26,6 +25,7 @@ from utils.config_utils import remove_config_section
 from utils.fs_utils import (
     remove_nginx_config,
     remove_nginx_logs,
+    run_remove_routines,
 )
 from utils.logger import Logger
 
@@ -63,12 +63,4 @@ def run_client_removal(
 
 def remove_client_dir(client: BaseWebClient) -> None:
     Logger.print_status(f"Removing {client.display_name} ...")
-    client_dir = client.client_dir
-    if not client.client_dir.exists():
-        Logger.print_info(f"'{client_dir}' does not exist. Skipping ...")
-        return
-
-    try:
-        shutil.rmtree(client_dir)
-    except OSError as e:
-        Logger.print_error(f"Unable to delete '{client_dir}':\n{e}")
+    run_remove_routines(client.client_dir)
