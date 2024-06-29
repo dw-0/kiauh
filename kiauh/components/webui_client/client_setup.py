@@ -24,7 +24,6 @@ from components.webui_client.client_config.client_config_setup import (
 from components.webui_client.client_dialogs import (
     print_client_port_select_dialog,
     print_install_client_config_dialog,
-    print_ipv6_warning_dialog,
     print_moonraker_not_found_dialog,
 )
 from components.webui_client.client_utils import (
@@ -50,7 +49,6 @@ from utils.fs_utils import (
 from utils.input_utils import get_confirm, get_number_input
 from utils.logger import Logger
 from utils.sys_utils import (
-    check_ipv6,
     cmd_sysctl_service,
     download_file,
     get_ipv4_addr,
@@ -113,13 +111,6 @@ def install_client(client: BaseWebClient) -> None:
             default=next_port,
         )
         valid_port = is_valid_port(port, ports_in_use)
-
-    # check if ipv6 is enabled, as this may cause issues with nginx
-    if check_ipv6():
-        print_ipv6_warning_dialog()
-        if not get_confirm(f"Continue with {client.display_name} installation?"):
-            Logger.print_info(f"Exiting {client.display_name} installation ...")
-            return
 
     check_install_dependencies(["nginx", "unzip"])
 

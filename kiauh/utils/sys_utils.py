@@ -402,34 +402,3 @@ def log_process(process: Popen) -> None:
 
         if process.poll() is not None:
             break
-
-
-def check_ipv6() -> bool:
-    """
-    Check if IPv6 is enabled
-    :return: True if IPv6 is enabled, False otherwise
-    """
-    try:
-        file1 = Path("/proc/sys/net/ipv6/conf/all/disable_ipv6")
-        if file1.exists():
-            with open(file1, "r") as file:
-                if file.read().strip() == "0":
-                    return True
-                elif file.read().strip() == "1":
-                    return False
-
-        file3 = Path("/etc/sysctl.conf")
-        if file3.exists():
-            with open(file3, "r") as file:
-                for line in file.readlines():
-                    if (
-                        "net.ipv6.conf.all.disable_ipv6" in line
-                        and not line.startswith("#")
-                        and line.split("=")[1].strip() == "0"
-                    ):
-                        return True
-        return False
-
-    except Exception as e:
-        Logger.print_error(f"Error checking IPv6: {e}")
-        return True
