@@ -84,7 +84,6 @@ class MainMenu(BaseMenu):
             )
 
     def fetch_status(self) -> None:
-        pass
         self._get_component_status("kl", get_klipper_status)
         self._get_component_status("mr", get_moonraker_status)
         self._get_component_status("ms", get_client_status, MainsailData())
