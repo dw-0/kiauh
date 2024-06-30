@@ -16,7 +16,12 @@ from components.mobileraker import (
     MOBILERAKER_BACKUP_DIR,
     MOBILERAKER_DIR,
     MOBILERAKER_ENV,
+    MOBILERAKER_INSTALL_SCRIPT,
+    MOBILERAKER_LOG_NAME,
     MOBILERAKER_REPO,
+    MOBILERAKER_REQ_FILE,
+    MOBILERAKER_SERVICE_FILE,
+    MOBILERAKER_UPDATER_SECTION_NAME,
 )
 from components.moonraker.moonraker import Moonraker
 from core.backup_manager.backup_manager import BackupManager
@@ -24,7 +29,6 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies, get_install_status
 from utils.config_utils import add_config_section, remove_config_section
-from utils.constants import SYSTEMD
 from utils.fs_utils import remove_with_sudo
 from utils.git_utils import (
     git_clone_wrapper,
@@ -72,8 +76,7 @@ def install_mobileraker() -> None:
     git_clone_wrapper(MOBILERAKER_REPO, MOBILERAKER_DIR)
 
     try:
-        script = f"{MOBILERAKER_DIR}/scripts/install.sh"
-        run(script, shell=True, check=True)
+        run(MOBILERAKER_INSTALL_SCRIPT.as_posix(), shell=True, check=True)
         if mr_instances:
             patch_mobileraker_update_manager(mr_instances)
             mr_im.restart_all_instance()
@@ -89,19 +92,18 @@ def install_mobileraker() -> None:
 
 
 def patch_mobileraker_update_manager(instances: List[Moonraker]) -> None:
-    env_py = f"{MOBILERAKER_ENV}/bin/python"
     add_config_section(
-        section="update_manager mobileraker",
+        section=MOBILERAKER_UPDATER_SECTION_NAME,
         instances=instances,
         options=[
             ("type", "git_repo"),
-            ("path", "mobileraker_companion"),
-            ("orgin", MOBILERAKER_REPO),
+            ("path", MOBILERAKER_DIR.as_posix()),
+            ("origin", MOBILERAKER_REPO),
             ("primary_branch", "main"),
             ("managed_services", "mobileraker"),
-            ("env", env_py),
-            ("requirements", "scripts/mobileraker-requirements.txt"),
-            ("install_script", "scripts/install.sh"),
+            ("env", f"{MOBILERAKER_ENV}/bin/python"),
+            ("requirements", MOBILERAKER_REQ_FILE.as_posix()),
+            ("install_script", MOBILERAKER_INSTALL_SCRIPT.as_posix()),
         ],
     )
 
@@ -124,8 +126,7 @@ def update_mobileraker() -> None:
 
         git_pull_wrapper(MOBILERAKER_REPO, MOBILERAKER_DIR)
 
-        requirements = MOBILERAKER_DIR.joinpath("/scripts/mobileraker-requirements.txt")
-        install_python_requirements(MOBILERAKER_ENV, requirements)
+        install_python_requirements(MOBILERAKER_ENV, MOBILERAKER_REQ_FILE)
 
         cmd_sysctl_service("mobileraker", "start")
 
@@ -139,7 +140,7 @@ def get_mobileraker_status() -> ComponentStatus:
     return get_install_status(
         MOBILERAKER_DIR,
         MOBILERAKER_ENV,
-        files=[SYSTEMD.joinpath("mobileraker.service")],
+        files=[MOBILERAKER_SERVICE_FILE],
     )
 
 
@@ -160,12 +161,11 @@ def remove_mobileraker() -> None:
         else:
             Logger.print_warn("Mobileraker's companion environment not found!")
 
-        service = SYSTEMD.joinpath("mobileraker.service")
-        if service.exists():
+        if MOBILERAKER_SERVICE_FILE.exists():
             Logger.print_status("Removing mobileraker service ...")
-            cmd_sysctl_service(service, "stop")
-            cmd_sysctl_service(service, "disable")
-            remove_with_sudo(service)
+            cmd_sysctl_service(MOBILERAKER_SERVICE_FILE, "stop")
+            cmd_sysctl_service(MOBILERAKER_SERVICE_FILE, "disable")
+            remove_with_sudo(MOBILERAKER_SERVICE_FILE)
             cmd_sysctl_manage("daemon-reload")
             cmd_sysctl_manage("reset-failed")
             Logger.print_ok("Mobileraker's companion service successfully removed!")
@@ -173,7 +173,7 @@ def remove_mobileraker() -> None:
         kl_im = InstanceManager(Klipper)
         kl_instances: List[Klipper] = kl_im.instances
         for instance in kl_instances:
-            logfile = instance.log_dir.joinpath("mobileraker.log")
+            logfile = instance.log_dir.joinpath(MOBILERAKER_LOG_NAME)
             if logfile.exists():
                 Logger.print_status(f"Removing {logfile} ...")
                 Path(logfile).unlink()
@@ -185,7 +185,7 @@ def remove_mobileraker() -> None:
             Logger.print_status(
                 "Removing Mobileraker's companion from update manager ..."
             )
-            remove_config_section("update_manager mobileraker", mr_instances)
+            remove_config_section(MOBILERAKER_UPDATER_SECTION_NAME, mr_instances)
             Logger.print_ok(
                 "Mobileraker's companion successfully removed from update manager!"
             )
@@ -199,12 +199,12 @@ def remove_mobileraker() -> None:
 def backup_mobileraker_dir() -> None:
     bm = BackupManager()
     bm.backup_directory(
-        "mobileraker_companion",
+        MOBILERAKER_DIR.name,
         source=MOBILERAKER_DIR,
         target=MOBILERAKER_BACKUP_DIR,
     )
     bm.backup_directory(
-        "mobileraker-env",
+        MOBILERAKER_ENV.name,
         source=MOBILERAKER_ENV,
         target=MOBILERAKER_BACKUP_DIR,
     )
