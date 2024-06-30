@@ -158,5 +158,8 @@ class Klipper(BaseInstance):
         from utils.fs_utils import run_remove_routines
 
         for log in list(self.log_dir.glob("klippy.log*")):
+        files = self.log_dir.iterdir()
+        logs = [f for f in files if f.name.startswith(KLIPPER_LOG_NAME)]
+        for log in logs:
             Logger.print_status(f"Remove '{log}'")
             run_remove_routines(log)

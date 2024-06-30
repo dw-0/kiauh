@@ -13,6 +13,8 @@ from core.backup_manager import BACKUP_ROOT_DIR
 
 MODULE_PATH = Path(__file__).resolve().parent
 
+# names
+KLIPPER_LOG_NAME = "klippy.log"
 KLIPPER_DIR = Path.home().joinpath("klipper")
 KLIPPER_ENV_DIR = Path.home().joinpath("klippy-env")
 KLIPPER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("klipper-backups")
