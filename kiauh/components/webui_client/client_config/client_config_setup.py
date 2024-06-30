@@ -20,7 +20,7 @@ from components.webui_client.client_dialogs import (
 )
 from components.webui_client.client_utils import (
     backup_client_config_data,
-    config_for_other_client_exist,
+    detect_client_cfg_conflict,
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
@@ -36,7 +36,7 @@ def install_client_config(client_data: BaseWebClient) -> None:
     client_config: BaseWebClientConfig = client_data.client_config
     display_name = client_config.display_name
 
-    if config_for_other_client_exist(client_data.client):
+    if detect_client_cfg_conflict(client_data):
         Logger.print_info("Another Client-Config is already installed! Skipped ...")
         return
 

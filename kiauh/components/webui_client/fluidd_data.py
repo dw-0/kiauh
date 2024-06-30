@@ -18,7 +18,6 @@ from components.webui_client.base_data import (
     WebClientConfigType,
     WebClientType,
 )
-from components.webui_client.client_utils import get_download_url
 from core.backup_manager import BACKUP_ROOT_DIR
 
 
@@ -47,6 +46,8 @@ class FluiddData(BaseWebClient):
 
     @property
     def download_url(self) -> str:
+        from components.webui_client.client_utils import get_download_url
+
         return get_download_url(self.BASE_DL_URL, self)
 
     @property

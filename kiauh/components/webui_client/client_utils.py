@@ -8,7 +8,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
-import json  # noqa: I001
+import json
 import shutil
 from pathlib import Path
 from typing import List, get_args
@@ -16,9 +16,9 @@ from typing import List, get_args
 from components.klipper.klipper import Klipper
 from components.webui_client.base_data import (
     BaseWebClient,
-    BaseWebClientConfig,
     WebClientType,
 )
+from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.settings.kiauh_settings import KiauhSettings
@@ -187,30 +187,24 @@ def get_existing_clients() -> List[BaseWebClient]:
     return installed_clients
 
 
-def get_existing_client_config() -> List[BaseWebClient]:
-    clients = list(get_args(WebClientType))
-    installed_client_configs: List[BaseWebClient] = []
-    for client in clients:
-        c_config_data: BaseWebClientConfig = client.client_config
-        if c_config_data.config_dir.exists():
-            installed_client_configs.append(client)
-
-    return installed_client_configs
-
-
-def config_for_other_client_exist(client_to_ignore: WebClientType) -> bool:
+def detect_client_cfg_conflict(curr_client: BaseWebClient) -> bool:
     """
     Check if any other client configs are present on the system.
     It is usually not harmful, but chances are they can conflict each other.
     Multiple client configs are, at least, redundant to have them installed
-    :param client_to_ignore: The client name to ignore for the check
+    :param curr_client: The client name to check for the conflict
     :return: True, if other client configs were found, else False
     """
 
-    clients = set([c.name for c in get_existing_client_config()])
-    clients = clients - {client_to_ignore.value}
+    mainsail_cfg_status: ComponentStatus = get_client_config_status(MainsailData())
+    fluidd_cfg_status: ComponentStatus = get_client_config_status(FluiddData())
 
-    return True if len(clients) > 0 else False
+    if curr_client.client == WebClientType.MAINSAIL and fluidd_cfg_status.status == 2:
+        return True
+    if curr_client.client == WebClientType.FLUIDD and mainsail_cfg_status.status == 2:
+        return True
+
+    return False
 
 
 def get_download_url(base_url: str, client: BaseWebClient) -> str:

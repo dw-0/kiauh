@@ -28,7 +28,7 @@ from components.webui_client.client_dialogs import (
 )
 from components.webui_client.client_utils import (
     backup_mainsail_config_json,
-    config_for_other_client_exist,
+    detect_client_cfg_conflict,
     enable_mainsail_remotemode,
     restore_mainsail_config_json,
     symlink_webui_nginx_log,
@@ -90,7 +90,7 @@ def install_client(client: BaseWebClient) -> None:
     if (
         kl_instances
         and not client_config.config_dir.exists()
-        and not config_for_other_client_exist(client_to_ignore=client.client)
+        and not detect_client_cfg_conflict(client)
     ):
         print_install_client_config_dialog(client)
         question = f"Download the recommended {client_config.display_name}?"
