@@ -163,6 +163,6 @@ class Moonraker(BaseInstance):
     def _delete_logfiles(self) -> None:
         from utils.fs_utils import run_remove_routines
 
-        for log in list(self.log_dir.glob(f"{self.log}*")):
+        for log in list(self.log_dir.glob("moonraker.log*")):
             Logger.print_status(f"Remove '{log}'")
             run_remove_routines(log)
