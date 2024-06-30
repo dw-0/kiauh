@@ -13,7 +13,8 @@ from components.klipper import (
     EXIT_KLIPPER_SETUP,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
-    KLIPPER_REQUIREMENTS_TXT,
+    KLIPPER_INSTALL_SCRIPT,
+    KLIPPER_REQ_FILE,
 )
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_utils import (
@@ -115,21 +116,19 @@ def setup_klipper_prerequesites() -> None:
 
     # install klipper dependencies and create python virtualenv
     try:
-        install_klipper_packages(KLIPPER_DIR)
+        install_klipper_packages()
         create_python_venv(KLIPPER_ENV_DIR)
-        install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQUIREMENTS_TXT)
+        install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
     except Exception:
         Logger.print_error("Error during installation of Klipper requirements!")
         raise
 
 
-def install_klipper_packages(klipper_dir: Path) -> None:
-    script = klipper_dir.joinpath("scripts/install-debian.sh")
+def install_klipper_packages() -> None:
+    script = KLIPPER_INSTALL_SCRIPT
     packages = parse_packages_from_file(script)
-    packages = [pkg.replace("python-dev", "python3-dev") for pkg in packages]
-    packages.append("python3-venv")
-    # Add dfu-util for octopi-images
-    packages.append("dfu-util")
+    packages.append("python3-venv")  # todo: remove once switched to virtualenv
+
     # Add dbus requirement for DietPi distro
     if Path("/boot/dietpi/.version").exists():
         packages.append("dbus")
@@ -160,9 +159,9 @@ def update_klipper() -> None:
     git_pull_wrapper(repo=settings.klipper.repo_url, target_dir=KLIPPER_DIR)
 
     # install possible new system packages
-    install_klipper_packages(KLIPPER_DIR)
+    install_klipper_packages()
     # install possible new python dependencies
-    install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQUIREMENTS_TXT)
+    install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
 
     instance_manager.start_all_instance()
 

@@ -11,7 +11,17 @@ from pathlib import Path
 from subprocess import DEVNULL, CalledProcessError, run
 from typing import List
 
-from components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR, MODULE_PATH
+from components.klipper import (
+    KLIPPER_CFG_NAME,
+    KLIPPER_DIR,
+    KLIPPER_ENV_DIR,
+    KLIPPER_ENV_FILE_NAME,
+    KLIPPER_ENV_FILE_TEMPLATE,
+    KLIPPER_LOG_NAME,
+    KLIPPER_SERIAL_NAME,
+    KLIPPER_SERVICE_TEMPLATE,
+    KLIPPER_UDS_NAME,
+)
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD
 from utils.logger import Logger
@@ -27,10 +37,10 @@ class Klipper(BaseInstance):
         super().__init__(instance_type=self, suffix=suffix)
         self.klipper_dir: Path = KLIPPER_DIR
         self.env_dir: Path = KLIPPER_ENV_DIR
-        self._cfg_file = self.cfg_dir.joinpath("printer.cfg")
-        self._log = self.log_dir.joinpath("klippy.log")
-        self._serial = self.comms_dir.joinpath("klippy.serial")
-        self._uds = self.comms_dir.joinpath("klippy.sock")
+        self._cfg_file = self.cfg_dir.joinpath(KLIPPER_CFG_NAME)
+        self._log = self.log_dir.joinpath(KLIPPER_LOG_NAME)
+        self._serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
+        self._uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)
 
     @property
     def cfg_file(self) -> Path:
@@ -51,21 +61,18 @@ class Klipper(BaseInstance):
     def create(self) -> None:
         Logger.print_status("Creating new Klipper Instance ...")
 
-        service_template_path = MODULE_PATH.joinpath("assets/klipper.service")
         service_file_name = self.get_service_file_name(extension=True)
         service_file_target = SYSTEMD.joinpath(service_file_name)
-
-        env_template_file_path = MODULE_PATH.joinpath("assets/klipper.env")
-        env_file_target = self.sysd_dir.joinpath("klipper.env")
+        env_file_target = self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME)
 
         try:
             self.create_folders()
             self._write_service_file(
-                service_template_path,
+                KLIPPER_SERVICE_TEMPLATE,
                 service_file_target,
                 env_file_target,
             )
-            self._write_env_file(env_template_file_path, env_file_target)
+            self._write_env_file(KLIPPER_ENV_FILE_TEMPLATE, env_file_target)
 
         except CalledProcessError as e:
             Logger.print_error(f"Error creating instance: {e}")
@@ -147,7 +154,8 @@ class Klipper(BaseInstance):
             "%KLIPPER_DIR%", str(self.klipper_dir)
         )
         env_file_content = env_file_content.replace(
-            "%CFG%", f"{self.cfg_dir}/printer.cfg"
+            "%CFG%",
+            f"{self.cfg_dir}/{KLIPPER_CFG_NAME}",
         )
         env_file_content = env_file_content.replace("%SERIAL%", str(self.serial))
         env_file_content = env_file_content.replace("%LOG%", str(self.log))
@@ -157,7 +165,6 @@ class Klipper(BaseInstance):
     def _delete_logfiles(self) -> None:
         from utils.fs_utils import run_remove_routines
 
-        for log in list(self.log_dir.glob("klippy.log*")):
         files = self.log_dir.iterdir()
         logs = [f for f in files if f.name.startswith(KLIPPER_LOG_NAME)]
         for log in logs:
