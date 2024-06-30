@@ -25,7 +25,6 @@ def run_moonraker_removal(
     remove_dir: bool,
     remove_env: bool,
     remove_polkit: bool,
-    delete_logs: bool,
 ) -> None:
     im = InstanceManager(Moonraker)
 
@@ -38,16 +37,12 @@ def run_moonraker_removal(
             Logger.print_info("No Moonraker Services installed! Skipped ...")
 
     if (remove_polkit or remove_dir or remove_env) and im.instances:
-        Logger.print_warn("There are still other Moonraker services installed!")
-        Logger.print_warn("Therefor the following parts cannot be removed:")
-        Logger.print_warn(
-            """
-            ● Moonraker PolicyKit rules
-            ● Moonraker local repository
-            ● Moonraker Python environment
-            """,
-            False,
+        Logger.print_info("There are still other Moonraker services installed")
+        Logger.print_info(
+            "●  Moonraker PolicyKit rules were not removed.", prefix=False
         )
+        Logger.print_info(f"● '{MOONRAKER_DIR}' was not removed.", prefix=False)
+        Logger.print_info(f"● '{MOONRAKER_ENV_DIR}' was not removed.", prefix=False)
     else:
         if remove_polkit:
             Logger.print_status("Removing all Moonraker policykit rules ...")
@@ -58,11 +53,6 @@ def run_moonraker_removal(
         if remove_env:
             Logger.print_status("Removing Moonraker Python environment ...")
             run_remove_routines(MOONRAKER_ENV_DIR)
-
-    # delete moonraker logs of all instances
-    if delete_logs:
-        Logger.print_status("Removing all Moonraker logs ...")
-        delete_moonraker_logs(im.instances)
 
 
 def select_instances_to_remove(

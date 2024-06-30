@@ -8,8 +8,8 @@
 # ======================================================================= #
 from __future__ import annotations
 
-import subprocess
 from pathlib import Path
+from subprocess import DEVNULL, CalledProcessError, run
 from typing import List
 
 from components.moonraker import MODULE_PATH, MOONRAKER_DIR, MOONRAKER_ENV_DIR
@@ -49,43 +49,46 @@ class Moonraker(BaseInstance):
 
     def create(self, create_example_cfg: bool = False) -> None:
         Logger.print_status("Creating new Moonraker Instance ...")
+
         service_template_path = MODULE_PATH.joinpath("assets/moonraker.service")
-        env_template_file_path = MODULE_PATH.joinpath("assets/moonraker.env")
         service_file_name = self.get_service_file_name(extension=True)
         service_file_target = SYSTEMD.joinpath(service_file_name)
+
+        env_template_file_path = MODULE_PATH.joinpath("assets/moonraker.env")
         env_file_target = self.sysd_dir.joinpath("moonraker.env")
 
         try:
             self.create_folders([self.backup_dir, self.certs_dir, self._db_dir])
-            self.write_service_file(
-                service_template_path, service_file_target, env_file_target
+            self._write_service_file(
+                service_template_path,
+                service_file_target,
+                env_file_target,
             )
-            self.write_env_file(env_template_file_path, env_file_target)
+            self._write_env_file(env_template_file_path, env_file_target)
 
-        except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error creating service file {service_file_target}: {e}"
-            )
+        except CalledProcessError as e:
+            Logger.print_error(f"Error creating instance: {e}")
             raise
         except OSError as e:
-            Logger.print_error(f"Error writing file: {e}")
+            Logger.print_error(f"Error creating env file: {e}")
             raise
 
     def delete(self) -> None:
         service_file = self.get_service_file_name(extension=True)
         service_file_path = self.get_service_file_path()
 
-        Logger.print_status(f"Deleting Moonraker Instance: {service_file}")
+        Logger.print_status(f"Removing Moonraker Instance: {service_file}")
 
         try:
             command = ["sudo", "rm", "-f", service_file_path]
-            subprocess.run(command, check=True)
-            Logger.print_ok(f"Service file deleted: {service_file_path}")
-        except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error deleting service file: {e}")
+            run(command, check=True)
+            self._delete_logfiles()
+            Logger.print_ok("Instance successfully removed!")
+        except CalledProcessError as e:
+            Logger.print_error(f"Error removing instance: {e}")
             raise
 
-    def write_service_file(
+    def _write_service_file(
         self,
         service_template_path: Path,
         service_file_target: Path,
@@ -95,15 +98,15 @@ class Moonraker(BaseInstance):
             service_template_path, env_file_target
         )
         command = ["sudo", "tee", service_file_target]
-        subprocess.run(
+        run(
             command,
             input=service_content.encode(),
-            stdout=subprocess.DEVNULL,
+            stdout=DEVNULL,
             check=True,
         )
         Logger.print_ok(f"Service file created: {service_file_target}")
 
-    def write_env_file(
+    def _write_env_file(
         self, env_template_file_path: Path, env_file_target: Path
     ) -> None:
         env_file_content = self._prep_env_file(env_template_file_path)
@@ -156,3 +159,10 @@ class Moonraker(BaseInstance):
         port = scp.getint("server", "port", fallback=None)
 
         return port
+
+    def _delete_logfiles(self) -> None:
+        from utils.fs_utils import run_remove_routines
+
+        for log in list(self.log_dir.glob(f"{self.log}*")):
+            Logger.print_status(f"Remove '{log}'")
+            run_remove_routines(log)

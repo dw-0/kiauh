@@ -25,7 +25,6 @@ class MoonrakerRemoveMenu(BaseMenu):
         self.remove_moonraker_dir = False
         self.remove_moonraker_env = False
         self.remove_moonraker_polkit = False
-        self.remove_moonraker_logs = False
         self.selection_state = False
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
@@ -42,7 +41,6 @@ class MoonrakerRemoveMenu(BaseMenu):
             "2": Option(method=self.toggle_remove_moonraker_dir, menu=False),
             "3": Option(method=self.toggle_remove_moonraker_env, menu=False),
             "4": Option(method=self.toggle_remove_moonraker_polkit, menu=False),
-            "5": Option(method=self.toggle_delete_moonraker_logs, menu=False),
             "c": Option(method=self.run_removal_process, menu=False),
         }
 
@@ -56,7 +54,6 @@ class MoonrakerRemoveMenu(BaseMenu):
         o2 = checked if self.remove_moonraker_dir else unchecked
         o3 = checked if self.remove_moonraker_env else unchecked
         o4 = checked if self.remove_moonraker_polkit else unchecked
-        o5 = checked if self.remove_moonraker_logs else unchecked
         menu = textwrap.dedent(
             f"""
             ╔═══════════════════════════════════════════════════════╗
@@ -71,7 +68,6 @@ class MoonrakerRemoveMenu(BaseMenu):
             ║  2) {o2} Remove Local Repository                       ║
             ║  3) {o3} Remove Python Environment                     ║
             ║  4) {o4} Remove Policy Kit Rules                       ║
-            ║  5) {o5} Delete all Log-Files                          ║
             ╟───────────────────────────────────────────────────────╢
             ║  C) Continue                                          ║
             ╟───────────────────────────────────────────────────────╢
@@ -84,7 +80,6 @@ class MoonrakerRemoveMenu(BaseMenu):
         self.remove_moonraker_dir = not self.remove_moonraker_dir
         self.remove_moonraker_env = not self.remove_moonraker_env
         self.remove_moonraker_polkit = not self.remove_moonraker_polkit
-        self.remove_moonraker_logs = not self.remove_moonraker_logs
         self.selection_state = not self.selection_state
 
     def toggle_remove_moonraker_service(self, **kwargs) -> None:
@@ -99,16 +94,12 @@ class MoonrakerRemoveMenu(BaseMenu):
     def toggle_remove_moonraker_polkit(self, **kwargs) -> None:
         self.remove_moonraker_polkit = not self.remove_moonraker_polkit
 
-    def toggle_delete_moonraker_logs(self, **kwargs) -> None:
-        self.remove_moonraker_logs = not self.remove_moonraker_logs
-
     def run_removal_process(self, **kwargs) -> None:
         if (
             not self.remove_moonraker_service
             and not self.remove_moonraker_dir
             and not self.remove_moonraker_env
             and not self.remove_moonraker_polkit
-            and not self.remove_moonraker_logs
         ):
             error = f"{COLOR_RED}Nothing selected! Select options to remove first.{RESET_FORMAT}"
             print(error)
@@ -119,14 +110,12 @@ class MoonrakerRemoveMenu(BaseMenu):
             self.remove_moonraker_dir,
             self.remove_moonraker_env,
             self.remove_moonraker_polkit,
-            self.remove_moonraker_logs,
         )
 
         self.remove_moonraker_service = False
         self.remove_moonraker_dir = False
         self.remove_moonraker_env = False
         self.remove_moonraker_polkit = False
-        self.remove_moonraker_logs = False
 
         self._go_back()
 
