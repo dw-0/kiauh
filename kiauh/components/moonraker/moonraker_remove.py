@@ -58,11 +58,17 @@ def run_moonraker_removal(
 def select_instances_to_remove(
     instances: List[Moonraker],
 ) -> Union[List[Moonraker], None]:
-    print_instance_overview(instances, show_index=True, show_select_all=True)
-
-    options = [str(i) for i in range(len(instances))]
+    start_index = 1
+    options = [str(i + start_index) for i in range(len(instances))]
     options.extend(["a", "A", "b", "B"])
+    instance_map = {options[i]: instances[i] for i in range(len(instances))}
 
+    print_instance_overview(
+        instances,
+        start_index=start_index,
+        show_index=True,
+        show_select_all=True,
+    )
     selection = get_selection_input("Select Moonraker instance to remove", options)
 
     instances_to_remove = []
@@ -71,8 +77,7 @@ def select_instances_to_remove(
     elif selection == "a".lower():
         instances_to_remove.extend(instances)
     else:
-        instance = instances[int(selection)]
-        instances_to_remove.append(instance)
+        instances_to_remove.append(instance_map[selection])
 
     return instances_to_remove
 
