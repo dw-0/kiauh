@@ -6,25 +6,24 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-from enum import Enum
-from typing import Optional, TypedDict
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict, Literal
+
+StatusText = Literal["Installed", "Not installed", "Incomplete"]
+StatusCode = Literal[0, 1, 2]
+StatusMap: Dict[StatusCode, StatusText] = {
+    0: "Not installed",
+    1: "Incomplete",
+    2: "Installed",
+}
 
 
-class StatusInfo:
-    def __init__(self, txt: str, code: int):
-        self.txt: str = txt
-        self.code: int = code
-
-
-class InstallStatus(Enum):
-    INSTALLED = StatusInfo("Installed", 1)
-    NOT_INSTALLED = StatusInfo("Not installed", 2)
-    INCOMPLETE = StatusInfo("Incomplete", 3)
-
-
-class ComponentStatus(TypedDict):
-    status: InstallStatus
-    repo: Optional[str]
-    local: Optional[str]
-    remote: Optional[str]
-    instances: Optional[int]
+@dataclass
+class ComponentStatus:
+    status: StatusCode
+    repo: str | None = None
+    local: str | None = None
+    remote: str | None = None
+    instances: int | None = None

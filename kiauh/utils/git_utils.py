@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import shutil
 import urllib.request
@@ -63,11 +65,11 @@ def git_pull_wrapper(repo: str, target_dir: Path) -> None:
         return
 
 
-def get_repo_name(repo: Path) -> str:
+def get_repo_name(repo: Path) -> str | None:
     """
     Helper method to extract the organisation and name of a repository |
     :param repo: repository to extract the values from
-    :return: String in form of "<orga>/<name>"
+    :return: String in form of "<orga>/<name>" or None
     """
     if not repo.exists() or not repo.joinpath(".git").exists():
         return "-"
@@ -77,7 +79,7 @@ def get_repo_name(repo: Path) -> str:
         result = check_output(cmd, stderr=DEVNULL)
         return "/".join(result.decode().strip().split("/")[-2:])
     except CalledProcessError:
-        return "-"
+        return None
 
 
 def get_tags(repo_path: str) -> List[str]:
@@ -110,7 +112,6 @@ def get_latest_tag(repo_path: str) -> str:
         else:
             return ""
     except Exception:
-        Logger.print_error("Error while getting the latest tag")
         raise
 
 
@@ -130,20 +131,20 @@ def get_latest_unstable_tag(repo_path: str) -> str:
         raise
 
 
-def get_local_commit(repo: Path) -> str:
+def get_local_commit(repo: Path) -> str | None:
     if not repo.exists() or not repo.joinpath(".git").exists():
-        return "-"
+        return None
 
     try:
         cmd = f"cd {repo} && git describe HEAD --always --tags | cut -d '-' -f 1,2"
         return check_output(cmd, shell=True, text=True).strip()
     except CalledProcessError:
-        return "-"
+        return None
 
 
-def get_remote_commit(repo: Path) -> str:
+def get_remote_commit(repo: Path) -> str | None:
     if not repo.exists() or not repo.joinpath(".git").exists():
-        return "-"
+        return None
 
     try:
         # get locally checked out branch
@@ -153,7 +154,7 @@ def get_remote_commit(repo: Path) -> str:
         cmd = f"cd {repo} && git describe 'origin/{branch}' --always --tags | cut -d '-' -f 1,2"
         return check_output(cmd, shell=True, text=True).strip()
     except CalledProcessError:
-        return "-"
+        return None
 
 
 def git_cmd_clone(repo: str, target_dir: Path) -> None:

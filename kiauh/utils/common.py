@@ -26,7 +26,7 @@ from utils.sys_utils import (
     install_system_packages,
     update_system_package_lists,
 )
-from utils.types import ComponentStatus, InstallStatus
+from utils.types import ComponentStatus, StatusCode
 
 
 def convert_camelcase_to_kebabcase(name: str) -> str:
@@ -92,13 +92,11 @@ def get_install_status(
             checks.append(f.exists())
 
     if all(checks):
-        status = InstallStatus.INSTALLED
-
+        status: StatusCode = 2  # installed
     elif not any(checks):
-        status = InstallStatus.NOT_INSTALLED
-
+        status: StatusCode = 0  # not installed
     else:
-        status = InstallStatus.INCOMPLETE
+        status: StatusCode = 1  # incomplete
 
     return ComponentStatus(
         status=status,

@@ -6,6 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import json  # noqa: I001
 import shutil
@@ -29,7 +30,7 @@ from utils.git_utils import (
     get_latest_unstable_tag,
 )
 from utils.logger import Logger
-from utils.types import ComponentStatus, InstallStatus
+from utils.types import ComponentStatus
 
 
 def get_client_status(
@@ -40,16 +41,16 @@ def get_client_status(
         NGINX_CONFD.joinpath("upstreams.conf"),
         NGINX_CONFD.joinpath("common_vars.conf"),
     ]
-    status = get_install_status(client.client_dir, files=files)
+    comp_status: ComponentStatus = get_install_status(client.client_dir, files=files)
 
     # if the client dir does not exist, set the status to not
     # installed even if the other files are present
     if not client.client_dir.exists():
-        status["status"] = InstallStatus.NOT_INSTALLED
+        comp_status.status = 0
 
-    status["local"] = get_local_client_version(client)
-    status["remote"] = get_remote_client_version(client) if fetch_remote else None
-    return status
+    comp_status.local = get_local_client_version(client)
+    comp_status.remote = get_remote_client_version(client) if fetch_remote else None
+    return comp_status
 
 
 def get_client_config_status(client: BaseWebClient) -> ComponentStatus:
@@ -125,12 +126,12 @@ def symlink_webui_nginx_log(klipper_instances: List[Klipper]) -> None:
             desti_error.symlink_to(error_log)
 
 
-def get_local_client_version(client: BaseWebClient) -> str:
+def get_local_client_version(client: BaseWebClient) -> str | None:
     relinfo_file = client.client_dir.joinpath("release_info.json")
     version_file = client.client_dir.joinpath(".version")
 
     if not client.client_dir.exists():
-        return "-"
+        return None
     if not relinfo_file.is_file() and not version_file.is_file():
         return "n/a"
 
@@ -142,13 +143,13 @@ def get_local_client_version(client: BaseWebClient) -> str:
             return f.readlines()[0]
 
 
-def get_remote_client_version(client: BaseWebClient) -> str:
+def get_remote_client_version(client: BaseWebClient) -> str | None:
     try:
         if (tag := get_latest_tag(client.repo_path)) != "":
             return tag
-        return "ERROR"
+        return None
     except Exception:
-        return "ERROR"
+        return None
 
 
 def backup_client_data(client: BaseWebClient) -> None:

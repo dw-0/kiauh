@@ -41,7 +41,7 @@ from utils.constants import (
     RESET_FORMAT,
 )
 from utils.logger import Logger
-from utils.types import ComponentStatus
+from utils.types import ComponentStatus, StatusMap, StatusText
 
 
 # noinspection PyUnusedLocal
@@ -84,6 +84,7 @@ class MainMenu(BaseMenu):
             )
 
     def fetch_status(self) -> None:
+        pass
         self._get_component_status("kl", get_klipper_status)
         self._get_component_status("mr", get_moonraker_status)
         self._get_component_status("ms", get_client_status, MainsailData())
@@ -96,10 +97,10 @@ class MainMenu(BaseMenu):
 
     def _get_component_status(self, name: str, status_fn: callable, *args) -> None:
         status_data: ComponentStatus = status_fn(*args)
-        code: int = status_data.get("status").value.code
-        status: str = status_data.get("status").value.txt
-        repo: str = status_data.get("repo")
-        instance_count: int = status_data.get("instances")
+        code: int = status_data.status
+        status: StatusText = StatusMap[code]
+        repo: str = status_data.repo
+        instance_count: int = status_data.instances
 
         count_txt: str = ""
         if instance_count > 0 and code == 1:
@@ -109,12 +110,15 @@ class MainMenu(BaseMenu):
         setattr(self, f"{name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT}")
 
     def _format_by_code(self, code: int, status: str, count: str) -> str:
-        if code == 1:
-            return f"{COLOR_GREEN}{status}{count}{RESET_FORMAT}"
+        color = COLOR_RED
+        if code == 0:
+            color = COLOR_RED
+        elif code == 1:
+            color = COLOR_YELLOW
         elif code == 2:
-            return f"{COLOR_RED}{status}{count}{RESET_FORMAT}"
+            color = COLOR_GREEN
 
-        return f"{COLOR_YELLOW}{status}{count}{RESET_FORMAT}"
+        return f"{color}{status}{count}{RESET_FORMAT}"
 
     def print_menu(self):
         self.fetch_status()
