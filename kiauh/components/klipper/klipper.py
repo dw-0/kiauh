@@ -61,18 +61,10 @@ class Klipper(BaseInstance):
     def create(self) -> None:
         Logger.print_status("Creating new Klipper Instance ...")
 
-        service_file_name = self.get_service_file_name(extension=True)
-        service_file_target = SYSTEMD.joinpath(service_file_name)
-        env_file_target = self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME)
-
         try:
             self.create_folders()
-            self._write_service_file(
-                KLIPPER_SERVICE_TEMPLATE,
-                service_file_target,
-                env_file_target,
-            )
-            self._write_env_file(KLIPPER_ENV_FILE_TEMPLATE, env_file_target)
+            self._write_service_file()
+            self._write_env_file()
 
         except CalledProcessError as e:
             Logger.print_error(f"Error creating instance: {e}")
@@ -96,15 +88,10 @@ class Klipper(BaseInstance):
             Logger.print_error(f"Error removing instance: {e}")
             raise
 
-    def _write_service_file(
-        self,
-        service_template_path: Path,
-        service_file_target: Path,
-        env_file_target: Path,
-    ) -> None:
-        service_content = self._prep_service_file(
-            service_template_path, env_file_target
-        )
+    def _write_service_file(self) -> None:
+        service_file_name = self.get_service_file_name(extension=True)
+        service_file_target = SYSTEMD.joinpath(service_file_name)
+        service_content = self._prep_service_file()
         command = ["sudo", "tee", service_file_target]
         run(
             command,
@@ -114,52 +101,73 @@ class Klipper(BaseInstance):
         )
         Logger.print_ok(f"Service file created: {service_file_target}")
 
-    def _write_env_file(
-        self, env_template_file_path: Path, env_file_target: Path
-    ) -> None:
-        env_file_content = self._prep_env_file(env_template_file_path)
+    def _write_env_file(self) -> None:
+        env_file_content = self._prep_env_file()
+        env_file_target = self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME)
+
         with open(env_file_target, "w") as env_file:
             env_file.write(env_file_content)
+
         Logger.print_ok(f"Env file created: {env_file_target}")
 
-    def _prep_service_file(
-        self, service_template_path: Path, env_file_path: Path
-    ) -> str:
+    def _prep_service_file(self) -> str:
+        template = KLIPPER_SERVICE_TEMPLATE
+
         try:
-            with open(service_template_path, "r") as template_file:
+            with open(template, "r") as template_file:
                 template_content = template_file.read()
         except FileNotFoundError:
-            Logger.print_error(
-                f"Unable to open {service_template_path} - File not found"
-            )
+            Logger.print_error(f"Unable to open {template} - File not found")
             raise
-        service_content = template_content.replace("%USER%", self.user)
-        service_content = service_content.replace(
-            "%KLIPPER_DIR%", str(self.klipper_dir)
+
+        service_content = template_content.replace(
+            "%USER%",
+            self.user,
         )
-        service_content = service_content.replace("%ENV%", str(self.env_dir))
-        service_content = service_content.replace("%ENV_FILE%", str(env_file_path))
+        service_content = service_content.replace(
+            "%KLIPPER_DIR%",
+            self.klipper_dir.as_posix(),
+        )
+        service_content = service_content.replace(
+            "%ENV%",
+            self.env_dir.as_posix(),
+        )
+        service_content = service_content.replace(
+            "%ENV_FILE%",
+            self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME).as_posix(),
+        )
         return service_content
 
-    def _prep_env_file(self, env_template_file_path: Path) -> str:
+    def _prep_env_file(self) -> str:
+        template = KLIPPER_ENV_FILE_TEMPLATE
+
         try:
-            with open(env_template_file_path, "r") as env_file:
+            with open(template, "r") as env_file:
                 env_template_file_content = env_file.read()
         except FileNotFoundError:
-            Logger.print_error(
-                f"Unable to open {env_template_file_path} - File not found"
-            )
+            Logger.print_error(f"Unable to open {template} - File not found")
             raise
+
         env_file_content = env_template_file_content.replace(
-            "%KLIPPER_DIR%", str(self.klipper_dir)
+            "%KLIPPER_DIR%", self.klipper_dir.as_posix()
         )
         env_file_content = env_file_content.replace(
             "%CFG%",
             f"{self.cfg_dir}/{KLIPPER_CFG_NAME}",
         )
-        env_file_content = env_file_content.replace("%SERIAL%", str(self.serial))
-        env_file_content = env_file_content.replace("%LOG%", str(self.log))
-        env_file_content = env_file_content.replace("%UDS%", str(self.uds))
+        env_file_content = env_file_content.replace(
+            "%SERIAL%",
+            self.serial.as_posix(),
+        )
+        env_file_content = env_file_content.replace(
+            "%LOG%",
+            self.log.as_posix(),
+        )
+        env_file_content = env_file_content.replace(
+            "%UDS%",
+            self.uds.as_posix(),
+        )
+
         return env_file_content
 
     def _delete_logfiles(self) -> None:
