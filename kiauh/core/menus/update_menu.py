@@ -6,7 +6,6 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
 import textwrap
 from typing import Optional, Type
 
@@ -48,6 +47,7 @@ from utils.constants import (
     RESET_FORMAT,
 )
 from utils.logger import Logger
+from utils.spinner import Spinner
 from utils.types import ComponentStatus
 
 
@@ -58,16 +58,16 @@ class UpdateMenu(BaseMenu):
         super().__init__()
         self.previous_menu = previous_menu
 
-        self.klipper_local = self.klipper_remote = None
-        self.moonraker_local = self.moonraker_remote = None
-        self.mainsail_local = self.mainsail_remote = None
-        self.mainsail_config_local = self.mainsail_config_remote = None
-        self.fluidd_local = self.fluidd_remote = None
-        self.fluidd_config_local = self.fluidd_config_remote = None
-        self.klipperscreen_local = self.klipperscreen_remote = None
-        self.mobileraker_local = self.mobileraker_remote = None
-        self.crowsnest_local = self.crowsnest_remote = None
-        self.octoeverywhere_local = self.octoeverywhere_remote = None
+        self.klipper_local = self.klipper_remote = ""
+        self.moonraker_local = self.moonraker_remote = ""
+        self.mainsail_local = self.mainsail_remote = ""
+        self.mainsail_config_local = self.mainsail_config_remote = ""
+        self.fluidd_local = self.fluidd_remote = ""
+        self.fluidd_config_local = self.fluidd_config_remote = ""
+        self.klipperscreen_local = self.klipperscreen_remote = ""
+        self.mobileraker_local = self.mobileraker_remote = ""
+        self.crowsnest_local = self.crowsnest_remote = ""
+        self.octoeverywhere_local = self.octoeverywhere_remote = ""
 
         self.mainsail_data = MainsailData()
         self.fluidd_data = FluiddData()
@@ -83,8 +83,6 @@ class UpdateMenu(BaseMenu):
             "crowsnest": {"installed": False, "local": None, "remote": None},
             "octoeverywhere": {"installed": False, "local": None, "remote": None},
         }
-
-        self._fetch_update_status()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         from core.menus.main_menu import MainMenu
@@ -110,7 +108,12 @@ class UpdateMenu(BaseMenu):
         }
 
     def print_menu(self):
+        spinner = Spinner()
+        spinner.start()
+
         self._fetch_update_status()
+
+        spinner.stop()
 
         header = " [ Update Menu ] "
         color = COLOR_GREEN
