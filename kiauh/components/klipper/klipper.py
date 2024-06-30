@@ -7,8 +7,8 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-import subprocess
 from pathlib import Path
+from subprocess import DEVNULL, CalledProcessError, run
 from typing import List
 
 from components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR, MODULE_PATH
@@ -50,43 +50,46 @@ class Klipper(BaseInstance):
 
     def create(self) -> None:
         Logger.print_status("Creating new Klipper Instance ...")
+
         service_template_path = MODULE_PATH.joinpath("assets/klipper.service")
         service_file_name = self.get_service_file_name(extension=True)
         service_file_target = SYSTEMD.joinpath(service_file_name)
+
         env_template_file_path = MODULE_PATH.joinpath("assets/klipper.env")
         env_file_target = self.sysd_dir.joinpath("klipper.env")
 
         try:
             self.create_folders()
-            self.write_service_file(
-                service_template_path, service_file_target, env_file_target
+            self._write_service_file(
+                service_template_path,
+                service_file_target,
+                env_file_target,
             )
-            self.write_env_file(env_template_file_path, env_file_target)
+            self._write_env_file(env_template_file_path, env_file_target)
 
-        except subprocess.CalledProcessError as e:
-            Logger.print_error(
-                f"Error creating service file {service_file_target}: {e}"
-            )
+        except CalledProcessError as e:
+            Logger.print_error(f"Error creating instance: {e}")
             raise
         except OSError as e:
-            Logger.print_error(f"Error creating env file {env_file_target}: {e}")
+            Logger.print_error(f"Error creating env file: {e}")
             raise
 
     def delete(self) -> None:
         service_file = self.get_service_file_name(extension=True)
         service_file_path = self.get_service_file_path()
 
-        Logger.print_status(f"Deleting Klipper Instance: {service_file}")
+        Logger.print_status(f"Removing Klipper Instance: {service_file}")
 
         try:
             command = ["sudo", "rm", "-f", service_file_path]
-            subprocess.run(command, check=True)
-            Logger.print_ok(f"Service file deleted: {service_file_path}")
-        except subprocess.CalledProcessError as e:
-            Logger.print_error(f"Error deleting service file: {e}")
+            run(command, check=True)
+            self._delete_logfiles()
+            Logger.print_ok("Instance successfully removed!")
+        except CalledProcessError as e:
+            Logger.print_error(f"Error removing instance: {e}")
             raise
 
-    def write_service_file(
+    def _write_service_file(
         self,
         service_template_path: Path,
         service_file_target: Path,
@@ -96,15 +99,15 @@ class Klipper(BaseInstance):
             service_template_path, env_file_target
         )
         command = ["sudo", "tee", service_file_target]
-        subprocess.run(
+        run(
             command,
             input=service_content.encode(),
-            stdout=subprocess.DEVNULL,
+            stdout=DEVNULL,
             check=True,
         )
         Logger.print_ok(f"Service file created: {service_file_target}")
 
-    def write_env_file(
+    def _write_env_file(
         self, env_template_file_path: Path, env_file_target: Path
     ) -> None:
         env_file_content = self._prep_env_file(env_template_file_path)
@@ -150,3 +153,10 @@ class Klipper(BaseInstance):
         env_file_content = env_file_content.replace("%LOG%", str(self.log))
         env_file_content = env_file_content.replace("%UDS%", str(self.uds))
         return env_file_content
+
+    def _delete_logfiles(self) -> None:
+        from utils.fs_utils import run_remove_routines
+
+        for log in list(self.log_dir.glob(f"{self.log}*")):
+            Logger.print_status(f"Remove '{log}'")
+            run_remove_routines(log)

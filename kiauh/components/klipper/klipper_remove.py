@@ -23,7 +23,6 @@ def run_klipper_removal(
     remove_service: bool,
     remove_dir: bool,
     remove_env: bool,
-    delete_logs: bool,
 ) -> None:
     im = InstanceManager(Klipper)
 
@@ -36,15 +35,9 @@ def run_klipper_removal(
             Logger.print_info("No Klipper Services installed! Skipped ...")
 
     if (remove_dir or remove_env) and im.instances:
-        Logger.print_warn("There are still other Klipper services installed!")
-        Logger.print_warn("Therefor the following parts cannot be removed:")
-        Logger.print_warn(
-            """
-            ● Klipper local repository
-            ● Klipper Python environment
-            """,
-            False,
-        )
+        Logger.print_info("There are still other Klipper services installed:")
+        Logger.print_info(f"● '{KLIPPER_DIR}' was not removed.", prefix=False)
+        Logger.print_info(f"● '{KLIPPER_ENV_DIR}' was not removed.", prefix=False)
     else:
         if remove_dir:
             Logger.print_status("Removing Klipper local repository ...")
@@ -52,11 +45,6 @@ def run_klipper_removal(
         if remove_env:
             Logger.print_status("Removing Klipper Python environment ...")
             run_remove_routines(KLIPPER_ENV_DIR)
-
-    # delete klipper logs of all instances
-    if delete_logs:
-        Logger.print_status("Removing all Klipper logs ...")
-        delete_klipper_logs(im.instances)
 
 
 def select_instances_to_remove(
