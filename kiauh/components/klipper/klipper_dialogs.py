@@ -32,6 +32,7 @@ def print_instance_overview(
     display_type: DisplayType = DisplayType.SERVICE_NAME,
     show_headline=True,
     show_index=False,
+    start_index=0,
     show_select_all=False,
 ):
     dialog = "╔═══════════════════════════════════════════════════════╗\n"
@@ -55,7 +56,7 @@ def print_instance_overview(
             name = s.get_service_file_name()
         else:
             name = s.data_dir
-        line = f"{COLOR_CYAN}{f'{i})' if show_index else '●'} {name}{RESET_FORMAT}"
+        line = f"{COLOR_CYAN}{f'{i + start_index})' if show_index else '●'} {name}{RESET_FORMAT}"
         dialog += f"║ {line:<63}║\n"
     dialog += "╟───────────────────────────────────────────────────────╢\n"
 
