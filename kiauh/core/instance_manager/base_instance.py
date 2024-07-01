@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from utils.constants import CURRENT_USER, SYSTEMD
+from utils.logger import Logger
 
 
 class BaseInstance(ABC):
@@ -159,3 +160,12 @@ class BaseInstance(ABC):
             return f"printer_{self._suffix}"
         else:
             return self._suffix
+
+    def delete_logfiles(self, log_name: str) -> None:
+        from utils.fs_utils import run_remove_routines
+
+        files = self.log_dir.iterdir()
+        logs = [f for f in files if f.name.startswith(log_name)]
+        for log in logs:
+            Logger.print_status(f"Remove '{log}'")
+            run_remove_routines(log)

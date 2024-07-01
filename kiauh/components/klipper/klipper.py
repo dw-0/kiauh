@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 from pathlib import Path
-from subprocess import DEVNULL, CalledProcessError, run
+from subprocess import CalledProcessError, run
 from typing import List
 
 from components.klipper import (
@@ -23,7 +23,6 @@ from components.klipper import (
     KLIPPER_UDS_NAME,
 )
 from core.instance_manager.base_instance import BaseInstance
-from utils.constants import SYSTEMD
 from utils.logger import Logger
 
 
@@ -59,12 +58,22 @@ class Klipper(BaseInstance):
         return self._uds
 
     def create(self) -> None:
+        from utils.sys_utils import create_env_file, create_service_file
+
         Logger.print_status("Creating new Klipper Instance ...")
 
         try:
             self.create_folders()
-            self._write_service_file()
-            self._write_env_file()
+
+            create_service_file(
+                name=self.get_service_file_name(extension=True),
+                content=self._prep_service_file_content(),
+            )
+
+            create_env_file(
+                path=self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME),
+                content=self._prep_env_file_content(),
+            )
 
         except CalledProcessError as e:
             Logger.print_error(f"Error creating instance: {e}")
@@ -82,35 +91,13 @@ class Klipper(BaseInstance):
         try:
             command = ["sudo", "rm", "-f", service_file_path]
             run(command, check=True)
-            self._delete_logfiles()
+            self.delete_logfiles(KLIPPER_LOG_NAME)
             Logger.print_ok("Instance successfully removed!")
         except CalledProcessError as e:
             Logger.print_error(f"Error removing instance: {e}")
             raise
 
-    def _write_service_file(self) -> None:
-        service_file_name = self.get_service_file_name(extension=True)
-        service_file_target = SYSTEMD.joinpath(service_file_name)
-        service_content = self._prep_service_file()
-        command = ["sudo", "tee", service_file_target]
-        run(
-            command,
-            input=service_content.encode(),
-            stdout=DEVNULL,
-            check=True,
-        )
-        Logger.print_ok(f"Service file created: {service_file_target}")
-
-    def _write_env_file(self) -> None:
-        env_file_content = self._prep_env_file()
-        env_file_target = self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME)
-
-        with open(env_file_target, "w") as env_file:
-            env_file.write(env_file_content)
-
-        Logger.print_ok(f"Env file created: {env_file_target}")
-
-    def _prep_service_file(self) -> str:
+    def _prep_service_file_content(self) -> str:
         template = KLIPPER_SERVICE_TEMPLATE
 
         try:
@@ -138,7 +125,7 @@ class Klipper(BaseInstance):
         )
         return service_content
 
-    def _prep_env_file(self) -> str:
+    def _prep_env_file_content(self) -> str:
         template = KLIPPER_ENV_FILE_TEMPLATE
 
         try:
@@ -169,12 +156,3 @@ class Klipper(BaseInstance):
         )
 
         return env_file_content
-
-    def _delete_logfiles(self) -> None:
-        from utils.fs_utils import run_remove_routines
-
-        files = self.log_dir.iterdir()
-        logs = [f for f in files if f.name.startswith(KLIPPER_LOG_NAME)]
-        for log in logs:
-            Logger.print_status(f"Remove '{log}'")
-            run_remove_routines(log)

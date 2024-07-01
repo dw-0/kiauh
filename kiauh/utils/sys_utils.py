@@ -402,3 +402,39 @@ def log_process(process: Popen) -> None:
 
         if process.poll() is not None:
             break
+
+
+def create_service_file(name: str, content: str) -> None:
+    """
+    Creates a service file at the provided path with the provided content.
+    :param name: the name of the service file
+    :param content: the content of the service file
+    :return: None
+    """
+    try:
+        run(
+            ["sudo", "tee", SYSTEMD.joinpath(name)],
+            input=content.encode(),
+            stdout=DEVNULL,
+            check=True,
+        )
+        Logger.print_ok(f"Service file created: {SYSTEMD.joinpath(name)}")
+    except CalledProcessError as e:
+        Logger.print_error(f"Error creating service file: {e}")
+        raise
+
+
+def create_env_file(path: Path, content: str) -> None:
+    """
+    Creates an env file at the provided path with the provided content.
+    :param path: the path of the env file
+    :param content: the content of the env file
+    :return: None
+    """
+    try:
+        with open(path, "w") as env_file:
+            env_file.write(content)
+        Logger.print_ok(f"Env file created: {path}")
+    except OSError as e:
+        Logger.print_error(f"Error creating env file: {e}")
+        raise
