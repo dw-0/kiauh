@@ -11,10 +11,10 @@ import shutil
 from typing import Dict, List, Optional
 
 from components.moonraker import (
-    DEFAULT_MOONRAKER_PORT,
     MODULE_PATH,
     MOONRAKER_BACKUP_DIR,
     MOONRAKER_DB_BACKUP_DIR,
+    MOONRAKER_DEFAULT_PORT,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
 )
@@ -68,7 +68,7 @@ def create_example_moonraker_conf(
         # of moonraker-1 is 7125 and moonraker-3 is 7127 and there are moonraker.conf files for moonraker-1
         # and moonraker-3 already. though, there does not seem to be a very reliable way of always assigning
         # the correct port to each instance and the user will likely be required to correct the value manually.
-        port = max(ports) + 1 if ports else DEFAULT_MOONRAKER_PORT
+        port = max(ports) + 1 if ports else MOONRAKER_DEFAULT_PORT
     else:
         port = ports_map.get(instance.suffix)
 

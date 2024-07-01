@@ -15,7 +15,7 @@ from components.moonraker import (
     EXIT_MOONRAKER_SETUP,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
-    MOONRAKER_REQUIREMENTS_TXT,
+    MOONRAKER_REQ_FILE,
     POLKIT_FILE,
     POLKIT_LEGACY_FILE,
     POLKIT_SCRIPT,
@@ -145,7 +145,7 @@ def setup_moonraker_prerequesites() -> None:
     # install moonraker dependencies and create python virtualenv
     install_moonraker_packages(MOONRAKER_DIR)
     create_python_venv(MOONRAKER_ENV_DIR)
-    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQUIREMENTS_TXT)
+    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
 
 
 def install_moonraker_packages(moonraker_dir: Path) -> None:
@@ -206,13 +206,11 @@ def update_moonraker() -> None:
     instance_manager = InstanceManager(Moonraker)
     instance_manager.stop_all_instance()
 
-    git_pull_wrapper(
-        repo=settings.moonraker.repo_url, target_dir=MOONRAKER_DIR
-    )
+    git_pull_wrapper(repo=settings.moonraker.repo_url, target_dir=MOONRAKER_DIR)
 
     # install possible new system packages
     install_moonraker_packages(MOONRAKER_DIR)
     # install possible new python dependencies
-    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQUIREMENTS_TXT)
+    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
 
     instance_manager.start_all_instance()
