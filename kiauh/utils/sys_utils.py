@@ -22,7 +22,7 @@ from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, run
 from typing import List, Literal
 
 from utils.constants import SYSTEMD
-from utils.fs_utils import check_file_exist
+from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.input_utils import get_confirm
 from utils.logger import Logger
 
@@ -437,4 +437,24 @@ def create_env_file(path: Path, content: str) -> None:
         Logger.print_ok(f"Env file created: {path}")
     except OSError as e:
         Logger.print_error(f"Error creating env file: {e}")
+        raise
+
+
+def remove_service_file(service_name: str, service_file: Path) -> None:
+    """
+    Removes a systemd service file at the provided path with the provided name.
+    :param service_name: the name of the service
+    :param service_file: the path of the service file
+    :return: None
+    """
+    try:
+        Logger.print_status(f"Removing {service_name} ...")
+        cmd_sysctl_service(service_name, "stop")
+        cmd_sysctl_service(service_name, "disable")
+        remove_with_sudo(service_file)
+        cmd_sysctl_manage("daemon-reload")
+        cmd_sysctl_manage("reset-failed")
+        Logger.print_ok(f"{service_name} successfully removed!")
+    except Exception as e:
+        Logger.print_error(f"Error removing {service_name}:\n{e}")
         raise
