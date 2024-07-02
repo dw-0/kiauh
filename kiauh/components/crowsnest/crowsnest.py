@@ -14,7 +14,17 @@ from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List
 
-from components.crowsnest import CROWSNEST_BACKUP_DIR, CROWSNEST_DIR, CROWSNEST_REPO
+from components.crowsnest import (
+    CROWSNEST_BACKUP_DIR,
+    CROWSNEST_BIN_FILE,
+    CROWSNEST_DIR,
+    CROWSNEST_INSTALL_SCRIPT,
+    CROWSNEST_LOGROTATE_FILE,
+    CROWSNEST_MULTI_CONFIG,
+    CROWSNEST_REPO,
+    CROWSNEST_SERVICE_FILE,
+    CROWSNEST_SERVICE_NAME,
+)
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
@@ -75,7 +85,6 @@ def install_crowsnest() -> None:
 
 
 def print_multi_instance_warning(instances: List[Klipper]) -> None:
-    _instances = [f"● {instance.data_dir_name}" for instance in instances]
     Logger.print_dialog(
         DialogType.WARNING,
         [
@@ -86,13 +95,12 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
             "this instance to set up your 'crowsnest.conf' and steering it's service.",
             "\n\n",
             "The following instances were found:",
-            *_instances,
+            *[f"● {instance.data_dir_name}" for instance in instances],
         ],
     )
 
 
 def configure_multi_instance() -> None:
-    config = Path(CROWSNEST_DIR).joinpath("tools/.config")
     try:
         run(
             "make config",
@@ -102,17 +110,17 @@ def configure_multi_instance() -> None:
         )
     except CalledProcessError as e:
         Logger.print_error(f"Something went wrong! Please try again...\n{e}")
-        if config.exists():
-            Path.unlink(config)
+        if CROWSNEST_MULTI_CONFIG.exists():
+            Path.unlink(CROWSNEST_MULTI_CONFIG)
         return
 
-    if not config.exists():
+    if not CROWSNEST_MULTI_CONFIG.exists():
         Logger.print_error("Generating .config failed, installation aborted")
 
 
 def update_crowsnest() -> None:
     try:
-        cmd_sysctl_service("crowsnest", "stop")
+        cmd_sysctl_service(CROWSNEST_SERVICE_NAME, "stop")
 
         if not CROWSNEST_DIR.exists():
             git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
@@ -123,18 +131,17 @@ def update_crowsnest() -> None:
             if settings.kiauh.backup_before_update:
                 bm = BackupManager()
                 bm.backup_directory(
-                    "crowsnest",
+                    CROWSNEST_DIR.name,
                     source=CROWSNEST_DIR,
                     target=CROWSNEST_BACKUP_DIR,
                 )
 
             git_pull_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
 
-            script = CROWSNEST_DIR.joinpath("tools/install.sh")
-            deps = parse_packages_from_file(script)
+            deps = parse_packages_from_file(CROWSNEST_INSTALL_SCRIPT)
             check_install_dependencies(deps)
 
-        cmd_sysctl_service("crowsnest", "restart")
+        cmd_sysctl_service(CROWSNEST_SERVICE_NAME, "restart")
 
         Logger.print_ok("Crowsnest updated successfully.", end="\n\n")
     except CalledProcessError as e:
@@ -144,9 +151,9 @@ def update_crowsnest() -> None:
 
 def get_crowsnest_status() -> ComponentStatus:
     files = [
-        Path("/usr/local/bin/crowsnest"),
-        Path("/etc/logrotate.d/crowsnest"),
-        Path("/etc/systemd/system/crowsnest.service"),
+        CROWSNEST_BIN_FILE,
+        CROWSNEST_LOGROTATE_FILE,
+        CROWSNEST_SERVICE_FILE,
     ]
     return get_install_status(CROWSNEST_DIR, files=files)
 

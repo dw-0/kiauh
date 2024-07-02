@@ -21,6 +21,7 @@ OE_REQ_FILE = OE_DIR.joinpath("requirements.txt")
 OE_DEPS_JSON_FILE = OE_DIR.joinpath("moonraker-system-dependencies.json")
 OE_INSTALL_SCRIPT = OE_DIR.joinpath("install.sh")
 OE_UPDATE_SCRIPT = OE_DIR.joinpath("update.sh")
+OE_INSTALLER_LOG_FILE = Path.home().joinpath("octoeverywhere-installer.log")
 
 # filenames
 OE_CFG_NAME = "octoeverywhere.conf"

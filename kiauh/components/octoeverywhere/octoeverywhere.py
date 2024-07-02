@@ -11,6 +11,7 @@ from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List
 
+from components.moonraker import MOONRAKER_CFG_NAME
 from components.octoeverywhere import (
     OE_CFG_NAME,
     OE_DIR,
@@ -55,7 +56,7 @@ class Octoeverywhere(BaseInstance):
         Logger.print_status("Creating OctoEverywhere for Klipper Instance ...")
 
         try:
-            cmd = f"{OE_INSTALL_SCRIPT} {self.cfg_dir}/moonraker.conf"
+            cmd = f"{OE_INSTALL_SCRIPT} {self.cfg_dir}/{MOONRAKER_CFG_NAME}"
             run(cmd, check=True, shell=True)
 
         except CalledProcessError as e:
@@ -65,7 +66,7 @@ class Octoeverywhere(BaseInstance):
     @staticmethod
     def update():
         try:
-            run(str(OE_UPDATE_SCRIPT), check=True, shell=True, cwd=OE_DIR)
+            run(OE_UPDATE_SCRIPT.as_posix(), check=True, shell=True, cwd=OE_DIR)
 
         except CalledProcessError as e:
             Logger.print_error(f"Error updating OctoEverywhere for Klipper: {e}")
@@ -82,6 +83,7 @@ class Octoeverywhere(BaseInstance):
         try:
             command = ["sudo", "rm", "-f", service_file_path]
             run(command, check=True)
+            self.delete_logfiles(OE_LOG_NAME)
             Logger.print_ok(f"Service file deleted: {service_file_path}")
         except CalledProcessError as e:
             Logger.print_error(f"Error deleting service file: {e}")

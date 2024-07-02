@@ -27,14 +27,16 @@ MOONRAKER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-backups")
 MOONRAKER_DB_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-db-backups")
 
 # files
+MOONRAKER_INSTALL_SCRIPT = MOONRAKER_DIR.joinpath("scripts/install-moonraker.sh")
 MOONRAKER_REQ_FILE = MOONRAKER_DIR.joinpath("scripts/moonraker-requirements.txt")
+MOONRAKER_DEPS_JSON_FILE = MOONRAKER_DIR.joinpath("scripts/system-dependencies.json")
 # introduced due to
 # https://github.com/Arksine/moonraker/issues/349
 # https://github.com/Arksine/moonraker/pull/346
 POLKIT_LEGACY_FILE = Path("/etc/polkit-1/localauthority/50-local.d/10-moonraker.pkla")
 POLKIT_FILE = Path("/etc/polkit-1/rules.d/moonraker.rules")
 POLKIT_USR_FILE = Path("/usr/share/polkit-1/rules.d/moonraker.rules")
-POLKIT_SCRIPT = Path.home().joinpath("moonraker/scripts/set-policykit-rules.sh")
+POLKIT_SCRIPT = MOONRAKER_DIR.joinpath("scripts/set-policykit-rules.sh")
 MOONRAKER_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{MOONRAKER_SERVICE_NAME}")
 MOONRAKER_ENV_FILE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{MOONRAKER_ENV_FILE_NAME}")
 

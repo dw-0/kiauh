@@ -15,12 +15,13 @@ from components.klipper.klipper import Klipper
 from components.mobileraker import (
     MOBILERAKER_BACKUP_DIR,
     MOBILERAKER_DIR,
-    MOBILERAKER_ENV,
+    MOBILERAKER_ENV_DIR,
     MOBILERAKER_INSTALL_SCRIPT,
     MOBILERAKER_LOG_NAME,
     MOBILERAKER_REPO,
     MOBILERAKER_REQ_FILE,
     MOBILERAKER_SERVICE_FILE,
+    MOBILERAKER_SERVICE_NAME,
     MOBILERAKER_UPDATER_SECTION_NAME,
 )
 from components.moonraker.moonraker import Moonraker
@@ -29,7 +30,6 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies, get_install_status
 from utils.config_utils import add_config_section, remove_config_section
-from utils.fs_utils import remove_with_sudo
 from utils.git_utils import (
     git_clone_wrapper,
     git_pull_wrapper,
@@ -38,9 +38,9 @@ from utils.input_utils import get_confirm
 from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     check_python_version,
-    cmd_sysctl_manage,
     cmd_sysctl_service,
     install_python_requirements,
+    remove_service_file,
 )
 from utils.types import ComponentStatus
 
@@ -101,7 +101,7 @@ def patch_mobileraker_update_manager(instances: List[Moonraker]) -> None:
             ("origin", MOBILERAKER_REPO),
             ("primary_branch", "main"),
             ("managed_services", "mobileraker"),
-            ("env", f"{MOBILERAKER_ENV}/bin/python"),
+            ("env", f"{MOBILERAKER_ENV_DIR}/bin/python"),
             ("requirements", MOBILERAKER_REQ_FILE.as_posix()),
             ("install_script", MOBILERAKER_INSTALL_SCRIPT.as_posix()),
         ],
@@ -118,7 +118,7 @@ def update_mobileraker() -> None:
 
         Logger.print_status("Updating Mobileraker's companion ...")
 
-        cmd_sysctl_service("mobileraker", "stop")
+        cmd_sysctl_service(MOBILERAKER_SERVICE_NAME, "stop")
 
         settings = KiauhSettings()
         if settings.kiauh.backup_before_update:
@@ -126,9 +126,9 @@ def update_mobileraker() -> None:
 
         git_pull_wrapper(MOBILERAKER_REPO, MOBILERAKER_DIR)
 
-        install_python_requirements(MOBILERAKER_ENV, MOBILERAKER_REQ_FILE)
+        install_python_requirements(MOBILERAKER_ENV_DIR, MOBILERAKER_REQ_FILE)
 
-        cmd_sysctl_service("mobileraker", "start")
+        cmd_sysctl_service(MOBILERAKER_SERVICE_NAME, "start")
 
         Logger.print_ok("Mobileraker's companion updated successfully.", end="\n\n")
     except CalledProcessError as e:
@@ -139,7 +139,7 @@ def update_mobileraker() -> None:
 def get_mobileraker_status() -> ComponentStatus:
     return get_install_status(
         MOBILERAKER_DIR,
-        MOBILERAKER_ENV,
+        MOBILERAKER_ENV_DIR,
         files=[MOBILERAKER_SERVICE_FILE],
     )
 
@@ -154,21 +154,18 @@ def remove_mobileraker() -> None:
         else:
             Logger.print_warn("Mobileraker's companion directory not found!")
 
-        if MOBILERAKER_ENV.exists():
+        if MOBILERAKER_ENV_DIR.exists():
             Logger.print_status("Removing Mobileraker's companion environment ...")
-            shutil.rmtree(MOBILERAKER_ENV)
+            shutil.rmtree(MOBILERAKER_ENV_DIR)
             Logger.print_ok("Mobileraker's companion environment successfully removed!")
         else:
             Logger.print_warn("Mobileraker's companion environment not found!")
 
         if MOBILERAKER_SERVICE_FILE.exists():
-            Logger.print_status("Removing mobileraker service ...")
-            cmd_sysctl_service(MOBILERAKER_SERVICE_FILE, "stop")
-            cmd_sysctl_service(MOBILERAKER_SERVICE_FILE, "disable")
-            remove_with_sudo(MOBILERAKER_SERVICE_FILE)
-            cmd_sysctl_manage("daemon-reload")
-            cmd_sysctl_manage("reset-failed")
-            Logger.print_ok("Mobileraker's companion service successfully removed!")
+            remove_service_file(
+                MOBILERAKER_SERVICE_NAME,
+                MOBILERAKER_SERVICE_FILE,
+            )
 
         kl_im = InstanceManager(Klipper)
         kl_instances: List[Klipper] = kl_im.instances
@@ -204,7 +201,7 @@ def backup_mobileraker_dir() -> None:
         target=MOBILERAKER_BACKUP_DIR,
     )
     bm.backup_directory(
-        MOBILERAKER_ENV.name,
-        source=MOBILERAKER_ENV,
+        MOBILERAKER_ENV_DIR.name,
+        source=MOBILERAKER_ENV_DIR,
         target=MOBILERAKER_BACKUP_DIR,
     )

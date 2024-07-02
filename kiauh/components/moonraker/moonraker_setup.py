@@ -8,13 +8,14 @@
 # ======================================================================= #
 import json
 import subprocess
-from pathlib import Path
 
 from components.klipper.klipper import Klipper
 from components.moonraker import (
     EXIT_MOONRAKER_SETUP,
+    MOONRAKER_DEPS_JSON_FILE,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
+    MOONRAKER_INSTALL_SCRIPT,
     MOONRAKER_REQ_FILE,
     POLKIT_FILE,
     POLKIT_LEGACY_FILE,
@@ -143,21 +144,19 @@ def setup_moonraker_prerequesites() -> None:
     git_clone_wrapper(repo, MOONRAKER_DIR, branch)
 
     # install moonraker dependencies and create python virtualenv
-    install_moonraker_packages(MOONRAKER_DIR)
+    install_moonraker_packages()
     create_python_venv(MOONRAKER_ENV_DIR)
     install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
 
 
-def install_moonraker_packages(moonraker_dir: Path) -> None:
-    install_script = moonraker_dir.joinpath("scripts/install-moonraker.sh")
-    deps_json = MOONRAKER_DIR.joinpath("scripts/system-dependencies.json")
+def install_moonraker_packages() -> None:
     moonraker_deps = []
 
-    if deps_json.exists():
-        with open(deps_json, "r") as deps:
+    if MOONRAKER_DEPS_JSON_FILE.exists():
+        with open(MOONRAKER_DEPS_JSON_FILE, "r") as deps:
             moonraker_deps = json.load(deps).get("debian", [])
-    elif install_script.exists():
-        moonraker_deps = parse_packages_from_file(install_script)
+    elif MOONRAKER_INSTALL_SCRIPT.exists():
+        moonraker_deps = parse_packages_from_file(MOONRAKER_INSTALL_SCRIPT)
 
     if not moonraker_deps:
         raise ValueError("Error reading Moonraker dependencies!")
@@ -209,7 +208,7 @@ def update_moonraker() -> None:
     git_pull_wrapper(repo=settings.moonraker.repo_url, target_dir=MOONRAKER_DIR)
 
     # install possible new system packages
-    install_moonraker_packages(MOONRAKER_DIR)
+    install_moonraker_packages()
     # install possible new python dependencies
     install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
 

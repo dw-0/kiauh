@@ -7,7 +7,6 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import json
-from pathlib import Path
 from typing import List
 
 from components.moonraker.moonraker import Moonraker
@@ -16,7 +15,7 @@ from components.octoeverywhere import (
     OE_DIR,
     OE_ENV_DIR,
     OE_INSTALL_SCRIPT,
-    OE_LOG_NAME,
+    OE_INSTALLER_LOG_FILE,
     OE_REPO,
     OE_REQ_FILE,
     OE_SYS_CFG_NAME,
@@ -147,7 +146,7 @@ def remove_octoeverywhere() -> None:
         remove_oe_dir()
         remove_oe_env()
         remove_config_section(f"include {OE_SYS_CFG_NAME}", mr_instances)
-        delete_oe_logs(ob_instances)
+        run_remove_routines(OE_INSTALLER_LOG_FILE)
         Logger.print_dialog(
             DialogType.SUCCESS,
             ["OctoEverywhere for Klipper successfully removed!"],
@@ -209,23 +208,3 @@ def remove_oe_env() -> None:
         return
 
     run_remove_routines(OE_ENV_DIR)
-
-
-def delete_oe_logs(instances: List[Octoeverywhere]) -> None:
-    Logger.print_status("Removing OctoEverywhere logs ...")
-
-    all_logfiles = []
-    for instance in instances:
-        all_logfiles = list(instance.log_dir.glob(f"{OE_LOG_NAME}*"))
-
-    install_log = Path.home().joinpath("octoeverywhere-installer.log")
-    if install_log.exists():
-        all_logfiles.append(install_log)
-
-    if not all_logfiles:
-        Logger.print_info("No OctoEverywhere logs found. Skipped ...")
-        return
-
-    for log in all_logfiles:
-        Logger.print_status(f"Remove '{log}'")
-        run_remove_routines(log)
