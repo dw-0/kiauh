@@ -17,6 +17,7 @@ from components.moonraker import (
     MOONRAKER_ENV_DIR,
     MOONRAKER_INSTALL_SCRIPT,
     MOONRAKER_REQ_FILE,
+    MOONRAKER_SPEEDUPS_REQ_FILE,
     POLKIT_FILE,
     POLKIT_LEGACY_FILE,
     POLKIT_SCRIPT,
@@ -147,6 +148,7 @@ def setup_moonraker_prerequesites() -> None:
     install_moonraker_packages()
     create_python_venv(MOONRAKER_ENV_DIR)
     install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
+    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE)
 
 
 def install_moonraker_packages() -> None:

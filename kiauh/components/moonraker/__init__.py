@@ -29,6 +29,7 @@ MOONRAKER_DB_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-db-backups")
 # files
 MOONRAKER_INSTALL_SCRIPT = MOONRAKER_DIR.joinpath("scripts/install-moonraker.sh")
 MOONRAKER_REQ_FILE = MOONRAKER_DIR.joinpath("scripts/moonraker-requirements.txt")
+MOONRAKER_SPEEDUPS_REQ_FILE = MOONRAKER_DIR.joinpath("scripts/moonraker-speedups.txt")
 MOONRAKER_DEPS_JSON_FILE = MOONRAKER_DIR.joinpath("scripts/system-dependencies.json")
 # introduced due to
 # https://github.com/Arksine/moonraker/issues/349
