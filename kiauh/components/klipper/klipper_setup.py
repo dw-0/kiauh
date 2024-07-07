@@ -75,7 +75,7 @@ def install_klipper() -> None:
 
     try:
         if not kl_im.instances:
-            check_install_dependencies(["git"])
+            check_install_dependencies(["git", "python3-virtualenv"])
             setup_klipper_prerequesites()
 
         count = 0
@@ -127,7 +127,6 @@ def setup_klipper_prerequesites() -> None:
 def install_klipper_packages() -> None:
     script = KLIPPER_INSTALL_SCRIPT
     packages = parse_packages_from_file(script)
-    packages.append("python3-venv")  # todo: remove once switched to virtualenv
 
     # Add dbus requirement for DietPi distro
     if Path("/boot/dietpi/.version").exists():

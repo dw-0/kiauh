@@ -16,7 +16,6 @@ import sys
 import time
 import urllib.error
 import urllib.request
-import venv
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, run
 from typing import List, Literal
@@ -96,13 +95,11 @@ def create_python_venv(target: Path) -> None:
     Logger.print_status("Set up Python virtual environment ...")
     if not target.exists():
         try:
-            venv.create(target, with_pip=True)
+            cmd = ["virtualenv", "-p", "/usr/bin/python3", target.as_posix()]
+            run(cmd, check=True)
             Logger.print_ok("Setup of virtualenv successful!")
-        except OSError as e:
-            Logger.print_error(f"Error setting up virtualenv:\n{e}")
-            raise
         except CalledProcessError as e:
-            Logger.print_error(f"Error setting up virtualenv:\n{e.output.decode()}")
+            Logger.print_error(f"Error setting up virtualenv:\n{e}")
             raise
     else:
         if get_confirm("Virtualenv already exists. Re-create?", default_choice=False):
