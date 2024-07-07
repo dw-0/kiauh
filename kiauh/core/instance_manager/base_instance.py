@@ -164,6 +164,9 @@ class BaseInstance(ABC):
     def delete_logfiles(self, log_name: str) -> None:
         from utils.fs_utils import run_remove_routines
 
+        if not self.log_dir.exists():
+            return
+
         files = self.log_dir.iterdir()
         logs = [f for f in files if f.name.startswith(log_name)]
         for log in logs:
