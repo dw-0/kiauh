@@ -141,8 +141,10 @@ def assign_custom_name(key: int, name_dict: Dict[int, str]) -> None:
     existing_names = []
     existing_names.extend(Klipper.blacklist())
     existing_names.extend(name_dict[n] for n in name_dict)
+    pattern = r"^[a-zA-Z0-9]+$"
+
     question = f"Enter name for instance {key + 1}"
-    name_dict[key] = get_string_input(question, exclude=existing_names)
+    name_dict[key] = get_string_input(question, exclude=existing_names, regex=pattern)
 
 
 def handle_to_multi_instance_conversion(new_name: str) -> None:
