@@ -6,7 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import json
 from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List
@@ -40,6 +40,20 @@ class Klipper(BaseInstance):
         self._log = self.log_dir.joinpath(KLIPPER_LOG_NAME)
         self._serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
         self._uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)
+
+    def __repr__(self):
+        return json.dumps(
+            {
+                "suffix": self.suffix,
+                "klipper_dir": self.klipper_dir.as_posix(),
+                "env_dir": self.env_dir.as_posix(),
+                "cfg_file": self.cfg_file.as_posix(),
+                "log": self.log.as_posix(),
+                "serial": self.serial.as_posix(),
+                "uds": self.uds.as_posix(),
+            },
+            indent=4,
+        )
 
     @property
     def cfg_file(self) -> Path:
