@@ -70,8 +70,7 @@ def install_mobileraker() -> None:
         ):
             return
 
-    package_list = ["git", "wget", "curl", "unzip", "dfu-util"]
-    check_install_dependencies(package_list)
+    check_install_dependencies()
 
     git_clone_wrapper(MOBILERAKER_REPO, MOBILERAKER_DIR)
 

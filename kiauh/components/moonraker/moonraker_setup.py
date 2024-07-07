@@ -90,7 +90,7 @@ def install_moonraker() -> None:
     create_example_cfg = get_confirm("Create example moonraker.conf?")
 
     try:
-        check_install_dependencies(["git"])
+        check_install_dependencies()
         setup_moonraker_prerequesites()
         install_moonraker_polkit()
 

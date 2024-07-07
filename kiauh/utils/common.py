@@ -6,6 +6,8 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import re
 from datetime import datetime
 from pathlib import Path
@@ -14,7 +16,7 @@ from typing import Dict, List, Literal, Optional, Type
 from components.klipper.klipper import Klipper
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
-from utils import PRINTER_CFG_BACKUP_DIR
+from utils import GLOBAL_DEPS, PRINTER_CFG_BACKUP_DIR
 from utils.constants import (
     COLOR_CYAN,
     RESET_FORMAT,
@@ -45,19 +47,22 @@ def get_current_date() -> Dict[Literal["date", "time"], str]:
     return {"date": date, "time": time}
 
 
-def check_install_dependencies(deps: List[str]) -> None:
+def check_install_dependencies(deps: List[str] | None = None) -> None:
     """
     Common helper method to check if dependencies are installed
     and if not, install them automatically |
     :param deps: List of strings of package names to check if installed
     :return: None
     """
-    requirements = check_package_install(deps)
+    if deps is None:
+        deps = []
+
+    requirements = check_package_install({*GLOBAL_DEPS, *deps})
     if requirements:
         Logger.print_status("Installing dependencies ...")
         Logger.print_info("The following packages need installation:")
-        for _ in requirements:
-            print(f"{COLOR_CYAN}● {_}{RESET_FORMAT}")
+        for r in requirements:
+            print(f"{COLOR_CYAN}● {r}{RESET_FORMAT}")
         update_system_package_lists(silent=False)
         install_system_packages(requirements)
 

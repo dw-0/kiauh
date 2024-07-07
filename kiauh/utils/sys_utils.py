@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, run
-from typing import List, Literal
+from typing import List, Literal, Set
 
 from utils.constants import SYSTEMD
 from utils.fs_utils import check_file_exist, remove_with_sudo
@@ -217,7 +217,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         raise
 
 
-def check_package_install(packages: List[str]) -> List[str]:
+def check_package_install(packages: Set[str]) -> List[str]:
     """
     Checks the system for installed packages |
     :param packages: List of strings of package names
