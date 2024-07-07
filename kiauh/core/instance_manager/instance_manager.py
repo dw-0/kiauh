@@ -185,8 +185,10 @@ class InstanceManager:
         suffix = file_path.stem[len(name) :]
         return suffix[1:] if suffix else ""
 
-    def _sort_instance_list(self, s: Union[int, str, None]):
-        if s is None:
+    def _sort_instance_list(self, suffix: Union[int, str, None]):
+        if suffix is None:
             return
-
-        return int(s) if s.isdigit() else s
+        elif suffix.isdigit():
+            return f"{int(suffix):04}"
+        else:
+            return suffix
