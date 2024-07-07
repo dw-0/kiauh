@@ -56,7 +56,7 @@ class MainMenu(BaseMenu):
         self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
         self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
         self.cn_status = self.cc_status = self.oe_status = ""
-        self.init_status()
+        self._init_status()
 
     def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
         """MainMenu does not have a previous menu"""
@@ -74,7 +74,7 @@ class MainMenu(BaseMenu):
             "s": Option(method=self.settings_menu, menu=True),
         }
 
-    def init_status(self) -> None:
+    def _init_status(self) -> None:
         status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn", "oe"]
         for var in status_vars:
             setattr(
@@ -83,7 +83,7 @@ class MainMenu(BaseMenu):
                 f"{COLOR_RED}Not installed{RESET_FORMAT}",
             )
 
-    def fetch_status(self) -> None:
+    def _fetch_status(self) -> None:
         self._get_component_status("kl", get_klipper_status)
         self._get_component_status("mr", get_moonraker_status)
         self._get_component_status("ms", get_client_status, MainsailData())
@@ -102,7 +102,7 @@ class MainMenu(BaseMenu):
         instance_count: int = status_data.instances
 
         count_txt: str = ""
-        if instance_count > 0 and code == 1:
+        if instance_count > 0 and code == 2:
             count_txt = f": {instance_count}"
 
         setattr(self, f"{name}_status", self._format_by_code(code, status, count_txt))
@@ -120,7 +120,7 @@ class MainMenu(BaseMenu):
         return f"{color}{status}{count}{RESET_FORMAT}"
 
     def print_menu(self):
-        self.fetch_status()
+        self._fetch_status()
 
         header = " [ Main Menu ] "
         footer1 = f"{COLOR_CYAN}KIAUH v6.0.0{RESET_FORMAT}"
