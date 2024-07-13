@@ -78,6 +78,9 @@ def remove_instances(
     instance_manager: InstanceManager,
     instance_list: List[Klipper],
 ) -> None:
+    if not instance_list:
+        return
+
     for instance in instance_list:
         Logger.print_status(f"Removing instance {instance.get_service_file_name()} ...")
         instance_manager.current_instance = instance
