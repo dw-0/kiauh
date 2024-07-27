@@ -6,8 +6,11 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import json
 import subprocess
+from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker import (
@@ -57,36 +60,36 @@ def install_moonraker() -> None:
     if not check_moonraker_install_requirements():
         return
 
-    kl_im = InstanceManager(Klipper)
-    klipper_instances = kl_im.instances
+    klipper_list: List[Klipper] = InstanceManager(Klipper).instances
     mr_im = InstanceManager(Moonraker)
-    moonraker_instances = mr_im.instances
+    moonraker_list: List[Moonraker] = mr_im.instances
 
-    selected_klipper_instance = 0
-    if len(klipper_instances) > 1:
+    instance_names = []
+    selected_option: str | Klipper
+
+    if len(klipper_list) == 0:
+        instance_names.append(klipper_list[0].suffix)
+    else:
         print_moonraker_overview(
-            klipper_instances,
-            moonraker_instances,
+            klipper_list,
+            moonraker_list,
             show_index=True,
             show_select_all=True,
         )
-        options = [str(i) for i in range(len(klipper_instances))]
-        options.extend(["a", "A", "b", "B"])
+        options = {str(i + 1): k for i, k in enumerate(klipper_list)}
+        additional_options = {"a": None, "b": None}
+        options = {**options, **additional_options}
         question = "Select Klipper instance to setup Moonraker for"
-        selected_klipper_instance = get_selection_input(question, options).lower()
+        selected_option = get_selection_input(question, options)
 
-    instance_names = []
-    if selected_klipper_instance == "b":
-        Logger.print_status(EXIT_MOONRAKER_SETUP)
-        return
+        if selected_option == "b":
+            Logger.print_status(EXIT_MOONRAKER_SETUP)
+            return
 
-    elif selected_klipper_instance == "a":
-        for instance in klipper_instances:
-            instance_names.append(instance.suffix)
-
-    else:
-        index = int(selected_klipper_instance)
-        instance_names.append(klipper_instances[index].suffix)
+        if selected_option == "a":
+            instance_names.extend([k.suffix for k in klipper_list])
+        else:
+            instance_names.append(options.get(selected_option).suffix)
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
 
@@ -95,9 +98,7 @@ def install_moonraker() -> None:
         setup_moonraker_prerequesites()
         install_moonraker_polkit()
 
-        used_ports_map = {
-            instance.suffix: instance.port for instance in moonraker_instances
-        }
+        used_ports_map = {m.suffix: m.port for m in moonraker_list}
         for name in instance_names:
             current_instance = Moonraker(suffix=name)
 

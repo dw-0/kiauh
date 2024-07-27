@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, Union
+from typing import Dict, List, Union
 
 from utils import INVALID_CHOICE
 from utils.constants import COLOR_CYAN, RESET_FORMAT
@@ -120,7 +120,7 @@ def get_string_input(
             Logger.print_error(INVALID_CHOICE)
 
 
-def get_selection_input(question: str, option_list: List, default=None) -> str:
+def get_selection_input(question: str, option_list: List | Dict, default=None) -> str:
     """
     Helper method to get a selection from a list of options from the user
     :param question: The question to display
@@ -129,10 +129,16 @@ def get_selection_input(question: str, option_list: List, default=None) -> str:
     :return: The option that was selected by the user
     """
     while True:
-        _input = input(format_question(question, default)).strip()
+        _input = input(format_question(question, default)).strip().lower()
 
-        if _input in option_list:
-            return _input
+        if isinstance(option_list, list):
+            if _input in option_list:
+                return _input
+        elif isinstance(option_list, dict):
+            if _input in option_list.keys():
+                return _input
+        else:
+            raise ValueError("Invalid option_list type")
 
         Logger.print_error(INVALID_CHOICE)
 

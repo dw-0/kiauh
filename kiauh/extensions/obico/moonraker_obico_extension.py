@@ -62,7 +62,7 @@ class ObicoExtension(BaseExtension):
         obico_instances: List[MoonrakerObico] = obico_im.instances
         if obico_instances:
             self._print_is_already_installed()
-            options = ["l", "L", "r", "R", "b", "B"]
+            options = ["l", "r", "b"]
             action = get_selection_input("Perform action", option_list=options)
             if action.lower() == "b":
                 Logger.print_info("Exiting Obico for Klipper installation ...")

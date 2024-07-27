@@ -52,7 +52,7 @@ def select_instances_to_remove(
 ) -> Union[List[Klipper], None]:
     start_index = 1
     options = [str(i + start_index) for i in range(len(instances))]
-    options.extend(["a", "A", "b", "B"])
+    options.extend(["a", "b"])
     instance_map = {options[i]: instances[i] for i in range(len(instances))}
 
     print_instance_overview(
@@ -64,9 +64,9 @@ def select_instances_to_remove(
     selection = get_selection_input("Select Klipper instance to remove", options)
 
     instances_to_remove = []
-    if selection == "b".lower():
+    if selection == "b":
         return None
-    elif selection == "a".lower():
+    elif selection == "a":
         instances_to_remove.extend(instances)
     else:
         instances_to_remove.append(instance_map[selection])

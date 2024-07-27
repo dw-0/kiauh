@@ -157,7 +157,7 @@ def get_printer_selection(
     instances: List[BaseInstance], is_install: bool
 ) -> Union[List[BaseInstance], None]:
     options = [str(i) for i in range(len(instances))]
-    options.extend(["a", "A", "b", "B"])
+    options.extend(["a", "b"])
 
     if is_install:
         q = "Select the printer to install the theme for"
@@ -166,9 +166,9 @@ def get_printer_selection(
     selection = get_selection_input(q, options)
 
     install_for = []
-    if selection == "b".lower():
+    if selection == "b":
         return None
-    elif selection == "a".lower():
+    elif selection == "a":
         install_for.extend(instances)
     else:
         instance = instances[int(selection)]
