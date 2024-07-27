@@ -68,7 +68,7 @@ def install_klipper() -> None:
         klipper_list, moonraker_list
     )
 
-    if install_count == 0 or name_dict == {}:
+    if install_count == 0:
         Logger.print_status(EXIT_KLIPPER_SETUP)
         return
 
