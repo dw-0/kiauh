@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "index": 6,
+    "module": "moonraker_obico_extension",
+    "maintained_by": "Obico",
+    "display_name": "Obico for Klipper",
+    "description": [
+        "Open source 3D Printing cloud and AI",
+        "- AI-Powered Failure Detection",
+        "- Free Remote Monitoring and Access",
+        "- 25FPS High-Def Webcam Streaming",
+        "- Free 4.9-Star Mobile App"
+    ],
+    "updates": true
+  }
+}
