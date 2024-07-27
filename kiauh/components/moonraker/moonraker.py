@@ -8,6 +8,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError, run
 
@@ -28,11 +29,22 @@ from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic
+@dataclass
 class Moonraker(BaseInstance):
+    moonraker_dir: Path = MOONRAKER_DIR
+    env_dir: Path = MOONRAKER_ENV_DIR
+    cfg_file: Path = None
+    port: int = None
+    backup_dir: Path = None
+    certs_dir: Path = None
+    db_dir: Path = None
+    log: Path = None
+
     def __init__(self, suffix: str = ""):
         super().__init__(instance_type=self, suffix=suffix)
-        self.moonraker_dir: Path = MOONRAKER_DIR
-        self.env_dir: Path = MOONRAKER_ENV_DIR
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
         self.cfg_file = self.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
         self.port = self._get_port()
         self.backup_dir = self.data_dir.joinpath("backup")
