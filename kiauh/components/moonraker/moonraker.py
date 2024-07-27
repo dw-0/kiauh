@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import List
 
 from components.moonraker import (
     MOONRAKER_CFG_NAME,
@@ -30,10 +29,6 @@ from utils.logger import Logger
 
 # noinspection PyMethodMayBeStatic
 class Moonraker(BaseInstance):
-    @classmethod
-    def blacklist(cls) -> List[str]:
-        return ["None", "mcu", "obico"]
-
     def __init__(self, suffix: str = ""):
         super().__init__(instance_type=self, suffix=suffix)
         self.moonraker_dir: Path = MOONRAKER_DIR
@@ -42,17 +37,8 @@ class Moonraker(BaseInstance):
         self.port = self._get_port()
         self.backup_dir = self.data_dir.joinpath("backup")
         self.certs_dir = self.data_dir.joinpath("certs")
-        self._db_dir = self.data_dir.joinpath("database")
-        self._comms_dir = self.data_dir.joinpath("comms")
+        self.db_dir = self.data_dir.joinpath("database")
         self.log = self.log_dir.joinpath(MOONRAKER_LOG_NAME)
-
-    @property
-    def db_dir(self) -> Path:
-        return self._db_dir
-
-    @property
-    def comms_dir(self) -> Path:
-        return self._comms_dir
 
     def create(self, create_example_cfg: bool = False) -> None:
         from utils.sys_utils import create_env_file, create_service_file
@@ -60,7 +46,7 @@ class Moonraker(BaseInstance):
         Logger.print_status("Creating new Moonraker Instance ...")
 
         try:
-            self.create_folders([self.backup_dir, self.certs_dir, self._db_dir])
+            self.create_folders([self.backup_dir, self.certs_dir, self.db_dir])
             create_service_file(
                 name=self.get_service_file_name(extension=True),
                 content=self._prep_service_file_content(),

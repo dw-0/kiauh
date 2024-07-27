@@ -93,6 +93,20 @@ class Logger:
         padding_top: int = 1,
         padding_bottom: int = 1,
     ) -> None:
+        """
+        Prints a dialog with the given title and content.
+        Those dialogs should be used to display verbose messages to the user which
+        require simple interaction like confirmation or input. Do not use this for
+        navigating through the application.
+
+        :param title: The type of the dialog.
+        :param content: The content of the dialog.
+        :param center_content: Whether to center the content or not.
+        :param custom_title: A custom title for the dialog.
+        :param custom_color: A custom color for the dialog.
+        :param padding_top: The number of empty lines to print before the dialog.
+        :param padding_bottom: The number of empty lines to print after the dialog.
+        """
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
         dialog_title_formatted = Logger._format_dialog_title(dialog_title)

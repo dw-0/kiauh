@@ -20,8 +20,6 @@ from components.moonraker import (
 )
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClient
-from components.webui_client.client_utils import enable_mainsail_remotemode
-from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
@@ -126,58 +124,6 @@ def create_example_moonraker_conf(
 
     scp.write(target)
     Logger.print_ok(f"Example moonraker.conf created in '{instance.cfg_dir}'")
-
-
-def moonraker_to_multi_conversion(new_name: str) -> None:
-    """
-    Converts the first instance in the List of Moonraker instances to an instance
-    with a new name. This method will be called when converting from a single Klipper
-    instance install to a multi instance install when Moonraker is also already
-    installed with a single instance.
-    :param new_name: new name the previous single instance is renamed to
-    :return: None
-    """
-    im = InstanceManager(Moonraker)
-    instances: List[Moonraker] = im.instances
-    if not instances:
-        return
-
-    # in case there are multiple Moonraker instances, we don't want to do anything
-    if len(instances) > 1:
-        Logger.print_info("More than a single Moonraker instance found. Skipped ...")
-        return
-
-    Logger.print_status("Convert Moonraker single to multi instance ...")
-
-    # remove the old single instance
-    im.current_instance = im.instances[0]
-    im.stop_instance()
-    im.disable_instance()
-    im.delete_instance()
-
-    # create a new moonraker instance with the new name
-    new_instance = Moonraker(suffix=new_name)
-    im.current_instance = new_instance
-
-    # patch the server sections klippy_uds_address value to match the new printer_data foldername
-    scp = SimpleConfigParser()
-    scp.read(new_instance.cfg_file)
-    if scp.has_section("server"):
-        scp.set(
-            "server",
-            "klippy_uds_address",
-            str(new_instance.comms_dir.joinpath("klippy.sock")),
-        )
-        scp.write(new_instance.cfg_file)
-
-    # create, enable and start the new moonraker instance
-    im.create_instance()
-    im.enable_instance()
-    im.start_instance()
-
-    # if mainsail is installed, we enable mainsails remote mode
-    if MainsailData().client_dir.exists() and len(im.instances) > 1:
-        enable_mainsail_remotemode()
 
 
 def backup_moonraker_dir():

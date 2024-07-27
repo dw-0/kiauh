@@ -6,10 +6,9 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-import json
+from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import List
 
 from components.klipper import (
     KLIPPER_CFG_NAME,
@@ -27,49 +26,24 @@ from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic
+@dataclass
 class Klipper(BaseInstance):
-    @classmethod
-    def blacklist(cls) -> List[str]:
-        return ["None", "mcu"]
+    klipper_dir: Path = KLIPPER_DIR
+    env_dir: Path = KLIPPER_ENV_DIR
+    cfg_file: Path = None
+    log: Path = None
+    serial: Path = None
+    uds: Path = None
 
-    def __init__(self, suffix: str = ""):
+    def __init__(self, suffix: str = "") -> None:
         super().__init__(instance_type=self, suffix=suffix)
-        self.klipper_dir: Path = KLIPPER_DIR
-        self.env_dir: Path = KLIPPER_ENV_DIR
-        self._cfg_file = self.cfg_dir.joinpath(KLIPPER_CFG_NAME)
-        self._log = self.log_dir.joinpath(KLIPPER_LOG_NAME)
-        self._serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
-        self._uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)
 
-    def __repr__(self):
-        return json.dumps(
-            {
-                "suffix": self.suffix,
-                "klipper_dir": self.klipper_dir.as_posix(),
-                "env_dir": self.env_dir.as_posix(),
-                "cfg_file": self.cfg_file.as_posix(),
-                "log": self.log.as_posix(),
-                "serial": self.serial.as_posix(),
-                "uds": self.uds.as_posix(),
-            },
-            indent=4,
-        )
-
-    @property
-    def cfg_file(self) -> Path:
-        return self._cfg_file
-
-    @property
-    def log(self) -> Path:
-        return self._log
-
-    @property
-    def serial(self) -> Path:
-        return self._serial
-
-    @property
-    def uds(self) -> Path:
-        return self._uds
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.cfg_file = self.cfg_dir.joinpath(KLIPPER_CFG_NAME)
+        self.log = self.log_dir.joinpath(KLIPPER_LOG_NAME)
+        self.serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
+        self.uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)
 
     def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file

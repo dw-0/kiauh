@@ -6,6 +6,8 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import re
 from typing import List, Union
 
@@ -14,9 +16,7 @@ from utils.constants import COLOR_CYAN, RESET_FORMAT
 from utils.logger import Logger
 
 
-def get_confirm(
-    question: str, default_choice=True, allow_go_back=False
-) -> Union[bool, None]:
+def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool | None:
     """
     Helper method for validating confirmation (yes/no) user input. |
     :param question: The question to display
@@ -56,7 +56,7 @@ def get_number_input(
     max_count=None,
     default=None,
     allow_go_back=False,
-) -> Union[int, None]:
+) -> int | None:
     """
     Helper method to get a number input from the user
     :param question: The question to display

@@ -90,9 +90,19 @@ def print_select_custom_name_dialog():
     dialog = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗
-        ║ You can now assign a custom name to each instance.    ║
+        ║ Do you want to assign a custom name to each instance? ║
+        ║                                                       ║
+        ║ Assigning a custom name will create a Klipper service ║
+        ║ and a printer directory with the chosen name.         ║
+        ║                                                       ║
+        ║ Example for custom name 'kiauh':                      ║
+        ║  ● Klipper service:   klipper-kiauh.service           ║
+        ║  ● Printer directory: printer_kiauh_data              ║
+        ║                                                       ║
         ║ If skipped, each instance will get an index assigned  ║
-        ║ in ascending order, starting at index '1'.            ║
+        ║ in ascending order, starting at '1' in case of a new  ║
+        ║ installation. Otherwise, the index will be derived    ║
+        ║ from amount of already existing instances.            ║
         ║                                                       ║
         ║ {line1:<63}║
         ║ {line2:<63}║
