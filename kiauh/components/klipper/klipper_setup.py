@@ -118,12 +118,12 @@ def run_klipper_setup(
 def handle_instance_names(
     install_count: int, name_dict: Dict[int, str], custom_names: bool
 ) -> None:
-    for i in range(install_count):
-        index = len(name_dict) + i + 1
+    for i in range(install_count):  # 3
+        key = max(name_dict.keys()) + 1
         if custom_names:
-            assign_custom_name(index, name_dict)
+            assign_custom_name(key, name_dict)
         else:
-            name_dict[i + 1] = str(index)
+            name_dict[key] = str(len(name_dict) + 1)
 
 
 def get_install_count_and_name_dict(
