@@ -37,8 +37,9 @@ function update_ui() {
   echo -e "| 11) [Crowsnest]        |$(compare_crowsnest_versions)|"
   echo -e "| 12) [OctoApp]          |$(compare_octoapp_versions)|"
   echo -e "| 13) [Spoolman]         |$(compare_spoolman_versions)|"
+  echo -e "| 14) [Beacon]           |$(compare_beacon_versions)|"
   echo -e "|                        |------------------------------|"
-  echo -e "| 14) [System]           |  $(check_system_updates)   |"
+  echo -e "| 15) [System]           |  $(check_system_updates)   |"
   back_footer
 }
 
@@ -79,6 +80,8 @@ function update_menu() {
       13)
         do_action "update_spoolman" "update_ui";;
       14)
+        do_action "update_beacon" "update_ui";;
+      15)
         do_action "upgrade_system_packages" "update_ui";;
       a)
         do_action "update_all" "update_ui";;

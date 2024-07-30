@@ -30,7 +30,7 @@ function remove_ui() {
   echo -e "| Touchscreen GUI:          | 16) [NGINX]               |"
   echo -e "|  7) [KlipperScreen]       | 17) [OctoApp]             |"
   echo -e "|                           | 18) [Spoolman]            |"
-  echo -e "| 3rd Party Webinterface:   |                           |"
+  echo -e "| 3rd Party Webinterface:   | 19) [Beacon]              |"
   echo -e "|  8) [OctoPrint]           |                           |"
   back_footer
 }
@@ -78,6 +78,8 @@ function remove_menu() {
         do_action "remove_octoapp" "remove_ui";;
       18)
         do_action "remove_spoolman" "remove_ui";;
+      19)
+        do_action "remove_beacon" "remove_ui";;
       B|b)
         clear; main_menu; break;;
       *)
