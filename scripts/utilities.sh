@@ -28,6 +28,21 @@ function check_euid() {
   fi
 }
 
+function check_if_ratos() {
+  if [[ -n $(which ratos) ]]; then
+    echo -e "${red}"
+    top_border
+    echo -e "|        !!! RatOS 2.1 or greater detected !!!          |"
+    echo -e "|                                                       |"
+    echo -e "|        KIAUH does currently not support RatOS.        |"
+    echo -e "| If you have any questions, please ask for help on the |"
+    echo -e "| RatRig Community Discord: https://discord.gg/ratrig   |"
+    bottom_border
+    echo -e "${white}"
+    exit 1
+  fi
+}
+
 #================================================#
 #============= MESSAGE FORMATTING ===============#
 #================================================#
