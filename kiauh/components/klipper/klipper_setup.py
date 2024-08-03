@@ -119,7 +119,7 @@ def handle_instance_names(
     install_count: int, name_dict: Dict[int, str], custom_names: bool
 ) -> None:
     for i in range(install_count):  # 3
-        key = max(name_dict.keys()) + 1
+        key: int = len(name_dict.keys()) + 1
         if custom_names:
             assign_custom_name(key, name_dict)
         else:
