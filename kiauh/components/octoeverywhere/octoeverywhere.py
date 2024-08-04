@@ -6,10 +6,11 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import List
 
 from components.moonraker import MOONRAKER_CFG_NAME
 from components.octoeverywhere import (
@@ -26,32 +27,23 @@ from core.instance_manager.base_instance import BaseInstance
 from utils.logger import Logger
 
 
-# todo: make this to a dataclass
+@dataclass
 class Octoeverywhere(BaseInstance):
-    @classmethod
-    def blacklist(cls) -> List[str]:
-        return ["None", "mcu", "bambu", "companion"]
+    dir: Path = OE_DIR
+    env_dir: Path = OE_ENV_DIR
+    store_dir: Path = OE_STORE_DIR
+    cfg_file: Path | None = None
+    sys_cfg_file: Path | None = None
+    log: Path | None = None
 
     def __init__(self, suffix: str = ""):
-        super().__init__(instance_type=self, suffix=suffix)
-        self.dir: Path = OE_DIR
-        self.env_dir: Path = OE_ENV_DIR
-        self.store_dir: Path = OE_STORE_DIR
-        self._cfg_file = self.cfg_dir.joinpath(OE_CFG_NAME)
-        self._sys_cfg_file = self.cfg_dir.joinpath(OE_SYS_CFG_NAME)
-        self._log = self.log_dir.joinpath(OE_LOG_NAME)
+        super().__init__(suffix=suffix)
 
-    @property
-    def cfg_file(self) -> Path:
-        return self._cfg_file
-
-    @property
-    def sys_cfg_file(self) -> Path:
-        return self._sys_cfg_file
-
-    @property
-    def log(self) -> Path:
-        return self._log
+    def __post_init__(self):
+        super().__post_init__()
+        self.cfg_file = self.cfg_dir.joinpath(OE_CFG_NAME)
+        self.sys_cfg_file = self.cfg_dir.joinpath(OE_SYS_CFG_NAME)
+        self.log = self.log_dir.joinpath(OE_LOG_NAME)
 
     def create(self) -> None:
         Logger.print_status("Creating OctoEverywhere for Klipper Instance ...")
@@ -74,15 +66,15 @@ class Octoeverywhere(BaseInstance):
             raise
 
     def delete(self) -> None:
-        service_file = self.get_service_file_name(extension=True)
-        service_file_path = self.get_service_file_path()
+        service_file: str = self.get_service_file_name(extension=True)
+        service_file_path: Path = self.get_service_file_path()
 
         Logger.print_status(
             f"Deleting OctoEverywhere for Klipper Instance: {service_file}"
         )
 
         try:
-            command = ["sudo", "rm", "-f", service_file_path]
+            command = ["sudo", "rm", "-f", service_file_path.as_posix()]
             run(command, check=True)
             self.delete_logfiles(OE_LOG_NAME)
             Logger.print_ok(f"Service file deleted: {service_file_path}")
