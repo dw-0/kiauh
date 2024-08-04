@@ -6,131 +6,91 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
-from subprocess import DEVNULL, CalledProcessError, run
-from typing import List
+from subprocess import CalledProcessError, run
 
 from core.instance_manager.base_instance import BaseInstance
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from utils.constants import SYSTEMD
+from extensions.obico import (
+    OBICO_CFG_NAME,
+    OBICO_DIR,
+    OBICO_ENV_DIR,
+    OBICO_ENV_FILE_NAME,
+    OBICO_ENV_FILE_TEMPLATE,
+    OBICO_LINK_SCRIPT,
+    OBICO_LOG_NAME,
+    OBICO_SERVICE_TEMPLATE,
+)
 from utils.logger import Logger
-
-MODULE_PATH = Path(__file__).resolve().parent
-
-OBICO_DIR = Path.home().joinpath("moonraker-obico")
-OBICO_ENV = Path.home().joinpath("moonraker-obico-env")
-OBICO_REPO = "https://github.com/TheSpaghettiDetective/moonraker-obico.git"
-
-OBICO_CFG = "moonraker-obico.cfg"
-OBICO_CFG_SAMPLE = "moonraker-obico.cfg.sample"
-OBICO_LOG = "moonraker-obico.log"
-OBICO_UPDATE_CFG = "moonraker-obico-update.cfg"
-OBICO_UPDATE_CFG_SAMPLE = "moonraker-obico-update.cfg.sample"
-OBICO_MACROS_CFG = "moonraker_obico_macros.cfg"
 
 
 # noinspection PyMethodMayBeStatic
-# todo: make this to a dataclass
+@dataclass
 class MoonrakerObico(BaseInstance):
-    @classmethod
-    def blacklist(cls) -> List[str]:
-        return ["None", "mcu"]
+    dir: Path = OBICO_DIR
+    env_dir: Path = OBICO_ENV_DIR
+    cfg_file: Path | None = None
+    log: Path | None = None
+    is_linked: bool = False
 
     def __init__(self, suffix: str = ""):
-        super().__init__(instance_type=self, suffix=suffix)
-        self.dir: Path = OBICO_DIR
-        self.env_dir: Path = OBICO_ENV
-        self._cfg_file = self.cfg_dir.joinpath("moonraker-obico.cfg")
-        self._log = self.log_dir.joinpath("moonraker-obico.log")
-        self._is_linked: bool = self._check_link_status()
-        self._assets_dir = MODULE_PATH.joinpath("assets")
+        super().__init__(suffix=suffix)
 
-    @property
-    def cfg_file(self) -> Path:
-        return self._cfg_file
-
-    @property
-    def log(self) -> Path:
-        return self._log
-
-    @property
-    def is_linked(self) -> bool:
-        return self._is_linked
+    def __post_init__(self):
+        super().__post_init__()
+        self.cfg_file = self.cfg_dir.joinpath(OBICO_CFG_NAME)
+        self.log = self.log_dir.joinpath(OBICO_LOG_NAME)
+        self.is_linked: bool = self._check_link_status()
 
     def create(self) -> None:
+        from utils.sys_utils import create_env_file, create_service_file
+
         Logger.print_status("Creating new Obico for Klipper Instance ...")
-        service_template_path = MODULE_PATH.joinpath("assets/moonraker-obico.service")
-        service_file_name = self.get_service_file_name(extension=True)
-        service_file_target = SYSTEMD.joinpath(service_file_name)
-        env_template_file_path = MODULE_PATH.joinpath("assets/moonraker-obico.env")
-        env_file_target = self.sysd_dir.joinpath("moonraker-obico.env")
 
         try:
             self.create_folders()
-            self.write_service_file(
-                service_template_path, service_file_target, env_file_target
+            create_service_file(
+                name=self.get_service_file_name(extension=True),
+                content=self._prep_service_file_content(),
             )
-            self.write_env_file(env_template_file_path, env_file_target)
+            create_env_file(
+                path=self.sysd_dir.joinpath(OBICO_ENV_FILE_NAME),
+                content=self._prep_env_file_content(),
+            )
 
         except CalledProcessError as e:
-            Logger.print_error(
-                f"Error creating service file {service_file_target}: {e}"
-            )
+            Logger.print_error(f"Error creating instance: {e}")
             raise
         except OSError as e:
-            Logger.print_error(f"Error creating env file {env_file_target}: {e}")
+            Logger.print_error(f"Error creating env file: {e}")
             raise
 
     def delete(self) -> None:
-        service_file = self.get_service_file_name(extension=True)
-        service_file_path = self.get_service_file_path()
+        service_file: str = self.get_service_file_name(extension=True)
+        service_file_path: Path = self.get_service_file_path()
 
         Logger.print_status(f"Deleting Obico for Klipper Instance: {service_file}")
 
         try:
-            command = ["sudo", "rm", "-f", service_file_path]
+            command = ["sudo", "rm", "-f", service_file_path.as_posix()]
             run(command, check=True)
+            self.delete_logfiles(OBICO_LOG_NAME)
             Logger.print_ok(f"Service file deleted: {service_file_path}")
         except CalledProcessError as e:
             Logger.print_error(f"Error deleting service file: {e}")
             raise
-
-    def write_service_file(
-        self,
-        service_template_path: Path,
-        service_file_target: Path,
-        env_file_target: Path,
-    ) -> None:
-        service_content = self._prep_service_file(
-            service_template_path, env_file_target
-        )
-        command = ["sudo", "tee", service_file_target.as_posix()]
-        run(
-            command,
-            input=service_content.encode(),
-            stdout=DEVNULL,
-            check=True,
-        )
-        Logger.print_ok(f"Service file created: {service_file_target}")
-
-    def write_env_file(
-        self, env_template_file_path: Path, env_file_target: Path
-    ) -> None:
-        env_file_content = self._prep_env_file(env_template_file_path)
-        with open(env_file_target, "w") as env_file:
-            env_file.write(env_file_content)
-        Logger.print_ok(f"Env file created: {env_file_target}")
 
     def link(self) -> None:
         Logger.print_status(
             f"Linking instance for printer {self.data_dir_name} to the Obico server ..."
         )
         try:
-            script = OBICO_DIR.joinpath("scripts/link.sh")
-            cmd = [f"{script} -q -c {self.cfg_file}"]
+            cmd = [f"{OBICO_LINK_SCRIPT} -q -c {self.cfg_file}"]
             if self.suffix:
                 cmd.append(f"-n {self.suffix}")
             run(cmd, check=True, shell=True)
@@ -138,31 +98,42 @@ class MoonrakerObico(BaseInstance):
             Logger.print_error(f"Error during Obico linking: {e}")
             raise
 
-    def _prep_service_file(
-        self, service_template_path: Path, env_file_path: Path
-    ) -> str:
+    def _prep_service_file_content(self) -> str:
+        template = OBICO_SERVICE_TEMPLATE
+
         try:
-            with open(service_template_path, "r") as template_file:
+            with open(template, "r") as template_file:
                 template_content = template_file.read()
         except FileNotFoundError:
-            Logger.print_error(
-                f"Unable to open {service_template_path} - File not found"
-            )
+            Logger.print_error(f"Unable to open {template} - File not found")
             raise
-        service_content = template_content.replace("%USER%", self.user)
-        service_content = service_content.replace("%OBICO_DIR%", str(self.dir))
-        service_content = service_content.replace("%ENV%", str(self.env_dir))
-        service_content = service_content.replace("%ENV_FILE%", str(env_file_path))
+
+        service_content = template_content.replace(
+            "%USER%",
+            self.user,
+        )
+        service_content = service_content.replace(
+            "%OBICO_DIR%",
+            self.dir.as_posix(),
+        )
+        service_content = service_content.replace(
+            "%ENV%",
+            self.env_dir.as_posix(),
+        )
+        service_content = service_content.replace(
+            "%ENV_FILE%",
+            self.sysd_dir.joinpath(OBICO_ENV_FILE_NAME).as_posix(),
+        )
         return service_content
 
-    def _prep_env_file(self, env_template_file_path: Path) -> str:
+    def _prep_env_file_content(self) -> str:
+        template = OBICO_ENV_FILE_TEMPLATE
+
         try:
-            with open(env_template_file_path, "r") as env_file:
+            with open(template, "r") as env_file:
                 env_template_file_content = env_file.read()
         except FileNotFoundError:
-            Logger.print_error(
-                f"Unable to open {env_template_file_path} - File not found"
-            )
+            Logger.print_error(f"Unable to open {template} - File not found")
             raise
         env_file_content = env_template_file_content.replace(
             "%CFG%",
@@ -171,7 +142,7 @@ class MoonrakerObico(BaseInstance):
         return env_file_content
 
     def _check_link_status(self) -> bool:
-        if not self.cfg_file.exists():
+        if not self.cfg_file or not self.cfg_file.exists():
             return False
 
         scp = SimpleConfigParser()
