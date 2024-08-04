@@ -45,8 +45,7 @@ class KlipperbackupExtension(BaseExtension):
             subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])
 
     def remove_extension(self, **kwargs) -> None:
-
-        def uninstall_service(service_name):
+        def uninstall_service(service_name) -> bool:
             try:
                 subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
                 subprocess.run(
@@ -59,7 +58,7 @@ class KlipperbackupExtension(BaseExtension):
             except subprocess.CalledProcessError:
                 return False
 
-        def check_crontab_entry(entry):
+        def check_crontab_entry(entry) -> bool:
             try:
                 crontab_content = subprocess.check_output(
                     ["crontab", "-l"], stderr=subprocess.DEVNULL, text=True
@@ -123,8 +122,8 @@ class KlipperbackupExtension(BaseExtension):
                             )
                         else:
                             Logger.print_error(
-                               f"Error uninstalling the {service_name} service."
-                           )
+                                f"Error uninstalling the {service_name} service."
+                            )
                     else:
                         Logger.print_info(f"Service {service_name} NOT detected.")
                 except:

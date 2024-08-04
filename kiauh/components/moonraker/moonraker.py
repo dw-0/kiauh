@@ -33,15 +33,15 @@ from utils.logger import Logger
 class Moonraker(BaseInstance):
     moonraker_dir: Path = MOONRAKER_DIR
     env_dir: Path = MOONRAKER_ENV_DIR
-    cfg_file: Path = None
-    port: int = None
-    backup_dir: Path = None
-    certs_dir: Path = None
-    db_dir: Path = None
-    log: Path = None
+    cfg_file: Path | None = None
+    port: int | None = None
+    backup_dir: Path | None = None
+    certs_dir: Path | None = None
+    db_dir: Path | None = None
+    log: Path | None = None
 
     def __init__(self, suffix: str = ""):
-        super().__init__(instance_type=self, suffix=suffix)
+        super().__init__(suffix=suffix)
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -140,11 +140,11 @@ class Moonraker(BaseInstance):
         return env_file_content
 
     def _get_port(self) -> int | None:
-        if not self.cfg_file.is_file():
+        if not self.cfg_file or not self.cfg_file.is_file():
             return None
 
         scp = SimpleConfigParser()
         scp.read(self.cfg_file)
-        port = scp.getint("server", "port", fallback=None)
+        port: int | None = scp.getint("server", "port", fallback=None)
 
         return port

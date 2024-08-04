@@ -7,7 +7,7 @@ from http.client import HTTPResponse
 from json import JSONDecodeError
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
-from typing import List, Optional, Type
+from typing import List, Type
 
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
@@ -16,7 +16,7 @@ from utils.logger import Logger
 
 
 def git_clone_wrapper(
-    repo: str, target_dir: Path, branch: Optional[str] = None, force: bool = False
+    repo: str, target_dir: Path, branch: str | None = None, force: bool = False
 ) -> None:
     """
     Clones a repository from the given URL and checks out the specified branch if given.
@@ -75,7 +75,7 @@ def get_repo_name(repo: Path) -> str | None:
         return "-"
 
     try:
-        cmd = ["git", "-C", repo, "config", "--get", "remote.origin.url"]
+        cmd = ["git", "-C", repo.as_posix(), "config", "--get", "remote.origin.url"]
         result = check_output(cmd, stderr=DEVNULL)
         return "/".join(result.decode().strip().split("/")[-2:])
     except CalledProcessError:
@@ -159,7 +159,7 @@ def get_remote_commit(repo: Path) -> str | None:
 
 def git_cmd_clone(repo: str, target_dir: Path) -> None:
     try:
-        command = ["git", "clone", repo, target_dir]
+        command = ["git", "clone", repo, target_dir.as_posix()]
         run(command, check=True)
 
         Logger.print_ok("Clone successful!")
@@ -169,7 +169,7 @@ def git_cmd_clone(repo: str, target_dir: Path) -> None:
         raise
 
 
-def git_cmd_checkout(branch: str, target_dir: Path) -> None:
+def git_cmd_checkout(branch: str | None, target_dir: Path) -> None:
     if branch is None:
         return
 

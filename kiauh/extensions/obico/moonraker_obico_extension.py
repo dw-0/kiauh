@@ -297,11 +297,11 @@ class ObicoExtension(BaseExtension):
     def _patch_moonraker_conf(self, instances: List[Moonraker]) -> None:
         add_config_section(section=f"include {OBICO_UPDATE_CFG}", instances=instances)
 
-    def _link_obico_instances(self, unlinked_instances):
+    def _link_obico_instances(self, unlinked_instances) -> None:
         for obico in unlinked_instances:
             obico.link()
 
-    def _check_and_opt_link_instances(self):
+    def _check_and_opt_link_instances(self) -> None:
         Logger.print_status("Checking link status of Obico instances ...")
         ob_im = InstanceManager(MoonrakerObico)
         ob_instances: List[MoonrakerObico] = ob_im.instances

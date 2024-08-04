@@ -45,7 +45,7 @@ class FlashOptions:
         return cls._instance
 
     @classmethod
-    def destroy(cls):
+    def destroy(cls) -> None:
         cls._instance = None
 
     @property

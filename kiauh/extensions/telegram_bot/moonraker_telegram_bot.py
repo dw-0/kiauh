@@ -23,6 +23,7 @@ TELEGRAM_BOT_REPO = "https://github.com/nlef/moonraker-telegram-bot.git"
 
 
 # noinspection PyMethodMayBeStatic
+# todo: make this to a dataclass
 class MoonrakerTelegramBot(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
@@ -95,7 +96,7 @@ class MoonrakerTelegramBot(BaseInstance):
         service_content = self._prep_service_file(
             service_template_path, env_file_target
         )
-        command = ["sudo", "tee", service_file_target]
+        command = ["sudo", "tee", service_file_target.as_posix()]
         run(
             command,
             input=service_content.encode(),

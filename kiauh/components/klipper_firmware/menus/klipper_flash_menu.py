@@ -6,10 +6,11 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import textwrap
 import time
-from typing import Optional, Type
+from typing import Type
 
 from components.klipper_firmware.firmware_utils import (
     find_firmware_file,
@@ -44,17 +45,17 @@ from utils.logger import DialogType, Logger
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperFlashMethodMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
         self.help_menu = KlipperFlashMethodHelpMenu
         self.input_label_txt = "Select flash method"
         self.footer_type = FooterType.BACK_HELP
         self.flash_options = FlashOptions()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.advanced_menu import AdvancedMenu
 
-        self.previous_menu: Type[BaseMenu] = (
+        self.previous_menu = (
             previous_menu if previous_menu is not None else AdvancedMenu
         )
 
@@ -108,15 +109,15 @@ class KlipperFlashMethodMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperFlashCommandMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
         self.help_menu = KlipperFlashCommandHelpMenu
         self.input_label_txt = "Select flash command"
         self.footer_type = FooterType.BACK_HELP
         self.flash_options = FlashOptions()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = (
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
+        self.previous_menu = (
             previous_menu if previous_menu is not None else KlipperFlashMethodMenu
         )
 
@@ -156,18 +157,18 @@ class KlipperFlashCommandMenu(BaseMenu):
 # noinspection PyMethodMayBeStatic
 class KlipperSelectMcuConnectionMenu(BaseMenu):
     def __init__(
-        self, previous_menu: Optional[Type[BaseMenu]] = None, standalone: bool = False
+        self, previous_menu: Type[BaseMenu] | None = None, standalone: bool = False
     ):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.__standalone = standalone
         self.help_menu = KlipperMcuConnectionHelpMenu
         self.input_label_txt = "Select connection type"
         self.footer_type = FooterType.BACK_HELP
         self.flash_options = FlashOptions()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = (
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
+        self.previous_menu = (
             previous_menu if previous_menu is not None else KlipperFlashCommandMenu
         )
 
@@ -243,15 +244,15 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperSelectMcuIdMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
         self.flash_options = FlashOptions()
         self.mcu_list = self.flash_options.mcu_list
         self.input_label_txt = "Select MCU to flash"
         self.footer_type = FooterType.BACK_HELP
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = (
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
+        self.previous_menu = (
             previous_menu
             if previous_menu is not None
             else KlipperSelectMcuConnectionMenu
@@ -288,27 +289,35 @@ class KlipperSelectMcuIdMenu(BaseMenu):
         print(menu, end="\n")
 
     def flash_mcu(self, **kwargs):
-        index = int(kwargs.get("opt_index"))
-        selected_mcu = self.mcu_list[index]
-        self.flash_options.selected_mcu = selected_mcu
+        try:
+            index: int | None = kwargs.get("opt_index", None)
+            if index is None:
+                raise Exception("opt_index is None")
 
-        if self.flash_options.flash_method == FlashMethod.SD_CARD:
-            KlipperSelectSDFlashBoardMenu(previous_menu=self.__class__).run()
-        elif self.flash_options.flash_method == FlashMethod.REGULAR:
-            KlipperFlashOverviewMenu(previous_menu=self.__class__).run()
+            index = int(index)
+            selected_mcu = self.mcu_list[index]
+            self.flash_options.selected_mcu = selected_mcu
+
+            if self.flash_options.flash_method == FlashMethod.SD_CARD:
+                KlipperSelectSDFlashBoardMenu(previous_menu=self.__class__).run()
+            elif self.flash_options.flash_method == FlashMethod.REGULAR:
+                KlipperFlashOverviewMenu(previous_menu=self.__class__).run()
+        except Exception as e:
+            Logger.print_error(e)
+            Logger.print_error("Flashing failed!")
 
 
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperSelectSDFlashBoardMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
         self.flash_options = FlashOptions()
         self.available_boards = get_sd_flash_board_list()
         self.input_label_txt = "Select board type"
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = (
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
+        self.previous_menu = (
             previous_menu if previous_menu is not None else KlipperSelectMcuIdMenu
         )
 
@@ -340,9 +349,17 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
             print(menu, end="")
 
     def board_select(self, **kwargs):
-        board = int(kwargs.get("opt_index"))
-        self.flash_options.selected_board = self.available_boards[board]
-        self.baudrate_select()
+        try:
+            index: int | None = kwargs.get("opt_index", None)
+            if index is None:
+                raise Exception("opt_index is None")
+
+            index = int(index)
+            self.flash_options.selected_board = self.available_boards[index]
+            self.baudrate_select()
+        except Exception as e:
+            Logger.print_error(e)
+            Logger.print_error("Board selection failed!")
 
     def baudrate_select(self, **kwargs):
         Logger.print_dialog(
@@ -366,13 +383,13 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperFlashOverviewMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
         self.flash_options = FlashOptions()
         self.input_label_txt = "Perform action (default=Y)"
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = previous_menu
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_options(self) -> None:
         self.options = {

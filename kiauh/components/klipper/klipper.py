@@ -6,6 +6,8 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError, run
@@ -30,13 +32,13 @@ from utils.logger import Logger
 class Klipper(BaseInstance):
     klipper_dir: Path = KLIPPER_DIR
     env_dir: Path = KLIPPER_ENV_DIR
-    cfg_file: Path = None
-    log: Path = None
-    serial: Path = None
-    uds: Path = None
+    cfg_file: Path | None = None
+    log: Path | None = None
+    serial: Path | None = None
+    uds: Path | None = None
 
     def __init__(self, suffix: str = "") -> None:
-        super().__init__(instance_type=self, suffix=suffix)
+        super().__init__(suffix=suffix)
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -132,15 +134,15 @@ class Klipper(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%SERIAL%",
-            self.serial.as_posix(),
+            self.serial.as_posix() if self.serial else "",
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
-            self.log.as_posix(),
+            self.log.as_posix() if self.log else "",
         )
         env_file_content = env_file_content.replace(
             "%UDS%",
-            self.uds.as_posix(),
+            self.uds.as_posix() if self.uds else "",
         )
 
         return env_file_content

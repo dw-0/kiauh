@@ -6,9 +6,10 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import textwrap
-from typing import Optional, Type
+from typing import Type
 
 from components.crowsnest.crowsnest import install_crowsnest
 from components.klipper import klipper_setup
@@ -28,16 +29,14 @@ from utils.constants import COLOR_GREEN, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class InstallMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else MainMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
     def set_options(self) -> None:
         self.options = {
@@ -53,7 +52,7 @@ class InstallMenu(BaseMenu):
             "10": Option(method=self.install_octoeverywhere, menu=False),
         }
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         header = " [ Installation Menu ] "
         color = COLOR_GREEN
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -79,32 +78,32 @@ class InstallMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def install_klipper(self, **kwargs):
+    def install_klipper(self, **kwargs) -> None:
         klipper_setup.install_klipper()
 
-    def install_moonraker(self, **kwargs):
+    def install_moonraker(self, **kwargs) -> None:
         moonraker_setup.install_moonraker()
 
-    def install_mainsail(self, **kwargs):
+    def install_mainsail(self, **kwargs) -> None:
         client_setup.install_client(MainsailData())
 
-    def install_mainsail_config(self, **kwargs):
+    def install_mainsail_config(self, **kwargs) -> None:
         client_config_setup.install_client_config(MainsailData())
 
-    def install_fluidd(self, **kwargs):
+    def install_fluidd(self, **kwargs) -> None:
         client_setup.install_client(FluiddData())
 
-    def install_fluidd_config(self, **kwargs):
+    def install_fluidd_config(self, **kwargs) -> None:
         client_config_setup.install_client_config(FluiddData())
 
-    def install_klipperscreen(self, **kwargs):
+    def install_klipperscreen(self, **kwargs) -> None:
         install_klipperscreen()
 
-    def install_mobileraker(self, **kwargs):
+    def install_mobileraker(self, **kwargs) -> None:
         install_mobileraker()
 
-    def install_crowsnest(self, **kwargs):
+    def install_crowsnest(self, **kwargs) -> None:
         install_crowsnest()
 
-    def install_octoeverywhere(self, **kwargs):
+    def install_octoeverywhere(self, **kwargs) -> None:
         install_octoeverywhere()

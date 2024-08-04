@@ -14,7 +14,7 @@ import sys
 import textwrap
 import traceback
 from abc import abstractmethod
-from typing import Dict, Optional, Type
+from typing import Dict, Type
 
 from core.menus import FooterType, Option
 from utils.constants import (
@@ -27,11 +27,11 @@ from utils.constants import (
 from utils.logger import Logger
 
 
-def clear():
+def clear() -> None:
     subprocess.call("clear", shell=True)
 
 
-def print_header():
+def print_header() -> None:
     line1 = " [ KIAUH ] "
     line2 = "Klipper Installation And Update Helper"
     line3 = ""
@@ -49,7 +49,7 @@ def print_header():
     print(header, end="")
 
 
-def print_quit_footer():
+def print_quit_footer() -> None:
     text = "Q) Quit"
     color = COLOR_RED
     count = 62 - len(color) - len(RESET_FORMAT)
@@ -62,7 +62,7 @@ def print_quit_footer():
     print(footer, end="")
 
 
-def print_back_footer():
+def print_back_footer() -> None:
     text = "B) « Back"
     color = COLOR_GREEN
     count = 62 - len(color) - len(RESET_FORMAT)
@@ -75,7 +75,7 @@ def print_back_footer():
     print(footer, end="")
 
 
-def print_back_help_footer():
+def print_back_help_footer() -> None:
     text1 = "B) « Back"
     text2 = "H) Help [?]"
     color1 = COLOR_GREEN
@@ -90,7 +90,7 @@ def print_back_help_footer():
     print(footer, end="")
 
 
-def print_blank_footer():
+def print_blank_footer() -> None:
     print("╚═══════════════════════════════════════════════════════╝")
 
 
@@ -109,15 +109,15 @@ class BaseMenu(metaclass=PostInitCaller):
     default_option: Option = None
     input_label_txt: str = "Perform action"
     header: bool = False
-    previous_menu: Type[BaseMenu] = None
-    help_menu: Type[BaseMenu] = None
+    previous_menu: Type[BaseMenu] | None = None
+    help_menu: Type[BaseMenu] | None = None
     footer_type: FooterType = FooterType.BACK
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if type(self) is BaseMenu:
             raise NotImplementedError("BaseMenu cannot be instantiated directly.")
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.set_previous_menu(self.previous_menu)
         self.set_options()
 
@@ -133,18 +133,22 @@ class BaseMenu(metaclass=PostInitCaller):
         if self.default_option is not None:
             self.options[""] = self.default_option
 
-    def __go_back(self, **kwargs):
+    def __go_back(self, **kwargs) -> None:
+        if self.previous_menu is None:
+            return
         self.previous_menu().run()
 
-    def __go_to_help(self, **kwargs):
+    def __go_to_help(self, **kwargs) -> None:
+        if self.help_menu is None:
+            return
         self.help_menu(previous_menu=self).run()
 
-    def __exit(self, **kwargs):
+    def __exit(self, **kwargs) -> None:
         Logger.print_ok("###### Happy printing!", False)
         sys.exit(0)
 
     @abstractmethod
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         raise NotImplementedError
 
     @abstractmethod

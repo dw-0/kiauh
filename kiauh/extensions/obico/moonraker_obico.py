@@ -33,6 +33,7 @@ OBICO_MACROS_CFG = "moonraker_obico_macros.cfg"
 
 
 # noinspection PyMethodMayBeStatic
+# todo: make this to a dataclass
 class MoonrakerObico(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
@@ -106,7 +107,7 @@ class MoonrakerObico(BaseInstance):
         service_content = self._prep_service_file(
             service_template_path, env_file_target
         )
-        command = ["sudo", "tee", service_file_target]
+        command = ["sudo", "tee", service_file_target.as_posix()]
         run(
             command,
             input=service_content.encode(),

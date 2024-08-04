@@ -24,12 +24,12 @@ from utils.sys_utils import log_process
 
 def find_firmware_file() -> bool:
     target = KLIPPER_DIR.joinpath("out")
-    target_exists = target.exists()
+    target_exists: bool = target.exists()
 
     f1 = "klipper.elf.hex"
     f2 = "klipper.elf"
     f3 = "klipper.bin"
-    fw_file_exists = (
+    fw_file_exists: bool = (
         target.joinpath(f1).exists() and target.joinpath(f2).exists()
     ) or target.joinpath(f3).exists()
 
@@ -75,10 +75,11 @@ def get_sd_flash_board_list() -> List[str]:
 
     try:
         cmd = f"{SD_FLASH_SCRIPT} -l"
-        blist = check_output(cmd, shell=True, text=True)
-        return blist.splitlines()[1:]
+        blist: List[str] = check_output(cmd, shell=True, text=True).splitlines()[1:]
+        return blist
     except CalledProcessError as e:
         Logger.print_error(f"An unexpected error occured:\n{e}")
+        return []
 
 
 def start_flash_process(flash_options: FlashOptions) -> None:

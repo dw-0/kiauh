@@ -13,7 +13,7 @@ from components.webui_client.base_data import BaseWebClient
 from utils.logger import DialogType, Logger
 
 
-def print_moonraker_not_found_dialog():
+def print_moonraker_not_found_dialog() -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
@@ -29,7 +29,7 @@ def print_moonraker_not_found_dialog():
     )
 
 
-def print_client_already_installed_dialog(name: str):
+def print_client_already_installed_dialog(name: str) -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
@@ -41,7 +41,9 @@ def print_client_already_installed_dialog(name: str):
     )
 
 
-def print_client_port_select_dialog(name: str, port: int, ports_in_use: List[int]):
+def print_client_port_select_dialog(
+    name: str, port: int, ports_in_use: List[int]
+) -> None:
     Logger.print_dialog(
         DialogType.CUSTOM,
         [

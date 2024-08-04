@@ -89,7 +89,10 @@ def install_moonraker() -> None:
         if selected_option == "a":
             instance_names.extend([k.suffix for k in klipper_list])
         else:
-            instance_names.append(options.get(selected_option).suffix)
+            klipper_instance: Klipper | None = options.get(selected_option)
+            if klipper_instance is None:
+                raise Exception("Error selecting instance!")
+            instance_names.append(klipper_instance.suffix)
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
 

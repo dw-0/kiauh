@@ -6,6 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import os
 import re
@@ -122,12 +123,13 @@ def update_python_pip(target: Path) -> None:
     """
     Logger.print_status("Updating pip ...")
     try:
-        pip_location = target.joinpath("bin/pip")
-        pip_exists = check_file_exist(pip_location)
+        pip_location: Path = target.joinpath("bin/pip")
+        pip_exists: bool = check_file_exist(pip_location)
+
         if not pip_exists:
             raise FileNotFoundError("Error updating pip! Not found.")
 
-        command = [pip_location, "install", "-U", "pip"]
+        command = [pip_location.as_posix(), "install", "-U", "pip"]
         result = run(command, stderr=PIPE, text=True)
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
@@ -156,7 +158,7 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
 
         Logger.print_status("Installing Python requirements ...")
         command = [
-            target.joinpath("bin/pip"),
+            target.joinpath("bin/pip").as_posix(),
             "install",
             "-r",
             f"{requirements}",
@@ -182,8 +184,8 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     :param rls_info_change: Flag for "--allow-releaseinfo-change"
     :return: None
     """
-    cache_mtime = 0
-    cache_files = [
+    cache_mtime: float = 0
+    cache_files: List[Path] = [
         Path("/var/lib/apt/periodic/update-success-stamp"),
         Path("/var/lib/apt/lists"),
     ]
@@ -269,7 +271,7 @@ def get_ipv4_addr() -> str:
     try:
         # doesn't even have to be reachable
         s.connect(("192.255.255.255", 1))
-        return s.getsockname()[0]
+        return str(s.getsockname()[0])
     except Exception:
         return "127.0.0.1"
     finally:
@@ -329,9 +331,9 @@ def set_nginx_permissions() -> None:
     """
     cmd = f"ls -ld {Path.home()} | cut -d' ' -f1"
     homedir_perm = run(cmd, shell=True, stdout=PIPE, text=True)
-    homedir_perm = homedir_perm.stdout
+    permissions = homedir_perm.stdout
 
-    if homedir_perm.count("x") < 3:
+    if permissions.count("x") < 3:
         Logger.print_status("Granting NGINX the required permissions ...")
         run(["chmod", "og+x", Path.home()])
         Logger.print_ok("Permissions granted.")
@@ -363,7 +365,7 @@ def cmd_sysctl_manage(action: SysCtlManageAction) -> None:
         raise
 
 
-def service_instance_exists(name: str, exclude: List[str] = None) -> bool:
+def service_instance_exists(name: str, exclude: List[str] | None = None) -> bool:
     """
     Checks if a systemd service instance exists.
     :param name: the service name
@@ -387,15 +389,16 @@ def log_process(process: Popen) -> None:
     :return: None
     """
     while True:
-        reads = [process.stdout.fileno()]
-        ret = select.select(reads, [], [])
-        for fd in ret[0]:
-            if fd == process.stdout.fileno():
-                line = process.stdout.readline()
-                if line:
-                    print(line.strip(), flush=True)
-                else:
-                    break
+        if process.stdout is not None:
+            reads = [process.stdout.fileno()]
+            ret = select.select(reads, [], [])
+            for fd in ret[0]:
+                if fd == process.stdout.fileno():
+                    line = process.stdout.readline()
+                    if line:
+                        print(line.strip(), flush=True)
+                    else:
+                        break
 
         if process.poll() is not None:
             break

@@ -6,10 +6,11 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 
 @dataclass
@@ -22,7 +23,7 @@ class Option:
     :param opt_data: Can be used to pass any additional data to the menu option
     """
 
-    method: Union[Callable, None] = None
+    method: Callable | None = None
     menu: bool = False
     opt_index: str = ""
     opt_data: Any = None

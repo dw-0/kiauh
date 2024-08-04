@@ -129,10 +129,10 @@ def handle_instance_names(
 def get_install_count_and_name_dict(
     klipper_list: List[Klipper], moonraker_list: List[Moonraker]
 ) -> Tuple[int, Dict[int, str]]:
+    install_count: int | None
     if len(moonraker_list) > len(klipper_list):
         install_count = len(moonraker_list)
         name_dict = {i: moonraker.suffix for i, moonraker in enumerate(moonraker_list)}
-
     else:
         install_count = get_install_count()
         name_dict = {i: klipper.suffix for i, klipper in enumerate(klipper_list)}
@@ -217,11 +217,12 @@ def create_klipper_instance(name: str, create_example_cfg: bool) -> None:
 
 def use_custom_names_or_go_back() -> bool | None:
     print_select_custom_name_dialog()
-    return get_confirm(
+    _input: bool | None = get_confirm(
         "Assign custom names?",
         False,
         allow_go_back=True,
     )
+    return _input
 
 
 def display_moonraker_info(moonraker_list: List[Moonraker]) -> bool:
@@ -238,4 +239,5 @@ def display_moonraker_info(moonraker_list: List[Moonraker]) -> bool:
         padding_top=0,
         padding_bottom=0,
     )
-    return get_confirm("Proceed with installation?")
+    _input: bool = get_confirm("Proceed with installation?")
+    return _input

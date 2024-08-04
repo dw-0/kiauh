@@ -6,6 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import shutil
 from pathlib import Path
@@ -20,8 +21,8 @@ from utils.logger import Logger
 # noinspection PyMethodMayBeStatic
 class BackupManager:
     def __init__(self, backup_root_dir: Path = BACKUP_ROOT_DIR):
-        self._backup_root_dir = backup_root_dir
-        self._ignore_folders = None
+        self._backup_root_dir: Path = backup_root_dir
+        self._ignore_folders: List[str] = []
 
     @property
     def backup_root_dir(self) -> Path:
@@ -39,7 +40,7 @@ class BackupManager:
     def ignore_folders(self, value: List[str]):
         self._ignore_folders = value
 
-    def backup_file(self, file: Path, target: Path = None, custom_filename=None):
+    def backup_file(self, file: Path, target: Path | None = None, custom_filename=None):
         Logger.print_status(f"Creating backup of {file} ...")
 
         if not file.exists():
@@ -62,7 +63,9 @@ class BackupManager:
         else:
             Logger.print_info(f"File '{file}' not found ...")
 
-    def backup_directory(self, name: str, source: Path, target: Path = None) -> None:
+    def backup_directory(
+        self, name: str, source: Path, target: Path | None = None
+    ) -> None:
         Logger.print_status(f"Creating backup of {name} in {target} ...")
 
         if source is None or not Path(source).exists():
@@ -83,9 +86,9 @@ class BackupManager:
             Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
             return
 
-    def ignore_folders_func(self, dirpath, filenames):
+    def ignore_folders_func(self, dirpath, filenames) -> List[str]:
         return (
             [f for f in filenames if f in self._ignore_folders]
-            if self._ignore_folders is not None
+            if self._ignore_folders
             else []
         )

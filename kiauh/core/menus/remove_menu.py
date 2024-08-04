@@ -6,9 +6,10 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import textwrap
-from typing import Optional, Type
+from typing import Type
 
 from components.crowsnest.crowsnest import remove_crowsnest
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
@@ -29,18 +30,16 @@ from utils.constants import COLOR_RED, RESET_FORMAT
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class RemoveMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else MainMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
-    def set_options(self):
+    def set_options(self) -> None:
         self.options = {
             "1": Option(method=self.remove_klipper, menu=True),
             "2": Option(method=self.remove_moonraker, menu=True),
@@ -52,7 +51,7 @@ class RemoveMenu(BaseMenu):
             "8": Option(method=self.remove_octoeverywhere, menu=True),
         }
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         header = " [ Remove Menu ] "
         color = COLOR_RED
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -78,26 +77,26 @@ class RemoveMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def remove_klipper(self, **kwargs):
+    def remove_klipper(self, **kwargs) -> None:
         KlipperRemoveMenu(previous_menu=self.__class__).run()
 
-    def remove_moonraker(self, **kwargs):
+    def remove_moonraker(self, **kwargs) -> None:
         MoonrakerRemoveMenu(previous_menu=self.__class__).run()
 
-    def remove_mainsail(self, **kwargs):
+    def remove_mainsail(self, **kwargs) -> None:
         ClientRemoveMenu(previous_menu=self.__class__, client=MainsailData()).run()
 
-    def remove_fluidd(self, **kwargs):
+    def remove_fluidd(self, **kwargs) -> None:
         ClientRemoveMenu(previous_menu=self.__class__, client=FluiddData()).run()
 
-    def remove_klipperscreen(self, **kwargs):
+    def remove_klipperscreen(self, **kwargs) -> None:
         remove_klipperscreen()
 
-    def remove_mobileraker(self, **kwargs):
+    def remove_mobileraker(self, **kwargs) -> None:
         remove_mobileraker()
 
-    def remove_crowsnest(self, **kwargs):
+    def remove_crowsnest(self, **kwargs) -> None:
         remove_crowsnest()
 
-    def remove_octoeverywhere(self, **kwargs):
+    def remove_octoeverywhere(self, **kwargs) -> None:
         remove_octoeverywhere()

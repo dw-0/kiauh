@@ -34,7 +34,7 @@ def print_instance_overview(
     show_index=False,
     start_index=0,
     show_select_all=False,
-):
+) -> None:
     dialog = "╔═══════════════════════════════════════════════════════╗\n"
     if show_headline:
         d_type = (
@@ -64,7 +64,7 @@ def print_instance_overview(
     print_back_footer()
 
 
-def print_select_instance_count_dialog():
+def print_select_instance_count_dialog() -> None:
     line1 = f"{COLOR_YELLOW}WARNING:{RESET_FORMAT}"
     line2 = f"{COLOR_YELLOW}Setting up too many instances may crash your system.{RESET_FORMAT}"
     dialog = textwrap.dedent(
@@ -84,7 +84,7 @@ def print_select_instance_count_dialog():
     print_back_footer()
 
 
-def print_select_custom_name_dialog():
+def print_select_custom_name_dialog() -> None:
     line1 = f"{COLOR_YELLOW}INFO:{RESET_FORMAT}"
     line2 = f"{COLOR_YELLOW}Only alphanumeric characters are allowed!{RESET_FORMAT}"
     dialog = textwrap.dedent(

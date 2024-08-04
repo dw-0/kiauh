@@ -6,6 +6,8 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import textwrap
 from enum import Enum
 from typing import List
@@ -44,17 +46,17 @@ LINE_WIDTH = 53
 
 class Logger:
     @staticmethod
-    def info(msg):
+    def info(msg) -> None:
         # log to kiauh.log
         pass
 
     @staticmethod
-    def warn(msg):
+    def warn(msg) -> None:
         # log to kiauh.log
         pass
 
     @staticmethod
-    def error(msg):
+    def error(msg) -> None:
         # log to kiauh.log
         pass
 
@@ -88,8 +90,8 @@ class Logger:
         title: DialogType,
         content: List[str],
         center_content: bool = False,
-        custom_title: str = None,
-        custom_color: DialogCustomColor = None,
+        custom_title: str | None = None,
+        custom_color: DialogCustomColor | None = None,
         padding_top: int = 1,
         padding_bottom: int = 1,
     ) -> None:
@@ -122,18 +124,23 @@ class Logger:
         print("\n" * padding_bottom)
 
     @staticmethod
-    def _get_dialog_title(title: DialogType, custom_title: str = None) -> str:
+    def _get_dialog_title(
+        title: DialogType, custom_title: str | None = None
+    ) -> str | None:
         if title == DialogType.CUSTOM and custom_title:
             return f"[ {custom_title} ]"
         return f"[ {title.value[0]} ]" if title.value[0] else None
 
     @staticmethod
     def _get_dialog_color(
-        title: DialogType, custom_color: DialogCustomColor = None
+        title: DialogType, custom_color: DialogCustomColor | None = None
     ) -> str:
         if title == DialogType.CUSTOM and custom_color:
             return str(custom_color.value)
-        return title.value[1] if title.value[1] else DialogCustomColor.WHITE.value
+
+        color: str = title.value[1] if title.value[1] else DialogCustomColor.WHITE.value
+
+        return color
 
     @staticmethod
     def _format_top_border(color: str) -> str:
@@ -146,7 +153,7 @@ class Logger:
         )
 
     @staticmethod
-    def _format_dialog_title(title: str) -> str:
+    def _format_dialog_title(title: str | None) -> str:
         if title is not None:
             return textwrap.dedent(f"""
                 ┃ {title:^{LINE_WIDTH}} ┃

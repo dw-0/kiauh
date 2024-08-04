@@ -6,29 +6,29 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import textwrap
-from typing import Optional, Type
+from typing import Type
 
 from components.log_uploads.log_upload_utils import get_logfile_list, upload_logfile
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_YELLOW, RESET_FORMAT
+from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic
 class LogUploadMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.logfile_list = get_logfile_list()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else MainMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
     def set_options(self) -> None:
         self.options = {
@@ -36,7 +36,7 @@ class LogUploadMenu(BaseMenu):
             for index in range(len(self.logfile_list))
         }
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         header = " [ Log Upload ] "
         color = COLOR_YELLOW
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -58,5 +58,13 @@ class LogUploadMenu(BaseMenu):
         print(menu, end="")
 
     def upload(self, **kwargs):
-        index = int(kwargs.get("opt_index"))
-        upload_logfile(self.logfile_list[index])
+        try:
+            index: int | None = kwargs.get("opt_index", None)
+            if index is None:
+                raise Exception("opt_index is None")
+
+            index = int(index)
+            upload_logfile(self.logfile_list[index])
+        except Exception as e:
+            Logger.print_error(e)
+            Logger.print_error("Log upload failed!")

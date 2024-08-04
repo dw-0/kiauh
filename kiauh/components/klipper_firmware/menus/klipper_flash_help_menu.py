@@ -6,8 +6,10 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import textwrap
-from typing import Optional, Type
+from typing import Type
 
 from core.menus.base_menu import BaseMenu
 from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
@@ -15,16 +17,16 @@ from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 
 # noinspection DuplicatedCode
 class KlipperFlashMethodHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from components.klipper_firmware.menus.klipper_flash_menu import (
             KlipperFlashMethodMenu,
         )
 
-        self.previous_menu: Type[BaseMenu] = (
+        self.previous_menu = (
             previous_menu if previous_menu is not None else KlipperFlashMethodMenu
         )
 
@@ -73,16 +75,16 @@ class KlipperFlashMethodHelpMenu(BaseMenu):
 
 # noinspection DuplicatedCode
 class KlipperFlashCommandHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from components.klipper_firmware.menus.klipper_flash_menu import (
             KlipperFlashCommandMenu,
         )
 
-        self.previous_menu: Type[BaseMenu] = (
+        self.previous_menu = (
             previous_menu if previous_menu is not None else KlipperFlashCommandMenu
         )
 
@@ -117,16 +119,16 @@ class KlipperFlashCommandHelpMenu(BaseMenu):
 
 # noinspection DuplicatedCode
 class KlipperMcuConnectionHelpMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from components.klipper_firmware.menus.klipper_flash_menu import (
             KlipperSelectMcuConnectionMenu,
         )
 
-        self.previous_menu: Type[BaseMenu] = (
+        self.previous_menu = (
             previous_menu
             if previous_menu is not None
             else KlipperSelectMcuConnectionMenu

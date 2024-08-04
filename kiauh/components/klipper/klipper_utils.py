@@ -46,10 +46,11 @@ def get_klipper_status() -> ComponentStatus:
     return get_install_status(KLIPPER_DIR, KLIPPER_ENV_DIR, Klipper)
 
 
-def add_to_existing() -> bool:
-    kl_instances = InstanceManager(Klipper).instances
+def add_to_existing() -> bool | None:
+    kl_instances: List[Klipper] = InstanceManager(Klipper).instances
     print_instance_overview(kl_instances)
-    return get_confirm("Add new instances?", allow_go_back=True)
+    _input: bool | None = get_confirm("Add new instances?", allow_go_back=True)
+    return _input
 
 
 def get_install_count() -> int | None:
@@ -66,7 +67,8 @@ def get_install_count() -> int | None:
         f"{' additional' if len(kl_instances) > 0 else ''} "
         f"Klipper instances to set up"
     )
-    return get_number_input(question, 1, default=1, allow_go_back=True)
+    _input: int | None = get_number_input(question, 1, default=1, allow_go_back=True)
+    return _input
 
 
 def assign_custom_name(key: int, name_dict: Dict[int, str]) -> None:
@@ -79,7 +81,7 @@ def assign_custom_name(key: int, name_dict: Dict[int, str]) -> None:
     name_dict[key] = get_string_input(question, exclude=existing_names, regex=pattern)
 
 
-def check_user_groups():
+def check_user_groups() -> None:
     user_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
     missing_groups = [g for g in ["tty", "dialout"] if g not in user_groups]
 

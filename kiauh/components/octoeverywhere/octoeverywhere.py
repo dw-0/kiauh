@@ -26,6 +26,7 @@ from core.instance_manager.base_instance import BaseInstance
 from utils.logger import Logger
 
 
+# todo: make this to a dataclass
 class Octoeverywhere(BaseInstance):
     @classmethod
     def blacklist(cls) -> List[str]:
@@ -64,7 +65,7 @@ class Octoeverywhere(BaseInstance):
             raise
 
     @staticmethod
-    def update():
+    def update() -> None:
         try:
             run(OE_UPDATE_SCRIPT.as_posix(), check=True, shell=True, cwd=OE_DIR)
 

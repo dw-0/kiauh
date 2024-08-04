@@ -6,8 +6,9 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
-from typing import List, Union
+from typing import List
 
 from components.klipper import KLIPPER_DIR, KLIPPER_ENV_DIR
 from components.klipper.klipper import Klipper
@@ -47,9 +48,7 @@ def run_klipper_removal(
             run_remove_routines(KLIPPER_ENV_DIR)
 
 
-def select_instances_to_remove(
-    instances: List[Klipper],
-) -> Union[List[Klipper], None]:
+def select_instances_to_remove(instances: List[Klipper]) -> List[Klipper] | None:
     start_index = 1
     options = [str(i + start_index) for i in range(len(instances))]
     options.extend(["a", "b"])
@@ -76,7 +75,7 @@ def select_instances_to_remove(
 
 def remove_instances(
     instance_manager: InstanceManager,
-    instance_list: List[Klipper],
+    instance_list: List[Klipper] | None,
 ) -> None:
     if not instance_list:
         return

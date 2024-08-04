@@ -6,6 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import shutil
 import subprocess
@@ -112,7 +113,7 @@ def update_client_config(client: BaseWebClient) -> None:
 
 
 def create_client_config_symlink(
-    client_config: BaseWebClientConfig, klipper_instances: List[Klipper] = None
+    client_config: BaseWebClientConfig, klipper_instances: List[Klipper] | None = None
 ) -> None:
     if klipper_instances is None:
         kl_im = InstanceManager(Klipper)

@@ -73,7 +73,7 @@ def get_current_client_config(clients: List[BaseWebClient]) -> str:
     return f"{COLOR_CYAN}-{RESET_FORMAT}"
 
 
-def backup_mainsail_config_json(is_temp=False) -> None:
+def backup_mainsail_config_json(is_temp: bool = False) -> None:
     c_json = MainsailData().client_dir.joinpath("config.json")
     bm = BackupManager()
     if is_temp:
@@ -137,7 +137,7 @@ def get_local_client_version(client: BaseWebClient) -> str | None:
 
     if relinfo_file.is_file():
         with open(relinfo_file, "r") as f:
-            return json.load(f)["version"]
+            return str(json.load(f)["version"])
     else:
         with open(version_file, "r") as f:
             return f.readlines()[0]
@@ -146,7 +146,7 @@ def get_local_client_version(client: BaseWebClient) -> str | None:
 def get_remote_client_version(client: BaseWebClient) -> str | None:
     try:
         if (tag := get_latest_tag(client.repo_path)) != "":
-            return tag
+            return str(tag)
         return None
     except Exception:
         return None

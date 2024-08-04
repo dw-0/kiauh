@@ -96,12 +96,13 @@ def get_install_status(
         for f in files:
             checks.append(f.exists())
 
+    status: StatusCode
     if all(checks):
-        status: StatusCode = 2  # installed
+        status = 2  # installed
     elif not any(checks):
-        status: StatusCode = 0  # not installed
+        status = 0  # not installed
     else:
-        status: StatusCode = 1  # incomplete
+        status = 1  # incomplete
 
     return ComponentStatus(
         status=status,
@@ -112,7 +113,7 @@ def get_install_status(
     )
 
 
-def backup_printer_config_dir():
+def backup_printer_config_dir() -> None:
     # local import to prevent circular import
     from core.backup_manager.backup_manager import BackupManager
 

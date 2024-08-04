@@ -36,7 +36,7 @@ def check_file_exist(file_path: Path, sudo=False) -> bool:
     """
     if sudo:
         try:
-            command = ["sudo", "find", file_path]
+            command = ["sudo", "find", file_path.as_posix()]
             check_output(command, stderr=DEVNULL)
             return True
         except CalledProcessError:
@@ -50,7 +50,7 @@ def check_file_exist(file_path: Path, sudo=False) -> bool:
 
 def create_symlink(source: Path, target: Path, sudo=False) -> None:
     try:
-        cmd = ["ln", "-sf", source, target]
+        cmd = ["ln", "-sf", source.as_posix(), target.as_posix()]
         if sudo:
             cmd.insert(0, "sudo")
         run(cmd, stderr=PIPE, check=True)
@@ -61,7 +61,7 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
 
 def remove_with_sudo(file: Path) -> None:
     try:
-        cmd = ["sudo", "rm", "-rf", file]
+        cmd = ["sudo", "rm", "-rf", file.as_posix()]
         run(cmd, stderr=PIPE, check=True)
     except CalledProcessError as e:
         Logger.print_error(f"Failed to remove file: {e}")

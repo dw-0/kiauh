@@ -6,9 +6,11 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import sys
 import textwrap
-from typing import Optional, Type
+from typing import Callable, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
@@ -47,18 +49,18 @@ from utils.types import ComponentStatus, StatusMap, StatusText
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class MainMenu(BaseMenu):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
-        self.header = True
-        self.footer_type = FooterType.QUIT
+        self.header: bool = True
+        self.footer_type: FooterType = FooterType.QUIT
 
         self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
         self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
         self.cn_status = self.cc_status = self.oe_status = ""
         self._init_status()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         """MainMenu does not have a previous menu"""
         pass
 
@@ -94,7 +96,7 @@ class MainMenu(BaseMenu):
         self._get_component_status("cn", get_crowsnest_status)
         self._get_component_status("oe", get_octoeverywhere_status)
 
-    def _get_component_status(self, name: str, status_fn: callable, *args) -> None:
+    def _get_component_status(self, name: str, status_fn: Callable, *args) -> None:
         status_data: ComponentStatus = status_fn(*args)
         code: int = status_data.status
         status: StatusText = StatusMap[code]
@@ -119,7 +121,7 @@ class MainMenu(BaseMenu):
 
         return f"{color}{status}{count}{RESET_FORMAT}"
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         self._fetch_status()
 
         header = " [ Main Menu ] "
@@ -155,30 +157,30 @@ class MainMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def exit(self, **kwargs):
+    def exit(self, **kwargs) -> None:
         Logger.print_ok("###### Happy printing!", False)
         sys.exit(0)
 
-    def log_upload_menu(self, **kwargs):
+    def log_upload_menu(self, **kwargs) -> None:
         LogUploadMenu().run()
 
-    def install_menu(self, **kwargs):
+    def install_menu(self, **kwargs) -> None:
         InstallMenu(previous_menu=self.__class__).run()
 
-    def update_menu(self, **kwargs):
+    def update_menu(self, **kwargs) -> None:
         UpdateMenu(previous_menu=self.__class__).run()
 
-    def remove_menu(self, **kwargs):
+    def remove_menu(self, **kwargs) -> None:
         RemoveMenu(previous_menu=self.__class__).run()
 
-    def advanced_menu(self, **kwargs):
+    def advanced_menu(self, **kwargs) -> None:
         AdvancedMenu(previous_menu=self.__class__).run()
 
-    def backup_menu(self, **kwargs):
+    def backup_menu(self, **kwargs) -> None:
         BackupMenu(previous_menu=self.__class__).run()
 
-    def settings_menu(self, **kwargs):
+    def settings_menu(self, **kwargs) -> None:
         SettingsMenu(previous_menu=self.__class__).run()
 
-    def extension_menu(self, **kwargs):
+    def extension_menu(self, **kwargs) -> None:
         ExtensionsMenu(previous_menu=self.__class__).run()

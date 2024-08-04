@@ -6,10 +6,12 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import shutil
 import textwrap
 from pathlib import Path
-from typing import Optional, Tuple, Type
+from typing import Tuple, Type
 
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
@@ -28,22 +30,20 @@ from utils.logger import DialogType, Logger
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class SettingsMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.previous_menu = previous_menu
-        self.klipper_repo = None
-        self.moonraker_repo = None
-        self.mainsail_unstable = None
-        self.fluidd_unstable = None
-        self.auto_backups_enabled = None
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
+        self.klipper_repo: str | None = None
+        self.moonraker_repo: str | None = None
+        self.mainsail_unstable: bool | None = None
+        self.fluidd_unstable: bool | None = None
+        self.auto_backups_enabled: bool | None = None
         self._load_settings()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else MainMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
     def set_options(self) -> None:
         self.options = {
@@ -54,7 +54,7 @@ class SettingsMenu(BaseMenu):
             "5": Option(method=self.toggle_backup_before_update, menu=False),
         }
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         header = " [ KIAUH Settings ] "
         color = COLOR_CYAN
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -94,7 +94,7 @@ class SettingsMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def _load_settings(self):
+    def _load_settings(self) -> None:
         self.settings = KiauhSettings()
 
         self._format_repo_str("klipper")
@@ -133,7 +133,7 @@ class SettingsMenu(BaseMenu):
 
         return repo, branch
 
-    def _set_repo(self, repo_name: str):
+    def _set_repo(self, repo_name: str) -> None:
         repo_url, branch = self._gather_input()
         display_name = repo_name.capitalize()
         Logger.print_dialog(
@@ -186,23 +186,23 @@ class SettingsMenu(BaseMenu):
 
         im.start_all_instance()
 
-    def set_klipper_repo(self, **kwargs):
+    def set_klipper_repo(self, **kwargs) -> None:
         self._set_repo("klipper")
 
-    def set_moonraker_repo(self, **kwargs):
+    def set_moonraker_repo(self, **kwargs) -> None:
         self._set_repo("moonraker")
 
-    def toggle_mainsail_release(self, **kwargs):
+    def toggle_mainsail_release(self, **kwargs) -> None:
         self.mainsail_unstable = not self.mainsail_unstable
         self.settings.mainsail.unstable_releases = self.mainsail_unstable
         self.settings.save()
 
-    def toggle_fluidd_release(self, **kwargs):
+    def toggle_fluidd_release(self, **kwargs) -> None:
         self.fluidd_unstable = not self.fluidd_unstable
         self.settings.fluidd.unstable_releases = self.fluidd_unstable
         self.settings.save()
 
-    def toggle_backup_before_update(self, **kwargs):
+    def toggle_backup_before_update(self, **kwargs) -> None:
         self.auto_backups_enabled = not self.auto_backups_enabled
         self.settings.kiauh.backup_before_update = self.auto_backups_enabled
         self.settings.save()

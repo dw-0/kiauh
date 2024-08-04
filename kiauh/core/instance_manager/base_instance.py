@@ -13,7 +13,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from utils.constants import CURRENT_USER, SYSTEMD
 from utils.logger import Logger
@@ -21,26 +21,26 @@ from utils.logger import Logger
 
 @dataclass
 class BaseInstance(ABC):
-    instance_type: BaseInstance
     suffix: str
     user: str = field(default=CURRENT_USER, init=False)
-    data_dir: Path = None
+    data_dir: Path | None = None
     data_dir_name: str = ""
     is_legacy_instance: bool = False
-    cfg_dir: Path = None
-    log_dir: Path = None
-    comms_dir: Path = None
-    sysd_dir: Path = None
-    gcodes_dir: Path = None
+    cfg_dir: Path | None = None
+    log_dir: Path | None = None
+    comms_dir: Path | None = None
+    sysd_dir: Path | None = None
+    gcodes_dir: Path | None = None
 
     def __post_init__(self) -> None:
         self._set_data_dir()
         self._set_is_legacy_instance()
-        self.cfg_dir = self.data_dir.joinpath("config")
-        self.log_dir = self.data_dir.joinpath("logs")
-        self.comms_dir = self.data_dir.joinpath("comms")
-        self.sysd_dir = self.data_dir.joinpath("systemd")
-        self.gcodes_dir = self.data_dir.joinpath("gcodes")
+        if self.data_dir is not None:
+            self.cfg_dir = self.data_dir.joinpath("config")
+            self.log_dir = self.data_dir.joinpath("logs")
+            self.comms_dir = self.data_dir.joinpath("comms")
+            self.sysd_dir = self.data_dir.joinpath("systemd")
+            self.gcodes_dir = self.data_dir.joinpath("gcodes")
 
     @classmethod
     def blacklist(cls) -> List[str]:
@@ -54,8 +54,8 @@ class BaseInstance(ABC):
     def delete(self) -> None:
         raise NotImplementedError("Subclasses must implement the delete method")
 
-    def create_folders(self, add_dirs: Optional[List[Path]] = None) -> None:
-        dirs = [
+    def create_folders(self, add_dirs: List[Path] | None = None) -> None:
+        dirs: List[Path | None] = [
             self.data_dir,
             self.cfg_dir,
             self.log_dir,
@@ -68,13 +68,15 @@ class BaseInstance(ABC):
             dirs.extend(add_dirs)
 
         for _dir in dirs:
+            if _dir is None:
+                continue
             _dir.mkdir(exist_ok=True)
 
     # todo: refactor into a set method and access the value by accessing the property
     def get_service_file_name(self, extension: bool = False) -> str:
         from utils.common import convert_camelcase_to_kebabcase
 
-        name = convert_camelcase_to_kebabcase(self.__class__.__name__)
+        name: str = convert_camelcase_to_kebabcase(self.__class__.__name__)
         if self.suffix != "":
             name += f"-{self.suffix}"
 
@@ -82,12 +84,13 @@ class BaseInstance(ABC):
 
     # todo: refactor into a set method and access the value by accessing the property
     def get_service_file_path(self) -> Path:
-        return SYSTEMD.joinpath(self.get_service_file_name(extension=True))
+        path: Path = SYSTEMD.joinpath(self.get_service_file_name(extension=True))
+        return path
 
     def delete_logfiles(self, log_name: str) -> None:
         from utils.fs_utils import run_remove_routines
 
-        if not self.log_dir.exists():
+        if not self.log_dir or not self.log_dir.exists():
             return
 
         files = self.log_dir.iterdir()

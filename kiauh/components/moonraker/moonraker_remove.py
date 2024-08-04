@@ -6,9 +6,10 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 from subprocess import DEVNULL, PIPE, CalledProcessError, run
-from typing import List, Union
+from typing import List
 
 from components.klipper.klipper_dialogs import print_instance_overview
 from components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
@@ -57,7 +58,7 @@ def run_moonraker_removal(
 
 def select_instances_to_remove(
     instances: List[Moonraker],
-) -> Union[List[Moonraker], None]:
+) -> List[Moonraker] | None:
     start_index = 1
     options = [str(i + start_index) for i in range(len(instances))]
     options.extend(["a", "b"])
@@ -84,8 +85,11 @@ def select_instances_to_remove(
 
 def remove_instances(
     instance_manager: InstanceManager,
-    instance_list: List[Moonraker],
+    instance_list: List[Moonraker] | None,
 ) -> None:
+    if not instance_list:
+        Logger.print_info("No Moonraker instances found. Skipped ...")
+        return
     for instance in instance_list:
         Logger.print_status(f"Removing instance {instance.get_service_file_name()} ...")
         instance_manager.current_instance = instance

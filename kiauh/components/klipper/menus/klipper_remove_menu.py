@@ -6,9 +6,10 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import textwrap
-from typing import Optional, Type
+from typing import Type
 
 from components.klipper import klipper_remove
 from core.menus import FooterType, Option
@@ -18,21 +19,19 @@ from utils.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 
 # noinspection PyUnusedLocal
 class KlipperRemoveMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.footer_type = FooterType.BACK
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
         self.remove_klipper_env = False
         self.selection_state = False
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.remove_menu import RemoveMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else RemoveMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else RemoveMenu
 
     def set_options(self) -> None:
         self.options = {

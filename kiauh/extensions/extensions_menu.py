@@ -6,13 +6,14 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import importlib
 import inspect
 import json
 import textwrap
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Type
 
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -25,17 +26,15 @@ from utils.logger import Logger
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class ExtensionsMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.extensions: Dict[str, BaseExtension] = self.discover_extensions()
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else MainMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
     def set_options(self) -> None:
         self.options = {
@@ -80,7 +79,7 @@ class ExtensionsMenu(BaseMenu):
     def extension_submenu(self, **kwargs):
         ExtensionSubmenu(kwargs.get("opt_data"), self.__class__).run()
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         header = " [ Extensions Menu ] "
         color = COLOR_CYAN
         line1 = f"{COLOR_YELLOW}Available Extensions:{RESET_FORMAT}"
@@ -108,14 +107,14 @@ class ExtensionsMenu(BaseMenu):
 # noinspection PyMethodMayBeStatic
 class ExtensionSubmenu(BaseMenu):
     def __init__(
-        self, extension: BaseExtension, previous_menu: Optional[Type[BaseMenu]] = None
+        self, extension: BaseExtension, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
         self.extension = extension
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
-        self.previous_menu: Type[BaseMenu] = (
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
+        self.previous_menu = (
             previous_menu if previous_menu is not None else ExtensionsMenu
         )
 

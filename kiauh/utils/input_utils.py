@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from utils import INVALID_CHOICE
 from utils.constants import COLOR_CYAN, RESET_FORMAT
@@ -53,9 +53,9 @@ def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool
 def get_number_input(
     question: str,
     min_count: int,
-    max_count=None,
-    default=None,
-    allow_go_back=False,
+    max_count: int | None = None,
+    default: int | None = None,
+    allow_go_back: bool = False,
 ) -> int | None:
     """
     Helper method to get a number input from the user
@@ -73,7 +73,7 @@ def get_number_input(
         if allow_go_back and _input in options_go_back:
             return None
 
-        if _input == "":
+        if _input == "" and default is not None:
             return default
 
         try:
@@ -84,10 +84,10 @@ def get_number_input(
 
 def get_string_input(
     question: str,
-    regex: Union[str, None] = None,
-    exclude: Union[List, None] = None,
-    allow_special_chars=False,
-    default=None,
+    regex: str | None = None,
+    exclude: List[str] | None = None,
+    allow_special_chars: bool = False,
+    default: str | None = None,
 ) -> str:
     """
     Helper method to get a string input from the user
@@ -157,7 +157,7 @@ def format_question(question: str, default=None) -> str:
     return f"{COLOR_CYAN}###### {formatted_q}: {RESET_FORMAT}"
 
 
-def validate_number_input(value: str, min_count: int, max_count: int) -> int:
+def validate_number_input(value: str, min_count: int, max_count: int | None) -> int:
     """
     Helper method for a simple number input validation. |
     :param value: The value to validate

@@ -49,7 +49,7 @@ def add_config_section(
         scp.write(cfg_file)
 
 
-def add_config_section_at_top(section: str, instances: List[B]):
+def add_config_section_at_top(section: str, instances: List[B]) -> None:
     # TODO: this could be implemented natively in SimpleConfigParser
     for instance in instances:
         tmp_cfg = tempfile.NamedTemporaryFile(mode="w", delete=False)

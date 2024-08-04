@@ -6,64 +6,66 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import re
 import subprocess
 from pathlib import Path
-from typing import List, Optional, TypeVar, Union
+from typing import List, Type, TypeVar
 
 from core.instance_manager.base_instance import BaseInstance
 from utils.constants import SYSTEMD
 from utils.logger import Logger
 from utils.sys_utils import cmd_sysctl_service
 
-T = TypeVar(name="T", bound=BaseInstance, covariant=True)
+T = TypeVar("T", bound=BaseInstance, covariant=True)
 
 
 # noinspection PyMethodMayBeStatic
 class InstanceManager:
-    def __init__(self, instance_type: T) -> None:
+    def __init__(self, instance_type: Type[T]) -> None:
         self._instance_type = instance_type
-        self._current_instance: Optional[T] = None
-        self._instance_suffix: Optional[str] = None
-        self._instance_service: Optional[str] = None
-        self._instance_service_full: Optional[str] = None
-        self._instance_service_path: Optional[str] = None
+        self._current_instance: Type[T] | None = None
+        self._instance_suffix: str | None = None
+        self._instance_service: str | None = None
+        self._instance_service_full: str | None = None
+        self._instance_service_path: str | None = None
         self._instances: List[T] = []
 
     @property
-    def instance_type(self) -> T:
+    def instance_type(self) -> Type[T]:
         return self._instance_type
 
     @instance_type.setter
-    def instance_type(self, value: T):
+    def instance_type(self, value: Type[T]):
         self._instance_type = value
 
     @property
-    def current_instance(self) -> T:
+    def current_instance(self) -> Type[T] | None:
         return self._current_instance
 
     @current_instance.setter
-    def current_instance(self, value: T) -> None:
+    def current_instance(self, value: Type[T] | None) -> None:
         self._current_instance = value
-        self.instance_suffix = value.suffix
-        self.instance_service = value.get_service_file_name()
-        self.instance_service_path = value.get_service_file_path()
+        if value is not None:
+            self.instance_suffix = value.suffix
+            self.instance_service = value.get_service_file_name()
+            self.instance_service_path = value.get_service_file_path()
 
     @property
-    def instance_suffix(self) -> str:
+    def instance_suffix(self) -> str | None:
         return self._instance_suffix
 
     @instance_suffix.setter
-    def instance_suffix(self, value: str):
+    def instance_suffix(self, value: str | None):
         self._instance_suffix = value
 
     @property
-    def instance_service(self) -> str:
+    def instance_service(self) -> str | None:
         return self._instance_service
 
     @instance_service.setter
-    def instance_service(self, value: str):
+    def instance_service(self, value: str | None) -> None:
         self._instance_service = value
 
     @property
@@ -71,19 +73,19 @@ class InstanceManager:
         return f"{self._instance_service}.service"
 
     @property
-    def instance_service_path(self) -> str:
+    def instance_service_path(self) -> str | None:
         return self._instance_service_path
 
     @instance_service_path.setter
-    def instance_service_path(self, value: str):
+    def instance_service_path(self, value: str | None) -> None:
         self._instance_service_path = value
 
     @property
-    def instances(self) -> List[T]:
+    def instances(self) -> List[Type[T]]:
         return self.find_instances()
 
     @instances.setter
-    def instances(self, value: List[T]):
+    def instances(self, value: List[T]) -> None:
         self._instances = value
 
     def create_instance(self) -> None:
@@ -157,7 +159,7 @@ class InstanceManager:
             self.current_instance = instance
             self.stop_instance()
 
-    def find_instances(self) -> List[T]:
+    def find_instances(self) -> List[Type[T]]:
         from utils.common import convert_camelcase_to_kebabcase
 
         name = convert_camelcase_to_kebabcase(self.instance_type.__name__)
@@ -185,10 +187,10 @@ class InstanceManager:
         suffix = file_path.stem[len(name) :]
         return suffix[1:] if suffix else ""
 
-    def _sort_instance_list(self, suffix: Union[int, str, None]):
+    def _sort_instance_list(self, suffix: int | str | None):
         if suffix is None:
             return
-        elif suffix.isdigit():
+        elif isinstance(suffix, str) and suffix.isdigit():
             return f"{int(suffix):04}"
         else:
             return suffix

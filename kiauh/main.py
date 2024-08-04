@@ -12,7 +12,7 @@ from core.settings.kiauh_settings import KiauhSettings
 from utils.logger import Logger
 
 
-def main():
+def main() -> None:
     try:
         KiauhSettings()
         MainMenu().run()

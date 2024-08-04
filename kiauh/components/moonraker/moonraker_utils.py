@@ -126,7 +126,7 @@ def create_example_moonraker_conf(
     Logger.print_ok(f"Example moonraker.conf created in '{instance.cfg_dir}'")
 
 
-def backup_moonraker_dir():
+def backup_moonraker_dir() -> None:
     bm = BackupManager()
     bm.backup_directory("moonraker", source=MOONRAKER_DIR, target=MOONRAKER_BACKUP_DIR)
     bm.backup_directory(

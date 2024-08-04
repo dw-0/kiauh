@@ -6,12 +6,13 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import csv
 import shutil
 import textwrap
 import urllib.request
-from typing import List, Optional, Type, TypedDict, Union
+from typing import List, Type, TypedDict, Union
 
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import (
@@ -81,10 +82,10 @@ class MainsailThemeInstallMenu(BaseMenu):
         self.themes: List[ThemeData] = self.load_themes()
         self.instances = instances
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from extensions.extensions_menu import ExtensionsMenu
 
-        self.previous_menu: Type[BaseMenu] = (
+        self.previous_menu = (
             previous_menu if previous_menu is not None else ExtensionsMenu
         )
 

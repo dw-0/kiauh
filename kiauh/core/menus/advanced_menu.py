@@ -6,9 +6,10 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 import textwrap
-from typing import Optional, Type
+from typing import Type
 
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
@@ -30,18 +31,16 @@ from utils.git_utils import rollback_repository
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class AdvancedMenu(BaseMenu):
-    def __init__(self, previous_menu: Optional[Type[BaseMenu]] = None):
+    def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.previous_menu = previous_menu
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
 
-    def set_previous_menu(self, previous_menu: Optional[Type[BaseMenu]]) -> None:
+    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
-        self.previous_menu: Type[BaseMenu] = (
-            previous_menu if previous_menu is not None else MainMenu
-        )
+        self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
-    def set_options(self):
+    def set_options(self) -> None:
         self.options = {
             "1": Option(method=self.build, menu=True),
             "2": Option(method=self.flash, menu=False),
@@ -51,7 +50,7 @@ class AdvancedMenu(BaseMenu):
             "6": Option(method=self.moonraker_rollback, menu=True),
         }
 
-    def print_menu(self):
+    def print_menu(self) -> None:
         header = " [ Advanced Menu ] "
         color = COLOR_YELLOW
         count = 62 - len(color) - len(RESET_FORMAT)
@@ -70,23 +69,23 @@ class AdvancedMenu(BaseMenu):
         )[1:]
         print(menu, end="")
 
-    def klipper_rollback(self, **kwargs):
+    def klipper_rollback(self, **kwargs) -> None:
         rollback_repository(KLIPPER_DIR, Klipper)
 
-    def moonraker_rollback(self, **kwargs):
+    def moonraker_rollback(self, **kwargs) -> None:
         rollback_repository(MOONRAKER_DIR, Moonraker)
 
-    def build(self, **kwargs):
+    def build(self, **kwargs) -> None:
         KlipperBuildFirmwareMenu(previous_menu=self.__class__).run()
 
-    def flash(self, **kwargs):
+    def flash(self, **kwargs) -> None:
         KlipperFlashMethodMenu(previous_menu=self.__class__).run()
 
-    def build_flash(self, **kwargs):
+    def build_flash(self, **kwargs) -> None:
         KlipperBuildFirmwareMenu(previous_menu=KlipperFlashMethodMenu).run()
         KlipperFlashMethodMenu(previous_menu=self.__class__).run()
 
-    def get_id(self, **kwargs):
+    def get_id(self, **kwargs) -> None:
         KlipperSelectMcuConnectionMenu(
             previous_menu=self.__class__,
             standalone=True,

@@ -8,8 +8,6 @@
 # ======================================================================= #
 from __future__ import annotations
 
-from typing import Union
-
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     NoOptionError,
     NoSectionError,
@@ -61,10 +59,11 @@ class KiauhSettings:
     def __new__(cls, *args, **kwargs) -> "KiauhSettings":
         if cls._instance is None:
             cls._instance = super(KiauhSettings, cls).__new__(cls, *args, **kwargs)
-            cls._instance.__initialized = False
         return cls._instance
 
     def __init__(self) -> None:
+        if not hasattr(self, "__initialized"):
+            self.__initialized = False
         if self.__initialized:
             return
         self.__initialized = True
@@ -87,7 +86,7 @@ class KiauhSettings:
 
         self._load_config()
 
-    def get(self, section: str, option: str) -> Union[str, int, bool]:
+    def get(self, section: str, option: str) -> str | int | bool:
         """
         Get a value from the settings state by providing the section and option name as strings.
         Prefer direct access to the properties, as it is usually safer!
@@ -99,11 +98,11 @@ class KiauhSettings:
         try:
             section = getattr(self, section)
             value = getattr(section, option)
-            return value
+            return value  # type: ignore
         except AttributeError:
             raise
 
-    def set(self, section: str, option: str, value: Union[str, int, bool]) -> None:
+    def set(self, section: str, option: str, value: str | int | bool) -> None:
         """
         Set a value in the settings state by providing the section and option name as strings.
         Prefer direct access to the properties, as it is usually safer!
@@ -113,7 +112,7 @@ class KiauhSettings:
         """
         try:
             section = getattr(self, section)
-            section.option = value
+            section.option = value  # type: ignore
         except AttributeError:
             raise
 
@@ -172,7 +171,7 @@ class KiauhSettings:
         if v.isdigit() or v.lower() == "true" or v.lower() == "false":
             raise ValueError
 
-    def _read_settings(self):
+    def _read_settings(self) -> None:
         self.kiauh.backup_before_update = self.config.getboolean(
             "kiauh", "backup_before_update"
         )
@@ -189,7 +188,7 @@ class KiauhSettings:
             "fluidd", "unstable_releases"
         )
 
-    def _set_config_options(self):
+    def _set_config_options(self) -> None:
         self.config.set(
             "kiauh",
             "backup_before_update",

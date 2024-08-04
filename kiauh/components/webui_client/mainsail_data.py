@@ -48,7 +48,8 @@ class MainsailData(BaseWebClient):
     def download_url(self) -> str:
         from components.webui_client.client_utils import get_download_url
 
-        return get_download_url(self.BASE_DL_URL, self)
+        url: str = get_download_url(self.BASE_DL_URL, self)
+        return url
 
     @property
     def client_config(self) -> BaseWebClientConfig:
