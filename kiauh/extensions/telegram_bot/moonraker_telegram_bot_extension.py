@@ -13,10 +13,10 @@ from typing import List
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from extensions.base_extension import BaseExtension
+from extensions.telegram_bot import TG_BOT_REPO
 from extensions.telegram_bot.moonraker_telegram_bot import (
-    TELEGRAM_BOT_DIR,
-    TELEGRAM_BOT_ENV,
-    TELEGRAM_BOT_REPO,
+    TG_BOT_DIR,
+    TG_BOT_ENV,
     MoonrakerTelegramBot,
 )
 from utils.common import check_install_dependencies
@@ -70,7 +70,7 @@ class TelegramBotExtension(BaseExtension):
         create_example_cfg = get_confirm("Create example telegram.conf?")
 
         try:
-            git_clone_wrapper(TELEGRAM_BOT_REPO, TELEGRAM_BOT_DIR)
+            git_clone_wrapper(TG_BOT_REPO, TG_BOT_DIR)
             self._install_dependencies()
 
             # create and start services / create bot configs
@@ -88,9 +88,7 @@ class TelegramBotExtension(BaseExtension):
                     Logger.print_status(
                         f"Creating Telegram Bot config in {current_instance.cfg_dir} ..."
                     )
-                    template = TELEGRAM_BOT_DIR.joinpath(
-                        "scripts/base_install_template"
-                    )
+                    template = TG_BOT_DIR.joinpath("scripts/base_install_template")
                     target_file = current_instance.cfg_file
                     if not target_file.exists():
                         show_config_dialog = True
@@ -133,7 +131,7 @@ class TelegramBotExtension(BaseExtension):
         tb_im = InstanceManager(MoonrakerTelegramBot)
         tb_im.stop_all_instance()
 
-        git_pull_wrapper(TELEGRAM_BOT_REPO, TELEGRAM_BOT_DIR)
+        git_pull_wrapper(TG_BOT_REPO, TG_BOT_DIR)
         self._install_dependencies()
 
         tb_im.start_all_instance()
@@ -158,24 +156,24 @@ class TelegramBotExtension(BaseExtension):
 
     def _install_dependencies(self) -> None:
         # install dependencies
-        script = TELEGRAM_BOT_DIR.joinpath("scripts/install.sh")
+        script = TG_BOT_DIR.joinpath("scripts/install.sh")
         package_list = parse_packages_from_file(script)
         check_install_dependencies(package_list)
 
         # create virtualenv
-        create_python_venv(TELEGRAM_BOT_ENV)
-        requirements = TELEGRAM_BOT_DIR.joinpath("scripts/requirements.txt")
-        install_python_requirements(TELEGRAM_BOT_ENV, requirements)
+        create_python_venv(TG_BOT_ENV)
+        requirements = TG_BOT_DIR.joinpath("scripts/requirements.txt")
+        install_python_requirements(TG_BOT_ENV, requirements)
 
     def _patch_bot_update_manager(self, instances: List[Moonraker]) -> None:
-        env_py = f"{TELEGRAM_BOT_ENV}/bin/python"
+        env_py = f"{TG_BOT_ENV}/bin/python"
         add_config_section(
             section="update_manager moonraker-telegram-bot",
             instances=instances,
             options=[
                 ("type", "git_repo"),
-                ("path", str(TELEGRAM_BOT_DIR)),
-                ("orgin", TELEGRAM_BOT_REPO),
+                ("path", str(TG_BOT_DIR)),
+                ("orgin", TG_BOT_REPO),
                 ("env", env_py),
                 ("requirements", "scripts/requirements.txt"),
                 ("install_script", "scripts/install.sh"),
@@ -199,24 +197,24 @@ class TelegramBotExtension(BaseExtension):
         cmd_sysctl_manage("daemon-reload")
 
     def _remove_bot_dir(self) -> None:
-        if not TELEGRAM_BOT_DIR.exists():
-            Logger.print_info(f"'{TELEGRAM_BOT_DIR}' does not exist. Skipped ...")
+        if not TG_BOT_DIR.exists():
+            Logger.print_info(f"'{TG_BOT_DIR}' does not exist. Skipped ...")
             return
 
         try:
-            shutil.rmtree(TELEGRAM_BOT_DIR)
+            shutil.rmtree(TG_BOT_DIR)
         except OSError as e:
-            Logger.print_error(f"Unable to delete '{TELEGRAM_BOT_DIR}':\n{e}")
+            Logger.print_error(f"Unable to delete '{TG_BOT_DIR}':\n{e}")
 
     def _remove_bot_env(self) -> None:
-        if not TELEGRAM_BOT_ENV.exists():
-            Logger.print_info(f"'{TELEGRAM_BOT_ENV}' does not exist. Skipped ...")
+        if not TG_BOT_ENV.exists():
+            Logger.print_info(f"'{TG_BOT_ENV}' does not exist. Skipped ...")
             return
 
         try:
-            shutil.rmtree(TELEGRAM_BOT_ENV)
+            shutil.rmtree(TG_BOT_ENV)
         except OSError as e:
-            Logger.print_error(f"Unable to delete '{TELEGRAM_BOT_ENV}':\n{e}")
+            Logger.print_error(f"Unable to delete '{TG_BOT_ENV}':\n{e}")
 
     def _delete_bot_logs(self, instances: List[MoonrakerTelegramBot]) -> None:
         all_logfiles = []
