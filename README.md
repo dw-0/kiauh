@@ -154,7 +154,7 @@ prompt and confirm by hitting ENTER.
 <tr>
 <th><h3><a href="https://github.com/Clon1998/mobileraker_companion">Mobileraker's Companion</a></h3></th>
 <th><h3><a href="https://octoeverywhere.com/?source=kiauh_readme">OctoEverywhere For Klipper</a></h3></th>
-<th><h3><a href="https://github.com/crysxd/OctoPrint-OctoApp">OctoApp For Klipper</a></h3></th>
+<th><h3><a href="https://github.com/crysxd/OctoApp-Plugin">OctoApp For Klipper</a></h3></th>
 <th><h3></h3></th>
 </tr>
 
