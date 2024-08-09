@@ -18,6 +18,7 @@ class ShellCommand:
         self.command = shlex.split(cmd)
         self.timeout = config.getfloat('timeout', 2., above=0.)
         self.verbose = config.getboolean('verbose', True)
+        self.terminate = config.getboolean('terminate', True)
         self.proc_fd = None
         self.partial_output = ""
         self.gcode.register_mux_command(
@@ -68,7 +69,7 @@ class ShellCommand:
             if proc.poll() is not None:
                 complete = True
                 break
-        if not complete:
+        if not complete and self.terminate:
             proc.terminate()
         if self.verbose:
             if self.partial_output:
