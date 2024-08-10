@@ -91,10 +91,10 @@ class ClientRemoveMenu(BaseMenu):
         print(menu, end="")
 
     def toggle_all(self, **kwargs) -> None:
-        self.remove_client = not self.remove_client
-        self.remove_client_cfg = not self.remove_client_cfg
-        self.backup_mainsail_config_json = not self.backup_mainsail_config_json
         self.selection_state = not self.selection_state
+        self.remove_client = self.selection_state
+        self.remove_client_cfg = self.selection_state
+        self.backup_mainsail_config_json = self.selection_state
 
     def toggle_rm_client(self, **kwargs) -> None:
         self.remove_client = not self.remove_client

@@ -72,10 +72,10 @@ class KlipperRemoveMenu(BaseMenu):
         print(menu, end="")
 
     def toggle_all(self, **kwargs) -> None:
-        self.remove_klipper_service = not self.remove_klipper_service
-        self.remove_klipper_dir = not self.remove_klipper_dir
-        self.remove_klipper_env = not self.remove_klipper_env
         self.selection_state = not self.selection_state
+        self.remove_klipper_service = self.selection_state
+        self.remove_klipper_dir = self.selection_state
+        self.remove_klipper_env = self.selection_state
 
     def toggle_remove_klipper_service(self, **kwargs) -> None:
         self.remove_klipper_service = not self.remove_klipper_service
