@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import textwrap
-from typing import Type
+from typing import List, Set, Type
 
 from components.klipper import KLIPPER_DIR
 from components.klipper_firmware.firmware_utils import (
@@ -34,8 +34,8 @@ class KlipperBuildFirmwareMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
         self.previous_menu: Type[BaseMenu] | None = previous_menu
-        self.deps = ["build-essential", "dpkg-dev", "make"]
-        self.missing_deps = check_package_install(self.deps)
+        self.deps: Set[str] = {"build-essential", "dpkg-dev", "make"}
+        self.missing_deps: List[str] = check_package_install(self.deps)
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.advanced_menu import AdvancedMenu
