@@ -23,10 +23,10 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from utils.common import backup_printer_config_dir
-from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

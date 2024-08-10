@@ -11,8 +11,8 @@ from __future__ import annotations
 import re
 from typing import Dict, List
 
+from core.constants import COLOR_CYAN, RESET_FORMAT
 from utils import INVALID_CHOICE
-from utils.constants import COLOR_CYAN, RESET_FORMAT
 from utils.logger import Logger
 
 

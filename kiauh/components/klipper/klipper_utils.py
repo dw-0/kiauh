@@ -30,12 +30,12 @@ from components.webui_client.client_config.client_config_setup import (
     create_client_config_symlink,
 )
 from core.backup_manager.backup_manager import BackupManager
+from core.constants import CURRENT_USER
 from core.instance_manager.instance_manager import InstanceManager
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from utils.common import get_install_status
-from utils.constants import CURRENT_USER
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.logger import DialogType, Logger
 from utils.sys_utils import cmd_sysctl_service

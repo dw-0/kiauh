@@ -25,6 +25,14 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.constants import (
+    COLOR_CYAN,
+    COLOR_GREEN,
+    COLOR_MAGENTA,
+    COLOR_RED,
+    COLOR_YELLOW,
+    RESET_FORMAT,
+)
 from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
 from core.menus.backup_menu import BackupMenu
@@ -34,14 +42,6 @@ from core.menus.remove_menu import RemoveMenu
 from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
 from extensions.extensions_menu import ExtensionsMenu
-from utils.constants import (
-    COLOR_CYAN,
-    COLOR_GREEN,
-    COLOR_MAGENTA,
-    COLOR_RED,
-    COLOR_YELLOW,
-    RESET_FORMAT,
-)
 from utils.logger import Logger
 from utils.types import ComponentStatus, StatusMap, StatusText
 

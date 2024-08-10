@@ -21,7 +21,7 @@ from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output, run
 from typing import List, Literal, Set
 
-from utils.constants import SYSTEMD
+from core.constants import SYSTEMD
 from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.input_utils import get_confirm
 from utils.logger import Logger

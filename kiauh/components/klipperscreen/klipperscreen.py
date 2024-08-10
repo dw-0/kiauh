@@ -26,6 +26,7 @@ from components.klipperscreen import (
 )
 from components.moonraker.moonraker import Moonraker
 from core.backup_manager.backup_manager import BackupManager
+from core.constants import SYSTEMD
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import (
@@ -33,7 +34,6 @@ from utils.common import (
     get_install_status,
 )
 from utils.config_utils import add_config_section, remove_config_section
-from utils.constants import SYSTEMD
 from utils.fs_utils import remove_with_sudo
 from utils.git_utils import (
     git_clone_wrapper,

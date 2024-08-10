@@ -12,9 +12,9 @@ import textwrap
 from typing import Type
 
 from components.klipper_firmware.flash_options import FlashMethod, FlashOptions
+from core.constants import COLOR_RED, RESET_FORMAT
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_RED, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

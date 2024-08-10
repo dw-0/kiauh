@@ -22,9 +22,9 @@ from components.octoeverywhere.octoeverywhere_setup import remove_octoeverywhere
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
+from core.constants import COLOR_RED, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_RED, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

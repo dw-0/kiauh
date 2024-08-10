@@ -15,11 +15,11 @@ import textwrap
 from pathlib import Path
 from typing import Dict, List, Type
 
+from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from extensions import EXTENSION_ROOT
 from extensions.base_extension import BaseExtension
-from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from utils.logger import Logger
 
 

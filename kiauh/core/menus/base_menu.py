@@ -16,14 +16,14 @@ import traceback
 from abc import abstractmethod
 from typing import Dict, Type
 
-from core.menus import FooterType, Option
-from utils.constants import (
+from core.constants import (
     COLOR_CYAN,
     COLOR_GREEN,
     COLOR_RED,
     COLOR_YELLOW,
     RESET_FORMAT,
 )
+from core.menus import FooterType, Option
 from utils.logger import Logger
 
 

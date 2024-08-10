@@ -21,10 +21,10 @@ from components.webui_client.base_data import (
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
+from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.settings.kiauh_settings import KiauhSettings
 from utils import NGINX_CONFD, NGINX_SITES_AVAILABLE
 from utils.common import get_install_status
-from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from utils.git_utils import (
     get_latest_tag,
     get_latest_unstable_tag,

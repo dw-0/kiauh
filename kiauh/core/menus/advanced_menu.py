@@ -22,9 +22,9 @@ from components.klipper_firmware.menus.klipper_flash_menu import (
 )
 from components.moonraker import MOONRAKER_DIR
 from components.moonraker.moonraker import Moonraker
+from core.constants import COLOR_YELLOW, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_YELLOW, RESET_FORMAT
 from utils.git_utils import rollback_repository
 
 

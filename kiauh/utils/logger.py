@@ -12,7 +12,7 @@ import textwrap
 from enum import Enum
 from typing import List
 
-from utils.constants import (
+from core.constants import (
     COLOR_CYAN,
     COLOR_GREEN,
     COLOR_MAGENTA,

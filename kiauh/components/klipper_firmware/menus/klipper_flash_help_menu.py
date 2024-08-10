@@ -11,8 +11,8 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
+from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 
 
 # noinspection DuplicatedCode

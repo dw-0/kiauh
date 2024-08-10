@@ -10,7 +10,7 @@
 from pathlib import Path
 
 from core.backup_manager import BACKUP_ROOT_DIR
-from utils.constants import SYSTEMD
+from core.constants import SYSTEMD
 
 # repo
 CROWSNEST_REPO = "https://github.com/mainsail-crew/crowsnest.git"

@@ -12,9 +12,9 @@ import textwrap
 from typing import Type
 
 from components.klipper import klipper_remove
+from core.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

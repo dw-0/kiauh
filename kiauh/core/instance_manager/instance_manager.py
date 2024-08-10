@@ -13,8 +13,8 @@ import subprocess
 from pathlib import Path
 from typing import List, Type, TypeVar
 
+from core.constants import SYSTEMD
 from core.instance_manager.base_instance import BaseInstance
-from utils.constants import SYSTEMD
 from utils.logger import Logger
 from utils.sys_utils import cmd_sysctl_service
 

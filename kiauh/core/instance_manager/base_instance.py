@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
-from utils.constants import CURRENT_USER, SYSTEMD
+from core.constants import CURRENT_USER, SYSTEMD
 from utils.logger import Logger
 
 

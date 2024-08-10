@@ -11,14 +11,14 @@ import textwrap
 from enum import Enum, unique
 from typing import List
 
-from core.instance_manager.base_instance import BaseInstance
-from core.menus.base_menu import print_back_footer
-from utils.constants import (
+from core.constants import (
     COLOR_CYAN,
     COLOR_GREEN,
     COLOR_YELLOW,
     RESET_FORMAT,
 )
+from core.instance_manager.base_instance import BaseInstance
+from core.menus.base_menu import print_back_footer
 
 
 @unique

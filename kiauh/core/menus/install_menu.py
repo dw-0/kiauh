@@ -21,9 +21,9 @@ from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.constants import COLOR_GREEN, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_GREEN, RESET_FORMAT
 
 
 # noinspection PyUnusedLocal

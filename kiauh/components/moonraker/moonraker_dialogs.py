@@ -12,8 +12,8 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
+from core.constants import COLOR_CYAN, COLOR_GREEN, COLOR_YELLOW, RESET_FORMAT
 from core.menus.base_menu import print_back_footer
-from utils.constants import COLOR_CYAN, COLOR_GREEN, COLOR_YELLOW, RESET_FORMAT
 
 
 def print_moonraker_overview(

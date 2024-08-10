@@ -17,13 +17,13 @@ from typing import List
 from zipfile import ZipFile
 
 from components.klipper.klipper import Klipper
+from core.decorators import deprecated
 from utils import (
     MODULE_PATH,
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
-from utils.decorators import deprecated
 from utils.logger import Logger
 
 

@@ -17,11 +17,11 @@ from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from components.moonraker import MOONRAKER_DIR
 from components.moonraker.moonraker import Moonraker
+from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
 from core.instance_manager.instance_manager import InstanceManager
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings
-from utils.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_confirm, get_string_input
 from utils.logger import DialogType, Logger

@@ -35,9 +35,9 @@ from components.klipper_firmware.menus.klipper_flash_help_menu import (
     KlipperFlashMethodHelpMenu,
     KlipperMcuConnectionHelpMenu,
 )
+from core.constants import COLOR_CYAN, COLOR_RED, COLOR_YELLOW, RESET_FORMAT
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
-from utils.constants import COLOR_CYAN, COLOR_RED, COLOR_YELLOW, RESET_FORMAT
 from utils.input_utils import get_number_input
 from utils.logger import DialogType, Logger
 

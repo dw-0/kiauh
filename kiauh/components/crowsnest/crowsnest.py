@@ -27,13 +27,13 @@ from components.crowsnest import (
 )
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
+from core.constants import CURRENT_USER
 from core.instance_manager.instance_manager import InstanceManager
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import (
     check_install_dependencies,
     get_install_status,
 )
-from utils.constants import CURRENT_USER
 from utils.git_utils import (
     git_clone_wrapper,
     git_pull_wrapper,

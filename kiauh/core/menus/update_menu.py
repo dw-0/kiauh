@@ -40,14 +40,14 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
-from core.menus import Option
-from core.menus.base_menu import BaseMenu
-from utils.constants import (
+from core.constants import (
     COLOR_GREEN,
     COLOR_RED,
     COLOR_YELLOW,
     RESET_FORMAT,
 )
+from core.menus import Option
+from core.menus.base_menu import BaseMenu
 from utils.input_utils import get_confirm
 from utils.logger import DialogType, Logger
 from utils.spinner import Spinner
