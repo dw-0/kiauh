@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import textwrap
-from typing import Callable, Type
+from typing import Callable, List, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status, update_crowsnest
 from components.klipper.klipper_setup import update_klipper
@@ -48,8 +48,14 @@ from utils.constants import (
     COLOR_YELLOW,
     RESET_FORMAT,
 )
-from utils.logger import Logger
+from utils.input_utils import get_confirm
+from utils.logger import DialogType, Logger
 from utils.spinner import Spinner
+from utils.sys_utils import (
+    get_upgradable_packages,
+    update_system_package_lists,
+    upgrade_system_packages,
+)
 from utils.types import ComponentStatus
 
 
@@ -59,6 +65,9 @@ class UpdateMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
         self.previous_menu: Type[BaseMenu] | None = previous_menu
+
+        self.packages: List[str] = []
+        self.package_count: int = 0
 
         self.klipper_local = self.klipper_remote = ""
         self.moonraker_local = self.moonraker_remote = ""
@@ -108,7 +117,7 @@ class UpdateMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        spinner = Spinner()
+        spinner = Spinner("Loading update menu, please wait")
         spinner.start()
 
         self._fetch_update_status()
@@ -118,6 +127,15 @@ class UpdateMenu(BaseMenu):
         header = " [ Update Menu ] "
         color = COLOR_GREEN
         count = 62 - len(color) - len(RESET_FORMAT)
+
+        sysupgrades: str = "No upgrades available."
+        padding = 29
+        if self.package_count > 0:
+            sysupgrades = (
+                f"{COLOR_GREEN}{self.package_count} upgrades available!{RESET_FORMAT}"
+            )
+            padding = 38
+
         menu = textwrap.dedent(
             f"""
             ╔═══════════════════════════════════════════════════════╗
@@ -143,7 +161,7 @@ class UpdateMenu(BaseMenu):
             ║  9) Crowsnest         │ {self.crowsnest_local:<22} │ {self.crowsnest_remote:<22} ║
             ║ 10) OctoEverywhere    │ {self.octoeverywhere_local:<22} │ {self.octoeverywhere_remote:<22} ║
             ║                       ├───────────────┴───────────────╢
-            ║ 11) System            │                               ║
+            ║ 11) System            │ {sysupgrades:^{padding}} ║
             ╟───────────────────────┴───────────────────────────────╢
             """
         )[1:]
@@ -192,7 +210,8 @@ class UpdateMenu(BaseMenu):
         if self._check_is_installed("octoeverywhere"):
             update_octoeverywhere()
 
-    def upgrade_system_packages(self, **kwargs) -> None: ...
+    def upgrade_system_packages(self, **kwargs) -> None:
+        self._run_system_updates()
 
     def _fetch_update_status(self) -> None:
         self._set_status_data("klipper", get_klipper_status)
@@ -209,6 +228,10 @@ class UpdateMenu(BaseMenu):
         self._set_status_data("mobileraker", get_mobileraker_status)
         self._set_status_data("crowsnest", get_crowsnest_status)
         self._set_status_data("octoeverywhere", get_octoeverywhere_status)
+
+        update_system_package_lists(silent=True)
+        self.packages = get_upgradable_packages()
+        self.package_count = len(self.packages)
 
     def _format_local_status(self, local_version, remote_version) -> str:
         color = COLOR_RED
@@ -246,3 +269,25 @@ class UpdateMenu(BaseMenu):
             Logger.print_info(f"{name.capitalize()} is not installed! Skipped ...")
             return False
         return True
+
+    def _run_system_updates(self) -> None:
+        if not self.packages:
+            Logger.print_info("No system upgrades available!")
+            return
+
+        try:
+            pkgs: str = ", ".join(self.packages)
+            Logger.print_dialog(
+                DialogType.CUSTOM,
+                ["The following packages will be upgraded:", "\n\n", pkgs],
+                custom_title="UPGRADABLE SYSTEM UPDATES",
+                padding_top=0,
+                padding_bottom=0,
+            )
+            if not get_confirm("Continue?"):
+                return
+            Logger.print_status("Upgrading system packages ...")
+            upgrade_system_packages(self.packages)
+        except Exception as e:
+            Logger.print_error(f"Error upgrading system packages:\n{e}")
+            raise

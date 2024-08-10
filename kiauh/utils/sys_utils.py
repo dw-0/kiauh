@@ -18,7 +18,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, run
+from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output, run
 from typing import List, Literal, Set
 
 from utils.constants import SYSTEMD
@@ -219,6 +219,25 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         raise
 
 
+def get_upgradable_packages() -> List[str]:
+    """
+    Reads all system packages that can be upgraded.
+    :return: A list of package names available for upgrade
+    """
+    try:
+        command = ["apt", "list", "--upgradable"]
+        output: str = check_output(command, stderr=DEVNULL, text=True, encoding="utf-8")
+        pkglist = []
+        for line in output.split("\n"):
+            if "/" not in line:
+                continue
+            pkg = line.split("/")[0]
+            pkglist.append(pkg)
+        return pkglist
+    except CalledProcessError as e:
+        raise Exception(f"Error reading upgradable packages: {e}")
+
+
 def check_package_install(packages: Set[str]) -> List[str]:
     """
     Checks the system for installed packages |
@@ -252,10 +271,27 @@ def install_system_packages(packages: List[str]) -> None:
             command.append(pkg)
         run(command, stderr=PIPE, check=True)
 
-        Logger.print_ok("Packages installed successfully.")
+        Logger.print_ok("Packages successfully installed.")
     except CalledProcessError as e:
         Logger.print_error(f"Error installing packages:\n{e.stderr.decode()}")
         raise
+
+
+def upgrade_system_packages(packages: List[str]) -> None:
+    """
+    Updates a list of system packages |
+    :param packages: List of system package names
+    :return: None
+    """
+    try:
+        command = ["sudo", "apt-get", "upgrade", "-y"]
+        for pkg in packages:
+            command.append(pkg)
+        run(command, stderr=PIPE, check=True)
+
+        Logger.print_ok("Packages successfully upgraded.")
+    except CalledProcessError as e:
+        raise Exception(f"Error upgrading packages:\n{e.stderr.decode()}")
 
 
 # this feels hacky and not quite right, but for now it works
