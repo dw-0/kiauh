@@ -66,7 +66,7 @@ class Logger:
         print(f"{COLOR_WHITE}{start}{message}{RESET_FORMAT}", end=end)
 
     @staticmethod
-    def print_ok(msg, prefix=True, start="", end="\n") -> None:
+    def print_ok(msg: str = "Success!", prefix=True, start="", end="\n") -> None:
         message = f"[OK] {msg}" if prefix else msg
         print(f"{COLOR_GREEN}{start}{message}{RESET_FORMAT}", end=end)
 
