@@ -22,11 +22,11 @@ from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClient
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from utils.common import get_install_status
-from utils.logger import Logger
 from utils.sys_utils import (
     get_ipv4_addr,
 )

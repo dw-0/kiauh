@@ -10,10 +10,10 @@
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, run
 
+from core.logger import DialogType, Logger
 from utils.common import check_install_dependencies, get_current_date
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm, get_string_input
-from utils.logger import DialogType, Logger
 
 
 def change_system_hostname() -> None:

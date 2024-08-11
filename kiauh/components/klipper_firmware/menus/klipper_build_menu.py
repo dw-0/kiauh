@@ -18,9 +18,9 @@ from components.klipper_firmware.firmware_utils import (
     run_make_menuconfig,
 )
 from core.constants import COLOR_CYAN, COLOR_GREEN, COLOR_RED, RESET_FORMAT
+from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.logger import Logger
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,

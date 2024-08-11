@@ -14,7 +14,7 @@ from typing import List
 from components.klipper.klipper import Klipper
 from components.log_uploads import LogFile
 from core.instance_manager.instance_manager import InstanceManager
-from utils.logger import Logger
+from core.logger import Logger
 
 
 def get_logfile_list() -> List[LogFile]:

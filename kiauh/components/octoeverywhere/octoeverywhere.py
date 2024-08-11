@@ -24,7 +24,7 @@ from components.octoeverywhere import (
     OE_UPDATE_SCRIPT,
 )
 from core.instance_manager.base_instance import BaseInstance
-from utils.logger import Logger
+from core.logger import Logger
 
 
 @dataclass

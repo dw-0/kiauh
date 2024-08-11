@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 
+from core.logger import Logger
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
     KLIPPERBACKUP_CONFIG_DIR,
@@ -22,7 +23,6 @@ from extensions.klipper_backup import (
 )
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
-from utils.logger import Logger
 from utils.sys_utils import service_instance_exists
 
 

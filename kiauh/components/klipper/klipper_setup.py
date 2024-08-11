@@ -35,11 +35,11 @@ from components.webui_client.client_utils import (
     get_existing_clients,
 )
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_manage,
     create_python_venv,

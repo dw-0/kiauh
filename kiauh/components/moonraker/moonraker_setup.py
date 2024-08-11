@@ -38,6 +38,7 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.mainsail_data import MainsailData
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.fs_utils import check_file_exist
@@ -46,7 +47,6 @@ from utils.input_utils import (
     get_confirm,
     get_selection_input,
 )
-from utils.logger import Logger
 from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_manage,

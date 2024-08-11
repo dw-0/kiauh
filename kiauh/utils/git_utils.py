@@ -11,8 +11,8 @@ from typing import List, Type
 
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from utils.input_utils import get_confirm, get_number_input
-from utils.logger import Logger
 
 
 def git_clone_wrapper(

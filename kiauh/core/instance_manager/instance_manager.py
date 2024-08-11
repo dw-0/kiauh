@@ -15,7 +15,7 @@ from typing import List, Type, TypeVar
 
 from core.constants import SYSTEMD
 from core.instance_manager.base_instance import BaseInstance
-from utils.logger import Logger
+from core.logger import Logger
 from utils.sys_utils import cmd_sysctl_service
 
 T = TypeVar("T", bound=BaseInstance, covariant=True)

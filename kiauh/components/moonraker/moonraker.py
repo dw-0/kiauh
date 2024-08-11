@@ -22,10 +22,10 @@ from components.moonraker import (
     MOONRAKER_SERVICE_TEMPLATE,
 )
 from core.instance_manager.base_instance import BaseInstance
+from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

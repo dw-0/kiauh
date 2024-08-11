@@ -46,11 +46,11 @@ from core.constants import (
     COLOR_YELLOW,
     RESET_FORMAT,
 )
+from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.spinner import Spinner
 from utils.input_utils import get_confirm
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     get_upgradable_packages,
     update_system_package_lists,

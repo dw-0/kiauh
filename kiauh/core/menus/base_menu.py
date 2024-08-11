@@ -23,8 +23,8 @@ from core.constants import (
     COLOR_YELLOW,
     RESET_FORMAT,
 )
+from core.logger import Logger
 from core.menus import FooterType, Option
-from utils.logger import Logger
 
 
 def clear() -> None:

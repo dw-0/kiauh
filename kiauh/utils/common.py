@@ -20,9 +20,9 @@ from core.constants import (
 )
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from utils import GLOBAL_DEPS, PRINTER_CFG_BACKUP_DIR
 from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,

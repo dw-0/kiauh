@@ -13,9 +13,9 @@ from typing import Type
 
 from components.log_uploads.log_upload_utils import get_logfile_list, upload_logfile
 from core.constants import COLOR_YELLOW, RESET_FORMAT
+from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

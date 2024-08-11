@@ -28,6 +28,7 @@ from components.moonraker.moonraker import Moonraker
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import SYSTEMD
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import (
     check_install_dependencies,
@@ -40,7 +41,6 @@ from utils.git_utils import (
     git_pull_wrapper,
 )
 from utils.input_utils import get_confirm
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_service,

@@ -9,6 +9,7 @@
 import shutil
 from pathlib import Path
 
+from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
 from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
@@ -18,7 +19,6 @@ from utils.fs_utils import (
 )
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_number_input
-from utils.logger import DialogType, Logger
 from utils.sys_utils import cmd_sysctl_service, get_ipv4_addr
 
 MODULE_PATH = Path(__file__).resolve().parent

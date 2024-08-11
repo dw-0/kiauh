@@ -18,13 +18,13 @@ from zipfile import ZipFile
 
 from components.klipper.klipper import Klipper
 from core.decorators import deprecated
+from core.logger import Logger
 from utils import (
     MODULE_PATH,
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
-from utils.logger import Logger
 
 
 def check_file_exist(file_path: Path, sudo=False) -> bool:

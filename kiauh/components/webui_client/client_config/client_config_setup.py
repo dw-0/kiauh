@@ -24,13 +24,13 @@ from components.webui_client.client_utils import (
     detect_client_cfg_conflict,
 )
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import backup_printer_config_dir
 from utils.config_utils import add_config_section, add_config_section_at_top
 from utils.fs_utils import create_symlink
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
-from utils.logger import Logger
 
 
 def install_client_config(client_data: BaseWebClient) -> None:

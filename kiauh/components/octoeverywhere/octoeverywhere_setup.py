@@ -22,6 +22,7 @@ from components.octoeverywhere import (
 )
 from components.octoeverywhere.octoeverywhere import Octoeverywhere
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from utils.common import (
     check_install_dependencies,
     get_install_status,
@@ -33,7 +34,6 @@ from utils.config_utils import (
 from utils.fs_utils import run_remove_routines
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_confirm
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_manage,
     install_python_requirements,

@@ -13,6 +13,7 @@ from pathlib import Path
 from subprocess import CalledProcessError, run
 
 from core.instance_manager.base_instance import BaseInstance
+from core.logger import Logger
 from extensions.telegram_bot import (
     TG_BOT_CFG_NAME,
     TG_BOT_DIR,
@@ -22,7 +23,6 @@ from extensions.telegram_bot import (
     TG_BOT_LOG_NAME,
     TG_BOT_SERVICE_TEMPLATE,
 )
-from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

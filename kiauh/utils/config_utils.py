@@ -12,10 +12,10 @@ from typing import List, Optional, Tuple, TypeVar
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
+from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from utils.logger import Logger
 
 B = TypeVar("B", Klipper, Moonraker)
 ConfigOption = Tuple[str, str]

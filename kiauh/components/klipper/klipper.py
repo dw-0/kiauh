@@ -24,7 +24,7 @@ from components.klipper import (
     KLIPPER_UDS_NAME,
 )
 from core.instance_manager.base_instance import BaseInstance
-from utils.logger import Logger
+from core.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

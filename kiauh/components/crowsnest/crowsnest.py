@@ -29,6 +29,7 @@ from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import CURRENT_USER
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import (
     check_install_dependencies,
@@ -39,7 +40,6 @@ from utils.git_utils import (
     git_pull_wrapper,
 )
 from utils.input_utils import get_confirm
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_service,
     parse_packages_from_file,

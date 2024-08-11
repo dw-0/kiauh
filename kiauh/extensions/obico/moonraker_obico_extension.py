@@ -12,6 +12,7 @@ from typing import List
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -36,7 +37,6 @@ from utils.config_utils import (
 from utils.fs_utils import run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm, get_selection_input, get_string_input
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_manage,
     create_python_venv,

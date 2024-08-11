@@ -14,6 +14,7 @@ from typing import List
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -27,7 +28,6 @@ from extensions.gcode_shell_cmd import (
 )
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
-from utils.logger import Logger
 
 
 # noinspection PyMethodMayBeStatic

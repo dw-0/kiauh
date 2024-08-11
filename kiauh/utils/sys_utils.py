@@ -22,9 +22,9 @@ from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output, r
 from typing import List, Literal, Set
 
 from core.constants import SYSTEMD
+from core.logger import Logger
 from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.input_utils import get_confirm
-from utils.logger import Logger
 
 SysCtlServiceAction = Literal[
     "start",

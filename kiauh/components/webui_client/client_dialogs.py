@@ -10,7 +10,7 @@
 from typing import List
 
 from components.webui_client.base_data import BaseWebClient
-from utils.logger import DialogType, Logger
+from core.logger import DialogType, Logger
 
 
 def print_moonraker_not_found_dialog() -> None:

@@ -14,9 +14,9 @@ from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClientConfig
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from utils.config_utils import remove_config_section
 from utils.fs_utils import run_remove_routines
-from utils.logger import Logger
 
 
 def run_client_config_removal(

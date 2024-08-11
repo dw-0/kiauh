@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import List
 
 from core.constants import CURRENT_USER, SYSTEMD
-from utils.logger import Logger
+from core.logger import Logger
 
 
 @dataclass

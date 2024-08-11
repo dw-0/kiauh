@@ -34,6 +34,7 @@ from components.webui_client.client_utils import (
     symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
@@ -47,7 +48,6 @@ from utils.fs_utils import (
     unzip,
 )
 from utils.input_utils import get_confirm, get_number_input
-from utils.logger import Logger
 from utils.sys_utils import (
     cmd_sysctl_service,
     download_file,

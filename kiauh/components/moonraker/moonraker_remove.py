@@ -15,9 +15,9 @@ from components.klipper.klipper_dialogs import print_instance_overview
 from components.moonraker import MOONRAKER_DIR, MOONRAKER_ENV_DIR
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
-from utils.logger import Logger
 from utils.sys_utils import cmd_sysctl_manage
 
 

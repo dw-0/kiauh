@@ -12,6 +12,7 @@ from typing import List
 
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
 from extensions.telegram_bot import TG_BOT_REPO
 from extensions.telegram_bot.moonraker_telegram_bot import (
@@ -24,7 +25,6 @@ from utils.config_utils import add_config_section, remove_config_section
 from utils.fs_utils import remove_file
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
-from utils.logger import DialogType, Logger
 from utils.sys_utils import (
     cmd_sysctl_manage,
     create_python_venv,

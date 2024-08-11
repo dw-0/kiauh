@@ -8,12 +8,12 @@
 # ======================================================================= #
 from __future__ import annotations
 
+from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     NoOptionError,
     NoSectionError,
     SimpleConfigParser,
 )
-from utils.logger import DialogType, Logger
 from utils.sys_utils import kill
 
 from kiauh import PROJECT_ROOT

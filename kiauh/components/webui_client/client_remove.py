@@ -21,13 +21,13 @@ from components.webui_client.client_config.client_config_remove import (
 )
 from components.webui_client.client_utils import backup_mainsail_config_json
 from core.instance_manager.instance_manager import InstanceManager
+from core.logger import Logger
 from utils.config_utils import remove_config_section
 from utils.fs_utils import (
     remove_nginx_config,
     remove_nginx_logs,
     run_remove_routines,
 )
-from utils.logger import Logger
 
 
 def run_client_removal(

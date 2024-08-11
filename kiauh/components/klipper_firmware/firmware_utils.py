@@ -18,7 +18,7 @@ from components.klipper_firmware.flash_options import (
     FlashOptions,
 )
 from core.instance_manager.instance_manager import InstanceManager
-from utils.logger import Logger
+from core.logger import Logger
 from utils.sys_utils import log_process
 
 

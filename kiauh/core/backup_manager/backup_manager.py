@@ -13,8 +13,8 @@ from pathlib import Path
 from typing import List
 
 from core.backup_manager import BACKUP_ROOT_DIR
+from core.logger import Logger
 from utils.common import get_current_date
-from utils.logger import Logger
 
 
 # noinspection PyUnusedLocal
