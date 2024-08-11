@@ -25,6 +25,7 @@ from components.moonraker.moonraker import Moonraker
 from core.constants import COLOR_YELLOW, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from procedures.system import change_system_hostname
 from utils.git_utils import rollback_repository
 
 
@@ -48,6 +49,7 @@ class AdvancedMenu(BaseMenu):
             "4": Option(method=self.get_id, menu=False),
             "5": Option(method=self.klipper_rollback, menu=True),
             "6": Option(method=self.moonraker_rollback, menu=True),
+            "7": Option(method=self.change_hostname, menu=True),
         }
 
     def print_menu(self) -> None:
@@ -63,7 +65,8 @@ class AdvancedMenu(BaseMenu):
             ║  1) [Build]               │  5) [Klipper]             ║
             ║  2) [Flash]               │  6) [Moonraker]           ║
             ║  3) [Build + Flash]       │                           ║
-            ║  4) [Get MCU ID]          │                           ║
+            ║  4) [Get MCU ID]          │ System:                   ║
+            ║                           │  7) [Change hostname]     ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -90,3 +93,6 @@ class AdvancedMenu(BaseMenu):
             previous_menu=self.__class__,
             standalone=True,
         ).run()
+
+    def change_hostname(self, **kwargs) -> None:
+        change_system_hostname()
