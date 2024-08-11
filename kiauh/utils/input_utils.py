@@ -11,9 +11,8 @@ from __future__ import annotations
 import re
 from typing import Dict, List
 
-from core.constants import COLOR_CYAN, RESET_FORMAT
+from core.constants import COLOR_CYAN, INVALID_CHOICE, RESET_FORMAT
 from core.logger import Logger
-from utils import INVALID_CHOICE
 
 
 def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool | None:

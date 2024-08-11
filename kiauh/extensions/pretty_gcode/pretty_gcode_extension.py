@@ -9,9 +9,9 @@
 import shutil
 from pathlib import Path
 
+from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
-from utils import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from utils.common import check_install_dependencies
 from utils.fs_utils import (
     create_nginx_cfg,

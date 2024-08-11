@@ -17,14 +17,14 @@ from typing import List
 from zipfile import ZipFile
 
 from components.klipper.klipper import Klipper
-from core.decorators import deprecated
-from core.logger import Logger
-from utils import (
-    MODULE_PATH,
+from core.constants import (
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
+from core.decorators import deprecated
+from core.logger import Logger
+from utils import MODULE_PATH
 
 
 def check_file_exist(file_path: Path, sudo=False) -> bool:
