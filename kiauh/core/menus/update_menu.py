@@ -48,9 +48,9 @@ from core.constants import (
 )
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.spinner import Spinner
 from utils.input_utils import get_confirm
 from utils.logger import DialogType, Logger
-from utils.spinner import Spinner
 from utils.sys_utils import (
     get_upgradable_packages,
     update_system_package_lists,
@@ -117,7 +117,7 @@ class UpdateMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        spinner = Spinner("Loading update menu, please wait")
+        spinner = Spinner("Loading update menu, please wait", color="green")
         spinner.start()
 
         self._fetch_update_status()
