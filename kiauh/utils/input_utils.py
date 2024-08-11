@@ -104,8 +104,6 @@ def get_string_input(
     while True:
         _input = input(_question)
 
-        print(_input)
-
         if _input.lower() in _exclude:
             Logger.print_error("This value is already in use/reserved.")
         elif default is not None and _input == "":
