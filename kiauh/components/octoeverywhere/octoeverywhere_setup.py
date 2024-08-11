@@ -39,7 +39,7 @@ from utils.sys_utils import (
     install_python_requirements,
     parse_packages_from_file,
 )
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 def get_octoeverywhere_status() -> ComponentStatus:

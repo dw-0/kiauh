@@ -21,6 +21,7 @@ from core.constants import (
 from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.types import ComponentStatus, StatusCode
 from utils import GLOBAL_DEPS, PRINTER_CFG_BACKUP_DIR
 from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
 from utils.sys_utils import (
@@ -28,7 +29,6 @@ from utils.sys_utils import (
     install_system_packages,
     update_system_package_lists,
 )
-from utils.types import ComponentStatus, StatusCode
 
 
 def convert_camelcase_to_kebabcase(name: str) -> str:

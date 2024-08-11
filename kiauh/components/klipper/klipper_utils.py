@@ -39,7 +39,7 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 from utils.common import get_install_status
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.sys_utils import cmd_sysctl_service
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 def get_klipper_status() -> ComponentStatus:

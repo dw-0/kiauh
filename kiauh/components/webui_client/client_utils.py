@@ -30,7 +30,7 @@ from utils.git_utils import (
     get_latest_tag,
     get_latest_unstable_tag,
 )
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 def get_client_status(

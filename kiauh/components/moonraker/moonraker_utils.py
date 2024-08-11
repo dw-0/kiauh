@@ -30,7 +30,7 @@ from utils.common import get_install_status
 from utils.sys_utils import (
     get_ipv4_addr,
 )
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 def get_moonraker_status() -> ComponentStatus:

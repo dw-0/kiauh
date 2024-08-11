@@ -43,7 +43,7 @@ from core.menus.remove_menu import RemoveMenu
 from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
 from extensions.extensions_menu import ExtensionsMenu
-from utils.types import ComponentStatus, StatusMap, StatusText
+from core.types import ComponentStatus, StatusMap, StatusText
 
 
 # noinspection PyUnusedLocal

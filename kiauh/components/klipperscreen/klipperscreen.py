@@ -47,7 +47,7 @@ from utils.sys_utils import (
     install_python_requirements,
     remove_service_file,
 )
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 def install_klipperscreen() -> None:

@@ -44,7 +44,7 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     parse_packages_from_file,
 )
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 def install_crowsnest() -> None:

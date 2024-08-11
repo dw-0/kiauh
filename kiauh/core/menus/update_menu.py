@@ -56,7 +56,7 @@ from utils.sys_utils import (
     update_system_package_lists,
     upgrade_system_packages,
 )
-from utils.types import ComponentStatus
+from core.types import ComponentStatus
 
 
 # noinspection PyUnusedLocal
