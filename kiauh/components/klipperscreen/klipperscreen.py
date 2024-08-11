@@ -78,8 +78,7 @@ def install_klipperscreen() -> None:
         ):
             return
 
-    package_list = ["git", "wget", "curl", "unzip", "dfu-util"]
-    check_install_dependencies(package_list)
+    check_install_dependencies()
 
     git_clone_wrapper(KLIPPERSCREEN_REPO, KLIPPERSCREEN_DIR)
 

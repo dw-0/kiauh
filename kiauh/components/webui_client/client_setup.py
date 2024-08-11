@@ -112,7 +112,7 @@ def install_client(client: BaseWebClient) -> None:
         )
         valid_port = is_valid_port(port, ports_in_use)
 
-    check_install_dependencies(["nginx"])
+    check_install_dependencies({"nginx"})
 
     try:
         download_client(client)

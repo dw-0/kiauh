@@ -167,7 +167,7 @@ def install_moonraker_packages() -> None:
     if not moonraker_deps:
         raise ValueError("Error reading Moonraker dependencies!")
 
-    check_install_dependencies(moonraker_deps)
+    check_install_dependencies({*moonraker_deps})
 
 
 def install_moonraker_polkit() -> None:

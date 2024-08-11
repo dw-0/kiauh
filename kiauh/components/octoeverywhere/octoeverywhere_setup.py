@@ -168,7 +168,7 @@ def install_oe_dependencies() -> None:
     if not oe_deps:
         raise ValueError("Error reading OctoEverywhere dependencies!")
 
-    check_install_dependencies(oe_deps)
+    check_install_dependencies({*oe_deps})
     install_python_requirements(OE_ENV_DIR, OE_REQ_FILE)
 
 

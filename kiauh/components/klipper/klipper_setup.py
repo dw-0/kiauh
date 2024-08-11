@@ -169,7 +169,7 @@ def install_klipper_packages() -> None:
     if Path("/boot/dietpi/.version").exists():
         packages.append("dbus")
 
-    check_install_dependencies(packages)
+    check_install_dependencies({*packages})
 
 
 def update_klipper() -> None:

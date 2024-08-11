@@ -158,7 +158,7 @@ class TelegramBotExtension(BaseExtension):
         # install dependencies
         script = TG_BOT_DIR.joinpath("scripts/install.sh")
         package_list = parse_packages_from_file(script)
-        check_install_dependencies(package_list)
+        check_install_dependencies({*package_list})
 
         # create virtualenv
         create_python_venv(TG_BOT_ENV)

@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Type
+from typing import Dict, List, Literal, Optional, Set, Type
 
 from components.klipper.klipper import Klipper
 from core.constants import (
@@ -47,17 +47,23 @@ def get_current_date() -> Dict[Literal["date", "time"], str]:
     return {"date": date, "time": time}
 
 
-def check_install_dependencies(deps: List[str] | None = None) -> None:
+def check_install_dependencies(
+    deps: Set[str] | None = None, include_global: bool = True
+) -> None:
     """
     Common helper method to check if dependencies are installed
     and if not, install them automatically |
+    :param include_global: Wether to include the global dependencies or not
     :param deps: List of strings of package names to check if installed
     :return: None
     """
     if deps is None:
-        deps = []
+        deps = set()
 
-    requirements = check_package_install({*GLOBAL_DEPS, *deps})
+    if include_global:
+        deps.update(GLOBAL_DEPS)
+
+    requirements = check_package_install(deps)
     if requirements:
         Logger.print_status("Installing dependencies ...")
         Logger.print_info("The following packages need installation:")

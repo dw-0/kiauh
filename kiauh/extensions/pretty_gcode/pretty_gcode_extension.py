@@ -48,7 +48,7 @@ class PrettyGcodeExtension(BaseExtension):
             allow_go_back=True,
         )
 
-        check_install_dependencies(["nginx"])
+        check_install_dependencies({"nginx"})
 
         try:
             # remove any existing pgc dir

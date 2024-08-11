@@ -52,7 +52,7 @@ def install_crowsnest() -> None:
     git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
 
     # Step 2: Install dependencies
-    check_install_dependencies(["make"])
+    check_install_dependencies({"make"})
 
     # Step 3: Check for Multi Instance
     im = InstanceManager(Klipper)
@@ -139,7 +139,7 @@ def update_crowsnest() -> None:
             git_pull_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
 
             deps = parse_packages_from_file(CROWSNEST_INSTALL_SCRIPT)
-            check_install_dependencies(deps)
+            check_install_dependencies({*deps})
 
         cmd_sysctl_service(CROWSNEST_SERVICE_NAME, "restart")
 

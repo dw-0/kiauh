@@ -236,7 +236,7 @@ class ObicoExtension(BaseExtension):
         # install dependencies
         script = OBICO_DIR.joinpath("install.sh")
         package_list = parse_packages_from_file(script)
-        check_install_dependencies(package_list)
+        check_install_dependencies({*package_list})
 
         # create virtualenv
         create_python_venv(OBICO_ENV_DIR)
