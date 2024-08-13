@@ -69,6 +69,16 @@ function title_msg() {
   echo -e "${cyan}${1}${white}"
 }
 
+function print_info() {
+  [[ -z ${1} ]] && return
+
+  echo -e "${white}"
+  echo -e "#=======================================================#"
+  echo -e " ${1} "
+  echo -e "#=======================================================#"
+  echo -e "${white}"
+}
+
 function print_error() {
   [[ -z ${1} ]] && return
 
@@ -654,8 +664,8 @@ function get_klipper_instance_name() {
 }
 
 ###
-# loops through all installed klipper services and saves
-# each instances name in a comma separated format to the kiauh.ini
+# loops through all installed services and saves
+# each instance's name in a comma separated format to the kiauh.ini
 #
 function set_multi_instance_names() {
   read_kiauh_ini "${FUNCNAME[0]}"
@@ -689,9 +699,9 @@ function set_multi_instance_names() {
 ###
 # Helper function that returns all configured instance names
 #
-# => return an empty string if 0 or 1 klipper instance is installed
+# => return an empty string if 0 instances are installed
 # => return space-separated string for names of the configured instances
-#           if 2 or more klipper instances are installed
+#           if 1 or more instance is installed
 #
 function get_multi_instance_names() {
   read_kiauh_ini "${FUNCNAME[0]}"
@@ -699,8 +709,7 @@ function get_multi_instance_names() {
 
   ###
   # convert the comma separates string from the .kiauh.ini into
-  # an array of instance names. a single instance installation
-  # results in an empty instance_names array
+  # an array of instance names
   IFS=',' read -r -a instance_names <<< "${multi_instance_names}"
 
   echo "${instance_names[@]}"

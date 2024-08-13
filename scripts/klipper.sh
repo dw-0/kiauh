@@ -42,6 +42,31 @@ function klipper_systemd() {
   echo "${services}"
 }
 
+function list_klipper() {
+  local klipper_systemd_services
+  local instance_names
+  local services
+  local instances
+
+  instance_names=$(get_multi_instance_names)
+  instances="Found the following Klipper instances:"
+
+  for instance_name in ${instance_names}; do
+    instances="${instances}\n ➔ ${instance_name}"
+  done
+
+  print_info "${instances}"
+
+  klipper_systemd_services=$(klipper_systemd)
+  services="Found the following Klipper services:"
+
+  for service in ${klipper_systemd_services}; do
+    services="${services}\n ➔ ${service}"
+  done
+
+  print_info "${services}"
+}
+
 function start_klipper_setup() {
   local klipper_systemd_services
   local python_version
@@ -248,8 +273,7 @@ function run_klipper_setup() {
   check_usergroups
 
   ### confirm message
-  ((${#instance_names[@]} == 1)) && confirm="Klipper has been set up!"
-  ((${#instance_names[@]} > 1)) && confirm="${#instance_names[@]} Klipper instances have been set up!"
+  confirm="${#instance_names[@]} Klipper instance$([[ ${#instance_names[@]} -gt 1 ]] && echo "s have" || echo " has") been set up!"
 
   ### finalizing the setup with writing instance names to the kiauh.ini
   set_multi_instance_names

@@ -97,6 +97,7 @@ function main_menu() {
   local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
+
     case "${action}" in
       "start klipper")
         do_action_service "start" "klipper"
@@ -154,30 +155,35 @@ function main_menu() {
         ;;
       1)
         clear && print_header
-        install_menu
+        list_menu
         break
         ;;
       2)
         clear && print_header
-        update_menu
+        install_menu
         break
         ;;
       3)
         clear && print_header
-        remove_menu
+        update_menu
         break
         ;;
       4)
         clear && print_header
-        advanced_menu
+        remove_menu
         break
         ;;
       5)
         clear && print_header
+        advanced_menu
+        break
+        ;;
+      6)
+        clear && print_header
         backup_menu
         main_ui
         ;;
-      6)
+      7)
         clear && print_header
         settings_menu
         break
