@@ -521,8 +521,8 @@ function set_custom_hostname() {
   echo
   top_border
   echo -e "|  Changing the hostname of this machine allows you to  |"
-  echo -e "|  access a webinterface that is configured for port 80 |"
-  echo -e "|  by simply typing '<hostname>.local' in the browser.  |"
+  echo -e "|   access a web interface configured for port 80 by    |"
+  echo -e "|   simply typing '<hostname>.local' in the browser.    |"
   echo -e "|                                                       |"
   echo -e "|  E.g.: If you set the hostname to 'my-printer' you    |"
   echo -e "|        can open Mainsail / Fluidd / Octoprint by      |"

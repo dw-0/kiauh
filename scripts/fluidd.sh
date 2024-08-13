@@ -59,7 +59,7 @@ function install_fluidd() {
   ### download fluidd
   download_fluidd
 
-  ### ask user to install the recommended webinterface macros
+  ### ask user to install the recommended web interface macros
   install_fluidd_macros
 
   ### create /etc/nginx/conf.d/upstreams.conf
@@ -426,7 +426,7 @@ function select_fluidd_port() {
     [[ ${MAINSAIL_PORT} == "80" ]] && echo "|  ● Mainsail                                           |"
     blank_line
     echo -e "| Make sure you don't choose a port which was already   |"
-    echo -e "| assigned to another webinterface!                     |"
+    echo -e "| assigned to another web interface!                    |"
     blank_line
     echo -e "| Be aware: there is ${red}NO${white} sanity check for the following  |"
     echo -e "| input. So make sure to choose a valid port!           |"

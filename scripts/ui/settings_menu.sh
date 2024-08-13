@@ -35,7 +35,7 @@ function settings_ui() {
     custom_branch="${cyan}${custom_branch}${white}"
   fi
 
-  ### webinterface stable toggle
+  ### web interface stable toggle
   if [[ ${ms_pre_rls} == "false" ]]; then
     ms_pre_rls="${red}● ${ms_pre_rls}${white}"
   else

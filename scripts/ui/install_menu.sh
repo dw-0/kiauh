@@ -23,14 +23,14 @@ function install_ui() {
   echo -e "|  1) [Klipper]            |  7) [PrettyGCode]          |"
   echo -e "|  2) [Moonraker]          |  8) [Telegram Bot]         |"
   echo -e "|                          |  9) $(obico_install_title) |"
-  echo -e "| Klipper Webinterface:    | 10) [OctoEverywhere]       |"
+  echo -e "| Klipper Web Interface:   | 10) [OctoEverywhere]       |"
   echo -e "|  3) [Mainsail]           | 11) [Mobileraker]          |"
   echo -e "|  4) [Fluidd]             | 12) [OctoApp for Klipper]  |"
   echo -e "|                          | 13) [Spoolman]             |"
   echo -e "| Touchscreen GUI:         |                            |"
   echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
   echo -e "|                          | 14) [Crowsnest]            |"
-  echo -e "| 3rd Party Webinterface:  |                            |"
+  echo -e "| 3rd-Party Web Interface: |                            |"
   echo -e "|  6) [OctoPrint]          |                            |"
   back_footer
 }
@@ -40,7 +40,7 @@ function install_menu() {
   print_header
   install_ui
 
-  ### save all installed webinterface ports to the ini file
+  ### save all installed web interface ports to the ini file
   fetch_webui_ports
 
   ### save all klipper multi-instance names to the ini file

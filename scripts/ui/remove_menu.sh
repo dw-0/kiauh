@@ -21,7 +21,7 @@ function remove_ui() {
   echo -e "|  1) [Klipper]             |  9) [Crowsnest]           |"
   echo -e "|  2) [Moonraker]           | 10) [MJPG-Streamer]       |"
   echo -e "|                           |                           |"
-  echo -e "| Klipper Webinterface:     | Other:                    |"
+  echo -e "| Klipper Web Interface:    | Other:                    |"
   echo -e "|  3) [Mainsail]            | 11) [PrettyGCode]         |"
   echo -e "|  4) [Mainsail-Config]     | 12) [Telegram Bot]        |"
   echo -e "|  5) [Fluidd]              | 13) [Obico for Klipper]   |"
@@ -30,7 +30,7 @@ function remove_ui() {
   echo -e "| Touchscreen GUI:          | 16) [NGINX]               |"
   echo -e "|  7) [KlipperScreen]       | 17) [OctoApp]             |"
   echo -e "|                           | 18) [Spoolman]            |"
-  echo -e "| 3rd Party Webinterface:   |                           |"
+  echo -e "| 3rd-Party Web Interface:  |                           |"
   echo -e "|  8) [OctoPrint]           |                           |"
   back_footer
 }

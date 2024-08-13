@@ -21,7 +21,7 @@ function update_ui() {
   echo -e "|  1) [Klipper]          |$(compare_klipper_versions)|"
   echo -e "|  2) [Moonraker]        |$(compare_moonraker_versions)|"
   echo -e "|                        |               |              |"
-  echo -e "| Klipper Webinterface:  |---------------|--------------|"
+  echo -e "| Klipper Web Interface: |---------------|--------------|"
   echo -e "|  3) [Mainsail]         |$(compare_mainsail_versions)|"
   echo -e "|  4) [Fluidd]           |$(compare_fluidd_versions)|"
   echo -e "|                        |               |              |"
