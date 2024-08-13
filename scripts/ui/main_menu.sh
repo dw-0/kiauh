@@ -34,7 +34,9 @@ function main_ui() {
   echo -e "|                  |                                    |"
   echo -e "|                  |       Octoprint: $(print_status "octoprint")|"
   hr
-  echo -e "|  $(print_kiauh_version)|    Changelog: ${magenta}https://git.io/JnmlX${white} |"
+  echo -e "| KIAUH Version    |                                    |"
+  echo -e "| Commit Hash:     |                                    |"
+  echo -e "| $(print_kiauh_version) |    Changelog: ${magenta}https://git.io/JnmlX${white} |"
   quit_footer
 }
 

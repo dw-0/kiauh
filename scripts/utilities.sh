@@ -11,10 +11,7 @@
 
 set -e
 
-#================================================#
-#=================== STARTUP ====================#
-#================================================#
-
+#region Startup
 function check_euid() {
   if [[ ${EUID} -eq 0 ]]; then
     echo -e "${red}"
@@ -28,7 +25,7 @@ function check_euid() {
   fi
 }
 
-function check_if_ratos() {
+function check_if_rat_os() {
   if [[ -n $(which ratos) ]]; then
     echo -e "${red}"
     top_border
@@ -42,11 +39,9 @@ function check_if_ratos() {
     exit 1
   fi
 }
+#endregion
 
-#================================================#
-#============= MESSAGE FORMATTING ===============#
-#================================================#
-
+#region Message Formatting
 function select_msg() {
   echo -e "${white}   [➔] ${1}"
 }
@@ -98,11 +93,9 @@ function print_confirm() {
   echo -e "#=======================================================#"
   echo -e "${white}"
 }
+#endregion
 
-#================================================#
-#=================== LOGGING ====================#
-#================================================#
-
+#region Logging
 function timestamp() {
   date +"[%F %T]"
 }
@@ -132,11 +125,9 @@ function log_error() {
   local message="${1}" log="${LOGFILE}"
   echo -e "$(timestamp) [ERR]: ${message}" | tr -s " " >> "${log}"
 }
+#endregion
 
-#================================================#
-#=============== KIAUH SETTINGS =================#
-#================================================#
-
+#region KIAUH Settings
 function read_kiauh_ini() {
   local func=${1}
 
@@ -265,11 +256,9 @@ function add_to_application_updates() {
     sed -i "/application_updates_available=/s/=.*/=${app_update_state}/" "${INI_FILE}"
   fi
 }
+#endregion
 
-#================================================#
-#=============== HANDLE SERVICES ================#
-#================================================#
-
+#region Handle Services
 function do_action_service() {
   local services action=${1} service=${2}
   services=$(find "${SYSTEMD}" -maxdepth 1 -regextype posix-extended -regex "${SYSTEMD}/${service}(-[0-9a-zA-Z]+)?.service" | sort)
@@ -289,11 +278,9 @@ function do_action_service() {
     done
   fi
 }
+#endregion
 
-#================================================#
-#================ DEPENDENCIES ==================#
-#================================================#
-
+#region Dependencies
 ### returns 'true' if python version >= 3.7
 function python3_check() {
   local major minor passed
@@ -360,11 +347,9 @@ function fetch_webui_ports() {
     fi
   done
 }
+#endregion
 
-#================================================#
-#=================== SYSTEM =====================#
-#================================================#
-
+#region System
 function create_required_folders() {
   local printer_data=${1} folders
   folders=("backup" "certs" "config" "database" "gcodes" "comms" "logs" "systemd")
@@ -617,11 +602,9 @@ function set_hostname() {
   ok_msg "New hostname successfully configured!"
   ok_msg "Remember to reboot for the changes to take effect!"
 }
+#endregion
 
-#================================================#
-#============ INSTANCE MANAGEMENT ===============#
-#================================================#
-
+#region Instance Management
 ###
 # takes in a systemd service files full path and
 # returns the sub-string with the instance name
@@ -790,3 +773,34 @@ function get_instance_folder_path() {
 
   echo "${folder_paths[@]}"
 }
+#endregion
+
+#region Misc
+function repeat_string() {
+  local string_to_repeat=${1}
+  local num_times_to_repeat=${2}
+
+  # Handle cases where num_times_to_repeat is 0 or negative
+  if ((num_times_to_repeat <= 0)); then
+    echo ""
+    return
+  fi
+
+  # Use printf for more efficient string repetition
+  printf "%0.s${string_to_repeat}" $(seq 1 ${num_times_to_repeat})
+}
+
+function longest_string_array_member_length() {
+  local longest_member_length
+
+  for member in ${1}; do
+    member_length=${#member}
+
+    if ((member_length > longest_member_length)); then
+      longest_member_length=${member_length}
+    fi
+  done
+
+  echo "${longest_member_length}"
+}
+#endregion

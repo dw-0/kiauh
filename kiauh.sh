@@ -84,7 +84,7 @@ function kiauh_update_dialog() {
   done
 }
 
-check_if_ratos
+check_if_rat_os
 check_euid
 init_logfile
 set_globals

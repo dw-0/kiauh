@@ -46,7 +46,7 @@ function list_menu() {
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
-        do_action "list_klipper" "list_ui"
+        do_action "list_klipper_instances" "list_ui"
         ;;
         #   2)
         #     do_action "list_moonraker" "list_ui"

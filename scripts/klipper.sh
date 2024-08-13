@@ -42,7 +42,43 @@ function klipper_systemd() {
   echo "${services}"
 }
 
-function list_klipper() {
+function print_dialog_user_select_klipper_instance() {
+  local instance_names
+  local longest_instance_name_length=0
+  local prompt
+  local instance_name_listing_template
+  local num_spaces_to_add
+
+  # Get instance names from your function
+  instance_names=$(get_multi_instance_names)
+
+  longest_instance_name_length=$(($(longest_string_array_member_length "${instance_names[@]}")+ ${#instance_name_listing_template}))
+
+  prompt="Please select the Klipper instance to use:"
+  instance_name_listing_template="X) "
+
+  if (( ${#prompt} < longest_instance_name_length )); then
+    num_spaces_to_add=$((longest_instance_name_length - ${#prompt} - 1))
+    prompt="${prompt}$(repeat_string " " "${num_spaces_to_add}")"
+  fi  
+
+
+  echo "/$(repeat_string "=" "${longest_instance_name_length}")\\"
+  echo -e "${prompt}"
+  hr "${longest_instance_name_length}"
+  echo "|$(repeat_string "-" "${longest_instance_name_length}")|"
+
+  for (( i = 0; i < ${#instance_names[@]}; i++)); do
+    local line="| $((i + 1))) ${instance_names[i]}"
+    local spaces_to_add=$((box_width - ${#line} - 1))
+    echo -e "${line}$(repeat_string " " "${spaces_to_add}")|"
+  done
+
+  # Print the bottom border
+  cmd "$(repeat_string "-" "$box_width")"
+}
+
+function list_klipper_instances() {
   local klipper_systemd_services
   local instance_names
   local services
@@ -258,11 +294,11 @@ function run_klipper_setup() {
 
   ### step 2: install klipper dependencies and create python virtualenv
   install_klipper_packages "${python_version}"
-  create_klipper_virtualenv "${python_version}"
 
   ### step 3: create klipper instances
-  for instance in "${instance_names[@]}"; do
-    create_klipper_service "${instance}"
+  for instance_name in "${instance_names[@]}"; do
+    create_klipper_virtualenv "${python_version}" "${instance_name}"
+    create_klipper_service "${instance_name}"
   done
 
   ### step 4: enable and start all instances
@@ -307,17 +343,20 @@ function clone_klipper() {
 
 function create_klipper_virtualenv() {
   local python_version="${1}"
+  local instance_name="${2}"
+  local virtual_python_environment_folder="${KLIPPY_ENV}/${instance_name:?}"
 
-  [[ -d ${KLIPPY_ENV} ]] && rm -rf "${KLIPPY_ENV}"
+  # remove virtual Python environment if it exists
+  [[ -d "${virtual_python_environment_folder}" ]] && rm -rf "${virtual_python_environment_folder}"
 
-  status_msg "Installing $("python${python_version}" -V) virtual environment..."
+  status_msg "Installing $("python${python_version}" -V) virtual environment for Klipper instance \"${virtual_python_environment_folder}\"..."
 
-  if virtualenv -p "python${python_version}" "${KLIPPY_ENV}"; then
-    ((python_version == 3)) && "${KLIPPY_ENV}"/bin/pip install -U pip
-    "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
+  if virtualenv -p "python${python_version}" "${virtual_python_environment_folder}"; then
+    ((python_version == 3)) && "${virtual_python_environment_folder}"/bin/pip install -U pip
+    "${virtual_python_environment_folder}"/bin/pip install -r "${virtual_python_environment_folder}"/scripts/klippy-requirements.txt
   else
-    log_error "failure while creating python3 klippy-env"
-    error_msg "Creation of Klipper virtualenv failed!"
+    log_error "failure while creating python3 klippy-env for Klipper instance ${instance_name}"
+    error_msg "Creation of Klipper virtualenv for Klipper instance ${instance_name} failed!"
     exit 1
   fi
 }
@@ -545,11 +584,12 @@ function remove_klipper() {
 function update_klipper() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
-  local py_ver
+  local klipper_instance_name="${1}"
+  local klipper_instance_python_version
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
 
-  py_ver=$(get_klipper_python_ver)
+  klipper_instance_python_version=$(get_klipper_python_ver "${klipper_instance_name}")
 
   do_action_service "stop" "klipper"
 
@@ -561,7 +601,7 @@ function update_klipper() {
     status_msg "Updating Klipper ..."
     cd "${KLIPPER_DIR}" && git pull
     ### read PKGLIST and install possible new dependencies
-    install_klipper_packages "${py_ver}"
+    install_klipper_packages "${klipper_instance_python_version}"
     ### install possible new python dependencies
     "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
@@ -575,28 +615,28 @@ function update_klipper() {
 #================================================#
 
 function get_klipper_status() {
-  local sf_count status py_ver
-  sf_count="$(klipper_systemd | wc -w)"
+  local klipper_instances_count
+  local status
+  local klipper_instance_python_version
+  local klipper_instance_name=${1}
 
-  py_ver=$(get_klipper_python_ver)
+  klipper_instances_count="$(klipper_systemd | wc -w)"
+  klipper_instance_python_version=$(get_klipper_python_ver "${klipper_instance_name}")
 
   ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
-  ((sf_count > 0)) && unset "data_arr[0]"
+  ((klipper_instances_count > 0)) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
-  local filecount=0
+  local file_count=0
+
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$((filecount + 1))
+    [[ -e ${data} ]] && file_count=$((file_count + 1))
   done
 
-  if ((filecount == ${#data_arr[*]})); then
-    if ((py_ver == 3)); then
-      status="Installed: ${sf_count}(py${py_ver})"
-    else
-      status="Installed: ${sf_count}"
-    fi
-  elif ((filecount == 0)); then
+  if ((file_count == ${#data_arr[*]})); then
+    status="Installed: ${klipper_instances_count}(py${klipper_instance_python_version})"
+  elif ((file_count == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"
@@ -651,16 +691,25 @@ function compare_klipper_versions() {
 #=================== HELPERS ====================#
 #================================================#
 
+function get_klippy_python_virtual_environment_folder() {
+  local klipper_instance_name="${1}"
+
+  echo "${KLIPPY_ENV}/${instance_name:?}"
+}
+
 ###
 # reads the python version from the klipper virtual environment
 #
 # @output: writes the python major version to STDOUT
 #
 function get_klipper_python_ver() {
-  [[ ! -d ${KLIPPY_ENV} ]] && return
+  local klipper_instance_name=${1}
+  local klippy_python_virtual_environment_folder=get_klippy_python_virtual_environment_folder "${klipper_instance_name}"
+
+  [[ ! -d ${klippy_python_virtual_environment_folder} ]] && return
 
   local version
-  version=$("${KLIPPY_ENV}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
+  version=$("${klippy_python_virtual_environment_folder}"/bin/python --version 2>&1 | cut -d" " -f2 | cut -d"." -f1)
   echo "${version}"
 }
 

@@ -338,14 +338,20 @@ function start_flash_sd() {
 }
 
 function build_fw() {
+  local instance_name="${1}"
   local python_version
 
-  if [[ ! -d ${KLIPPER_DIR} || ! -d ${KLIPPY_ENV} ]]; then
+  if [[ ! -d ${KLIPPER_DIR} ]]; then
     print_error "Klipper not found!\n Cannot build firmware without Klipper!"
     return
   fi
 
-  python_version=$(get_klipper_python_ver)
+  if [[ ! -d ${KLIPPY_ENV}/${instance_name} ]]; then
+    print_error "Klippy virtual Python environment not found!\n Cannot build firmware without Klippy!"
+    return
+  fi
+
+  python_version=$(get_klipper_python_ver "${instance_name}")
 
   cd "${KLIPPER_DIR}"
   status_msg "Initializing firmware build ..."
