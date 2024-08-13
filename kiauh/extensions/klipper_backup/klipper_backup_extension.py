@@ -23,7 +23,7 @@ from extensions.klipper_backup import (
 )
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
-from utils.sys_utils import service_instance_exists
+from utils.sys_utils import unit_file_exists
 
 
 # noinspection PyMethodMayBeStatic
@@ -114,7 +114,7 @@ class KlipperbackupExtension(BaseExtension):
                     Logger.print_status(
                         f"Check whether the {service_name} service is installed ..."
                     )
-                    if service_instance_exists(service_name):
+                    if unit_file_exists(service_name, "service"):
                         Logger.print_info(f"Service {service_name} detected.")
                         if uninstall_service(service_name):
                             Logger.print_ok(

@@ -401,15 +401,18 @@ def cmd_sysctl_manage(action: SysCtlManageAction) -> None:
         raise
 
 
-def service_instance_exists(name: str, exclude: List[str] | None = None) -> bool:
+def unit_file_exists(
+    name: str, suffix: Literal["service", "timer"], exclude: List[str] | None = None
+) -> bool:
     """
-    Checks if a systemd service instance exists.
-    :param name: the service name
-    :param exclude: List of strings of service names to exclude
-    :return: True if the service exists, False otherwise
+    Checks if a systemd unit file of the provided suffix exists.
+    :param name: the name of the unit file
+    :param suffix: suffix of the unit file, either "service" or "timer"
+    :param exclude: List of strings of names to exclude
+    :return: True if the unit file exists, False otherwise
     """
     exclude = exclude or []
-    pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
+    pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.{suffix}$")
     service_list = [
         Path(SYSTEMD, service)
         for service in SYSTEMD.iterdir()
