@@ -64,7 +64,7 @@ function install_mjpg-streamer() {
   cd "${HOME}/mjpg-streamer" && mv mjpg-streamer-experimental/* .
   mkdir www-mjpgstreamer
 
-  cat <<EOT >> ./www-mjpgstreamer/index.html
+  cat << EOT >> ./www-mjpgstreamer/index.html
 <html>
 <head><title>mjpg_streamer test page</title></head>
 <body>
@@ -112,7 +112,7 @@ EOT
   fi
 
   ### step 6.2: add webcamd.log logrotate
-  if [[ ! -f "/etc/logrotate.d/webcamd"  ]]; then
+  if [[ ! -f "/etc/logrotate.d/webcamd" ]]; then
     status_msg "Create logrotate rule ..."
     sudo /bin/sh -c "cat > /etc/logrotate.d/webcamd" << EOF
 /var/log/webcamd.log
@@ -127,7 +127,7 @@ EOT
     sharedscripts
 }
 EOF
-     ok_msg "Done!"
+    ok_msg "Done!"
   fi
 
   ### step 7: check if user is in group "video"

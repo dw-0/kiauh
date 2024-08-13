@@ -13,7 +13,6 @@
 # This file is written and maintained by Patrick Schmidt author of Mobileraker
 # It is based of the kliperscreen.sh install script!
 
-
 set -e
 
 #===================================================#
@@ -100,7 +99,6 @@ function remove_mobileraker() {
     ok_msg "Mobileraker's companion Service removed!"
   fi
 
-
   remove_mobileraker_logs
 
   print_confirm "Mobileraker's companion successfully removed!"
@@ -152,17 +150,17 @@ function get_mobileraker_status() {
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${MOBILERAKER_DIR}" "${MOBILERAKER_ENV}")
-  (( sf_count > 0 )) && unset "data_arr[0]"
+  ((sf_count > 0)) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
+    [[ -e ${data} ]] && filecount=$((filecount + 1))
   done
 
-  if (( filecount == ${#data_arr[*]} )); then
+  if ((filecount == ${#data_arr[*]})); then
     status="Installed!"
-  elif (( filecount == 0 )); then
+  elif ((filecount == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"

@@ -291,7 +291,7 @@ function python3_check() {
   major=$(python3 --version | cut -d" " -f2 | cut -d"." -f1)
   minor=$(python3 --version | cut -d"." -f2)
 
-  if (( major >= 3 && minor >= 7 )); then
+  if ((major >= 3 && minor >= 7)); then
     passed="true"
   else
     passed="false"
@@ -301,19 +301,19 @@ function python3_check() {
 }
 
 function dependency_check() {
-  local dep=( "${@}" )
+  local dep=("${@}")
   local packages log_name="dependencies"
   status_msg "Checking for the following dependencies:"
 
   #check if package is installed, if not write its name into array
   for pkg in "${dep[@]}"; do
     echo -e "${cyan}● ${pkg} ${white}"
-    [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2>/dev/null) = *\ installed ]] && \
-    packages+=("${pkg}")
+    [[ ! $(dpkg-query -f'${Status}' --show "${pkg}" 2> /dev/null) = *\ installed ]] \
+      && packages+=("${pkg}")
   done
 
   #if array is not empty, install packages from array
-  if (( ${#packages[@]} > 0 )); then
+  if ((${#packages[@]} > 0)); then
     status_msg "Installing the following dependencies:"
     for package in "${packages[@]}"; do
       echo -e "${cyan}● ${package} ${white}"
@@ -346,7 +346,7 @@ function fetch_webui_ports() {
         sed -i '$a'"${interface}_port=${port}" "${INI_FILE}"
       fi
     else
-        sed -i "/^${interface}_port/d" "${INI_FILE}"
+      sed -i "/^${interface}_port/d" "${INI_FILE}"
     fi
   done
 }
@@ -377,9 +377,9 @@ function create_required_folders() {
 
 function update_system_package_lists() {
   local cache_mtime update_age update_interval silent
-  
+
   if [[ $1 == '--silent' ]]; then silent="true"; fi
-  
+
   if [[ -e /var/lib/apt/periodic/update-success-stamp ]]; then
     cache_mtime="$(stat -c %Y /var/lib/apt/periodic/update-success-stamp)"
   elif [[ -e /var/lib/apt/lists ]]; then
@@ -390,12 +390,12 @@ function update_system_package_lists() {
   fi
 
   update_age="$(($(date +'%s') - cache_mtime))"
-  update_interval=$((48*60*60)) # 48hrs
+  update_interval=$((48 * 60 * 60)) # 48hrs
 
   # update if cache is greater than update_interval
-  if (( update_age > update_interval )); then
+  if ((update_age > update_interval)); then
     if [[ ! ${silent} == "true" ]]; then status_msg "Updating package lists..."; fi
-    if ! sudo apt-get update --allow-releaseinfo-change &>/dev/null; then
+    if ! sudo apt-get update --allow-releaseinfo-change &> /dev/null; then
       log_error "Failure while updating package lists!"
       if [[ ! ${silent} == "true" ]]; then error_msg "Updating package lists failed!"; fi
       return 1
@@ -411,10 +411,10 @@ function update_system_package_lists() {
 function check_system_updates() {
   local updates_avail status
   if ! update_system_package_lists --silent; then
-    status="${red}Update check failed!     ${white}" 
+    status="${red}Update check failed!     ${white}"
   else
-    updates_avail="$(apt list --upgradeable 2>/dev/null | sed "1d")"
-    
+    updates_avail="$(apt list --upgradeable 2> /dev/null | sed "1d")"
+
     if [[ -n ${updates_avail} ]]; then
       status="${yellow}System upgrade available!${white}"
       # add system to application_updates_available in kiauh.ini
@@ -423,7 +423,7 @@ function check_system_updates() {
       status="${green}System up to date!       ${white}"
     fi
   fi
-  
+
   echo "${status}"
 }
 
@@ -453,21 +453,21 @@ function install_system_packages() {
 function check_usergroups() {
   local group_dialout group_tty
 
-  if grep -q "dialout" </etc/group && ! grep -q "dialout" <(groups "${USER}"); then
+  if grep -q "dialout" < /etc/group && ! grep -q "dialout" <(groups "${USER}"); then
     group_dialout="false"
   fi
 
-  if grep -q "tty" </etc/group && ! grep -q "tty" <(groups "${USER}"); then
+  if grep -q "tty" < /etc/group && ! grep -q "tty" <(groups "${USER}"); then
     group_tty="false"
   fi
 
-  if [[ ${group_dialout} == "false" || ${group_tty} == "false" ]] ; then
+  if [[ ${group_dialout} == "false" || ${group_tty} == "false" ]]; then
     top_border
     echo -e "| ${yellow}WARNING: Your current user is not in group:${white}           |"
-    [[ ${group_tty} == "false" ]] && \
-    echo -e "| ${yellow}● tty${white}                                                 |"
-    [[ ${group_dialout} == "false" ]] && \
-    echo -e "| ${yellow}● dialout${white}                                             |"
+    [[ ${group_tty} == "false" ]] \
+      && echo -e "| ${yellow}● tty${white}                                                 |"
+    [[ ${group_dialout} == "false" ]] \
+      && echo -e "| ${yellow}● dialout${white}                                             |"
     blank_line
     echo -e "| It is possible that you won't be able to successfully |"
     echo -e "| connect and/or flash the controller board without     |"
@@ -483,7 +483,7 @@ function check_usergroups() {
     while true; do
       read -p "${cyan}###### Add user '${USER}' to group(s) now? (Y/n):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes|"")
+        Y | y | Yes | yes | "")
           select_msg "Yes"
           status_msg "Adding user '${USER}' to group(s) ..."
           if [[ ${group_tty} == "false" ]]; then
@@ -493,12 +493,15 @@ function check_usergroups() {
             sudo usermod -a -G dialout "${USER}" && ok_msg "Group 'dialout' assigned!"
           fi
           ok_msg "Remember to relog/restart this machine for the group(s) to be applied!"
-          break;;
-        N|n|No|no)
+          break
+          ;;
+        N | n | No | no)
           select_msg "No"
-          break;;
+          break
+          ;;
         *)
-          print_error "Invalid command!";;
+          print_error "Invalid command!"
+          ;;
       esac
     done
   fi
@@ -520,54 +523,60 @@ function set_custom_hostname() {
   while true; do
     read -p "${cyan}###### Do you want to change the hostname? (y/N):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes)
+      Y | y | Yes | yes)
         select_msg "Yes"
         change_hostname
-        break;;
-      N|n|No|no|"")
+        break
+        ;;
+      N | n | No | no | "")
         select_msg "No"
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
 
 function change_hostname() {
-    local new_hostname regex="^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$"
-    echo
-    top_border
-    echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${white}          |"
-    echo -e "|  ${red}No special characters allowed!${white}                       |"
-    echo -e "|  ${red}No leading or trailing '-' allowed!${white}                  |"
-    bottom_border
+  local new_hostname regex="^[^\-\_]+([0-9a-z]\-{0,1})+[^\-\_]+$"
+  echo
+  top_border
+  echo -e "|  ${green}Allowed characters: a-z, 0-9 and single '-'${white}          |"
+  echo -e "|  ${red}No special characters allowed!${white}                       |"
+  echo -e "|  ${red}No leading or trailing '-' allowed!${white}                  |"
+  bottom_border
 
-    while true; do
-      read -p "${cyan}###### Please set the new hostname:${white} " new_hostname
+  while true; do
+    read -p "${cyan}###### Please set the new hostname:${white} " new_hostname
 
-      if [[ ${new_hostname} =~ ${regex} ]]; then
-        local yn
-        while true; do
-          echo
-          read -p "${cyan}###### Do you want '${new_hostname}' to be the new hostname? (Y/n):${white} " yn
-          case "${yn}" in
-            Y|y|Yes|yes|"")
-              select_msg "Yes"
-              set_hostname "${new_hostname}"
-              break;;
-            N|n|No|no)
-              select_msg "No"
-              abort_msg "Skip hostname change ..."
-              break;;
-            *)
-              print_error "Invalid command!";;
-          esac
-        done
-      else
-        warn_msg "'${new_hostname}' is not a valid hostname!"
-      fi
-      break
-    done
+    if [[ ${new_hostname} =~ ${regex} ]]; then
+      local yn
+      while true; do
+        echo
+        read -p "${cyan}###### Do you want '${new_hostname}' to be the new hostname? (Y/n):${white} " yn
+        case "${yn}" in
+          Y | y | Yes | yes | "")
+            select_msg "Yes"
+            set_hostname "${new_hostname}"
+            break
+            ;;
+          N | n | No | no)
+            select_msg "No"
+            abort_msg "Skip hostname change ..."
+            break
+            ;;
+          *)
+            print_error "Invalid command!"
+            ;;
+        esac
+      done
+    else
+      warn_msg "'${new_hostname}' is not a valid hostname!"
+    fi
+    break
+  done
 }
 
 function set_hostname() {
@@ -594,7 +603,7 @@ function set_hostname() {
 
   #write new hostname to /etc/hosts
   status_msg "Writing new hostname to /etc/hosts ..."
-  echo "127.0.0.1       ${new_hostname}" | sudo tee -a /etc/hosts &>/dev/null
+  echo "127.0.0.1       ${new_hostname}" | sudo tee -a /etc/hosts &> /dev/null
   ok_msg "New hostname successfully configured!"
   ok_msg "Remember to reboot for the changes to take effect!"
 }
@@ -667,7 +676,7 @@ function set_multi_instance_names() {
   for svc in ${services}; do
     name=$(get_klipper_instance_name "${svc}")
 
-    if ! grep -Eq "${name}" <<<"${names}"; then
+    if ! grep -Eq "${name}" <<< "${names}"; then
       names="${names}${name},"
     fi
 

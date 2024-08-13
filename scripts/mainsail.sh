@@ -23,15 +23,18 @@ function install_mainsail() {
       local yn
       read -p "${cyan}###### Proceed to install Mainsail without installing Moonraker? (y/N):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes)
+        Y | y | Yes | yes)
           select_msg "Yes"
-          break;;
-        N|n|No|no|"")
+          break
+          ;;
+        N | n | No | no | "")
           select_msg "No"
           abort_msg "Exiting Mainsail setup ...\n"
-          return;;
+          return
+          ;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!"
+          ;;
       esac
     done
   fi
@@ -95,15 +98,18 @@ function install_mainsail_macros() {
     bottom_border
     read -p "${cyan}###### Download the recommended macros? (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
         download_mainsail_macros
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
-        break;;
+        break
+        ;;
       *)
-        print_error "Invalid command!";;
+        print_error "Invalid command!"
+        ;;
     esac
   done
   return
@@ -128,7 +134,7 @@ function download_mainsail_macros() {
     for config in ${configs}; do
       path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
 
-      if [[ -e "${path}/mainsail.cfg" && ! -h "${path}/mainsail.cfg" ]]; then
+      if [[ -e "${path}/mainsail.cfg" && ! -L "${path}/mainsail.cfg" ]]; then
         warn_msg "Attention! Existing mainsail.cfg detected!"
         warn_msg "The file will be renamed to 'mainsail.bak.cfg' to be able to continue with the installation."
         if ! mv "${path}/mainsail.cfg" "${path}/mainsail.bak.cfg"; then
@@ -137,7 +143,7 @@ function download_mainsail_macros() {
         fi
       fi
 
-      if [[ -h "${path}/mainsail.cfg" ]]; then
+      if [[ -L "${path}/mainsail.cfg" ]]; then
         warn_msg "Recreating symlink in ${path} ..."
         rm -rf "${path}/mainsail.cfg"
       fi
@@ -196,7 +202,7 @@ function download_mainsail() {
 
   ### check for moonraker multi-instance and if no-instance or multi-instance was found, enable mainsails remoteMode
   services=$(moonraker_systemd)
-  if [[ ( -z "${services}" ) || ( $(echo "${services}" | wc -w) -gt 1 ) ]]; then
+  if [[ (-z "${services}") || ($(echo "${services}" | wc -w) -gt 1) ]]; then
     enable_mainsail_remotemode
   fi
 }
@@ -265,7 +271,7 @@ function remove_legacy_mainsail_log_symlinks() {
 }
 
 function remove_mainsail_config() {
-  if [[ -d "${HOME}/mainsail-config"  ]]; then
+  if [[ -d "${HOME}/mainsail-config" ]]; then
     status_msg "Removing ${HOME}/mainsail-config ..."
     rm -rf "${HOME}/mainsail-config"
     ok_msg "${HOME}/mainsail-config removed!"
@@ -310,12 +316,12 @@ function get_mainsail_status() {
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
+    [[ -e ${data} ]] && filecount=$((filecount + 1))
   done
 
-  if (( filecount == ${#data_arr[*]} )); then
+  if ((filecount == ${#data_arr[*]})); then
     status="Installed!"
-  elif (( filecount == 0 )); then
+  elif ((filecount == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"
@@ -338,7 +344,7 @@ function get_local_mainsail_version() {
 }
 
 function get_remote_mainsail_version() {
-  [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
+  [[ ! $(dpkg-query -f'${Status}' --show curl 2> /dev/null) = *\ installed ]] && return
 
   local tags
   tags=$(curl -s "https://api.github.com/repos/mainsail-crew/mainsail/tags" | grep "name" | cut -d'"' -f4)
@@ -374,7 +380,7 @@ function print_theme_list() {
     if [[ ${col1} != "name" ]]; then
       printf "| ${i}) %-51s|\n" "[${col1}]"
     fi
-    i=$(( i + 1 ))
+    i=$((i + 1))
   done <<< "${theme_list}"
 }
 
@@ -408,7 +414,7 @@ function ms_theme_installer_menu() {
   local option
   while true; do
     read -p "${cyan}Install theme:${white} " option
-    if (( option > 0 &&  option < ${#theme_name[@]} )); then
+    if ((option > 0 && option < ${#theme_name[@]})); then
       theme_url="https://github.com/${theme_author[${option}]}/${theme_repo[${option}]}"
       ms_theme_install "${theme_url}" "${theme_name[${option}]}" "${theme_note[${option}]}"
       break
@@ -442,7 +448,7 @@ function ms_theme_install() {
   IFS=',' read -r -a folder_arr <<< "${folder_names}"
 
   ### build theme target folder array
-  if (( ${#folder_arr[@]} > 1 )); then
+  if ((${#folder_arr[@]} > 1)); then
     for folder in "${folder_arr[@]}"; do
       ### instance names/identifier of only numbers need to be prefixed with 'printer_'
       if [[ ${folder} =~ ^[0-9]+$ ]]; then
@@ -455,11 +461,11 @@ function ms_theme_install() {
     target_folders+=("${HOME}/printer_data/config")
   fi
 
-  if (( ${#target_folders[@]} > 1 )); then
+  if ((${#target_folders[@]} > 1)); then
     top_border
     echo -e "| Please select the printer you want to apply the theme |"
     echo -e "| installation to:                                      |"
-    for (( i=0; i < ${#target_folders[@]}; i++ )); do
+    for ((i = 0; i < ${#target_folders[@]}; i++)); do
       folder=$(echo "${target_folders[${i}]}" | rev | cut -d "/" -f2 | cut -d"_" -f2- | rev)
       printf "|${cyan}%-55s${white}|\n" " ${i}) ${folder}"
     done
@@ -493,21 +499,21 @@ function ms_theme_delete() {
 
   regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/config\/\.theme"
   theme_folders=$(find "${HOME}" -maxdepth 3 -type d -regextype posix-extended -regex "${regex}" | sort)
-#  theme_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -type d -name ".theme" | sort)
+  #  theme_folders=$(find "${KLIPPER_CONFIG}" -mindepth 1 -type d -name ".theme" | sort)
 
   ### build target folder array
   for folder in ${theme_folders}; do
     target_folders+=("${folder}")
   done
 
-  if (( ${#target_folders[@]} == 0 )); then
+  if ((${#target_folders[@]} == 0)); then
     status_msg "No Themes installed!\n"
     return
-  elif (( ${#target_folders[@]} > 1 )); then
+  elif ((${#target_folders[@]} > 1)); then
     top_border
     echo -e "| Please select the printer you want to remove the      |"
     echo -e "| theme installation from.                              |"
-    for (( i=0; i < ${#target_folders[@]}; i++ )); do
+    for ((i = 0; i < ${#target_folders[@]}; i++)); do
       folder=$(echo "${target_folders[${i}]}" | rev | cut -d "/" -f2 | rev)
       printf "|${cyan}%-55s${white}|\n" " ${i}) ${folder}"
     done
@@ -563,8 +569,8 @@ function mainsail_port_check() {
     if [[ ${SITE_ENABLED} == "true" ]]; then
       status_msg "Detected other enabled interfaces:"
 
-      [[ ${FLUIDD_ENABLED} == "true" ]] && \
-      echo -e "   ${cyan}● Fluidd - Port: ${FLUIDD_PORT}${white}"
+      [[ ${FLUIDD_ENABLED} == "true" ]] \
+        && echo -e "   ${cyan}● Fluidd - Port: ${FLUIDD_PORT}${white}"
 
       if [[ ${FLUIDD_PORT} == "80" ]]; then
         PORT_80_BLOCKED="true"
@@ -606,7 +612,7 @@ function select_mainsail_port() {
         SET_LISTEN_PORT=${new_port}
         break
       else
-        if [[ ! ${new_port} =~ ${re}  ]]; then
+        if [[ ! ${new_port} =~ ${re} ]]; then
           error_msg "Invalid input!"
         else
           error_msg "Port already taken! Select a different one!"

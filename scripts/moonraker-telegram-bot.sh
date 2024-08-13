@@ -36,16 +36,16 @@ function telegram_bot_setup_dialog() {
   backup_config_dir
 
   local moonraker_count user_input=() moonraker_names=()
-  moonraker_count=$(echo "${moonraker_services}" | wc -w )
+  moonraker_count=$(echo "${moonraker_services}" | wc -w)
   for service in ${moonraker_services}; do
-    moonraker_names+=( "$(get_instance_name "${service}")" )
+    moonraker_names+=("$(get_instance_name "${service}")")
   done
 
   local telegram_bot_count
-  if (( moonraker_count == 1 )); then
+  if ((moonraker_count == 1)); then
     ok_msg "Moonraker installation found!\n"
     telegram_bot_count=1
-  elif (( moonraker_count > 1 )); then
+  elif ((moonraker_count > 1)); then
     top_border
     printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
     for name in "${moonraker_names[@]}"; do
@@ -69,7 +69,7 @@ function telegram_bot_setup_dialog() {
       [[ ${telegram_bot_count} =~ ${re} && ${telegram_bot_count} -le ${moonraker_count} ]] && break
       ### conditional error messages
       [[ ! ${telegram_bot_count} =~ ${re} ]] && error_msg "Input not a number"
-      (( telegram_bot_count > moonraker_count )) && error_msg "Number of Telegram Bot instances larger than existing Moonraker instances"
+      ((telegram_bot_count > moonraker_count)) && error_msg "Number of Telegram Bot instances larger than existing Moonraker instances"
     done && select_msg "${telegram_bot_count}"
   else
     log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
@@ -81,31 +81,34 @@ function telegram_bot_setup_dialog() {
   ### confirm instance amount
   local yn
   while true; do
-    (( telegram_bot_count == 1 )) && local question="Install Telegram Bot?"
-    (( telegram_bot_count > 1 )) && local question="Install ${telegram_bot_count} Telegram Bot instances?"
+    ((telegram_bot_count == 1)) && local question="Install Telegram Bot?"
+    ((telegram_bot_count > 1)) && local question="Install ${telegram_bot_count} Telegram Bot instances?"
     read -p "${cyan}###### ${question} (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
         abort_msg "Exiting Telegram Bot setup ...\n"
-        return;;
+        return
+        ;;
       *)
-        error_msg "Invalid Input!";;
+        error_msg "Invalid Input!"
+        ;;
     esac
   done
 
   ### write existing klipper names into user_input array to use them as names for moonraker
-  if (( moonraker_count > 1 )); then
+  if ((moonraker_count > 1)); then
     for name in "${moonraker_names[@]}"; do
       user_input+=("${name}")
     done
   fi
 
-  (( telegram_bot_count > 1 )) && status_msg "Installing ${telegram_bot_count} Telegram Bot instances ..."
-  (( telegram_bot_count == 1 )) && status_msg "Installing Telegram Bot ..."
+  ((telegram_bot_count > 1)) && status_msg "Installing ${telegram_bot_count} Telegram Bot instances ..."
+  ((telegram_bot_count == 1)) && status_msg "Installing Telegram Bot ..."
   telegram_bot_setup "${user_input[@]}"
 }
 
@@ -170,8 +173,8 @@ function telegram_bot_setup() {
 
   ### confirm message
   local confirm=""
-  (( instance_arr[0] == 1 )) && confirm="Telegram Bot has been set up!"
-  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Telegram Bot instances have been set up!"
+  ((instance_arr[0] == 1)) && confirm="Telegram Bot has been set up!"
+  ((instance_arr[0] > 1)) && confirm="${instance_arr[0]} Telegram Bot instances have been set up!"
   print_confirm "${confirm}" && return
 }
 
@@ -195,7 +198,7 @@ function create_telegram_conf() {
   local names=("${input[@]}") && unset "input[@]"
   local printer_data log_dir cfg cfg_dir
 
-  if (( telegram_bot_count == 1 )); then
+  if ((telegram_bot_count == 1)); then
     printer_data="${HOME}/printer_data"
     log_dir="${printer_data}/logs"
     cfg_dir="${printer_data}/config"
@@ -207,15 +210,14 @@ function create_telegram_conf() {
     ### write single instance config
     write_telegram_conf "${cfg_dir}" "${cfg}"
 
-  elif (( telegram_bot_count > 1 )); then
+  elif ((telegram_bot_count > 1)); then
     local j=0 re="^[1-9][0-9]*$"
 
-    for (( i=1; i <= telegram_bot_count; i++ )); do
+    for ((i = 1; i <= telegram_bot_count; i++)); do
 
       printer_data="${HOME}/${names[${j}]}_data"
       ### prefix instance name with "printer_" if it is only a number
       [[ ${names[j]} =~ ${re} ]] && printer_data="${HOME}/printer_${names[${j}]}_data"
-
 
       cfg_dir="${printer_data}/config"
       cfg="${cfg_dir}/telegram.conf"
@@ -227,7 +229,7 @@ function create_telegram_conf() {
       ### write multi instance config
       write_telegram_conf "${cfg_dir}" "${cfg}"
 
-      j=$(( j + 1 ))
+      j=$((j + 1))
     done && unset j
 
   else
@@ -254,7 +256,7 @@ function create_telegram_bot_service() {
   local names=("${input[@]}") && unset "input[@]"
   local printer_data cfg_dir cfg log service env_file
 
-  if (( instances == 1 )); then
+  if ((instances == 1)); then
     printer_data="${HOME}/printer_data"
     cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/telegram.conf"
@@ -269,10 +271,10 @@ function create_telegram_bot_service() {
     write_telegram_bot_service "" "${cfg}" "${log}" "${service}" "${env_file}"
     ok_msg "Telegram Bot instance created!"
 
-  elif (( instances > 1 )); then
+  elif ((instances > 1)); then
     local j=0 re="^[1-9][0-9]*$"
 
-    for (( i=1; i <= instances; i++ )); do
+    for ((i = 1; i <= instances; i++)); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         printer_data="${HOME}/printer_${names[${j}]}_data"
@@ -296,7 +298,7 @@ function create_telegram_bot_service() {
         error_msg "An error occured during creation of instance moonraker-telegram-bot-${names[${j}]}!"
       fi
 
-      j=$(( j + 1 ))
+      j=$((j + 1))
     done && unset j
 
   else
@@ -325,7 +327,6 @@ function write_telegram_bot_service() {
     sed -i "s|%USER%|${USER}|; s|%TELEGRAM_BOT_DIR%|${TELEGRAM_BOT_DIR}|; s|%CFG%|${cfg}|; s|%LOG%|${log}|" "${env_file}"
   fi
 }
-
 
 #===================================================#
 #=========== REMOVE MOONRAKERTELEGRAMBOT ===========#
@@ -449,17 +450,17 @@ function get_telegram_bot_status() {
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${TELEGRAM_BOT_DIR}" "${TELEGRAM_BOT_ENV}")
-  (( sf_count > 0 )) && unset "data_arr[0]"
+  ((sf_count > 0)) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
+    [[ -e ${data} ]] && filecount=$((filecount + 1))
   done
 
-  if (( filecount == ${#data_arr[*]} )); then
+  if ((filecount == ${#data_arr[*]})); then
     status="Installed: ${sf_count}"
-  elif (( filecount == 0 )); then
+  elif ((filecount == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"

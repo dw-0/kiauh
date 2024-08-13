@@ -23,15 +23,18 @@ function install_fluidd() {
       local yn
       read -p "${cyan}###### Proceed to install Fluidd without installing Moonraker? (y/N):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes)
+        Y | y | Yes | yes)
           select_msg "Yes"
-          break;;
-        N|n|No|no|"")
+          break
+          ;;
+        N | n | No | no | "")
           select_msg "No"
           abort_msg "Exiting Fluidd setup ...\n"
-          return;;
+          return
+          ;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!"
+          ;;
       esac
     done
   fi
@@ -95,15 +98,18 @@ function install_fluidd_macros() {
     bottom_border
     read -p "${cyan}###### Download the recommended macros? (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
         download_fluidd_macros
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
-        break;;
+        break
+        ;;
       *)
-        print_error "Invalid command!";;
+        print_error "Invalid command!"
+        ;;
     esac
   done
   return
@@ -128,7 +134,7 @@ function download_fluidd_macros() {
     for config in ${configs}; do
       path=$(echo "${config}" | rev | cut -d"/" -f2- | rev)
 
-      if [[ -e "${path}/fluidd.cfg" && ! -h "${path}/fluidd.cfg" ]]; then
+      if [[ -e "${path}/fluidd.cfg" && ! -L "${path}/fluidd.cfg" ]]; then
         warn_msg "Attention! Existing fluidd.cfg detected!"
         warn_msg "The file will be renamed to 'fluidd.bak.cfg' to be able to continue with the installation."
         if ! mv "${path}/fluidd.cfg" "${path}/fluidd.bak.cfg"; then
@@ -137,7 +143,7 @@ function download_fluidd_macros() {
         fi
       fi
 
-      if [[ -h "${path}/fluidd.cfg" ]]; then
+      if [[ -L "${path}/fluidd.cfg" ]]; then
         warn_msg "Recreating symlink in ${path} ..."
         rm -rf "${path}/fluidd.cfg"
       fi
@@ -258,7 +264,7 @@ function remove_legacy_fluidd_log_symlinks() {
 }
 
 function remove_fluidd_config() {
-  if [[ -d "${HOME}/fluidd-config"  ]]; then
+  if [[ -d "${HOME}/fluidd-config" ]]; then
     status_msg "Removing ${HOME}/fluidd-config ..."
     rm -rf "${HOME}/fluidd-config"
     ok_msg "${HOME}/fluidd-config removed!"
@@ -303,12 +309,12 @@ function get_fluidd_status() {
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
+    [[ -e ${data} ]] && filecount=$((filecount + 1))
   done
 
-  if (( filecount == ${#data_arr[*]} )); then
+  if ((filecount == ${#data_arr[*]})); then
     status="Installed!"
-  elif (( filecount == 0 )); then
+  elif ((filecount == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"
@@ -331,7 +337,7 @@ function get_local_fluidd_version() {
 }
 
 function get_remote_fluidd_version() {
-  [[ ! $(dpkg-query -f'${Status}' --show curl 2>/dev/null) = *\ installed ]] && return
+  [[ ! $(dpkg-query -f'${Status}' --show curl 2> /dev/null) = *\ installed ]] && return
 
   local tags
   tags=$(curl -s "https://api.github.com/repos/fluidd-core/fluidd/tags" | grep "name" | cut -d'"' -f4)
@@ -391,8 +397,8 @@ function fluidd_port_check() {
     if [[ ${SITE_ENABLED} == "true" ]]; then
       status_msg "Detected other enabled interfaces:"
 
-      [[ ${MAINSAIL_ENABLED} == "true" ]] && \
-      echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${white}"
+      [[ ${MAINSAIL_ENABLED} == "true" ]] \
+        && echo "   ${cyan}● Mainsail - Port: ${MAINSAIL_PORT}${white}"
 
       if [[ ${MAINSAIL_PORT} == "80" ]]; then
         PORT_80_BLOCKED="true"
@@ -434,7 +440,7 @@ function select_fluidd_port() {
         SET_LISTEN_PORT=${new_port}
         break
       else
-        if [[ ! ${new_port} =~ ${re}  ]]; then
+        if [[ ! ${new_port} =~ ${re} ]]; then
           error_msg "Invalid input!"
         else
           error_msg "Port already taken! Select a different one!"

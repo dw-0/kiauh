@@ -29,7 +29,7 @@ function setup_gcode_shell_command() {
   while true; do
     read -p "${cyan}###### Do you want to continue? (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
 
         if [[ ! -d "${KLIPPER_DIR}/klippy/extras" ]]; then
@@ -42,30 +42,37 @@ function setup_gcode_shell_command() {
         if [[ ! -f "${KLIPPER_DIR}/klippy/extras/gcode_shell_command.py" ]]; then
           install_gcode_shell_command
         else
-          echo; warn_msg "File 'gcode_shell_command.py' already exists in the destination location!"
+          echo
+          warn_msg "File 'gcode_shell_command.py' already exists in the destination location!"
 
           while true; do
             read -p "${cyan}###### Do you want to overwrite it? (Y/n):${white} " yn
             case "${yn}" in
-              Y|y|Yes|yes|"")
+              Y | y | Yes | yes | "")
                 select_msg "Yes"
                 rm -f "${KLIPPER_DIR}/klippy/extras/gcode_shell_command.py"
                 install_gcode_shell_command
-                break;;
-              N|n|No|no)
+                break
+                ;;
+              N | n | No | no)
                 select_msg "No"
-                break;;
+                break
+                ;;
               *)
-                error_msg "Invalid Input!";;
+                error_msg "Invalid Input!"
+                ;;
             esac
           done
         fi
-        return;;
-      N|n|No|no)
+        return
+        ;;
+      N | n | No | no)
         select_msg "No"
-        return;;
+        return
+        ;;
       *)
-        error_msg "Invalid Input!";;
+        error_msg "Invalid Input!"
+        ;;
     esac
   done
 }
@@ -86,13 +93,15 @@ function install_gcode_shell_command() {
     echo
     read -p "${cyan}###### Create an example shell command? (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
         create_example_shell_command
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
-        break;;
+        break
+        ;;
     esac
   done
 

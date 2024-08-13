@@ -50,7 +50,7 @@ function backup_config_dir() {
         target_dir="${BACKUP_DIR}/configs/${current_date}/${folder_name}"
         mkdir -p "${target_dir}"
         cp -r "${folder}" "${target_dir}"
-        i=$(( i + 1 ))
+        i=$((i + 1))
 
         ok_msg "Backup created in:\n${target_dir}"
       fi
@@ -78,7 +78,7 @@ function backup_moonraker_database() {
       target_dir="${BACKUP_DIR}/moonraker_databases/${current_date}/${folder_name}"
       mkdir -p "${target_dir}"
       cp -r "${database}" "${target_dir}"
-      i=$(( i + 1 ))
+      i=$((i + 1))
 
       ok_msg "Backup created in:\n${target_dir}"
     done
@@ -169,7 +169,7 @@ function backup_octoprint() {
 
 function backup_klipperscreen() {
   local current_date
-  if [[ -d ${KLIPPERSCREEN_DIR} ]] ; then
+  if [[ -d ${KLIPPERSCREEN_DIR} ]]; then
     status_msg "Creating KlipperScreen backup ..."
     check_for_backup_dir
     current_date=$(get_date)
@@ -185,7 +185,7 @@ function backup_klipperscreen() {
 function backup_telegram_bot() {
   local current_date
 
-  if [[ -d ${TELEGRAM_BOT_DIR} ]] ; then
+  if [[ -d ${TELEGRAM_BOT_DIR} ]]; then
     status_msg "Creating MoonrakerTelegramBot backup ..."
     check_for_backup_dir
     current_date=$(get_date)
@@ -201,7 +201,7 @@ function backup_telegram_bot() {
 function backup_octoeverywhere() {
   local current_date
 
-  if [[ -d ${OCTOEVERYWHERE_DIR} ]] ; then
+  if [[ -d ${OCTOEVERYWHERE_DIR} ]]; then
     status_msg "Creating OctoEverywhere backup ..."
     check_for_backup_dir
     current_date=$(get_date)
@@ -217,7 +217,7 @@ function backup_octoeverywhere() {
 function backup_spoolman() {
   local current_date
 
-  if [[ -d ${SPOOLMAN_DIR} ]] ; then
+  if [[ -d ${SPOOLMAN_DIR} ]]; then
     status_msg "Creating Spoolman backup ..."
     check_for_backup_dir
     current_date=$(get_date)

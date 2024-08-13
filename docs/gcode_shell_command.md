@@ -41,12 +41,14 @@ Execute with:
 `RUN_SHELL_COMMAND CMD=hello_world`
 
 ### Passing parameters:
+
 As of commit [f231fa9](https://github.com/dw-0/kiauh/commit/f231fa9c69191f23277b4e3319f6b675bfa0ee42) it is also possible to pass optional parameters to a `gcode_shell_command`.
-The following short example shows storing the extruder temperature into a variable, passing that value with a parameter to a `gcode_shell_command`, which then, 
-once the gcode_macro runs and the gcode_shell_command gets called, executes the `script.sh`. The script then echoes a message to the console (if `verbose: True`) 
+The following short example shows storing the extruder temperature into a variable, passing that value with a parameter to a `gcode_shell_command`, which then,
+once the gcode_macro runs and the gcode_shell_command gets called, executes the `script.sh`. The script then echoes a message to the console (if `verbose: True`)
 and writes the value of the parameter into a textfile called `test.txt` located in the home directory.
 
 Content of the `gcode_shell_command` and the `gcode_macro`:
+
 ```
 [gcode_shell_command print_to_file]
 command: sh /home/pi/klipper_config/script.sh
@@ -61,6 +63,7 @@ gcode:
 ```
 
 Content of `script.sh`:
+
 ```shell
 #!/bin/sh
 

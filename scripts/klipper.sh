@@ -76,15 +76,21 @@ function start_klipper_setup() {
       1)
         select_msg "Python 3.x\n"
         python_version=3
-        break;;
+        break
+        ;;
       2)
         select_msg "Python 2.7\n"
         python_version=2
-        break;;
-      B|b)
-        clear; install_menu; break;;
+        break
+        ;;
+      B | b)
+        clear
+        install_menu
+        break
+        ;;
       *)
-        error_msg "Invalid Input!\n";;
+        error_msg "Invalid Input!\n"
+        ;;
     esac
   done && input=""
 
@@ -107,22 +113,28 @@ function start_klipper_setup() {
 
   ### user selection for custom names
   use_custom_names="false"
-  if (( instance_count > 1 )); then
+  if ((instance_count > 1)); then
     print_dialog_user_select_custom_name_bool
     while true; do
       read -p "${cyan}###### Assign custom names? (y/N):${white} " input
       case "${input}" in
-        Y|y|Yes|yes)
+        Y | y | Yes | yes)
           select_msg "Yes\n"
           use_custom_names="true"
-          break;;
-        N|n|No|no|"")
+          break
+          ;;
+        N | n | No | no | "")
           select_msg "No\n"
-          break;;
-        B|b)
-          clear; install_menu; break;;
+          break
+          ;;
+        B | b)
+          clear
+          install_menu
+          break
+          ;;
         *)
-          error_msg "Invalid Input!\n";;
+          error_msg "Invalid Input!\n"
+          ;;
       esac
     done && input=""
   else
@@ -131,7 +143,7 @@ function start_klipper_setup() {
 
   ### user selection for setting the actual custom names
   shopt -s nocasematch
-  if (( instance_count > 1 )) && [[ ${use_custom_names} == "true" ]]; then
+  if ((instance_count > 1)) && [[ ${use_custom_names} == "true" ]]; then
     local i
 
     i=1
@@ -149,20 +161,20 @@ function start_klipper_setup() {
         else
           instance_names+=("${input}")
         fi
-        i=$(( i + 1 ))
+        i=$((i + 1))
       else
         error_msg "Invalid Input!\n"
       fi
     done && input=""
-  elif (( instance_count > 1 )) && [[ ${use_custom_names} == "false" ]]; then
-    for (( i=1; i <= instance_count; i++ )); do
+  elif ((instance_count > 1)) && [[ ${use_custom_names} == "false" ]]; then
+    for ((i = 1; i <= instance_count; i++)); do
       instance_names+=("printer_${i}")
     done
   fi
   shopt -u nocasematch
 
-  (( instance_count > 1 )) && status_msg "Installing ${instance_count} Klipper instances ..."
-  (( instance_count == 1 )) && status_msg "Installing single Klipper instance ..."
+  ((instance_count > 1)) && status_msg "Installing ${instance_count} Klipper instances ..."
+  ((instance_count == 1)) && status_msg "Installing single Klipper instance ..."
 
   run_klipper_setup "${python_version}" "${instance_names[@]}"
 }
@@ -239,8 +251,8 @@ function run_klipper_setup() {
   check_usergroups
 
   ### confirm message
-  (( ${#instance_names[@]} == 1 )) && confirm="Klipper has been set up!"
-  (( ${#instance_names[@]} > 1 )) && confirm="${#instance_names[@]} Klipper instances have been set up!"
+  ((${#instance_names[@]} == 1)) && confirm="Klipper has been set up!"
+  ((${#instance_names[@]} > 1)) && confirm="${#instance_names[@]} Klipper instances have been set up!"
 
   ### finalizing the setup with writing instance names to the kiauh.ini
   set_multi_instance_names
@@ -280,7 +292,7 @@ function create_klipper_virtualenv() {
   status_msg "Installing $("python${python_version}" -V) virtual environment..."
 
   if virtualenv -p "python${python_version}" "${KLIPPY_ENV}"; then
-    (( python_version == 3 )) && "${KLIPPY_ENV}"/bin/pip install -U pip
+    ((python_version == 3)) && "${KLIPPY_ENV}"/bin/pip install -U pip
     "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}"/scripts/klippy-requirements.txt
   else
     log_error "failure while creating python3 klippy-env"
@@ -307,10 +319,10 @@ function install_klipper_packages() {
   ### add dbus requirement for DietPi distro
   [[ -e "/boot/dietpi/.version" ]] && packages+=" dbus"
 
-  if (( python_version == 3 )); then
+  if ((python_version == 3)); then
     ### replace python-dev with python3-dev if python3 was selected
     packages="${packages//python-dev/python3-dev}"
-  elif (( python_version == 2 )); then
+  elif ((python_version == 2)); then
     ### package name 'python-dev' is deprecated (-> no installation candidate) on more modern linux distros
     packages="${packages//python-dev/python2-dev}"
   else
@@ -475,7 +487,7 @@ function remove_files() {
   local files
   read -r -a files <<< "${@}"
 
-  if (( ${#files[@]} > 0 )); then
+  if ((${#files[@]} > 0)); then
     for file in "${files[@]}"; do
       status_msg "Removing ${file} ..."
       rm -f "${file}"
@@ -549,21 +561,21 @@ function get_klipper_status() {
 
   ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
-  (( sf_count > 0 )) && unset "data_arr[0]"
+  ((sf_count > 0)) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
+    [[ -e ${data} ]] && filecount=$((filecount + 1))
   done
 
-  if (( filecount == ${#data_arr[*]} )); then
-    if (( py_ver == 3 )); then
+  if ((filecount == ${#data_arr[*]})); then
+    if ((py_ver == 3)); then
       status="Installed: ${sf_count}(py${py_ver})"
     else
       status="Installed: ${sf_count}"
     fi
-  elif (( filecount == 0 )); then
+  elif ((filecount == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"
@@ -636,9 +648,9 @@ function mask_disrupting_services() {
   local brltty_udev="false"
   local modem_manager="false"
 
-  [[ $(dpkg -s brltty  2>/dev/null | grep "Status") = *\ installed ]] && brltty="true"
-  [[ $(dpkg -s brltty-udev  2>/dev/null | grep "Status") = *\ installed ]] && brltty_udev="true"
-  [[ $(dpkg -s ModemManager  2>/dev/null | grep "Status") = *\ installed ]] && modem_manager="true"
+  [[ $(dpkg -s brltty 2> /dev/null | grep "Status") = *\ installed ]] && brltty="true"
+  [[ $(dpkg -s brltty-udev 2> /dev/null | grep "Status") = *\ installed ]] && brltty_udev="true"
+  [[ $(dpkg -s ModemManager 2> /dev/null | grep "Status") = *\ installed ]] && modem_manager="true"
 
   status_msg "Installed brltty package detected, masking brltty service ..."
   if [[ ${brltty} == "true" ]]; then

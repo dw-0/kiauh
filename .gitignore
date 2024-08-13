@@ -2,3 +2,4 @@
 .vscode
 *.code-workspace
 klipper_repos.txt
+node_modules

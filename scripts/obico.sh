@@ -26,7 +26,7 @@ function moonraker_obico_config() {
 
   read -r -a moonraker_cfg_dirs <<< "$(get_instance_folder_path "config")"
 
-  if (( ${#moonraker_cfg_dirs[@]} > 0 )); then
+  if ((${#moonraker_cfg_dirs[@]} > 0)); then
     echo "${moonraker_cfg_dirs[${1}]}/moonraker-obico.cfg"
   else
     echo ""
@@ -70,12 +70,12 @@ function moonraker_obico_setup_dialog() {
 
   moonraker_count=$(moonraker_systemd | wc -w)
 
-  if (( moonraker_count == 0 )); then
+  if ((moonraker_count == 0)); then
     ### return early if moonraker is not installed
     local error="Moonraker not installed! Please install Moonraker first!"
     log_error "Obico setup started without Moonraker being installed. Aborting setup."
     print_error "${error}" && return
-  elif (( moonraker_count > 1 )); then
+  elif ((moonraker_count > 1)); then
     # moonraker_names is valid only in case of multi-instance
     read -r -a moonraker_names <<< "$(get_multi_instance_names)"
   fi
@@ -83,11 +83,11 @@ function moonraker_obico_setup_dialog() {
   local moonraker_obico_services
   local existing_moonraker_obico_count
   moonraker_obico_services=$(moonraker_obico_systemd)
-  existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w )
-  local allowed_moonraker_obico_count=$(( moonraker_count - existing_moonraker_obico_count ))
+  existing_moonraker_obico_count=$(echo "${moonraker_obico_services}" | wc -w)
+  local allowed_moonraker_obico_count=$((moonraker_count - existing_moonraker_obico_count))
 
   # Allow user to reinstall an incomplete installation.
-  if (( allowed_moonraker_obico_count == 0 && moonraker_count > 0 )) && [[ $(get_moonraker_obico_status) != "Not linked!" ]]; then
+  if ((allowed_moonraker_obico_count == 0 && moonraker_count > 0)) && [[ $(get_moonraker_obico_status) != "Not linked!" ]]; then
     local yn
     while true; do
       echo "${yellow}Obico is already installed.${white}"
@@ -96,36 +96,39 @@ function moonraker_obico_setup_dialog() {
       local question="Do you want to reinstall Obico?"
       read -p "${cyan}###### ${question} (Y/n):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes|"")
+        Y | y | Yes | yes | "")
           select_msg "Yes"
-          break;;
-        N|n|No|no)
+          break
+          ;;
+        N | n | No | no)
           select_msg "No"
           abort_msg "Exiting Obico installation...\n"
-          return;;
+          return
+          ;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!"
+          ;;
       esac
     done
     # The user responded yes, allow the install to run again.
     allowed_moonraker_obico_count=1
   fi
 
-  if (( allowed_moonraker_obico_count > 0 )); then
+  if ((allowed_moonraker_obico_count > 0)); then
     local new_moonraker_obico_count
 
     ### Step 1: Ask for the number of moonraker-obico instances to install
-    if (( moonraker_count == 1 )); then
+    if ((moonraker_count == 1)); then
       ok_msg "Moonraker installation found!\n"
       new_moonraker_obico_count=1
-    elif (( moonraker_count > 1 )); then
+    elif ((moonraker_count > 1)); then
       top_border
       printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
       for name in "${moonraker_names[@]}"; do
         printf "|${cyan}%-57s${white}|\n" " ● moonraker-${name}"
       done
       blank_line
-      if (( existing_moonraker_obico_count > 0 )); then
+      if ((existing_moonraker_obico_count > 0)); then
         printf "|${green}%-55s${white}|\n" " ${existing_moonraker_obico_count} Obico instances already installed!"
         for svc in ${moonraker_obico_services}; do
           printf "|${cyan}%-57s${white}|\n" " ● moonraker-obco-$(get_instance_name "${svc}")"
@@ -149,34 +152,37 @@ function moonraker_obico_setup_dialog() {
         [[ ${new_moonraker_obico_count} =~ ${re} && ${new_moonraker_obico_count} -le ${allowed_moonraker_obico_count} ]] && break
         ### conditional error messages
         [[ ! ${new_moonraker_obico_count} =~ ${re} ]] && error_msg "Input not a number"
-        (( new_moonraker_obico_count > allowed_moonraker_obico_count )) && error_msg "Number of Obico instances larger than installed Moonraker instances"
+        ((new_moonraker_obico_count > allowed_moonraker_obico_count)) && error_msg "Number of Obico instances larger than installed Moonraker instances"
       done && select_msg "${new_moonraker_obico_count}"
     else
       log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grather than one!"
       return 1
-    fi  # (( moonraker_count == 1 ))
+    fi # (( moonraker_count == 1 ))
 
     ### Step 2: Confirm instance amount
     local yn
     while true; do
-      (( new_moonraker_obico_count == 1 )) && local question="Install Obico?"
-      (( new_moonraker_obico_count > 1 )) && local question="Install ${new_moonraker_obico_count} Obico instances?"
+      ((new_moonraker_obico_count == 1)) && local question="Install Obico?"
+      ((new_moonraker_obico_count > 1)) && local question="Install ${new_moonraker_obico_count} Obico instances?"
       read -p "${cyan}###### ${question} (Y/n):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes|"")
+        Y | y | Yes | yes | "")
           select_msg "Yes"
-          break;;
-        N|n|No|no)
+          break
+          ;;
+        N | n | No | no)
           select_msg "No"
           abort_msg "Exiting Obico setup ...\n"
-          return;;
+          return
+          ;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!"
+          ;;
       esac
     done
-  fi  # (( allowed_moonraker_obico_count > 0 ))
+  fi # (( allowed_moonraker_obico_count > 0 ))
 
-  if (( new_moonraker_obico_count > 0 )); then
+  if ((new_moonraker_obico_count > 0)); then
 
     ### Step 3: Ask for the Obico server URL
     obico_server_url_prompt
@@ -190,8 +196,8 @@ function moonraker_obico_setup_dialog() {
       fi
     done
 
-    (( new_moonraker_obico_count > 1 )) && status_msg "Installing ${new_moonraker_obico_count} Obico instances ..."
-    (( new_moonraker_obico_count == 1 )) && status_msg "Installing Obico ..."
+    ((new_moonraker_obico_count > 1)) && status_msg "Installing ${new_moonraker_obico_count} Obico instances ..."
+    ((new_moonraker_obico_count == 1)) && status_msg "Installing Obico ..."
 
     ### Step 5: Clone the moonraker-obico repo
     clone_moonraker_obico "${MOONRAKER_OBICO_REPO}"
@@ -204,45 +210,43 @@ function moonraker_obico_setup_dialog() {
     read -r -a instance_cfg_dirs <<< "$(get_instance_folder_path "config")"
     read -r -a instance_log_dirs <<< "$(get_instance_folder_path "logs")"
 
-    if (( moonraker_count == 1 )); then
-      "${MOONRAKER_OBICO_DIR}/install.sh"\
-      -C "${instance_cfg_dirs[0]}/moonraker.conf"\
-      -p "${port}" -H 127.0.0.1 -l\
-      "${instance_log_dirs[0]}"\
-      -L -S "${obico_server_url}"
-    elif (( moonraker_count > 1 )); then
+    if ((moonraker_count == 1)); then
+      "${MOONRAKER_OBICO_DIR}/install.sh" \
+        -C "${instance_cfg_dirs[0]}/moonraker.conf" \
+        -p "${port}" -H 127.0.0.1 -l "${instance_log_dirs[0]}" \
+        -L -S "${obico_server_url}"
+    elif ((moonraker_count > 1)); then
       local j=${existing_moonraker_obico_count}
 
-      for (( i=1; i <= new_moonraker_obico_count; i++ )); do
-        "${MOONRAKER_OBICO_DIR}/install.sh"\
-        -n "${moonraker_names[${j}]}"\
-        -C "${instance_cfg_dirs[${j}]}/moonraker.conf"\
-        -p $((port+j))\
-        -H 127.0.0.1\
-        -l "${instance_log_dirs[${j}]}"\
-        -L -S "${obico_server_url}"
-        j=$(( j + 1 ))
+      for ((i = 1; i <= new_moonraker_obico_count; i++)); do
+        "${MOONRAKER_OBICO_DIR}/install.sh" \
+          -n "${moonraker_names[${j}]}" \
+          -C "${instance_cfg_dirs[${j}]}/moonraker.conf" \
+          -p $((port + j)) \
+          -H 127.0.0.1 -l "${instance_log_dirs[${j}]}" \
+          -L -S "${obico_server_url}"
+        j=$((j + 1))
       done && unset j
     fi # (( moonraker_count == 1 ))
-  fi  # (( new_moonraker_obico_count > 0 ))
+  fi   # (( new_moonraker_obico_count > 0 ))
 
   ### Step 7: Link to the Obico server if necessary
   local not_linked_instances=()
-  if (( moonraker_count == 1 )); then
+  if ((moonraker_count == 1)); then
     if moonraker_obico_needs_linking "$(moonraker_obico_config 0)"; then
       not_linked_instances+=("0")
     fi
-  elif (( moonraker_count > 1 )); then
-    for (( i=0; i <= moonraker_count; i++ )); do
+  elif ((moonraker_count > 1)); then
+    for ((i = 0; i <= moonraker_count; i++)); do
       if moonraker_obico_needs_linking "$(moonraker_obico_config "${i}")"; then
         not_linked_instances+=("${i}")
       fi
     done
-  fi  # (( moonraker_count == 1 ))
+  fi # (( moonraker_count == 1 ))
 
-  if (( ${#not_linked_instances[@]} > 0 )); then
+  if ((${#not_linked_instances[@]} > 0)); then
     top_border
-    if (( moonraker_count == 1 )); then
+    if ((moonraker_count == 1)); then
       printf "|${green}%-55s${white}|\n" " Obico not linked to the server!"
     else
       printf "|${green}%-55s${white}|\n" " ${#not_linked_instances[@]} Obico instances not linked to the server!"
@@ -265,29 +269,32 @@ function moonraker_obico_setup_dialog() {
     while true; do
       read -p "${cyan}###### Link to your Obico Server account now? (Y/n):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes|"")
+        Y | y | Yes | yes | "")
           select_msg "Yes"
-          break;;
-        N|n|No|no)
+          break
+          ;;
+        N | n | No | no)
           select_msg "No"
           abort_msg "Exiting Obico setup ...\n"
-          return;;
+          return
+          ;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!"
+          ;;
       esac
     done
 
-    if (( moonraker_count == 1 )); then
+    if ((moonraker_count == 1)); then
       status_msg "Link moonraker-obico to the Obico Server..."
       "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -c "$(moonraker_obico_config 0)"
-    elif (( moonraker_count > 1 )); then
+    elif ((moonraker_count > 1)); then
       for i in "${not_linked_instances[@]}"; do
         local name="${moonraker_names[i]}"
         status_msg "Link moonraker-obico-${name} to the Obico Server..."
         "${MOONRAKER_OBICO_DIR}/scripts/link.sh" -q -n "${name}" -c "$(moonraker_obico_config "${i}")"
       done
-    fi  # (( moonraker_count == 1 ))
-  fi  # (( ${#not_linked_instances[@]} > 0 ))
+    fi # (( moonraker_count == 1 ))
+  fi   # (( ${#not_linked_instances[@]} > 0 ))
 }
 
 function clone_moonraker_obico() {
@@ -413,7 +420,7 @@ function get_moonraker_obico_status() {
   local moonraker_obico_services
 
   moonraker_obico_services=$(moonraker_obico_systemd)
-  service_count=$(echo "${moonraker_obico_services}" | wc -w )
+  service_count=$(echo "${moonraker_obico_services}" | wc -w)
 
   is_linked="true"
   if [[ -n ${moonraker_obico_services} ]]; then
@@ -424,7 +431,7 @@ function get_moonraker_obico_status() {
     done
   fi
 
-  if (( service_count == 0 )); then
+  if ((service_count == 0)); then
     status="Not installed!"
   elif [[ ! -d "${MOONRAKER_OBICO_DIR}" ]]; then
     status="Incomplete!"
@@ -486,4 +493,3 @@ function obico_install_title() {
     echo "[Obico for Klipper]   "
   fi
 }
-

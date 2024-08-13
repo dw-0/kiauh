@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "prettier-plugin-sh": "^0.14.0"
+  }
+}

@@ -22,7 +22,7 @@ function change_klipper_repo_menu() {
 
   ### generate the repolist from the klipper_repos.txt textfile
   while IFS="," read -r repo branch; do
-    repo=$(echo "${repo}" | sed -r "s/^http(s)?:\/\/github.com\///" | sed "s/\.git$//" )
+    repo=$(echo "${repo}" | sed -r "s/^http(s)?:\/\/github.com\///" | sed "s/\.git$//")
     repos+=("${repo}")
     ### if branch is not given, default to 'master'
     [[ -z ${branch} ]] && branch="master"
@@ -37,7 +37,7 @@ function change_klipper_repo_menu() {
   local i=0
   for _ in "${repos[@]}"; do
     printf "| %s) %-63s|\n" "${i}" "${yellow}${repos[${i}]}${white} → ${branches[${i}]}"
-    i=$(( i + 1 ))
+    i=$((i + 1))
   done
   blank_line
   back_help_footer
@@ -63,18 +63,21 @@ function change_klipper_repo_menu() {
 
         local yn
         while true; do
-        read -p "${cyan}###### Proceed? (Y/n):${white} " yn
+          read -p "${cyan}###### Proceed? (Y/n):${white} " yn
           case "${yn}" in
-            Y|y|Yes|yes|"")
+            Y | y | Yes | yes | "")
               select_msg "Yes"
               switch_klipper_repo "${repos[${option}]}" "${branches[${option}]}"
               set_custom_klipper_repo "${repos[${option}]}" "${branches[${option}]}"
-              break;;
-            N|n|No|no)
+              break
+              ;;
+            N | n | No | no)
               select_msg "No"
-              break;;
+              break
+              ;;
             *)
-              error_msg "Invalid command!";;
+              error_msg "Invalid command!"
+              ;;
           esac
         done
         break
@@ -133,12 +136,14 @@ function show_custom_klipper_repo_help() {
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
-      B|b)
+      B | b)
         clear && print_header
         change_klipper_repo_menu
-        break;;
+        break
+        ;;
       *)
-        deny_action "show_settings_help";;
+        deny_action "show_settings_help"
+        ;;
     esac
   done
 }

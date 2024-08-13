@@ -30,15 +30,21 @@ function rollback_menu() {
       1)
         select_msg "Klipper"
         rollback_component "klipper"
-        break;;
+        break
+        ;;
       2)
         select_msg "Moonraker"
         rollback_component "moonraker"
-        break;;
-      B|b)
-        clear; advanced_menu; break;;
+        break
+        ;;
+      B | b)
+        clear
+        advanced_menu
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -65,7 +71,7 @@ function rollback_component() {
   local count
   while true; do
     read -p "${cyan}###### Revert this amount of commits:${white} " count
-    if [[ -n ${count} ]] && (( count > 0 )); then
+    if [[ -n ${count} ]] && ((count > 0)); then
       status_msg "Revert ${component^} by ${count} commits ..."
       cd "${HOME}/${component}"
       if git reset --hard HEAD~"${count}"; then

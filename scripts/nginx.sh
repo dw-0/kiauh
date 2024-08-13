@@ -16,7 +16,7 @@ set -e
 #===================================================#
 
 function remove_nginx() {
-  if [[ $(dpkg -s nginx  2>/dev/null | grep "Status") = *\ installed ]]; then
+  if [[ $(dpkg -s nginx 2> /dev/null | grep "Status") = *\ installed ]]; then
     status_msg "Stopping NGINX service ..."
     if systemctl is-active nginx -q; then
       sudo systemctl stop nginx && ok_msg "Service stopped!"
@@ -112,13 +112,13 @@ function match_nginx_configs() {
 
   ### reinstall nginx configs if the amount of upstreams don't match anymore
   upstreams_webcams=$(grep -Ec "mjpgstreamer" "/etc/nginx/conf.d/upstreams.conf")
-  mainsail_webcams=$(grep -Ec "mjpgstreamer" "${mainsail_nginx_cfg}" 2>/dev/null || echo "0")
-  fluidd_webcams=$(grep -Ec "mjpgstreamer" "${fluidd_nginx_cfg}" 2>/dev/null || echo "0")
+  mainsail_webcams=$(grep -Ec "mjpgstreamer" "${mainsail_nginx_cfg}" 2> /dev/null || echo "0")
+  fluidd_webcams=$(grep -Ec "mjpgstreamer" "${fluidd_nginx_cfg}" 2> /dev/null || echo "0")
 
   status_msg "Checking validity of NGINX configurations ..."
 
   ### check for outdated upstreams.conf
-  if (( upstreams_webcams < mainsail_webcams || upstreams_webcams < fluidd_webcams )); then
+  if ((upstreams_webcams < mainsail_webcams || upstreams_webcams < fluidd_webcams)); then
     status_msg "Outdated upstreams.conf found! Updating ..."
 
     sudo rm -f "${upstreams}" "${common_vars}"
@@ -128,7 +128,7 @@ function match_nginx_configs() {
   fi
 
   ### check for outdated mainsail config
-  if [[ -e ${mainsail_nginx_cfg} ]] && (( upstreams_webcams > mainsail_webcams )); then
+  if [[ -e ${mainsail_nginx_cfg} ]] && ((upstreams_webcams > mainsail_webcams)); then
     status_msg "Outdated Mainsail config found! Updating ..."
 
     sudo rm -f "${mainsail_nginx_cfg}"
@@ -142,7 +142,7 @@ function match_nginx_configs() {
   fi
 
   ### check for outdated fluidd config
-  if [[ -e ${fluidd_nginx_cfg} ]] && (( upstreams_webcams > fluidd_webcams )); then
+  if [[ -e ${fluidd_nginx_cfg} ]] && ((upstreams_webcams > fluidd_webcams)); then
     status_msg "Outdated Fluidd config found! Updating ..."
 
     sudo rm -f "${fluidd_nginx_cfg}"
@@ -228,9 +228,9 @@ function detect_conflicting_packages() {
   local apache="false" haproxy="false"
 
   ### check system for an installed apache2 service
-  [[ $(dpkg -s apache2  2>/dev/null | grep "Status") = *\ installed ]] && apache="true"
+  [[ $(dpkg -s apache2 2> /dev/null | grep "Status") = *\ installed ]] && apache="true"
   ### check system for an installed haproxy service
-  [[ $(dpkg -s haproxy  2>/dev/null | grep "Status") = *\ installed ]] && haproxy="true"
+  [[ $(dpkg -s haproxy 2> /dev/null | grep "Status") = *\ installed ]] && haproxy="true"
 
   #notify user about haproxy or apache2 services found and possible issues
   if [[ ${haproxy} == "false" && ${apache} == "false" ]]; then
@@ -240,10 +240,10 @@ function detect_conflicting_packages() {
       echo
       top_border
       echo -e "| ${red}Conflicting package installations found:${white}              |"
-      [[ ${apache} == "true" ]] && \
-      echo -e "| ${red}● apache2${white}                                             |"
-      [[ ${haproxy} == "true" ]] && \
-      echo -e "| ${red}● haproxy${white}                                             |"
+      [[ ${apache} == "true" ]] \
+        && echo -e "| ${red}● apache2${white}                                             |"
+      [[ ${haproxy} == "true" ]] \
+        && echo -e "| ${red}● haproxy${white}                                             |"
       blank_line
       echo -e "| Having those packages installed can lead to unwanted  |"
       echo -e "| behaviour. It's recommended to remove those packages. |"
@@ -259,16 +259,20 @@ function detect_conflicting_packages() {
         1)
           echo -e "###### > Remove packages"
           remove_conflicting_packages "${apache}" "${haproxy}"
-          break;;
+          break
+          ;;
         2)
           echo -e "###### > Disable only"
           disable_conflicting_packages "${apache}" "${haproxy}"
-          break;;
+          break
+          ;;
         3)
           echo -e "###### > Skip"
-          break;;
+          break
+          ;;
         *)
-          error_msg "Invalid command!";;
+          error_msg "Invalid command!"
+          ;;
       esac
     done
   fi
@@ -331,7 +335,7 @@ function set_nginx_permissions() {
   homedir_perm=$(ls -ld "${HOME}")
   exec_perms_count=$(echo "${homedir_perm}" | cut -d" " -f1 | grep -c "x")
 
-  if (( exec_perms_count < 3 )); then
+  if ((exec_perms_count < 3)); then
     status_msg "Granting NGINX the required permissions ..."
     chmod og+x "${HOME}" && ok_msg "Done!"
   fi

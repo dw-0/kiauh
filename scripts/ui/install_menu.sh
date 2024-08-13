@@ -51,37 +51,55 @@ function install_menu() {
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
-        do_action "start_klipper_setup" "install_ui";;
+        do_action "start_klipper_setup" "install_ui"
+        ;;
       2)
-        do_action "moonraker_setup_dialog" "install_ui";;
+        do_action "moonraker_setup_dialog" "install_ui"
+        ;;
       3)
-        do_action "install_mainsail" "install_ui";;
+        do_action "install_mainsail" "install_ui"
+        ;;
       4)
-        do_action "install_fluidd" "install_ui";;
+        do_action "install_fluidd" "install_ui"
+        ;;
       5)
-        do_action "install_klipperscreen" "install_ui";;
+        do_action "install_klipperscreen" "install_ui"
+        ;;
       6)
-        do_action "octoprint_setup_dialog" "install_ui";;
+        do_action "octoprint_setup_dialog" "install_ui"
+        ;;
       7)
-        do_action "install_pgc_for_klipper" "install_ui";;
+        do_action "install_pgc_for_klipper" "install_ui"
+        ;;
       8)
-        do_action "telegram_bot_setup_dialog" "install_ui";;
+        do_action "telegram_bot_setup_dialog" "install_ui"
+        ;;
       9)
-        do_action "moonraker_obico_setup_dialog" "install_ui";;
+        do_action "moonraker_obico_setup_dialog" "install_ui"
+        ;;
       10)
-        do_action "octoeverywhere_setup_dialog" "install_ui";;
+        do_action "octoeverywhere_setup_dialog" "install_ui"
+        ;;
       11)
-        do_action "install_mobileraker" "install_ui";;
+        do_action "install_mobileraker" "install_ui"
+        ;;
       12)
-        do_action "octoapp_setup_dialog" "install_ui";;
+        do_action "octoapp_setup_dialog" "install_ui"
+        ;;
       13)
-        do_action "install_spoolman" "install_ui";;
+        do_action "install_spoolman" "install_ui"
+        ;;
       14)
-        do_action "install_crowsnest" "install_ui";;
-      B|b)
-        clear; main_menu; break;;
+        do_action "install_crowsnest" "install_ui"
+        ;;
+      B | b)
+        clear
+        main_menu
+        break
+        ;;
       *)
-        deny_action "install_ui";;
+        deny_action "install_ui"
+        ;;
     esac
   done
   install_menu

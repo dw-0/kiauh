@@ -34,35 +34,47 @@ function advanced_menu() {
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
-        do_action "rollback_menu" "advanced_menu";;
+        do_action "rollback_menu" "advanced_menu"
+        ;;
       2)
-        do_action "build_fw" "advanced_ui";;
+        do_action "build_fw" "advanced_ui"
+        ;;
       3)
         clear && print_header
-        do_action "init_flash_process" "advanced_ui";;
+        do_action "init_flash_process" "advanced_ui"
+        ;;
       4)
         clear && print_header
         status_msg "Please wait..."
         build_fw && init_flash_process
-        advanced_ui;;
+        advanced_ui
+        ;;
       5)
         clear && print_header
         select_mcu_connection
         print_detected_mcu_to_screen
-        advanced_ui;;
+        advanced_ui
+        ;;
       6)
-        do_action "ms_theme_installer_menu";;
+        do_action "ms_theme_installer_menu"
+        ;;
       7)
         clear
         print_header
         set_custom_hostname
-        advanced_ui;;
+        advanced_ui
+        ;;
       8)
-        do_action "setup_gcode_shell_command" "advanced_ui";;
-      B|b)
-        clear; main_menu; break;;
+        do_action "setup_gcode_shell_command" "advanced_ui"
+        ;;
+      B | b)
+        clear
+        main_menu
+        break
+        ;;
       *)
-        deny_action "advanced_ui";;
+        deny_action "advanced_ui"
+        ;;
     esac
   done
   advanced_menu

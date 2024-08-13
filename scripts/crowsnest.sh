@@ -20,7 +20,7 @@ set -e
 
 # Helper messages
 
-function multi_instance_message(){
+function multi_instance_message() {
   echo -e "Crowsnest is NOT designed to support multi instances."
   echo -e "A workaround for this is to choose the most used instance as a 'master'"
   echo -e "Use this instance to set up your 'crowsnest.conf' and steering it's service.\n"
@@ -33,11 +33,11 @@ function multi_instance_message(){
 }
 
 # Helper funcs
-function clone_crowsnest(){
+function clone_crowsnest() {
   $(command -v git) clone "${CROWSNEST_REPO}" -b master "${CROWSNEST_DIR}"
 }
 
-function check_multi_instance(){
+function check_multi_instance() {
   local -a instances
   readarray -t instances < <(find "${HOME}" -regex "${HOME}/[a-zA-Z0-9_]+_data/*" -printf "%P\n" 2> /dev/null | sort)
   if [[ "${#instances[@]}" -gt 1 ]]; then
@@ -45,7 +45,7 @@ function check_multi_instance(){
     multi_instance_message "${instances[*]}"
     if [[ -d "${HOME}/crowsnest" ]]; then
       pushd "${HOME}/crowsnest" &> /dev/null || exit 1
-      if ! make config ;then
+      if ! make config; then
         error_msg "Something went wrong! Please try again..."
         if [[ -f "tools/.config" ]]; then
           rm -f tools/.config
@@ -67,22 +67,25 @@ function continue_config() {
   while true; do
     read -erp "${cyan}###### Continue with configuration? (y/N):${white} " reply
     case "${reply}" in
-      Y|y|Yes|yes)
+      Y | y | Yes | yes)
         select_msg "Yes"
-        break;;
-      N|n|No|no|"")
+        break
+        ;;
+      N | n | No | no | "")
         select_msg "No"
         warn_msg "Installation aborted by user ... Exiting!"
-        exit 1;;
+        exit 1
+        ;;
       *)
-        error_msg "Invalid Input!\n";;
+        error_msg "Invalid Input!\n"
+        ;;
     esac
   done
   return 0
 }
 
 # Install func
-function install_crowsnest(){
+function install_crowsnest() {
 
   # Step 1: jump to home directory
   pushd "${HOME}" &> /dev/null || exit 1
@@ -116,7 +119,7 @@ function install_crowsnest(){
 }
 
 # Remove func
-function remove_crowsnest(){
+function remove_crowsnest() {
   if [[ -d "${CROWSNEST_DIR}" ]]; then
     pushd "${HOME}/crowsnest" &> /dev/null || exit 1
     title_msg "Uninstaller will prompt you for sudo password!"
@@ -136,22 +139,22 @@ function remove_crowsnest(){
 }
 
 # Status funcs
-get_crowsnest_status(){
+get_crowsnest_status() {
   local -a files
   local env_file
-  env_file="$(grep "EnvironmentFile" /etc/systemd/system/crowsnest.service 2>/dev/null | cut -d "=" -f2)"
+  env_file="$(grep "EnvironmentFile" /etc/systemd/system/crowsnest.service 2> /dev/null | cut -d "=" -f2)"
   files=(
     "${CROWSNEST_DIR}"
     "/usr/local/bin/crowsnest"
     "/etc/logrotate.d/crowsnest"
     "/etc/systemd/system/crowsnest.service"
     "${env_file}"
-    )
+  )
   local count
   count=0
 
   for file in "${files[@]}"; do
-    [[ -e "${file}" ]] && count=$(( count +1 ))
+    [[ -e "${file}" ]] && count=$((count + 1))
   done
   if [[ "${count}" -eq "${#files[*]}" ]]; then
     echo "Installed"
@@ -210,7 +213,7 @@ function install_crowsnest_dependencies() {
   packages="$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')"
 
   echo "${cyan}${packages}${white}" | tr '[:space:]' '\n'
-    read -r -a packages <<< "${packages}"
+  read -r -a packages <<< "${packages}"
 
   ### Update system package lists if stale
   update_system_package_lists

@@ -68,16 +68,16 @@ function moonraker_setup_dialog() {
   fi
 
   local klipper_count user_input=() klipper_names=()
-  klipper_count=$(echo "${klipper_services}" | wc -w )
+  klipper_count=$(echo "${klipper_services}" | wc -w)
   for service in ${klipper_services}; do
-    klipper_names+=( "$(get_instance_name "${service}")" )
+    klipper_names+=("$(get_instance_name "${service}")")
   done
 
   local moonraker_count
-  if (( klipper_count == 1 )); then
+  if ((klipper_count == 1)); then
     ok_msg "Klipper installation found!\n"
     moonraker_count=1
-  elif (( klipper_count > 1 )); then
+  elif ((klipper_count > 1)); then
     top_border
     printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances found!"
     for name in "${klipper_names[@]}"; do
@@ -100,7 +100,7 @@ function moonraker_setup_dialog() {
       [[ ${moonraker_count} =~ ${re} && ${moonraker_count} -le ${klipper_count} ]] && break
       ### conditional error messages
       [[ ! ${moonraker_count} =~ ${re} ]] && error_msg "Input not a number"
-      (( moonraker_count > klipper_count )) && error_msg "Number of Moonraker instances larger than installed Klipper instances"
+      ((moonraker_count > klipper_count)) && error_msg "Number of Moonraker instances larger than installed Klipper instances"
     done && select_msg "${moonraker_count}"
   else
     log_error "Internal error. klipper_count of '${klipper_count}' not equal or grather than one!"
@@ -112,31 +112,34 @@ function moonraker_setup_dialog() {
   ### confirm instance amount
   local yn
   while true; do
-    (( moonraker_count == 1 )) && local question="Install Moonraker?"
-    (( moonraker_count > 1 )) && local question="Install ${moonraker_count} Moonraker instances?"
+    ((moonraker_count == 1)) && local question="Install Moonraker?"
+    ((moonraker_count > 1)) && local question="Install ${moonraker_count} Moonraker instances?"
     read -p "${cyan}###### ${question} (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
         abort_msg "Exiting Moonraker setup ...\n"
-        return;;
+        return
+        ;;
       *)
-        error_msg "Invalid Input!";;
+        error_msg "Invalid Input!"
+        ;;
     esac
   done
 
   ### write existing klipper names into user_input array to use them as names for moonraker
-  if (( klipper_count > 1 )); then
+  if ((klipper_count > 1)); then
     for name in "${klipper_names[@]}"; do
       user_input+=("${name}")
     done
   fi
 
-  (( moonraker_count > 1 )) && status_msg "Installing ${moonraker_count} Moonraker instances ..."
-  (( moonraker_count == 1 )) && status_msg "Installing Moonraker ..."
+  ((moonraker_count > 1)) && status_msg "Installing ${moonraker_count} Moonraker instances ..."
+  ((moonraker_count == 1)) && status_msg "Installing Moonraker ..."
   moonraker_setup "${user_input[@]}"
 }
 
@@ -206,8 +209,8 @@ function moonraker_setup() {
 
   ### confirm message
   local confirm=""
-  (( instance_arr[0] == 1 )) && confirm="Moonraker has been set up!"
-  (( instance_arr[0] > 1 )) && confirm="${instance_arr[0]} Moonraker instances have been set up!"
+  ((instance_arr[0] == 1)) && confirm="Moonraker has been set up!"
+  ((instance_arr[0] > 1)) && confirm="${instance_arr[0]} Moonraker instances have been set up!"
   print_confirm "${confirm}" && print_mr_ip_list "${instance_arr[0]}" && return
 }
 
@@ -235,7 +238,7 @@ function create_moonraker_conf() {
   port=7125
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
 
-  if (( moonraker_count == 1 )); then
+  if ((moonraker_count == 1)); then
     printer_data="${HOME}/printer_data"
     cfg_dir="${printer_data}/config"
     cfg="${cfg_dir}/moonraker.conf"
@@ -244,10 +247,10 @@ function create_moonraker_conf() {
     ### write single instance config
     write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"
 
-  elif (( moonraker_count > 1 )); then
+  elif ((moonraker_count > 1)); then
     local j=0 re="^[1-9][0-9]*$"
 
-    for (( i=1; i <= moonraker_count; i++ )); do
+    for ((i = 1; i <= moonraker_count; i++)); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         printer_data="${HOME}/printer_${names[${j}]}_data"
@@ -261,8 +264,8 @@ function create_moonraker_conf() {
 
       ### write multi instance config
       write_moonraker_conf "${cfg_dir}" "${cfg}" "${port}" "${uds}" "${lan}"
-      port=$(( port + 1 ))
-      j=$(( j + 1 ))
+      port=$((port + 1))
+      j=$((j + 1))
     done && unset j
 
   else
@@ -299,7 +302,7 @@ function configure_moonraker_service() {
   local names=("${input[@]}") && unset "input[@]"
   local printer_data cfg_dir service env_file
 
-  if (( moonraker_count == 1 )) && [[ ${#names[@]} -eq 0 ]]; then
+  if ((moonraker_count == 1)) && [[ ${#names[@]} -eq 0 ]]; then
     i=""
     printer_data="${HOME}/printer_data"
     cfg_dir="${printer_data}/config"
@@ -313,10 +316,10 @@ function configure_moonraker_service() {
     write_moonraker_service "" "${printer_data}" "${service}" "${env_file}"
     ok_msg "Moonraker instance created!"
 
-  elif (( moonraker_count > 1 )) && [[ ${#names[@]} -gt 0 ]]; then
+  elif ((moonraker_count > 1)) && [[ ${#names[@]} -gt 0 ]]; then
     local j=0 re="^[1-9][0-9]*$"
 
-    for (( i=1; i <= moonraker_count; i++ )); do
+    for ((i = 1; i <= moonraker_count; i++)); do
       ### overwrite config folder if name is only a number
       if [[ ${names[j]} =~ ${re} ]]; then
         printer_data="${HOME}/printer_${names[${j}]}_data"
@@ -334,7 +337,7 @@ function configure_moonraker_service() {
       ### write multi instance service
       write_moonraker_service "${names[${j}]}" "${printer_data}" "${service}" "${env_file}"
       ok_msg "Moonraker instance 'moonraker-${names[${j}]}' created!"
-      j=$(( j + 1 ))
+      j=$((j + 1))
     done && unset i
 
     ### enable mainsails remoteMode if mainsail is found
@@ -369,9 +372,9 @@ function print_mr_ip_list() {
   local ip count=${1} port=7125
   ip=$(hostname -I | cut -d" " -f1)
 
-  for (( i=1; i <= count; i++ )); do
+  for ((i = 1; i <= count; i++)); do
     echo -e "   ${cyan}● Instance ${i}:${white} ${ip}:${port}"
-    port=$(( port + 1 ))
+    port=$((port + 1))
   done && echo
 }
 
@@ -412,7 +415,7 @@ function install_moonraker_polkit() {
   fi
 
   ### execute moonrakers policykit-rules script only if rule files do not already exist
-  if [[ -z ${legacy_file_exists} && ( -z ${file_exists} || -z ${usr_file_exists} ) ]]; then
+  if [[ -z ${legacy_file_exists} && (-z ${file_exists} || -z ${usr_file_exists}) ]]; then
     status_msg "Installing Moonraker policykit rules ..."
     "${HOME}"/moonraker/scripts/set-policykit-rules.sh
     ok_msg "Moonraker policykit rules installed!"
@@ -584,17 +587,17 @@ function get_moonraker_status() {
 
   ### remove the "SERVICE" entry from the data array if a moonraker service is installed
   local data_arr=(SERVICE "${MOONRAKER_DIR}" "${MOONRAKER_ENV}")
-  (( sf_count > 0 )) && unset "data_arr[0]"
+  ((sf_count > 0)) && unset "data_arr[0]"
 
   ### count+1 for each found data-item from array
   local filecount=0
   for data in "${data_arr[@]}"; do
-    [[ -e ${data} ]] && filecount=$(( filecount + 1 ))
+    [[ -e ${data} ]] && filecount=$((filecount + 1))
   done
 
-  if (( filecount == ${#data_arr[*]} )); then
+  if ((filecount == ${#data_arr[*]})); then
     status="Installed: ${sf_count}"
-  elif (( filecount == 0 )); then
+  elif ((filecount == 0)); then
     status="Not installed!"
   else
     status="Incomplete!"

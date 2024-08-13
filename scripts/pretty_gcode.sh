@@ -41,7 +41,7 @@ function install_pgc_for_klipper() {
   sudo sed -i "s|/home/pi/pgcode;|${HOME}/pgcode;|" "${pgconf}"
 
   ### replace default port
-  if (( pgc_custom_port != pgc_default_port )); then
+  if ((pgc_custom_port != pgc_default_port)); then
     sudo sed -i "s|listen ${pgc_default_port};|listen ${pgc_custom_port};|" "${pgconf}"
     sudo sed -i "s|listen \[::\]:${pgc_default_port};|listen \[::\]:${pgc_custom_port};|" "${pgconf}"
   fi

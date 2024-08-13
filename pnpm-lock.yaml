@@ -1,0 +1,66 @@
+lockfileVersion: "9.0"
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+  .:
+    devDependencies:
+      prettier-plugin-sh:
+        specifier: ^0.14.0
+        version: 0.14.0(prettier@3.3.3)
+
+packages:
+  mvdan-sh@0.10.1:
+    resolution:
+      {
+        integrity: sha512-kMbrH0EObaKmK3nVRKUIIya1dpASHIEusM13S4V1ViHFuxuNxCo+arxoa6j/dbV22YBGjl7UKJm9QQKJ2Crzhg==,
+      }
+
+  prettier-plugin-sh@0.14.0:
+    resolution:
+      {
+        integrity: sha512-hfXulj5+zEl/ulrO5kMuuTPKmXvOg0bnLHY1hKFNN/N+/903iZbNp8NyZBTsgI8dtkSgFfAEIQq0IQTyP1ZVFQ==,
+      }
+    engines: { node: ">=16.0.0" }
+    peerDependencies:
+      prettier: ^3.0.3
+
+  prettier@3.3.3:
+    resolution:
+      {
+        integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==,
+      }
+    engines: { node: ">=14" }
+    hasBin: true
+
+  sh-syntax@0.4.2:
+    resolution:
+      {
+        integrity: sha512-/l2UZ5fhGZLVZa16XQM9/Vq/hezGGbdHeVEA01uWjOL1+7Ek/gt6FquW0iKKws4a9AYPYvlz6RyVvjh3JxOteg==,
+      }
+    engines: { node: ">=16.0.0" }
+
+  tslib@2.6.3:
+    resolution:
+      {
+        integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==,
+      }
+
+snapshots:
+  mvdan-sh@0.10.1: {}
+
+  prettier-plugin-sh@0.14.0(prettier@3.3.3):
+    dependencies:
+      mvdan-sh: 0.10.1
+      prettier: 3.3.3
+      sh-syntax: 0.4.2
+
+  prettier@3.3.3: {}
+
+  sh-syntax@0.4.2:
+    dependencies:
+      tslib: 2.6.3
+
+  tslib@2.6.3: {}

@@ -58,7 +58,7 @@ function do_action() {
   clear && print_header
   ### $1 is the action the user wants to fire
   $1
-#  print_msg && clear_msg
+  #  print_msg && clear_msg
   ### $2 is the menu the user usually gets directed back to after an action is completed
   $2
 }

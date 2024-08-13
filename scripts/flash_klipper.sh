@@ -35,20 +35,25 @@ function init_flash_process() {
       1)
         select_msg "Regular flashing method"
         method="regular"
-        break;;
+        break
+        ;;
       2)
         select_msg "SD-Card Update"
         method="sdcard"
-        break;;
-      B|b)
+        break
+        ;;
+      B | b)
         advanced_menu
-        break;;
-      H|h)
+        break
+        ;;
+      H | h)
         clear && print_header
         show_flash_method_help
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 
@@ -82,20 +87,25 @@ function select_flash_command() {
       1)
         select_msg "Selected 'make flash' command"
         flash_command="flash"
-        break;;
+        break
+        ;;
       2)
         select_msg "Selected 'make serialflash' command"
         flash_command="serialflash"
-        break;;
-      B|b)
+        break
+        ;;
+      B | b)
         advanced_menu
-        break;;
-      H|h)
+        break
+        ;;
+      H | h)
         clear && print_header
         show_mcu_flash_command_help
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -122,24 +132,30 @@ function select_mcu_connection() {
       1)
         status_msg "Identifying MCU connected via USB ...\n"
         get_usb_id || true # continue even after exit code 1
-        break;;
+        break
+        ;;
       2)
         status_msg "Identifying MCU possibly connected via UART ...\n"
         get_uart_id || true # continue even after exit code 1
-        break;;
+        break
+        ;;
       3)
         status_msg "Identifying MCU connected via USB in DFU mode ...\n"
         get_dfu_id || true # continue even after exit code 1
-        break;;
-      B|b)
+        break
+        ;;
+      B | b)
         advanced_menu
-        break;;
-      H|h)
+        break
+        ;;
+      H | h)
         clear && print_header
         show_mcu_connection_help
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -147,14 +163,14 @@ function select_mcu_connection() {
 function print_detected_mcu_to_screen() {
   local i=1
 
-  if (( ${#mcu_list[@]} < 1 )); then
+  if ((${#mcu_list[@]} < 1)); then
     print_error "No MCU found!\n MCU either not connected or not detected!"
     return
   fi
 
   for mcu in "${mcu_list[@]}"; do
     echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
-    i=$(( i + 1 ))
+    i=$((i + 1))
   done
   echo
 }
@@ -165,7 +181,7 @@ function print_detected_mcu_to_screen() {
 function select_mcu_id() {
   local i=0 sel_index=0 method=${1}
 
-  if (( ${#mcu_list[@]} < 1 )); then
+  if ((${#mcu_list[@]} < 1)); then
     print_error "No MCU found!\n MCU either not connected or not detected!"
     return
   fi
@@ -180,7 +196,7 @@ function select_mcu_id() {
 
   ### list all mcus
   for mcu in "${mcu_list[@]}"; do
-    i=$(( i + 1 ))
+    i=$((i + 1))
     mcu=$(echo "${mcu}" | rev | cut -d"/" -f1 | rev)
     echo -e " ● MCU #${i}: ${cyan}${mcu}${white}"
   done
@@ -197,7 +213,7 @@ function select_mcu_id() {
       error_msg "Please select a number between 1 and ${i}!"
     fi
 
-    local mcu_index=$(( sel_index - 1 ))
+    local mcu_index=$((sel_index - 1))
     local selected_mcu_id="${mcu_list[${mcu_index}]}"
   done
 
@@ -207,7 +223,7 @@ function select_mcu_id() {
     echo -e "\n###### You selected:\n ● MCU #${sel_index}: ${selected_mcu_id}\n"
     read -p "${cyan}###### Continue? (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
         status_msg "Flashing ${selected_mcu_id} ..."
         if [[ ${method} == "regular" ]]; then
@@ -221,12 +237,15 @@ function select_mcu_id() {
           log_error "No flash method set!"
           return
         fi
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -267,7 +286,7 @@ function start_flash_sd() {
     else
       printf "|  ${i}) %-49s|\n" "${board_list[${i}]}"
     fi
-    i=$(( i + 1 ))
+    i=$((i + 1))
   done
   quit_footer
 
@@ -336,10 +355,10 @@ function build_fw() {
   make clean
 
   status_msg "Building firmware ..."
-  if (( python_version == 3 )); then
+  if ((python_version == 3)); then
     make PYTHON=python3 menuconfig
     make PYTHON=python3
-  elif (( python_version == 2 )); then
+  elif ((python_version == 2)); then
     make PYTHON=python2 menuconfig
     make PYTHON=python2
   else
@@ -357,7 +376,7 @@ function build_fw() {
 function get_usb_id() {
   unset mcu_list
   sleep 1
-  mcus=$(find /dev/serial/by-id/* 2>/dev/null)
+  mcus=$(find /dev/serial/by-id/* 2> /dev/null)
 
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
@@ -367,7 +386,7 @@ function get_usb_id() {
 function get_uart_id() {
   unset mcu_list
   sleep 1
-  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty(AMA0|S0)$" 2>/dev/null)
+  mcus=$(find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty(AMA0|S0)$" 2> /dev/null)
 
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
@@ -377,7 +396,7 @@ function get_uart_id() {
 function get_dfu_id() {
   unset mcu_list
   sleep 1
-  mcus=$(lsusb | grep "DFU" | cut -d " " -f 6 2>/dev/null)
+  mcus=$(lsusb | grep "DFU" | cut -d " " -f 6 2> /dev/null)
 
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
@@ -417,12 +436,14 @@ function show_flash_method_help() {
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
-      B|b)
+      B | b)
         clear && print_header
         init_flash_process
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -447,12 +468,14 @@ function show_mcu_flash_command_help() {
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
-      B|b)
+      B | b)
         clear && print_header
         select_flash_command
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -483,12 +506,14 @@ function show_mcu_connection_help() {
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
-      B|b)
+      B | b)
         clear && print_header
         select_mcu_connection
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }

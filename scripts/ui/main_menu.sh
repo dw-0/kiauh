@@ -78,7 +78,7 @@ function print_klipper_repo() {
 
   if [[ ${klipper_status} == "Not installed!" ]]; then
     repo="${red}-${white}"
-  elif [[ -n ${repo} && ${repo} != "KLIPPER3D/KLIPPER"  ]]; then
+  elif [[ -n ${repo} && ${repo} != "KLIPPER3D/KLIPPER" ]]; then
     repo="${cyan}custom${white}"
   else
     repo="${cyan}Klipper3d/klipper${white}"
@@ -86,8 +86,6 @@ function print_klipper_repo() {
 
   printf "%-28s" "${repo}"
 }
-
-
 
 function main_menu() {
   clear && print_header
@@ -100,45 +98,98 @@ function main_menu() {
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
-      "start klipper") do_action_service "start" "klipper"; main_ui;;
-      "stop klipper") do_action_service "stop" "klipper"; main_ui;;
-      "restart klipper") do_action_service "restart" "klipper"; main_ui;;
-      "start moonraker") do_action_service "start" "moonraker"; main_ui;;
-      "stop moonraker") do_action_service "stop" "moonraker"; main_ui;;
-      "restart moonraker")do_action_service "restart" "moonraker"; main_ui;;
-      "start octoprint") do_action_service "start" "octoprint"; main_ui;;
-      "stop octoprint") do_action_service "stop" "octoprint"; main_ui;;
-      "restart octoprint") do_action_service "restart" "octoprint"; main_ui;;
-      "start crowsnest") do_action_service "start" "crowsnest"; main_ui;;
-      "stop crowsnest") do_action_service "stop" "crowsnest"; main_ui;;
-      "restart crowsnest") do_action_service "restart" "crowsnest"; main_ui;;
-      update) do_action "update_kiauh" "main_ui";;
-      0)clear && print_header
+      "start klipper")
+        do_action_service "start" "klipper"
+        main_ui
+        ;;
+      "stop klipper")
+        do_action_service "stop" "klipper"
+        main_ui
+        ;;
+      "restart klipper")
+        do_action_service "restart" "klipper"
+        main_ui
+        ;;
+      "start moonraker")
+        do_action_service "start" "moonraker"
+        main_ui
+        ;;
+      "stop moonraker")
+        do_action_service "stop" "moonraker"
+        main_ui
+        ;;
+      "restart moonraker")
+        do_action_service "restart" "moonraker"
+        main_ui
+        ;;
+      "start octoprint")
+        do_action_service "start" "octoprint"
+        main_ui
+        ;;
+      "stop octoprint")
+        do_action_service "stop" "octoprint"
+        main_ui
+        ;;
+      "restart octoprint")
+        do_action_service "restart" "octoprint"
+        main_ui
+        ;;
+      "start crowsnest")
+        do_action_service "start" "crowsnest"
+        main_ui
+        ;;
+      "stop crowsnest")
+        do_action_service "stop" "crowsnest"
+        main_ui
+        ;;
+      "restart crowsnest")
+        do_action_service "restart" "crowsnest"
+        main_ui
+        ;;
+      update) do_action "update_kiauh" "main_ui" ;;
+      0)
+        clear && print_header
         upload_selection
-        main_ui;;
-      1)clear && print_header
+        main_ui
+        ;;
+      1)
+        clear && print_header
         install_menu
-        break;;
-      2) clear && print_header
+        break
+        ;;
+      2)
+        clear && print_header
         update_menu
-        break;;
-      3) clear && print_header
+        break
+        ;;
+      3)
+        clear && print_header
         remove_menu
-        break;;
-      4)clear && print_header
+        break
+        ;;
+      4)
+        clear && print_header
         advanced_menu
-        break;;
-      5)clear && print_header
+        break
+        ;;
+      5)
+        clear && print_header
         backup_menu
-        main_ui;;
-      6)clear && print_header
+        main_ui
+        ;;
+      6)
+        clear && print_header
         settings_menu
-        break;;
-      Q|q)
-        echo -e "${green}###### Happy printing! ######${white}"; echo
-        exit 0;;
+        break
+        ;;
+      Q | q)
+        echo -e "${green}###### Happy printing! ######${white}"
+        echo
+        exit 0
+        ;;
       *)
-        deny_action "main_ui";;
+        deny_action "main_ui"
+        ;;
     esac
   done
   main_menu

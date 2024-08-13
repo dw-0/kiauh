@@ -34,12 +34,12 @@ function octoeverywhere_setup_dialog() {
   local moonraker_count
   local moonraker_names
   moonraker_count=$(moonraker_systemd | wc -w)
-  if (( moonraker_count == 0 )); then
+  if ((moonraker_count == 0)); then
     ### return early if moonraker is not installed
     local error="Moonraker not installed! Please install Moonraker first!"
-    log_error   "OctoEverywhere setup started without Moonraker being installed. Aborting setup."
+    log_error "OctoEverywhere setup started without Moonraker being installed. Aborting setup."
     print_error "${error}" && return
-  elif (( moonraker_count > 1 )); then
+  elif ((moonraker_count > 1)); then
     # moonraker_names is valid only in case of multi-instance
     read -r -a moonraker_names <<< "$(get_multi_instance_names)"
   fi
@@ -48,25 +48,25 @@ function octoeverywhere_setup_dialog() {
   local octoeverywhere_services
   local existing_octoeverywhere_count
   octoeverywhere_services=$(octoeverywhere_systemd)
-  existing_octoeverywhere_count=$(echo "${octoeverywhere_services}" | wc -w )
+  existing_octoeverywhere_count=$(echo "${octoeverywhere_services}" | wc -w)
 
   # We need to make the moonraker instance count to the OctoEverywhere service count.
-  local allowed_octoeverywhere_count=$(( moonraker_count - existing_octoeverywhere_count ))
-  if (( allowed_octoeverywhere_count > 0 )); then
+  local allowed_octoeverywhere_count=$((moonraker_count - existing_octoeverywhere_count))
+  if ((allowed_octoeverywhere_count > 0)); then
     local new_octoeverywhere_count
 
     ### Step 1: Ask for the number of OctoEverywhere instances to install
-    if (( moonraker_count == 1 )); then
+    if ((moonraker_count == 1)); then
       ok_msg "Moonraker installation found!\n"
       new_octoeverywhere_count=1
-    elif (( moonraker_count > 1 )); then
+    elif ((moonraker_count > 1)); then
       top_border
       printf "|${green}%-55s${white}|\n" " ${moonraker_count} Moonraker instances found!"
       for name in "${moonraker_names[@]}"; do
         printf "|${cyan}%-57s${white}|\n" " ● moonraker-${name}"
       done
       blank_line
-      if (( existing_octoeverywhere_count > 0 )); then
+      if ((existing_octoeverywhere_count > 0)); then
         printf "|${green}%-55s${white}|\n" " ${existing_octoeverywhere_count} OctoEverywhere instances already installed!"
         for svc in ${octoeverywhere_services}; do
           printf "|${cyan}%-57s${white}|\n" " ● octoeverywhere-$(get_instance_name "${svc}")"
@@ -91,20 +91,20 @@ function octoeverywhere_setup_dialog() {
         [[ ${new_octoeverywhere_count} =~ ${re} && ${new_octoeverywhere_count} -le ${allowed_octoeverywhere_count} ]] && break
         ### conditional error messages
         [[ ! ${new_octoeverywhere_count} =~ ${re} ]] && error_msg "Input not a number"
-        (( new_octoeverywhere_count > allowed_octoeverywhere_count )) && error_msg "Number of OctoEverywhere instances larger than installed Moonraker instances"
+        ((new_octoeverywhere_count > allowed_octoeverywhere_count)) && error_msg "Number of OctoEverywhere instances larger than installed Moonraker instances"
       done && select_msg "${new_octoeverywhere_count}"
     else
       log_error "Internal error. moonraker_count of '${moonraker_count}' not equal or grater than one!"
       return 1
-    fi  # (( moonraker_count == 1 ))
-  fi  # (( allowed_octoeverywhere_count > 0 ))
+    fi # (( moonraker_count == 1 ))
+  fi   # (( allowed_octoeverywhere_count > 0 ))
 
   # Special case for one moonraker instance with OctoEverywhere already installed.
   # If the user selects the install option again, they might be trying to recover the install
   # or complete a printer link they didn't finish in the past.
   # So in this case, we will allow them to run the install script again, since it's safe to run
   # if the service is already installed, it will repair any missing issues.
-  if (( allowed_octoeverywhere_count == 0 && moonraker_count == 1 )); then
+  if ((allowed_octoeverywhere_count == 0 && moonraker_count == 1)); then
     local yn
     while true; do
       echo "${yellow}OctoEverywhere is already installed.${white}"
@@ -113,15 +113,18 @@ function octoeverywhere_setup_dialog() {
       local question="Do you want to run the OctoEverywhere recovery or linking logic again?"
       read -p "${cyan}###### ${question} (Y/n):${white} " yn
       case "${yn}" in
-        Y|y|Yes|yes|"")
+        Y | y | Yes | yes | "")
           select_msg "Yes"
-          break;;
-        N|n|No|no)
+          break
+          ;;
+        N | n | No | no)
           select_msg "No"
           abort_msg "Exiting OctoEverywhere setup ...\n"
-          return;;
+          return
+          ;;
         *)
-          error_msg "Invalid Input!";;
+          error_msg "Invalid Input!"
+          ;;
       esac
     done
     # The user responded yes, allow the install to run again.
@@ -129,10 +132,10 @@ function octoeverywhere_setup_dialog() {
   fi
 
   # If there's something to install, do it!
-  if (( allowed_octoeverywhere_count > 0 )); then
+  if ((allowed_octoeverywhere_count > 0)); then
 
-    (( new_octoeverywhere_count > 1 )) && status_msg "Installing ${new_octoeverywhere_count} OctoEverywhere instances ..."
-    (( new_octoeverywhere_count == 1 )) && status_msg "Installing OctoEverywhere ..."
+    ((new_octoeverywhere_count > 1)) && status_msg "Installing ${new_octoeverywhere_count} OctoEverywhere instances ..."
+    ((new_octoeverywhere_count == 1)) && status_msg "Installing OctoEverywhere ..."
 
     # Ensure the basic system dependencies are installed.
     local dep=(git dfu-util virtualenv python3 python3-pip python3-venv)
@@ -146,17 +149,17 @@ function octoeverywhere_setup_dialog() {
     read -r -a instance_cfg_dirs <<< "$(get_instance_folder_path "config")"
     echo instance_cfg_dirs[0]
 
-    if (( moonraker_count == 1 )); then
+    if ((moonraker_count == 1)); then
       "${OCTOEVERYWHERE_DIR}/install.sh" "${instance_cfg_dirs[0]}/moonraker.conf"
-    elif (( moonraker_count > 1 )); then
+    elif ((moonraker_count > 1)); then
       local j=${existing_octoeverywhere_count}
 
-      for (( i=1; i <= new_octoeverywhere_count; i++ )); do
+      for ((i = 1; i <= new_octoeverywhere_count; i++)); do
         "${OCTOEVERYWHERE_DIR}/install.sh" "${instance_cfg_dirs[${j}]}/moonraker.conf"
-        j=$(( j + 1 ))
+        j=$((j + 1))
       done && unset j
     fi # (( moonraker_count == 1 ))
-  fi  # (( allowed_octoeverywhere_count > 0 ))
+  fi   # (( allowed_octoeverywhere_count > 0 ))
 }
 
 function clone_octoeverywhere() {
@@ -255,8 +258,7 @@ function remove_octoeverywhere_env() {
   ok_msg "Directory removed!"
 }
 
-function remove_octoeverywhere()
-{
+function remove_octoeverywhere() {
   remove_octoeverywhere_systemd
   remove_octoeverywhere_logs
   remove_octoeverywhere_dir
@@ -335,9 +337,9 @@ function get_octoeverywhere_status() {
   local octoeverywhere_services
 
   octoeverywhere_services=$(octoeverywhere_systemd)
-  service_count=$(echo "${octoeverywhere_services}" | wc -w )
+  service_count=$(echo "${octoeverywhere_services}" | wc -w)
 
-  if (( service_count == 0 )); then
+  if ((service_count == 0)); then
     status="Not installed!"
   elif [[ ! -d "${OCTOEVERYWHERE_DIR}" ]]; then
     status="Incomplete!"

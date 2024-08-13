@@ -21,7 +21,7 @@ function settings_ui() {
   local bbu="${backup_before_update}"
 
   ### custom repository
-  custom_repo=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//" )
+  custom_repo=$(echo "${custom_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
   if [[ -z ${custom_repo} ]]; then
     custom_repo="${cyan}Klipper3D/klipper${white}"
   else
@@ -60,30 +60,30 @@ function settings_ui() {
   hr
   echo -e "| Klipper:                                              |"
   echo -e "|   ● Repository:                                       |"
-  printf  "|     %-70s|\n" "${custom_repo} (${custom_branch})"
+  printf "|     %-70s|\n" "${custom_repo} (${custom_branch})"
   hr
   echo -e "| Install unstable releases:                            |"
-  printf  "|     Mainsail: %-29sFluidd: %-27s|\n" "${ms_pre_rls}" "${fl_pre_rls}"
+  printf "|     Mainsail: %-29sFluidd: %-27s|\n" "${ms_pre_rls}" "${fl_pre_rls}"
   hr
-  printf  "| Backup before updating: %-42s|\n" "${bbu}"
+  printf "| Backup before updating: %-42s|\n" "${bbu}"
   hr
   echo -e "| 1) Set custom Klipper repository                      |"
   blank_line
   if [[ ${mainsail_install_unstable} == "false" ]]; then
-  echo -e "| 2) ${green}Allow${white} unstable Mainsail releases                   |"
+    echo -e "| 2) ${green}Allow${white} unstable Mainsail releases                   |"
   else
-  echo -e "| 2) ${red}Disallow${white} unstable Mainsail releases                |"
+    echo -e "| 2) ${red}Disallow${white} unstable Mainsail releases                |"
   fi
   if [[ ${fluidd_install_unstable} == "false" ]]; then
-  echo -e "| 3) ${green}Allow${white} unstable Fluidd releases                     |"
+    echo -e "| 3) ${green}Allow${white} unstable Fluidd releases                     |"
   else
-  echo -e "| 3) ${red}Disallow${white} unstable Fluidd releases                  |"
+    echo -e "| 3) ${red}Disallow${white} unstable Fluidd releases                  |"
   fi
   blank_line
   if [[ ${backup_before_update} == "false" ]]; then
-  echo -e "| 4) ${green}Enable${white} automatic backups before updates            |"
+    echo -e "| 4) ${green}Enable${white} automatic backups before updates            |"
   else
-  echo -e "| 4) ${red}Disable${white} automatic backups before updates           |"
+    echo -e "| 4) ${red}Disable${white} automatic backups before updates           |"
   fi
   back_help_footer
 }
@@ -120,12 +120,14 @@ function show_settings_help() {
   while true; do
     read -p "${cyan}###### Please select:${white} " choice
     case "${choice}" in
-      B|b)
+      B | b)
         clear && print_header
         settings_menu
-        break;;
+        break
+        ;;
       *)
-        deny_action "show_settings_help";;
+        deny_action "show_settings_help"
+        ;;
     esac
   done
 }
@@ -141,26 +143,33 @@ function settings_menu() {
       1)
         clear && print_header
         change_klipper_repo_menu
-        settings_ui;;
+        settings_ui
+        ;;
       2)
         switch_mainsail_releasetype
-        settings_menu;;
+        settings_menu
+        ;;
       3)
         switch_fluidd_releasetype
-        settings_menu;;
+        settings_menu
+        ;;
       4)
         toggle_backup_before_update
-        settings_menu;;
-      B|b)
+        settings_menu
+        ;;
+      B | b)
         clear
         main_menu
-        break;;
-      H|h)
+        break
+        ;;
+      H | h)
         clear && print_header
         show_settings_help
-        break;;
+        break
+        ;;
       *)
-        deny_action "settings_ui";;
+        deny_action "settings_ui"
+        ;;
     esac
   done
 }

@@ -43,45 +43,67 @@ function remove_menu() {
     read -p "${cyan}####### Perform action:${white} " action
     case "${action}" in
       1)
-        do_action "remove_klipper" "remove_ui";;
+        do_action "remove_klipper" "remove_ui"
+        ;;
       2)
-        do_action "remove_moonraker" "remove_ui";;
+        do_action "remove_moonraker" "remove_ui"
+        ;;
       3)
-        do_action "remove_mainsail" "remove_ui";;
+        do_action "remove_mainsail" "remove_ui"
+        ;;
       4)
-        do_action "remove_mainsail_config" "remove_ui";;
+        do_action "remove_mainsail_config" "remove_ui"
+        ;;
       5)
-        do_action "remove_fluidd" "remove_ui";;
+        do_action "remove_fluidd" "remove_ui"
+        ;;
       6)
-        do_action "remove_fluidd_config" "remove_ui";;
+        do_action "remove_fluidd_config" "remove_ui"
+        ;;
       7)
-        do_action "remove_klipperscreen" "remove_ui";;
+        do_action "remove_klipperscreen" "remove_ui"
+        ;;
       8)
-        do_action "remove_octoprint" "remove_ui";;
+        do_action "remove_octoprint" "remove_ui"
+        ;;
       9)
-        do_action "remove_crowsnest" "remove_ui";;
+        do_action "remove_crowsnest" "remove_ui"
+        ;;
       10)
-        do_action "remove_mjpg-streamer" "remove_ui";;
+        do_action "remove_mjpg-streamer" "remove_ui"
+        ;;
       11)
-        do_action "remove_prettygcode" "remove_ui";;
+        do_action "remove_prettygcode" "remove_ui"
+        ;;
       12)
-        do_action "remove_telegram_bot" "remove_ui";;
+        do_action "remove_telegram_bot" "remove_ui"
+        ;;
       13)
-        do_action "remove_moonraker_obico" "remove_ui";;
+        do_action "remove_moonraker_obico" "remove_ui"
+        ;;
       14)
-        do_action "remove_octoeverywhere" "remove_ui";;
+        do_action "remove_octoeverywhere" "remove_ui"
+        ;;
       15)
-        do_action "remove_mobileraker" "remove_ui";;
+        do_action "remove_mobileraker" "remove_ui"
+        ;;
       16)
-        do_action "remove_nginx" "remove_ui";;
+        do_action "remove_nginx" "remove_ui"
+        ;;
       17)
-        do_action "remove_octoapp" "remove_ui";;
+        do_action "remove_octoapp" "remove_ui"
+        ;;
       18)
-        do_action "remove_spoolman" "remove_ui";;
-      B|b)
-        clear; main_menu; break;;
+        do_action "remove_spoolman" "remove_ui"
+        ;;
+      B | b)
+        clear
+        main_menu
+        break
+        ;;
       *)
-        deny_action "remove_ui";;
+        deny_action "remove_ui"
+        ;;
     esac
   done
   remove_menu

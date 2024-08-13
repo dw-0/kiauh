@@ -70,13 +70,16 @@ function kiauh_update_dialog() {
   read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
   while true; do
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         do_action "update_kiauh"
-        break;;
-      N|n|No|no)
-        break;;
+        break
+        ;;
+      N | n | No | no)
+        break
+        ;;
       *)
-        deny_action "kiauh_update_dialog";;
+        deny_action "kiauh_update_dialog"
+        ;;
     esac
   done
 }

@@ -32,17 +32,18 @@ function accept_upload_conditions() {
   while true; do
     read -p "${cyan}Do you accept? (Y/n):${white} " yn
     case "${yn}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         sed -i "/logupload_accepted=/s/false/true/" "${INI_FILE}"
         clear && print_header && upload_selection
         ;;
-      N|n|No|no)
+      N | n | No | no)
         clear
         main_menu
         break
         ;;
       *)
-        error_msg "Invalid command!";;
+        error_msg "Invalid command!"
+        ;;
     esac
   done
 }
@@ -86,9 +87,9 @@ function upload_selection() {
 
   for log in "${logfiles[@]}"; do
     log=${log//${HOME}/"~"}
-    (( i < 10 )) && printf "|  ${i}) %-50s|\n" "${log}"
-    (( i >= 10 )) && printf "| ${i}) %-50s|\n" "${log}"
-    i=$(( i + 1 ))
+    ((i < 10)) && printf "|  ${i}) %-50s|\n" "${log}"
+    ((i >= 10)) && printf "| ${i}) %-50s|\n" "${log}"
+    i=$((i + 1))
   done
 
   blank_line

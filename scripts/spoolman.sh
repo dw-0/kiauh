@@ -56,7 +56,7 @@ function update_spoolman() {
   rm -rf "${SPOOLMAN_DIR}_old"
 }
 
-function remove_spoolman(){
+function remove_spoolman() {
   if [[ -d "${SPOOLMAN_DIR}" ]]; then
     status_msg "Removing spoolman service..."
     do_action_service "stop" "Spoolman"
@@ -138,15 +138,18 @@ function advanced_config_prompt() {
   while true; do
     read -erp "${cyan}###### Continue with default configuration? (Y/n):${white} " reply
     case "${reply}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
         advanced_config
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid Input!\n";;
+        error_msg "Invalid Input!\n"
+        ;;
     esac
   done
   return 0
@@ -157,15 +160,18 @@ function enable_moonraker_integration_prompt() {
   while true; do
     read -erp "${cyan}###### Enable Moonraker integration? (Y/n):${white} " reply
     case "${reply}" in
-      Y|y|Yes|yes|"")
+      Y | y | Yes | yes | "")
         select_msg "Yes"
         enable_moonraker_integration
-        break;;
-      N|n|No|no)
+        break
+        ;;
+      N | n | No | no)
         select_msg "No"
-        break;;
+        break
+        ;;
       *)
-        error_msg "Invalid Input!\n";;
+        error_msg "Invalid Input!\n"
+        ;;
     esac
   done
   return 0
@@ -225,16 +231,16 @@ function start_install_script() {
 function get_spoolman_status() {
   local -a files
   files=(
-      "${SPOOLMAN_DIR}"
-      "${SYSTEMD}/Spoolman.service"
-      "${SPOOLMAN_DB_DIR}"
-    )
+    "${SPOOLMAN_DIR}"
+    "${SYSTEMD}/Spoolman.service"
+    "${SPOOLMAN_DB_DIR}"
+  )
 
   local count
   count=0
 
   for file in "${files[@]}"; do
-    [[ -e "${file}" ]] && count=$(( count +1 ))
+    [[ -e "${file}" ]] && count=$((count + 1))
   done
 
   if [[ "${count}" -eq "${#files[*]}" ]]; then
@@ -248,7 +254,7 @@ function get_spoolman_status() {
 
 function get_local_spoolman_version() {
   [[ ! -d "${SPOOLMAN_DIR}" ]] && return
-  
+
   local version
   version=$(grep -o '"version":\s*"[^"]*' "${SPOOLMAN_DIR}"/release_info.json | cut -d'"' -f4)
   echo "${version}"
