@@ -409,7 +409,7 @@ def service_instance_exists(name: str, exclude: List[str] | None = None) -> bool
     :return: True if the service exists, False otherwise
     """
     exclude = exclude or []
-    pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
+    pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?\.(service|timer)$")
     service_list = [
         Path(SYSTEMD, service)
         for service in SYSTEMD.iterdir()
