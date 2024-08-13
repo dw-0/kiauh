@@ -113,37 +113,35 @@ function start_klipper_setup() {
 
   ### user selection for custom names
   use_custom_names="false"
-  if ((instance_count > 1)); then
-    print_dialog_user_select_custom_name_bool
-    while true; do
-      read -p "${cyan}###### Assign custom names? (y/N):${white} " input
-      case "${input}" in
-        Y | y | Yes | yes)
-          select_msg "Yes\n"
-          use_custom_names="true"
-          break
-          ;;
-        N | n | No | no | "")
-          select_msg "No\n"
-          break
-          ;;
-        B | b)
-          clear
-          install_menu
-          break
-          ;;
-        *)
-          error_msg "Invalid Input!\n"
-          ;;
-      esac
-    done && input=""
-  else
-    instance_names+=("printer")
-  fi
+
+  print_dialog_user_select_custom_name_bool
+
+  while true; do
+    read -p "${cyan}###### Assign custom name$([[ ${instance_count} -gt 1 ]] && echo "s" || echo "")? (y/N):${white} " input
+    case "${input}" in
+      Y | y | Yes | yes)
+        select_msg "Yes\n"
+        use_custom_names="true"
+        break
+        ;;
+      N | n | No | no | "")
+        select_msg "No\n"
+        break
+        ;;
+      B | b)
+        clear
+        install_menu
+        break
+        ;;
+      *)
+        error_msg "Invalid Input!\n"
+        ;;
+    esac
+  done && input=""
 
   ### user selection for setting the actual custom names
   shopt -s nocasematch
-  if ((instance_count > 1)) && [[ ${use_custom_names} == "true" ]]; then
+  if [[ ${use_custom_names} == "true" ]]; then
     local i
 
     i=1
@@ -166,15 +164,14 @@ function start_klipper_setup() {
         error_msg "Invalid Input!\n"
       fi
     done && input=""
-  elif ((instance_count > 1)) && [[ ${use_custom_names} == "false" ]]; then
+  else
     for ((i = 1; i <= instance_count; i++)); do
       instance_names+=("printer_${i}")
     done
   fi
   shopt -u nocasematch
 
-  ((instance_count > 1)) && status_msg "Installing ${instance_count} Klipper instances ..."
-  ((instance_count == 1)) && status_msg "Installing single Klipper instance ..."
+  status_msg "Installing ${instance_count} Klipper instance$([[ ${instance_count} -gt 1 ]] && echo "s" || echo "") ..."
 
   run_klipper_setup "${python_version}" "${instance_names[@]}"
 }
