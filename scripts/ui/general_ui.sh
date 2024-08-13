@@ -48,7 +48,7 @@ function back_help_footer() {
 
 function print_header() {
   top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~~~~~ [ KIAUH ] ~~~~~~~~~~~~~~~~~")     |"
+  echo -e "|     $(title_msg "~~~~~~ [ KIAUH - Profezzional's Fork ] ~~~~~~")     |"
   echo -e "|     $(title_msg "   Klipper Installation And Update Helper    ")     |"
   echo -e "|     $(title_msg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")     |"
   bottom_border
