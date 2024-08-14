@@ -355,7 +355,7 @@ function clone_klipper() {
 
   [[ -z ${branch} ]] && branch="${DEFAULT_KLIPPER_BRANCH}"
 
-  local klipper_instance_dir="${KLIPPER_DIR}/${instance_name}"
+  local klipper_instance_dir="${KLIPPER_DIR}/${klipper_instance_name}"
 
   [[ -d "${klipper_instance_dir}" ]] && rm -rf "${klipper_instance_dir}"
 
