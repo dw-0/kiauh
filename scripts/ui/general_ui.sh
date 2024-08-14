@@ -142,6 +142,7 @@ function print_table() {
   top_border "${overall_width}"
 
   local line_count=${#lines[@]}
+  local i
 
   for ((i = 0; i < line_count; i++)); do
     local line="${lines[${i}]}"
