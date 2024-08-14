@@ -671,20 +671,22 @@ function get_klipper_status() {
 
   klipper_instances=$(klipper_systemd)
 
-  for klipper_instance in "${klipper_instances[@]}"; do
-    local klipper_instance_python_version
+  if ((${#klipper_instances} > 0)); then
+    for klipper_instance in "${klipper_instances[@]}"; do
+      local klipper_instance_python_version
 
-    klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance}")
+      klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance}")
 
-    if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
-      klipper_instance_python_versions+=("${klipper_instance_python_version}")
-    fi
-  done
+      if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
+        klipper_instance_python_versions+=("${klipper_instance_python_version}")
+      fi
+    done
+  fi
 
-  ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
 
   if ((${#klipper_instances} > 0)); then
+    ### remove the "SERVICE" entry from the data array if a klipper service is installed
     unset "data_arr[0]"
   fi
 
