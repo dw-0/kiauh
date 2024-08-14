@@ -673,8 +673,11 @@ function get_klipper_status() {
   local klipper_instance_status
 
   klipper_instances=$(klipper_systemd)
+  local file_count=0
+  local i
+  local data_arr
 
-  if ((${#klipper_instances} > 0)); then
+  if ((${#klipper_instances[@]} > 0)); then
     for klipper_instance in "${klipper_instances[@]}"; do
       local klipper_instance_python_version
 
@@ -683,25 +686,22 @@ function get_klipper_status() {
       if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
         klipper_instance_python_versions+=("${klipper_instance_python_version}")
       fi
+
+      data_arr=(SERVICE "${KLIPPER_DIR}/${klipper_instance}" "${KLIPPY_ENV}/${klipper_instance}")
     done
   fi
 
-  local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
-
-  if ((${#klipper_instances} > 0)); then
+  if ((${#klipper_instances[@]} > 0)); then
     ### remove the "SERVICE" entry from the data array if a klipper service is installed
     unset "data_arr[0]"
   fi
-
-  local file_count=0
-  local i
 
   for data in "${data_arr[@]}"; do
     [[ -e ${data} ]] && file_count=$((file_count + 1))
   done
 
   if ((file_count == ${#data_arr[*]})); then
-    klipper_instance_status="Installed: ${#klipper_instances} ("
+    klipper_instance_status="Installed: ${#klipper_instances[@]} ("
 
     for ((i = 0; i < ${#klipper_instance_python_versions[@]}; i++)); do
       klipper_instance_status+="${klipper_instance_python_versions[${i}]}$([[ ${i} -lt $((${#klipper_instance_python_versions[@]} - 1)) ]] && echo ", " || echo "")"
