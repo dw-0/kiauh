@@ -83,10 +83,6 @@ function kiauh_update_dialog() {
 #endregion
 
 set_globals
-
-start_flash_sd
-exit 1
-
 check_if_rat_os
 check_euid
 init_log_file
