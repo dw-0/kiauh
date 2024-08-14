@@ -322,7 +322,7 @@ function run_klipper_setup() {
   for ((i = 0; i < "${#klipper_repos_ref[@]}"; i++)); do
     local repo="${klipper_repos_ref[i]%%|*}"
     local branch="${klipper_repos_ref[i]##*|}"
-    clone_klipper "${repo}" "${branch}"
+    clone_klipper "${repo}" "${branch}" "${instance_names_ref[i]}"
 
     install_klipper_packages "${python_versions_ref[i]}" "${instance_names_ref[i]}"
     create_klipper_virtualenv "${python_version}" "${instance_names_ref[i]}"
