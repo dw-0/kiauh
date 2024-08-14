@@ -218,19 +218,19 @@ function start_klipper_setup() {
       local repos_list=()
 
       for repo in "${!repos[@]}"; do
-        IFS=',' read -r -a branches <<< "${repos[repo]}"
+        IFS=',' read -r -a branches <<< "${repos[${repo}]}"
 
         for branch in "${branches[@]}"; do
           repos_list+=("${repo}|${branch}")
         done
       done
 
-      repos_list=$(prefix_array_values_with_index repos_list[@])
+      local new_repos_list=$(prefix_array_values_with_index repos_list[@])
 
       eval print_table \
         "\"Please select the Klipper repo and branch to use:\"" \
         "\"${TABLE_SECTION_SEPARATOR}\"" \
-        "${repos_list[@]}" \
+        "${new_repos_list[@]}" \
         $(quit_footer) \
         57
 
