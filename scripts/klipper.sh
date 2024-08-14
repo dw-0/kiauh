@@ -679,14 +679,14 @@ function get_klipper_status() {
 
   for klipper_instance in "${klipper_instances[@]}"; do
     local klipper_instance_python_version
-
-    klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance}")
+    local klipper_instance_name=$(get_klipper_instance_name "${klipper_instance}")
+    klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance_name}")
 
     if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
       klipper_instance_python_versions+=("${klipper_instance_python_version}")
     fi
 
-    data_arr+=("${KLIPPER_DIR}/${klipper_instance}" "${KLIPPY_ENV}/${klipper_instance}")
+    data_arr+=("${KLIPPER_DIR}/${klipper_instance_name}" "${KLIPPY_ENV}/${klipper_instance_name}")
   done
 
   for data in "${data_arr[@]}"; do
