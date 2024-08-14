@@ -257,7 +257,7 @@ function start_klipper_setup() {
 
   status_msg "Installing ${instance_count} Klipper instance$([[ ${instance_count} -gt 1 ]] && echo "s" || echo "")..."
 
-  run_klipper_setup "${klipper_instance_python_versions[@]}" "${klipper_instance_names[@]}" "${klipper_instance_repos[@]}"
+  run_klipper_setup klipper_instance_python_versions klipper_instance_names klipper_instance_repos
 }
 
 function print_dialog_user_select_python_version() {
