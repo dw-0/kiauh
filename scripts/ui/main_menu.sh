@@ -52,7 +52,7 @@ function print_kiauh_version() {
 function print_status() {
   local status
   local component="${1}"
-  status="Not installed!" #$(get_"${component}"_status)
+  status=$(get_"${component}"_status)
 
   if [[ ${status} == "Not installed!" ]]; then
     status="${red}${status}"
@@ -64,16 +64,17 @@ function print_status() {
   else
     status="${green}${status}"
   fi
+
   echo "${status}${white}"
 }
 
 function print_klipper_repo() {
-  # read_kiauh_ini
+  read_kiauh_ini
 
   local repo klipper_status
-  klipper_status="Not installed!" #$(get_klipper_status)
-  # repo=$(echo "${custom_klipper_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
-  # repo="${repo^^}"
+  klipper_status=$(get_klipper_status)
+  repo=$(echo "${custom_klipper_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
+  repo="${repo^^}"
 
   if [[ ${klipper_status} == "Not installed!" ]]; then
     repo="${red}-"
@@ -197,5 +198,6 @@ function main_menu() {
         ;;
     esac
   done
+
   main_menu
 }
