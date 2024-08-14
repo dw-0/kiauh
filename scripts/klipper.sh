@@ -170,7 +170,7 @@ function start_klipper_setup() {
 
         if [[ ${input} =~ ${blacklist} ]]; then
           error_msg "Name not allowed! You are trying to use a reserved name."
-        elif [[ ${input} =~ ${regex} && ! ${input} =~ ${blacklist} ]]; then
+        elif [[ ${input} =~ ${instance_name_regex} && ! ${input} =~ ${blacklist} ]]; then
           select_msg "Name: ${input}\n"
 
           klipper_instance_names+=("$([[ ${input} =~ ${number_regex} ]] && echo "printer_${input}" || echo "${input}")")
