@@ -123,6 +123,7 @@ function start_klipper_setup() {
   done && input=""
 
   shopt -s nocasematch
+  local i
 
   for ((i = 1; i <= instance_count; i++)); do
     local use_custom_klipper_instance_name
@@ -693,6 +694,7 @@ function get_klipper_status() {
   fi
 
   local file_count=0
+  local i
 
   for data in "${data_arr[@]}"; do
     [[ -e ${data} ]] && file_count=$((file_count + 1))
