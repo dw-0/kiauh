@@ -679,7 +679,8 @@ function get_klipper_status() {
 
   for klipper_instance in "${klipper_instances[@]}"; do
     local klipper_instance_python_version
-    local klipper_instance_name=$(get_klipper_instance_name "${klipper_instance}")
+    local klipper_instance_name
+    klipper_instance_name=$(get_klipper_instance_name "${klipper_instance}")
     klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance_name}")
 
     if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
@@ -699,7 +700,7 @@ function get_klipper_status() {
     klipper_instance_status="Installed: ${#klipper_instances[@]} ("
 
     for ((i = 0; i < ${#klipper_instance_python_versions[@]}; i++)); do
-      klipper_instance_status+="${klipper_instance_python_versions[${i}]}$([[ ${i} -lt $((${#klipper_instance_python_versions[@]} - 1)) ]] && echo ", " || echo "")"
+      klipper_instance_status+="py${klipper_instance_python_versions[${i}]}$([[ ${i} -lt $((${#klipper_instance_python_versions[@]} - 1)) ]] && echo ", " || echo "")"
     done
 
     klipper_instance_status+=")"
