@@ -103,7 +103,6 @@ function get_user_confirmation() {
 
     case "${input}" in
       Y | y | Yes | yes)
-        select_msg "Yes\n"
         echo true
         break
         ;;
