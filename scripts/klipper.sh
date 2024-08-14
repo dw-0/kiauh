@@ -375,6 +375,7 @@ function create_klipper_virtualenv() {
   local python_version="${1}"
   local klipper_instance_name="${2}"
   local virtual_python_environment_folder="${KLIPPY_ENV}/${klipper_instance_name:?}"
+  local klipper_dir="${KLIPPER_DIR}/${klipper_instance_name}"
 
   # remove virtual Python environment if it exists
   [[ -d "${virtual_python_environment_folder}" ]] && rm -rf "${virtual_python_environment_folder}"
@@ -383,7 +384,7 @@ function create_klipper_virtualenv() {
 
   if virtualenv -p "python${python_version}" "${virtual_python_environment_folder}"; then
     ((python_version == 3)) && "${virtual_python_environment_folder}"/bin/pip install -U pip
-    "${virtual_python_environment_folder}"/bin/pip install -r "${virtual_python_environment_folder}"/scripts/klippy-requirements.txt
+    "${virtual_python_environment_folder}"/bin/pip install -r "${klipper_dir}"/scripts/klippy-requirements.txt
   else
     log_error "failure while creating python3 klippy-env for Klipper instance ${klipper_instance_name}"
     error_msg "Creation of Klipper virtualenv for Klipper instance ${klipper_instance_name} failed!"
