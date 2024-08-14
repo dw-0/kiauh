@@ -677,18 +677,20 @@ function get_klipper_status() {
   local i
   local data_arr=()
 
-  for klipper_instance in "${klipper_instances[@]}"; do
-    local klipper_instance_python_version
-    local klipper_instance_name
-    klipper_instance_name=$(get_klipper_instance_name "${klipper_instance}")
-    klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance_name}")
+  if [[ -n "${klipper_instances}" ]]; then
+    for klipper_instance in "${klipper_instances[@]}"; do
+      local klipper_instance_python_version
+      local klipper_instance_name
+      klipper_instance_name=$(get_klipper_instance_name "${klipper_instance}")
+      klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance_name}")
 
-    if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
-      klipper_instance_python_versions+=("${klipper_instance_python_version}")
-    fi
+      if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
+        klipper_instance_python_versions+=("${klipper_instance_python_version}")
+      fi
 
-    data_arr+=("${KLIPPER_DIR}/${klipper_instance_name}" "${KLIPPY_ENV}/${klipper_instance_name}")
-  done
+      data_arr+=("${KLIPPER_DIR}/${klipper_instance_name}" "${KLIPPY_ENV}/${klipper_instance_name}")
+    done
+  fi
 
   for data in "${data_arr[@]}"; do
     [[ -e ${data} ]] && file_count=$((file_count + 1))
