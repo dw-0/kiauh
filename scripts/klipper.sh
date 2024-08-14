@@ -243,6 +243,7 @@ function start_klipper_setup() {
           local selected_option="${repos_list[$((option - 1))]}"
           selected_option="${selected_option#*) }"
           klipper_instance_repos+=("${selected_option}")
+          break
         else
           error_msg "Invalid command!"
         fi
