@@ -43,7 +43,8 @@ function set_globals() {
   #region Klipper
   KLIPPY_ENV="${HOME}/klippy-env"
   KLIPPER_DIR="${HOME}/klipper"
-  KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
+  DEFAULT_KLIPPER_REPO="https://github.com/Klipper3d/klipper.git"
+  DEFAULT_KLIPPER_BRANCH="master"
   #endregion
 
   #region Moonraker

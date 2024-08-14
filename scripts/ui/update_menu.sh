@@ -49,6 +49,7 @@ function update_menu() {
   local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
+
     case "${action}" in
       0)
         do_action "toggle_backups" "update_ui"

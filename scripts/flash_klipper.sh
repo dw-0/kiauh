@@ -267,15 +267,12 @@ function start_flash_mcu() {
 function start_flash_sd() {
   local device=${1}
   local i=0
-  local board_list=()
+  local board_list
   local flash_script="${KLIPPER_DIR}/scripts/flash-sdcard.sh"
   local boards
 
   boards=$("${flash_script}" -l | tail -n +2)
-
-  for ((i = 0; i < ${#boards[@]}; i++)); do
-    board_list+=("\"$( ((i < 9)) && echo " " || echo "")$((i + 1))) ${boards[${i}]}\"")
-  done
+  board_list=$(prefix_array_values_with_index boards[@])
 
   eval print_table \
     "\"Please select the type of board that corresponds to the currently selected MCU ID you chose before.\"" \
@@ -292,8 +289,8 @@ function start_flash_sd() {
     read -p "${cyan}###### Please select board type:${white} " choice
     if [[ ${choice} = "q" || ${choice} = "Q" ]]; then
       clear && advanced_menu && break
-    elif [[ ${choice} -le ${#boards[@]} ]]; then
-      local selected_board="${boards[${choice}]}"
+    elif [[ ${choice} -le ${#boards[@]} && ${choice} -gt 0 ]]; then
+      local selected_board="${boards[$((choice - 1))]}"
       break
     else
       clear && print_header
@@ -324,8 +321,8 @@ function start_flash_sd() {
   ###flash process
   do_action_service "stop" "klipper"
   if "${flash_script}" -b "${selected_baud_rate}" "${device}" "${selected_board}"; then
-    print_confirm "Flashing successfull!"
-    log_info "Flash successfull!"
+    print_confirm "Flashing successful!"
+    log_info "Flash successful!"
   else
     print_error "Flashing failed!\n Please read the console output above!"
     log_error "Flash failed!"
@@ -334,7 +331,7 @@ function start_flash_sd() {
 }
 
 function build_fw() {
-  local instance_name="${1}"
+  local klipper_instance_name="${1}"
   local python_version
 
   if [[ ! -d ${KLIPPER_DIR} ]]; then
@@ -342,12 +339,12 @@ function build_fw() {
     return
   fi
 
-  if [[ ! -d ${KLIPPY_ENV}/${instance_name} ]]; then
+  if [[ ! -d ${KLIPPY_ENV}/${klipper_instance_name} ]]; then
     print_error "Klippy virtual Python environment not found!\n Cannot build firmware without Klippy!"
     return
   fi
 
-  python_version=$(get_klipper_python_ver "${instance_name}")
+  python_version=$(get_klipper_python_version "${klipper_instance_name}")
 
   cd "${KLIPPER_DIR}"
   status_msg "Initializing firmware build ..."

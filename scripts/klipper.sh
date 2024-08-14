@@ -15,10 +15,7 @@ set -e
 # if the klipper installer is started another time while other klipper
 # instances are detected, ask if new instances should be added
 
-#=================================================#
-#================ INSTALL KLIPPER ================#
-#=================================================#
-
+#region Install Klipper
 ###
 # this function detects all installed klipper
 # systemd instances and returns their absolute path
@@ -44,38 +41,14 @@ function klipper_systemd() {
 
 function print_dialog_user_select_klipper_instance() {
   local instance_names
-  local longest_instance_name_length=0
-  local prompt
-  local instance_name_listing_template
-  local num_spaces_to_add
 
-  # Get instance names from your function
   instance_names=$(get_multi_instance_names)
+  instance_names_list=$(prefix_array_values_with_index instance_names[@])
 
-  longest_instance_name_length=$(($(longest_string_array_member_length "${instance_names[@]}")+ ${#instance_name_listing_template}))
-
-  prompt="Please select the Klipper instance to use:"
-  instance_name_listing_template="X) "
-
-  if (( ${#prompt} < longest_instance_name_length )); then
-    num_spaces_to_add=$((longest_instance_name_length - ${#prompt} - 1))
-    prompt="${prompt}$(repeat_string " " "${num_spaces_to_add}")"
-  fi  
-
-
-  echo "/$(repeat_string "=" "${longest_instance_name_length}")\\"
-  echo -e "${prompt}"
-  hr "${longest_instance_name_length}"
-  echo "|$(repeat_string "-" "${longest_instance_name_length}")|"
-
-  for (( i = 0; i < ${#instance_names[@]}; i++)); do
-    local line="| $((i + 1))) ${instance_names[i]}"
-    local spaces_to_add=$((box_width - ${#line} - 1))
-    echo -e "${line}$(repeat_string " " "${spaces_to_add}")|"
-  done
-
-  # Print the bottom border
-  cmd "$(repeat_string "-" "$box_width")"
+  eval print_table \
+    "\"Please select the Klipper instance to use:\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "${instance_names_list[@]}"
 }
 
 function list_klipper_instances() {
@@ -107,8 +80,11 @@ function start_klipper_setup() {
   local klipper_systemd_services
   local python_version
   local instance_count
-  local instance_names
-  local use_custom_names
+
+  local klipper_instance_names=()
+  local klipper_instance_python_versions=()
+  local klipper_instance_repos=()
+
   local input
   local regex
   local blacklist
@@ -127,37 +103,11 @@ function start_klipper_setup() {
       error="${error}\n ➔ ${s}"
     done
   fi
-  [[ -n ${error} ]] && print_error "${error}" && return
 
-  ### user selection for python version
-  print_dialog_user_select_python_version
-  while true; do
-    read -p "${cyan}###### Select Python version:${white} " -i "1" -e input
-    case "${input}" in
-      1)
-        select_msg "Python 3.x\n"
-        python_version=3
-        break
-        ;;
-      2)
-        select_msg "Python 2.7\n"
-        python_version=2
-        break
-        ;;
-      B | b)
-        clear
-        install_menu
-        break
-        ;;
-      *)
-        error_msg "Invalid Input!\n"
-        ;;
-    esac
-  done && input=""
-
-  ### user selection for instance count
   print_dialog_user_select_instance_count
+
   regex="^[1-9][0-9]*$"
+
   while [[ ! ${input} =~ ${regex} ]]; do
     read -p "${cyan}###### Number of Klipper instances to set up:${white} " -i "1" -e input
 
@@ -172,146 +122,220 @@ function start_klipper_setup() {
     fi
   done && input=""
 
-  ### user selection for custom names
-  use_custom_names="false"
-
-  print_dialog_user_select_custom_name_bool
-
-  while true; do
-    read -p "${cyan}###### Assign custom name$([[ ${instance_count} -gt 1 ]] && echo "s" || echo "")? (y/N):${white} " input
-    case "${input}" in
-      Y | y | Yes | yes)
-        select_msg "Yes\n"
-        use_custom_names="true"
-        break
-        ;;
-      N | n | No | no | "")
-        select_msg "No\n"
-        break
-        ;;
-      B | b)
-        clear
-        install_menu
-        break
-        ;;
-      *)
-        error_msg "Invalid Input!\n"
-        ;;
-    esac
-  done && input=""
-
-  ### user selection for setting the actual custom names
   shopt -s nocasematch
-  if [[ ${use_custom_names} == "true" ]]; then
-    local i
 
-    i=1
-    regex="^[0-9a-zA-Z]+$"
-    blacklist="mcu"
-    while [[ ! ${input} =~ ${regex} || ${input} =~ ${blacklist} || ${i} -le ${instance_count} ]]; do
-      read -p "${cyan}###### Name for instance #${i}:${white} " input
+  for ((i = 1; i <= instance_count; i++)); do
+    local use_custom_klipper_instance_name
+    local use_custom_klipper_repo
 
-      if [[ ${input} =~ ${blacklist} ]]; then
-        error_msg "Name not allowed! You are trying to use a reserved name."
-      elif [[ ${input} =~ ${regex} && ! ${input} =~ ${blacklist} ]]; then
-        select_msg "Name: ${input}\n"
-        if [[ ${input} =~ ^[0-9]+$ ]]; then
-          instance_names+=("printer_${input}")
-        else
-          instance_names+=("${input}")
-        fi
-        i=$((i + 1))
-      else
-        error_msg "Invalid Input!\n"
-      fi
+    print_dialog_user_select_python_version
+
+    while true; do
+      read -p "${cyan}###### Select Python version (3.x):${white} " -i "1" -e input
+
+      case "${input}" in
+        1 | "")
+          select_msg "Python 3.x\n"
+          python_version=3
+          break
+          ;;
+        2)
+          select_msg "Python 2.7\n"
+          python_version=2
+          break
+          ;;
+        B | b)
+          clear
+          install_menu
+          break
+          ;;
+        *)
+          error_msg "Invalid Input!\n"
+          ;;
+      esac
     done && input=""
-  else
-    for ((i = 1; i <= instance_count; i++)); do
-      instance_names+=("printer_${i}")
-    done
-  fi
+
+    klipper_instance_python_versions+=("${python_version}")
+
+    print_dialog_user_select_custom_name_bool
+    use_custom_klipper_instance_name=$(get_user_confirmation "###### Assign custom Klipper instance name")
+
+    if [[ ${use_custom_klipper_instance_name} == true ]]; then
+      local instance_name_regex="^[0-9a-zA-Z]+$"
+      local number_regex="^[0-9]+$"
+      local blacklist="mcu"
+
+      while [[ ! ${input} =~ ${instance_name_regex} || ${input} =~ ${blacklist} ]]; do
+        read -p "${cyan}###### Name for instance #${i}:${white} " input
+
+        if [[ ${input} =~ ${blacklist} ]]; then
+          error_msg "Name not allowed! You are trying to use a reserved name."
+        elif [[ ${input} =~ ${regex} && ! ${input} =~ ${blacklist} ]]; then
+          select_msg "Name: ${input}\n"
+
+          klipper_instance_names+=("$([[ ${input} =~ ${number_regex} ]] && echo "printer_${input}" || echo "${input}")")
+        else
+          error_msg "Invalid Input!\n"
+        fi
+      done && input=""
+    else
+      klipper_instance_names+=("printer_${i}")
+    fi
+
+    print_dialog_user_select_custom_repo_bool
+    use_custom_klipper_repo=$(get_user_confirmation "###### Use custom Klipper repo")
+
+    if [[ ${use_custom_klipper_repo} == true ]]; then
+      local repo_file="${KIAUH_SRCDIR}/klipper_repos.txt"
+
+      if [[ ! -f ${repo_file} ]]; then
+        print_error "File not found:\n '${repo_file}'"
+        return
+      fi
+
+      local repo
+      local branch
+      declare -A repos=()
+
+      while IFS="," read -r repo branch; do
+        repo=$(echo "${repo}" | sed -r "s/^http(s)?:\/\/github.com\///" | sed "s/\.git$//")
+
+        if [[ -z "${repos[${repo}]}" ]]; then
+          repos[${repo}]=""
+        fi
+
+        branch="${branch:-DEFAULT_KLIPPER_BRANCH}"
+
+        if [[ ! "${repos[${repo}]}" == *"${branch}"* ]]; then
+          if [[ -n "${repos[${repo}]}" ]]; then
+            repos[${repo}]+=","
+          fi
+
+          repos[${repo}]+="${branch}"
+        fi
+      done < <(grep -E "^[^#]" "${repo_file}")
+
+      local repos_list=()
+
+      for repo in "${!repos[@]}"; do
+        IFS=',' read -r -a branches <<< "${repos[repo]}"
+
+        for branch in "${branches[@]}"; do
+          repos_list+=("${repo}|${branch}")
+        done
+      done
+
+      repos_list=$(prefix_array_values_with_index repos_list[@])
+
+      eval print_table \
+        "\"Please select the Klipper repo and branch to use:\"" \
+        "\"${TABLE_SECTION_SEPARATOR}\"" \
+        "${repos_list[@]}" \
+        $(quit_footer) \
+        57
+
+      local number_regex="^[1-9]+$"
+
+      while true; do
+        read -p "${cyan}###### Select Klipper repo and branch:${white} " option
+
+        if [[ ${option} =~ ${number_regex} && ${option} -le ${#repos_list[@]} ]]; then
+          local selected_option="${repos_list[$((option - 1))]}"
+          selected_option="${selected_option#*) }"
+          klipper_instance_repos+=("${selected_option}")
+        else
+          error_msg "Invalid command!"
+        fi
+      done
+    else
+      klipper_instance_repos+=("${DEFAULT_KLIPPER_REPO}|${DEFAULT_KLIPPER_BRANCH}")
+    fi
+  done
+
   shopt -u nocasematch
 
-  status_msg "Installing ${instance_count} Klipper instance$([[ ${instance_count} -gt 1 ]] && echo "s" || echo "") ..."
+  status_msg "Installing ${instance_count} Klipper instance$([[ ${instance_count} -gt 1 ]] && echo "s" || echo "")..."
 
-  run_klipper_setup "${python_version}" "${instance_names[@]}"
+  run_klipper_setup "${klipper_instance_python_versions[@]}" "${klipper_instance_names[@]}" "${klipper_instance_repos[@]}"
 }
 
 function print_dialog_user_select_python_version() {
-  top_border
-  echo -e "| Please select your preferred Python version.          | "
-  echo -e "| The recommended version is Python 3.x.                | "
-  hr
-  echo -e "|  1) [Python 3.x]  (recommended)                       | "
-  echo -e "|  2) [Python 2.7]  ${yellow}(legacy)${white}                            | "
-  back_footer
+  eval print_table \
+    "\"Please select your preferred Python version.\"" \
+    "\"The recommended version is Python 3.x.\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "\"  1) [Python 3.x]  (recommended)\"" \
+    "\"  2) [Python 2.7]  ${yellow}(legacy)${white}\"" \
+    $(back_footer_new)
 }
 
 function print_dialog_user_select_instance_count() {
-  top_border
-  echo -e "| Please select the number of Klipper instances to set  |"
-  echo -e "| up. The number of Klipper instances will determine    |"
-  echo -e "| the amount of printers you can run from this host.    |"
-  blank_line
-  echo -e "| ${yellow}WARNING:${white}                                              |"
-  echo -e "| ${yellow}Setting up too many instances may crash your system.${white}  |"
-  back_footer
+  eval print_table \
+    "\"Please select the number of Klipper instances to set up.\"" \
+    "\"The number of Klipper instances will determine\"" \
+    "\"the amount of printers you can run from this host.\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "\"${yellow}WARNING:${white}\"" \
+    "\"${yellow}Setting up too many instances may crash your system.${white}\"" \
+    $(back_footer_new)
 }
 
 function print_dialog_user_select_custom_name_bool() {
-  top_border
-  echo -e "| You can now assign a custom name to each instance.    |"
-  echo -e "| If skipped, each instance will get an index assigned  |"
-  echo -e "| in ascending order, starting at index '1'.            |"
-  blank_line
-  echo -e "| Info:                                                 |"
-  echo -e "| Only alphanumeric characters for names are allowed!   |"
-  back_footer
+  eval print_table \
+    "\"You can now assign a custom name to each instance.\"" \
+    "\"If skipped, each instance will get an index assigned\"" \
+    "\"in ascending order, starting at index '1'.\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "\"Info:\"" \
+    "\"Only alphanumeric characters for names are allowed!\"" \
+    $(back_footer_new)
+}
+
+function print_dialog_user_select_custom_repo_bool() {
+  eval print_table \
+    "\"You can now assign a custom Klipper repo to each instance.\"" \
+    "\"If skipped, each instance will default to the main Klipper Github repo.\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "\"Info:\"" \
+    "\"These custom repos need to be defined in ${KIAUH_SRCDIR}/klipper_repos.txt.\"" \
+    $(back_footer_new)
 }
 
 function run_klipper_setup() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
-  local python_version=${1}
-  local instance_names
+  local -n python_versions_ref=${1}
+  local -n instance_names_ref=${2}
+  local -n klipper_repos_ref=${3}
+
   local confirm
   local custom_repo
   local custom_branch
   local dep
 
-  shift 1
-  read -r -a instance_names <<< "${@}"
-
-  custom_repo="${custom_klipper_repo}"
-  custom_branch="${custom_klipper_repo_branch}"
   dep=(git)
 
   ### checking dependencies
   dependency_check "${dep[@]}"
 
-  ### step 1: clone klipper
-  clone_klipper "${custom_repo}" "${custom_branch}"
+  for ((i = 0; i < "${#klipper_repos_ref[@]}"; i++)); do
+    local repo="${klipper_repos_ref[i]%%|*}"
+    local branch="${klipper_repos_ref[i]##*|}"
+    clone_klipper "${repo}" "${branch}"
 
-  ### step 2: install klipper dependencies and create python virtualenv
-  install_klipper_packages "${python_version}"
+    install_klipper_packages "${python_versions_ref[i]}" "${instance_names_ref[i]}"
+    create_klipper_virtualenv "${python_version}" "${instance_names_ref[i]}"
+    create_klipper_service "${instance_names_ref[i]}"
 
-  ### step 3: create klipper instances
-  for instance_name in "${instance_names[@]}"; do
-    create_klipper_virtualenv "${python_version}" "${instance_name}"
-    create_klipper_service "${instance_name}"
   done
 
-  ### step 4: enable and start all instances
   do_action_service "enable" "klipper"
   do_action_service "start" "klipper"
 
-  ### step 5: check for dialout group membership
   check_usergroups
 
-  ### confirm message
-  confirm="${#instance_names[@]} Klipper instance$([[ ${#instance_names[@]} -gt 1 ]] && echo "s have" || echo " has") been set up!"
+  confirm="${#instance_names_ref[@]} Klipper instance$([[ ${#instance_names_ref[@]} -gt 1 ]] && echo "s have" || echo " has") been set up!"
 
-  ### finalizing the setup with writing instance names to the kiauh.ini
   set_multi_instance_names
   mask_disrupting_services
 
@@ -319,22 +343,27 @@ function run_klipper_setup() {
 }
 
 function clone_klipper() {
-  local repo=${1} branch=${2}
+  local repo=${1}
+  local branch=${2}
+  local klipper_instance_name=${3}
 
-  [[ -z ${repo} ]] && repo="${KLIPPER_REPO}"
+  [[ -z ${repo} ]] && repo="${DEFAULT_KLIPPER_REPO}"
+
   repo=$(echo "${repo}" | sed -r "s/^(http|https):\/\/github\.com\///i; s/\.git$//")
   repo="https://github.com/${repo}"
 
-  [[ -z ${branch} ]] && branch="master"
+  [[ -z ${branch} ]] && branch="${DEFAULT_KLIPPER_BRANCH}"
 
-  ### force remove existing klipper dir and clone into fresh klipper dir
-  [[ -d ${KLIPPER_DIR} ]] && rm -rf "${KLIPPER_DIR}"
+  local klipper_instance_dir="${KLIPPER_DIR}/${instance_name}"
+
+  [[ -d "${klipper_instance_dir}" ]] && rm -rf "${klipper_instance_dir}"
 
   status_msg "Cloning Klipper from ${repo} ..."
 
   cd "${HOME}" || exit 1
-  if git clone "${repo}" "${KLIPPER_DIR}"; then
-    cd "${KLIPPER_DIR}" && git checkout "${branch}"
+
+  if git clone "${repo}" "${klipper_instance_dir}"; then
+    cd "${klipper_instance_dir}" && git checkout "${branch}"
   else
     print_error "Cloning Klipper from\n ${repo}\n failed!"
     exit 1
@@ -343,8 +372,8 @@ function clone_klipper() {
 
 function create_klipper_virtualenv() {
   local python_version="${1}"
-  local instance_name="${2}"
-  local virtual_python_environment_folder="${KLIPPY_ENV}/${instance_name:?}"
+  local klipper_instance_name="${2}"
+  local virtual_python_environment_folder="${KLIPPY_ENV}/${klipper_instance_name:?}"
 
   # remove virtual Python environment if it exists
   [[ -d "${virtual_python_environment_folder}" ]] && rm -rf "${virtual_python_environment_folder}"
@@ -355,8 +384,8 @@ function create_klipper_virtualenv() {
     ((python_version == 3)) && "${virtual_python_environment_folder}"/bin/pip install -U pip
     "${virtual_python_environment_folder}"/bin/pip install -r "${virtual_python_environment_folder}"/scripts/klippy-requirements.txt
   else
-    log_error "failure while creating python3 klippy-env for Klipper instance ${instance_name}"
-    error_msg "Creation of Klipper virtualenv for Klipper instance ${instance_name} failed!"
+    log_error "failure while creating python3 klippy-env for Klipper instance ${klipper_instance_name}"
+    error_msg "Creation of Klipper virtualenv for Klipper instance ${klipper_instance_name} failed!"
     exit 1
   fi
 }
@@ -368,8 +397,11 @@ function create_klipper_virtualenv() {
 # @param {string}: python_version - klipper-env python version
 #
 function install_klipper_packages() {
-  local packages log_name="Klipper" python_version="${1}"
-  local install_script="${KLIPPER_DIR}/scripts/install-debian.sh"
+  local packages
+  local log_name="Klipper"
+  local python_version="${1}"
+  local klipper_instance_name="${2}"
+  local install_script="${KLIPPER_DIR}/${klipper_instance_name}/scripts/install-debian.sh"
 
   status_msg "Reading dependencies..."
   # shellcheck disable=SC2016
@@ -416,6 +448,8 @@ function create_klipper_service() {
   local service_template
   local env_template
   local suffix
+  local klipper_dir="${KLIPPER_DIR}/${instance_name}"
+  local klippy_env_dir="${KLIPPY_ENV}/${instance_name}"
 
   printer_data="${HOME}/${instance_name}_data"
   cfg_dir="${printer_data}/config"
@@ -443,8 +477,8 @@ function create_klipper_service() {
 
     sudo cp "${service_template}" "${service}"
     sudo cp "${env_template}" "${env_file}"
-    sudo sed -i "s|%USER%|${USER}|g; s|%KLIPPER_DIR%|${KLIPPER_DIR}|; s|%ENV%|${KLIPPY_ENV}|; s|%ENV_FILE%|${env_file}|" "${service}"
-    sudo sed -i "s|%USER%|${USER}|; s|%KLIPPER_DIR%|${KLIPPER_DIR}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${klippy_serial}|; s|%UDS%|${klippy_socket}|" "${env_file}"
+    sudo sed -i "s|%USER%|${USER}|g; s|%KLIPPER_DIR%|${klipper_dir}|; s|%ENV%|${klippy_env_dir}|; s|%ENV_FILE%|${env_file}|" "${service}"
+    sudo sed -i "s|%USER%|${USER}|; s|%KLIPPER_DIR%|${klipper_dir}|; s|%LOG%|${log}|; s|%CFG%|${cfg}|; s|%PRINTER%|${klippy_serial}|; s|%UDS%|${klippy_socket}|" "${env_file}"
 
     ok_msg "Klipper service file created!"
   fi
@@ -469,11 +503,9 @@ function write_example_printer_cfg() {
     error_msg "Couldn't create minimal example printer.cfg!"
   fi
 }
+#endregion
 
-#================================================#
-#================ REMOVE KLIPPER ================#
-#================================================#
-
+#region Remove Klipper
 function remove_klipper_service() {
   [[ -z $(klipper_systemd) ]] && return
 
@@ -572,11 +604,9 @@ function remove_klipper() {
 
   print_confirm "Klipper was successfully removed!" && return
 }
+#endregion
 
-#================================================#
-#================ UPDATE KLIPPER ================#
-#================================================#
-
+#region Update Klipper
 ###
 # stops klipper, performs a git pull, installs
 # possible new dependencies, then restarts klipper
@@ -584,50 +614,80 @@ function remove_klipper() {
 function update_klipper() {
   read_kiauh_ini "${FUNCNAME[0]}"
 
-  local klipper_instance_name="${1}"
+  local klipper_instance_names
+  local selected_klipper_instance_name
+  local regex="^[1-9]+$"
+
+  klipper_instance_names=$(get_multi_instance_names)
+
+  print_dialog_user_select_klipper_instance
+
+  while true; do
+    read -p "${cyan}###### Select Klipper instance:${white} " -i "1" -e input
+
+    if [[ "${input}" == "B" || "${input}" == "b" ]]; then
+      clear
+      update_menu
+      break
+    elif [[ ! ${input} =~ ${regex} ]]; then
+      error_msg "Invalid input!"
+    elif [[ ${input} -lt 1 ]] || [[ ${input} -gt ${i} ]]; then
+      error_msg "Please select a number between 1 and ${i}!"
+    fi
+
+    selected_klipper_instance_name="${klipper_instance_names[$((input - 1))]}"
+  done && input=""
+
   local klipper_instance_python_version
   local custom_repo="${custom_klipper_repo}"
   local custom_branch="${custom_klipper_repo_branch}"
 
-  klipper_instance_python_version=$(get_klipper_python_ver "${klipper_instance_name}")
+  klipper_instance_python_version=$(get_klipper_python_version "${selected_klipper_instance_name}")
 
   do_action_service "stop" "klipper"
 
   if [[ ! -d ${KLIPPER_DIR} ]]; then
-    clone_klipper "${custom_repo}" "${custom_branch}"
+    clone_klipper "${custom_repo}" "${custom_branch}" "${selected_klipper_instance_name}"
   else
     backup_before_update "klipper"
 
-    status_msg "Updating Klipper ..."
+    status_msg "Updating Klipper instance ${selected_klipper_instance_name} ..."
+
     cd "${KLIPPER_DIR}" && git pull
-    ### read PKGLIST and install possible new dependencies
     install_klipper_packages "${klipper_instance_python_version}"
-    ### install possible new python dependencies
     "${KLIPPY_ENV}"/bin/pip install -r "${KLIPPER_DIR}/scripts/klippy-requirements.txt"
   fi
 
   ok_msg "Update complete!"
   do_action_service "restart" "klipper"
 }
+#endregion
 
-#================================================#
-#================ KLIPPER STATUS ================#
-#================================================#
-
+#region Klipper Status
 function get_klipper_status() {
-  local klipper_instances_count
-  local status
-  local klipper_instance_python_version
-  local klipper_instance_name=${1}
+  local klipper_instances
+  local klipper_instance_python_versions=()
+  local klipper_instance_status
 
-  klipper_instances_count="$(klipper_systemd | wc -w)"
-  klipper_instance_python_version=$(get_klipper_python_ver "${klipper_instance_name}")
+  klipper_instances=$(klipper_systemd)
+
+  for klipper_instance in "${klipper_instances[@]}"; do
+    local klipper_instance_python_version
+
+    klipper_instance_python_version=$(get_klipper_python_version "${klipper_instance}")
+
+    if [[ "$(array_contains_value "${klipper_instance_python_version}" "${klipper_instance_python_versions[@]}")" == false ]]; then
+      klipper_instance_python_versions+=("${klipper_instance_python_version}")
+    fi
+  done
 
   ### remove the "SERVICE" entry from the data array if a klipper service is installed
   local data_arr=(SERVICE "${KLIPPER_DIR}" "${KLIPPY_ENV}")
-  ((klipper_instances_count > 0)) && unset "data_arr[0]"
 
-  ### count+1 for each found data-item from array
+  if ((${#klipper_instances} > 0)); then
+    unset "data_arr[0]"
+  fi
+
   local file_count=0
 
   for data in "${data_arr[@]}"; do
@@ -635,14 +695,18 @@ function get_klipper_status() {
   done
 
   if ((file_count == ${#data_arr[*]})); then
-    status="Installed: ${klipper_instances_count}(py${klipper_instance_python_version})"
+    klipper_instance_status="Installed: ${#klipper_instances} ("
+
+    for ((i = 0; i < ${#klipper_instance_python_versions[@]}; i++)); do
+      klipper_instance_status+="${klipper_instance_python_versions[${i}]}$([[ ${i} -lt $((${#klipper_instance_python_versions[@]} - 1)) ]] && echo ", " || echo "")"
+    done
   elif ((file_count == 0)); then
-    status="Not installed!"
+    klipper_instance_status="Not installed!"
   else
-    status="Incomplete!"
+    klipper_instance_status="Incomplete!"
   fi
 
-  echo "${status}"
+  echo "${klipper_instance_status}"
 }
 
 function get_local_klipper_commit() {
@@ -686,15 +750,13 @@ function compare_klipper_versions() {
 
   echo "${versions}"
 }
+#endregion
 
-#================================================#
-#=================== HELPERS ====================#
-#================================================#
-
+#region Helpers
 function get_klippy_python_virtual_environment_folder() {
   local klipper_instance_name="${1}"
 
-  echo "${KLIPPY_ENV}/${instance_name:?}"
+  echo "${KLIPPY_ENV}/${klipper_instance_name:?}"
 }
 
 ###
@@ -702,9 +764,11 @@ function get_klippy_python_virtual_environment_folder() {
 #
 # @output: writes the python major version to STDOUT
 #
-function get_klipper_python_ver() {
+function get_klipper_python_version() {
   local klipper_instance_name=${1}
-  local klippy_python_virtual_environment_folder=get_klippy_python_virtual_environment_folder "${klipper_instance_name}"
+  local klippy_python_virtual_environment_folder
+
+  klippy_python_virtual_environment_folder=$(get_klippy_python_virtual_environment_folder "${klipper_instance_name}")
 
   [[ ! -d ${klippy_python_virtual_environment_folder} ]] && return
 
@@ -723,23 +787,28 @@ function mask_disrupting_services() {
   [[ $(dpkg -s ModemManager 2> /dev/null | grep "Status") = *\ installed ]] && modem_manager="true"
 
   status_msg "Installed brltty package detected, masking brltty service ..."
+
   if [[ ${brltty} == "true" ]]; then
     sudo systemctl stop brltty
     sudo systemctl mask brltty
   fi
-  ok_msg "brltty service masked!"
 
+  ok_msg "brltty service masked!"
   status_msg "Installed brltty-udev package detected, masking brltty-udev service ..."
+
   if [[ ${brltty_udev} == "true" ]]; then
     sudo systemctl stop brltty-udev
     sudo systemctl mask brltty-udev
   fi
-  ok_msg "brltty-udev service masked!"
 
+  ok_msg "brltty-udev service masked!"
   status_msg "Installed ModemManager package detected, masking ModemManager service ..."
+
   if [[ ${modem_manager} == "true" ]]; then
     sudo systemctl stop ModemManager
     sudo systemctl mask ModemManager
   fi
+
   ok_msg "ModemManager service masked!"
 }
+#endregion

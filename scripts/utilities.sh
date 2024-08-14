@@ -93,6 +93,30 @@ function print_confirm() {
   echo -e "#=======================================================#"
   echo -e "${white}"
 }
+
+function get_user_confirmation() {
+  local prompt=${1}
+  local input
+
+  while true; do
+    read -p "${cyan}${prompt}? (y/N):${white} " input
+
+    case "${input}" in
+      Y | y | Yes | yes)
+        select_msg "Yes\n"
+        echo true
+        break
+        ;;
+      N | n | No | no)
+        echo false
+        break
+        ;;
+      *)
+        error_msg "Invalid Input!\n"
+        ;;
+    esac
+  done
+}
 #endregion
 
 #region Logging
@@ -755,11 +779,13 @@ function get_instance_folder_path() {
       # need to be prefixed with 'printer_'
       if [[ ${name} =~ ^[0-9]+$ ]]; then
         path="${HOME}/printer_${name}_data/${folder_name}"
+
         if [[ -d ${path} ]]; then
           folder_paths+=("${path}")
         fi
       else
         path="${HOME}/${name}_data/${folder_name}"
+
         if [[ -d ${path} ]]; then
           folder_paths+=("${path}")
         fi
@@ -767,6 +793,7 @@ function get_instance_folder_path() {
     done
   elif [[ -z ${instance_names} && $(klipper_systemd | wc -w) -gt 0 ]]; then
     path="${HOME}/printer_data/${folder_name}"
+
     if [[ -d ${path} ]]; then
       folder_paths+=("${path}")
     fi
@@ -803,5 +830,31 @@ function longest_string_array_member_length() {
   done
 
   echo "${longest_member_length}"
+}
+
+function array_contains_value() {
+  local value_to_find="$1"
+  shift
+  local array=("$@")
+
+  for element in "${array[@]}"; do
+    if [[ "${element}" == "${value_to_find}" ]]; then
+      echo true
+      return 0
+    fi
+  done
+
+  echo false
+}
+
+function prefix_array_values_with_index() {
+  local -a array=("${!1}")
+  local values_list=()
+
+  for ((i = 0; i < ${#array[@]}; i++)); do
+    values_list+=("\"$( ((i < 9)) && ((${#array[@]} > 9)) && echo " " || echo "")$((i + 1))) ${array[${i}]}\"")
+  done
+
+  echo "${values_list[@]}"
 }
 #endregion

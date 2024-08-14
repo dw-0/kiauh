@@ -43,14 +43,11 @@ function hr() {
 }
 
 function quit_footer() {
-  # echo "${red}Q) Quit${white}"
-
   local footer=(
     "${TABLE_CENTERED_SECTION_SEPARATOR}"
     "${red}Q) Quit${white}"
   )
 
-  # Use printf to prepare the array for eval
   printf "%q " "${footer[@]}"
 }
 
@@ -60,6 +57,15 @@ function back_footer() {
   hr "${overall_width}"
   echo -e "|                       ${green}B) « Back${white}                       |"
   bottom_border "${overall_width}"
+}
+
+function back_footer_new() {
+  local footer=(
+    "${TABLE_CENTERED_SECTION_SEPARATOR}"
+    "${green}B) « Back${white}"
+  )
+
+  printf "%q " "${footer[@]}"
 }
 
 function back_help_footer() {
@@ -204,11 +210,11 @@ function get_table_line_with_padding() {
 
 function do_action() {
   clear && print_header
-  ### $1 is the action the user wants to fire
-  $1
-  #  print_msg && clear_msg
+  ### $1 is the action the user wants to fire, potentially with arguments
+  local command="$1"
+  eval "$command"
   ### $2 is the menu the user usually gets directed back to after an action is completed
-  $2
+  eval "$2"
 }
 
 function deny_action() {

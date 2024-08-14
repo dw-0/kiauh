@@ -102,10 +102,7 @@ function change_klipper_repo_menu() {
   change_klipper_repo_menu
 }
 
-#================================================#
-#=================== HELPERS ====================#
-#================================================#
-
+#region Helpers
 function switch_klipper_repo() {
   local repo=${1} branch=${2}
 
@@ -147,3 +144,4 @@ function show_custom_klipper_repo_help() {
     esac
   done
 }
+#endregion
