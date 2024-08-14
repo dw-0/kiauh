@@ -100,7 +100,7 @@ function timestamp() {
   date +"[%F %T]"
 }
 
-function init_logfile() {
+function init_log_file() {
   local log="/tmp/kiauh.log"
   {
     echo -e "#================================================================#"
@@ -111,19 +111,20 @@ function init_logfile() {
   } >> "${log}"
 }
 
+function log() {
+  echo -e "$(timestamp) [${1}]: ${2}" | tr -s " " >> "${LOGFILE}"
+}
+
 function log_info() {
-  local message="${1}" log="${LOGFILE}"
-  echo -e "$(timestamp) [INFO]: ${message}" | tr -s " " >> "${log}"
+  log "INFO" "${message}"
 }
 
 function log_warning() {
-  local message="${1}" log="${LOGFILE}"
-  echo -e "$(timestamp) [WARN]: ${message}" | tr -s " " >> "${log}"
+  log "WARN" "${message}"
 }
 
 function log_error() {
-  local message="${1}" log="${LOGFILE}"
-  echo -e "$(timestamp) [ERR]: ${message}" | tr -s " " >> "${log}"
+  log "ERR" "${message}"
 }
 #endregion
 

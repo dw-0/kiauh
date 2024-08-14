@@ -11,7 +11,7 @@
 
 set -e
 
-DEFAULT_BOX_WIDTH=55
+DEFAULT_BOX_WIDTH=57
 
 function get_overall_width() {
   echo "${1:-${DEFAULT_BOX_WIDTH}}"
@@ -43,11 +43,15 @@ function hr() {
 }
 
 function quit_footer() {
-  local overall_width=${1:-${DEFAULT_BOX_WIDTH}}
+  # echo "${red}Q) Quit${white}"
 
-  hr "${overall_width}"
-  echo -e "|                        ${red}Q) Quit${white}                        |"
-  bottom_border "${overall_width}"
+  local footer=(
+    "${TABLE_CENTERED_SECTION_SEPARATOR}"
+    "${red}Q) Quit${white}"
+  )
+
+  # Use printf to prepare the array for eval
+  printf "%q " "${footer[@]}"
 }
 
 function back_footer() {
@@ -68,41 +72,59 @@ function back_help_footer() {
 
 function print_header() {
   print_table \
+    "${TABLE_CENTERED_SECTION_SEPARATOR}" \
     "$(title_msg "~~~~~~ [ KIAUH - Profezzional's Fork ] ~~~~~~")" \
     "$(title_msg "   Klipper Installation And Update Helper    ")" \
-    "$(title_msg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")"
+    "$(title_msg "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")" \
+    "${1:-${TABLE_NO_WIDTH_ARG}}"
+}
+
+function get_string_without_colors() {
+  echo -e "${1}" | sed 's/\x1b\[[0-9;]*m//g'
 }
 
 function print_table() {
-  local MIN_WIDTH=10
-
-  ### An array of arrays of strings
-  local sections=("$@")
+  local last_arg="${!#}"
   local overall_width
+  local lines
   local longest_string_length=0
   local console_width
-  local border_color="${white}"
+  local center_lines=false
+  local overall_width_was_specified
 
-  # should work on both Unix and Windows (assuming you have `tput` or `stty` on Windows)
-  console_width=$(tput cols 2> /dev/null || stty size 2> /dev/null | awk '{print $2}')
+  overall_width_was_specified=$([[ "${last_arg}" =~ ^[0-9]+$ ]] && echo true || echo false)
 
-  # Calculate the longest string length, ignoring color codes
-  for section in "${sections[@]}"; do
-    for line in "${section[@]}"; do
-      local line_length
-      line_length=$(echo -e "${line}" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)
+  if [[ "${overall_width_was_specified}" == true ]]; then
+    overall_width="${last_arg}" # if last arg is an integer
+    lines=("${@:1:$#-1}")       # all arguments except the last one
+  elif [[ "${last_arg}" == "${TABLE_NO_WIDTH_ARG}" ]]; then
+    overall_width=${DEFAULT_BOX_WIDTH}
+    lines=("${@:1:$#-1}") # all but last arg
+  else
+    lines=("$@")
+    overall_width=${DEFAULT_BOX_WIDTH}
+  fi
 
-      if ((line_length > longest_string_length)); then
-        longest_string_length=${line_length}
-      fi
-    done
+  for line in "${lines[@]}"; do
+    local line_length_without_colors
+    local line_without_colors
+
+    line_without_colors=$(get_string_without_colors "${line}")
+    line_length_without_colors="${#line_without_colors}"
+
+    if ((line_length_without_colors > longest_string_length)); then
+      longest_string_length="${line_length_without_colors}"
+    fi
   done
 
-  overall_width=$((longest_string_length + 4))
+  if [[ "${overall_width_was_specified}" == false && "${overall_width}" -lt $((longest_string_length + 4)) ]]; then
+    overall_width=$((longest_string_length + 4))
+  fi
 
-  # fit to console width
+  console_width=$(tput cols 2> /dev/null || stty size 2> /dev/null | awk '{print $2}')
+
   if ((overall_width > console_width)); then
-    overall_width=${console_width}
+    overall_width=$((console_width))
   fi
 
   # if console width is tiny, then just print it however its going to print, instead of trying to wrap a ton
@@ -111,36 +133,73 @@ function print_table() {
     overall_width=${MIN_WIDTH}
   fi
 
-  # Print top border
   top_border "${overall_width}"
 
-  for section in "${sections[@]}"; do
-    for line in "${section[@]}"; do
-      local line_length
-      line_length=$(echo -e "${line}" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)
+  local line_count=${#lines[@]}
 
-      # wrap long lines to the next line
-      if ((line_length + 4 > overall_width)); then
-        local wrapped_text
-        local color_code
-        local wrapped_lines=()
+  for ((i = 0; i < line_count; i++)); do
+    local line="${lines[${i}]}"
+    local line_is_section_separator
+    local line_is_centered_section_separator
 
-        wrapped_text=$(echo -e "${line}" | sed 's/\x1b\[[0-9;]*m//g' | fold -sw $((overall_width - 4)))
-        color_code=$(echo -e "${line}" | grep -oP '\x1b\[[0-9;]*m' | head -1)
-        readarray -t wrapped_lines <<< "${wrapped_text}"
+    line_is_section_separator=$([[ "${line}" == "${TABLE_SECTION_SEPARATOR}" ]] && echo true || echo false)
+    line_is_centered_section_separator=$([[ "${line}" == "${TABLE_CENTERED_SECTION_SEPARATOR}" ]] && echo true || echo false)
 
-        for wrapped_line in "${wrapped_lines[@]}"; do
-          echo -e "${border_color}| ${color_code}${wrapped_line}${white}$(repeat_string " " $((overall_width - ${#wrapped_line} - 4)))${border_color}|"
-        done
-      else
-        echo -e "${border_color}| ${line}$(repeat_string " " $((overall_width - line_length - 4)))${border_color}|"
+    if [[ "${line_is_section_separator}" == true || "${line_is_centered_section_separator}" == true ]]; then
+      center_lines=${line_is_centered_section_separator}
+
+      if ((i > 0)); then
+        hr "${overall_width}"
       fi
-    done
 
-    hr "${overall_width}"
+      continue
+    fi
+
+    local line_length_without_colors
+    local line_without_colors
+
+    line_without_colors=$(get_string_without_colors "${line}")
+    line_length_without_colors="${#line_without_colors}"
+
+    # wrap long lines to the next line, keeping text colors
+    if ((line_length_without_colors + 4 > overall_width)); then
+      local wrapped_text_without_colors
+      local color_code
+      local wrapped_lines=()
+
+      wrapped_text_without_colors=$(get_string_without_colors "${line}" | fold -sw $((overall_width - 4)))
+      color_code=$(echo -e "${line}" | grep -oP '\x1b\[[0-9;]*m' | head -1)
+
+      readarray -t wrapped_lines <<< "${wrapped_text_without_colors}"
+
+      for wrapped_line in "${wrapped_lines[@]}"; do
+        get_table_line_with_padding "${center_lines}" "${#wrapped_line}" "${color_code}${wrapped_line}"
+      done
+    else
+      get_table_line_with_padding "${center_lines}" "${line_length_without_colors}" "${line}"
+    fi
   done
 
   bottom_border "${overall_width}"
+}
+
+function get_table_line_with_padding() {
+  local center_lines=${1}
+  local line_length=${2}
+  local line=${3}
+
+  local left_padding_length
+  local right_padding_length
+  local left_padding
+  local right_padding
+
+  left_padding_length=$([[ "${center_lines}" == true ]] && echo $(((overall_width - line_length - 4) / 2)) || echo 0)
+  right_padding_length=$((overall_width - line_length - 4 - left_padding_length))
+
+  left_padding=$(repeat_string " " "${left_padding_length}")
+  right_padding=$(repeat_string " " "${right_padding_length}")
+
+  echo -e "${BORDER_COLOR}| ${left_padding}${line}${right_padding} ${BORDER_COLOR}|"
 }
 
 function do_action() {

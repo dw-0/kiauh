@@ -265,30 +265,26 @@ function start_flash_mcu() {
 }
 
 function start_flash_sd() {
-  local i=0 board_list=() device=${1}
+  local device=${1}
+  local i=0
+  local board_list=()
   local flash_script="${KLIPPER_DIR}/scripts/flash-sdcard.sh"
+  local boards
 
-  ### write each supported board to the array to make it selectable
-  for board in $("${flash_script}" -l | tail -n +2); do
-    board_list+=("${board}")
+  boards=$("${flash_script}" -l | tail -n +2)
+
+  for ((i = 0; i < ${#boards[@]}; i++)); do
+    board_list+=("\"$( ((i < 9)) && echo " " || echo "")$((i + 1))) ${boards[${i}]}\"")
   done
 
-  top_border
-  echo -e "|  Please select the type of board that corresponds to  |"
-  echo -e "|  the currently selected MCU ID you chose before.      |"
-  blank_line
-  echo -e "|  The following boards are currently supported:        |"
-  hr
-  ### display all supported boards to the user
-  for board in "${board_list[@]}"; do
-    if [[ ${i} -lt 10 ]]; then
-      printf "|  ${i}) %-50s|\n" "${board_list[${i}]}"
-    else
-      printf "|  ${i}) %-49s|\n" "${board_list[${i}]}"
-    fi
-    i=$((i + 1))
-  done
-  quit_footer
+  eval print_table \
+    "\"Please select the type of board that corresponds to the currently selected MCU ID you chose before.\"" \
+    "\"\"" \
+    "\"The following boards are currently supported:\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "${board_list[@]}" \
+    $(quit_footer) \
+    57
 
   ### make the user select one of the boards
   local choice
@@ -296,8 +292,8 @@ function start_flash_sd() {
     read -p "${cyan}###### Please select board type:${white} " choice
     if [[ ${choice} = "q" || ${choice} = "Q" ]]; then
       clear && advanced_menu && break
-    elif [[ ${choice} -le ${#board_list[@]} ]]; then
-      local selected_board="${board_list[${choice}]}"
+    elif [[ ${choice} -le ${#boards[@]} ]]; then
+      local selected_board="${boards[${choice}]}"
       break
     else
       clear && print_header

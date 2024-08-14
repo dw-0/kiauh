@@ -12,32 +12,30 @@
 set -e
 
 function main_ui() {
-  top_border
-  echo -e "|     $(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")     |"
-  hr
-  echo -e "|  0) [Log-Upload] |         Klipper: $(print_status "klipper")|"
-  echo -e "|  1) [List]       |            Repo: $(print_klipper_repo)|"
-  echo -e "|  2) [Install]    |                                    |"
-  echo -e "|  3) [Update]     |                                    |"
-  echo -e "|  4) [Remove]     |       Moonraker: $(print_status "moonraker")|"
-  echo -e "|  5) [Advanced]   |                                    |"
-  echo -e "|  6) [Backup]     |        Mainsail: $(print_status "mainsail")|"
-  echo -e "|  7) [Settings]   |          Fluidd: $(print_status "fluidd")|"
-  echo -e "|                  |   KlipperScreen: $(print_status "klipperscreen")|"
-  echo -e "|                  |    Telegram Bot: $(print_status "telegram_bot")|"
-  echo -e "|                  |       Crowsnest: $(print_status "crowsnest")|"
-  echo -e "|                  |           Obico: $(print_status "moonraker_obico")|"
-  echo -e "|                  |  OctoEverywhere: $(print_status "octoeverywhere")|"
-  echo -e "|                  |     Mobileraker: $(print_status "mobileraker")|"
-  echo -e "|                  |         OctoApp: $(print_status "octoapp")|"
-  echo -e "|                  |        Spoolman: $(print_status "spoolman")|"
-  echo -e "|                  |                                    |"
-  echo -e "|                  |       Octoprint: $(print_status "octoprint")|"
-  hr
-  echo -e "| KIAUH Version    |                                    |"
-  echo -e "| Commit Hash:     |                                    |"
-  echo -e "| $(print_kiauh_version) |    Changelog: ${magenta}https://git.io/JnmlX${white} |"
-  quit_footer
+  eval print_table \
+    "\"${TABLE_CENTERED_SECTION_SEPARATOR}\"" \
+    "\"$(title_msg "~~~~~~~~~~~~~~~ [ Main Menu ] ~~~~~~~~~~~~~~~")\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "\"0) [Log-Upload] |         Klipper: $(print_status "klipper")\"" \
+    "\"1) [List]       |            Repo: $(print_klipper_repo)\"" \
+    "\"2) [Install]    |\"" \
+    "\"3) [Update]     |       Moonraker: $(print_status "moonraker")\"" \
+    "\"4) [Remove]     |\"" \
+    "\"5) [Advanced]   |        Mainsail: $(print_status "mainsail")\"" \
+    "\"6) [Backup]     |          Fluidd: $(print_status "fluidd")\"" \
+    "\"7) [Settings]   |   KlipperScreen: $(print_status "klipperscreen")\"" \
+    "\"                |    Telegram Bot: $(print_status "telegram_bot")\"" \
+    "\"                |       Crowsnest: $(print_status "crowsnest")\"" \
+    "\"                |           Obico: $(print_status "moonraker_obico")\"" \
+    "\"                |  OctoEverywhere: $(print_status "octoeverywhere")\"" \
+    "\"                |     Mobileraker: $(print_status "mobileraker")\"" \
+    "\"                |         OctoApp: $(print_status "octoapp")\"" \
+    "\"                |        Spoolman: $(print_status "spoolman")\"" \
+    "\"                |\"" \
+    "\"                |       Octoprint: $(print_status "octoprint")\"" \
+    "\"${TABLE_SECTION_SEPARATOR}\"" \
+    "\"KIAUH Version: $(print_kiauh_version) | Changelog: ${magenta}https://git.io/JnmlX\"" \
+    $(quit_footer)
 }
 
 function get_kiauh_version() {
@@ -48,46 +46,44 @@ function get_kiauh_version() {
 }
 
 function print_kiauh_version() {
-  local version
-  version="$(printf "%-16s" "$(get_kiauh_version)")"
-  echo "${cyan}${version}${white}"
+  echo "${cyan}$(get_kiauh_version)${white}"
 }
 
 function print_status() {
-  local status component="${1}"
-  status=$(get_"${component}"_status)
+  local status
+  local component="${1}"
+  status="Not installed!" #$(get_"${component}"_status)
 
   if [[ ${status} == "Not installed!" ]]; then
-    status="${red}${status}${white}"
+    status="${red}${status}"
   elif [[ ${status} == "Incomplete!" ]]; then
-    status="${yellow}${status}${white}"
+    status="${yellow}${status}"
   elif [[ ${status} == "Not linked!" ]]; then
-    ### "Not linked!" is only required for Obico for Klipper
-    status="${yellow}${status}${white}"
+    # only required for Obico for Klipper
+    status="${yellow}${status}"
   else
-    status="${green}${status}${white}"
+    status="${green}${status}"
   fi
-
-  printf "%-28s" "${status}"
+  echo "${status}${white}"
 }
 
 function print_klipper_repo() {
-  read_kiauh_ini
+  # read_kiauh_ini
 
   local repo klipper_status
-  klipper_status=$(get_klipper_status)
-  repo=$(echo "${custom_klipper_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
-  repo="${repo^^}"
+  klipper_status="Not installed!" #$(get_klipper_status)
+  # repo=$(echo "${custom_klipper_repo}" | sed "s/https:\/\/github\.com\///" | sed "s/\.git$//")
+  # repo="${repo^^}"
 
   if [[ ${klipper_status} == "Not installed!" ]]; then
-    repo="${red}-${white}"
+    repo="${red}-"
   elif [[ -n ${repo} && ${repo} != "KLIPPER3D/KLIPPER" ]]; then
-    repo="${cyan}custom${white}"
+    repo="${cyan}custom"
   else
-    repo="${cyan}Klipper3d/klipper${white}"
+    repo="${cyan}Klipper3d/klipper"
   fi
 
-  printf "%-28s" "${repo}"
+  echo "${repo}${white}"
 }
 
 function main_menu() {

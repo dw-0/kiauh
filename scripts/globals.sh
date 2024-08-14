@@ -19,13 +19,18 @@ function set_globals() {
   ETCDEF="/etc/default"
   #endregion
 
-  #region Console Colors
+  #region Console Stuff
   green=$(echo -en "\e[92m")
   yellow=$(echo -en "\e[93m")
   magenta=$(echo -en "\e[35m")
   red=$(echo -en "\e[91m")
   cyan=$(echo -en "\e[96m")
   white=$(echo -en "\e[39m")
+
+  TABLE_SECTION_SEPARATOR="%%%"
+  TABLE_CENTERED_SECTION_SEPARATOR="%%%center%%%"
+  TABLE_NO_WIDTH_ARG="__NULL__"
+  BORDER_COLOR="${white}"
   #endregion
 
   #region KIAUH

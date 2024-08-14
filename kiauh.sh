@@ -13,14 +13,11 @@ set -e
 clear
 
 ### sourcing all additional scripts
+shopt -s globstar
 KIAUH_SRCDIR="$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")"
-for script in "${KIAUH_SRCDIR}/scripts/"*.sh; do . "${script}"; done
-for script in "${KIAUH_SRCDIR}/scripts/ui/"*.sh; do . "${script}"; done
+for script in "${KIAUH_SRCDIR}/scripts/"**/*.sh; do . "${script}"; done
 
-#===================================================#
-#=================== UPDATE KIAUH ==================#
-#===================================================#
-
+#region Update KIAUH
 function update_kiauh() {
   status_msg "Updating KIAUH ..."
 
@@ -30,11 +27,9 @@ function update_kiauh() {
   ok_msg "Update complete! Please restart KIAUH."
   exit 0
 }
+#endregion
 
-#===================================================#
-#=================== KIAUH STATUS ==================#
-#===================================================#
-
+#region KIUAH Status
 function kiauh_update_avail() {
   [[ ! -d "${KIAUH_SRCDIR}/.git" ]] && return
   local origin head
@@ -56,6 +51,7 @@ function kiauh_update_avail() {
 
 function kiauh_update_dialog() {
   [[ ! $(kiauh_update_avail) == "true" ]] && return
+
   top_border
   echo -e "|${green}              New KIAUH update available!              ${white}|"
   hr
@@ -68,6 +64,7 @@ function kiauh_update_dialog() {
 
   local yn
   read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
+
   while true; do
     case "${yn}" in
       Y | y | Yes | yes | "")
@@ -83,10 +80,11 @@ function kiauh_update_dialog() {
     esac
   done
 }
+#endregion
 
 check_if_rat_os
 check_euid
-init_logfile
+init_log_file
 set_globals
 kiauh_update_dialog
 main_menu
