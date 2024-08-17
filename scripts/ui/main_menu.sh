@@ -93,9 +93,6 @@ function main_menu() {
   clear && print_header
   main_ui
 
-  ### initialize kiauh.ini
-  init_ini
-
   local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action

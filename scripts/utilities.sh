@@ -193,6 +193,10 @@ function init_ini() {
     echo -e "\nmulti_instance_names=\c" >> "${INI_FILE}"
   fi
 
+  if ! grep -Eq "^version_to_launch=" "${INI_FILE}"; then
+    echo -e "\nversion_to_launch=\n\c" >> "${INI_FILE}"
+  fi
+
   ### strip all empty lines out of the file
   sed -i "/^[[:blank:]]*$/ d" "${INI_FILE}"
 }
@@ -377,9 +381,9 @@ function create_required_folders() {
 
 function update_system_package_lists() {
   local cache_mtime update_age update_interval silent
-  
+
   if [[ $1 == '--silent' ]]; then silent="true"; fi
-  
+
   if [[ -e /var/lib/apt/periodic/update-success-stamp ]]; then
     cache_mtime="$(stat -c %Y /var/lib/apt/periodic/update-success-stamp)"
   elif [[ -e /var/lib/apt/lists ]]; then
@@ -411,10 +415,10 @@ function update_system_package_lists() {
 function check_system_updates() {
   local updates_avail status
   if ! update_system_package_lists --silent; then
-    status="${red}Update check failed!     ${white}" 
+    status="${red}Update check failed!     ${white}"
   else
     updates_avail="$(apt list --upgradeable 2>/dev/null | sed "1d")"
-    
+
     if [[ -n ${updates_avail} ]]; then
       status="${yellow}System upgrade available!${white}"
       # add system to application_updates_available in kiauh.ini
@@ -423,7 +427,7 @@ function check_system_updates() {
       status="${green}System up to date!       ${white}"
     fi
   fi
-  
+
   echo "${status}"
 }
 
