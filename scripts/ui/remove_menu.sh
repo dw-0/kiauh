@@ -17,21 +17,21 @@ function remove_ui() {
   hr
   echo -e "| ${yellow}INFO: Configurations and/or any backups will be kept!${white} |"
   hr
-  echo -e "| Firmware & API:           | 3rd Party Webinterface:   |"
-  echo -e "|  1) [Klipper]             |  8) [OctoPrint]           |"
-  echo -e "|  2) [Moonraker]           |                           |"
-  echo -e "|                           | Webcam Streamer:          |"
-  echo -e "| Klipper Webinterface:     |  9) [Crowsnest]           |"
-  echo -e "|  3) [Mainsail]            | 10) [MJPG-Streamer]       |"
-  echo -e "|  4) [Mainsail-Config]     |                           |"
-  echo -e "|  5) [Fluidd]              | Other:                    |"
-  echo -e "|  6) [Fluidd-Config]       | 11) [PrettyGCode]         |"
-  echo -e "|                           | 12) [Telegram Bot]        |"
-  echo -e "| Touchscreen GUI:          | 13) [Obico for Klipper]   |"
-  echo -e "|  7) [KlipperScreen]       | 14) [OctoEverywhere]      |"
+  echo -e "| Firmware & API:           | Webcam Streamer:          |"
+  echo -e "|  1) [Klipper]             |  9) [Crowsnest]           |"
+  echo -e "|  2) [Moonraker]           | 10) [MJPG-Streamer]       |"
+  echo -e "|                           |                           |"
+  echo -e "| Klipper Webinterface:     | Other:                    |"
+  echo -e "|  3) [Mainsail]            | 11) [PrettyGCode]         |"
+  echo -e "|  4) [Mainsail-Config]     | 12) [Telegram Bot]        |"
+  echo -e "|  5) [Fluidd]              | 13) [Obico for Klipper]   |"
+  echo -e "|  6) [Fluidd-Config]       | 14) [OctoEverywhere]      |"
   echo -e "|                           | 15) [Mobileraker]         |"
-  echo -e "|                           | 16) [NGINX]               |"
-  echo -e "|                           | 17) [OctoApp]             |"
+  echo -e "| Touchscreen GUI:          | 16) [NGINX]               |"
+  echo -e "|  7) [KlipperScreen]       | 17) [OctoApp]             |"
+  echo -e "|                           | 18) [Spoolman]            |"
+  echo -e "| 3rd Party Webinterface:   |                           |"
+  echo -e "|  8) [OctoPrint]           |                           |"
   back_footer
 }
 
@@ -76,6 +76,8 @@ function remove_menu() {
         do_action "remove_nginx" "remove_ui";;
       17)
         do_action "remove_octoapp" "remove_ui";;
+      18)
+        do_action "remove_spoolman" "remove_ui";;
       B|b)
         clear; main_menu; break;;
       *)

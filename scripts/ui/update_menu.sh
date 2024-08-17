@@ -36,15 +36,16 @@ function update_ui() {
   echo -e "| 10) [Mobileraker]      |$(compare_mobileraker_versions)|"
   echo -e "| 11) [Crowsnest]        |$(compare_crowsnest_versions)|"
   echo -e "| 12) [OctoApp]          |$(compare_octoapp_versions)|"
+  echo -e "| 13) [Spoolman]         |$(compare_spoolman_versions)|"
   echo -e "|                        |------------------------------|"
-  echo -e "| 13) [System]           |  $(check_system_updates)   |"
+  echo -e "| 14) [System]           |  $(check_system_updates)   |"
   back_footer
 }
 
 function update_menu() {
   clear -x && sudo true && clear -x # (re)cache sudo credentials so password prompt doesn't bork ui
   do_action "" "update_ui"
-  
+
   local action
   while true; do
     read -p "${cyan}####### Perform action:${white} " action
@@ -76,6 +77,8 @@ function update_menu() {
       12)
         do_action "update_octoapp" "update_ui";;
       13)
+        do_action "update_spoolman" "update_ui";;
+      14)
         do_action "upgrade_system_packages" "update_ui";;
       a)
         do_action "update_all" "update_ui";;
@@ -101,7 +104,7 @@ function update_all() {
       print_confirm "Everything is already up-to-date!"
       echo; break
     fi
-    
+
     echo
     top_border
     echo -e "|  The following installations will be updated:         |"
@@ -120,6 +123,9 @@ function update_all() {
 
     [[ "${update_arr[*]}" =~ "klipperscreen" ]] && \
     echo -e "|  ${cyan}● KlipperScreen${white}                                      |"
+
+    [[ "${update_arr[*]}" =~ "spoolman" ]] && \
+    echo -e "|  ${cyan}● SpoolMan${white}                                      |"
 
     [[ "${update_arr[*]}" =~ "pgc_for_klipper" ]] && \
     echo -e "|  ${cyan}● PrettyGCode for Klipper${white}                            |"
@@ -140,7 +146,7 @@ function update_all() {
     echo -e "|  ${cyan}● System${white}                                             |"
 
     bottom_border
-    
+
     local yn
     read -p "${cyan}###### Do you want to proceed? (Y/n):${white} " yn
     case "${yn}" in

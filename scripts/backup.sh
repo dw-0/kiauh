@@ -45,13 +45,13 @@ function backup_config_dir() {
     for folder in ${config_pathes}; do
       if [[ -d ${folder} ]]; then
         status_msg "Create backup of ${folder} ..."
-  
+
         folder_name=$(echo "${folder}" | rev | cut -d"/" -f2 | rev)
         target_dir="${BACKUP_DIR}/configs/${current_date}/${folder_name}"
         mkdir -p "${target_dir}"
         cp -r "${folder}" "${target_dir}"
         i=$(( i + 1 ))
-  
+
         ok_msg "Backup created in:\n${target_dir}"
       fi
     done
@@ -211,5 +211,21 @@ function backup_octoeverywhere() {
     print_confirm "OctoEverywhere backup complete!"
   else
     print_error "Can't back up OctoEverywhere directory!\n Not found!"
+  fi
+}
+
+function backup_spoolman() {
+  local current_date
+
+  if [[ -d ${SPOOLMAN_DIR} ]] ; then
+    status_msg "Creating Spoolman backup ..."
+    check_for_backup_dir
+    current_date=$(get_date)
+    status_msg "Timestamp: ${current_date}"
+    mkdir -p "${BACKUP_DIR}/Spoolman-backups/${current_date}"
+    cp -r "${SPOOLMAN_DIR}" "${_}" && cp -r "${SPOOLMAN_DB_DIR}/spoolman.db" "${_}"
+    print_confirm "Spoolman backup complete!"
+  else
+    print_error "Can't back up Spoolman directory!\n Not found!"
   fi
 }

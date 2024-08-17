@@ -37,7 +37,7 @@ function install_mainsail() {
   fi
 
   ### checking dependencies
-  local dep=(wget nginx)
+  local dep=(wget nginx unzip)
   dependency_check "${dep[@]}"
   ### detect conflicting Haproxy and Apache2 installations
   detect_conflicting_packages
