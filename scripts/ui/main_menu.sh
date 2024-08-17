@@ -29,6 +29,7 @@ function main_ui() {
   echo -e "|                  |  OctoEverywhere: $(print_status "octoeverywhere")|"
   echo -e "|                  |     Mobileraker: $(print_status "mobileraker")|"
   echo -e "|                  |         OctoApp: $(print_status "octoapp")|"
+  echo -e "|                  |        Spoolman: $(print_status "spoolman")|"
   echo -e "|                  |                                    |"
   echo -e "|                  |       Octoprint: $(print_status "octoprint")|"
   hr

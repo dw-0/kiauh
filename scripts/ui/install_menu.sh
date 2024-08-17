@@ -19,19 +19,19 @@ function install_ui() {
   echo -e "|  all necessary dependencies for the various           |"
   echo -e "|  functions on a completely fresh system.              |"
   hr
-  echo -e "| Firmware & API:          | 3rd Party Webinterface:    |"
-  echo -e "|  1) [Klipper]            |  6) [OctoPrint]            |"
-  echo -e "|  2) [Moonraker]          |                            |"
-  echo -e "|                          | Other:                     |"
-  echo -e "| Klipper Webinterface:    |  7) [PrettyGCode]          |"
-  echo -e "|  3) [Mainsail]           |  8) [Telegram Bot]         |"
-  echo -e "|  4) [Fluidd]             |  9) $(obico_install_title) |"
-  echo -e "|                          | 10) [OctoEverywhere]       |"
-  echo -e "|                          | 11) [Mobileraker]          |"
-  echo -e "| Touchscreen GUI:         | 12) [OctoApp for Klipper]  |"
-  echo -e "|  5) [KlipperScreen]      |                            |"
-  echo -e "|                          | Webcam Streamer:           |"
-  echo -e "|                          | 13) [Crowsnest]            |"
+  echo -e "| Firmware & API:          | Other:                     |"
+  echo -e "|  1) [Klipper]            |  7) [PrettyGCode]          |"
+  echo -e "|  2) [Moonraker]          |  8) [Telegram Bot]         |"
+  echo -e "|                          |  9) $(obico_install_title) |"
+  echo -e "| Klipper Webinterface:    | 10) [OctoEverywhere]       |"
+  echo -e "|  3) [Mainsail]           | 11) [Mobileraker]          |"
+  echo -e "|  4) [Fluidd]             | 12) [OctoApp for Klipper]  |"
+  echo -e "|                          | 13) [Spoolman]             |"
+  echo -e "| Touchscreen GUI:         |                            |"
+  echo -e "|  5) [KlipperScreen]      | Webcam Streamer:           |"
+  echo -e "|                          | 14) [Crowsnest]            |"
+  echo -e "| 3rd Party Webinterface:  |                            |"
+  echo -e "|  6) [OctoPrint]          |                            |"
   back_footer
 }
 
@@ -75,6 +75,8 @@ function install_menu() {
       12)
         do_action "octoapp_setup_dialog" "install_ui";;
       13)
+        do_action "install_spoolman" "install_ui";;
+      14)
         do_action "install_crowsnest" "install_ui";;
       B|b)
         clear; main_menu; break;;
