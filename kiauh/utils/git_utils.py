@@ -76,8 +76,9 @@ def get_repo_name(repo: Path) -> str | None:
 
     try:
         cmd = ["git", "-C", repo.as_posix(), "config", "--get", "remote.origin.url"]
-        result = check_output(cmd, stderr=DEVNULL)
-        return "/".join(result.decode().strip().split("/")[-2:])
+        result: str = check_output(cmd, stderr=DEVNULL).decode(encoding="utf-8")
+        substrings: List[str] = result.strip().split("/")[-2:]
+        return "/".join(substrings).replace(".git", "")
     except CalledProcessError:
         return None
 
