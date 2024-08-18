@@ -28,8 +28,14 @@ from components.webui_client.client_dialogs import (
     print_moonraker_not_found_dialog,
 )
 from components.webui_client.client_utils import (
+    copy_common_vars_nginx_cfg,
+    copy_upstream_nginx_cfg,
+    create_nginx_cfg,
     detect_client_cfg_conflict,
     enable_mainsail_remotemode,
+    get_next_free_port,
+    is_valid_port,
+    read_ports_from_nginx_configs,
     symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
@@ -37,15 +43,7 @@ from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
-from utils.fs_utils import (
-    copy_common_vars_nginx_cfg,
-    copy_upstream_nginx_cfg,
-    create_nginx_cfg,
-    get_next_free_port,
-    is_valid_port,
-    read_ports_from_nginx_configs,
-    unzip,
-)
+from utils.fs_utils import unzip
 from utils.input_utils import get_confirm, get_number_input
 from utils.sys_utils import (
     cmd_sysctl_service,
