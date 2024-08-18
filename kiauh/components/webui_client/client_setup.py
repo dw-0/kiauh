@@ -144,7 +144,7 @@ def install_client(client: BaseWebClient) -> None:
         )
 
         if kl_instances:
-            symlink_webui_nginx_log(kl_instances)
+            symlink_webui_nginx_log(client, kl_instances)
         cmd_sysctl_service("nginx", "restart")
 
     except Exception as e:

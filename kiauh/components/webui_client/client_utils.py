@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import List, get_args
 
 from components.klipper.klipper import Klipper
@@ -95,17 +94,19 @@ def enable_mainsail_remotemode() -> None:
     Logger.print_ok("Mainsails remote mode enabled!")
 
 
-def symlink_webui_nginx_log(klipper_instances: List[Klipper]) -> None:
+def symlink_webui_nginx_log(
+    client: BaseWebClient, klipper_instances: List[Klipper]
+) -> None:
     Logger.print_status("Link NGINX logs into log directory ...")
-    access_log = Path("/var/log/nginx/mainsail-access.log")
-    error_log = Path("/var/log/nginx/mainsail-error.log")
+    access_log = client.nginx_access_log
+    error_log = client.nginx_error_log
 
     for instance in klipper_instances:
-        desti_access = instance.log_dir.joinpath("mainsail-access.log")
+        desti_access = instance.log_dir.joinpath(access_log.name)
         if not desti_access.exists():
             desti_access.symlink_to(access_log)
 
-        desti_error = instance.log_dir.joinpath("mainsail-error.log")
+        desti_error = instance.log_dir.joinpath(error_log.name)
         if not desti_error.exists():
             desti_error.symlink_to(error_log)
 
@@ -146,9 +147,7 @@ def backup_client_data(client: BaseWebClient) -> None:
 
     bm = BackupManager()
     bm.backup_directory(f"{name}-{version}", src, dest)
-    if name == "mainsail":
-        c_json = MainsailData().client_dir.joinpath("config.json")
-        bm.backup_file(c_json, dest)
+    bm.backup_file(client.config_file, dest)
     bm.backup_file(NGINX_SITES_AVAILABLE.joinpath(name), dest)
 
 

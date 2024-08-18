@@ -80,23 +80,23 @@ def remove_file(file_path: Path, sudo=False) -> None:
 
 def run_remove_routines(file: Path) -> None:
     try:
-        if not file.exists():
+        if not file.is_symlink() and not file.exists():
             Logger.print_info(f"File '{file}' does not exist. Skipped ...")
             return
 
         if file.is_dir():
             shutil.rmtree(file)
-        elif file.is_file():
+        elif file.is_file() or file.is_symlink():
             file.unlink()
         else:
             raise OSError(f"File '{file}' is neither a file nor a directory!")
-        Logger.print_ok("Successfully removed!")
+        Logger.print_ok(f"File '{file}' was successfully removed!")
     except OSError as e:
         Logger.print_error(f"Unable to delete '{file}':\n{e}")
         try:
             Logger.print_info("Trying to remove with sudo ...")
             remove_with_sudo(file)
-            Logger.print_ok("Successfully removed!")
+            Logger.print_ok(f"File '{file}' was successfully removed!")
         except CalledProcessError as e:
             Logger.print_error(f"Error deleting '{file}' with sudo:\n{e}")
             Logger.print_error("Remove this directory manually!")
