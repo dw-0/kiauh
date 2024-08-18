@@ -6,7 +6,8 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import shutil
+import tempfile
 from pathlib import Path
 from typing import List
 
@@ -27,10 +28,8 @@ from components.webui_client.client_dialogs import (
     print_moonraker_not_found_dialog,
 )
 from components.webui_client.client_utils import (
-    backup_mainsail_config_json,
     detect_client_cfg_conflict,
     enable_mainsail_remotemode,
-    restore_mainsail_config_json,
     symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
@@ -185,10 +184,10 @@ def update_client(client: BaseWebClient) -> None:
         )
         return
 
-    if client.client == WebClientType.MAINSAIL:
-        backup_mainsail_config_json(is_temp=True)
-
-    download_client(client)
-
-    if client.client == WebClientType.MAINSAIL:
-        restore_mainsail_config_json()
+    with tempfile.NamedTemporaryFile(suffix=".json") as tmp_file:
+        Logger.print_status(
+            f"Creating temporary backup of {client.config_file} as {tmp_file.name} ..."
+        )
+        shutil.copy(client.config_file, tmp_file.name)
+        download_client(client)
+        shutil.copy(tmp_file.name, client.config_file)

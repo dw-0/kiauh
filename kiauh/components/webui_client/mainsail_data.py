@@ -21,7 +21,7 @@ from components.webui_client.base_data import (
 from core.backup_manager import BACKUP_ROOT_DIR
 
 
-@dataclass(frozen=True)
+@dataclass()
 class MainsailConfigWeb(BaseWebClientConfig):
     client_config: WebClientConfigType = WebClientConfigType.MAINSAIL
     name: str = client_config.value
@@ -33,7 +33,7 @@ class MainsailConfigWeb(BaseWebClientConfig):
     repo_url: str = "https://github.com/mainsail-crew/mainsail-config.git"
 
 
-@dataclass(frozen=True)
+@dataclass()
 class MainsailData(BaseWebClient):
     BASE_DL_URL: str = "https://github.com/mainsail-crew/mainsail/releases"
 
@@ -41,16 +41,16 @@ class MainsailData(BaseWebClient):
     name: str = WebClientType.MAINSAIL.value
     display_name: str = name.capitalize()
     client_dir: Path = Path.home().joinpath("mainsail")
+    config_file: Path = client_dir.joinpath("config.json")
     backup_dir: Path = BACKUP_ROOT_DIR.joinpath("mainsail-backups")
     repo_path: str = "mainsail-crew/mainsail"
+    nginx_access_log: Path = Path("/var/log/nginx/mainsail-access.log")
+    nginx_error_log: Path = Path("/var/log/nginx/mainsail-error.log")
+    client_config: BaseWebClientConfig = None
+    download_url: str | None = None
 
-    @property
-    def download_url(self) -> str:
+    def __post_init__(self):
         from components.webui_client.client_utils import get_download_url
 
-        url: str = get_download_url(self.BASE_DL_URL, self)
-        return url
-
-    @property
-    def client_config(self) -> BaseWebClientConfig:
-        return MainsailConfigWeb()
+        self.client_config = MainsailConfigWeb()
+        self.download_url = get_download_url(self.BASE_DL_URL, self)

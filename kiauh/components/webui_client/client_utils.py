@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import json
-import shutil
 from pathlib import Path
 from typing import List, get_args
 
@@ -76,26 +75,6 @@ def get_current_client_config(clients: List[BaseWebClient]) -> str:
         return f"{COLOR_CYAN}{cfg.display_name}{RESET_FORMAT}"
 
     return f"{COLOR_CYAN}-{RESET_FORMAT}"
-
-
-def backup_mainsail_config_json(is_temp: bool = False) -> None:
-    c_json = MainsailData().client_dir.joinpath("config.json")
-    bm = BackupManager()
-    if is_temp:
-        fn = Path.home().joinpath("config.json.kiauh.bak")
-        bm.backup_file(c_json, custom_filename=fn)
-    else:
-        bm.backup_file(c_json)
-
-
-def restore_mainsail_config_json() -> None:
-    try:
-        c_json = MainsailData().client_dir.joinpath("config.json")
-        Logger.print_status(f"Restore '{c_json}' ...")
-        source = Path.home().joinpath("config.json.kiauh.bak")
-        shutil.copy(source, c_json)
-    except OSError:
-        Logger.print_info("Unable to restore config.json. Skipped ...")
 
 
 def enable_mainsail_remotemode() -> None:

@@ -16,7 +16,6 @@ from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
 from typing import List
 from zipfile import ZipFile
 
-from components.klipper.klipper import Klipper
 from core.constants import (
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
@@ -236,24 +235,3 @@ def get_next_free_port(ports_in_use: List[int]) -> int:
     used_ports = set(map(int, ports_in_use))
 
     return min(valid_ports - used_ports)
-
-
-def remove_nginx_config(name: str) -> None:
-    Logger.print_status(f"Removing NGINX config for {name.capitalize()} ...")
-
-    run_remove_routines(NGINX_SITES_AVAILABLE.joinpath(name))
-    run_remove_routines(NGINX_SITES_ENABLED.joinpath(name))
-
-
-def remove_nginx_logs(name: str, instances: List[Klipper]) -> None:
-    Logger.print_status(f"Removing NGINX logs for {name.capitalize()} ...")
-
-    run_remove_routines(Path(f"/var/log/nginx/{name}-access.log"))
-    run_remove_routines(Path(f"/var/log/nginx/{name}-error.log"))
-
-    if not instances:
-        return
-
-    for instance in instances:
-        run_remove_routines(instance.log_dir.joinpath(f"{name}-access.log"))
-        run_remove_routines(instance.log_dir.joinpath(f"{name}-error.log"))

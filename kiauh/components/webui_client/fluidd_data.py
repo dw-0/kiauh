@@ -21,7 +21,7 @@ from components.webui_client.base_data import (
 from core.backup_manager import BACKUP_ROOT_DIR
 
 
-@dataclass(frozen=True)
+@dataclass()
 class FluiddConfigWeb(BaseWebClientConfig):
     client_config: WebClientConfigType = WebClientConfigType.FLUIDD
     name: str = client_config.value
@@ -33,7 +33,7 @@ class FluiddConfigWeb(BaseWebClientConfig):
     repo_url: str = "https://github.com/fluidd-core/fluidd-config.git"
 
 
-@dataclass(frozen=True)
+@dataclass()
 class FluiddData(BaseWebClient):
     BASE_DL_URL = "https://github.com/fluidd-core/fluidd/releases"
 
@@ -41,16 +41,16 @@ class FluiddData(BaseWebClient):
     name: str = client.value
     display_name: str = name.capitalize()
     client_dir: Path = Path.home().joinpath("fluidd")
+    config_file: Path = client_dir.joinpath("config.json")
     backup_dir: Path = BACKUP_ROOT_DIR.joinpath("fluidd-backups")
     repo_path: str = "fluidd-core/fluidd"
+    nginx_access_log: Path = Path("/var/log/nginx/fluidd-access.log")
+    nginx_error_log: Path = Path("/var/log/nginx/fluidd-error.log")
+    client_config: BaseWebClientConfig = None
+    download_url: str | None = None
 
-    @property
-    def download_url(self) -> str:
+    def __post_init__(self):
         from components.webui_client.client_utils import get_download_url
 
-        url: str = get_download_url(self.BASE_DL_URL, self)
-        return url
-
-    @property
-    def client_config(self) -> BaseWebClientConfig:
-        return FluiddConfigWeb()
+        self.client_config = FluiddConfigWeb()
+        self.download_url = get_download_url(self.BASE_DL_URL, self)
