@@ -211,6 +211,9 @@ def read_ports_from_nginx_configs() -> List[int]:
 
     port_list = []
     for config in NGINX_SITES_ENABLED.iterdir():
+        if not config.is_file():
+            continue
+
         with open(config, "r") as cfg:
             lines = cfg.readlines()
 
