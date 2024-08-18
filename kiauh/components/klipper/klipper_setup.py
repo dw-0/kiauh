@@ -154,8 +154,8 @@ def setup_klipper_prerequesites() -> None:
     # install klipper dependencies and create python virtualenv
     try:
         install_klipper_packages()
-        create_python_venv(KLIPPER_ENV_DIR)
-        install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
+        if create_python_venv(KLIPPER_ENV_DIR):
+            install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
     except Exception:
         Logger.print_error("Error during installation of Klipper requirements!")
         raise

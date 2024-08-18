@@ -14,7 +14,7 @@ from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
-from extensions.telegram_bot import TG_BOT_REPO
+from extensions.telegram_bot import TG_BOT_REPO, TG_BOT_REQ_FILE
 from extensions.telegram_bot.moonraker_telegram_bot import (
     TG_BOT_DIR,
     TG_BOT_ENV,
@@ -161,9 +161,8 @@ class TelegramBotExtension(BaseExtension):
         check_install_dependencies({*package_list})
 
         # create virtualenv
-        create_python_venv(TG_BOT_ENV)
-        requirements = TG_BOT_DIR.joinpath("scripts/requirements.txt")
-        install_python_requirements(TG_BOT_ENV, requirements)
+        if create_python_venv(TG_BOT_ENV):
+            install_python_requirements(TG_BOT_ENV, TG_BOT_REQ_FILE)
 
     def _patch_bot_update_manager(self, instances: List[Moonraker]) -> None:
         env_py = f"{TG_BOT_ENV}/bin/python"

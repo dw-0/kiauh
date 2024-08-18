@@ -150,9 +150,9 @@ def setup_moonraker_prerequesites() -> None:
 
     # install moonraker dependencies and create python virtualenv
     install_moonraker_packages()
-    create_python_venv(MOONRAKER_ENV_DIR)
-    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
-    install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE)
+    if create_python_venv(MOONRAKER_ENV_DIR):
+        install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
+        install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE)
 
 
 def install_moonraker_packages() -> None:

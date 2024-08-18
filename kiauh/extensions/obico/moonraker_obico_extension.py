@@ -23,6 +23,7 @@ from extensions.obico import (
     OBICO_ENV_DIR,
     OBICO_MACROS_CFG_NAME,
     OBICO_REPO,
+    OBICO_REQ_FILE,
     OBICO_UPDATE_CFG_NAME,
     OBICO_UPDATE_CFG_SAMPLE_NAME,
 )
@@ -239,9 +240,8 @@ class ObicoExtension(BaseExtension):
         check_install_dependencies({*package_list})
 
         # create virtualenv
-        create_python_venv(OBICO_ENV_DIR)
-        requirements = OBICO_DIR.joinpath("requirements.txt")
-        install_python_requirements(OBICO_ENV_DIR, requirements)
+        if create_python_venv(OBICO_ENV_DIR):
+            install_python_requirements(OBICO_ENV_DIR, OBICO_REQ_FILE)
 
     def _create_obico_macros_cfg(self, moonraker) -> None:
         macros_cfg = OBICO_DIR.joinpath(f"include_cfgs/{OBICO_MACROS_CFG_NAME}")

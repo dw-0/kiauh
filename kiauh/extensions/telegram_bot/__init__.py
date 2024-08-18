@@ -26,3 +26,4 @@ TG_BOT_ENV = Path.home().joinpath("moonraker-telegram-bot-env")
 # files
 TG_BOT_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{TG_BOT_SERVICE_NAME}")
 TG_BOT_ENV_FILE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{TG_BOT_ENV_FILE_NAME}")
+TG_BOT_REQ_FILE = TG_BOT_DIR.joinpath("scripts/requirements.txt")

@@ -87,11 +87,13 @@ def parse_packages_from_file(source_file: Path) -> List[str]:
     return packages
 
 
-def create_python_venv(target: Path) -> None:
+def create_python_venv(target: Path) -> bool:
     """
-    Create a python 3 virtualenv at the provided target destination |
+    Create a python 3 virtualenv at the provided target destination.
+    Returns True if the virtualenv was created successfully.
+    Returns False if the virtualenv already exists, recreation was declined or creation failed.
     :param target: Path where to create the virtualenv at
-    :return: None
+    :return: bool
     """
     Logger.print_status("Set up Python virtual environment ...")
     if not target.exists():
@@ -99,20 +101,25 @@ def create_python_venv(target: Path) -> None:
             cmd = ["virtualenv", "-p", "/usr/bin/python3", target.as_posix()]
             run(cmd, check=True)
             Logger.print_ok("Setup of virtualenv successful!")
+            return True
         except CalledProcessError as e:
             Logger.print_error(f"Error setting up virtualenv:\n{e}")
-            raise
+            return False
     else:
-        if get_confirm("Virtualenv already exists. Re-create?", default_choice=False):
-            try:
-                shutil.rmtree(target)
-                create_python_venv(target)
-            except OSError as e:
-                log = f"Error removing existing virtualenv: {e.strerror}"
-                Logger.print_error(log, False)
-                raise
-        else:
+        if not get_confirm(
+            "Virtualenv already exists. Re-create?", default_choice=False
+        ):
             Logger.print_info("Skipping re-creation of virtualenv ...")
+            return False
+
+        try:
+            shutil.rmtree(target)
+            create_python_venv(target)
+            return True
+        except OSError as e:
+            log = f"Error removing existing virtualenv: {e.strerror}"
+            Logger.print_error(log, False)
+            return False
 
 
 def update_python_pip(target: Path) -> None:
