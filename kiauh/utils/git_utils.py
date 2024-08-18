@@ -165,7 +165,8 @@ def git_cmd_clone(repo: str, target_dir: Path) -> None:
 
         Logger.print_ok("Clone successful!")
     except CalledProcessError as e:
-        log = f"Error cloning repository {repo}: {e.stderr.decode()}"
+        error = e.stderr.decode() if e.stderr else "Unknown error"
+        log = f"Error cloning repository {repo}: {error}"
         Logger.print_error(log)
         raise
 
