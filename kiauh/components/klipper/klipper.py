@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError
 
 from components.klipper import (
     KLIPPER_CFG_NAME,
@@ -32,8 +32,8 @@ from core.logger import Logger
 class Klipper(BaseInstance):
     klipper_dir: Path = KLIPPER_DIR
     env_dir: Path = KLIPPER_ENV_DIR
+    log_file_name = KLIPPER_LOG_NAME
     cfg_file: Path | None = None
-    log: Path | None = None
     serial: Path | None = None
     uds: Path | None = None
 
@@ -43,7 +43,6 @@ class Klipper(BaseInstance):
     def __post_init__(self) -> None:
         super().__post_init__()
         self.cfg_file = self.cfg_dir.joinpath(KLIPPER_CFG_NAME)
-        self.log = self.log_dir.joinpath(KLIPPER_LOG_NAME)
         self.serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
         self.uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)
 
@@ -56,7 +55,7 @@ class Klipper(BaseInstance):
             self.create_folders()
 
             create_service_file(
-                name=self.get_service_file_name(extension=True),
+                name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
 
@@ -70,21 +69,6 @@ class Klipper(BaseInstance):
             raise
         except OSError as e:
             Logger.print_error(f"Error creating env file: {e}")
-            raise
-
-    def delete(self) -> None:
-        service_file = self.get_service_file_name(extension=True)
-        service_file_path = self.get_service_file_path()
-
-        Logger.print_status(f"Removing Klipper Instance: {service_file}")
-
-        try:
-            command = ["sudo", "rm", "-f", service_file_path]
-            run(command, check=True)
-            self.delete_logfiles(KLIPPER_LOG_NAME)
-            Logger.print_ok("Instance successfully removed!")
-        except CalledProcessError as e:
-            Logger.print_error(f"Error removing instance: {e}")
             raise
 
     def _prep_service_file_content(self) -> str:
@@ -138,7 +122,7 @@ class Klipper(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
-            self.log.as_posix() if self.log else "",
+            self.log_dir.joinpath(self.log_file_name).as_posix(),
         )
         env_file_content = env_file_content.replace(
             "%UDS%",

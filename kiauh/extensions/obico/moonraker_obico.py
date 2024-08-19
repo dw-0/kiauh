@@ -34,8 +34,8 @@ from extensions.obico import (
 class MoonrakerObico(BaseInstance):
     dir: Path = OBICO_DIR
     env_dir: Path = OBICO_ENV_DIR
+    log_file_name = OBICO_LOG_NAME
     cfg_file: Path | None = None
-    log: Path | None = None
     is_linked: bool = False
 
     def __init__(self, suffix: str = ""):
@@ -44,7 +44,6 @@ class MoonrakerObico(BaseInstance):
     def __post_init__(self):
         super().__post_init__()
         self.cfg_file = self.cfg_dir.joinpath(OBICO_CFG_NAME)
-        self.log = self.log_dir.joinpath(OBICO_LOG_NAME)
         self.is_linked: bool = self._check_link_status()
 
     def create(self) -> None:
@@ -55,7 +54,7 @@ class MoonrakerObico(BaseInstance):
         try:
             self.create_folders()
             create_service_file(
-                name=self.get_service_file_name(extension=True),
+                name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
             create_env_file(
@@ -68,21 +67,6 @@ class MoonrakerObico(BaseInstance):
             raise
         except OSError as e:
             Logger.print_error(f"Error creating env file: {e}")
-            raise
-
-    def delete(self) -> None:
-        service_file: str = self.get_service_file_name(extension=True)
-        service_file_path: Path = self.get_service_file_path()
-
-        Logger.print_status(f"Deleting Obico for Klipper Instance: {service_file}")
-
-        try:
-            command = ["sudo", "rm", "-f", service_file_path.as_posix()]
-            run(command, check=True)
-            self.delete_logfiles(OBICO_LOG_NAME)
-            Logger.print_ok(f"Service file deleted: {service_file_path}")
-        except CalledProcessError as e:
-            Logger.print_error(f"Error deleting service file: {e}")
             raise
 
     def link(self) -> None:

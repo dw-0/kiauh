@@ -144,7 +144,7 @@ class TelegramBotExtension(BaseExtension):
         tb_instances: List[MoonrakerTelegramBot] = tb_im.instances
 
         try:
-            self._remove_bot_instances(tb_im, tb_instances)
+            self._remove_bot_instances(tb_instances)
             self._remove_bot_dir()
             self._remove_bot_env()
             remove_config_section("update_manager moonraker-telegram-bot", mr_instances)
@@ -181,19 +181,13 @@ class TelegramBotExtension(BaseExtension):
 
     def _remove_bot_instances(
         self,
-        instance_manager: InstanceManager,
         instance_list: List[MoonrakerTelegramBot],
     ) -> None:
         for instance in instance_list:
             Logger.print_status(
-                f"Removing instance {instance.get_service_file_name()} ..."
+                f"Removing instance {instance.service_file_path.stem} ..."
             )
-            instance_manager.current_instance = instance
-            instance_manager.stop_instance()
-            instance_manager.disable_instance()
-            instance_manager.delete_instance()
-
-        cmd_sysctl_manage("daemon-reload")
+            instance.remove()
 
     def _remove_bot_dir(self) -> None:
         if not TG_BOT_DIR.exists():

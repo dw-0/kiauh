@@ -165,7 +165,7 @@ class ObicoExtension(BaseExtension):
         ob_instances: List[MoonrakerObico] = ob_im.instances
 
         try:
-            self._remove_obico_instances(ob_im, ob_instances)
+            self._remove_obico_instances(ob_instances)
             self._remove_obico_dir()
             self._remove_obico_env()
             remove_config_section(f"include {OBICO_MACROS_CFG_NAME}", kl_instances)
@@ -288,7 +288,11 @@ class ObicoExtension(BaseExtension):
         scp.read(obico.cfg_file)
         scp.set("server", "url", self.server_url)
         scp.set("moonraker", "port", str(moonraker.port))
-        scp.set("logging", "path", obico.log.as_posix())
+        scp.set(
+            "logging",
+            "path",
+            obico.log_dir.joinpath(obico.log_file_name).as_posix(),
+        )
         scp.write(obico.cfg_file)
 
     def _patch_printer_cfg(self, klipper: List[Klipper]) -> None:
@@ -336,7 +340,6 @@ class ObicoExtension(BaseExtension):
 
     def _remove_obico_instances(
         self,
-        instance_manager: InstanceManager,
         instance_list: List[MoonrakerObico],
     ) -> None:
         if not instance_list:
@@ -345,14 +348,9 @@ class ObicoExtension(BaseExtension):
 
         for instance in instance_list:
             Logger.print_status(
-                f"Removing instance {instance.get_service_file_name()} ..."
+                f"Removing instance {instance.service_file_path.stem} ..."
             )
-            instance_manager.current_instance = instance
-            instance_manager.stop_instance()
-            instance_manager.disable_instance()
-            instance_manager.delete_instance()
-
-        cmd_sysctl_manage("daemon-reload")
+            instance.remove()
 
     def _remove_obico_dir(self) -> None:
         Logger.print_status("Removing Obico for Klipper directory ...")

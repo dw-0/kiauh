@@ -37,8 +37,8 @@ def print_moonraker_overview(
         dialog += "║                                                       ║\n"
 
     instance_map = {
-        k.get_service_file_name(): (
-            k.get_service_file_name().replace("klipper", "moonraker")
+        k.service_file_path.stem: (
+            k.service_file_path.stem.replace("klipper", "moonraker")
             if k.suffix in [m.suffix for m in moonraker_instances]
             else ""
         )

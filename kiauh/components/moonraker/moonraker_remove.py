@@ -18,7 +18,6 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
-from utils.sys_utils import cmd_sysctl_manage
 
 
 def run_moonraker_removal(
@@ -27,17 +26,17 @@ def run_moonraker_removal(
     remove_env: bool,
     remove_polkit: bool,
 ) -> None:
-    im = InstanceManager(Moonraker)
+    moonraker_instances = InstanceManager(Moonraker).instances
 
     if remove_service:
         Logger.print_status("Removing Moonraker instances ...")
-        if im.instances:
-            instances_to_remove = select_instances_to_remove(im.instances)
-            remove_instances(im, instances_to_remove)
+        if moonraker_instances:
+            instances_to_remove = select_instances_to_remove(moonraker_instances)
+            remove_instances(instances_to_remove)
         else:
             Logger.print_info("No Moonraker Services installed! Skipped ...")
 
-    if (remove_polkit or remove_dir or remove_env) and im.instances:
+    if (remove_polkit or remove_dir or remove_env) and moonraker_instances:
         Logger.print_info("There are still other Moonraker services installed")
         Logger.print_info(
             "●  Moonraker PolicyKit rules were not removed.", prefix=False
@@ -84,20 +83,14 @@ def select_instances_to_remove(
 
 
 def remove_instances(
-    instance_manager: InstanceManager,
     instance_list: List[Moonraker] | None,
 ) -> None:
     if not instance_list:
         Logger.print_info("No Moonraker instances found. Skipped ...")
         return
     for instance in instance_list:
-        Logger.print_status(f"Removing instance {instance.get_service_file_name()} ...")
-        instance_manager.current_instance = instance
-        instance_manager.stop_instance()
-        instance_manager.disable_instance()
-        instance_manager.delete_instance()
-
-    cmd_sysctl_manage("daemon-reload")
+        Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
+        instance.remove()
 
 
 def remove_polkit_rules() -> None:

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError
 
 from components.moonraker import (
     MOONRAKER_CFG_NAME,
@@ -33,12 +33,12 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 class Moonraker(BaseInstance):
     moonraker_dir: Path = MOONRAKER_DIR
     env_dir: Path = MOONRAKER_ENV_DIR
+    log_file_name = MOONRAKER_LOG_NAME
     cfg_file: Path | None = None
     port: int | None = None
     backup_dir: Path | None = None
     certs_dir: Path | None = None
     db_dir: Path | None = None
-    log: Path | None = None
 
     def __init__(self, suffix: str = ""):
         super().__init__(suffix=suffix)
@@ -50,7 +50,6 @@ class Moonraker(BaseInstance):
         self.backup_dir = self.data_dir.joinpath("backup")
         self.certs_dir = self.data_dir.joinpath("certs")
         self.db_dir = self.data_dir.joinpath("database")
-        self.log = self.log_dir.joinpath(MOONRAKER_LOG_NAME)
 
     def create(self, create_example_cfg: bool = False) -> None:
         from utils.sys_utils import create_env_file, create_service_file
@@ -60,7 +59,7 @@ class Moonraker(BaseInstance):
         try:
             self.create_folders([self.backup_dir, self.certs_dir, self.db_dir])
             create_service_file(
-                name=self.get_service_file_name(extension=True),
+                name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
             create_env_file(
@@ -73,21 +72,6 @@ class Moonraker(BaseInstance):
             raise
         except OSError as e:
             Logger.print_error(f"Error creating env file: {e}")
-            raise
-
-    def delete(self) -> None:
-        service_file = self.get_service_file_name(extension=True)
-        service_file_path = self.get_service_file_path()
-
-        Logger.print_status(f"Removing Moonraker Instance: {service_file}")
-
-        try:
-            command = ["sudo", "rm", "-f", service_file_path]
-            run(command, check=True)
-            self.delete_logfiles(MOONRAKER_LOG_NAME)
-            Logger.print_ok("Instance successfully removed!")
-        except CalledProcessError as e:
-            Logger.print_error(f"Error removing instance: {e}")
             raise
 
     def _prep_service_file_content(self) -> str:

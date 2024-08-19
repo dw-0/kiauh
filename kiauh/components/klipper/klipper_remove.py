@@ -17,7 +17,6 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
-from utils.sys_utils import cmd_sysctl_manage
 
 
 def run_klipper_removal(
@@ -25,17 +24,17 @@ def run_klipper_removal(
     remove_dir: bool,
     remove_env: bool,
 ) -> None:
-    im = InstanceManager(Klipper)
+    klipper_instances = InstanceManager(Klipper).instances
 
     if remove_service:
         Logger.print_status("Removing Klipper instances ...")
-        if im.instances:
-            instances_to_remove = select_instances_to_remove(im.instances)
-            remove_instances(im, instances_to_remove)
+        if klipper_instances:
+            instances_to_remove = select_instances_to_remove(klipper_instances)
+            remove_instances(instances_to_remove)
         else:
             Logger.print_info("No Klipper Services installed! Skipped ...")
 
-    if (remove_dir or remove_env) and im.instances:
+    if (remove_dir or remove_env) and klipper_instances:
         Logger.print_info("There are still other Klipper services installed:")
         Logger.print_info(f"● '{KLIPPER_DIR}' was not removed.", prefix=False)
         Logger.print_info(f"● '{KLIPPER_ENV_DIR}' was not removed.", prefix=False)
@@ -74,20 +73,14 @@ def select_instances_to_remove(instances: List[Klipper]) -> List[Klipper] | None
 
 
 def remove_instances(
-    instance_manager: InstanceManager,
     instance_list: List[Klipper] | None,
 ) -> None:
     if not instance_list:
         return
 
     for instance in instance_list:
-        Logger.print_status(f"Removing instance {instance.get_service_file_name()} ...")
-        instance_manager.current_instance = instance
-        instance_manager.stop_instance()
-        instance_manager.disable_instance()
-        instance_manager.delete_instance()
-
-    cmd_sysctl_manage("daemon-reload")
+        Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
+        instance.remove()
 
 
 def delete_klipper_logs(instances: List[Klipper]) -> None:

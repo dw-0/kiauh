@@ -53,7 +53,7 @@ def print_instance_overview(
 
     for i, s in enumerate(instances):
         if display_type is DisplayType.SERVICE_NAME:
-            name = s.get_service_file_name()
+            name = s.service_file_path.stem
         else:
             name = s.data_dir
         line = f"{COLOR_CYAN}{f'{i + start_index})' if show_index else '●'} {name}{RESET_FORMAT}"

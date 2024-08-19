@@ -231,7 +231,7 @@ def display_moonraker_info(moonraker_list: List[Moonraker]) -> bool:
         DialogType.INFO,
         [
             "Existing Moonraker instances detected:",
-            *[f"● {m.get_service_file_name()}" for m in moonraker_list],
+            *[f"● {m.service_file_path.stem}" for m in moonraker_list],
             "\n\n",
             "The following Klipper instances will be installed:",
             *[f"● klipper-{m.suffix}" for m in moonraker_list],

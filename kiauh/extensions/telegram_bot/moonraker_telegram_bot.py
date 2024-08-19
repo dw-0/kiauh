@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError
 
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
@@ -30,8 +30,8 @@ from extensions.telegram_bot import (
 class MoonrakerTelegramBot(BaseInstance):
     bot_dir: Path = TG_BOT_DIR
     env_dir: Path = TG_BOT_ENV
+    log_file_name = TG_BOT_LOG_NAME
     cfg_file: Path | None = None
-    log: Path | None = None
 
     def __init__(self, suffix: str = ""):
         super().__init__(suffix=suffix)
@@ -39,7 +39,6 @@ class MoonrakerTelegramBot(BaseInstance):
     def __post_init__(self):
         super().__post_init__()
         self.cfg_file = self.cfg_dir.joinpath(TG_BOT_CFG_NAME)
-        self.log = self.log_dir.joinpath(TG_BOT_LOG_NAME)
 
     def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file
@@ -49,7 +48,7 @@ class MoonrakerTelegramBot(BaseInstance):
         try:
             self.create_folders()
             create_service_file(
-                name=self.get_service_file_name(extension=True),
+                name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
             create_env_file(
@@ -62,20 +61,6 @@ class MoonrakerTelegramBot(BaseInstance):
             raise
         except OSError as e:
             Logger.print_error(f"Error creating env file: {e}")
-            raise
-
-    def delete(self) -> None:
-        service_file: str = self.get_service_file_name(extension=True)
-        service_file_path: Path = self.get_service_file_path()
-
-        Logger.print_status(f"Deleting Moonraker Telegram Bot Instance: {service_file}")
-
-        try:
-            command = ["sudo", "rm", "-f", service_file_path.as_posix()]
-            run(command, check=True)
-            Logger.print_ok(f"Service file deleted: {service_file_path}")
-        except CalledProcessError as e:
-            Logger.print_error(f"Error deleting service file: {e}")
             raise
 
     def _prep_service_file_content(self) -> str:
@@ -126,6 +111,6 @@ class MoonrakerTelegramBot(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
-            self.log.as_posix() if self.log else "",
+            self.log_dir.joinpath(self.log_file_name).as_posix(),
         )
         return env_file_content

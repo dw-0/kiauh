@@ -23,6 +23,7 @@ from components.octoeverywhere import (
 from components.octoeverywhere.octoeverywhere import Octoeverywhere
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.types import ComponentStatus
 from utils.common import (
     check_install_dependencies,
     get_install_status,
@@ -35,11 +36,9 @@ from utils.fs_utils import run_remove_routines
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_confirm
 from utils.sys_utils import (
-    cmd_sysctl_manage,
     install_python_requirements,
     parse_packages_from_file,
 )
-from core.types import ComponentStatus
 
 
 def get_octoeverywhere_status() -> ComponentStatus:
@@ -142,7 +141,7 @@ def remove_octoeverywhere() -> None:
     ob_instances: List[Octoeverywhere] = ob_im.instances
 
     try:
-        remove_oe_instances(ob_im, ob_instances)
+        remove_oe_instances(ob_instances)
         remove_oe_dir()
         remove_oe_env()
         remove_config_section(f"include {OE_SYS_CFG_NAME}", mr_instances)
@@ -173,7 +172,6 @@ def install_oe_dependencies() -> None:
 
 
 def remove_oe_instances(
-    instance_manager: InstanceManager,
     instance_list: List[Octoeverywhere],
 ) -> None:
     if not instance_list:
@@ -181,13 +179,8 @@ def remove_oe_instances(
         return
 
     for instance in instance_list:
-        Logger.print_status(f"Removing instance {instance.get_service_file_name()} ...")
-        instance_manager.current_instance = instance
-        instance_manager.stop_instance()
-        instance_manager.disable_instance()
-        instance_manager.delete_instance()
-
-    cmd_sysctl_manage("daemon-reload")
+        Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
+        instance.remove()
 
 
 def remove_oe_dir() -> None:

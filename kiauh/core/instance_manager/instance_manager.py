@@ -49,8 +49,8 @@ class InstanceManager:
         self._current_instance = value
         if value is not None:
             self.instance_suffix = value.suffix
-            self.instance_service = value.get_service_file_name()
-            self.instance_service_path = value.get_service_file_path()
+            self.instance_service = value.service_file_path.stem
+            self.instance_service_path = value.service_file_path
 
     @property
     def instance_suffix(self) -> str | None:
@@ -94,16 +94,6 @@ class InstanceManager:
                 self.current_instance.create()
             except (OSError, subprocess.CalledProcessError) as e:
                 Logger.print_error(f"Creating instance failed: {e}")
-                raise
-        else:
-            raise ValueError("current_instance cannot be None")
-
-    def delete_instance(self) -> None:
-        if self.current_instance is not None:
-            try:
-                self.current_instance.delete()
-            except (OSError, subprocess.CalledProcessError) as e:
-                Logger.print_error(f"Removing instance failed: {e}")
                 raise
         else:
             raise ValueError("current_instance cannot be None")
