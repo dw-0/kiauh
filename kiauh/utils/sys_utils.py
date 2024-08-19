@@ -486,21 +486,28 @@ def create_env_file(path: Path, content: str) -> None:
         raise
 
 
-def remove_service_file(service_name: str, service_file: Path) -> None:
+def remove_system_service(service_name: str) -> None:
     """
-    Removes a systemd service file at the provided path with the provided name.
-    :param service_name: the name of the service
-    :param service_file: the path of the service file
+    Disables and removes a systemd service
+    :param service_name: name of the service unit file - must end with '.service'
     :return: None
     """
     try:
+        if not service_name.endswith(".service"):
+            raise ValueError(f"service_name '{service_name}' must end with '.service'")
+
+        file: Path = SYSTEMD.joinpath(service_name)
+        if not file.exists() or not file.is_file():
+            Logger.print_info(f"Service '{service_name}' does not exist! Skipped ...")
+            return
+
         Logger.print_status(f"Removing {service_name} ...")
         cmd_sysctl_service(service_name, "stop")
         cmd_sysctl_service(service_name, "disable")
-        remove_with_sudo(service_file)
+        remove_with_sudo(file)
         cmd_sysctl_manage("daemon-reload")
         cmd_sysctl_manage("reset-failed")
         Logger.print_ok(f"{service_name} successfully removed!")
     except Exception as e:
-        Logger.print_error(f"Error removing {service_name}:\n{e}")
+        Logger.print_error(f"Error removing {service_name}: {e}")
         raise

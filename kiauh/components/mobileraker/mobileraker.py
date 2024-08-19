@@ -29,6 +29,7 @@ from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
+from core.types import ComponentStatus
 from utils.common import check_install_dependencies, get_install_status
 from utils.config_utils import add_config_section, remove_config_section
 from utils.git_utils import (
@@ -40,9 +41,8 @@ from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_service,
     install_python_requirements,
-    remove_service_file,
+    remove_system_service,
 )
-from core.types import ComponentStatus
 
 
 def install_mobileraker() -> None:
@@ -161,10 +161,7 @@ def remove_mobileraker() -> None:
             Logger.print_warn("Mobileraker's companion environment not found!")
 
         if MOBILERAKER_SERVICE_FILE.exists():
-            remove_service_file(
-                MOBILERAKER_SERVICE_NAME,
-                MOBILERAKER_SERVICE_FILE,
-            )
+            remove_system_service(MOBILERAKER_SERVICE_NAME)
 
         kl_im = InstanceManager(Klipper)
         kl_instances: List[Klipper] = kl_im.instances

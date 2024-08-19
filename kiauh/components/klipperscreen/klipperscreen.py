@@ -30,6 +30,7 @@ from core.constants import SYSTEMD
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
+from core.types import ComponentStatus
 from utils.common import (
     check_install_dependencies,
     get_install_status,
@@ -45,9 +46,8 @@ from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_service,
     install_python_requirements,
-    remove_service_file,
+    remove_system_service,
 )
-from core.types import ComponentStatus
 
 
 def install_klipperscreen() -> None:
@@ -166,10 +166,7 @@ def remove_klipperscreen() -> None:
             Logger.print_warn("KlipperScreen environment not found!")
 
         if KLIPPERSCREEN_SERVICE_FILE.exists():
-            remove_service_file(
-                KLIPPERSCREEN_SERVICE_NAME,
-                KLIPPERSCREEN_SERVICE_FILE,
-            )
+            remove_system_service(KLIPPERSCREEN_SERVICE_NAME)
 
         logfile = Path(f"/tmp/{KLIPPERSCREEN_LOG_NAME}")
         if logfile.exists():

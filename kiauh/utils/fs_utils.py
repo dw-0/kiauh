@@ -55,7 +55,7 @@ def remove_with_sudo(file: Path) -> None:
         cmd = ["sudo", "rm", "-rf", file.as_posix()]
         run(cmd, stderr=PIPE, check=True)
     except CalledProcessError as e:
-        Logger.print_error(f"Failed to remove file: {e}")
+        Logger.print_error(f"Failed to remove {file}: {e}")
         raise
 
 
