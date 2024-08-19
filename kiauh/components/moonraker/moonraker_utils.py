@@ -26,11 +26,11 @@ from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
+from core.types import ComponentStatus
 from utils.common import get_install_status
 from utils.sys_utils import (
     get_ipv4_addr,
 )
-from core.types import ComponentStatus
 
 
 def get_moonraker_status() -> ComponentStatus:

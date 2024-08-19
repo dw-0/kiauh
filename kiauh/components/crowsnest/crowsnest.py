@@ -31,6 +31,7 @@ from core.constants import CURRENT_USER
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
+from core.types import ComponentStatus
 from utils.common import (
     check_install_dependencies,
     get_install_status,
@@ -44,7 +45,6 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     parse_packages_from_file,
 )
-from core.types import ComponentStatus
 
 
 def install_crowsnest() -> None:
