@@ -10,9 +10,11 @@
 import shutil
 from typing import Dict, List, Optional
 
+from components.klipper.klipper import Klipper
 from components.moonraker import (
     MODULE_PATH,
     MOONRAKER_BACKUP_DIR,
+    MOONRAKER_CFG_NAME,
     MOONRAKER_DB_BACKUP_DIR,
     MOONRAKER_DEFAULT_PORT,
     MOONRAKER_DIR,
@@ -31,6 +33,25 @@ from utils.common import get_install_status
 from utils.sys_utils import (
     get_ipv4_addr,
 )
+
+
+def moonraker_factory(klipper_instance: Klipper) -> Moonraker:
+    """Create a new Moonraker instance from a Klipper instance."""
+
+    instance: Moonraker = Moonraker(suffix=klipper_instance.suffix)
+    instance.is_legacy_instance = klipper_instance.is_legacy_instance
+    instance.data_dir = klipper_instance.data_dir
+    instance.data_dir_name = klipper_instance.data_dir_name
+    instance.cfg_dir = klipper_instance.cfg_dir
+    instance.cfg_file = instance.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
+    instance.log_dir = klipper_instance.log_dir
+    instance.sysd_dir = klipper_instance.sysd_dir
+    instance.comms_dir = klipper_instance.comms_dir
+    instance.gcodes_dir = klipper_instance.gcodes_dir
+    instance.db_dir = instance.data_dir.joinpath("database")
+    instance.backup_dir = instance.data_dir.joinpath("backup")
+    instance.certs_dir = instance.data_dir.joinpath("certs")
+    return instance
 
 
 def get_moonraker_status() -> ComponentStatus:

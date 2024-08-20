@@ -35,10 +35,12 @@ class BaseInstance(ABC):
     log_file_name: str = ""
 
     def __post_init__(self) -> None:
-        self._set_data_dir()
-        self._set_is_legacy_instance()
         self._set_service_file_path()
+        self._set_data_dir()
+
         if self.data_dir is not None:
+            self.data_dir_name = self.data_dir.name
+            self._set_is_legacy_instance()
             self.cfg_dir = self.data_dir.joinpath("config")
             self.log_dir = self.data_dir.joinpath("logs")
             self.comms_dir = self.data_dir.joinpath("comms")
@@ -112,13 +114,15 @@ class BaseInstance(ABC):
         else:
             self.data_dir = Path.home().joinpath(f"printer_{self.suffix}_data")
 
-        if self.service_file_path is not None and self.service_file_path.exists():
+        if self.service_file_path and self.service_file_path.exists():
             with open(self.service_file_path, "r") as service_file:
-                service_content = service_file.read()
-                pattern = re.compile("^EnvironmentFile=(.+)(/systemd/.+\.env)")
-                match = re.search(pattern, service_content)
-                if match:
-                    self.data_dir = Path(match.group(1))
+                lines = service_file.readlines()
+                for line in lines:
+                    pattern = r"^EnvironmentFile=(.+)(/systemd/.+\.env)"
+                    match = re.search(pattern, line)
+                    if match:
+                        self.data_dir = Path(match.group(1))
+                        break
 
     def _set_service_file_path(self) -> None:
         from utils.common import convert_camelcase_to_kebabcase
@@ -130,11 +134,7 @@ class BaseInstance(ABC):
         self.service_file_path = SYSTEMD.joinpath(f"{name}.service")
 
     def _set_is_legacy_instance(self) -> None:
-        if (
-            self.suffix != ""
-            and not self.data_dir_name.startswith("printer_")
-            and not self.data_dir_name.endswith("_data")
-        ):
+        legacy_pattern = r"^(?!printer)(.+)_data"
+        match = re.search(legacy_pattern, self.data_dir_name)
+        if match and self.suffix != "":
             self.is_legacy_instance = True
-        else:
-            self.is_legacy_instance = False

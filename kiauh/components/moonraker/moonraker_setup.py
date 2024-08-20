@@ -31,6 +31,7 @@ from components.moonraker.moonraker_dialogs import print_moonraker_overview
 from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
     create_example_moonraker_conf,
+    moonraker_factory,
 )
 from components.webui_client.client_utils import (
     enable_mainsail_remotemode,
@@ -50,6 +51,7 @@ from utils.input_utils import (
 from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_manage,
+    cmd_sysctl_service,
     create_python_venv,
     install_python_requirements,
     parse_packages_from_file,
@@ -61,14 +63,12 @@ def install_moonraker() -> None:
         return
 
     klipper_list: List[Klipper] = InstanceManager(Klipper).instances
-    mr_im = InstanceManager(Moonraker)
-    moonraker_list: List[Moonraker] = mr_im.instances
-
-    instance_names = []
+    moonraker_list: List[Moonraker] = InstanceManager(Moonraker).instances
+    instances: List[Moonraker] = []
     selected_option: str | Klipper
 
-    if len(klipper_list) == 0:
-        instance_names.append(klipper_list[0].suffix)
+    if len(klipper_list) == 1:
+        instances.append(moonraker_factory(klipper_list[0]))
     else:
         print_moonraker_overview(
             klipper_list,
@@ -87,12 +87,12 @@ def install_moonraker() -> None:
             return
 
         if selected_option == "a":
-            instance_names.extend([k.suffix for k in klipper_list])
+            instances.extend([moonraker_factory(k) for k in klipper_list])
         else:
             klipper_instance: Klipper | None = options.get(selected_option)
             if klipper_instance is None:
                 raise Exception("Error selecting instance!")
-            instance_names.append(klipper_instance.suffix)
+            instances.append(moonraker_factory(klipper_instance))
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
 
@@ -102,26 +102,23 @@ def install_moonraker() -> None:
         install_moonraker_polkit()
 
         used_ports_map = {m.suffix: m.port for m in moonraker_list}
-        for name in instance_names:
-            current_instance = Moonraker(suffix=name)
-
-            mr_im.current_instance = current_instance
-            mr_im.create_instance()
-            mr_im.enable_instance()
+        for instance in instances:
+            instance.create()
+            cmd_sysctl_service(instance.service_file_path.name, "enable")
 
             if create_example_cfg:
                 # if a webclient and/or it's config is installed, patch
                 # its update section to the config
                 clients = get_existing_clients()
-                create_example_moonraker_conf(current_instance, used_ports_map, clients)
+                create_example_moonraker_conf(instance, used_ports_map, clients)
 
-            mr_im.start_instance()
+            cmd_sysctl_service(instance.service_file_path.name, "start")
 
         cmd_sysctl_manage("daemon-reload")
 
         # if mainsail is installed, and we installed
         # multiple moonraker instances, we enable mainsails remote mode
-        if MainsailData().client_dir.exists() and len(mr_im.instances) > 1:
+        if MainsailData().client_dir.exists() and len(moonraker_list) > 1:
             enable_mainsail_remotemode()
 
     except Exception as e:

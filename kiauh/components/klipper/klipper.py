@@ -32,7 +32,6 @@ from core.logger import Logger
 class Klipper(BaseInstance):
     klipper_dir: Path = KLIPPER_DIR
     env_dir: Path = KLIPPER_ENV_DIR
-    log_file_name = KLIPPER_LOG_NAME
     cfg_file: Path | None = None
     serial: Path | None = None
     uds: Path | None = None
@@ -42,6 +41,7 @@ class Klipper(BaseInstance):
 
     def __post_init__(self) -> None:
         super().__post_init__()
+        self.log_file_name = KLIPPER_LOG_NAME
         self.cfg_file = self.cfg_dir.joinpath(KLIPPER_CFG_NAME)
         self.serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
         self.uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)

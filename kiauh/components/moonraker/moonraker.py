@@ -33,7 +33,6 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 class Moonraker(BaseInstance):
     moonraker_dir: Path = MOONRAKER_DIR
     env_dir: Path = MOONRAKER_ENV_DIR
-    log_file_name = MOONRAKER_LOG_NAME
     cfg_file: Path | None = None
     port: int | None = None
     backup_dir: Path | None = None
@@ -45,6 +44,7 @@ class Moonraker(BaseInstance):
 
     def __post_init__(self) -> None:
         super().__post_init__()
+        self.log_file_name = MOONRAKER_LOG_NAME
         self.cfg_file = self.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
         self.port = self._get_port()
         self.backup_dir = self.data_dir.joinpath("backup")
