@@ -51,14 +51,16 @@ class KlipperbackupExtension(BaseExtension):
                     remove_system_service(full_service_name)
                     return True
                 elif unit_type == "timer":
-                    cmd_sysctl_service(full_service_name, "stop")
                     full_service_path: Path = SYSTEMD.joinpath(full_service_name)
+                    cmd_sysctl_service(full_service_name, "stop")
                     remove_with_sudo(full_service_path)
+                    cmd_sysctl_manage("daemon-reload")
+                    cmd_sysctl_manage("reset-failed")
                     Logger.print_ok(f"{full_service_name} successfully removed!")
                     return True
                 else:
                     return False
-            except subprocess.CalledProcessError:
+            except:
                 return False
 
         def check_crontab_entry(entry) -> bool:
