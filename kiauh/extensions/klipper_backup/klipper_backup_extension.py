@@ -14,6 +14,7 @@ import shutil
 import subprocess
 from core.constants import SYSTEMD
 from core.logger import Logger
+from pathlib import Path
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
     KLIPPERBACKUP_CONFIG_DIR,
@@ -24,7 +25,7 @@ from extensions.klipper_backup import (
 from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.git_utils import git_cmd_clone
 from utils.input_utils import get_confirm
-from utils.sys_utils import cmd_sysctl_service, remove_system_service, unit_file_exists
+from utils.sys_utils import cmd_sysctl_manage, remove_system_service, unit_file_exists
 
 
 class KlipperbackupExtension(BaseExtension):
@@ -41,13 +42,18 @@ class KlipperbackupExtension(BaseExtension):
                     remove_system_service(full_service_name)
                 elif unit_type == "timer":
                     full_service_path: Path = SYSTEMD.joinpath(full_service_name)
-                    cmd_sysctl_service(full_service_name, "stop")
-                    remove_with_sudo(full_service_path)
+                    Logger.print_status(f"Removing {full_service_name} ...")
+                    try:
+                        remove_with_sudo(full_service_path)
+                        Logger.print_ok(f"{service_name}.{unit_type} successfully removed!")
+                    except Exception as e:
+                        Logger.print_error(f"Failed to remove {full_service_name}: {str(e)}")
                     cmd_sysctl_manage("daemon-reload")
                     cmd_sysctl_manage("reset-failed")
-                return True
+                else:
+                    Logger.print_error(f"Unknown unit type {unit_type} of {full_service_name}")
             except:
-                return False
+                Logger.print_error(f"Failed to remove {full_service_name}: {str(e)}")
 
         def check_crontab_entry(entry) -> bool:
             try:
@@ -75,16 +81,16 @@ class KlipperbackupExtension(BaseExtension):
             return False
 
         if get_confirm("Do you really want to remove the extension?", True, False):
+            # Remove systemd timer and services
             service_names = ["klipper-backup-on-boot", "klipper-backup-filewatch", "klipper-backup"]
             unit_types = ["timer", "service"]
 
             for service_name in service_names:
                 for unit_type in unit_types:
                     if unit_file_exists(service_name, unit_type):
-                        if not uninstall_service(service_name, unit_type):
-                            Logger.print_error(f"Unable to remove the {service_name}.{unit_type}.")
-                        else:
-                            Logger.print_ok(f"{service_name}.{unit_type} successfully removed!")
+                        uninstall_service(service_name, unit_type)
+
+            # Remnove crontab entry
             try:
                 if check_crontab_entry("/klipper-backup/script.sh"):
                     Logger.print_status("Removing Klipper-Backup crontab entry ...")
@@ -95,19 +101,21 @@ class KlipperbackupExtension(BaseExtension):
             except subprocess.CalledProcessError:
                 Logger.print_error("Unable to remove the Klipper-Backup cron entry")
 
+            # Remove moonraker entry
             try:
                 remove_moonraker_entry()
             except:
                 Logger.print_error("Unable to remove the Klipper-Backup moonraker entry")
 
+            # Remove Klipper-backup extension
             Logger.print_status("Removing Klipper-Backup extension ...")
             try:
-                shutil.rmtree(KLIPPERBACKUP_DIR)
+                remove_with_sudo(KLIPPERBACKUP_DIR)
                 if check_file_exist(KLIPPERBACKUP_CONFIG_DIR):
-                    shutil.rmtree(KLIPPERBACKUP_CONFIG_DIR)
+                    remove_with_sudo(KLIPPERBACKUP_CONFIG_DIR)
                 Logger.print_ok("Extension Klipper-Backup successfully removed!")
-            except OSError as e:
-                Logger.print_error(f"Unable to remove Klipper-Backup extension: {e}")
+            except:
+                Logger.print_error(f"Unable to remove Klipper-Backup extension")
 
     def install_extension(self, **kwargs) -> None:
         if not KLIPPERBACKUP_DIR.exists():
