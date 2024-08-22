@@ -43,11 +43,8 @@ class KlipperbackupExtension(BaseExtension):
                 elif unit_type == "timer":
                     full_service_path: Path = SYSTEMD.joinpath(full_service_name)
                     Logger.print_status(f"Removing {full_service_name} ...")
-                    try:
-                        remove_with_sudo(full_service_path)
-                        Logger.print_ok(f"{service_name}.{unit_type} successfully removed!")
-                    except Exception as e:
-                        Logger.print_error(f"Failed to remove {full_service_name}: {str(e)}")
+                    remove_with_sudo(full_service_path)
+                    Logger.print_ok(f"{service_name}.{unit_type} successfully removed!")
                     cmd_sysctl_manage("daemon-reload")
                     cmd_sysctl_manage("reset-failed")
                 else:
