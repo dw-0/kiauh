@@ -46,43 +46,53 @@ function moonraker_setup_dialog() {
     print_error "${error}" && return
   fi
 
-  ### return early if moonraker already exists
-  local moonraker_services
-  moonraker_services=$(moonraker_systemd)
-  if [[ -n ${moonraker_services} ]]; then
-    local error="At least one Moonraker service is already installed:"
-    for s in ${moonraker_services}; do
-      log_info "Found Moonraker service: ${s}"
-      error="${error}\n ➔ ${s}"
-    done
-    print_error "${error}" && return
-  fi
+  local klipper_services=()
+  readarray -t klipper_services < <(klipper_systemd)
+  local klipper_count
+  klipper_count="${#klipper_services[@]}"
+  
 
-  ### return early if klipper is not installed
-  local klipper_services
-  klipper_services=$(klipper_systemd)
-  if [[ -z ${klipper_services} ]]; then
+  if [[ ${klipper_count} -eq 0 ]]; then
     local error="Klipper not installed! Please install Klipper first!"
     log_error "Moonraker setup started without Klipper being installed. Aborting setup."
     print_error "${error}" && return
   fi
 
-  local klipper_count user_input=() klipper_names=()
-  klipper_count=$(echo "${klipper_services}" | wc -w)
-  for service in ${klipper_services}; do
-    klipper_names+=("$(get_instance_name "${service}")")
+  ### return early if moonraker already exists
+  local moonraker_services
+  moonraker_services=$(moonraker_systemd)
+  local moonraker_services_count=$(echo -e "$moonraker_services" | wc -l)
+
+  if [[ ${moonraker_services_count} -ge ${klipper_count} ]]; then
+    local error="All Klipper instances have an associated moonraker instance"
+
+    for s in ${moonraker_services}; do
+      log_info "Found Moonraker service: ${s}"
+      error="${error}\n ➔ ${s}"
+    done
+
+    print_error "${error}" && return
+  fi
+
+  local klipper_instance_names=()
+
+  for service in "${klipper_services[@]}"; do
+    klipper_instance_names+=("$(get_instance_name "${service}")")
   done
 
   local moonraker_count
+
   if ((klipper_count == 1)); then
     ok_msg "Klipper installation found!\n"
     moonraker_count=1
   elif ((klipper_count > 1)); then
     top_border
     printf "|${green}%-55s${white}|\n" " ${klipper_count} Klipper instances found!"
-    for name in "${klipper_names[@]}"; do
+
+    for name in "${klipper_instance_names[@]}"; do
       printf "|${cyan}%-57s${white}|\n" " ● klipper-${name}"
     done
+
     blank_line
     echo -e "| The setup will apply the same names to Moonraker!     |"
     blank_line
@@ -107,8 +117,6 @@ function moonraker_setup_dialog() {
     return 1
   fi
 
-  user_input+=("${moonraker_count}")
-
   ### confirm instance amount
   local yn
   while true; do
@@ -131,16 +139,15 @@ function moonraker_setup_dialog() {
     esac
   done
 
-  ### write existing klipper names into user_input array to use them as names for moonraker
-  if ((klipper_count > 1)); then
-    for name in "${klipper_names[@]}"; do
-      user_input+=("${name}")
-    done
-  fi
+  local klipper_instance_names_to_install_moonraker_for=("${moonraker_count}") # count as first array element
 
-  ((moonraker_count > 1)) && status_msg "Installing ${moonraker_count} Moonraker instances ..."
-  ((moonraker_count == 1)) && status_msg "Installing Moonraker ..."
-  moonraker_setup "${user_input[@]}"
+  for ((i = 0; i < moonraker_count; i++)); do
+    klipper_instance_names_to_install_moonraker_for+=("$(choose_klipper_instance)")
+  done
+
+  status_msg "Installing ${moonraker_count} Moonraker instance$([[ moonraker_count -gt 1 ]] && echo "s") ..."
+
+  moonraker_setup "${klipper_instance_names_to_install_moonraker_for[@]}"
 }
 
 function install_moonraker_dependencies() {
@@ -186,7 +193,7 @@ function moonraker_setup() {
   dep+=(libjpeg-dev zlib1g-dev)
   dependency_check "${dep[@]}"
 
-  ### step 1: clone moonraker
+  ## step 1: clone moonraker
   clone_moonraker "${MOONRAKER_REPO}"
 
   ### step 2: install moonraker dependencies and create python virtualenv
@@ -237,7 +244,7 @@ function create_moonraker_conf() {
 
   port=7125
   lan="$(hostname -I | cut -d" " -f1 | cut -d"." -f1-2).0.0/16"
-
+  
   if ((moonraker_count == 1)); then
     printer_data="${HOME}/printer_data"
     cfg_dir="${printer_data}/config"

@@ -41,10 +41,11 @@ function klipper_systemd() {
 
 function print_dialog_user_select_klipper_instance() {
   local instance_names
+  declare -a instance_names
 
-  instance_names=$(get_multi_instance_names)
+  get_multi_instance_names_array instance_names
   instance_names_list=$(prefix_array_values_with_index instance_names[@])
-
+  
   eval print_table \
     "\"Please select the Klipper instance to use:\"" \
     "\"${TABLE_SECTION_SEPARATOR}\"" \
@@ -623,23 +624,7 @@ function update_klipper() {
 
   klipper_instance_names=$(get_multi_instance_names)
 
-  print_dialog_user_select_klipper_instance
-
-  while true; do
-    read -p "${cyan}###### Select Klipper instance:${white} " -i "1" -e input
-
-    if [[ "${input}" == "B" || "${input}" == "b" ]]; then
-      clear
-      update_menu
-      break
-    elif [[ ! ${input} =~ ${regex} ]]; then
-      error_msg "Invalid input!"
-    elif [[ ${input} -lt 1 ]] || [[ ${input} -gt ${i} ]]; then
-      error_msg "Please select a number between 1 and ${i}!"
-    fi
-
-    selected_klipper_instance_name="${klipper_instance_names[$((input - 1))]}"
-  done && input=""
+  selected_klipper_instance_name=$(choose_klipper_instance)
 
   local klipper_instance_python_version
   local custom_repo="${custom_klipper_repo}"
@@ -814,5 +799,38 @@ function mask_disrupting_services() {
   fi
 
   ok_msg "ModemManager service masked!"
+}
+
+function choose_klipper_instance() {
+  local klipper_services=()
+  readarray -t klipper_services < <(klipper_systemd)
+
+  local klipper_count="${#klipper_services[@]}"
+  local klipper_instance_names=()
+
+  for service in "${klipper_services[@]}"; do
+    klipper_instance_names+=("$(get_instance_name "${service}")")
+  done
+
+  local regex="^[1-9]+$"
+  local input
+
+  # redirect to stderr because the read otherwise goes first, for some reason
+  print_dialog_user_select_klipper_instance >&2
+
+  while true; do
+    read -p "${cyan}###### Select Klipper instance:${white} " -i "1" -e input
+
+    if [[ ! ${input} =~ ${regex} ]]; then
+      error_msg "Invalid input!"
+      continue
+    elif [[ ${input} -lt 1 ]] || [[ ${input} -gt ${klipper_count} ]]; then
+      error_msg "Please select a number between 1 and ${klipper_count}!"
+      continue
+    fi
+
+    echo "${klipper_instance_names[$((input - 1))]}"
+    break
+  done
 }
 #endregion

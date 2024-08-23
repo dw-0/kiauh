@@ -703,6 +703,12 @@ function set_multi_instance_names() {
   sed -i "/multi_instance_names=/s/=.*/=${names}/" "${INI_FILE}"
 }
 
+function get_multi_instance_names_array() {
+  read_kiauh_ini "${FUNCNAME[0]}"
+  local -n return_array=$1
+  IFS=',' read -r -a return_array <<< "${multi_instance_names}"
+}
+
 ###
 # Helper function that returns all configured instance names
 #
