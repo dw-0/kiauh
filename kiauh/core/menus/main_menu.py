@@ -42,8 +42,8 @@ from core.menus.install_menu import InstallMenu
 from core.menus.remove_menu import RemoveMenu
 from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
-from extensions.extensions_menu import ExtensionsMenu
 from core.types import ComponentStatus, StatusMap, StatusText
+from extensions.extensions_menu import ExtensionsMenu
 
 
 # noinspection PyUnusedLocal
