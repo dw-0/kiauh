@@ -104,18 +104,18 @@ class MainsailThemeInstallMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
             f"""
-            /=======================================================\\
-            | {color}{header:~^{count}}{RESET_FORMAT} |
-            |-------------------------------------------------------|
-            | {line1:<62} |
-            | https://docs.mainsail.xyz/theming/themes              |
-            |-------------------------------------------------------|
+            ╔═══════════════════════════════════════════════════════╗
+            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ {line1:<62} ║
+            ║ https://docs.mainsail.xyz/theming/themes              ║
+            ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         for i, theme in enumerate(self.themes):
             j: str = f" {i}" if i < 10 else f"{i}"
             row: str = f"{j}) [{theme.name}]"
-            menu += f"| {row:<53} |\n"
+            menu += f"║ {row:<53} ║\n"
         print(menu, end="")
 
     def load_themes(self) -> List[ThemeData]:
