@@ -38,11 +38,11 @@ class ClientRemoveMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "a": Option(method=self.toggle_all, menu=False),
-            "1": Option(method=self.toggle_rm_client, menu=False),
-            "2": Option(method=self.toggle_rm_client_config, menu=False),
-            "3": Option(method=self.toggle_backup_config_json, menu=False),
-            "c": Option(method=self.run_removal_process, menu=False),
+            "a": Option(method=self.toggle_all),
+            "1": Option(method=self.toggle_rm_client),
+            "2": Option(method=self.toggle_rm_client_config),
+            "3": Option(method=self.toggle_backup_config_json),
+            "c": Option(method=self.run_removal_process),
         }
 
     def print_menu(self) -> None:

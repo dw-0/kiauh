@@ -119,12 +119,12 @@ class ExtensionSubmenu(BaseMenu):
         )
 
     def set_options(self) -> None:
-        self.options["1"] = Option(self.extension.install_extension, menu=False)
+        self.options["1"] = Option(self.extension.install_extension)
         if self.extension.metadata.get("updates"):
-            self.options["2"] = Option(self.extension.update_extension, menu=False)
-            self.options["3"] = Option(self.extension.remove_extension, menu=False)
+            self.options["2"] = Option(self.extension.update_extension)
+            self.options["3"] = Option(self.extension.remove_extension)
         else:
-            self.options["2"] = Option(self.extension.remove_extension, menu=False)
+            self.options["2"] = Option(self.extension.remove_extension)
 
     def print_menu(self) -> None:
         header = f" [ {self.extension.metadata.get('display_name')} ] "

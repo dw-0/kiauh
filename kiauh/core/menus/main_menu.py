@@ -66,14 +66,14 @@ class MainMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "0": Option(method=self.log_upload_menu, menu=True),
-            "1": Option(method=self.install_menu, menu=True),
-            "2": Option(method=self.update_menu, menu=True),
-            "3": Option(method=self.remove_menu, menu=True),
-            "4": Option(method=self.advanced_menu, menu=True),
-            "5": Option(method=self.backup_menu, menu=True),
-            "e": Option(method=self.extension_menu, menu=True),
-            "s": Option(method=self.settings_menu, menu=True),
+            "0": Option(method=self.log_upload_menu),
+            "1": Option(method=self.install_menu),
+            "2": Option(method=self.update_menu),
+            "3": Option(method=self.remove_menu),
+            "4": Option(method=self.advanced_menu),
+            "5": Option(method=self.backup_menu),
+            "e": Option(method=self.extension_menu),
+            "s": Option(method=self.settings_menu),
         }
 
     def _init_status(self) -> None:

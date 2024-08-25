@@ -35,11 +35,11 @@ class KlipperRemoveMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "a": Option(method=self.toggle_all, menu=False),
-            "1": Option(method=self.toggle_remove_klipper_service, menu=False),
-            "2": Option(method=self.toggle_remove_klipper_dir, menu=False),
-            "3": Option(method=self.toggle_remove_klipper_env, menu=False),
-            "c": Option(method=self.run_removal_process, menu=False),
+            "a": Option(method=self.toggle_all),
+            "1": Option(method=self.toggle_remove_klipper_service),
+            "2": Option(method=self.toggle_remove_klipper_dir),
+            "3": Option(method=self.toggle_remove_klipper_env),
+            "c": Option(method=self.run_removal_process),
         }
 
     def print_menu(self) -> None:

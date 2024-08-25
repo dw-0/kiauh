@@ -50,13 +50,13 @@ from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.spinner import Spinner
+from core.types import ComponentStatus
 from utils.input_utils import get_confirm
 from utils.sys_utils import (
     get_upgradable_packages,
     update_system_package_lists,
     upgrade_system_packages,
 )
-from core.types import ComponentStatus
 
 
 # noinspection PyUnusedLocal
@@ -102,18 +102,18 @@ class UpdateMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "a": Option(self.update_all, menu=False),
-            "1": Option(self.update_klipper, menu=False),
-            "2": Option(self.update_moonraker, menu=False),
-            "3": Option(self.update_mainsail, menu=False),
-            "4": Option(self.update_fluidd, menu=False),
-            "5": Option(self.update_mainsail_config, menu=False),
-            "6": Option(self.update_fluidd_config, menu=False),
-            "7": Option(self.update_klipperscreen, menu=False),
-            "8": Option(self.update_mobileraker, menu=False),
-            "9": Option(self.update_crowsnest, menu=False),
-            "10": Option(self.update_octoeverywhere, menu=False),
-            "11": Option(self.upgrade_system_packages, menu=False),
+            "a": Option(self.update_all),
+            "1": Option(self.update_klipper),
+            "2": Option(self.update_moonraker),
+            "3": Option(self.update_mainsail),
+            "4": Option(self.update_fluidd),
+            "5": Option(self.update_mainsail_config),
+            "6": Option(self.update_fluidd_config),
+            "7": Option(self.update_klipperscreen),
+            "8": Option(self.update_mobileraker),
+            "9": Option(self.update_crowsnest),
+            "10": Option(self.update_octoeverywhere),
+            "11": Option(self.upgrade_system_packages),
         }
 
     def print_menu(self) -> None:

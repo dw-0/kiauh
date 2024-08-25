@@ -123,12 +123,12 @@ class BaseMenu(metaclass=PostInitCaller):
 
         # conditionally add options based on footer type
         if self.footer_type is FooterType.QUIT:
-            self.options["q"] = Option(method=self.__exit, menu=False)
+            self.options["q"] = Option(method=self.__exit)
         if self.footer_type is FooterType.BACK:
-            self.options["b"] = Option(method=self.__go_back, menu=False)
+            self.options["b"] = Option(method=self.__go_back)
         if self.footer_type is FooterType.BACK_HELP:
-            self.options["b"] = Option(method=self.__go_back, menu=False)
-            self.options["h"] = Option(method=self.__go_to_help, menu=False)
+            self.options["b"] = Option(method=self.__go_back)
+            self.options["h"] = Option(method=self.__go_to_help)
         # if defined, add the default option to the options dict
         if self.default_option is not None:
             self.options[""] = self.default_option
@@ -184,7 +184,10 @@ class BaseMenu(metaclass=PostInitCaller):
         :return: Option, str or None
         """
         usr_input = usr_input.lower()
-        option = self.options.get(usr_input, Option(None, False, "", None))
+        option = self.options.get(
+            usr_input,
+            Option(method=None, opt_index="", opt_data=None),
+        )
 
         # if option/usr_input is None/empty string, we execute the menus default option if specified
         if (option is None or usr_input == "") and self.default_option is not None:

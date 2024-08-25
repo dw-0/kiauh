@@ -40,16 +40,16 @@ class InstallMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(method=self.install_klipper, menu=False),
-            "2": Option(method=self.install_moonraker, menu=False),
-            "3": Option(method=self.install_mainsail, menu=False),
-            "4": Option(method=self.install_fluidd, menu=False),
-            "5": Option(method=self.install_mainsail_config, menu=False),
-            "6": Option(method=self.install_fluidd_config, menu=False),
-            "7": Option(method=self.install_klipperscreen, menu=False),
-            "8": Option(method=self.install_mobileraker, menu=False),
-            "9": Option(method=self.install_crowsnest, menu=False),
-            "10": Option(method=self.install_octoeverywhere, menu=False),
+            "1": Option(method=self.install_klipper),
+            "2": Option(method=self.install_moonraker),
+            "3": Option(method=self.install_mainsail),
+            "4": Option(method=self.install_fluidd),
+            "5": Option(method=self.install_mainsail_config),
+            "6": Option(method=self.install_fluidd_config),
+            "7": Option(method=self.install_klipperscreen),
+            "8": Option(method=self.install_mobileraker),
+            "9": Option(method=self.install_crowsnest),
+            "10": Option(method=self.install_octoeverywhere),
         }
 
     def print_menu(self) -> None:

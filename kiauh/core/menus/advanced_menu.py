@@ -43,13 +43,13 @@ class AdvancedMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(method=self.build, menu=True),
-            "2": Option(method=self.flash, menu=False),
-            "3": Option(method=self.build_flash, menu=False),
-            "4": Option(method=self.get_id, menu=False),
-            "5": Option(method=self.klipper_rollback, menu=True),
-            "6": Option(method=self.moonraker_rollback, menu=True),
-            "7": Option(method=self.change_hostname, menu=True),
+            "1": Option(method=self.build),
+            "2": Option(method=self.flash),
+            "3": Option(method=self.build_flash),
+            "4": Option(method=self.get_id),
+            "5": Option(method=self.klipper_rollback),
+            "6": Option(method=self.moonraker_rollback),
+            "7": Option(method=self.change_hostname),
         }
 
     def print_menu(self) -> None:

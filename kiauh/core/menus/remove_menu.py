@@ -41,14 +41,14 @@ class RemoveMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(method=self.remove_klipper, menu=True),
-            "2": Option(method=self.remove_moonraker, menu=True),
-            "3": Option(method=self.remove_mainsail, menu=True),
-            "4": Option(method=self.remove_fluidd, menu=True),
-            "5": Option(method=self.remove_klipperscreen, menu=True),
-            "6": Option(method=self.remove_mobileraker, menu=True),
-            "7": Option(method=self.remove_crowsnest, menu=True),
-            "8": Option(method=self.remove_octoeverywhere, menu=True),
+            "1": Option(method=self.remove_klipper),
+            "2": Option(method=self.remove_moonraker),
+            "3": Option(method=self.remove_mainsail),
+            "4": Option(method=self.remove_fluidd),
+            "5": Option(method=self.remove_klipperscreen),
+            "6": Option(method=self.remove_mobileraker),
+            "7": Option(method=self.remove_crowsnest),
+            "8": Option(method=self.remove_octoeverywhere),
         }
 
     def print_menu(self) -> None:

@@ -35,12 +35,12 @@ class MoonrakerRemoveMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "a": Option(method=self.toggle_all, menu=False),
-            "1": Option(method=self.toggle_remove_moonraker_service, menu=False),
-            "2": Option(method=self.toggle_remove_moonraker_dir, menu=False),
-            "3": Option(method=self.toggle_remove_moonraker_env, menu=False),
-            "4": Option(method=self.toggle_remove_moonraker_polkit, menu=False),
-            "c": Option(method=self.run_removal_process, menu=False),
+            "a": Option(method=self.toggle_all),
+            "1": Option(method=self.toggle_remove_moonraker_service),
+            "2": Option(method=self.toggle_remove_moonraker_dir),
+            "3": Option(method=self.toggle_remove_moonraker_env),
+            "4": Option(method=self.toggle_remove_moonraker_polkit),
+            "c": Option(method=self.run_removal_process),
         }
 
     def print_menu(self) -> None:

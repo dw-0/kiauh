@@ -43,15 +43,15 @@ class BackupMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(method=self.backup_klipper, menu=False),
-            "2": Option(method=self.backup_moonraker, menu=False),
-            "3": Option(method=self.backup_printer_config, menu=False),
-            "4": Option(method=self.backup_moonraker_db, menu=False),
-            "5": Option(method=self.backup_mainsail, menu=False),
-            "6": Option(method=self.backup_fluidd, menu=False),
-            "7": Option(method=self.backup_mainsail_config, menu=False),
-            "8": Option(method=self.backup_fluidd_config, menu=False),
-            "9": Option(method=self.backup_klipperscreen, menu=False),
+            "1": Option(method=self.backup_klipper),
+            "2": Option(method=self.backup_moonraker),
+            "3": Option(method=self.backup_printer_config),
+            "4": Option(method=self.backup_moonraker_db),
+            "5": Option(method=self.backup_mainsail),
+            "6": Option(method=self.backup_fluidd),
+            "7": Option(method=self.backup_mainsail_config),
+            "8": Option(method=self.backup_fluidd_config),
+            "9": Option(method=self.backup_klipperscreen),
         }
 
     def print_menu(self) -> None:

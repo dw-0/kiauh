@@ -47,10 +47,10 @@ class KlipperBuildFirmwareMenu(BaseMenu):
     def set_options(self) -> None:
         if len(self.missing_deps) == 0:
             self.input_label_txt = "Press ENTER to continue"
-            self.default_option = Option(method=self.start_build_process, menu=False)
+            self.default_option = Option(method=self.start_build_process)
         else:
             self.input_label_txt = "Press ENTER to install dependencies"
-            self.default_option = Option(method=self.install_missing_deps, menu=False)
+            self.default_option = Option(method=self.install_missing_deps)
 
     def print_menu(self) -> None:
         header = " [ Build Firmware Menu ] "

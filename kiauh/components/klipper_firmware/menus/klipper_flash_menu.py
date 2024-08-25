@@ -61,8 +61,8 @@ class KlipperFlashMethodMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(self.select_regular, menu=False),
-            "2": Option(self.select_sdcard, menu=False),
+            "1": Option(self.select_regular),
+            "2": Option(self.select_sdcard),
         }
 
     def print_menu(self) -> None:
@@ -123,10 +123,10 @@ class KlipperFlashCommandMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(self.select_flash, menu=False),
-            "2": Option(self.select_serialflash, menu=False),
+            "1": Option(self.select_flash),
+            "2": Option(self.select_serialflash),
         }
-        self.default_option = Option(self.select_flash, menu=False)
+        self.default_option = Option(self.select_flash)
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
@@ -174,9 +174,9 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(method=self.select_usb, menu=False),
-            "2": Option(method=self.select_dfu, menu=False),
-            "3": Option(method=self.select_usb_dfu, menu=False),
+            "1": Option(method=self.select_usb),
+            "2": Option(method=self.select_dfu),
+            "3": Option(method=self.select_usb_dfu),
         }
 
     def print_menu(self) -> None:
@@ -393,11 +393,11 @@ class KlipperFlashOverviewMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "Y": Option(self.execute_flash, menu=False),
-            "N": Option(self.abort_process, menu=False),
+            "Y": Option(self.execute_flash),
+            "N": Option(self.abort_process),
         }
 
-        self.default_option = Option(self.execute_flash, menu=False)
+        self.default_option = Option(self.execute_flash)
 
     def print_menu(self) -> None:
         header = "!!! ATTENTION !!!"

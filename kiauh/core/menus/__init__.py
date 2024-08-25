@@ -18,13 +18,11 @@ class Option:
     """
     Represents a menu option.
     :param method: Method that will be used to call the menu option
-    :param menu: Flag for singaling that another menu will be opened
     :param opt_index: Can be used to pass the user input to the menu option
     :param opt_data: Can be used to pass any additional data to the menu option
     """
 
     method: Callable | None = None
-    menu: bool = False
     opt_index: str = ""
     opt_data: Any = None
 

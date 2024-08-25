@@ -48,11 +48,11 @@ class SettingsMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(method=self.set_klipper_repo, menu=True),
-            "2": Option(method=self.set_moonraker_repo, menu=True),
-            "3": Option(method=self.toggle_mainsail_release, menu=True),
-            "4": Option(method=self.toggle_fluidd_release, menu=False),
-            "5": Option(method=self.toggle_backup_before_update, menu=False),
+            "1": Option(method=self.set_klipper_repo),
+            "2": Option(method=self.set_moonraker_repo),
+            "3": Option(method=self.toggle_mainsail_release),
+            "4": Option(method=self.toggle_fluidd_release),
+            "5": Option(method=self.toggle_backup_before_update),
         }
 
     def print_menu(self) -> None:
