@@ -12,7 +12,8 @@ import csv
 import shutil
 import textwrap
 import urllib.request
-from typing import List, Type, TypedDict, Union
+from dataclasses import dataclass
+from typing import Any, Dict, List, Type, Union
 
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import (
@@ -31,7 +32,8 @@ from utils.input_utils import get_selection_input
 from utils.instance_utils import get_instances
 
 
-class ThemeData(TypedDict):
+@dataclass
+class ThemeData:
     name: str
     short_note: str
     author: str
@@ -111,27 +113,36 @@ class MainsailThemeInstallMenu(BaseMenu):
             """
         )[1:]
         for i, theme in enumerate(self.themes):
-            i = f" {i}" if i < 10 else f"{i}"
-            row = f"{i}) [{theme.get('name')}]"
+            j: str = f" {i}" if i < 10 else f"{i}"
+            row: str = f"{j}) [{theme.name}]"
             menu += f"| {row:<53} |\n"
         print(menu, end="")
 
     def load_themes(self) -> List[ThemeData]:
         with urllib.request.urlopen(self.THEMES_URL) as response:
             themes: List[ThemeData] = []
-            csv_data: str = response.read().decode().splitlines()
-            csv_reader = csv.DictReader(csv_data, delimiter=",")
+            content: str = response.read().decode()
+            csv_data: List[str] = content.splitlines()
+            fieldnames = ["name", "short_note", "author", "repo"]
+            csv_reader = csv.DictReader(csv_data, fieldnames=fieldnames, delimiter=",")
+            next(csv_reader)  # skip the header of the csv file
             for row in csv_reader:
-                row: ThemeData = row
-                themes.append(row)
+                row: Dict[str, str]  # type: ignore
+                theme: ThemeData = ThemeData(**row)
+                themes.append(theme)
 
         return themes
 
-    def install_theme(self, **kwargs):
-        index = int(kwargs.get("opt_index"))
+    def install_theme(self, **kwargs: Any):
+        opt_index: str | None = kwargs.get("opt_index", None)
+
+        if not opt_index:
+            raise ValueError("No option index provided")
+
+        index: int = int(opt_index)
         theme_data: ThemeData = self.themes[index]
-        theme_author: str = theme_data.get("author")
-        theme_repo: str = theme_data.get("repo")
+        theme_author: str = theme_data.author
+        theme_repo: str = theme_data.repo
         theme_repo_url: str = f"https://github.com/{theme_author}/{theme_repo}"
 
         print_instance_overview(
@@ -149,9 +160,9 @@ class MainsailThemeInstallMenu(BaseMenu):
         for printer in printer_list:
             git_clone_wrapper(theme_repo_url, printer.cfg_dir.joinpath(".theme"))
 
-        if len(theme_data.get("short_note", "")) > 1:
+        if len(theme_data.short_note) > 1:
             Logger.print_warn("Info from the creator:", prefix=False, start="\n")
-            Logger.print_info(theme_data.get("short_note"), prefix=False, end="\n\n")
+            Logger.print_info(theme_data.short_note, prefix=False, end="\n\n")
 
 
 def get_printer_selection(
