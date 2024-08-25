@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Set, Type
+from typing import Dict, List, Literal, Optional, Set
 
 from components.klipper.klipper import Klipper
 from core.constants import (
@@ -20,11 +20,10 @@ from core.constants import (
     PRINTER_CFG_BACKUP_DIR,
     RESET_FORMAT,
 )
-from core.instance_manager.base_instance import BaseInstance
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.types import ComponentStatus, StatusCode
 from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
@@ -77,7 +76,7 @@ def check_install_dependencies(
 def get_install_status(
     repo_dir: Path,
     env_dir: Optional[Path] = None,
-    instance_type: Optional[Type[BaseInstance]] = None,
+    instance_type: type | None = None,
     files: Optional[List[Path]] = None,
 ) -> ComponentStatus:
     """
@@ -88,15 +87,16 @@ def get_install_status(
     :param files: List of optional files to check for existence
     :return: Dictionary with status string, statuscode and instance count
     """
+    from utils.instance_utils import get_instances
+
     checks = [repo_dir.exists()]
 
     if env_dir is not None:
         checks.append(env_dir.exists())
 
-    im = InstanceManager(instance_type)
     instances = 0
     if instance_type is not None:
-        instances = len(im.instances)
+        instances = len(get_instances(instance_type))
         checks.append(instances > 0)
 
     if files is not None:
@@ -124,15 +124,14 @@ def backup_printer_config_dir() -> None:
     # local import to prevent circular import
     from core.backup_manager.backup_manager import BackupManager
 
-    im = InstanceManager(Klipper)
-    instances: List[Klipper] = im.instances
+    instances: List[Klipper] = get_instances(Klipper)
     bm = BackupManager()
 
     for instance in instances:
-        name = f"config-{instance.data_dir_name}"
+        name = f"config-{instance.data_dir.name}"
         bm.backup_directory(
             name,
-            source=instance.cfg_dir,
+            source=instance.base.cfg_dir,
             target=PRINTER_CFG_BACKUP_DIR,
         )
 
@@ -145,8 +144,7 @@ def moonraker_exists(name: str = "") -> bool:
     """
     from components.moonraker.moonraker import Moonraker
 
-    mr_im = InstanceManager(Moonraker)
-    mr_instances: List[Moonraker] = mr_im.instances
+    mr_instances: List[Moonraker] = get_instances(Moonraker)
 
     info = (
         f"{name} requires Moonraker to be installed"

@@ -8,10 +8,13 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
+from typing import List
 from zipfile import ZipFile
 
 from core.decorators import deprecated
@@ -103,3 +106,37 @@ def unzip(filepath: Path, target_dir: Path) -> None:
     """
     with ZipFile(filepath, "r") as _zip:
         _zip.extractall(target_dir)
+
+
+def create_folders(dirs: List[Path]) -> None:
+    try:
+        for _dir in dirs:
+            if _dir.exists():
+                continue
+            _dir.mkdir(exist_ok=True)
+            Logger.print_ok(f"Created directory '{_dir}'!")
+    except OSError as e:
+        Logger.print_error(f"Error creating directories: {e}")
+        raise
+
+
+def get_data_dir(instance_type: type, suffix: str) -> Path:
+    from utils.sys_utils import get_service_file_path
+
+    # if the service file exists, we read the data dir path from it
+    # this also ensures compatibility with pre v6.0.0 instances
+    service_file_path: Path = get_service_file_path(instance_type, suffix)
+    if service_file_path and service_file_path.exists():
+        with open(service_file_path, "r") as service_file:
+            lines = service_file.readlines()
+            for line in lines:
+                pattern = r"^EnvironmentFile=(.+)(/systemd/.+\.env)"
+                match = re.search(pattern, line)
+                if match:
+                    return Path(match.group(1))
+
+    if suffix != "":
+        # this is the new data dir naming scheme introduced in v6.0.0
+        return Path.home().joinpath(f"printer_{suffix}_data")
+
+    return Path.home().joinpath("printer_data")

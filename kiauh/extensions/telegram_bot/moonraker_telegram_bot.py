@@ -8,10 +8,12 @@
 # ======================================================================= #
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from subprocess import CalledProcessError
 
+from components.moonraker.moonraker import Moonraker
+from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
 from extensions.telegram_bot import (
@@ -23,22 +25,31 @@ from extensions.telegram_bot import (
     TG_BOT_LOG_NAME,
     TG_BOT_SERVICE_TEMPLATE,
 )
+from utils.fs_utils import create_folders
+from utils.sys_utils import get_service_file_path
 
 
 # noinspection PyMethodMayBeStatic
-@dataclass
-class MoonrakerTelegramBot(BaseInstance):
+@dataclass(repr=True)
+class MoonrakerTelegramBot:
+    suffix: str
+    base: BaseInstance = field(init=False, repr=False)
+    service_file_path: Path = field(init=False)
+    log_file_name: str = TG_BOT_LOG_NAME
     bot_dir: Path = TG_BOT_DIR
     env_dir: Path = TG_BOT_ENV
-    log_file_name = TG_BOT_LOG_NAME
-    cfg_file: Path | None = None
-
-    def __init__(self, suffix: str = ""):
-        super().__init__(suffix=suffix)
+    data_dir: Path = field(init=False)
+    cfg_file: Path = field(init=False)
 
     def __post_init__(self):
-        super().__post_init__()
-        self.cfg_file = self.cfg_dir.joinpath(TG_BOT_CFG_NAME)
+        self.base: BaseInstance = BaseInstance(Moonraker, self.suffix)
+        self.base.log_file_name = self.log_file_name
+
+        self.service_file_path: Path = get_service_file_path(
+            MoonrakerTelegramBot, self.suffix
+        )
+        self.data_dir: Path = self.base.data_dir
+        self.cfg_file = self.base.cfg_dir.joinpath(TG_BOT_CFG_NAME)
 
     def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file
@@ -46,13 +57,13 @@ class MoonrakerTelegramBot(BaseInstance):
         Logger.print_status("Creating new Moonraker Telegram Bot Instance ...")
 
         try:
-            self.create_folders()
+            create_folders(self.base.base_folders)
             create_service_file(
                 name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
             create_env_file(
-                path=self.sysd_dir.joinpath(TG_BOT_ENV_FILE_NAME),
+                path=self.base.sysd_dir.joinpath(TG_BOT_ENV_FILE_NAME),
                 content=self._prep_env_file_content(),
             )
 
@@ -75,7 +86,7 @@ class MoonrakerTelegramBot(BaseInstance):
 
         service_content = template_content.replace(
             "%USER%",
-            self.user,
+            CURRENT_USER,
         )
         service_content = service_content.replace(
             "%TELEGRAM_BOT_DIR%",
@@ -87,7 +98,7 @@ class MoonrakerTelegramBot(BaseInstance):
         )
         service_content = service_content.replace(
             "%ENV_FILE%",
-            self.sysd_dir.joinpath(TG_BOT_ENV_FILE_NAME).as_posix(),
+            self.base.sysd_dir.joinpath(TG_BOT_ENV_FILE_NAME).as_posix(),
         )
         return service_content
 
@@ -107,10 +118,10 @@ class MoonrakerTelegramBot(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%CFG%",
-            f"{self.cfg_dir}/printer.cfg",
+            f"{self.base.cfg_dir}/printer.cfg",
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
-            self.log_dir.joinpath(self.log_file_name).as_posix(),
+            self.base.log_dir.joinpath(self.log_file_name).as_posix(),
         )
         return env_file_content

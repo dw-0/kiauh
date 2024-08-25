@@ -8,7 +8,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from subprocess import CalledProcessError
 
@@ -23,28 +23,36 @@ from components.klipper import (
     KLIPPER_SERVICE_TEMPLATE,
     KLIPPER_UDS_NAME,
 )
+from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
+from utils.fs_utils import create_folders, get_data_dir
+from utils.sys_utils import get_service_file_path
 
 
 # noinspection PyMethodMayBeStatic
-@dataclass
-class Klipper(BaseInstance):
+@dataclass(repr=True)
+class Klipper:
+    suffix: str
+    base: BaseInstance = field(init=False, repr=False)
+    service_file_path: Path = field(init=False)
+    log_file_name: str = KLIPPER_LOG_NAME
     klipper_dir: Path = KLIPPER_DIR
     env_dir: Path = KLIPPER_ENV_DIR
-    cfg_file: Path | None = None
-    serial: Path | None = None
-    uds: Path | None = None
+    data_dir: Path = field(init=False)
+    cfg_file: Path = field(init=False)
+    serial: Path = field(init=False)
+    uds: Path = field(init=False)
 
-    def __init__(self, suffix: str = "") -> None:
-        super().__init__(suffix=suffix)
+    def __post_init__(self):
+        self.base: BaseInstance = BaseInstance(Klipper, self.suffix)
+        self.base.log_file_name = self.log_file_name
 
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        self.log_file_name = KLIPPER_LOG_NAME
-        self.cfg_file = self.cfg_dir.joinpath(KLIPPER_CFG_NAME)
-        self.serial = self.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
-        self.uds = self.comms_dir.joinpath(KLIPPER_UDS_NAME)
+        self.service_file_path: Path = get_service_file_path(Klipper, self.suffix)
+        self.data_dir: Path = get_data_dir(Klipper, self.suffix)
+        self.cfg_file: Path = self.base.cfg_dir.joinpath(KLIPPER_CFG_NAME)
+        self.serial: Path = self.base.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
+        self.uds: Path = self.base.comms_dir.joinpath(KLIPPER_UDS_NAME)
 
     def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file
@@ -52,7 +60,7 @@ class Klipper(BaseInstance):
         Logger.print_status("Creating new Klipper Instance ...")
 
         try:
-            self.create_folders()
+            create_folders(self.base.base_folders)
 
             create_service_file(
                 name=self.service_file_path.name,
@@ -60,7 +68,7 @@ class Klipper(BaseInstance):
             )
 
             create_env_file(
-                path=self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME),
+                path=self.base.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME),
                 content=self._prep_env_file_content(),
             )
 
@@ -83,7 +91,7 @@ class Klipper(BaseInstance):
 
         service_content = template_content.replace(
             "%USER%",
-            self.user,
+            CURRENT_USER,
         )
         service_content = service_content.replace(
             "%KLIPPER_DIR%",
@@ -95,7 +103,7 @@ class Klipper(BaseInstance):
         )
         service_content = service_content.replace(
             "%ENV_FILE%",
-            self.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME).as_posix(),
+            self.base.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME).as_posix(),
         )
         return service_content
 
@@ -114,7 +122,7 @@ class Klipper(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%CFG%",
-            f"{self.cfg_dir}/{KLIPPER_CFG_NAME}",
+            f"{self.base.cfg_dir}/{KLIPPER_CFG_NAME}",
         )
         env_file_content = env_file_content.replace(
             "%SERIAL%",
@@ -122,7 +130,7 @@ class Klipper(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
-            self.log_dir.joinpath(self.log_file_name).as_posix(),
+            self.base.log_dir.joinpath(self.log_file_name).as_posix(),
         )
         env_file_content = env_file_content.replace(
             "%UDS%",

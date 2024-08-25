@@ -31,15 +31,16 @@ from components.webui_client.client_config.client_config_setup import (
 )
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import CURRENT_USER
-from core.instance_manager.instance_manager import InstanceManager
+from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
+from core.types import ComponentStatus
 from utils.common import get_install_status
 from utils.input_utils import get_confirm, get_number_input, get_string_input
+from utils.instance_utils import get_instances
 from utils.sys_utils import cmd_sysctl_service
-from core.types import ComponentStatus
 
 
 def get_klipper_status() -> ComponentStatus:
@@ -47,7 +48,7 @@ def get_klipper_status() -> ComponentStatus:
 
 
 def add_to_existing() -> bool | None:
-    kl_instances: List[Klipper] = InstanceManager(Klipper).instances
+    kl_instances: List[Klipper] = get_instances(Klipper)
     print_instance_overview(kl_instances)
     _input: bool | None = get_confirm("Add new instances?", allow_go_back=True)
     return _input
@@ -60,7 +61,7 @@ def get_install_count() -> int | None:
     user selected to go back, otherwise an integer greater or equal than 1 |
     :return: Integer >= 1 or None
     """
-    kl_instances = InstanceManager(Klipper).instances
+    kl_instances = get_instances(Klipper)
     print_select_instance_count_dialog()
     question = (
         f"Number of"
@@ -73,7 +74,7 @@ def get_install_count() -> int | None:
 
 def assign_custom_name(key: int, name_dict: Dict[int, str]) -> None:
     existing_names = []
-    existing_names.extend(Klipper.blacklist())
+    existing_names.extend(SUFFIX_BLACKLIST)
     existing_names.extend(name_dict[n] for n in name_dict)
     pattern = r"^[a-zA-Z0-9]+$"
 
@@ -160,7 +161,7 @@ def handle_disruptive_system_packages() -> None:
 def create_example_printer_cfg(
     instance: Klipper, clients: List[BaseWebClient] | None = None
 ) -> None:
-    Logger.print_status(f"Creating example printer.cfg in '{instance.cfg_dir}'")
+    Logger.print_status(f"Creating example printer.cfg in '{instance.base.cfg_dir}'")
     if instance.cfg_file.is_file():
         Logger.print_info(f"'{instance.cfg_file}' already exists.")
         return
@@ -175,7 +176,7 @@ def create_example_printer_cfg(
 
     scp = SimpleConfigParser()
     scp.read(target)
-    scp.set("virtual_sdcard", "path", str(instance.gcodes_dir))
+    scp.set("virtual_sdcard", "path", str(instance.base.gcodes_dir))
 
     # include existing client configs in the example config
     if clients is not None and len(clients) > 0:
@@ -187,7 +188,7 @@ def create_example_printer_cfg(
 
     scp.write(target)
 
-    Logger.print_ok(f"Example printer.cfg created in '{instance.cfg_dir}'")
+    Logger.print_ok(f"Example printer.cfg created in '{instance.base.cfg_dir}'")
 
 
 def backup_klipper_dir() -> None:

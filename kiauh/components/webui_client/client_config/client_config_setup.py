@@ -31,6 +31,7 @@ from utils.config_utils import add_config_section, add_config_section_at_top
 from utils.fs_utils import create_symlink
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
+from utils.instance_utils import get_instances
 
 
 def install_client_config(client_data: BaseWebClient) -> None:
@@ -48,10 +49,8 @@ def install_client_config(client_data: BaseWebClient) -> None:
         else:
             return
 
-    mr_im = InstanceManager(Moonraker)
-    mr_instances: List[Moonraker] = mr_im.instances
-    kl_im = InstanceManager(Klipper)
-    kl_instances = kl_im.instances
+    mr_instances: List[Moonraker] = get_instances(Moonraker)
+    kl_instances = get_instances(Klipper)
 
     try:
         download_client_config(client_config)
@@ -71,7 +70,7 @@ def install_client_config(client_data: BaseWebClient) -> None:
             ],
         )
         add_config_section_at_top(client_config.config_section, kl_instances)
-        kl_im.restart_all_instance()
+        InstanceManager.restart_all(kl_instances)
 
     except Exception as e:
         Logger.print_error(f"{display_name} installation failed!\n{e}")
@@ -113,16 +112,12 @@ def update_client_config(client: BaseWebClient) -> None:
 
 
 def create_client_config_symlink(
-    client_config: BaseWebClientConfig, klipper_instances: List[Klipper] | None = None
+    client_config: BaseWebClientConfig, klipper_instances: List[Klipper]
 ) -> None:
-    if klipper_instances is None:
-        kl_im = InstanceManager(Klipper)
-        klipper_instances = kl_im.instances
-
-    Logger.print_status(f"Create symlink for {client_config.config_filename} ...")
-    source = Path(client_config.config_dir, client_config.config_filename)
     for instance in klipper_instances:
-        target = instance.cfg_dir
+        Logger.print_status(f"Create symlink for {client_config.config_filename} ...")
+        source = Path(client_config.config_dir, client_config.config_filename)
+        target = instance.base.cfg_dir
         Logger.print_status(f"Linking {source} to {target}")
         try:
             create_symlink(source, target)

@@ -35,6 +35,7 @@ from utils.config_utils import (
 from utils.fs_utils import run_remove_routines
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_confirm
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     install_python_requirements,
     parse_packages_from_file,
@@ -53,8 +54,7 @@ def install_octoeverywhere() -> None:
         return
 
     force_clone = False
-    oe_im = InstanceManager(Octoeverywhere)
-    oe_instances: List[Octoeverywhere] = oe_im.instances
+    oe_instances: List[Octoeverywhere] = get_instances(Octoeverywhere)
     if oe_instances:
         Logger.print_dialog(
             DialogType.INFO,
@@ -73,10 +73,9 @@ def install_octoeverywhere() -> None:
             Logger.print_status("Re-Installing OctoEverywhere for Klipper ...")
             force_clone = True
 
-    mr_im = InstanceManager(Moonraker)
-    mr_instances: List[Moonraker] = mr_im.instances
+    mr_instances: List[Moonraker] = get_instances(Moonraker)
 
-    mr_names = [f"● {moonraker.data_dir_name}" for moonraker in mr_instances]
+    mr_names = [f"● {moonraker.data_dir.name}" for moonraker in mr_instances]
     if len(mr_names) > 1:
         Logger.print_dialog(
             DialogType.INFO,
@@ -102,10 +101,10 @@ def install_octoeverywhere() -> None:
         git_clone_wrapper(OE_REPO, OE_DIR, force=force_clone)
 
         for moonraker in mr_instances:
-            oe_im.current_instance = Octoeverywhere(suffix=moonraker.suffix)
-            oe_im.create_instance()
+            instance = Octoeverywhere(suffix=moonraker.suffix)
+            instance.create()
 
-        mr_im.restart_all_instance()
+        InstanceManager.restart_all(mr_instances)
 
         Logger.print_dialog(
             DialogType.SUCCESS,
@@ -135,10 +134,9 @@ def update_octoeverywhere() -> None:
 
 def remove_octoeverywhere() -> None:
     Logger.print_status("Removing OctoEverywhere for Klipper ...")
-    mr_im = InstanceManager(Moonraker)
-    mr_instances: List[Moonraker] = mr_im.instances
-    ob_im = InstanceManager(Octoeverywhere)
-    ob_instances: List[Octoeverywhere] = ob_im.instances
+
+    mr_instances: List[Moonraker] = get_instances(Moonraker)
+    ob_instances: List[Octoeverywhere] = get_instances(Octoeverywhere)
 
     try:
         remove_oe_instances(ob_instances)
@@ -180,7 +178,7 @@ def remove_oe_instances(
 
     for instance in instance_list:
         Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
-        instance.remove()
+        InstanceManager.remove(instance)
 
 
 def remove_oe_dir() -> None:

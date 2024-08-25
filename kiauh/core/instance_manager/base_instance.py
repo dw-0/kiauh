@@ -10,131 +10,48 @@
 from __future__ import annotations
 
 import re
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
-from core.constants import CURRENT_USER, SYSTEMD
-from core.logger import Logger
+from utils.fs_utils import get_data_dir
+
+SUFFIX_BLACKLIST: List[str] = ["None", "mcu", "obico", "bambu", "companion"]
 
 
-@dataclass
-class BaseInstance(ABC):
+@dataclass(repr=True)
+class BaseInstance:
+    instance_type: type
     suffix: str
-    user: str = field(default=CURRENT_USER, init=False)
-    service_file_path: Path | None = None
-    is_legacy_instance: bool = False
-    data_dir: Path | None = None
-    data_dir_name: str = ""
-    cfg_dir: Path | None = None
-    sysd_dir: Path | None = None  # NOT to be confused with /etc/systemd/system
-    comms_dir: Path | None = None
-    gcodes_dir: Path | None = None
-    log_dir: Path | None = None
-    log_file_name: str = ""
+    log_file_name: str | None = None
+    data_dir: Path = field(init=False)
+    base_folders: List[Path] = field(init=False)
+    cfg_dir: Path = field(init=False)
+    log_dir: Path = field(init=False)
+    gcodes_dir: Path = field(init=False)
+    comms_dir: Path = field(init=False)
+    sysd_dir: Path = field(init=False)
+    is_legacy_instance: bool = field(init=False)
 
-    def __post_init__(self) -> None:
-        self._set_service_file_path()
-        self._set_data_dir()
-
-        if self.data_dir is not None:
-            self.data_dir_name = self.data_dir.name
-            self._set_is_legacy_instance()
-            self.cfg_dir = self.data_dir.joinpath("config")
-            self.log_dir = self.data_dir.joinpath("logs")
-            self.comms_dir = self.data_dir.joinpath("comms")
-            self.sysd_dir = self.data_dir.joinpath("systemd")
-            self.gcodes_dir = self.data_dir.joinpath("gcodes")
-
-    @classmethod
-    def blacklist(cls) -> List[str]:
-        return ["None", "mcu", "obico", "bambu", "companion"]
-
-    @abstractmethod
-    def create(self) -> None:
-        raise NotImplementedError("Subclasses must implement the create method")
-
-    def remove(self) -> None:
-        from utils.fs_utils import run_remove_routines
-        from utils.sys_utils import remove_system_service
-
-        try:
-            # remove the service file
-            if self.service_file_path is not None:
-                remove_system_service(self.service_file_path.name)
-
-            # then remove all the log files
-            if not self.log_file_name or not self.log_dir or not self.log_dir.exists():
-                return
-
-            files = self.log_dir.iterdir()
-            logs = [f for f in files if f.name.startswith(self.log_file_name)]
-            for log in logs:
-                Logger.print_status(f"Remove '{log}'")
-                run_remove_routines(log)
-
-        except Exception as e:
-            Logger.print_error(f"Error removing service: {e}")
-            raise
-
-    def create_folders(self, add_dirs: List[Path] | None = None) -> None:
-        dirs: List[Path | None] = [
+    def __post_init__(self):
+        self.data_dir = get_data_dir(self.instance_type, self.suffix)
+        # the following attributes require the data_dir to be set
+        self.cfg_dir = self.data_dir.joinpath("config")
+        self.log_dir = self.data_dir.joinpath("logs")
+        self.gcodes_dir = self.data_dir.joinpath("gcodes")
+        self.comms_dir = self.data_dir.joinpath("comms")
+        self.sysd_dir = self.data_dir.joinpath("systemd")
+        self.is_legacy_instance = self._set_is_legacy_instance()
+        self.base_folders = [
             self.data_dir,
             self.cfg_dir,
             self.log_dir,
-            self.comms_dir,
-            self.sysd_dir,
             self.gcodes_dir,
+            self.comms_dir,
         ]
 
-        if add_dirs:
-            dirs.extend(add_dirs)
-
-        for _dir in dirs:
-            if _dir is None:
-                continue
-            _dir.mkdir(exist_ok=True)
-
-    def remove_logfiles(self, log_name: str) -> None:
-        from utils.fs_utils import run_remove_routines
-
-        if not self.log_dir or not self.log_dir.exists():
-            return
-
-        files = self.log_dir.iterdir()
-        logs = [f for f in files if f.name.startswith(log_name)]
-        for log in logs:
-            Logger.print_status(f"Remove '{log}'")
-            run_remove_routines(log)
-
-    def _set_data_dir(self) -> None:
-        if self.suffix == "":
-            self.data_dir = Path.home().joinpath("printer_data")
-        else:
-            self.data_dir = Path.home().joinpath(f"printer_{self.suffix}_data")
-
-        if self.service_file_path and self.service_file_path.exists():
-            with open(self.service_file_path, "r") as service_file:
-                lines = service_file.readlines()
-                for line in lines:
-                    pattern = r"^EnvironmentFile=(.+)(/systemd/.+\.env)"
-                    match = re.search(pattern, line)
-                    if match:
-                        self.data_dir = Path(match.group(1))
-                        break
-
-    def _set_service_file_path(self) -> None:
-        from utils.common import convert_camelcase_to_kebabcase
-
-        name: str = convert_camelcase_to_kebabcase(self.__class__.__name__)
-        if self.suffix != "":
-            name += f"-{self.suffix}"
-
-        self.service_file_path = SYSTEMD.joinpath(f"{name}.service")
-
-    def _set_is_legacy_instance(self) -> None:
+    def _set_is_legacy_instance(self) -> bool:
         legacy_pattern = r"^(?!printer)(.+)_data"
-        match = re.search(legacy_pattern, self.data_dir_name)
-        if match and self.suffix != "":
-            self.is_legacy_instance = True
+        match = re.search(legacy_pattern, self.data_dir.name)
+
+        return True if (match and self.suffix != "") else False

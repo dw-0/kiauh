@@ -18,13 +18,13 @@ from components.webui_client.client_config.client_config_remove import (
 )
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.config_utils import remove_config_section
 from utils.fs_utils import (
     remove_with_sudo,
     run_remove_routines,
 )
+from utils.instance_utils import get_instances
 
 
 def run_client_removal(
@@ -33,10 +33,8 @@ def run_client_removal(
     remove_client_cfg: bool,
     backup_config: bool,
 ) -> None:
-    mr_im = InstanceManager(Moonraker)
-    mr_instances: List[Moonraker] = mr_im.instances
-    kl_im = InstanceManager(Klipper)
-    kl_instances: List[Klipper] = kl_im.instances
+    mr_instances: List[Moonraker] = get_instances(Moonraker)
+    kl_instances: List[Klipper] = get_instances(Klipper)
 
     if backup_config:
         bm = BackupManager()
@@ -81,5 +79,7 @@ def remove_client_nginx_logs(client: BaseWebClient, instances: List[Klipper]) ->
         return
 
     for instance in instances:
-        run_remove_routines(instance.log_dir.joinpath(client.nginx_access_log.name))
-        run_remove_routines(instance.log_dir.joinpath(client.nginx_error_log.name))
+        run_remove_routines(
+            instance.base.log_dir.joinpath(client.nginx_access_log.name)
+        )
+        run_remove_routines(instance.base.log_dir.joinpath(client.nginx_error_log.name))

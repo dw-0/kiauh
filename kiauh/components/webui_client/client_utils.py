@@ -109,11 +109,11 @@ def symlink_webui_nginx_log(
     error_log = client.nginx_error_log
 
     for instance in klipper_instances:
-        desti_access = instance.log_dir.joinpath(access_log.name)
+        desti_access = instance.base.log_dir.joinpath(access_log.name)
         if not desti_access.exists():
             desti_access.symlink_to(access_log)
 
-        desti_error = instance.log_dir.joinpath(error_log.name)
+        desti_error = instance.base.log_dir.joinpath(error_log.name)
         if not desti_error.exists():
             desti_error.symlink_to(error_log)
 

@@ -28,6 +28,7 @@ from extensions.gcode_shell_cmd import (
 )
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm
+from utils.instance_utils import get_instances
 
 
 # noinspection PyMethodMayBeStatic
@@ -55,8 +56,8 @@ class GcodeShellCmdExtension(BaseExtension):
             Logger.print_warn("Installation aborted due to user request.")
             return
 
-        im = InstanceManager(Klipper)
-        im.stop_all_instance()
+        instances = get_instances(Klipper)
+        InstanceManager.stop_all(instances)
 
         try:
             Logger.print_status(f"Copy extension to '{KLIPPER_EXTRAS}' ...")
@@ -66,9 +67,9 @@ class GcodeShellCmdExtension(BaseExtension):
             return
 
         if install_example:
-            self.install_example_cfg(im.instances)
+            self.install_example_cfg(instances)
 
-        im.start_all_instance()
+        InstanceManager.start_all(instances)
 
         Logger.print_ok("Installing G-Code Shell Command extension successful!")
 
@@ -94,7 +95,7 @@ class GcodeShellCmdExtension(BaseExtension):
             Logger.print_warn("Make sure to remove them from the printer.cfg!")
 
     def install_example_cfg(self, instances: List[Klipper]):
-        cfg_dirs = [instance.cfg_dir for instance in instances]
+        cfg_dirs = [instance.base.cfg_dir for instance in instances]
         # copy extension to klippy/extras
         for cfg_dir in cfg_dirs:
             Logger.print_status(f"Create shell_command.cfg in '{cfg_dir}' ...")

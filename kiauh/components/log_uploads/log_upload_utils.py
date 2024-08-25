@@ -13,13 +13,14 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.log_uploads import LogFile
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
+from utils.instance_utils import get_instances
 
 
 def get_logfile_list() -> List[LogFile]:
-    cm = InstanceManager(Klipper)
-    log_dirs: List[Path] = [instance.log_dir for instance in cm.instances]
+    log_dirs: List[Path] = [
+        instance.base.log_dir for instance in get_instances(Klipper)
+    ]
 
     logfiles: List[LogFile] = []
     for _dir in log_dirs:

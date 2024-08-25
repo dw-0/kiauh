@@ -28,7 +28,6 @@ from components.crowsnest import (
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import CURRENT_USER
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
 from core.types import ComponentStatus
@@ -41,6 +40,7 @@ from utils.git_utils import (
     git_pull_wrapper,
 )
 from utils.input_utils import get_confirm
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     cmd_sysctl_service,
     parse_packages_from_file,
@@ -55,8 +55,7 @@ def install_crowsnest() -> None:
     check_install_dependencies({"make"})
 
     # Step 3: Check for Multi Instance
-    im = InstanceManager(Klipper)
-    instances: List[Klipper] = im.instances
+    instances: List[Klipper] = get_instances(Klipper)
 
     if len(instances) > 1:
         print_multi_instance_warning(instances)
@@ -95,7 +94,7 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
             "this instance to set up your 'crowsnest.conf' and steering it's service.",
             "\n\n",
             "The following instances were found:",
-            *[f"● {instance.data_dir_name}" for instance in instances],
+            *[f"● {instance.data_dir.name}" for instance in instances],
         ],
     )
 

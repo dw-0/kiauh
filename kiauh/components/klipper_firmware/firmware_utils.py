@@ -19,6 +19,7 @@ from components.klipper_firmware.flash_options import (
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
+from utils.instance_utils import get_instances
 from utils.sys_utils import log_process
 
 
@@ -117,13 +118,13 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         else:
             raise Exception("Invalid value for flash_method!")
 
-        instance_manager = InstanceManager(Klipper)
-        instance_manager.stop_all_instance()
+        instances = get_instances(Klipper)
+        InstanceManager.stop_all(instances)
 
         process = Popen(cmd, cwd=KLIPPER_DIR, stdout=PIPE, stderr=STDOUT, text=True)
         log_process(process)
 
-        instance_manager.start_all_instance()
+        InstanceManager.start_all(instances)
 
         rc = process.returncode
         if rc != 0:

@@ -10,11 +10,9 @@
 import shutil
 from typing import Dict, List, Optional
 
-from components.klipper.klipper import Klipper
 from components.moonraker import (
     MODULE_PATH,
     MOONRAKER_BACKUP_DIR,
-    MOONRAKER_CFG_NAME,
     MOONRAKER_DB_BACKUP_DIR,
     MOONRAKER_DEFAULT_PORT,
     MOONRAKER_DIR,
@@ -23,35 +21,16 @@ from components.moonraker import (
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClient
 from core.backup_manager.backup_manager import BackupManager
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from core.types import ComponentStatus
 from utils.common import get_install_status
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     get_ipv4_addr,
 )
-
-
-def moonraker_factory(klipper_instance: Klipper) -> Moonraker:
-    """Create a new Moonraker instance from a Klipper instance."""
-
-    instance: Moonraker = Moonraker(suffix=klipper_instance.suffix)
-    instance.is_legacy_instance = klipper_instance.is_legacy_instance
-    instance.data_dir = klipper_instance.data_dir
-    instance.data_dir_name = klipper_instance.data_dir_name
-    instance.cfg_dir = klipper_instance.cfg_dir
-    instance.cfg_file = instance.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
-    instance.log_dir = klipper_instance.log_dir
-    instance.sysd_dir = klipper_instance.sysd_dir
-    instance.comms_dir = klipper_instance.comms_dir
-    instance.gcodes_dir = klipper_instance.gcodes_dir
-    instance.db_dir = instance.data_dir.joinpath("database")
-    instance.backup_dir = instance.data_dir.joinpath("backup")
-    instance.certs_dir = instance.data_dir.joinpath("certs")
-    return instance
 
 
 def get_moonraker_status() -> ComponentStatus:
@@ -63,7 +42,7 @@ def create_example_moonraker_conf(
     ports_map: Dict[str, int],
     clients: Optional[List[BaseWebClient]] = None,
 ) -> None:
-    Logger.print_status(f"Creating example moonraker.conf in '{instance.cfg_dir}'")
+    Logger.print_status(f"Creating example moonraker.conf in '{instance.base.cfg_dir}'")
     if instance.cfg_file.is_file():
         Logger.print_info(f"'{instance.cfg_file}' already exists.")
         return
@@ -95,7 +74,7 @@ def create_example_moonraker_conf(
 
     ip = get_ipv4_addr().split(".")[:2]
     ip.extend(["0", "0/16"])
-    uds = instance.comms_dir.joinpath("klippy.sock")
+    uds = instance.base.comms_dir.joinpath("klippy.sock")
 
     scp = SimpleConfigParser()
     scp.read(target)
@@ -144,7 +123,7 @@ def create_example_moonraker_conf(
                     scp.set(c_config_section, option[0], option[1])
 
     scp.write(target)
-    Logger.print_ok(f"Example moonraker.conf created in '{instance.cfg_dir}'")
+    Logger.print_ok(f"Example moonraker.conf created in '{instance.base.cfg_dir}'")
 
 
 def backup_moonraker_dir() -> None:
@@ -156,12 +135,11 @@ def backup_moonraker_dir() -> None:
 
 
 def backup_moonraker_db_dir() -> None:
-    im = InstanceManager(Moonraker)
-    instances: List[Moonraker] = im.instances
+    instances: List[Moonraker] = get_instances(Moonraker)
     bm = BackupManager()
 
     for instance in instances:
-        name = f"database-{instance.data_dir_name}"
+        name = f"database-{instance.data_dir.name}"
         bm.backup_directory(
             name, source=instance.db_dir, target=MOONRAKER_DB_BACKUP_DIR
         )

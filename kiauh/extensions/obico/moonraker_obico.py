@@ -8,10 +8,12 @@
 # ======================================================================= #
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from subprocess import CalledProcessError, run
 
+from components.moonraker.moonraker import Moonraker
+from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
@@ -27,23 +29,32 @@ from extensions.obico import (
     OBICO_LOG_NAME,
     OBICO_SERVICE_TEMPLATE,
 )
+from utils.fs_utils import create_folders
+from utils.sys_utils import get_service_file_path
 
 
 # noinspection PyMethodMayBeStatic
-@dataclass
-class MoonrakerObico(BaseInstance):
+@dataclass(repr=True)
+class MoonrakerObico:
+    suffix: str
+    base: BaseInstance = field(init=False, repr=False)
+    service_file_path: Path = field(init=False)
+    log_file_name: str = OBICO_LOG_NAME
     dir: Path = OBICO_DIR
     env_dir: Path = OBICO_ENV_DIR
-    log_file_name = OBICO_LOG_NAME
-    cfg_file: Path | None = None
+    data_dir: Path = field(init=False)
+    cfg_file: Path = field(init=False)
     is_linked: bool = False
 
-    def __init__(self, suffix: str = ""):
-        super().__init__(suffix=suffix)
-
     def __post_init__(self):
-        super().__post_init__()
-        self.cfg_file = self.cfg_dir.joinpath(OBICO_CFG_NAME)
+        self.base: BaseInstance = BaseInstance(Moonraker, self.suffix)
+        self.base.log_file_name = self.log_file_name
+
+        self.service_file_path: Path = get_service_file_path(
+            MoonrakerObico, self.suffix
+        )
+        self.data_dir: Path = self.base.data_dir
+        self.cfg_file = self.base.cfg_dir.joinpath(OBICO_CFG_NAME)
         self.is_linked: bool = self._check_link_status()
 
     def create(self) -> None:
@@ -52,13 +63,13 @@ class MoonrakerObico(BaseInstance):
         Logger.print_status("Creating new Obico for Klipper Instance ...")
 
         try:
-            self.create_folders()
+            create_folders(self.base.base_folders)
             create_service_file(
                 name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
             create_env_file(
-                path=self.sysd_dir.joinpath(OBICO_ENV_FILE_NAME),
+                path=self.base.sysd_dir.joinpath(OBICO_ENV_FILE_NAME),
                 content=self._prep_env_file_content(),
             )
 
@@ -71,7 +82,7 @@ class MoonrakerObico(BaseInstance):
 
     def link(self) -> None:
         Logger.print_status(
-            f"Linking instance for printer {self.data_dir_name} to the Obico server ..."
+            f"Linking instance for printer {self.data_dir.name} to the Obico server ..."
         )
         try:
             cmd = [f"{OBICO_LINK_SCRIPT} -q -c {self.cfg_file}"]
@@ -94,7 +105,7 @@ class MoonrakerObico(BaseInstance):
 
         service_content = template_content.replace(
             "%USER%",
-            self.user,
+            CURRENT_USER,
         )
         service_content = service_content.replace(
             "%OBICO_DIR%",
@@ -106,7 +117,7 @@ class MoonrakerObico(BaseInstance):
         )
         service_content = service_content.replace(
             "%ENV_FILE%",
-            self.sysd_dir.joinpath(OBICO_ENV_FILE_NAME).as_posix(),
+            self.base.sysd_dir.joinpath(OBICO_ENV_FILE_NAME).as_posix(),
         )
         return service_content
 
@@ -121,7 +132,7 @@ class MoonrakerObico(BaseInstance):
             raise
         env_file_content = env_template_file_content.replace(
             "%CFG%",
-            f"{self.cfg_dir}/{self.cfg_file}",
+            f"{self.base.cfg_dir}/{self.cfg_file}",
         )
         return env_file_content
 

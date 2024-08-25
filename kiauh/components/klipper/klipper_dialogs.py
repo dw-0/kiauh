@@ -17,7 +17,7 @@ from core.constants import (
     COLOR_YELLOW,
     RESET_FORMAT,
 )
-from core.instance_manager.base_instance import BaseInstance
+from core.instance_type import InstanceType
 from core.menus.base_menu import print_back_footer
 
 
@@ -28,7 +28,7 @@ class DisplayType(Enum):
 
 
 def print_instance_overview(
-    instances: List[BaseInstance],
+    instances: List[InstanceType],
     display_type: DisplayType = DisplayType.SERVICE_NAME,
     show_headline=True,
     show_index=False,

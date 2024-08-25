@@ -511,3 +511,18 @@ def remove_system_service(service_name: str) -> None:
     except Exception as e:
         Logger.print_error(f"Error removing {service_name}: {e}")
         raise
+
+
+def get_service_file_path(instance_type: type, suffix: str) -> Path:
+    from utils.common import convert_camelcase_to_kebabcase
+
+    if not isinstance(instance_type, type):
+        raise ValueError("instance_type must be a class")
+
+    name: str = convert_camelcase_to_kebabcase(instance_type.__name__)
+    if suffix != "":
+        name += f"-{suffix}"
+
+    file_path: Path = SYSTEMD.joinpath(f"{name}.service")
+
+    return file_path

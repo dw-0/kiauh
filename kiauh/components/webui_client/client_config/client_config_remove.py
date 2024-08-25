@@ -13,10 +13,10 @@ from typing import List
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClientConfig
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.config_utils import remove_config_section
 from utils.fs_utils import run_remove_routines
+from utils.instance_utils import get_instances
 
 
 def run_client_config_removal(
@@ -36,7 +36,8 @@ def remove_client_config_dir(client_config: BaseWebClientConfig) -> None:
 
 
 def remove_client_config_symlink(client_config: BaseWebClientConfig) -> None:
-    im = InstanceManager(Klipper)
-    instances: List[Klipper] = im.instances
+    instances: List[Klipper] = get_instances(Klipper)
     for instance in instances:
-        run_remove_routines(instance.cfg_dir.joinpath(client_config.config_filename))
+        run_remove_routines(
+            instance.base.cfg_dir.joinpath(client_config.config_filename)
+        )

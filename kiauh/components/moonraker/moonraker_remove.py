@@ -18,6 +18,7 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
+from utils.instance_utils import get_instances
 
 
 def run_moonraker_removal(
@@ -26,17 +27,17 @@ def run_moonraker_removal(
     remove_env: bool,
     remove_polkit: bool,
 ) -> None:
-    moonraker_instances = InstanceManager(Moonraker).instances
+    instances = get_instances(Moonraker)
 
     if remove_service:
         Logger.print_status("Removing Moonraker instances ...")
-        if moonraker_instances:
-            instances_to_remove = select_instances_to_remove(moonraker_instances)
+        if instances:
+            instances_to_remove = select_instances_to_remove(instances)
             remove_instances(instances_to_remove)
         else:
             Logger.print_info("No Moonraker Services installed! Skipped ...")
 
-    if (remove_polkit or remove_dir or remove_env) and moonraker_instances:
+    if (remove_polkit or remove_dir or remove_env) and instances:
         Logger.print_info("There are still other Moonraker services installed")
         Logger.print_info(
             "●  Moonraker PolicyKit rules were not removed.", prefix=False
@@ -90,7 +91,7 @@ def remove_instances(
         return
     for instance in instance_list:
         Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
-        instance.remove()
+        InstanceManager.remove(instance)
 
 
 def remove_polkit_rules() -> None:
@@ -111,7 +112,7 @@ def remove_polkit_rules() -> None:
 def delete_moonraker_logs(instances: List[Moonraker]) -> None:
     all_logfiles = []
     for instance in instances:
-        all_logfiles = list(instance.log_dir.glob("moonraker.log*"))
+        all_logfiles = list(instance.base.log_dir.glob("moonraker.log*"))
     if not all_logfiles:
         Logger.print_info("No Moonraker logs found. Skipped ...")
         return

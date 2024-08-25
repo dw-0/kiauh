@@ -40,8 +40,10 @@ from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     cmd_sysctl_manage,
+    cmd_sysctl_service,
     create_python_venv,
     install_python_requirements,
     parse_packages_from_file,
@@ -51,8 +53,8 @@ from utils.sys_utils import (
 def install_klipper() -> None:
     Logger.print_status("Installing Klipper ...")
 
-    klipper_list: List[Klipper] = InstanceManager(Klipper).instances
-    moonraker_list: List[Moonraker] = InstanceManager(Moonraker).instances
+    klipper_list: List[Klipper] = get_instances(Klipper)
+    moonraker_list: List[Moonraker] = get_instances(Moonraker)
     match_moonraker: bool = False
 
     # if there are more moonraker instances than klipper instances, ask the user to
@@ -94,7 +96,7 @@ def install_klipper() -> None:
 
 
 def run_klipper_setup(
-    klipper_list: List[Klipper], name_dict: Dict[int, str], example_cfg: bool
+    klipper_list: List[Klipper], name_dict: Dict[int, str], create_example_cfg: bool
 ) -> None:
     if not klipper_list:
         setup_klipper_prerequesites()
@@ -104,7 +106,16 @@ def run_klipper_setup(
         if name_dict[i] in [n.suffix for n in klipper_list]:
             continue
 
-        create_klipper_instance(name_dict[i], example_cfg)
+        instance = Klipper(suffix=name_dict[i])
+        instance.create()
+        cmd_sysctl_service(instance.service_file_path.name, "enable")
+
+        if create_example_cfg:
+            # if a client-config is installed, include it in the new example cfg
+            clients = get_existing_clients()
+            create_example_printer_cfg(instance, clients)
+
+        cmd_sysctl_service(instance.service_file_path.name, "start")
 
     cmd_sysctl_manage("daemon-reload")
 
@@ -189,8 +200,8 @@ def update_klipper() -> None:
     if settings.kiauh.backup_before_update:
         backup_klipper_dir()
 
-    instance_manager = InstanceManager(Klipper)
-    instance_manager.stop_all_instance()
+    instances = get_instances(Klipper)
+    InstanceManager.stop_all(instances)
 
     git_pull_wrapper(repo=settings.klipper.repo_url, target_dir=KLIPPER_DIR)
 
@@ -199,20 +210,7 @@ def update_klipper() -> None:
     # install possible new python dependencies
     install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
 
-    instance_manager.start_all_instance()
-
-
-def create_klipper_instance(name: str, create_example_cfg: bool) -> None:
-    kl_im = InstanceManager(Klipper)
-    new_instance = Klipper(suffix=name)
-    kl_im.current_instance = new_instance
-    kl_im.create_instance()
-    kl_im.enable_instance()
-    if create_example_cfg:
-        # if a client-config is installed, include it in the new example cfg
-        clients = get_existing_clients()
-        create_example_printer_cfg(new_instance, clients)
-    kl_im.start_instance()
+    InstanceManager.start_all(instances)
 
 
 def use_custom_names_or_go_back() -> bool | None:

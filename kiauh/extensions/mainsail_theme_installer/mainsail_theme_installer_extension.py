@@ -21,13 +21,14 @@ from components.klipper.klipper_dialogs import (
 )
 from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.instance_manager.base_instance import BaseInstance
-from core.instance_manager.instance_manager import InstanceManager
+from core.instance_type import InstanceType
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from extensions.base_extension import BaseExtension
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_selection_input
+from utils.instance_utils import get_instances
 
 
 class ThemeData(TypedDict):
@@ -39,8 +40,7 @@ class ThemeData(TypedDict):
 
 # noinspection PyMethodMayBeStatic
 class MainsailThemeInstallerExtension(BaseExtension):
-    im = InstanceManager(Klipper)
-    instances: List[Klipper] = im.instances
+    instances: List[Klipper] = get_instances(Klipper)
 
     def install_extension(self, **kwargs) -> None:
         MainsailThemeInstallMenu(self.instances).run()
@@ -155,7 +155,7 @@ class MainsailThemeInstallMenu(BaseMenu):
 
 
 def get_printer_selection(
-    instances: List[BaseInstance], is_install: bool
+    instances: List[InstanceType], is_install: bool
 ) -> Union[List[BaseInstance], None]:
     options = [str(i) for i in range(len(instances))]
     options.extend(["a", "b"])

@@ -17,6 +17,7 @@ from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
+from utils.instance_utils import get_instances
 
 
 def run_klipper_removal(
@@ -24,7 +25,7 @@ def run_klipper_removal(
     remove_dir: bool,
     remove_env: bool,
 ) -> None:
-    klipper_instances = InstanceManager(Klipper).instances
+    klipper_instances: List[Klipper] = get_instances(Klipper)
 
     if remove_service:
         Logger.print_status("Removing Klipper instances ...")
@@ -80,13 +81,13 @@ def remove_instances(
 
     for instance in instance_list:
         Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
-        instance.remove()
+        InstanceManager.remove(instance)
 
 
 def delete_klipper_logs(instances: List[Klipper]) -> None:
     all_logfiles = []
     for instance in instances:
-        all_logfiles = list(instance.log_dir.glob("klippy.log*"))
+        all_logfiles = list(instance.base.log_dir.glob("klippy.log*"))
     if not all_logfiles:
         Logger.print_info("No Klipper logs found. Skipped ...")
         return

@@ -9,10 +9,11 @@ from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
 from typing import List, Type
 
-from core.instance_manager.base_instance import BaseInstance
 from core.instance_manager.instance_manager import InstanceManager
+from core.instance_type import InstanceType
 from core.logger import Logger
 from utils.input_utils import get_confirm, get_number_input
+from utils.instance_utils import get_instances
 
 
 def git_clone_wrapper(
@@ -196,15 +197,15 @@ def git_cmd_pull(target_dir: Path) -> None:
         raise
 
 
-def rollback_repository(repo_dir: Path, instance: Type[BaseInstance]) -> None:
+def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
     q1 = "How many commits do you want to roll back"
     amount = get_number_input(q1, 1, allow_go_back=True)
 
-    im = InstanceManager(instance)
+    instances = get_instances(instance)
 
     Logger.print_warn("Do not continue if you have ongoing prints!", start="\n")
     Logger.print_warn(
-        f"All currently running {im.instance_type.__name__} services will be stopped!"
+        f"All currently running {instance.__name__} services will be stopped!"
     )
     if not get_confirm(
         f"Roll back {amount} commit{'s' if amount > 1 else ''}",
@@ -214,7 +215,7 @@ def rollback_repository(repo_dir: Path, instance: Type[BaseInstance]) -> None:
         Logger.print_info("Aborting roll back ...")
         return
 
-    im.stop_all_instance()
+    InstanceManager.stop_all(instances)
 
     try:
         cmd = ["git", "reset", "--hard", f"HEAD~{amount}"]
@@ -223,4 +224,4 @@ def rollback_repository(repo_dir: Path, instance: Type[BaseInstance]) -> None:
     except CalledProcessError as e:
         Logger.print_error(f"An error occured during repo rollback:\n{e}")
 
-    im.start_all_instance()
+    InstanceManager.start_all(instances)

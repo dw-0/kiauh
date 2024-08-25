@@ -8,10 +8,11 @@
 # ======================================================================= #
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from subprocess import CalledProcessError
 
+from components.klipper.klipper import Klipper
 from components.moonraker import (
     MOONRAKER_CFG_NAME,
     MOONRAKER_DIR,
@@ -21,49 +22,58 @@ from components.moonraker import (
     MOONRAKER_LOG_NAME,
     MOONRAKER_SERVICE_TEMPLATE,
 )
+from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
+from utils.fs_utils import create_folders
+from utils.sys_utils import get_service_file_path
 
 
 # noinspection PyMethodMayBeStatic
 @dataclass
-class Moonraker(BaseInstance):
+class Moonraker:
+    suffix: str
+    base: BaseInstance = field(init=False, repr=False)
+    service_file_path: Path = field(init=False)
+    log_file_name: str = MOONRAKER_LOG_NAME
     moonraker_dir: Path = MOONRAKER_DIR
     env_dir: Path = MOONRAKER_ENV_DIR
-    cfg_file: Path | None = None
-    port: int | None = None
-    backup_dir: Path | None = None
-    certs_dir: Path | None = None
-    db_dir: Path | None = None
+    data_dir: Path = field(init=False)
+    cfg_file: Path = field(init=False)
+    backup_dir: Path = field(init=False)
+    certs_dir: Path = field(init=False)
+    db_dir: Path = field(init=False)
+    port: int | None = field(init=False)
 
-    def __init__(self, suffix: str = ""):
-        super().__init__(suffix=suffix)
+    def __post_init__(self):
+        self.base: BaseInstance = BaseInstance(Klipper, self.suffix)
+        self.base.log_file_name = self.log_file_name
 
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        self.log_file_name = MOONRAKER_LOG_NAME
-        self.cfg_file = self.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
-        self.port = self._get_port()
-        self.backup_dir = self.data_dir.joinpath("backup")
-        self.certs_dir = self.data_dir.joinpath("certs")
-        self.db_dir = self.data_dir.joinpath("database")
+        self.service_file_path: Path = get_service_file_path(Moonraker, self.suffix)
+        self.data_dir: Path = self.base.data_dir
+        self.cfg_file: Path = self.base.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
+        self.backup_dir: Path = self.base.data_dir.joinpath("backup")
+        self.certs_dir: Path = self.base.data_dir.joinpath("certs")
+        self.db_dir: Path = self.base.data_dir.joinpath("database")
+        self.port: int | None = self._get_port()
 
-    def create(self, create_example_cfg: bool = False) -> None:
+    def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file
 
         Logger.print_status("Creating new Moonraker Instance ...")
 
         try:
-            self.create_folders([self.backup_dir, self.certs_dir, self.db_dir])
+            create_folders(self.base.base_folders)
+
             create_service_file(
                 name=self.service_file_path.name,
                 content=self._prep_service_file_content(),
             )
             create_env_file(
-                path=self.sysd_dir.joinpath(MOONRAKER_ENV_FILE_NAME),
+                path=self.base.sysd_dir.joinpath(MOONRAKER_ENV_FILE_NAME),
                 content=self._prep_env_file_content(),
             )
 
@@ -86,7 +96,7 @@ class Moonraker(BaseInstance):
 
         service_content = template_content.replace(
             "%USER%",
-            self.user,
+            CURRENT_USER,
         )
         service_content = service_content.replace(
             "%MOONRAKER_DIR%",
@@ -98,7 +108,7 @@ class Moonraker(BaseInstance):
         )
         service_content = service_content.replace(
             "%ENV_FILE%",
-            self.sysd_dir.joinpath(MOONRAKER_ENV_FILE_NAME).as_posix(),
+            self.base.sysd_dir.joinpath(MOONRAKER_ENV_FILE_NAME).as_posix(),
         )
         return service_content
 
@@ -118,7 +128,7 @@ class Moonraker(BaseInstance):
         )
         env_file_content = env_file_content.replace(
             "%PRINTER_DATA%",
-            self.data_dir.as_posix(),
+            self.base.data_dir.as_posix(),
         )
 
         return env_file_content

@@ -31,7 +31,6 @@ from components.moonraker.moonraker_dialogs import print_moonraker_overview
 from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
     create_example_moonraker_conf,
-    moonraker_factory,
 )
 from components.webui_client.client_utils import (
     enable_mainsail_remotemode,
@@ -48,6 +47,7 @@ from utils.input_utils import (
     get_confirm,
     get_selection_input,
 )
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_manage,
@@ -59,16 +59,17 @@ from utils.sys_utils import (
 
 
 def install_moonraker() -> None:
-    if not check_moonraker_install_requirements():
+    klipper_list: List[Klipper] = get_instances(Klipper)
+
+    if not check_moonraker_install_requirements(klipper_list):
         return
 
-    klipper_list: List[Klipper] = InstanceManager(Klipper).instances
-    moonraker_list: List[Moonraker] = InstanceManager(Moonraker).instances
+    moonraker_list: List[Moonraker] = get_instances(Moonraker)
     instances: List[Moonraker] = []
     selected_option: str | Klipper
 
     if len(klipper_list) == 1:
-        instances.append(moonraker_factory(klipper_list[0]))
+        instances.append(Moonraker(klipper_list[0].suffix))
     else:
         print_moonraker_overview(
             klipper_list,
@@ -87,12 +88,12 @@ def install_moonraker() -> None:
             return
 
         if selected_option == "a":
-            instances.extend([moonraker_factory(k) for k in klipper_list])
+            instances.extend([Moonraker(k.suffix) for k in klipper_list])
         else:
             klipper_instance: Klipper | None = options.get(selected_option)
             if klipper_instance is None:
                 raise Exception("Error selecting instance!")
-            instances.append(moonraker_factory(klipper_instance))
+            instances.append(Moonraker(klipper_instance.suffix))
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
 
@@ -126,9 +127,9 @@ def install_moonraker() -> None:
         return
 
 
-def check_moonraker_install_requirements() -> bool:
+def check_moonraker_install_requirements(klipper_list: List[Klipper]) -> bool:
     def check_klipper_instances() -> bool:
-        if len(InstanceManager(Klipper).instances) >= 1:
+        if len(klipper_list) >= 1:
             return True
 
         Logger.print_warn("Klipper not installed!")
@@ -205,8 +206,8 @@ def update_moonraker() -> None:
     if settings.kiauh.backup_before_update:
         backup_moonraker_dir()
 
-    instance_manager = InstanceManager(Moonraker)
-    instance_manager.stop_all_instance()
+    instances = get_instances(Moonraker)
+    InstanceManager.stop_all(instances)
 
     git_pull_wrapper(repo=settings.moonraker.repo_url, target_dir=MOONRAKER_DIR)
 
@@ -215,4 +216,4 @@ def update_moonraker() -> None:
     # install possible new python dependencies
     install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
 
-    instance_manager.start_all_instance()
+    InstanceManager.start_all(instances)

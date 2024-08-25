@@ -42,6 +42,7 @@ from utils.git_utils import (
     git_pull_wrapper,
 )
 from utils.input_utils import get_confirm
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     check_python_version,
     cmd_sysctl_service,
@@ -56,8 +57,7 @@ def install_klipperscreen() -> None:
     if not check_python_version(3, 7):
         return
 
-    mr_im = InstanceManager(Moonraker)
-    mr_instances = mr_im.instances
+    mr_instances = get_instances(Moonraker)
     if not mr_instances:
         Logger.print_dialog(
             DialogType.WARNING,
@@ -86,7 +86,7 @@ def install_klipperscreen() -> None:
         run(KLIPPERSCREEN_INSTALL_SCRIPT.as_posix(), shell=True, check=True)
         if mr_instances:
             patch_klipperscreen_update_manager(mr_instances)
-            mr_im.restart_all_instance()
+            InstanceManager.restart_all(mr_instances)
         else:
             Logger.print_info(
                 "Moonraker is not installed! Cannot add "
@@ -174,17 +174,15 @@ def remove_klipperscreen() -> None:
             remove_with_sudo(logfile)
             Logger.print_ok("KlipperScreen log file successfully removed!")
 
-        kl_im = InstanceManager(Klipper)
-        kl_instances: List[Klipper] = kl_im.instances
+        kl_instances: List[Klipper] = get_instances(Klipper)
         for instance in kl_instances:
-            logfile = instance.log_dir.joinpath(KLIPPERSCREEN_LOG_NAME)
+            logfile = instance.base.log_dir.joinpath(KLIPPERSCREEN_LOG_NAME)
             if logfile.exists():
                 Logger.print_status(f"Removing {logfile} ...")
                 Path(logfile).unlink()
                 Logger.print_ok(f"{logfile} successfully removed!")
 
-        mr_im = InstanceManager(Moonraker)
-        mr_instances: List[Moonraker] = mr_im.instances
+        mr_instances: List[Moonraker] = get_instances(Moonraker)
         if mr_instances:
             Logger.print_status("Removing KlipperScreen from update manager ...")
             remove_config_section("update_manager KlipperScreen", mr_instances)

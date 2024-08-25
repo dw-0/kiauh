@@ -25,6 +25,7 @@ from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_confirm, get_string_input
+from utils.instance_utils import get_instances
 
 
 # noinspection PyUnusedLocal
@@ -177,14 +178,14 @@ class SettingsMenu(BaseMenu):
         if target_dir.exists():
             shutil.rmtree(target_dir)
 
-        im = InstanceManager(_type)
-        im.stop_all_instance()
+        instances = get_instances(_type)
+        InstanceManager.stop_all(instances)
 
         repo = self.settings.get(name, "repo_url")
         branch = self.settings.get(name, "branch")
         git_clone_wrapper(repo, target_dir, branch)
 
-        im.start_all_instance()
+        InstanceManager.start_all(instances)
 
     def set_klipper_repo(self, **kwargs) -> None:
         self._set_repo("klipper")

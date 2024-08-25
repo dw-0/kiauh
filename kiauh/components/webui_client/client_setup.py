@@ -45,6 +45,7 @@ from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import unzip
 from utils.input_utils import get_confirm, get_number_input
+from utils.instance_utils import get_instances
 from utils.sys_utils import (
     cmd_sysctl_service,
     download_file,
@@ -62,8 +63,7 @@ def install_client(client: BaseWebClient) -> None:
         )
         return
 
-    mr_im = InstanceManager(Moonraker)
-    mr_instances: List[Moonraker] = mr_im.instances
+    mr_instances: List[Moonraker] = get_instances(Moonraker)
 
     enable_remotemode = False
     if not mr_instances:
@@ -80,8 +80,7 @@ def install_client(client: BaseWebClient) -> None:
     ):
         enable_remotemode = True
 
-    kl_im = InstanceManager(Klipper)
-    kl_instances = kl_im.instances
+    kl_instances = get_instances(Klipper)
     install_client_cfg = False
     client_config: BaseWebClientConfig = client.client_config
     if (
@@ -126,7 +125,7 @@ def install_client(client: BaseWebClient) -> None:
                     ("path", str(client.client_dir)),
                 ],
             )
-            mr_im.restart_all_instance()
+            InstanceManager.restart_all(mr_instances)
         if install_client_cfg and kl_instances:
             install_client_config(client)
 

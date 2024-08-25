@@ -6,25 +6,25 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
+
 import tempfile
 from pathlib import Path
-from typing import List, Optional, Tuple, TypeVar
+from typing import List, Tuple
 
-from components.klipper.klipper import Klipper
-from components.moonraker.moonraker import Moonraker
+from core.instance_type import InstanceType
 from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 
-B = TypeVar("B", Klipper, Moonraker)
 ConfigOption = Tuple[str, str]
 
 
 def add_config_section(
     section: str,
-    instances: List[B],
-    options: Optional[List[ConfigOption]] = None,
+    instances: List[InstanceType],
+    options: List[ConfigOption] | None = None,
 ) -> None:
     for instance in instances:
         cfg_file = instance.cfg_file
@@ -49,7 +49,7 @@ def add_config_section(
         scp.write(cfg_file)
 
 
-def add_config_section_at_top(section: str, instances: List[B]) -> None:
+def add_config_section_at_top(section: str, instances: List[InstanceType]) -> None:
     # TODO: this could be implemented natively in SimpleConfigParser
     for instance in instances:
         tmp_cfg = tempfile.NamedTemporaryFile(mode="w", delete=False)
@@ -70,7 +70,7 @@ def add_config_section_at_top(section: str, instances: List[B]) -> None:
         tmp_cfg_path.rename(cfg_file)
 
 
-def remove_config_section(section: str, instances: List[B]) -> None:
+def remove_config_section(section: str, instances: List[InstanceType]) -> None:
     for instance in instances:
         cfg_file = instance.cfg_file
         Logger.print_status(f"Remove section '[{section}]' from '{cfg_file}' ...")
