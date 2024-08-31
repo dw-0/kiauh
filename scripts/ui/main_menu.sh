@@ -40,7 +40,7 @@ function main_ui() {
 function get_kiauh_version() {
   local version
   cd "${KIAUH_SRCDIR}"
-  version="$(git describe HEAD --always --tags | cut -d "-" -f 1,2)"
+  version="$(git tag -l 'v5*' | tail -1)"
   echo "${version}"
 }
 

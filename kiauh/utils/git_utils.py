@@ -84,7 +84,38 @@ def get_repo_name(repo: Path) -> str | None:
         return None
 
 
-def get_tags(repo_path: str) -> List[str]:
+def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
+    """
+    Get all tags of a local Git repository
+    :param repo_path: Path to the local Git repository
+    :param _filter: Optional filter to filter the tags by
+    :return: List of tags
+    """
+    try:
+        cmd = ["git", "tag", "-l"]
+
+        if _filter is not None:
+            cmd.append(f"'${_filter}'")
+
+        result: str = check_output(
+            cmd,
+            stderr=DEVNULL,
+            cwd=repo_path.as_posix(),
+        ).decode(encoding="utf-8")
+
+        tags = result.split("\n")
+        return tags[:-1]
+
+    except CalledProcessError:
+        return []
+
+
+def get_remote_tags(repo_path: str) -> List[str]:
+    """
+    Gets the tags of a GitHub repostiory
+    :param repo_path: path of the GitHub repository - e.g. `<owner>/<name>`
+    :return: List of tags
+    """
     try:
         url = f"https://api.github.com/repos/{repo_path}/tags"
         with urllib.request.urlopen(url) as r:
@@ -102,14 +133,14 @@ def get_tags(repo_path: str) -> List[str]:
         raise
 
 
-def get_latest_tag(repo_path: str) -> str:
+def get_latest_remote_tag(repo_path: str) -> str:
     """
     Gets the latest stable tag of a GitHub repostiory
     :param repo_path: path of the GitHub repository - e.g. `<owner>/<name>`
     :return: tag or empty string
     """
     try:
-        if len(latest_tag := get_tags(repo_path)) > 0:
+        if len(latest_tag := get_remote_tags(repo_path)) > 0:
             return latest_tag[0]
         else:
             return ""
@@ -124,13 +155,44 @@ def get_latest_unstable_tag(repo_path: str) -> str:
     :return: tag or empty string
     """
     try:
-        if len(unstable_tags := [t for t in get_tags(repo_path) if "-" in t]) > 0:
+        if (
+            len(unstable_tags := [t for t in get_remote_tags(repo_path) if "-" in t])
+            > 0
+        ):
             return unstable_tags[0]
         else:
             return ""
     except Exception:
         Logger.print_error("Error while getting the latest unstable tag")
         raise
+
+
+def compare_semver_tags(tag1: str, tag2: str) -> bool:
+    """
+    Compare two semver version strings.
+    Does not support comparing pre-release versions (e.g. 1.0.0-rc.1, 1.0.0-beta.1)
+    :param tag1: First version string
+    :param tag2: Second version string
+    :return: True if tag1 is greater than tag2, False otherwise
+    """
+    if tag1 == tag2:
+        return False
+
+    def parse_version(v):
+        return list(map(int, v[1:].split(".")))
+
+    tag1_parts = parse_version(tag1)
+    tag2_parts = parse_version(tag2)
+
+    max_len = max(len(tag1_parts), len(tag2_parts))
+    tag1_parts += [0] * (max_len - len(tag1_parts))
+    tag2_parts += [0] * (max_len - len(tag2_parts))
+
+    for part1, part2 in zip(tag1_parts, tag2_parts):
+        if part1 != part2:
+            return part1 > part2
+
+    return False
 
 
 def get_local_commit(repo: Path) -> str | None:

@@ -44,6 +44,7 @@ from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
 from core.types import ComponentStatus, StatusMap, StatusText
 from extensions.extensions_menu import ExtensionsMenu
+from utils.common import get_kiauh_version
 
 
 # noinspection PyUnusedLocal
@@ -55,6 +56,7 @@ class MainMenu(BaseMenu):
         self.header: bool = True
         self.footer_type: FooterType = FooterType.QUIT
 
+        self.version = ""
         self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
         self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
         self.cn_status = self.cc_status = self.oe_status = ""
@@ -86,6 +88,7 @@ class MainMenu(BaseMenu):
             )
 
     def _fetch_status(self) -> None:
+        self.version = get_kiauh_version()
         self._get_component_status("kl", get_klipper_status)
         self._get_component_status("mr", get_moonraker_status)
         self._get_component_status("ms", get_client_status, MainsailData())
@@ -125,7 +128,7 @@ class MainMenu(BaseMenu):
         self._fetch_status()
 
         header = " [ Main Menu ] "
-        footer1 = f"{COLOR_CYAN}KIAUH v6.0.0{RESET_FORMAT}"
+        footer1 = f"{COLOR_CYAN}{self.version}{RESET_FORMAT}"
         footer2 = f"Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT}"
         color = COLOR_CYAN
         count = 62 - len(color) - len(RESET_FORMAT)

@@ -38,7 +38,7 @@ from core.types import ComponentStatus
 from utils.common import get_install_status
 from utils.fs_utils import create_symlink, remove_file
 from utils.git_utils import (
-    get_latest_tag,
+    get_latest_remote_tag,
     get_latest_unstable_tag,
 )
 
@@ -137,7 +137,7 @@ def get_local_client_version(client: BaseWebClient) -> str | None:
 
 def get_remote_client_version(client: BaseWebClient) -> str | None:
     try:
-        if (tag := get_latest_tag(client.repo_path)) != "":
+        if (tag := get_latest_remote_tag(client.repo_path)) != "":
             return str(tag)
         return None
     except Exception:

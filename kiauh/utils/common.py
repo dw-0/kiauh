@@ -22,13 +22,26 @@ from core.constants import (
 )
 from core.logger import DialogType, Logger
 from core.types import ComponentStatus, StatusCode
-from utils.git_utils import get_local_commit, get_remote_commit, get_repo_name
+from utils.git_utils import (
+    get_local_commit,
+    get_local_tags,
+    get_remote_commit,
+    get_repo_name,
+)
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
     update_system_package_lists,
 )
+
+
+def get_kiauh_version() -> str:
+    """
+    Helper method to get the current KIAUH version by reading the latest tag
+    :return: string of the latest tag
+    """
+    return get_local_tags(Path(__file__).parent.parent)[-1]
 
 
 def convert_camelcase_to_kebabcase(name: str) -> str:
