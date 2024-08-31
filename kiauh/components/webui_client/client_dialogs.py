@@ -24,8 +24,6 @@ def print_moonraker_not_found_dialog() -> None:
             "another machine in your network. Otherwise Mainsail will NOT work "
             "correctly.",
         ],
-        padding_top=0,
-        padding_bottom=0,
     )
 
 
@@ -36,8 +34,6 @@ def print_client_already_installed_dialog(name: str) -> None:
             f"{name} seems to be already installed!",
             f"If you continue, your current {name} installation will be overwritten.",
         ],
-        padding_top=0,
-        padding_bottom=0,
     )
 
 
@@ -57,8 +53,6 @@ def print_client_port_select_dialog(
             "The following ports were found to be in use already:",
             *[f"● {port}" for port in ports_in_use],
         ],
-        padding_top=0,
-        padding_bottom=0,
     )
 
 
@@ -77,8 +71,6 @@ def print_install_client_config_dialog(client: BaseWebClient) -> None:
             "If you already use these macros skip this step. Otherwise you should "
             "consider to answer with 'Y' to download the recommended macros.",
         ],
-        padding_top=0,
-        padding_bottom=0,
     )
 
 

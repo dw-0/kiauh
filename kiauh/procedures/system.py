@@ -35,8 +35,6 @@ def change_system_hostname() -> None:
             "browser.",
         ],
         custom_title="CHANGE SYSTEM HOSTNAME",
-        padding_top=0,
-        padding_bottom=0,
     )
     if not get_confirm("Do you want to change the hostname?", default_choice=False):
         return
@@ -50,8 +48,6 @@ def change_system_hostname() -> None:
             "● Any special characters",
             "● No leading or trailing '-'",
         ],
-        padding_top=0,
-        padding_bottom=0,
     )
     hostname = get_string_input(
         "Enter the new hostname",

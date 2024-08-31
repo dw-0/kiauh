@@ -103,7 +103,6 @@ def check_user_groups() -> None:
             "INFO:",
             "Relog required for group assignments to take effect!",
         ],
-        padding_bottom=0,
     )
 
     if not get_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):

@@ -63,8 +63,6 @@ def install_octoeverywhere() -> None:
                 "It is safe to run the installer again to link your "
                 "printer or repair any issues.",
             ],
-            padding_top=0,
-            padding_bottom=0,
         )
         if not get_confirm("Re-run OctoEverywhere installation?"):
             Logger.print_info("Exiting OctoEverywhere for Klipper installation ...")
@@ -85,8 +83,6 @@ def install_octoeverywhere() -> None:
                 "\n\n",
                 "The setup will apply the same names to OctoEverywhere!",
             ],
-            padding_top=0,
-            padding_bottom=0,
         )
 
     if not get_confirm(

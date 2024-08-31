@@ -234,8 +234,6 @@ def display_moonraker_info(moonraker_list: List[Moonraker]) -> bool:
             "The following Klipper instances will be installed:",
             *[f"● klipper-{m.suffix}" for m in moonraker_list],
         ],
-        padding_top=0,
-        padding_bottom=0,
     )
     _input: bool = get_confirm("Proceed with installation?")
     return _input

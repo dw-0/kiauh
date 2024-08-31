@@ -92,8 +92,8 @@ class Logger:
         center_content: bool = False,
         custom_title: str | None = None,
         custom_color: DialogCustomColor | None = None,
-        padding_top: int = 1,
-        padding_bottom: int = 1,
+        margin_top: int = 0,
+        margin_bottom: int = 0,
     ) -> None:
         """
         Prints a dialog with the given title and content.
@@ -106,8 +106,8 @@ class Logger:
         :param center_content: Whether to center the content or not.
         :param custom_title: A custom title for the dialog.
         :param custom_color: A custom color for the dialog.
-        :param padding_top: The number of empty lines to print before the dialog.
-        :param padding_bottom: The number of empty lines to print after the dialog.
+        :param margin_top: The number of empty lines to print before the dialog.
+        :param margin_bottom: The number of empty lines to print after the dialog.
         """
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
@@ -116,12 +116,12 @@ class Logger:
         top = Logger._format_top_border(dialog_color)
         bottom = Logger._format_bottom_border()
 
-        print("\n" * padding_top)
+        print("\n" * margin_top)
         print(
             f"{top}{dialog_title_formatted}{dialog_content}{bottom}",
             end="",
         )
-        print("\n" * padding_bottom)
+        print("\n" * margin_bottom)
 
     @staticmethod
     def _get_dialog_title(

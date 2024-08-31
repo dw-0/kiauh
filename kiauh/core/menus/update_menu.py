@@ -281,8 +281,6 @@ class UpdateMenu(BaseMenu):
                 DialogType.CUSTOM,
                 ["The following packages will be upgraded:", "\n\n", pkgs],
                 custom_title="UPGRADABLE SYSTEM UPDATES",
-                padding_top=0,
-                padding_bottom=0,
             )
             if not get_confirm("Continue?"):
                 return

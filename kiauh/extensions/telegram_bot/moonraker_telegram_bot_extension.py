@@ -49,8 +49,6 @@ class TelegramBotExtension(BaseExtension):
                     "Moonraker Telegram Bot requires Moonraker to be installed. "
                     "Please install Moonraker first!",
                 ],
-                padding_top=0,
-                padding_bottom=0,
             )
             return
 
@@ -65,8 +63,6 @@ class TelegramBotExtension(BaseExtension):
                 "\n\n",
                 "The setup will apply the same names to Telegram Bot!",
             ],
-            padding_top=0,
-            padding_bottom=0,
         )
         if not get_confirm(
             "Continue Moonraker Telegram Bot installation?",
