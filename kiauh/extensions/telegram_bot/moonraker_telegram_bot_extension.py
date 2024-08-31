@@ -120,6 +120,7 @@ class TelegramBotExtension(BaseExtension):
                         "following wiki page for further information:",
                         "https://github.com/nlef/moonraker-telegram-bot/wiki",
                     ],
+                    margin_bottom=1,
                 )
 
             Logger.print_ok("Telegram Bot installation complete!")
