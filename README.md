@@ -159,7 +159,7 @@ prompt and confirm by hitting ENTER.
 </tr>
 
 <tr>
-<th><a href="https://github.com/Clon1998/mobileraker_companion"><img src="https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png" alt="OctoEverywhere Logo" height="64"></th>
+<th><a href="https://github.com/Clon1998/mobileraker_companion"><img src="https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png" alt="OctoEverywhere Logo" height="64"></a></th>
 <th><a href="https://octoeverywhere.com/?source=kiauh_readme"><img src="https://octoeverywhere.com/img/logo.svg" alt="OctoEverywhere Logo" height="64"></a></th>
 <th><a href="https://octoapp.eu/?source=kiauh_readme"><img src="https://octoapp.eu/octoapp.webp" alt="OctoApp Logo" height="64"></a></th>
 </tr>
@@ -173,6 +173,16 @@ prompt and confirm by hitting ENTER.
 
 
 </table>
+
+<hr>
+
+<h2 align="center">🎖️ Contributors 🎖️</h2>
+
+<div align="center">
+  <a href="https://github.com/dw-0/kiauh/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=dw-0/kiauh" alt=""/>
+  </a>
+</div>
 
 <hr>
 

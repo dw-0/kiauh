@@ -1,0 +1,32 @@
+[project]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+dev=["ruff", "mypy"]
+
+[tool.ruff]
+required-version = ">=0.3.4"
+respect-gitignore = true
+exclude = [".git",".github", "./docs"]
+line-length = 88
+indent-width = 4
+output-format = "full"
+
+[tool.ruff.format]
+indent-style = "space"
+line-ending = "lf"
+quote-style = "double"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.mypy]
+python_version = "3.8"
+platform = "linux"
+# strict = true # TODO: enable this once everything is else is handled
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
