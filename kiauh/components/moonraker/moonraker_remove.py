@@ -19,6 +19,7 @@ from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
 from utils.instance_utils import get_instances
+from utils.sys_utils import unit_file_exists
 
 
 def run_moonraker_removal(
@@ -37,7 +38,8 @@ def run_moonraker_removal(
         else:
             Logger.print_info("No Moonraker Services installed! Skipped ...")
 
-    if (remove_polkit or remove_dir or remove_env) and instances:
+    delete_remaining: bool = remove_polkit or remove_dir or remove_env
+    if delete_remaining and unit_file_exists("moonraker", suffix="service"):
         Logger.print_info("There are still other Moonraker services installed")
         Logger.print_info(
             "●  Moonraker PolicyKit rules were not removed.", prefix=False

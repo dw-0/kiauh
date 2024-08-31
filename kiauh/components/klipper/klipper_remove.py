@@ -18,6 +18,7 @@ from core.logger import Logger
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
 from utils.instance_utils import get_instances
+from utils.sys_utils import unit_file_exists
 
 
 def run_klipper_removal(
@@ -35,7 +36,7 @@ def run_klipper_removal(
         else:
             Logger.print_info("No Klipper Services installed! Skipped ...")
 
-    if (remove_dir or remove_env) and klipper_instances:
+    if (remove_dir or remove_env) and unit_file_exists("klipper", suffix="service"):
         Logger.print_info("There are still other Klipper services installed:")
         Logger.print_info(f"● '{KLIPPER_DIR}' was not removed.", prefix=False)
         Logger.print_info(f"● '{KLIPPER_ENV_DIR}' was not removed.", prefix=False)
