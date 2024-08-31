@@ -88,8 +88,6 @@ class TelegramBotExtension(BaseExtension):
                 instance = MoonrakerTelegramBot(suffix=name)
                 instance.create()
 
-                print(instance)
-
                 cmd_sysctl_service(instance.service_file_path.name, "enable")
 
                 if create_example_cfg:
