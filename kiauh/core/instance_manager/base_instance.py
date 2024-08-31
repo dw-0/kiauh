@@ -48,6 +48,7 @@ class BaseInstance:
             self.log_dir,
             self.gcodes_dir,
             self.comms_dir,
+            self.sysd_dir,
         ]
 
     def _set_is_legacy_instance(self) -> bool:
