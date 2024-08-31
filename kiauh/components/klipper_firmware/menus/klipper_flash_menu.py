@@ -260,8 +260,7 @@ class KlipperSelectMcuIdMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            f"{i}": Option(self.flash_mcu, False, f"{i}")
-            for i in range(len(self.mcu_list))
+            f"{i}": Option(self.flash_mcu, f"{i}") for i in range(len(self.mcu_list))
         }
 
     def print_menu(self) -> None:
@@ -323,7 +322,7 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            f"{i}": Option(self.board_select, False, f"{i}")
+            f"{i}": Option(self.board_select, f"{i}")
             for i in range(len(self.available_boards))
         }
 

@@ -93,7 +93,7 @@ class MainsailThemeInstallMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            f"{index}": Option(self.install_theme, False, opt_index=f"{index}")
+            f"{index}": Option(self.install_theme, opt_index=f"{index}")
             for index in range(len(self.themes))
         }
 

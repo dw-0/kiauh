@@ -38,9 +38,7 @@ class ExtensionsMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            i: Option(
-                self.extension_submenu, menu=True, opt_data=self.extensions.get(i)
-            )
+            i: Option(self.extension_submenu, opt_data=self.extensions.get(i))
             for i in self.extensions
         }
 

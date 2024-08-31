@@ -32,7 +32,7 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
         self.previous_menu = previous_menu
 
     def set_options(self) -> None:
-        self.default_option = Option(self.go_back, False)
+        self.default_option = Option(method=self.go_back)
 
     def print_menu(self) -> None:
         header = "!!! NO FIRMWARE FILE FOUND !!!"
@@ -79,7 +79,7 @@ class KlipperNoBoardTypesErrorMenu(BaseMenu):
         self.previous_menu = previous_menu
 
     def set_options(self) -> None:
-        self.default_option = Option(self.go_back, False)
+        self.default_option = Option(method=self.go_back)
 
     def print_menu(self) -> None:
         header = "!!! ERROR GETTING BOARD LIST !!!"

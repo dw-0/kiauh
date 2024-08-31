@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable
+from typing import Any, Callable, Type
 
 
 @dataclass
@@ -22,7 +22,7 @@ class Option:
     :param opt_data: Can be used to pass any additional data to the menu option
     """
 
-    method: Callable | None = None
+    method: Type[Callable] | None = None
     opt_index: str = ""
     opt_data: Any = None
 

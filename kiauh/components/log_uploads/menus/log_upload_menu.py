@@ -32,7 +32,7 @@ class LogUploadMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            f"{index}": Option(self.upload, False, opt_index=f"{index}")
+            f"{index}": Option(self.upload, opt_index=f"{index}")
             for index in range(len(self.logfile_list))
         }
 
