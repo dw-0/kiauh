@@ -85,10 +85,46 @@ class DuplicateOptionError(Exception):
 class SimpleConfigParser:
     """A customized config parser targeted at handling Klipper style config files"""
 
-    _SECTION_RE = re.compile(r"\s*\[(\w+\s?.+)]\s*([#;].*)?$")
-    _OPTION_RE = re.compile(r"^\s*(\w+)\s*[:=]\s*([^=:].*)\s*([#;].*)?$")
-    _MLOPTION_RE = re.compile(r"^\s*(\w+)\s*[:=]\s*([#;].*)?$")
+    # definition of section line:
+    #  - then line MUST start with an opening square bracket - it is the first section marker
+    #  - the section marker MUST be followed by at least one character - it is the section name
+    #  - the section name MUST be followed by a closing square bracket - it is the second section marker
+    #  - the second section marker MAY be followed by any amount of whitespace characters
+    #  - the second section marker MAY be followed by a # or ; - it is the comment marker
+    #  - the inline comment MAY be of any length and character
+    _SECTION_RE = re.compile(r"\[(.+)]\s*([#;].*)?$")
+
+    # definition of option line:
+    #  - the line MUST start with a word - it is the option name
+    #  - the option name MUST be followed by a colon or an equal sign - it is the separator
+    #  - the separator MUST be followed by a value
+    #    - the separator MAY have any amount of leading or trailing whitespaces
+    #    - the separator MUST NOT be directly followed by a colon or equal sign
+    #  - the value MAY be of any length and character
+    #    - the value MAY contain any amount of trailing whitespaces
+    #    - the value MAY be followed by a # or ; - it is the comment marker
+    #  - the inline comment MAY be of any length and character
+    _OPTION_RE = re.compile(r"^([^:=\s]+)\s?[:=]\s*([^=:].*)\s*([#;].*)?$")
+
+    # definition of multiline option line:
+    #  - the line MUST start with a word - it is the option name
+    #  - the option name MUST be followed by a colon or an equal sign - it is the separator
+    #  - the separator MUST NOT be followed by a value
+    #    - the separator MAY have any amount of leading or trailing whitespaces
+    #    - the separator MUST NOT be directly followed by a colon or equal sign
+    #    - the separator MAY be followed by a # or ; - it is the comment marker
+    #  - the inline comment MAY be of any length and character
+    _MLOPTION_RE = re.compile(r"^([^:=\s]+)\s*[:=]\s*([#;].*)?$")
+
+    # definition of comment line:
+    #  - the line MAY start with any amount of whitespace characters
+    #  - the line MUST contain a # or ; - it is the comment marker
+    #  - the comment marker MAY be followed by any amount of whitespace characters
+    #  - the comment MAY be of any length and character
     _COMMENT_RE = re.compile(r"^\s*([#;].*)?$")
+
+    # definition of empty line:
+    #  - the line MUST contain only whitespace characters
     _EMPTY_LINE_RE = re.compile(r"^\s*$")
 
     BOOLEAN_STATES = {

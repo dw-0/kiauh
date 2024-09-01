@@ -26,5 +26,6 @@ testcases = [
     ("description: homing!", True),
     ("description: inline macro :-)", True),
     ("path: %GCODES_DIR%", True),
+    ("path: /dev/shm/drying_box.json", True),
     ("serial = /dev/serial/by-id/<your-mcu-id>", True),
 ]
