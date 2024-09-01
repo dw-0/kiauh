@@ -398,8 +398,8 @@ class KlipperFlashOverviewMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "Y": Option(self.execute_flash),
-            "N": Option(self.abort_process),
+            "y": Option(self.execute_flash),
+            "n": Option(self.abort_process),
         }
 
         self.default_option = Option(self.execute_flash)
