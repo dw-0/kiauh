@@ -14,7 +14,7 @@ def parser():
     return SimpleConfigParser()
 
 
-class TestLineParsing:
+class TestSingleLineParsing:
     @pytest.mark.parametrize("given, expected", [*case_parse_section])
     def test_parse_section(self, parser, given, expected):
         parser._parse_section(given)

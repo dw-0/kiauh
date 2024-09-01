@@ -21,4 +21,8 @@ testcases = [
         "serial",
         "/dev/serial/by-id/<your-mcu-id>",
     ),
+    ("parameter_temperature_(°C): 155", "parameter_temperature_(°C)", "155"),
+    ("parameter_humidity_(%_RH): 45", "parameter_humidity_(%_RH)", "45"),
+    ("parameter_spool_weight_(%): 10", "parameter_spool_weight_(%)", "10"),
+    ("path: /dev/shm/drying_box.json", "path", "/dev/shm/drying_box.json"),
 ]
