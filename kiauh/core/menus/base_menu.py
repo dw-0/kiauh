@@ -142,7 +142,7 @@ class BaseMenu(metaclass=PostInitCaller):
     def __go_to_help(self, **kwargs) -> None:
         if self.help_menu is None:
             return
-        self.help_menu(previous_menu=self).run()
+        self.help_menu(previous_menu=self.__class__).run()
 
     def __exit(self, **kwargs) -> None:
         Logger.print_ok("###### Happy printing!", False)
