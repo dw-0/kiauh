@@ -25,6 +25,7 @@ from core.constants import (
 )
 from core.logger import Logger
 from core.menus import FooterType, Option
+from utils.input_utils import get_selection_input
 
 
 def clear() -> None:
@@ -141,7 +142,7 @@ class BaseMenu(metaclass=PostInitCaller):
     def __go_to_help(self, **kwargs) -> None:
         if self.help_menu is None:
             return
-        self.help_menu(previous_menu=self).run()
+        self.help_menu(previous_menu=self.__class__).run()
 
     def __exit(self, **kwargs) -> None:
         Logger.print_ok("###### Happy printing!", False)
@@ -177,46 +178,20 @@ class BaseMenu(metaclass=PostInitCaller):
         self.print_menu()
         self.print_footer()
 
-    def validate_user_input(self, usr_input: str) -> Option:
-        """
-        Validate the user input and either return an Option, a string or None
-        :param usr_input: The user input in form of a string
-        :return: Option, str or None
-        """
-        usr_input = usr_input.lower()
-        option = self.options.get(
-            usr_input,
-            Option(method=None, opt_index="", opt_data=None),
-        )
-
-        # if option/usr_input is None/empty string, we execute the menus default option if specified
-        if (option is None or usr_input == "") and self.default_option is not None:
-            self.default_option.opt_index = usr_input
-            return self.default_option
-
-        # user selected a regular option
-        option.opt_index = usr_input
-        return option
-
-    def handle_user_input(self) -> Option:
-        """Handle the user input, return the validated input or print an error."""
-        while True:
-            print(f"{COLOR_CYAN}###### {self.input_label_txt}: {RESET_FORMAT}", end="")
-            usr_input = input().lower()
-            validated_input = self.validate_user_input(usr_input)
-
-            if validated_input.method is not None:
-                return validated_input
-            else:
-                Logger.print_error("Invalid input!", False)
-
     def run(self) -> None:
         """Start the menu lifecycle. When this function returns, the lifecycle of the menu ends."""
         try:
             self.display_menu()
-            option = self.handle_user_input()
-            option.method(opt_index=option.opt_index, opt_data=option.opt_data)
+            option = get_selection_input(self.input_label_txt, self.options)
+            selected_option: Option = self.options.get(option)
+
+            selected_option.method(
+                opt_index=selected_option.opt_index,
+                opt_data=selected_option.opt_data,
+            )
+
             self.run()
+
         except Exception as e:
             Logger.print_error(
                 f"An unexpected error occured:\n{e}\n{traceback.format_exc()}"

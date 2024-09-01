@@ -81,6 +81,7 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             line = f"{COLOR_RED}Dependencies are missing!{RESET_FORMAT}"
 
         menu += f"║ {line:<62} ║\n"
+        menu += "╟───────────────────────────────────────────────────────╢\n"
 
         print(menu, end="")
 

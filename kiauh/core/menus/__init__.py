@@ -22,7 +22,10 @@ class Option:
     :param opt_data: Can be used to pass any additional data to the menu option
     """
 
-    method: Type[Callable] | None = None
+    def __repr__(self):
+        return f"Option(method={self.method.__name__}, opt_index={self.opt_index}, opt_data={self.opt_data})"
+
+    method: Type[Callable]
     opt_index: str = ""
     opt_data: Any = None
 

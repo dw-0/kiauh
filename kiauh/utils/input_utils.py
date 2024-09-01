@@ -137,7 +137,7 @@ def get_selection_input(question: str, option_list: List | Dict, default=None) -
         else:
             raise ValueError("Invalid option_list type")
 
-        Logger.print_error(INVALID_CHOICE)
+        Logger.print_error("Invalid option! Please select a valid option.", False)
 
 
 def format_question(question: str, default=None) -> str:
