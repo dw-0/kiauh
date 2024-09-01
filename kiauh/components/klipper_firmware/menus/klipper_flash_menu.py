@@ -249,7 +249,7 @@ class KlipperSelectMcuIdMenu(BaseMenu):
         self.flash_options = FlashOptions()
         self.mcu_list = self.flash_options.mcu_list
         self.input_label_txt = "Select MCU to flash"
-        self.footer_type = FooterType.BACK_HELP
+        self.footer_type = FooterType.BACK
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         self.previous_menu = (
@@ -265,7 +265,7 @@ class KlipperSelectMcuIdMenu(BaseMenu):
 
     def print_menu(self) -> None:
         header = "!!! ATTENTION !!!"
-        header2 = f"[{COLOR_CYAN}List of available MCUs{RESET_FORMAT}]"
+        header2 = f"[{COLOR_CYAN}List of detected MCUs{RESET_FORMAT}]"
         color = COLOR_RED
         count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
@@ -277,15 +277,21 @@ class KlipperSelectMcuIdMenu(BaseMenu):
             ║ ONLY flash a firmware created for the respective MCU! ║
             ║                                                       ║
             ╟{header2:─^64}╢
+            ║                                                       ║
             """
         )[1:]
 
         for i, mcu in enumerate(self.mcu_list):
             mcu = mcu.split("/")[-1]
-            menu += f"   ● MCU #{i}: {COLOR_CYAN}{mcu}{RESET_FORMAT}\n"
-        menu += "╟───────────────────────────┬───────────────────────────╢"
+            menu += f"║ {i}) {COLOR_CYAN}{mcu:<51}{RESET_FORMAT}║\n"
 
-        print(menu, end="\n")
+        menu += textwrap.dedent(
+            """
+            ║                                                       ║
+            ╟───────────────────────────────────────────────────────╢
+            """
+        )[1:]
+        print(menu, end="")
 
     def flash_mcu(self, **kwargs):
         try:
@@ -343,8 +349,8 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
 
             for i, board in enumerate(self.available_boards):
                 line = f" {i}) {board}"
-                menu += f"|{line:<55}|\n"
-
+                menu += f"║{line:<55}║\n"
+            menu += "╟───────────────────────────────────────────────────────╢"
             print(menu, end="")
 
     def board_select(self, **kwargs):
@@ -406,7 +412,7 @@ class KlipperFlashOverviewMenu(BaseMenu):
         method = self.flash_options.flash_method.value
         command = self.flash_options.flash_command.value
         conn_type = self.flash_options.connection_type.value
-        mcu = self.flash_options.selected_mcu
+        mcu = self.flash_options.selected_mcu.split("/")[-1]
         board = self.flash_options.selected_board
         baudrate = self.flash_options.selected_baudrate
         subheader = f"[{COLOR_CYAN}Overview{RESET_FORMAT}]"
@@ -420,26 +426,37 @@ class KlipperFlashOverviewMenu(BaseMenu):
             ║ sure everything is correct, start the process. If any ║
             ║ parameter needs to be changed, you can go back (B)    ║
             ║ step by step or abort and start from the beginning.   ║
-            ║{subheader:-^64}║
+            ║{subheader:─^64}║
+            ║                                                       ║
             """
         )[1:]
 
-        menu += f"   ● MCU: {COLOR_CYAN}{mcu}{RESET_FORMAT}\n"
-        menu += f"   ● Connection: {COLOR_CYAN}{conn_type}{RESET_FORMAT}\n"
-        menu += f"   ● Flash method: {COLOR_CYAN}{method}{RESET_FORMAT}\n"
-        menu += f"   ● Flash command: {COLOR_CYAN}{command}{RESET_FORMAT}\n"
+        menu += textwrap.dedent(
+            f"""
+            ║ MCU: {COLOR_CYAN}{mcu:<48}{RESET_FORMAT} ║
+            ║ Connection: {COLOR_CYAN}{conn_type:<41}{RESET_FORMAT} ║
+            ║ Flash method: {COLOR_CYAN}{method:<39}{RESET_FORMAT} ║
+            ║ Flash command: {COLOR_CYAN}{command:<38}{RESET_FORMAT} ║
+            """
+        )[1:]
 
         if self.flash_options.flash_method is FlashMethod.SD_CARD:
-            menu += f"   ● Board type: {COLOR_CYAN}{board}{RESET_FORMAT}\n"
-            menu += f"   ● Baudrate: {COLOR_CYAN}{baudrate}{RESET_FORMAT}\n"
+            menu += textwrap.dedent(
+                f"""
+                ║ Board type: {COLOR_CYAN}{board:<41}{RESET_FORMAT} ║
+                ║ Baudrate: {COLOR_CYAN}{baudrate:<43}{RESET_FORMAT} ║
+                """
+            )[1:]
 
         menu += textwrap.dedent(
             """
+            ║                                                       ║
             ╟───────────────────────────────────────────────────────╢
             ║  Y) Start flash process                               ║
             ║  N) Abort - Return to Advanced Menu                   ║
+            ╟───────────────────────────────────────────────────────╢
             """
-        )
+        )[1:]
         print(menu, end="")
 
     def execute_flash(self, **kwargs):
