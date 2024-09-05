@@ -8,24 +8,16 @@
 # ======================================================================= #
 from __future__ import annotations
 
-import shutil
 import textwrap
-from pathlib import Path
-from typing import Tuple, Type
+from typing import Literal, Tuple, Type
 
-from components.klipper import KLIPPER_DIR
-from components.klipper.klipper import Klipper
-from components.moonraker import MOONRAKER_DIR
-from components.moonraker.moonraker import Moonraker
 from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
-from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from core.settings.kiauh_settings import KiauhSettings
-from utils.git_utils import git_clone_wrapper
+from core.settings.kiauh_settings import KiauhSettings, RepoSettings
+from procedures.switch_repo import run_switch_repo_routine
 from utils.input_utils import get_confirm, get_string_input
-from utils.instance_utils import get_instances
 
 
 # noinspection PyUnusedLocal
@@ -105,22 +97,28 @@ class SettingsMenu(BaseMenu):
         self.mainsail_unstable = self.settings.mainsail.unstable_releases
         self.fluidd_unstable = self.settings.fluidd.unstable_releases
 
-    def _format_repo_str(self, repo_name: str) -> None:
-        repo = self.settings.get(repo_name, "repo_url")
-        repo = f"{'/'.join(repo.rsplit('/', 2)[-2:])}"
-        branch = self.settings.get(repo_name, "branch")
-        branch = f"({COLOR_CYAN}@ {branch}{RESET_FORMAT})"
-        setattr(self, f"{repo_name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT} {branch}")
+    def _format_repo_str(self, repo_name: Literal["klipper", "moonraker"]) -> None:
+        repo: RepoSettings = self.settings[repo_name]
+        repo_str = f"{'/'.join(repo.repo_url.rsplit('/', 2)[-2:])}"
+        branch_str = f"({COLOR_CYAN}@ {repo.branch}{RESET_FORMAT})"
+
+        setattr(
+            self,
+            f"{repo_name}_repo",
+            f"{COLOR_CYAN}{repo_str}{RESET_FORMAT} {branch_str}",
+        )
 
     def _gather_input(self) -> Tuple[str, str]:
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "There is no input validation in place! Make sure your"
-                " input is valid and has no typos! For any change to"
-                " take effect, the repository must be cloned again. "
-                "Make sure you don't have any ongoing prints running, "
-                "as the services will be restarted!"
+                "There is no input validation in place! Make sure your the input is "
+                "valid and has no typos or invalid characters! For the change to take "
+                "effect, the new repository will be cloned. A backup of the old "
+                "repository will be created.",
+                "\n\n",
+                "Make sure you don't have any ongoing prints running, as the services "
+                "will be restarted during this process! You will loose any ongoing print!",
             ],
         )
         repo = get_string_input(
@@ -134,7 +132,7 @@ class SettingsMenu(BaseMenu):
 
         return repo, branch
 
-    def _set_repo(self, repo_name: str) -> None:
+    def _set_repo(self, repo_name: Literal["klipper", "moonraker"]) -> None:
         repo_url, branch = self._gather_input()
         display_name = repo_name.capitalize()
         Logger.print_dialog(
@@ -148,10 +146,13 @@ class SettingsMenu(BaseMenu):
         )
 
         if get_confirm("Apply changes?", allow_go_back=True):
-            self.settings.set(repo_name, "repo_url", repo_url)
-            self.settings.set(repo_name, "branch", branch)
+            repo: RepoSettings = self.settings[repo_name]
+            repo.repo_url = repo_url
+            repo.branch = branch
+
             self.settings.save()
             self._load_settings()
+
             Logger.print_ok("Changes saved!")
         else:
             Logger.print_info(
@@ -161,31 +162,10 @@ class SettingsMenu(BaseMenu):
 
         Logger.print_status(f"Switching to {display_name}'s new source repository ...")
         self._switch_repo(repo_name)
-        Logger.print_ok(f"Switched to {repo_url} at branch {branch}!")
 
-    def _switch_repo(self, name: str) -> None:
-        target_dir: Path
-        if name == "klipper":
-            target_dir = KLIPPER_DIR
-            _type = Klipper
-        elif name == "moonraker":
-            target_dir = MOONRAKER_DIR
-            _type = Moonraker
-        else:
-            Logger.print_error("Invalid repository name!")
-            return
-
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-
-        instances = get_instances(_type)
-        InstanceManager.stop_all(instances)
-
-        repo = self.settings.get(name, "repo_url")
-        branch = self.settings.get(name, "branch")
-        git_clone_wrapper(repo, target_dir, branch)
-
-        InstanceManager.start_all(instances)
+    def _switch_repo(self, name: Literal["klipper", "moonraker"]) -> None:
+        repo: RepoSettings = self.settings[name]
+        run_switch_repo_routine(name, repo)
 
     def set_klipper_repo(self, **kwargs) -> None:
         self._set_repo("klipper")

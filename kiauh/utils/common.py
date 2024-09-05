@@ -124,10 +124,11 @@ def get_install_status(
     else:
         status = 1  # incomplete
 
+    org, repo = get_repo_name(repo_dir)
     return ComponentStatus(
         status=status,
         instances=instances,
-        repo=get_repo_name(repo_dir),
+        repo=f"{org}/{repo}",
         local=get_local_commit(repo_dir),
         remote=get_remote_commit(repo_dir),
     )

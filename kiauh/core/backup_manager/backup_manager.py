@@ -17,6 +17,10 @@ from core.logger import Logger
 from utils.common import get_current_date
 
 
+class BackupManagerException(Exception):
+    pass
+
+
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class BackupManager:
@@ -65,7 +69,7 @@ class BackupManager:
 
     def backup_directory(
         self, name: str, source: Path, target: Path | None = None
-    ) -> None:
+    ) -> Path | None:
         Logger.print_status(f"Creating backup of {name} in {target} ...")
 
         if source is None or not Path(source).exists():
@@ -76,15 +80,15 @@ class BackupManager:
         try:
             date = get_current_date().get("date")
             time = get_current_date().get("time")
-            shutil.copytree(
-                source,
-                target.joinpath(f"{name.lower()}-{date}-{time}"),
-                ignore=self.ignore_folders_func,
-            )
+            backup_target = target.joinpath(f"{name.lower()}-{date}-{time}")
+            shutil.copytree(source, backup_target, ignore=self.ignore_folders_func)
             Logger.print_ok("Backup successful!")
+
+            return backup_target
+
         except OSError as e:
             Logger.print_error(f"Unable to backup directory '{source}':\n{e}")
-            return
+            raise BackupManagerException(f"Unable to backup directory '{source}':\n{e}")
 
     def ignore_folders_func(self, dirpath, filenames) -> List[str]:
         return (

@@ -8,6 +8,9 @@
 # ======================================================================= #
 from __future__ import annotations
 
+from dataclasses import dataclass, field
+from typing import Any
+
 from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     NoOptionError,
@@ -22,33 +25,21 @@ DEFAULT_CFG = PROJECT_ROOT.joinpath("default.kiauh.cfg")
 CUSTOM_CFG = PROJECT_ROOT.joinpath("kiauh.cfg")
 
 
+@dataclass
 class AppSettings:
-    def __init__(self) -> None:
-        self.backup_before_update = None
+    backup_before_update: bool | None = field(default=None)
 
 
-class KlipperSettings:
-    def __init__(self) -> None:
-        self.repo_url = None
-        self.branch = None
+@dataclass
+class RepoSettings:
+    repo_url: str | None = field(default=None)
+    branch: str | None = field(default=None)
 
 
-class MoonrakerSettings:
-    def __init__(self) -> None:
-        self.repo_url = None
-        self.branch = None
-
-
-class MainsailSettings:
-    def __init__(self) -> None:
-        self.port = None
-        self.unstable_releases = None
-
-
-class FluiddSettings:
-    def __init__(self) -> None:
-        self.port = None
-        self.unstable_releases = None
+@dataclass
+class WebUiSettings:
+    port: str | None = field(default=None)
+    unstable_releases: bool | None = field(default=None)
 
 
 # noinspection PyUnusedLocal
@@ -61,6 +52,12 @@ class KiauhSettings:
             cls._instance = super(KiauhSettings, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
+    def __repr__(self) -> str:
+        return f"KiauhSettings(kiauh={self.kiauh}, klipper={self.klipper}, moonraker={self.moonraker}, mainsail={self.mainsail}, fluidd={self.fluidd})"
+
+    def __getitem__(self, item: str) -> Any:
+        return getattr(self, item)
+
     def __init__(self) -> None:
         if not hasattr(self, "__initialized"):
             self.__initialized = False
@@ -69,20 +66,10 @@ class KiauhSettings:
         self.__initialized = True
         self.config = SimpleConfigParser()
         self.kiauh = AppSettings()
-        self.klipper = KlipperSettings()
-        self.moonraker = MoonrakerSettings()
-        self.mainsail = MainsailSettings()
-        self.fluidd = FluiddSettings()
-
-        self.kiauh.backup_before_update = None
-        self.klipper.repo_url = None
-        self.klipper.branch = None
-        self.moonraker.repo_url = None
-        self.moonraker.branch = None
-        self.mainsail.port = None
-        self.mainsail.unstable_releases = None
-        self.fluidd.port = None
-        self.fluidd.unstable_releases = None
+        self.klipper = RepoSettings()
+        self.moonraker = RepoSettings()
+        self.mainsail = WebUiSettings()
+        self.fluidd = WebUiSettings()
 
         self._load_config()
 
@@ -102,22 +89,8 @@ class KiauhSettings:
         except AttributeError:
             raise
 
-    def set(self, section: str, option: str, value: str | int | bool) -> None:
-        """
-        Set a value in the settings state by providing the section and option name as strings.
-        Prefer direct access to the properties, as it is usually safer!
-        :param section: The section name as string.
-        :param option: The option name as string.
-        :param value: The value to set as string, int or bool.
-        """
-        try:
-            section = getattr(self, section)
-            section.option = value  # type: ignore
-        except AttributeError:
-            raise
-
     def save(self) -> None:
-        self._set_config_options()
+        self._set_config_options_state()
         self.config.write(CUSTOM_CFG)
         self._load_config()
 
@@ -129,7 +102,7 @@ class KiauhSettings:
         self.config.read(cfg)
 
         self._validate_cfg()
-        self._read_settings()
+        self._apply_settings_from_file()
 
     def _validate_cfg(self) -> None:
         try:
@@ -171,7 +144,7 @@ class KiauhSettings:
         if v.isdigit() or v.lower() == "true" or v.lower() == "false":
             raise ValueError
 
-    def _read_settings(self) -> None:
+    def _apply_settings_from_file(self) -> None:
         self.kiauh.backup_before_update = self.config.getboolean(
             "kiauh", "backup_before_update"
         )
@@ -188,7 +161,7 @@ class KiauhSettings:
             "fluidd", "unstable_releases"
         )
 
-    def _set_config_options(self) -> None:
+    def _set_config_options_state(self) -> None:
         self.config.set(
             "kiauh",
             "backup_before_update",

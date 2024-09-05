@@ -16,6 +16,10 @@ from utils.input_utils import get_confirm, get_number_input
 from utils.instance_utils import get_instances
 
 
+class GitException(Exception):
+    pass
+
+
 def git_clone_wrapper(
     repo: str, target_dir: Path, branch: str | None = None, force: bool = False
 ) -> None:
@@ -43,10 +47,10 @@ def git_clone_wrapper(
     except CalledProcessError:
         log = "An unexpected error occured during cloning of the repository."
         Logger.print_error(log)
-        return
+        raise GitException(log)
     except OSError as e:
         Logger.print_error(f"Error removing existing repository: {e.strerror}")
-        return
+        raise GitException(f"Error removing existing repository: {e.strerror}")
 
 
 def git_pull_wrapper(repo: str, target_dir: Path) -> None:
@@ -66,20 +70,22 @@ def git_pull_wrapper(repo: str, target_dir: Path) -> None:
         return
 
 
-def get_repo_name(repo: Path) -> str | None:
+def get_repo_name(repo: Path) -> tuple[str, str] | None:
     """
     Helper method to extract the organisation and name of a repository |
     :param repo: repository to extract the values from
     :return: String in form of "<orga>/<name>" or None
     """
     if not repo.exists() or not repo.joinpath(".git").exists():
-        return "-"
+        return "-", "-"
 
     try:
         cmd = ["git", "-C", repo.as_posix(), "config", "--get", "remote.origin.url"]
         result: str = check_output(cmd, stderr=DEVNULL).decode(encoding="utf-8")
         substrings: List[str] = result.strip().split("/")[-2:]
-        return "/".join(substrings).replace(".git", "")
+        return substrings[0], substrings[1]
+
+        # return "/".join(substrings).replace(".git", "")
     except CalledProcessError:
         return None
 
