@@ -179,12 +179,12 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
 
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
-            Logger.print_error("Installing Python requirements failed!")
-            return
+            raise VenvCreationFailedException("Installing Python requirements failed!")
 
         Logger.print_ok("Installing Python requirements successful!")
-    except CalledProcessError as e:
-        log = f"Error installing Python requirements:\n{e.output.decode()}"
+
+    except Exception as e:
+        log = f"Error installing Python requirements: {e}"
         Logger.print_error(log)
         raise VenvCreationFailedException(log)
 
