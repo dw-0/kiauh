@@ -57,7 +57,8 @@ class MainMenu(BaseMenu):
         self.footer_type: FooterType = FooterType.QUIT
 
         self.version = ""
-        self.kl_status = self.kl_repo = self.mr_status = self.mr_repo = ""
+        self.kl_status = self.kl_owner = self.kl_repo = ""
+        self.mr_status = self.mr_owner = self.mr_repo = ""
         self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
         self.cn_status = self.cc_status = self.oe_status = ""
         self._init_status()
@@ -103,6 +104,7 @@ class MainMenu(BaseMenu):
         status_data: ComponentStatus = status_fn(*args)
         code: int = status_data.status
         status: StatusText = StatusMap[code]
+        owner: str = status_data.owner
         repo: str = status_data.repo
         instance_count: int = status_data.instances
 
@@ -111,6 +113,7 @@ class MainMenu(BaseMenu):
             count_txt = f": {instance_count}"
 
         setattr(self, f"{name}_status", self._format_by_code(code, status, count_txt))
+        setattr(self, f"{name}_owner", f"{COLOR_CYAN}{owner}{RESET_FORMAT}")
         setattr(self, f"{name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT}")
 
     def _format_by_code(self, code: int, status: str, count: str) -> str:
@@ -140,17 +143,19 @@ class MainMenu(BaseMenu):
             ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟──────────────────┬────────────────────────────────────╢
             ║  0) [Log-Upload] │   Klipper: {self.kl_status:<{pad1}} ║
-            ║                  │      Repo: {self.kl_repo:<{pad1}} ║
-            ║  1) [Install]    ├────────────────────────────────────╢
-            ║  2) [Update]     │ Moonraker: {self.mr_status:<{pad1}} ║
-            ║  3) [Remove]     │      Repo: {self.mr_repo:<{pad1}} ║
-            ║  4) [Advanced]   ├────────────────────────────────────╢
-            ║  5) [Backup]     │        Mainsail: {self.ms_status:<{pad2}} ║
+            ║                  │     Owner: {self.kl_owner:<{pad1}} ║
+            ║  1) [Install]    │      Repo: {self.kl_repo:<{pad1}} ║
+            ║  2) [Update]     ├────────────────────────────────────╢
+            ║  3) [Remove]     │ Moonraker: {self.mr_status:<{pad1}} ║
+            ║  4) [Advanced]   │     Owner: {self.mr_owner:<{pad1}} ║
+            ║  5) [Backup]     │      Repo: {self.mr_repo:<{pad1}} ║
+            ║                  ├────────────────────────────────────╢
+            ║  S) [Settings]   │        Mainsail: {self.ms_status:<{pad2}} ║
             ║                  │          Fluidd: {self.fl_status:<{pad2}} ║
-            ║  S) [Settings]   │   Client-Config: {self.cc_status:<{pad2}} ║
-            ║                  │                                    ║
-            ║ Community:       │   KlipperScreen: {self.ks_status:<{pad2}} ║
-            ║  E) [Extensions] │     Mobileraker: {self.mb_status:<{pad2}} ║
+            ║ Community:       │   Client-Config: {self.cc_status:<{pad2}} ║
+            ║  E) [Extensions] │                                    ║
+            ║                  │   KlipperScreen: {self.ks_status:<{pad2}} ║
+            ║                  │     Mobileraker: {self.mb_status:<{pad2}} ║
             ║                  │  OctoEverywhere: {self.oe_status:<{pad2}} ║
             ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
             ╟──────────────────┼────────────────────────────────────╢

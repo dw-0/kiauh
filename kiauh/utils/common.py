@@ -128,7 +128,8 @@ def get_install_status(
     return ComponentStatus(
         status=status,
         instances=instances,
-        repo=f"{org}/{repo}",
+        owner=org,
+        repo=repo,
         local=get_local_commit(repo_dir),
         remote=get_remote_commit(repo_dir),
     )
