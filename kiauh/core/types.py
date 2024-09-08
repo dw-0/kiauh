@@ -23,6 +23,7 @@ StatusMap: Dict[StatusCode, StatusText] = {
 @dataclass
 class ComponentStatus:
     status: StatusCode
+    owner: str | None = None
     repo: str | None = None
     local: str | None = None
     remote: str | None = None

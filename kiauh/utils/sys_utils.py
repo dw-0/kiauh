@@ -39,6 +39,10 @@ SysCtlServiceAction = Literal[
 SysCtlManageAction = Literal["daemon-reload", "reset-failed"]
 
 
+class VenvCreationFailedException(Exception):
+    pass
+
+
 def kill(opt_err_msg: str = "") -> None:
     """
     Kills the application |
@@ -87,11 +91,12 @@ def parse_packages_from_file(source_file: Path) -> List[str]:
     return packages
 
 
-def create_python_venv(target: Path) -> bool:
+def create_python_venv(target: Path, force: bool = False) -> bool:
     """
     Create a python 3 virtualenv at the provided target destination.
     Returns True if the virtualenv was created successfully.
     Returns False if the virtualenv already exists, recreation was declined or creation failed.
+    :param force: Force recreation of the virtualenv
     :param target: Path where to create the virtualenv at
     :return: bool
     """
@@ -106,7 +111,7 @@ def create_python_venv(target: Path) -> bool:
             Logger.print_error(f"Error setting up virtualenv:\n{e}")
             return False
     else:
-        if not get_confirm(
+        if not force and not get_confirm(
             "Virtualenv already exists. Re-create?", default_choice=False
         ):
             Logger.print_info("Skipping re-creation of virtualenv ...")
@@ -174,14 +179,14 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
 
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
-            Logger.print_error("Installing Python requirements failed!")
-            return
+            raise VenvCreationFailedException("Installing Python requirements failed!")
 
         Logger.print_ok("Installing Python requirements successful!")
-    except CalledProcessError as e:
-        log = f"Error installing Python requirements:\n{e.output.decode()}"
+
+    except Exception as e:
+        log = f"Error installing Python requirements: {e}"
         Logger.print_error(log)
-        raise
+        raise VenvCreationFailedException(log)
 
 
 def update_system_package_lists(silent: bool, rls_info_change=False) -> None:

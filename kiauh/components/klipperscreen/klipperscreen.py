@@ -103,8 +103,8 @@ def patch_klipperscreen_update_manager(instances: List[Moonraker]) -> None:
         options=[
             ("type", "git_repo"),
             ("path", KLIPPERSCREEN_DIR.as_posix()),
-            ("orgin", KLIPPERSCREEN_REPO),
-            ("manages_servcies", "KlipperScreen"),
+            ("origin", KLIPPERSCREEN_REPO),
+            ("managed_services", "KlipperScreen"),
             ("env", f"{KLIPPERSCREEN_ENV_DIR}/bin/python"),
             ("requirements", KLIPPERSCREEN_REQ_FILE.as_posix()),
             ("install_script", KLIPPERSCREEN_INSTALL_SCRIPT.as_posix()),
