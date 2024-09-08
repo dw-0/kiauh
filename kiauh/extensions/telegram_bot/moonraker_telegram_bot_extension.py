@@ -175,7 +175,7 @@ class TelegramBotExtension(BaseExtension):
             options=[
                 ("type", "git_repo"),
                 ("path", str(TG_BOT_DIR)),
-                ("orgin", TG_BOT_REPO),
+                ("origin", TG_BOT_REPO),
                 ("env", env_py),
                 ("requirements", "scripts/requirements.txt"),
                 ("install_script", "scripts/install.sh"),
