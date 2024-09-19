@@ -16,7 +16,6 @@ from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from components.mobileraker.mobileraker import get_mobileraker_status
 from components.moonraker.moonraker_utils import get_moonraker_status
 from components.octoeverywhere.octoeverywhere_setup import get_octoeverywhere_status
 from components.webui_client.client_utils import (
@@ -59,7 +58,7 @@ class MainMenu(BaseMenu):
         self.version = ""
         self.kl_status = self.kl_owner = self.kl_repo = ""
         self.mr_status = self.mr_owner = self.mr_repo = ""
-        self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
+        self.ms_status = self.fl_status = self.ks_status = ""
         self.cn_status = self.cc_status = self.oe_status = ""
         self._init_status()
 
@@ -96,7 +95,6 @@ class MainMenu(BaseMenu):
         self._get_component_status("fl", get_client_status, FluiddData())
         self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
         self._get_component_status("ks", get_klipperscreen_status)
-        self._get_component_status("mb", get_mobileraker_status)
         self._get_component_status("cn", get_crowsnest_status)
         self._get_component_status("oe", get_octoeverywhere_status)
 
@@ -155,7 +153,6 @@ class MainMenu(BaseMenu):
             ║ Community:       │   Client-Config: {self.cc_status:<{pad2}} ║
             ║  E) [Extensions] │                                    ║
             ║                  │   KlipperScreen: {self.ks_status:<{pad2}} ║
-            ║                  │     Mobileraker: {self.mb_status:<{pad2}} ║
             ║                  │  OctoEverywhere: {self.oe_status:<{pad2}} ║
             ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
             ╟──────────────────┼────────────────────────────────────╢
