@@ -11,8 +11,8 @@ from typing import TypeVar
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
-from components.octoeverywhere.octoeverywhere import Octoeverywhere
 from extensions.obico.moonraker_obico import MoonrakerObico
+from extensions.octoeverywhere.octoeverywhere import Octoeverywhere
 from extensions.telegram_bot.moonraker_telegram_bot import MoonrakerTelegramBot
 
 InstanceType = TypeVar(
