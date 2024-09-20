@@ -161,11 +161,13 @@ def test_getfloat_fallback(parser):
 def test_set_existing_option(parser):
     parser.set_option("section_1", "new_option", "new_value")
     assert parser.getval("section_1", "new_option") == "new_value"
-    assert parser.config["section_1"]["new_option"]["_raw"] == "new_option: new_value"
+    assert parser.config["section_1"]["new_option"]["_raw"] == "new_option: new_value\n"
 
     parser.set_option("section_1", "new_option", "new_value_2")
     assert parser.getval("section_1", "new_option") == "new_value_2"
-    assert parser.config["section_1"]["new_option"]["_raw"] == "new_option: new_value_2"
+    assert (
+        parser.config["section_1"]["new_option"]["_raw"] == "new_option: new_value_2\n"
+    )
 
 
 def test_set_new_option(parser):
@@ -179,7 +181,7 @@ def test_set_new_option(parser):
         "value_2",
         "value_3",
     ]
-    assert parser.config["section_2"]["array_option"]["_raw"] == "array_option:"
+    assert parser.config["section_2"]["array_option"]["_raw"] == "array_option:\n"
 
 
 def test_remove_option(parser):
