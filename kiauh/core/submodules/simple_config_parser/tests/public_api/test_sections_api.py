@@ -54,7 +54,7 @@ def test_add_section(parser):
 
     new_section = parser.config["new_section"]
     assert isinstance(new_section, dict)
-    assert new_section["_raw"] == "[new_section]"
+    assert new_section["_raw"] == "[new_section]\n"
 
 
 def test_add_section_duplicate(parser):

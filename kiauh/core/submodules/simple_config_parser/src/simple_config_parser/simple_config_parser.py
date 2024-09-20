@@ -190,7 +190,7 @@ class SimpleConfigParser:
         if section in self.get_sections():
             raise DuplicateSectionError(section)
 
-        self.config[section] = {"_raw": f"[{section}]"}
+        self.config[section] = {"_raw": f"[{section}]\n"}
 
     def remove_section(self, section: str) -> None:
         """Remove a section from the config"""
@@ -220,9 +220,9 @@ class SimpleConfigParser:
 
         if not self.has_option(section, option):
             self.config[section][option] = {
-                "_raw": f"{option}:"
+                "_raw": f"{option}:\n"
                 if isinstance(value, list)
-                else f"{option}: {value}",
+                else f"{option}: {value}\n",
                 "value": value,
             }
         else:
