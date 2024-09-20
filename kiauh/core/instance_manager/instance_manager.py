@@ -12,8 +12,8 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import List
 
-from core.instance_type import InstanceType
 from core.logger import Logger
+from utils.instance_type import InstanceType
 from utils.sys_utils import cmd_sysctl_service
 
 

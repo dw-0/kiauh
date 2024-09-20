@@ -17,8 +17,8 @@ from core.constants import (
     COLOR_YELLOW,
     RESET_FORMAT,
 )
-from core.instance_type import InstanceType
 from core.menus.base_menu import print_back_footer
+from utils.instance_type import InstanceType
 
 
 @unique

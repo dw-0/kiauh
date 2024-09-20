@@ -17,7 +17,6 @@ from components.klipperscreen.klipperscreen import remove_klipperscreen
 from components.moonraker.menus.moonraker_remove_menu import (
     MoonrakerRemoveMenu,
 )
-from components.octoeverywhere.octoeverywhere_setup import remove_octoeverywhere
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
@@ -60,16 +59,13 @@ class RemoveMenu(BaseMenu):
             ╟───────────────────────────────────────────────────────╢
             ║ INFO: Configurations and/or any backups will be kept! ║
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Firmware & API:           │ Webcam Streamer:          ║
-            ║  1) [Klipper]             │  6) [Crowsnest]           ║
+            ║ Firmware & API:           │ Touchscreen GUI:          ║
+            ║  1) [Klipper]             │  5) [KlipperScreen]       ║
             ║  2) [Moonraker]           │                           ║
-            ║                           │ Remote Access:            ║
-            ║ Klipper Webinterface:     │  7) [OctoEverywhere]      ║
+            ║                           │ Webcam Streamer:          ║
+            ║ Klipper Webinterface:     │  6) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
             ║  4) [Fluidd]              │                           ║
-            ║                           │                           ║
-            ║ Touchscreen GUI:          │                           ║
-            ║  5) [KlipperScreen]       │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -92,6 +88,3 @@ class RemoveMenu(BaseMenu):
 
     def remove_crowsnest(self, **kwargs) -> None:
         remove_crowsnest()
-
-    def remove_octoeverywhere(self, **kwargs) -> None:
-        remove_octoeverywhere()

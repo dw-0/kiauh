@@ -21,13 +21,13 @@ from components.klipper.klipper_dialogs import (
     print_instance_overview,
 )
 from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
-from core.instance_type import InstanceType
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from extensions.base_extension import BaseExtension
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_selection_input
+from utils.instance_type import InstanceType
 from utils.instance_utils import get_instances
 
 

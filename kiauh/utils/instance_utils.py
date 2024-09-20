@@ -14,7 +14,7 @@ from typing import List
 
 from core.constants import SYSTEMD
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
-from core.instance_type import InstanceType
+from utils.instance_type import InstanceType
 
 
 def get_instances(instance_type: type) -> List[InstanceType]:

@@ -10,9 +10,9 @@ from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
 from typing import List, Type
 
 from core.instance_manager.instance_manager import InstanceManager
-from core.instance_type import InstanceType
 from core.logger import Logger
 from utils.input_utils import get_confirm, get_number_input
+from utils.instance_type import InstanceType
 from utils.instance_utils import get_instances
 
 

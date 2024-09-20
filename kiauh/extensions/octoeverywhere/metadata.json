@@ -1,0 +1,16 @@
+{
+    "metadata": {
+        "index": 7,
+        "module": "octoeverywhere_extension",
+        "maintained_by": "QuinnDamerell",
+        "display_name": "OctoEverywhere for Klipper",
+        "description": [
+            "Cloud Empower Your Klipper 3D Printers With:",
+            "- Free, Private, And Secure Remote Access",
+            "- AI Print Failure Detection",
+            "- Real-time Notifications",
+            "- Live Streaming, and More!"
+        ],
+        "updates": true
+    }
+}

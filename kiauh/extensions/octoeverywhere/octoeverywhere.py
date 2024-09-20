@@ -14,7 +14,9 @@ from subprocess import CalledProcessError, run
 
 from components.moonraker import MOONRAKER_CFG_NAME
 from components.moonraker.moonraker import Moonraker
-from components.octoeverywhere import (
+from core.instance_manager.base_instance import BaseInstance
+from core.logger import Logger
+from extensions.octoeverywhere import (
     OE_CFG_NAME,
     OE_DIR,
     OE_ENV_DIR,
@@ -23,8 +25,6 @@ from components.octoeverywhere import (
     OE_SYS_CFG_NAME,
     OE_UPDATE_SCRIPT,
 )
-from core.instance_manager.base_instance import BaseInstance
-from core.logger import Logger
 from utils.sys_utils import get_service_file_path
 
 

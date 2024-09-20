@@ -22,10 +22,6 @@ from components.klipperscreen.klipperscreen import (
 )
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
-from components.octoeverywhere.octoeverywhere_setup import (
-    get_octoeverywhere_status,
-    update_octoeverywhere,
-)
 from components.webui_client.client_config.client_config_setup import (
     update_client_config,
 )
@@ -73,7 +69,6 @@ class UpdateMenu(BaseMenu):
         self.fluidd_config_local = self.fluidd_config_remote = ""
         self.klipperscreen_local = self.klipperscreen_remote = ""
         self.crowsnest_local = self.crowsnest_remote = ""
-        self.octoeverywhere_local = self.octoeverywhere_remote = ""
 
         self.mainsail_data = MainsailData()
         self.fluidd_data = FluiddData()
@@ -86,7 +81,6 @@ class UpdateMenu(BaseMenu):
             "fluidd_config": {"installed": False, "local": None, "remote": None},
             "klipperscreen": {"installed": False, "local": None, "remote": None},
             "crowsnest": {"installed": False, "local": None, "remote": None},
-            "octoeverywhere": {"installed": False, "local": None, "remote": None},
         }
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -105,8 +99,7 @@ class UpdateMenu(BaseMenu):
             "6": Option(self.update_fluidd_config),
             "7": Option(self.update_klipperscreen),
             "8": Option(self.update_crowsnest),
-            "9": Option(self.update_octoeverywhere),
-            "10": Option(self.upgrade_system_packages),
+            "9": Option(self.upgrade_system_packages),
         }
 
     def print_menu(self) -> None:
@@ -151,9 +144,8 @@ class UpdateMenu(BaseMenu):
             ║ Other:                ├───────────────┼───────────────╢
             ║  7) KlipperScreen     │ {self.klipperscreen_local:<22} │ {self.klipperscreen_remote:<22} ║
             ║  8) Crowsnest         │ {self.crowsnest_local:<22} │ {self.crowsnest_remote:<22} ║
-            ║  9) OctoEverywhere    │ {self.octoeverywhere_local:<22} │ {self.octoeverywhere_remote:<22} ║
             ║                       ├───────────────┴───────────────╢
-            ║ 10) System            │ {sysupgrades:^{padding}} ║
+            ║  9) System            │ {sysupgrades:^{padding}} ║
             ╟───────────────────────┴───────────────────────────────╢
             """
         )[1:]
@@ -194,10 +186,6 @@ class UpdateMenu(BaseMenu):
         if self._check_is_installed("crowsnest"):
             update_crowsnest()
 
-    def update_octoeverywhere(self, **kwargs) -> None:
-        if self._check_is_installed("octoeverywhere"):
-            update_octoeverywhere()
-
     def upgrade_system_packages(self, **kwargs) -> None:
         self._run_system_updates()
 
@@ -214,7 +202,6 @@ class UpdateMenu(BaseMenu):
         )
         self._set_status_data("klipperscreen", get_klipperscreen_status)
         self._set_status_data("crowsnest", get_crowsnest_status)
-        self._set_status_data("octoeverywhere", get_octoeverywhere_status)
 
         update_system_package_lists(silent=True)
         self.packages = get_upgradable_packages()
