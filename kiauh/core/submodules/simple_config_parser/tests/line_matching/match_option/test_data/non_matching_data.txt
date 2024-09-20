@@ -1,0 +1,37 @@
+[section]
+[section with spaces]
+[section with spaces and comments] ; comment 1
+[section with spaces and comments] # comment 2
+ indented_option: value
+option_with_no_value:
+another_option_with_no_value:
+ indented_option_with_no_value:
+# position_min: 0
+# homing_speed: 5.0
+
+### this is a comment
+; this is also a comment
+# [section]
+# [section with spaces]
+# [section with spaces and comments] ; comment 1
+;[section]
+;[section with spaces]
+;[section with spaces and comments] ; comment 1
+# commented_option: value
+#commented_option: value
+;commented_option: value
+; commented_option: value
+#
+;
+option_1 :: value
+option_1:: value
+option_1 ::value
+option_2 == value
+option_2== value
+option_2 ==value
+option_1 := value
+option_1:= value
+option_1 :=value
+option_2 := value
+option_2:= value
+option_2 :=value
