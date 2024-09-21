@@ -94,6 +94,7 @@ def remove_instances(
     for instance in instance_list:
         Logger.print_status(f"Removing instance {instance.service_file_path.stem} ...")
         InstanceManager.remove(instance)
+        delete_moonraker_env_file(instance)
 
 
 def remove_polkit_rules() -> None:
@@ -111,14 +112,10 @@ def remove_polkit_rules() -> None:
     Logger.print_ok("Policykit rules successfully removed!")
 
 
-def delete_moonraker_logs(instances: List[Moonraker]) -> None:
-    all_logfiles = []
-    for instance in instances:
-        all_logfiles = list(instance.base.log_dir.glob("moonraker.log*"))
-    if not all_logfiles:
-        Logger.print_info("No Moonraker logs found. Skipped ...")
+def delete_moonraker_env_file(instance: Moonraker):
+    Logger.print_status(f"Remove '{instance.env_file}'")
+    if not instance.env_file.exists():
+        msg = f"Env file in {instance.base.sysd_dir} not found. Skipped ..."
+        Logger.print_info(msg)
         return
-
-    for log in all_logfiles:
-        Logger.print_status(f"Remove '{log}'")
-        run_remove_routines(log)
+    run_remove_routines(instance.env_file)

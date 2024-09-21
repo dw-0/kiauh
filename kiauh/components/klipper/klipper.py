@@ -41,6 +41,7 @@ class Klipper:
     env_dir: Path = KLIPPER_ENV_DIR
     data_dir: Path = field(init=False)
     cfg_file: Path = field(init=False)
+    env_file: Path = field(init=False)
     serial: Path = field(init=False)
     uds: Path = field(init=False)
 
@@ -51,6 +52,7 @@ class Klipper:
         self.service_file_path: Path = get_service_file_path(Klipper, self.suffix)
         self.data_dir: Path = get_data_dir(Klipper, self.suffix)
         self.cfg_file: Path = self.base.cfg_dir.joinpath(KLIPPER_CFG_NAME)
+        self.env_file: Path = self.base.sysd_dir.joinpath(KLIPPER_ENV_FILE_NAME)
         self.serial: Path = self.base.comms_dir.joinpath(KLIPPER_SERIAL_NAME)
         self.uds: Path = self.base.comms_dir.joinpath(KLIPPER_UDS_NAME)
 
