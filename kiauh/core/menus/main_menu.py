@@ -55,10 +55,10 @@ class MainMenu(BaseMenu):
         self.footer_type: FooterType = FooterType.QUIT
 
         self.version = ""
-        self.kl_status = self.kl_owner = self.kl_repo = ""
-        self.mr_status = self.mr_owner = self.mr_repo = ""
-        self.ms_status = self.fl_status = self.ks_status = ""
-        self.cn_status = self.cc_status = ""
+        self.kl_status, self.kl_owner, self.kl_repo = "", "", ""
+        self.mr_status, self.mr_owner, self.mr_repo = "", "", ""
+        self.ms_status, self.fl_status, self.ks_status = "", "", ""
+        self.cn_status, self.cc_status = "", ""
         self._init_status()
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -92,9 +92,9 @@ class MainMenu(BaseMenu):
         self._get_component_status("mr", get_moonraker_status)
         self._get_component_status("ms", get_client_status, MainsailData())
         self._get_component_status("fl", get_client_status, FluiddData())
-        self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
         self._get_component_status("ks", get_klipperscreen_status)
         self._get_component_status("cn", get_crowsnest_status)
+        self.cc_status = get_current_client_config()
 
     def _get_component_status(self, name: str, status_fn: Callable, *args) -> None:
         status_data: ComponentStatus = status_fn(*args)
