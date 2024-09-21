@@ -45,7 +45,6 @@ class RemoveMenu(BaseMenu):
             "4": Option(method=self.remove_fluidd),
             "5": Option(method=self.remove_klipperscreen),
             "6": Option(method=self.remove_crowsnest),
-            "7": Option(method=self.remove_octoeverywhere),
         }
 
     def print_menu(self) -> None:

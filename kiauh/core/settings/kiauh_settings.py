@@ -53,7 +53,11 @@ class KiauhSettings:
         return cls._instance
 
     def __repr__(self) -> str:
-        return f"KiauhSettings(kiauh={self.kiauh}, klipper={self.klipper}, moonraker={self.moonraker}, mainsail={self.mainsail}, fluidd={self.fluidd})"
+        return (
+            f"KiauhSettings(kiauh={self.kiauh}, klipper={self.klipper},"
+            f" moonraker={self.moonraker}, mainsail={self.mainsail},"
+            f" fluidd={self.fluidd})"
+        )
 
     def __getitem__(self, item: str) -> Any:
         return getattr(self, item)
@@ -75,8 +79,8 @@ class KiauhSettings:
 
     def get(self, section: str, option: str) -> str | int | bool:
         """
-        Get a value from the settings state by providing the section and option name as strings.
-        Prefer direct access to the properties, as it is usually safer!
+        Get a value from the settings state by providing the section and option name as
+        strings. Prefer direct access to the properties, as it is usually safer!
         :param section: The section name as string.
         :param option: The option name as string.
         :return: The value of the option as string, int or bool.
@@ -91,7 +95,7 @@ class KiauhSettings:
 
     def save(self) -> None:
         self._set_config_options_state()
-        self.config.write(CUSTOM_CFG)
+        self.config.write_file(CUSTOM_CFG)
         self._load_config()
 
     def _load_config(self) -> None:
@@ -99,7 +103,7 @@ class KiauhSettings:
             self._kill()
 
         cfg = CUSTOM_CFG if CUSTOM_CFG.exists() else DEFAULT_CFG
-        self.config.read(cfg)
+        self.config.read_file(cfg)
 
         self._validate_cfg()
         self._apply_settings_from_file()
@@ -132,7 +136,7 @@ class KiauhSettings:
 
     def _validate_bool(self, section: str, option: str) -> None:
         self._v_section, self._v_option = (section, option)
-        bool(self.config.getboolean(section, option))
+        (bool(self.config.getboolean(section, option)))
 
     def _validate_int(self, section: str, option: str) -> None:
         self._v_section, self._v_option = (section, option)
@@ -140,7 +144,7 @@ class KiauhSettings:
 
     def _validate_str(self, section: str, option: str) -> None:
         self._v_section, self._v_option = (section, option)
-        v = self.config.get(section, option)
+        v = self.config.getval(section, option)
         if v.isdigit() or v.lower() == "true" or v.lower() == "false":
             raise ValueError
 
@@ -148,10 +152,10 @@ class KiauhSettings:
         self.kiauh.backup_before_update = self.config.getboolean(
             "kiauh", "backup_before_update"
         )
-        self.klipper.repo_url = self.config.get("klipper", "repo_url")
-        self.klipper.branch = self.config.get("klipper", "branch")
-        self.moonraker.repo_url = self.config.get("moonraker", "repo_url")
-        self.moonraker.branch = self.config.get("moonraker", "branch")
+        self.klipper.repo_url = self.config.getval("klipper", "repo_url")
+        self.klipper.branch = self.config.getval("klipper", "branch")
+        self.moonraker.repo_url = self.config.getval("moonraker", "repo_url")
+        self.moonraker.branch = self.config.getval("moonraker", "branch")
         self.mainsail.port = self.config.getint("mainsail", "port")
         self.mainsail.unstable_releases = self.config.getboolean(
             "mainsail", "unstable_releases"
@@ -162,23 +166,23 @@ class KiauhSettings:
         )
 
     def _set_config_options_state(self) -> None:
-        self.config.set(
+        self.config.set_option(
             "kiauh",
             "backup_before_update",
             str(self.kiauh.backup_before_update),
         )
-        self.config.set("klipper", "repo_url", self.klipper.repo_url)
-        self.config.set("klipper", "branch", self.klipper.branch)
-        self.config.set("moonraker", "repo_url", self.moonraker.repo_url)
-        self.config.set("moonraker", "branch", self.moonraker.branch)
-        self.config.set("mainsail", "port", str(self.mainsail.port))
-        self.config.set(
+        self.config.set_option("klipper", "repo_url", self.klipper.repo_url)
+        self.config.set_option("klipper", "branch", self.klipper.branch)
+        self.config.set_option("moonraker", "repo_url", self.moonraker.repo_url)
+        self.config.set_option("moonraker", "branch", self.moonraker.branch)
+        self.config.set_option("mainsail", "port", str(self.mainsail.port))
+        self.config.set_option(
             "mainsail",
             "unstable_releases",
             str(self.mainsail.unstable_releases),
         )
-        self.config.set("fluidd", "port", str(self.fluidd.port))
-        self.config.set(
+        self.config.set_option("fluidd", "port", str(self.fluidd.port))
+        self.config.set_option(
             "fluidd", "unstable_releases", str(self.fluidd.unstable_releases)
         )
 

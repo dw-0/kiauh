@@ -141,5 +141,5 @@ class MoonrakerObico:
             return False
 
         scp = SimpleConfigParser()
-        scp.read(self.cfg_file)
-        return scp.get("server", "auth_token", None) is not None
+        scp.read_file(self.cfg_file)
+        return scp.getval("server", "auth_token", None) is not None

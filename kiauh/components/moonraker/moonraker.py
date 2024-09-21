@@ -138,7 +138,7 @@ class Moonraker:
             return None
 
         scp = SimpleConfigParser()
-        scp.read(self.cfg_file)
+        scp.read_file(self.cfg_file)
         port: int | None = scp.getint("server", "port", fallback=None)
 
         return port

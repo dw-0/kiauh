@@ -122,10 +122,10 @@ class GcodeShellCmdExtension(BaseExtension):
         for cfg_file in cfg_files:
             Logger.print_status(f"Include shell_command.cfg in '{cfg_file}' ...")
             scp = SimpleConfigParser()
-            scp.read(cfg_file)
+            scp.read_file(cfg_file)
             if scp.has_section(section):
                 Logger.print_info("Section already defined! Skipping ...")
                 continue
             scp.add_section(section)
-            scp.write(cfg_file)
+            scp.write_file(cfg_file)
             Logger.print_ok("Done!")

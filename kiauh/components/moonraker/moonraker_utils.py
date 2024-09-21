@@ -77,20 +77,15 @@ def create_example_moonraker_conf(
     uds = instance.base.comms_dir.joinpath("klippy.sock")
 
     scp = SimpleConfigParser()
-    scp.read(target)
+    scp.read_file(target)
     trusted_clients: List[str] = [
-        ".".join(ip),
-        *scp.get("authorization", "trusted_clients"),
+        f"    {'.'.join(ip)}\n",
+        *scp.getval("authorization", "trusted_clients"),
     ]
 
-    scp.set("server", "port", str(port))
-    scp.set("server", "klippy_uds_address", str(uds))
-    scp.set(
-        "authorization",
-        "trusted_clients",
-        "\n".join(trusted_clients),
-        True,
-    )
+    scp.set_option("server", "port", str(port))
+    scp.set_option("server", "klippy_uds_address", str(uds))
+    scp.set_option("authorization", "trusted_clients", trusted_clients)
 
     # add existing client and client configs in the update section
     if clients is not None and len(clients) > 0:
@@ -105,7 +100,7 @@ def create_example_moonraker_conf(
             ]
             scp.add_section(section=c_section)
             for option in c_options:
-                scp.set(c_section, option[0], option[1])
+                scp.set_option(c_section, option[0], option[1])
 
             # client config part
             c_config = c.client_config
@@ -120,9 +115,9 @@ def create_example_moonraker_conf(
                 ]
                 scp.add_section(section=c_config_section)
                 for option in c_config_options:
-                    scp.set(c_config_section, option[0], option[1])
+                    scp.set_option(c_config_section, option[0], option[1])
 
-    scp.write(target)
+    scp.write_file(target)
     Logger.print_ok(f"Example moonraker.conf created in '{instance.base.cfg_dir}'")
 
 
