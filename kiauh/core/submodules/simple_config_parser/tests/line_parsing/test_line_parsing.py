@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from src.simple_config_parser.constants import COLLECTOR_IDENT, HEADER_IDENT
+from src.simple_config_parser.constants import HEADER_IDENT
 from src.simple_config_parser.simple_config_parser import SimpleConfigParser
 from tests.utils import load_testdata_from_file
 
@@ -53,7 +53,8 @@ def test_header_parsing(parser):
 
 def test_collector_parsing(parser):
     section = "section_2"
-    coll_name = f"{COLLECTOR_IDENT}2_{section}"
+    section_content = list(parser.config[section].keys())
+    coll_name = [name for name in section_content if name.startswith("#_")][0]
     collector = parser.config[section][coll_name]
     assert collector is not None
     assert isinstance(collector, list)

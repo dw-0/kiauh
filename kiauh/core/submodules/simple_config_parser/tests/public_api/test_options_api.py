@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from src.simple_config_parser.constants import COLLECTOR_IDENT
 from src.simple_config_parser.simple_config_parser import (
     NoOptionError,
     NoSectionError,
@@ -45,8 +44,7 @@ def test_get_options(parser):
         ), f"Expected options: {options} in section: {section}, got: {parser.get_options(section)}"
         assert "_raw" not in parser.get_options(section)
         assert all(
-            not option.startswith(COLLECTOR_IDENT)
-            for option in parser.get_options(section)
+            not option.startswith("#_") for option in parser.get_options(section)
         )
 
 
@@ -172,7 +170,9 @@ def test_set_existing_option(parser):
 
 def test_set_new_option(parser):
     parser.set_option("new_section", "very_new_option", "very_new_value")
-    assert parser.has_section("new_section") is True
+    assert (
+        parser.has_section("new_section") is True
+    ), f"Expected 'new_section' in {parser.get_sections()}"
     assert parser.getval("new_section", "very_new_option") == "very_new_value"
 
     parser.set_option("section_2", "array_option", ["value_1", "value_2", "value_3"])
