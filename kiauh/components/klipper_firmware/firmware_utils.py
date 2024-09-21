@@ -30,9 +30,10 @@ def find_firmware_file() -> bool:
     f1 = "klipper.elf.hex"
     f2 = "klipper.elf"
     f3 = "klipper.bin"
+    f4 = "klipper.uf2"
     fw_file_exists: bool = (
         target.joinpath(f1).exists() and target.joinpath(f2).exists()
-    ) or target.joinpath(f3).exists()
+    ) or target.joinpath(f3).exists() or target.joinpath(f4).exists()
 
     return target_exists and fw_file_exists
 
