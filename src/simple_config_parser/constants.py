@@ -60,4 +60,3 @@ BOOLEAN_STATES = {
 }
 
 HEADER_IDENT = "#_header"
-COLLECTOR_IDENT = "#_coll_"

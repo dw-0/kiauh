@@ -49,12 +49,23 @@ def test_has_section(parser):
 def test_add_section(parser):
     pre_add_count = len(parser.get_sections())
     parser.add_section("new_section")
+    parser.add_section("new_section2")
     assert parser.has_section("new_section") is True
-    assert len(parser.get_sections()) == pre_add_count + 1
+    assert parser.has_section("new_section2") is True
+    assert len(parser.get_sections()) == pre_add_count + 2
 
     new_section = parser.config["new_section"]
     assert isinstance(new_section, dict)
     assert new_section["_raw"] == "[new_section]\n"
+
+    # this should be the collector, added by the parser before
+    # then second section was added
+    assert list(new_section.keys())[-1].startswith("#_")
+    assert "\n" in new_section[list(new_section.keys())[-1]]
+
+    new_section2 = parser.config["new_section2"]
+    assert isinstance(new_section2, dict)
+    assert new_section2["_raw"] == "[new_section2]\n"
 
 
 def test_add_section_duplicate(parser):

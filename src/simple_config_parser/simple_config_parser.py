@@ -8,12 +8,13 @@
 
 from __future__ import annotations
 
+import secrets
+import string
 from pathlib import Path
 from typing import Callable, Dict, List
 
 from ..simple_config_parser.constants import (
     BOOLEAN_STATES,
-    COLLECTOR_IDENT,
     EMPTY_LINE_RE,
     HEADER_IDENT,
     LINE_COMMENT_RE,
@@ -56,7 +57,6 @@ class SimpleConfigParser:
     def __init__(self) -> None:
         self.header: List[str] = []
         self.config: Dict = {}
-        self._count: int = 0
         self.current_section: str | None = None
         self.current_opt_block: str | None = None
         self.current_collector: str | None = None
@@ -111,9 +111,8 @@ class SimpleConfigParser:
         elif self._match_empty_line(line) or self._match_line_comment(line):
             self.current_opt_block = None
 
-            # if current_section is None, we are somewhere at the
-            # beginning of the file, so we consider the part up to
-            # the first section as the file header
+            # if current_section is None, we are at the beginning of the file,
+            # so we consider the part up to the first section as the file header
             if not self.current_section:
                 self.config.setdefault(HEADER_IDENT, []).append(line)
             else:
@@ -122,12 +121,9 @@ class SimpleConfigParser:
                 # set the current collector to a new value, so that continuous
                 # empty lines or comments are collected into the same collector
                 if not self.current_collector:
-                    self._count += 1
-                    section_name = self.current_section.replace(" ", "_")
-                    self.current_collector = (
-                        f"{COLLECTOR_IDENT}{self._count}_{section_name}"
-                    )
+                    self.current_collector = self._generate_rand_id()
                     section[self.current_collector] = []
+
                 section[self.current_collector].append(line)
 
     def read_file(self, file: Path) -> None:
@@ -162,7 +158,7 @@ class SimpleConfigParser:
         """Write the content of a section to the config file"""
         if key == "_raw":
             file.write(value)
-        elif key.startswith(COLLECTOR_IDENT):
+        elif key.startswith("#_"):
             for line in value:
                 file.write(line)
         elif isinstance(value["value"], list):
@@ -173,10 +169,10 @@ class SimpleConfigParser:
             file.write(value["_raw"])
 
     def get_sections(self) -> List[str]:
-        """Return a list of all section names, but exclude HEADER_IDENT and COLLECTOR_IDENT"""
+        """Return a list of all section names, but exclude any section starting with '#_'"""
         return list(
             filter(
-                lambda section: section not in {HEADER_IDENT, COLLECTOR_IDENT},
+                lambda section: not section.startswith("#_"),
                 self.config.keys(),
             )
         )
@@ -190,7 +186,19 @@ class SimpleConfigParser:
         if section in self.get_sections():
             raise DuplicateSectionError(section)
 
+        if len(self.get_sections()) >= 1:
+            self._check_set_section_spacing()
+
         self.config[section] = {"_raw": f"[{section}]\n"}
+
+    def _check_set_section_spacing(self):
+        prev_section = self.get_sections()[-1]
+        prev_section_content = self.config[prev_section]
+        last_item = list(prev_section_content.keys())[-1]
+        if last_item.startswith("#_") and last_item.keys()[-1] != "\n":
+            prev_section_content[last_item].append("\n")
+        else:
+            prev_section_content[self._generate_rand_id()] = ["\n"]
 
     def remove_section(self, section: str) -> None:
         """Remove a section from the config"""
@@ -200,8 +208,7 @@ class SimpleConfigParser:
         """Return a list of all option names for a given section"""
         return list(
             filter(
-                lambda option: option != "_raw"
-                and not option.startswith(COLLECTOR_IDENT),
+                lambda option: option != "_raw" and not option.startswith("#_"),
                 self.config[section].keys(),
             )
         )
@@ -297,3 +304,9 @@ class SimpleConfigParser:
             raise ValueError(
                 f"Cannot convert {self.getval(section, option)} to {conv.__name__}"
             ) from e
+
+    def _generate_rand_id(self) -> str:
+        """Generate a random id with 6 characters"""
+        chars = string.ascii_letters + string.digits
+        rand_string = "".join(secrets.choice(chars) for _ in range(12))
+        return f"#_{rand_string}"
