@@ -174,8 +174,8 @@ def create_example_printer_cfg(
         return
 
     scp = SimpleConfigParser()
-    scp.read(target)
-    scp.set("virtual_sdcard", "path", str(instance.base.gcodes_dir))
+    scp.read_file(target)
+    scp.set_option("virtual_sdcard", "path", str(instance.base.gcodes_dir))
 
     # include existing client configs in the example config
     if clients is not None and len(clients) > 0:
@@ -185,7 +185,7 @@ def create_example_printer_cfg(
             scp.add_section(section=section)
             create_client_config_symlink(client_config, [instance])
 
-    scp.write(target)
+    scp.write_file(target)
 
     Logger.print_ok(f"Example printer.cfg created in '{instance.base.cfg_dir}'")
 

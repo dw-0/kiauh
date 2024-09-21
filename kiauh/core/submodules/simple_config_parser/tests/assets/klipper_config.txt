@@ -1,0 +1,1337 @@
+[mcu]
+serial:
+baud: 250000
+canbus_uuid:
+canbus_interface:
+restart_method:
+[printer]
+kinematics:
+max_velocity:
+max_accel:
+minimum_cruise_ratio: 0.5
+square_corner_velocity: 5.0
+max_accel_to_decel:
+[stepper_x]
+step_pin:
+dir_pin:
+enable_pin:
+rotation_distance:
+microsteps:
+full_steps_per_rotation: 200
+gear_ratio:
+step_pulse_duration:
+endstop_pin:
+position_min: 0
+position_endstop:
+position_max:
+homing_speed: 5.0
+homing_retract_dist: 5.0
+homing_retract_speed:
+second_homing_speed:
+homing_positive_dir:
+[printer]
+kinematics: cartesian
+max_z_velocity:
+max_z_accel:
+[stepper_x]
+[stepper_y]
+[stepper_z]
+[printer]
+kinematics: delta
+max_z_velocity:
+max_z_accel:
+minimum_z_position: 0
+delta_radius:
+print_radius:
+[stepper_a]
+position_endstop:
+arm_length:
+angle:
+[stepper_b]
+[stepper_c]
+[delta_calibrate]
+radius:
+speed: 50
+horizontal_move_z: 5
+[printer]
+kinematics: deltesian
+max_z_velocity:
+max_z_accel:
+minimum_z_position: 0
+min_angle: 5
+print_width:
+slow_ratio: 3
+[stepper_left]
+position_endstop:
+arm_length:
+arm_x_length:
+[stepper_right]
+[stepper_y]
+[printer]
+kinematics: corexy
+max_z_velocity:
+max_z_accel:
+[stepper_x]
+[stepper_y]
+[stepper_z]
+[printer]
+kinematics: corexz
+max_z_velocity:
+max_z_accel:
+[stepper_x]
+[stepper_y]
+[stepper_z]
+[printer]
+kinematics: hybrid_corexy
+max_z_velocity:
+max_z_accel:
+[stepper_x]
+[stepper_y]
+[stepper_z]
+[printer]
+kinematics: hybrid_corexz
+max_z_velocity:
+max_z_accel:
+[stepper_x]
+[stepper_y]
+[stepper_z]
+[printer]
+kinematics: polar
+max_z_velocity:
+max_z_accel:
+[stepper_bed]
+gear_ratio:
+[stepper_arm]
+[stepper_z]
+[printer]
+kinematics: rotary_delta
+max_z_velocity:
+minimum_z_position: 0
+shoulder_radius:
+shoulder_height:
+[stepper_a]
+gear_ratio:
+position_endstop:
+upper_arm_length:
+lower_arm_length:
+angle:
+[stepper_b]
+[stepper_c]
+[delta_calibrate]
+radius:
+speed: 50
+horizontal_move_z: 5
+[printer]
+kinematics: winch
+[stepper_a]
+rotation_distance:
+anchor_x:
+anchor_y:
+anchor_z:
+[printer]
+kinematics: none
+max_velocity: 1
+max_accel: 1
+[extruder]
+step_pin:
+dir_pin:
+enable_pin:
+microsteps:
+rotation_distance:
+full_steps_per_rotation:
+gear_ratio:
+nozzle_diameter:
+filament_diameter:
+max_extrude_cross_section:
+instantaneous_corner_velocity: 1.000
+max_extrude_only_distance: 50.0
+max_extrude_only_velocity:
+max_extrude_only_accel:
+pressure_advance: 0.0
+pressure_advance_smooth_time: 0.040
+heater_pin:
+max_power: 1.0
+sensor_type:
+sensor_pin:
+pullup_resistor: 4700
+smooth_time: 1.0
+control:
+pid_Kp:
+pid_Ki:
+pid_Kd:
+max_delta: 2.0
+pwm_cycle_time: 0.100
+min_extrude_temp: 170
+min_temp:
+max_temp:
+[heater_bed]
+heater_pin:
+sensor_type:
+sensor_pin:
+control:
+min_temp:
+max_temp:
+[bed_mesh]
+speed: 50
+horizontal_move_z: 5
+mesh_radius:
+mesh_origin:
+mesh_min:
+mesh_max:
+probe_count: 3, 3
+round_probe_count: 5
+fade_start: 1.0
+fade_end: 0.0
+fade_target:
+split_delta_z: .025
+move_check_distance: 5.0
+mesh_pps: 2, 2
+algorithm: lagrange
+bicubic_tension: .2
+zero_reference_position:
+faulty_region_1_min:
+faulty_region_1_max:
+adaptive_margin:
+scan_overshoot:
+[bed_tilt]
+x_adjust: 0
+y_adjust: 0
+z_adjust: 0
+points:
+speed: 50
+horizontal_move_z: 5
+[bed_screws]
+screw1:
+screw1_name:
+screw1_fine_adjust:
+screw2:
+screw2_name:
+screw2_fine_adjust:
+horizontal_move_z: 5
+probe_height: 0
+speed: 50
+probe_speed: 5
+[screws_tilt_adjust]
+screw1:
+screw1_name:
+screw2:
+screw2_name:
+speed: 50
+horizontal_move_z: 5
+screw_thread: CW-M3
+[z_tilt]
+z_positions:
+points:
+speed: 50
+horizontal_move_z: 5
+retries: 0
+retry_tolerance: 0
+[quad_gantry_level]
+gantry_corners:
+points:
+speed: 50
+horizontal_move_z: 5
+max_adjust: 4
+retries: 0
+retry_tolerance: 0
+[skew_correction]
+[z_thermal_adjust]
+temp_coeff:
+smooth_time:
+z_adjust_off_above:
+max_z_adjustment:
+sensor_type:
+sensor_pin:
+min_temp:
+max_temp:
+gcode_id:
+[safe_z_home]
+home_xy_position:
+speed: 50.0
+z_hop:
+z_hop_speed: 15.0
+move_to_previous: False
+[homing_override]
+gcode:
+axes: xyz
+set_position_x:
+set_position_y:
+set_position_z:
+[endstop_phase stepper_z]
+endstop_accuracy:
+trigger_phase:
+endstop_align_zero: False
+[gcode_macro my_cmd]
+gcode:
+variable_<name>:
+rename_existing:
+description: G-Code macro
+[delayed_gcode my_delayed_gcode]
+gcode:
+initial_duration: 0.0
+[save_variables]
+filename:
+[idle_timeout]
+gcode:
+timeout: 600
+[virtual_sdcard]
+path:
+on_error_gcode:
+[sdcard_loop]
+[force_move]
+enable_force_move: False
+[pause_resume]
+recover_velocity: 50.
+[firmware_retraction]
+retract_length: 0
+retract_speed: 20
+unretract_extra_length: 0
+unretract_speed: 10
+[gcode_arcs]
+resolution: 1.0
+[respond]
+default_type: echo
+default_prefix: echo:
+[exclude_object]
+[input_shaper]
+shaper_freq_x: 0
+shaper_freq_y: 0
+shaper_type: mzv
+shaper_type_x:
+shaper_type_y:
+damping_ratio_x: 0.1
+damping_ratio_y: 0.1
+[adxl345]
+cs_pin:
+spi_speed: 5000000
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+axes_map: x, y, z
+rate: 3200
+[lis2dw]
+cs_pin:
+spi_speed: 5000000
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+axes_map: x, y, z
+[mpu9250 my_accelerometer]
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed: 400000
+axes_map: x, y, z
+[resonance_tester]
+probe_points:
+accel_chip:
+accel_chip_x:
+accel_chip_y:
+max_smoothing:
+min_freq: 5
+max_freq: 133.33
+accel_per_hz: 75
+hz_per_sec: 1
+[board_pins my_aliases]
+mcu: mcu
+aliases:
+aliases_<name>:
+[duplicate_pin_override]
+pins:
+[probe]
+pin:
+deactivate_on_each_sample: True
+x_offset: 0.0
+y_offset: 0.0
+z_offset:
+speed: 5.0
+samples: 1
+sampleretract_dist: 2.0
+lift_speed:
+samples_result: average
+samples_tolerance: 0.100
+samples_toleranceretries: 0
+activate_gcode:
+deactivate_gcode:
+[bltouch]
+sensor_pin:
+control_pin:
+pin_move_time: 0.680
+stow_on_each_sample: True
+probe_with_touch_mode: False
+pin_up_reports_not_triggered: True
+pin_up_touch_modereports_triggered: True
+set_output_mode:
+x_offset:
+y_offset:
+z_offset:
+speed:
+lift_speed:
+samples:
+sampleretract_dist:
+samples_result:
+samples_tolerance:
+samples_toleranceretries:
+[smart_effector]
+pin:
+control_pin:
+probe_accel:
+recovery_time: 0.4
+x_offset:
+y_offset:
+z_offset:
+speed:
+samples:
+sampleretract_dist:
+samples_result:
+samples_tolerance:
+samples_toleranceretries:
+activate_gcode:
+deactivate_gcode:
+deactivate_on_each_sample:
+[probe_eddy_current my_eddy_probe]
+sensor_type: ldc1612
+intb_pin:
+z_offset:
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+x_offset:
+y_offset:
+speed:
+lift_speed:
+samples:
+sampleretract_dist:
+samples_result:
+samples_tolerance:
+samples_toleranceretries:
+[axis_twist_compensation]
+speed: 50
+horizontal_move_z: 5
+calibrate_start_x: 20
+calibrate_end_x: 200
+calibrate_y: 112.5
+[stepper_z1]
+step_pin:
+dir_pin:
+enable_pin:
+microsteps:
+rotation_distance:
+endstop_pin:
+[extruder1]
+step_pin:
+dir_pin:
+shared_heater:
+[dual_carriage]
+axis:
+safe_distance:
+step_pin:
+dir_pin:
+enable_pin:
+microsteps:
+rotation_distance:
+endstop_pin:
+position_endstop:
+position_min:
+position_max:
+[extruder_stepper my_extra_stepper]
+extruder:
+step_pin:
+dir_pin:
+enable_pin:
+microsteps:
+rotation_distance:
+[manual_stepper my_stepper]
+step_pin:
+dir_pin:
+enable_pin:
+microsteps:
+rotation_distance:
+velocity:
+accel:
+endstop_pin:
+[verify_heater heater_config_name]
+max_error: 120
+check_gain_time:
+hysteresis: 5
+heating_gain: 2
+[homing_heaters]
+steppers:
+heaters:
+[thermistor my_thermistor]
+temperature1:
+resistance1:
+temperature2:
+resistance2:
+temperature3:
+resistance3:
+beta:
+[adc_temperature my_sensor]
+temperature1:
+voltage1:
+temperature2:
+voltage2:
+temperature1:
+resistance1:
+temperature2:
+resistance2:
+[heater_generic my_generic_heater]
+gcode_id:
+heater_pin:
+max_power:
+sensor_type:
+sensor_pin:
+smooth_time:
+control:
+pid_Kp:
+pid_Ki:
+pid_Kd:
+pwm_cycle_time:
+min_temp:
+max_temp:
+[temperature_sensor my_sensor]
+sensor_type:
+sensor_pin:
+min_temp:
+max_temp:
+gcode_id:
+[temperature_probe my_probe]
+sensor_type:
+sensor_pin:
+min_temp:
+max_temp:
+smooth_time:
+gcode_id:
+speed:
+horizontal_move_z:
+resting_z:
+calibration_position:
+calibration_bed_temp:
+calibration_extruder_temp:
+extruder_heating_z: 50.
+max_validation_temp: 60.
+sensor_type:
+sensor_pin:
+pullup_resistor: 4700
+inlineresistor: 0
+sensor_type:
+sensor_pin:
+adc_voltage: 5.0
+voltage_offset: 0
+sensor_type: PT1000
+sensor_pin:
+pullup_resistor: 4700
+sensor_type:
+sensor_pin:
+spi_speed: 4000000
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+tc_type: K
+tc_use_50Hz_filter: False
+tc_averaging_count: 1
+rtd_nominal_r: 100
+rtd_referencer: 430
+rtd_num_of_wires: 2
+rtd_use_50Hz_filter: False
+sensor_type: BME280
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+sensor_type: AHT10
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_speed:
+aht10_report_time:
+sensor_type:
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+htu21d_hold_master:
+htu21d_resolution:
+htu21d_report_time:
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+lm75_report_time:
+sensor_type: temperature_mcu
+sensor_mcu: mcu
+sensor_temperature1:
+sensor_adc1:
+sensor_temperature2:
+sensor_adc2:
+sensor_type: temperature_host
+sensor_path:
+sensor_type: DS18B20
+serial_no:
+ds18_report_time:
+sensor_mcu:
+sensor_type: temperature_combined
+sensor_list:
+combination_method:
+maximum_deviation:
+[fan]
+pin:
+max_power: 1.0
+shutdown_speed: 0
+cycle_time: 0.010
+hardware_pwm: False
+kick_start_time: 0.100
+off_below: 0.0
+tachometer_pin:
+tachometer_ppr: 2
+tachometer_poll_interval: 0.0015
+enable_pin:
+[heater_fan heatbreak_cooling_fan]
+pin:
+max_power:
+shutdown_speed:
+cycle_time:
+hardware_pwm:
+kick_start_time:
+off_below:
+tachometer_pin:
+tachometer_ppr:
+tachometer_poll_interval:
+enable_pin:
+heater: extruder
+heater_temp: 50.0
+fan_speed: 1.0
+[controller_fan my_controller_fan]
+pin:
+max_power:
+shutdown_speed:
+cycle_time:
+hardware_pwm:
+kick_start_time:
+off_below:
+tachometer_pin:
+tachometer_ppr:
+tachometer_poll_interval:
+enable_pin:
+fan_speed: 1.0
+idle_timeout:
+idle_speed:
+heater:
+stepper:
+[temperature_fan my_temp_fan]
+pin:
+max_power:
+shutdown_speed:
+cycle_time:
+hardware_pwm:
+kick_start_time:
+off_below:
+tachometer_pin:
+tachometer_ppr:
+tachometer_poll_interval:
+enable_pin:
+sensor_type:
+sensor_pin:
+control:
+max_delta:
+min_temp:
+max_temp:
+pid_Kp:
+pid_Ki:
+pid_Kd:
+pid_deriv_time: 2.0
+target_temp: 40.0
+max_speed: 1.0
+min_speed: 0.3
+gcode_id:
+[fan_generic extruder_partfan]
+pin:
+max_power:
+shutdown_speed:
+cycle_time:
+hardware_pwm:
+kick_start_time:
+off_below:
+tachometer_pin:
+tachometer_ppr:
+tachometer_poll_interval:
+enable_pin:
+[led my_led]
+red_pin:
+green_pin:
+blue_pin:
+white_pin:
+cycle_time: 0.010
+hardware_pwm: False
+initial_RED: 0.0
+initial_GREEN: 0.0
+initial_BLUE: 0.0
+initial_WHITE: 0.0
+[neopixel my_neopixel]
+pin:
+chain_count:
+color_order: GRB
+initial_RED: 0.0
+initial_GREEN: 0.0
+initial_BLUE: 0.0
+initial_WHITE: 0.0
+[dotstar my_dotstar]
+data_pin:
+clock_pin:
+chain_count:
+initial_RED: 0.0
+initial_GREEN: 0.0
+initial_BLUE: 0.0
+[pca9533 my_pca9533]
+i2c_address: 98
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+initial_RED: 0.0
+initial_GREEN: 0.0
+initial_BLUE: 0.0
+initial_WHITE: 0.0
+[pca9632 my_pca9632]
+i2c_address: 98
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+scl_pin:
+sda_pin:
+color_order: RGBW
+initial_RED: 0.0
+initial_GREEN: 0.0
+initial_BLUE: 0.0
+initial_WHITE: 0.0
+[servo my_servo]
+pin:
+maximum_servo_angle: 180
+minimum_pulse_width: 0.001
+maximum_pulse_width: 0.002
+initial_angle:
+initial_pulse_width:
+[gcode_button my_gcode_button]
+pin:
+analog_range:
+analog_pullup_resistor:
+press_gcode:
+release_gcode:
+[output_pin my_pin]
+pin:
+pwm: False
+value:
+shutdown_value:
+cycle_time: 0.100
+hardware_pwm: False
+scale:
+maximum_mcu_duration:
+static_value:
+[pwm_tool my_tool]
+pin:
+maximum_mcu_duration:
+value:
+shutdown_value:
+cycle_time: 0.100
+hardware_pwm: False
+scale:
+[pwm_cycle_time my_pin]
+pin:
+value:
+shutdown_value:
+cycle_time: 0.100
+scale:
+[static_digital_output my_output_pins]
+pins:
+[multi_pin my_multi_pin]
+pins:
+[tmc2130 stepper_x]
+cs_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+chain_position:
+chain_length:
+interpolate: True
+run_current:
+hold_current:
+senseresistor: 0.110
+stealthchop_threshold: 0
+coolstep_threshold:
+high_velocity_threshold:
+driver_MSLUT0: 2863314260
+driver_MSLUT1: 1251300522
+driver_MSLUT2: 608774441
+driver_MSLUT3: 269500962
+driver_MSLUT4: 4227858431
+driver_MSLUT5: 3048961917
+driver_MSLUT6: 1227445590
+driver_MSLUT7: 4211234
+driver_W0: 2
+driver_W1: 1
+driver_W2: 1
+driver_W3: 1
+driver_X1: 128
+driver_X2: 255
+driver_X3: 255
+driver_START_SIN: 0
+driver_START_SIN90: 247
+driver_IHOLDDELAY: 8
+driver_TPOWERDOWN: 0
+driver_TBL: 1
+driver_TOFF: 4
+driver_HEND: 7
+driver_HSTRT: 0
+driver_VHIGHFS: 0
+driver_VHIGHCHM: 0
+driver_PWM_AUTOSCALE: True
+driver_PWM_FREQ: 1
+driver_PWM_GRAD: 4
+driver_PWM_AMPL: 128
+driver_SGT: 0
+driver_SEMIN: 0
+driver_SEUP: 0
+driver_SEMAX: 0
+driver_SEDN: 0
+driver_SEIMIN: 0
+driver_SFILT: 0
+diag0_pin:
+diag1_pin:
+[tmc2208 stepper_x]
+uart_pin:
+tx_pin:
+select_pins:
+interpolate: True
+run_current:
+hold_current:
+sense_resistor: 0.110
+stealthchop_threshold: 0
+driver_MULTISTEP_FILT: True
+driver_IHOLDDELAY: 8
+driver_TPOWERDOWN: 20
+driver_TBL: 2
+driver_TOFF: 3
+driver_HEND: 0
+driver_HSTRT: 5
+driver_PWM_AUTOGRAD: True
+driver_PWM_AUTOSCALE: True
+driver_PWM_LIM: 12
+driver_PWM_REG: 8
+driver_PWM_FREQ: 1
+driver_PWM_GRAD: 14
+driver_PWM_OFS: 36
+[tmc2209 stepper_x]
+uart_pin:
+tx_pin:
+select_pins:
+interpolate: True
+run_current:
+hold_current:
+sense_resistor: 0.110
+stealthchop_threshold: 0
+coolstep_threshold:
+uart_address:
+driver_MULTISTEP_FILT: True
+driver_IHOLDDELAY: 8
+driver_TPOWERDOWN: 20
+driver_TBL: 2
+driver_TOFF: 3
+driver_HEND: 0
+driver_HSTRT: 5
+driver_PWM_AUTOGRAD: True
+driver_PWM_AUTOSCALE: True
+driver_PWM_LIM: 12
+driver_PWM_REG: 8
+driver_PWM_FREQ: 1
+driver_PWM_GRAD: 14
+driver_PWM_OFS: 36
+driver_SGTHRS: 0
+driver_SEMIN: 0
+driver_SEUP: 0
+driver_SEMAX: 0
+driver_SEDN: 0
+driver_SEIMIN: 0
+diag_pin:
+[tmc2660 stepper_x]
+cs_pin:
+spi_speed: 4000000
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+interpolate: True
+run_current:
+sense_resistor:
+idle_current_percent: 100
+driver_TBL: 2
+driver_RNDTF: 0
+driver_HDEC: 0
+driver_CHM: 0
+driver_HEND: 3
+driver_HSTRT: 3
+driver_TOFF: 4
+driver_SEIMIN: 0
+driver_SEDN: 0
+driver_SEMAX: 0
+driver_SEUP: 0
+driver_SEMIN: 0
+driver_SFILT: 0
+driver_SGT: 0
+driver_SLPH: 0
+driver_SLPL: 0
+driver_DISS2G: 0
+driver_TS2G: 3
+[tmc2240 stepper_x]
+cs_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+uart_pin:
+chain_position:
+chain_length:
+interpolate: True
+run_current:
+hold_current:
+rref: 12000
+stealthchop_threshold: 0
+coolstep_threshold:
+high_velocity_threshold:
+driver_MSLUT0: 2863314260
+driver_MSLUT1: 1251300522
+driver_MSLUT2: 608774441
+driver_MSLUT3: 269500962
+driver_MSLUT4: 4227858431
+driver_MSLUT5: 3048961917
+driver_MSLUT6: 1227445590
+driver_MSLUT7: 4211234
+driver_W0: 2
+driver_W1: 1
+driver_W2: 1
+driver_W3: 1
+driver_X1: 128
+driver_X2: 255
+driver_X3: 255
+driver_START_SIN: 0
+driver_START_SIN90: 247
+driver_OFFSET_SIN90: 0
+driver_MULTISTEP_FILT: True
+driver_IHOLDDELAY: 6
+driver_IRUNDELAY: 4
+driver_TPOWERDOWN: 10
+driver_TBL: 2
+driver_TOFF: 3
+driver_HEND: 2
+driver_HSTRT: 5
+driver_FD3: 0
+driver_TPFD: 4
+driver_CHM: 0
+driver_VHIGHFS: 0
+driver_VHIGHCHM: 0
+driver_DISS2G: 0
+driver_DISS2VS: 0
+driver_PWM_AUTOSCALE: True
+driver_PWM_AUTOGRAD: True
+driver_PWM_FREQ: 0
+driver_FREEWHEEL: 0
+driver_PWM_GRAD: 0
+driver_PWM_OFS: 29
+driver_PWM_REG: 4
+driver_PWM_LIM: 12
+driver_SGT: 0
+driver_SEMIN: 0
+driver_SEUP: 0
+driver_SEMAX: 0
+driver_SEDN: 0
+driver_SEIMIN: 0
+driver_SFILT: 0
+driver_SG4_ANGLE_OFFSET: 1
+diag0_pin:
+diag1_pin:
+[tmc5160 stepper_x]
+cs_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+chain_position:
+chain_length:
+interpolate: True
+run_current:
+hold_current:
+sense_resistor: 0.075
+stealthchop_threshold: 0
+coolstep_threshold:
+high_velocity_threshold:
+driver_MSLUT0: 2863314260
+driver_MSLUT1: 1251300522
+driver_MSLUT2: 608774441
+driver_MSLUT3: 269500962
+driver_MSLUT4: 4227858431
+driver_MSLUT5: 3048961917
+driver_MSLUT6: 1227445590
+driver_MSLUT7: 4211234
+driver_W0: 2
+driver_W1: 1
+driver_W2: 1
+driver_W3: 1
+driver_X1: 128
+driver_X2: 255
+driver_X3: 255
+driver_START_SIN: 0
+driver_START_SIN90: 247
+driver_MULTISTEP_FILT: True
+driver_IHOLDDELAY: 6
+driver_TPOWERDOWN: 10
+driver_TBL: 2
+driver_TOFF: 3
+driver_HEND: 2
+driver_HSTRT: 5
+driver_FD3: 0
+driver_TPFD: 4
+driver_CHM: 0
+driver_VHIGHFS: 0
+driver_VHIGHCHM: 0
+driver_DISS2G: 0
+driver_DISS2VS: 0
+driver_PWM_AUTOSCALE: True
+driver_PWM_AUTOGRAD: True
+driver_PWM_FREQ: 0
+driver_FREEWHEEL: 0
+driver_PWM_GRAD: 0
+driver_PWM_OFS: 30
+driver_PWM_REG: 4
+driver_PWM_LIM: 12
+driver_SGT: 0
+driver_SEMIN: 0
+driver_SEUP: 0
+driver_SEMAX: 0
+driver_SEDN: 0
+driver_SEIMIN: 0
+driver_SFILT: 0
+driver_DRVSTRENGTH: 0
+driver_BBMCLKS: 4
+driver_BBMTIME: 0
+driver_FILT_ISENSE: 0
+diag0_pin:
+diag1_pin:
+[ad5206 my_digipot]
+enable_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+channel_1:
+channel_2:
+channel_3:
+channel_4:
+channel_5:
+channel_6:
+scale:
+[mcp4451 my_digipot]
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+wiper_0:
+wiper_1:
+wiper_2:
+wiper_3:
+scale:
+[mcp4728 my_dac]
+i2c_address: 96
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+channel_a:
+channel_b:
+channel_c:
+channel_d:
+scale:
+[mcp4018 my_digipot]
+scl_pin:
+sda_pin:
+wiper:
+scale:
+[display]
+lcd_type:
+display_group:
+menu_timeout:
+menu_root:
+menu_reverse_navigation:
+encoder_pins:
+encoder_steps_per_detent:
+click_pin:
+back_pin:
+up_pin:
+down_pin:
+kill_pin:
+analog_pullup_resistor: 4700
+analog_range_click_pin:
+analog_range_back_pin:
+analog_range_up_pin:
+analog_range_down_pin:
+analog_range_kill_pin:
+[display]
+lcd_type: hd44780
+rs_pin:
+e_pin:
+d4_pin:
+d5_pin:
+d6_pin:
+d7_pin:
+hd44780_protocol_init: True
+line_length:
+[display]
+lcd_type: hd44780_spi
+latch_pin:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+hd44780_protocol_init: True
+line_length:
+[display]
+lcd_type: st7920
+cs_pin:
+sclk_pin:
+sid_pin:
+[display]
+lcd_type: emulated_st7920
+en_pin:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+[display]
+lcd_type: uc1701
+cs_pin:
+a0_pin:
+rst_pin:
+contrast:
+[display]
+lcd_type:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+cs_pin:
+dc_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+reset_pin:
+contrast:
+vcomh: 0
+invert: False
+x_offset: 0
+[display_data my_group_name my_data_name]
+position:
+text:
+[display_template my_template_name]
+param_<name>:
+text:
+[display_glyph my_display_glyph]
+data:
+hd44780_data:
+hd44780_slot:
+[menu __some_list __some_name]
+type: disabled
+[menu some_name]
+type:
+name:
+enable:
+index:
+[menu some_list]
+type: list
+name:
+enable:
+[menu some_list some_command]
+type: command
+name:
+enable:
+gcode:
+[menu some_list some_input]
+type: input
+name:
+enable:
+input:
+input_min:
+input_max:
+input_step:
+realtime:
+gcode:
+[filament_switch_sensor my_sensor]
+pause_on_runout: True
+runout_gcode:
+insert_gcode:
+event_delay: 3.0
+pause_delay: 0.5
+switch_pin:
+[filament_motion_sensor my_sensor]
+detection_length: 7.0
+extruder:
+switch_pin:
+pause_on_runout:
+runout_gcode:
+insert_gcode:
+event_delay:
+pause_delay:
+[tsl1401cl_filament_width_sensor]
+pin:
+default_nominal_filament_diameter: 1.75
+max_difference: 0.2
+measurement_delay: 100
+[hall_filament_width_sensor]
+adc1:
+adc2:
+cal_dia1: 1.50
+cal_dia2: 2.00
+raw_dia1: 9500
+raw_dia2: 10500
+default_nominal_filament_diameter: 1.75
+max_difference: 0.200
+measurement_delay: 70
+enable: False
+measurement_interval: 10
+logging: False
+min_diameter: 1.0
+max_diameter:
+use_current_dia_while_delay: False
+pause_on_runout:
+runout_gcode:
+insert_gcode:
+event_delay:
+pause_delay:
+[load_cell]
+sensor_type:
+[load_cell]
+sensor_type: hx711
+sclk_pin:
+dout_pin:
+gain: A-128
+sample_rate: 80
+[load_cell]
+sensor_type: hx717
+sclk_pin:
+dout_pin:
+gain: A-128
+sample_rate: 320
+[load_cell]
+sensor_type: ads1220
+cs_pin:
+spi_speed: 512000
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+data_ready_pin:
+gain: 128
+sample_rate: 660
+[sx1509 my_sx1509]
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
+[samd_sercom my_sercom]
+sercom:
+tx_pin:
+rx_pin:
+clk_pin:
+[adc_scaled my_name]
+vref_pin:
+vssa_pin:
+smooth_time: 2.0
+[replicape]
+revision:
+enable_pin: !gpio0_20
+host_mcu:
+standstill_power_down: False
+stepper_x_microstep_mode:
+stepper_y_microstep_mode:
+stepper_z_microstep_mode:
+stepper_e_microstep_mode:
+stepper_h_microstep_mode:
+stepper_x_current:
+stepper_y_current:
+stepper_z_current:
+stepper_e_current:
+stepper_h_current:
+stepper_x_chopper_off_time_high:
+stepper_y_chopper_off_time_high:
+stepper_z_chopper_off_time_high:
+stepper_e_chopper_off_time_high:
+stepper_h_chopper_off_time_high:
+stepper_x_chopper_hysteresis_high:
+stepper_y_chopper_hysteresis_high:
+stepper_z_chopper_hysteresis_high:
+stepper_e_chopper_hysteresis_high:
+stepper_h_chopper_hysteresis_high:
+stepper_x_chopper_blank_time_high:
+stepper_y_chopper_blank_time_high:
+stepper_z_chopper_blank_time_high:
+stepper_e_chopper_blank_time_high:
+stepper_h_chopper_blank_time_high:
+[palette2]
+serial:
+baud: 115200
+feedrate_splice: 0.8
+feedrate_normal: 1.0
+auto_load_speed: 2
+auto_cancel_variation: 0.1
+[angle my_angle_sensor]
+sensor_type:
+sample_period: 0.000400
+stepper:
+cs_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+spi_speed:
+spi_bus:
+spi_software_sclk_pin:
+spi_software_mosi_pin:
+spi_software_miso_pin:
+i2c_address:
+i2c_mcu:
+i2c_bus:
+i2c_software_scl_pin:
+i2c_software_sda_pin:
+i2c_speed:
