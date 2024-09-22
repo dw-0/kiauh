@@ -42,7 +42,7 @@ from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
 from core.types import ComponentStatus, StatusMap, StatusText
 from extensions.extensions_menu import ExtensionsMenu
-from utils.common import get_kiauh_version
+from utils.common import get_kiauh_version, trunc_string
 
 
 # noinspection PyUnusedLocal
@@ -100,8 +100,8 @@ class MainMenu(BaseMenu):
         status_data: ComponentStatus = status_fn(*args)
         code: int = status_data.status
         status: StatusText = StatusMap[code]
-        owner: str = status_data.owner
-        repo: str = status_data.repo
+        owner: str = trunc_string(status_data.owner, 23)
+        repo: str = trunc_string(status_data.repo, 23)
         instance_count: int = status_data.instances
 
         count_txt: str = ""
