@@ -14,9 +14,7 @@ from typing import Type
 from components.crowsnest.crowsnest import install_crowsnest
 from components.klipper import klipper_setup
 from components.klipperscreen.klipperscreen import install_klipperscreen
-from components.mobileraker.mobileraker import install_mobileraker
 from components.moonraker import moonraker_setup
-from components.octoeverywhere.octoeverywhere_setup import install_octoeverywhere
 from components.webui_client import client_setup
 from components.webui_client.client_config import client_config_setup
 from components.webui_client.fluidd_data import FluiddData
@@ -47,9 +45,7 @@ class InstallMenu(BaseMenu):
             "5": Option(method=self.install_mainsail_config),
             "6": Option(method=self.install_fluidd_config),
             "7": Option(method=self.install_klipperscreen),
-            "8": Option(method=self.install_mobileraker),
-            "9": Option(method=self.install_crowsnest),
-            "10": Option(method=self.install_octoeverywhere),
+            "8": Option(method=self.install_crowsnest),
         }
 
     def print_menu(self) -> None:
@@ -64,15 +60,14 @@ class InstallMenu(BaseMenu):
             ║ Firmware & API:           │ Touchscreen GUI:          ║
             ║  1) [Klipper]             │  7) [KlipperScreen]       ║
             ║  2) [Moonraker]           │                           ║
-            ║                           │ Android / iOS:            ║
-            ║ Webinterface:             │  8) [Mobileraker]         ║
+            ║                           │ Webcam Streamer:          ║
+            ║ Webinterface:             │  8) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
-            ║  4) [Fluidd]              │ Webcam Streamer:          ║
-            ║                           │  9) [Crowsnest]           ║
-            ║ Client-Config:            │                           ║
-            ║  5) [Mainsail-Config]     │ Remote Access:            ║
-            ║  6) [Fluidd-Config]       │ 10) [OctoEverywhere]      ║
+            ║  4) [Fluidd]              │                           ║
             ║                           │                           ║
+            ║ Client-Config:            │                           ║
+            ║  5) [Mainsail-Config]     │                           ║
+            ║  6) [Fluidd-Config]       │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -99,11 +94,5 @@ class InstallMenu(BaseMenu):
     def install_klipperscreen(self, **kwargs) -> None:
         install_klipperscreen()
 
-    def install_mobileraker(self, **kwargs) -> None:
-        install_mobileraker()
-
     def install_crowsnest(self, **kwargs) -> None:
         install_crowsnest()
-
-    def install_octoeverywhere(self, **kwargs) -> None:
-        install_octoeverywhere()

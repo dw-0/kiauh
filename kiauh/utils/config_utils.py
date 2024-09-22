@@ -12,11 +12,11 @@ import tempfile
 from pathlib import Path
 from typing import List, Tuple
 
-from core.instance_type import InstanceType
 from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
+from utils.instance_type import InstanceType
 
 ConfigOption = Tuple[str, str]
 
@@ -35,7 +35,7 @@ def add_config_section(
             continue
 
         scp = SimpleConfigParser()
-        scp.read(cfg_file)
+        scp.read_file(cfg_file)
         if scp.has_section(section):
             Logger.print_info("Section already exist. Skipped ...")
             continue
@@ -44,9 +44,9 @@ def add_config_section(
 
         if options is not None:
             for option in reversed(options):
-                scp.set(section, option[0], option[1])
+                scp.set_option(section, option[0], option[1])
 
-        scp.write(cfg_file)
+        scp.write_file(cfg_file)
 
 
 def add_config_section_at_top(section: str, instances: List[InstanceType]) -> None:
@@ -55,9 +55,9 @@ def add_config_section_at_top(section: str, instances: List[InstanceType]) -> No
         tmp_cfg = tempfile.NamedTemporaryFile(mode="w", delete=False)
         tmp_cfg_path = Path(tmp_cfg.name)
         scp = SimpleConfigParser()
-        scp.read(tmp_cfg_path)
+        scp.read_file(tmp_cfg_path)
         scp.add_section(section)
-        scp.write(tmp_cfg_path)
+        scp.write_file(tmp_cfg_path)
         tmp_cfg.close()
 
         cfg_file = instance.cfg_file
@@ -80,10 +80,10 @@ def remove_config_section(section: str, instances: List[InstanceType]) -> None:
             continue
 
         scp = SimpleConfigParser()
-        scp.read(cfg_file)
+        scp.read_file(cfg_file)
         if not scp.has_section(section):
             Logger.print_info("Section does not exist. Skipped ...")
             continue
 
         scp.remove_section(section)
-        scp.write(cfg_file)
+        scp.write_file(cfg_file)

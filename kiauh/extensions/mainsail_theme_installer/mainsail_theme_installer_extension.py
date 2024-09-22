@@ -13,7 +13,7 @@ import shutil
 import textwrap
 import urllib.request
 from dataclasses import dataclass
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Type
 
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import (
@@ -21,14 +21,13 @@ from components.klipper.klipper_dialogs import (
     print_instance_overview,
 )
 from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
-from core.instance_manager.base_instance import BaseInstance
-from core.instance_type import InstanceType
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from extensions.base_extension import BaseExtension
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_selection_input
+from utils.instance_type import InstanceType
 from utils.instance_utils import get_instances
 
 
@@ -60,8 +59,8 @@ class MainsailThemeInstallerExtension(BaseExtension):
             return
 
         for printer in printer_list:
-            Logger.print_status(f"Uninstalling theme from {printer.cfg_dir} ...")
-            theme_dir = printer.cfg_dir.joinpath(".theme")
+            Logger.print_status(f"Uninstalling theme from {printer.base.cfg_dir} ...")
+            theme_dir = printer.base.cfg_dir.joinpath(".theme")
             if not theme_dir.exists():
                 Logger.print_info(f"{theme_dir} not found. Skipping ...")
                 continue
@@ -116,6 +115,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             j: str = f" {i}" if i < 10 else f"{i}"
             row: str = f"{j}) [{theme.name}]"
             menu += f"║ {row:<53} ║\n"
+        menu += "╟───────────────────────────────────────────────────────╢\n"
         print(menu, end="")
 
     def load_themes(self) -> List[ThemeData]:
@@ -158,7 +158,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             return
 
         for printer in printer_list:
-            git_clone_wrapper(theme_repo_url, printer.cfg_dir.joinpath(".theme"))
+            git_clone_wrapper(theme_repo_url, printer.base.cfg_dir.joinpath(".theme"))
 
         if len(theme_data.short_note) > 1:
             Logger.print_warn("Info from the creator:", prefix=False, start="\n")
@@ -167,7 +167,7 @@ class MainsailThemeInstallMenu(BaseMenu):
 
 def get_printer_selection(
     instances: List[InstanceType], is_install: bool
-) -> Union[List[BaseInstance], None]:
+) -> List[InstanceType] | None:
     options = [str(i) for i in range(len(instances))]
     options.extend(["a", "b"])
 

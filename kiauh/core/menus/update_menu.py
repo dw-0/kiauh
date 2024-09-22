@@ -20,16 +20,8 @@ from components.klipperscreen.klipperscreen import (
     get_klipperscreen_status,
     update_klipperscreen,
 )
-from components.mobileraker.mobileraker import (
-    get_mobileraker_status,
-    update_mobileraker,
-)
 from components.moonraker.moonraker_setup import update_moonraker
 from components.moonraker.moonraker_utils import get_moonraker_status
-from components.octoeverywhere.octoeverywhere_setup import (
-    get_octoeverywhere_status,
-    update_octoeverywhere,
-)
 from components.webui_client.client_config.client_config_setup import (
     update_client_config,
 )
@@ -76,23 +68,59 @@ class UpdateMenu(BaseMenu):
         self.fluidd_local = self.fluidd_remote = ""
         self.fluidd_config_local = self.fluidd_config_remote = ""
         self.klipperscreen_local = self.klipperscreen_remote = ""
-        self.mobileraker_local = self.mobileraker_remote = ""
         self.crowsnest_local = self.crowsnest_remote = ""
-        self.octoeverywhere_local = self.octoeverywhere_remote = ""
 
         self.mainsail_data = MainsailData()
         self.fluidd_data = FluiddData()
         self.status_data = {
-            "klipper": {"installed": False, "local": None, "remote": None},
-            "moonraker": {"installed": False, "local": None, "remote": None},
-            "mainsail": {"installed": False, "local": None, "remote": None},
-            "mainsail_config": {"installed": False, "local": None, "remote": None},
-            "fluidd": {"installed": False, "local": None, "remote": None},
-            "fluidd_config": {"installed": False, "local": None, "remote": None},
-            "mobileraker": {"installed": False, "local": None, "remote": None},
-            "klipperscreen": {"installed": False, "local": None, "remote": None},
-            "crowsnest": {"installed": False, "local": None, "remote": None},
-            "octoeverywhere": {"installed": False, "local": None, "remote": None},
+            "klipper": {
+                "display_name": "Klipper",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "moonraker": {
+                "display_name": "Moonraker",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "mainsail": {
+                "display_name": "Mainsail",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "mainsail_config": {
+                "display_name": "Mainsail-Config",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "fluidd": {
+                "display_name": "Fluidd",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "fluidd_config": {
+                "display_name": "Fluidd-Config",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "klipperscreen": {
+                "display_name": "KlipperScreen",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
+            "crowsnest": {
+                "display_name": "Crowsnest",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
         }
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -110,10 +138,8 @@ class UpdateMenu(BaseMenu):
             "5": Option(self.update_mainsail_config),
             "6": Option(self.update_fluidd_config),
             "7": Option(self.update_klipperscreen),
-            "8": Option(self.update_mobileraker),
-            "9": Option(self.update_crowsnest),
-            "10": Option(self.update_octoeverywhere),
-            "11": Option(self.upgrade_system_packages),
+            "8": Option(self.update_crowsnest),
+            "9": Option(self.upgrade_system_packages),
         }
 
     def print_menu(self) -> None:
@@ -157,58 +183,65 @@ class UpdateMenu(BaseMenu):
             ║                       │               │               ║
             ║ Other:                ├───────────────┼───────────────╢
             ║  7) KlipperScreen     │ {self.klipperscreen_local:<22} │ {self.klipperscreen_remote:<22} ║
-            ║  8) Mobileraker       │ {self.mobileraker_local:<22} │ {self.mobileraker_remote:<22} ║
-            ║  9) Crowsnest         │ {self.crowsnest_local:<22} │ {self.crowsnest_remote:<22} ║
-            ║ 10) OctoEverywhere    │ {self.octoeverywhere_local:<22} │ {self.octoeverywhere_remote:<22} ║
+            ║  8) Crowsnest         │ {self.crowsnest_local:<22} │ {self.crowsnest_remote:<22} ║
             ║                       ├───────────────┴───────────────╢
-            ║ 11) System            │ {sysupgrades:^{padding}} ║
+            ║  9) System            │ {sysupgrades:^{padding}} ║
             ╟───────────────────────┴───────────────────────────────╢
             """
         )[1:]
         print(menu, end="")
 
     def update_all(self, **kwargs) -> None:
-        print("update_all")
+        Logger.print_status("Updating all components ...")
+        self.update_klipper()
+        self.update_moonraker()
+        self.update_mainsail()
+        self.update_mainsail_config()
+        self.update_fluidd()
+        self.update_fluidd_config()
+        self.update_klipperscreen()
+        self.update_crowsnest()
+        self.upgrade_system_packages()
 
     def update_klipper(self, **kwargs) -> None:
-        if self._check_is_installed("klipper"):
-            update_klipper()
+        self._run_update_routine("klipper", update_klipper)
 
     def update_moonraker(self, **kwargs) -> None:
-        if self._check_is_installed("moonraker"):
-            update_moonraker()
+        self._run_update_routine("moonraker", update_moonraker)
 
     def update_mainsail(self, **kwargs) -> None:
-        if self._check_is_installed("mainsail"):
-            update_client(self.mainsail_data)
+        self._run_update_routine(
+            "mainsail",
+            update_client,
+            self.mainsail_data,
+        )
 
     def update_mainsail_config(self, **kwargs) -> None:
-        if self._check_is_installed("mainsail_config"):
-            update_client_config(self.mainsail_data)
+        self._run_update_routine(
+            "mainsail_config",
+            update_client_config,
+            self.mainsail_data,
+        )
 
     def update_fluidd(self, **kwargs) -> None:
-        if self._check_is_installed("fluidd"):
-            update_client(self.fluidd_data)
+        self._run_update_routine(
+            "fluidd",
+            update_client,
+            self.fluidd_data,
+        )
 
     def update_fluidd_config(self, **kwargs) -> None:
-        if self._check_is_installed("fluidd_config"):
-            update_client_config(self.fluidd_data)
+        self._run_update_routine(
+            "fluidd_config",
+            update_client_config,
+            self.fluidd_data,
+        )
 
     def update_klipperscreen(self, **kwargs) -> None:
-        if self._check_is_installed("klipperscreen"):
-            update_klipperscreen()
-
-    def update_mobileraker(self, **kwargs) -> None:
-        if self._check_is_installed("mobileraker"):
-            update_mobileraker()
+        self._run_update_routine("klipperscreen", update_klipperscreen)
 
     def update_crowsnest(self, **kwargs) -> None:
-        if self._check_is_installed("crowsnest"):
-            update_crowsnest()
-
-    def update_octoeverywhere(self, **kwargs) -> None:
-        if self._check_is_installed("octoeverywhere"):
-            update_octoeverywhere()
+        self._run_update_routine("crowsnest", update_crowsnest)
 
     def upgrade_system_packages(self, **kwargs) -> None:
         self._run_system_updates()
@@ -225,9 +258,7 @@ class UpdateMenu(BaseMenu):
             "fluidd_config", get_client_config_status, self.fluidd_data
         )
         self._set_status_data("klipperscreen", get_klipperscreen_status)
-        self._set_status_data("mobileraker", get_mobileraker_status)
         self._set_status_data("crowsnest", get_crowsnest_status)
-        self._set_status_data("octoeverywhere", get_octoeverywhere_status)
 
         update_system_package_lists(silent=True)
         self.packages = get_upgradable_packages()
@@ -265,10 +296,24 @@ class UpdateMenu(BaseMenu):
         setattr(self, f"{name}_remote", remote_txt)
 
     def _check_is_installed(self, name: str) -> bool:
-        if not self.status_data[name]["installed"]:
-            Logger.print_info(f"{name.capitalize()} is not installed! Skipped ...")
-            return False
-        return True
+        return self.status_data[name]["installed"]
+
+    def _is_update_available(self, name: str) -> bool:
+        return self.status_data[name]["local"] != self.status_data[name]["remote"]
+
+    def _run_update_routine(self, name: str, update_fn: Callable, *args) -> None:
+        display_name = self.status_data[name]["display_name"]
+        is_installed = self._check_is_installed(name)
+        is_update_available = self._is_update_available(name)
+
+        if not is_installed:
+            Logger.print_info(f"{display_name} is not installed! Skipped ...")
+            return
+        elif not is_update_available:
+            Logger.print_info(f"{display_name} is already up to date! Skipped ...")
+            return
+
+        update_fn(*args)
 
     def _run_system_updates(self) -> None:
         if not self.packages:

@@ -281,15 +281,15 @@ class ObicoExtension(BaseExtension):
 
     def _patch_obico_cfg(self, moonraker: Moonraker, obico: MoonrakerObico) -> None:
         scp = SimpleConfigParser()
-        scp.read(obico.cfg_file)
-        scp.set("server", "url", self.server_url)
-        scp.set("moonraker", "port", str(moonraker.port))
-        scp.set(
+        scp.read_file(obico.cfg_file)
+        scp.set_option("server", "url", self.server_url)
+        scp.set_option("moonraker", "port", str(moonraker.port))
+        scp.set_option(
             "logging",
             "path",
             obico.base.log_dir.joinpath(obico.log_file_name).as_posix(),
         )
-        scp.write(obico.cfg_file)
+        scp.write_file(obico.cfg_file)
 
     def _patch_printer_cfg(self, klipper: List[Klipper]) -> None:
         add_config_section(

@@ -12,6 +12,9 @@
 set -e
 clear
 
+# make sure we have the correct permissions while running the script
+umask 022
+
 ### sourcing all additional scripts
 KIAUH_SRCDIR="$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")"
 for script in "${KIAUH_SRCDIR}/scripts/"*.sh; do . "${script}"; done

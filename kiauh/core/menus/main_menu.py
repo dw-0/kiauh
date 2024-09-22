@@ -16,9 +16,7 @@ from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from components.mobileraker.mobileraker import get_mobileraker_status
 from components.moonraker.moonraker_utils import get_moonraker_status
-from components.octoeverywhere.octoeverywhere_setup import get_octoeverywhere_status
 from components.webui_client.client_utils import (
     get_client_status,
     get_current_client_config,
@@ -44,7 +42,7 @@ from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
 from core.types import ComponentStatus, StatusMap, StatusText
 from extensions.extensions_menu import ExtensionsMenu
-from utils.common import get_kiauh_version
+from utils.common import get_kiauh_version, trunc_string
 
 
 # noinspection PyUnusedLocal
@@ -57,10 +55,10 @@ class MainMenu(BaseMenu):
         self.footer_type: FooterType = FooterType.QUIT
 
         self.version = ""
-        self.kl_status = self.kl_owner = self.kl_repo = ""
-        self.mr_status = self.mr_owner = self.mr_repo = ""
-        self.ms_status = self.fl_status = self.ks_status = self.mb_status = ""
-        self.cn_status = self.cc_status = self.oe_status = ""
+        self.kl_status, self.kl_owner, self.kl_repo = "", "", ""
+        self.mr_status, self.mr_owner, self.mr_repo = "", "", ""
+        self.ms_status, self.fl_status, self.ks_status = "", "", ""
+        self.cn_status, self.cc_status = "", ""
         self._init_status()
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -80,7 +78,7 @@ class MainMenu(BaseMenu):
         }
 
     def _init_status(self) -> None:
-        status_vars = ["kl", "mr", "ms", "fl", "ks", "mb", "cn", "oe"]
+        status_vars = ["kl", "mr", "ms", "fl", "ks", "cn"]
         for var in status_vars:
             setattr(
                 self,
@@ -94,18 +92,16 @@ class MainMenu(BaseMenu):
         self._get_component_status("mr", get_moonraker_status)
         self._get_component_status("ms", get_client_status, MainsailData())
         self._get_component_status("fl", get_client_status, FluiddData())
-        self.cc_status = get_current_client_config([MainsailData(), FluiddData()])
         self._get_component_status("ks", get_klipperscreen_status)
-        self._get_component_status("mb", get_mobileraker_status)
         self._get_component_status("cn", get_crowsnest_status)
-        self._get_component_status("oe", get_octoeverywhere_status)
+        self.cc_status = get_current_client_config()
 
     def _get_component_status(self, name: str, status_fn: Callable, *args) -> None:
         status_data: ComponentStatus = status_fn(*args)
         code: int = status_data.status
         status: StatusText = StatusMap[code]
-        owner: str = status_data.owner
-        repo: str = status_data.repo
+        owner: str = trunc_string(status_data.owner, 23)
+        repo: str = trunc_string(status_data.repo, 23)
         instance_count: int = status_data.instances
 
         count_txt: str = ""
@@ -155,8 +151,6 @@ class MainMenu(BaseMenu):
             ║ Community:       │   Client-Config: {self.cc_status:<{pad2}} ║
             ║  E) [Extensions] │                                    ║
             ║                  │   KlipperScreen: {self.ks_status:<{pad2}} ║
-            ║                  │     Mobileraker: {self.mb_status:<{pad2}} ║
-            ║                  │  OctoEverywhere: {self.oe_status:<{pad2}} ║
             ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
             ╟──────────────────┼────────────────────────────────────╢
             ║ {footer1:^25} │ {footer2:^43} ║

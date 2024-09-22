@@ -34,6 +34,9 @@ from core.constants import (
 )
 from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings
+from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+    SimpleConfigParser,
+)
 from core.types import ComponentStatus
 from utils.common import get_install_status
 from utils.fs_utils import create_symlink, remove_file
@@ -41,6 +44,7 @@ from utils.git_utils import (
     get_latest_remote_tag,
     get_latest_unstable_tag,
 )
+from utils.instance_utils import get_instances
 
 
 def get_client_status(
@@ -67,20 +71,46 @@ def get_client_config_status(client: BaseWebClient) -> ComponentStatus:
     return get_install_status(client.client_config.config_dir)
 
 
-def get_current_client_config(clients: List[BaseWebClient]) -> str:
-    installed = []
-    for client in clients:
-        client_config = client.client_config
-        if client_config.config_dir.exists():
-            installed.append(client)
+def get_current_client_config() -> str:
+    mainsail, fluidd = MainsailData(), FluiddData()
+    clients: List[BaseWebClient] = [mainsail, fluidd]
+    installed = [c for c in clients if c.client_config.config_dir.exists()]
 
-    if len(installed) > 1:
-        return f"{COLOR_YELLOW}Conflict!{RESET_FORMAT}"
+    if not installed:
+        return f"{COLOR_CYAN}-{RESET_FORMAT}"
     elif len(installed) == 1:
         cfg = installed[0].client_config
         return f"{COLOR_CYAN}{cfg.display_name}{RESET_FORMAT}"
 
-    return f"{COLOR_CYAN}-{RESET_FORMAT}"
+    # at this point, both client config folders exists, so we need to check
+    # which are actually included in the printer.cfg of all klipper instances
+    mainsail_includes, fluidd_includes = [], []
+    klipper_instances: List[Klipper] = get_instances(Klipper)
+    for instance in klipper_instances:
+        scp = SimpleConfigParser()
+        scp.read_file(instance.cfg_file)
+        includes_mainsail = scp.has_section(mainsail.client_config.config_section)
+        includes_fluidd = scp.has_section(fluidd.client_config.config_section)
+
+        if includes_mainsail:
+            mainsail_includes.append(instance)
+        if includes_fluidd:
+            fluidd_includes.append(instance)
+
+        # if both are included in the same file, we have a potential conflict
+        if includes_mainsail and includes_fluidd:
+            return f"{COLOR_YELLOW}Conflict!{RESET_FORMAT}"
+
+    if not mainsail_includes and not fluidd_includes:
+        # there are no includes at all, even though the client config folders exist
+        return f"{COLOR_CYAN}-{RESET_FORMAT}"
+    elif len(fluidd_includes) > len(mainsail_includes):
+        # there are more instances that include fluidd than mainsail
+        return f"{COLOR_CYAN}{fluidd.client_config.display_name}{RESET_FORMAT}"
+    else:
+        # there are the same amount of non-conflicting includes for each config
+        # or more instances include mainsail than fluidd
+        return f"{COLOR_CYAN}{mainsail.client_config.display_name}{RESET_FORMAT}"
 
 
 def enable_mainsail_remotemode() -> None:

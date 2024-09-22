@@ -43,6 +43,7 @@ class Moonraker:
     env_dir: Path = MOONRAKER_ENV_DIR
     data_dir: Path = field(init=False)
     cfg_file: Path = field(init=False)
+    env_file: Path = field(init=False)
     backup_dir: Path = field(init=False)
     certs_dir: Path = field(init=False)
     db_dir: Path = field(init=False)
@@ -55,6 +56,7 @@ class Moonraker:
         self.service_file_path: Path = get_service_file_path(Moonraker, self.suffix)
         self.data_dir: Path = self.base.data_dir
         self.cfg_file: Path = self.base.cfg_dir.joinpath(MOONRAKER_CFG_NAME)
+        self.env_file: Path = self.base.sysd_dir.joinpath(MOONRAKER_ENV_FILE_NAME)
         self.backup_dir: Path = self.base.data_dir.joinpath("backup")
         self.certs_dir: Path = self.base.data_dir.joinpath("certs")
         self.db_dir: Path = self.base.data_dir.joinpath("database")
@@ -138,7 +140,7 @@ class Moonraker:
             return None
 
         scp = SimpleConfigParser()
-        scp.read(self.cfg_file)
+        scp.read_file(self.cfg_file)
         port: int | None = scp.getint("server", "port", fallback=None)
 
         return port
