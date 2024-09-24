@@ -1,0 +1,19 @@
+section: invalid
+not_a_valid_section
+[missing_square_bracket
+missing_square_bracket]
+[]
+[ ]
+  [indented_section]
+           [indented_section]  # comment
+       [indented_section]  ; comment
+;[commented_section]
+#[another_commented_section]
+; [commented_section]
+# [another_commented_section]
+this_is_an_option: 123
+  this_is_an_indented_option: 123
+this_is_an_option_block_start:
+
+#
+;
