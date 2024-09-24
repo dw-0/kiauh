@@ -197,18 +197,18 @@ class SimpleConfigParser:
         last_option_name: str = list(prev_section_content.keys())[-1]
 
         if last_option_name.startswith("#_"):
-            last_elem: str = prev_section_content[last_option_name][-1]
+            last_elem_value: str = prev_section_content[last_option_name][-1]
 
             # if the last section is a collector, we first check if the last element
             # in the collector ends with a newline. if it does not, we append a newline.
             # this can happen if the config file does not end with a newline.
-            if not last_elem.endswith("\n"):
-                last_elem = f"{last_elem}\n"
+            if not last_elem_value.endswith("\n"):
+                prev_section_content[last_option_name][-1] = f"{last_elem_value}\n"
 
             # if the last item in a collector is not a newline, we append a newline, so
             # that the new section is seperated from the options of the previous section
             # by a newline
-            if last_elem != "\n":
+            if last_elem_value != "\n":
                 prev_section_content[last_option_name].append("\n")
         else:
             prev_section_content[self._generate_rand_id()] = ["\n"]
