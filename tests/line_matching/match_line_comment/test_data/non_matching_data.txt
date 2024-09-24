@@ -1,0 +1,5 @@
+not_a_comment: nono
+
+[also not a comment]
+not_a_comment: ; comment
+not_a_comment: # comment
