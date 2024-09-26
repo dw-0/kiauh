@@ -57,6 +57,7 @@ def test_getval(parser):
 
 def test_getval_fallback(parser):
     assert parser.getval("section_1", "option_128", "fallback") == "fallback"
+    assert parser.getval("section_1", "option_128", None) is None
 
 
 def test_getval_exceptions(parser):
@@ -89,6 +90,7 @@ def test_getint_from_boolean(parser):
 
 def test_getint_fallback(parser):
     assert parser.getint("section_1", "option_128", 128) == 128
+    assert parser.getint("section_1", "option_128", None) is None
 
 
 def test_getboolean(parser):
@@ -115,6 +117,7 @@ def test_getboolean_from_float(parser):
 def test_getboolean_fallback(parser):
     assert parser.getboolean("section_1", "option_128", True) is True
     assert parser.getboolean("section_1", "option_128", False) is False
+    assert parser.getboolean("section_1", "option_128", None) is None
 
 
 def test_getfloat(parser):
@@ -139,6 +142,7 @@ def test_getfloat_from_boolean(parser):
 
 def test_getfloat_fallback(parser):
     assert parser.getfloat("section_1", "option_128", 1.234) == 1.234
+    assert parser.getfloat("section_1", "option_128", None) is None
 
 
 def test_set_existing_option(parser):

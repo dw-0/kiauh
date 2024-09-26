@@ -311,7 +311,7 @@ class SimpleConfigParser:
         """Return the value of the given option in the given section as a converted value"""
         try:
             return conv(self.getval(section, option, fallback))
-        except ValueError as e:
+        except (ValueError, TypeError, AttributeError) as e:
             if fallback is not _UNSET:
                 return fallback
             raise ValueError(

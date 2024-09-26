@@ -25,50 +25,65 @@ def parser():
     return parser
 
 
-def test_get_conv(parser):
-    # Test conversion to int
+def test_get_int_conv(parser):
     should_be_int = parser._get_conv("section_1", "option_1_2", int)
     assert isinstance(should_be_int, int)
 
-    # Test conversion to float
+
+def test_get_float_conv(parser):
     should_be_float = parser._get_conv("section_1", "option_1_3", float)
     assert isinstance(should_be_float, float)
 
-    # Test conversion to boolean
+
+def test_get_bool_conv(parser):
     should_be_bool = parser._get_conv(
         "section_1", "option_1_1", parser._convert_to_boolean
     )
     assert isinstance(should_be_bool, bool)
 
-    # Test fallback for int
+
+def test_get_int_conv_fallback(parser):
     should_be_fallback_int = parser._get_conv(
         "section_1", "option_128", int, fallback=128
     )
     assert isinstance(should_be_fallback_int, int)
     assert should_be_fallback_int == 128
+    assert parser._get_conv("section_1", "option_128", int, None) is None
 
-    # Test fallback for float
+
+def test_get_float_conv_fallback(parser):
     should_be_fallback_float = parser._get_conv(
         "section_1", "option_128", float, fallback=1.234
     )
     assert isinstance(should_be_fallback_float, float)
     assert should_be_fallback_float == 1.234
 
-    # Test fallback for boolean
+    assert parser._get_conv("section_1", "option_128", float, None) is None
+
+
+def test_get_bool_conv_fallback(parser):
     should_be_fallback_bool = parser._get_conv(
         "section_1", "option_128", parser._convert_to_boolean, fallback=True
     )
     assert isinstance(should_be_fallback_bool, bool)
     assert should_be_fallback_bool is True
 
-    # Test ValueError exception for invalid int conversion
+    assert (
+        parser._get_conv("section_1", "option_128", parser._convert_to_boolean, None)
+        is None
+    )
+
+
+def test_get_int_conv_exception(parser):
     with pytest.raises(ValueError):
         parser._get_conv("section_1", "option_1", int)
 
-    # Test ValueError exception for invalid float conversion
+
+def test_get_float_conv_exception(parser):
     with pytest.raises(ValueError):
         parser._get_conv("section_1", "option_1", float)
 
-    # Test ValueError exception for invalid boolean conversion
+
+def test_get_bool_conv_exception(parser):
     with pytest.raises(ValueError):
         parser._get_conv("section_1", "option_1", parser._convert_to_boolean)
