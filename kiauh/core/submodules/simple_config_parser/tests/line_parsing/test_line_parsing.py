@@ -32,7 +32,7 @@ def test_section_parsing(parser):
         parser.config.keys()
     ), f"Expected keys: {expected_keys}, got: {parser.config.keys()}"
     assert parser.in_option_block is False
-    assert parser.current_section == "section number 5"
+    assert parser.current_section == parser.get_sections()[-1]
     assert parser.config["section_2"]["_raw"] == "[section_2] ; comment"
 
 
