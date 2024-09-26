@@ -7,16 +7,20 @@
 # ======================================================================= #
 from pathlib import Path
 
-from src.simple_config_parser.simple_config_parser import (
-    SimpleConfigParser,
-)
+import pytest
+
+from src.simple_config_parser.simple_config_parser import SimpleConfigParser
+from tests.utils import load_testdata_from_file
 
 BASE_DIR = Path(__file__).parent.parent.joinpath("assets")
-TEST_DATA_PATH = BASE_DIR.joinpath("test_config_1.cfg")
+CONFIG_FILES = ["test_config_1.cfg", "test_config_2.cfg", "test_config_3.cfg"]
 
 
-def test_read_file():
+@pytest.fixture(params=CONFIG_FILES)
+def parser(request):
     parser = SimpleConfigParser()
-    parser.read_file(TEST_DATA_PATH)
-    assert parser.config is not None
-    assert parser.config.keys() is not None
+    file_path = BASE_DIR.joinpath(request.param)
+    for line in load_testdata_from_file(file_path):
+        parser._parse_line(line)  # noqa
+
+    return parser

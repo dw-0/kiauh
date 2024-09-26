@@ -48,6 +48,8 @@ def add_config_section(
 
         scp.write_file(cfg_file)
 
+        Logger.print_ok("OK!")
+
 
 def add_config_section_at_top(section: str, instances: List[InstanceType]) -> None:
     # TODO: this could be implemented natively in SimpleConfigParser
@@ -69,6 +71,8 @@ def add_config_section_at_top(section: str, instances: List[InstanceType]) -> No
         cfg_file.unlink()
         tmp_cfg_path.rename(cfg_file)
 
+        Logger.print_ok("OK!")
+
 
 def remove_config_section(section: str, instances: List[InstanceType]) -> None:
     for instance in instances:
@@ -87,3 +91,5 @@ def remove_config_section(section: str, instances: List[InstanceType]) -> None:
 
         scp.remove_section(section)
         scp.write_file(cfg_file)
+
+        Logger.print_ok("OK!")
