@@ -161,10 +161,11 @@ class TelegramBotExtension(BaseExtension):
         # install dependencies
         script = TG_BOT_DIR.joinpath("scripts/install.sh")
         package_list = parse_packages_from_file(script)
+
         check_install_dependencies({*package_list})
 
         # create virtualenv
-        if create_python_venv(TG_BOT_ENV):
+        if create_python_venv(TG_BOT_ENV, allow_access_to_system_site_packages=True):
             install_python_requirements(TG_BOT_ENV, TG_BOT_REQ_FILE)
 
     def _patch_bot_update_manager(self, instances: List[Moonraker]) -> None:
