@@ -91,19 +91,27 @@ def parse_packages_from_file(source_file: Path) -> List[str]:
     return packages
 
 
-def create_python_venv(target: Path, force: bool = False) -> bool:
+def create_python_venv(
+    target: Path,
+    force: bool = False,
+    allow_access_to_system_site_packages: bool = False,
+) -> bool:
     """
     Create a python 3 virtualenv at the provided target destination.
     Returns True if the virtualenv was created successfully.
     Returns False if the virtualenv already exists, recreation was declined or creation failed.
-    :param force: Force recreation of the virtualenv
     :param target: Path where to create the virtualenv at
+    :param force: Force recreation of the virtualenv
+    :param allow_access_to_system_site_packages: give the virtual environment access to the system site-packages dir
     :return: bool
     """
     Logger.print_status("Set up Python virtual environment ...")
+    cmd = ["virtualenv", "-p", "/usr/bin/python3", target.as_posix()]
+    cmd.append(
+        "--system-site-packages"
+    ) if allow_access_to_system_site_packages else None
     if not target.exists():
         try:
-            cmd = ["virtualenv", "-p", "/usr/bin/python3", target.as_posix()]
             run(cmd, check=True)
             Logger.print_ok("Setup of virtualenv successful!")
             return True
