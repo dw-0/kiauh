@@ -58,12 +58,16 @@ class ExtensionsMenu(BaseMenu):
                     module_path = f"kiauh.extensions.{ext.name}.{module_name}"
 
                     # get the class name of the extension
-                    ext_class: Type[BaseExtension] = inspect.getmembers(
-                        importlib.import_module(module_path),
-                        predicate=lambda o: inspect.isclass(o)
-                        and issubclass(o, BaseExtension)
-                        and o != BaseExtension,
-                    )[0][1]
+                    module = importlib.import_module(module_path)
+
+                    def predicate(o):
+                        return (
+                            inspect.isclass(o)
+                            and issubclass(o, BaseExtension)
+                            and o != BaseExtension
+                        )
+
+                    ext_class: type = inspect.getmembers(module, predicate)[0][1]
 
                     # instantiate the extension with its metadata and add to dict
                     ext_instance: BaseExtension = ext_class(metadata)
@@ -72,7 +76,7 @@ class ExtensionsMenu(BaseMenu):
             except (IOError, json.JSONDecodeError, ImportError) as e:
                 print(f"Failed loading extension {ext}: {e}")
 
-        return dict(sorted(ext_dict.items()))
+        return dict(sorted(ext_dict.items(), key=lambda x: int(x[0])))
 
     def extension_submenu(self, **kwargs):
         ExtensionSubmenu(kwargs.get("opt_data"), self.__class__).run()
