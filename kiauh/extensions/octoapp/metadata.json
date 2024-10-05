@@ -1,0 +1,17 @@
+{
+    "metadata": {
+        "index": 9,
+        "module": "octoapp_extension",
+        "maintained_by": "crysxd",
+        "display_name": "OctoApp for Klipper",
+        "description": [
+            "Your favorite 3D printing app for iOS & Android",
+            "- Print notifications on your phone & watch",
+            "- Control and start prints from your phone",
+            "- Live webcam view",
+            "- Live Gcode preview",
+            "- And much much more!"
+        ],
+        "updates": true
+    }
+}

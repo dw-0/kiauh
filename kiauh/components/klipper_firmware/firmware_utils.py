@@ -6,8 +6,16 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
-from subprocess import PIPE, STDOUT, CalledProcessError, Popen, check_output, run
+import re
+from subprocess import (
+    DEVNULL,
+    PIPE,
+    STDOUT,
+    CalledProcessError,
+    Popen,
+    check_output,
+    run,
+)
 from typing import List
 
 from components.klipper import KLIPPER_DIR
@@ -32,16 +40,18 @@ def find_firmware_file() -> bool:
     f3 = "klipper.bin"
     f4 = "klipper.uf2"
     fw_file_exists: bool = (
-        target.joinpath(f1).exists() and target.joinpath(f2).exists()
-    ) or target.joinpath(f3).exists() or target.joinpath(f4).exists()
+        (target.joinpath(f1).exists() and target.joinpath(f2).exists())
+        or target.joinpath(f3).exists()
+        or target.joinpath(f4).exists()
+    )
 
     return target_exists and fw_file_exists
 
 
 def find_usb_device_by_id() -> List[str]:
     try:
-        command = "find /dev/serial/by-id/* 2>/dev/null"
-        output = check_output(command, shell=True, text=True)
+        command = "find /dev/serial/by-id/*"
+        output = check_output(command, shell=True, text=True, stderr=DEVNULL)
         return output.splitlines()
     except CalledProcessError as e:
         Logger.print_error("Unable to find a USB device!")
@@ -51,9 +61,14 @@ def find_usb_device_by_id() -> List[str]:
 
 def find_uart_device() -> List[str]:
     try:
-        command = '"find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty(AMA0|S0)$" 2>/dev/null"'
-        output = check_output(command, shell=True, text=True)
-        return output.splitlines()
+        cmd = "find /dev -maxdepth 1"
+        output = check_output(cmd, shell=True, text=True, stderr=DEVNULL)
+        device_list = []
+        if output:
+            pattern = r"^/dev/tty(AMA0|S0)$"
+            devices = output.splitlines()
+            device_list = [d for d in devices if re.search(pattern, d)]
+        return device_list
     except CalledProcessError as e:
         Logger.print_error("Unable to find a UART device!")
         Logger.print_error(e, prefix=False)
@@ -62,9 +77,13 @@ def find_uart_device() -> List[str]:
 
 def find_usb_dfu_device() -> List[str]:
     try:
-        command = '"lsusb | grep "DFU" | cut -d " " -f 6 2>/dev/null"'
-        output = check_output(command, shell=True, text=True)
-        return output.splitlines()
+        output = check_output("lsusb", shell=True, text=True, stderr=DEVNULL)
+        device_list = []
+        if output:
+            devices = output.splitlines()
+            device_list = [d.split(" ")[5] for d in devices if "DFU" in d]
+        return device_list
+
     except CalledProcessError as e:
         Logger.print_error("Unable to find a USB DFU device!")
         Logger.print_error(e, prefix=False)

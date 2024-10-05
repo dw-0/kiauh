@@ -132,7 +132,7 @@ class MoonrakerObico:
             raise
         env_file_content = env_template_file_content.replace(
             "%CFG%",
-            f"{self.base.cfg_dir}/{self.cfg_file}",
+            f"{self.cfg_file}",
         )
         return env_file_content
 
