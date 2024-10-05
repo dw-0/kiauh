@@ -14,7 +14,6 @@ OA_REPO = "https://github.com/crysxd/OctoApp-Plugin.git"
 # directories
 OA_DIR = Path.home().joinpath("octoapp")
 OA_ENV_DIR = Path.home().joinpath("octoapp-env")
-OA_STORE_DIR = OA_DIR.joinpath("octoapp-store")
 
 # files
 OA_REQ_FILE = OA_DIR.joinpath("requirements.txt")
