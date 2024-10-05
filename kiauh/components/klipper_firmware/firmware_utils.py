@@ -6,7 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import re
 from subprocess import (
     DEVNULL,
     PIPE,
@@ -50,8 +50,8 @@ def find_firmware_file() -> bool:
 
 def find_usb_device_by_id() -> List[str]:
     try:
-        command = "find /dev/serial/by-id/* 2>/dev/null"
-        output = check_output(command, shell=True, text=True)
+        command = "find /dev/serial/by-id/*"
+        output = check_output(command, shell=True, text=True, stderr=DEVNULL)
         return output.splitlines()
     except CalledProcessError as e:
         Logger.print_error("Unable to find a USB device!")
@@ -61,9 +61,14 @@ def find_usb_device_by_id() -> List[str]:
 
 def find_uart_device() -> List[str]:
     try:
-        command = '"find /dev -maxdepth 1 -regextype posix-extended -regex "^\/dev\/tty(AMA0|S0)$" 2>/dev/null"'
-        output = check_output(command, shell=True, text=True)
-        return output.splitlines()
+        cmd = "find /dev -maxdepth 1"
+        output = check_output(cmd, shell=True, text=True, stderr=DEVNULL)
+        device_list = []
+        if output:
+            pattern = r"^/dev/tty(AMA0|S0)$"
+            devices = output.splitlines()
+            device_list = [d for d in devices if re.search(pattern, d)]
+        return device_list
     except CalledProcessError as e:
         Logger.print_error("Unable to find a UART device!")
         Logger.print_error(e, prefix=False)
