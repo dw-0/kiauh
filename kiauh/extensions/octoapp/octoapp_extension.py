@@ -10,6 +10,7 @@ import json
 from typing import List
 
 from components.moonraker.moonraker import Moonraker
+from components.klipper.klipper import Klipper
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
@@ -131,6 +132,7 @@ class OctoappExtension(BaseExtension):
 
         try:
             self._remove_OA_instances(ob_instances)
+            self._remove_OA_store_dirs()
             self._remove_OA_dir()
             self._remove_OA_env()
             remove_config_section(f"include {OA_SYS_CFG_NAME}", mr_instances)
@@ -180,6 +182,21 @@ class OctoappExtension(BaseExtension):
             return
 
         run_remove_routines(OA_DIR)
+
+
+    def _remove_OA_store_dirs(self) -> None:
+        Logger.print_status("Removing OctoApp for Klipper store directory ...")
+
+        klipper_instances: List[Moonraker] = get_instances(Klipper)
+        
+        for instance in klipper_instances:
+            store_dir = instance.data_dir.joinpath("octoapp-store")
+            if not store_dir.exists():
+                Logger.print_info(f"'{store_dir}' does not exist. Skipped ...")
+                return
+
+            run_remove_routines(store_dir)
+
 
     def _remove_OA_env(self) -> None:
         Logger.print_status("Removing OctoApp for Klipper environment ...")
