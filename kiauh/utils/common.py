@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Literal, Optional, Set
 
 from components.klipper.klipper import Klipper
+from components.moonraker.moonraker import Moonraker
 from core.constants import (
     COLOR_CYAN,
     GLOBAL_DEPS,
@@ -155,14 +156,12 @@ def backup_printer_config_dir() -> None:
         )
 
 
-def moonraker_exists(name: str = "") -> bool:
+def moonraker_exists(name: str = "") -> List[Moonraker]:
     """
     Helper method to check if a Moonraker instance exists
     :param name: Optional name of an installer where the check is performed
     :return: True if at least one Moonraker instance exists, False otherwise
     """
-    from components.moonraker.moonraker import Moonraker
-
     mr_instances: List[Moonraker] = get_instances(Moonraker)
 
     info = (
@@ -179,8 +178,8 @@ def moonraker_exists(name: str = "") -> bool:
                 f"{info}. Please install Moonraker first!",
             ],
         )
-        return False
-    return True
+        return []
+    return mr_instances
 
 
 def trunc_string(input_str: str, length: int) -> str:
