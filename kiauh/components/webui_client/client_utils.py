@@ -353,10 +353,16 @@ def read_ports_from_nginx_configs() -> List[int]:
             lines = cfg.readlines()
 
         for line in lines:
-            line = line.replace("default_server", "")
-            line = re.sub(r"[;:\[\]]", "", line.strip())
-            if line.startswith("listen") and line.split()[-1] not in port_list:
-                port_list.append(line.split()[-1])
+            line = re.sub(
+                r"default_server|http://|https://|[;\[\]]",
+                "",
+                line.strip(),
+            )
+            if line.startswith("listen"):
+                if ":" not in line:
+                    port_list.append(line.split()[-1])
+                else:
+                    port_list.append(line.split(":")[-1])
 
     ports_to_ints_list = [int(port) for port in port_list]
     return sorted(ports_to_ints_list, key=lambda x: int(x))
