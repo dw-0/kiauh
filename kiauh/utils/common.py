@@ -14,10 +14,11 @@ from pathlib import Path
 from typing import Dict, List, Literal, Optional, Set
 
 from components.klipper.klipper import Klipper
+from components.moonraker.moonraker import Moonraker
 from core.constants import (
     COLOR_CYAN,
     GLOBAL_DEPS,
-    PRINTER_CFG_BACKUP_DIR,
+    PRINTER_DATA_BACKUP_DIR,
     RESET_FORMAT,
 )
 from core.logger import DialogType, Logger
@@ -142,23 +143,25 @@ def backup_printer_config_dir() -> None:
     instances: List[Klipper] = get_instances(Klipper)
     bm = BackupManager()
 
+    if not instances:
+        Logger.print_info("Unable to find directory to backup!")
+        Logger.print_info("Are there no Klipper instances installed?")
+        return
+
     for instance in instances:
-        name = f"config-{instance.data_dir.name}"
         bm.backup_directory(
-            name,
+            instance.data_dir.name,
             source=instance.base.cfg_dir,
-            target=PRINTER_CFG_BACKUP_DIR,
+            target=PRINTER_DATA_BACKUP_DIR,
         )
 
 
-def moonraker_exists(name: str = "") -> bool:
+def moonraker_exists(name: str = "") -> List[Moonraker]:
     """
     Helper method to check if a Moonraker instance exists
     :param name: Optional name of an installer where the check is performed
     :return: True if at least one Moonraker instance exists, False otherwise
     """
-    from components.moonraker.moonraker import Moonraker
-
     mr_instances: List[Moonraker] = get_instances(Moonraker)
 
     info = (
@@ -175,8 +178,8 @@ def moonraker_exists(name: str = "") -> bool:
                 f"{info}. Please install Moonraker first!",
             ],
         )
-        return False
-    return True
+        return []
+    return mr_instances
 
 
 def trunc_string(input_str: str, length: int) -> str:
