@@ -7,7 +7,7 @@ from http.client import HTTPResponse
 from json import JSONDecodeError
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
-from typing import List, Type
+from typing import List, Tuple, Type
 
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
@@ -70,7 +70,7 @@ def git_pull_wrapper(repo: str, target_dir: Path) -> None:
         return
 
 
-def get_repo_name(repo: Path) -> tuple[str, str] | None:
+def get_repo_name(repo: Path) -> Tuple[str, str]:
     """
     Helper method to extract the organisation and name of a repository |
     :param repo: repository to extract the values from
@@ -83,11 +83,14 @@ def get_repo_name(repo: Path) -> tuple[str, str] | None:
         cmd = ["git", "-C", repo.as_posix(), "config", "--get", "remote.origin.url"]
         result: str = check_output(cmd, stderr=DEVNULL).decode(encoding="utf-8")
         substrings: List[str] = result.strip().split("/")[-2:]
-        return substrings[0], substrings[1]
 
-        # return "/".join(substrings).replace(".git", "")
+        orga: str = substrings[0] if substrings[0] else "-"
+        name: str = substrings[1] if substrings[1] else "-"
+
+        return orga, name
+
     except CalledProcessError:
-        return None
+        return "-", "-"
 
 
 def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
@@ -184,7 +187,7 @@ def compare_semver_tags(tag1: str, tag2: str) -> bool:
     if tag1 == tag2:
         return False
 
-    def parse_version(v):
+    def parse_version(v) -> List[int]:
         return list(map(int, v[1:].split(".")))
 
     tag1_parts = parse_version(tag1)
