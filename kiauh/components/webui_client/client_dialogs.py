@@ -13,15 +13,15 @@ from components.webui_client.base_data import BaseWebClient
 from core.logger import DialogType, Logger
 
 
-def print_moonraker_not_found_dialog() -> None:
+def print_moonraker_not_found_dialog(name: str) -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
             "No local Moonraker installation was found!",
             "\n\n",
-            "It is possible to install Mainsail without a local Moonraker installation. "
+            f"It is possible to install {name} without a local Moonraker installation. "
             "If you continue, you need to make sure, that Moonraker is installed on "
-            "another machine in your network. Otherwise Mainsail will NOT work "
+            f"another machine in your network. Otherwise {name} will NOT work "
             "correctly.",
         ],
     )
