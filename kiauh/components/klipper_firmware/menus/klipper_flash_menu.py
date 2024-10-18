@@ -17,6 +17,7 @@ from components.klipper_firmware.firmware_utils import (
     find_uart_device,
     find_usb_device_by_id,
     find_usb_dfu_device,
+    find_usb_rp2_boot_device,
     get_sd_flash_board_list,
     start_flash_process,
 )
@@ -177,6 +178,7 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
             "1": Option(method=self.select_usb),
             "2": Option(method=self.select_dfu),
             "3": Option(method=self.select_usb_dfu),
+            "4": Option(method=self.select_usb_rp2040),
         }
 
     def print_menu(self) -> None:
@@ -193,6 +195,7 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
             ║ 1) USB                                                ║
             ║ 2) UART                                               ║
             ║ 3) USB (DFU mode)                                     ║
+            ║ 4) USB (RP2040 mode)                                  ║
             ╟───────────────────────────┬───────────────────────────╢
             """
         )[1:]
@@ -210,6 +213,10 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         self.flash_options.connection_type = ConnectionType.USB_DFU
         self.get_mcu_list()
 
+    def select_usb_rp2040(self, **kwargs):
+        self.flash_options.connection_type = ConnectionType.USB_RP2040
+        self.get_mcu_list()
+
     def get_mcu_list(self, **kwargs):
         conn_type = self.flash_options.connection_type
 
@@ -222,6 +229,9 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         elif conn_type is ConnectionType.USB_DFU:
             Logger.print_status("Identifying MCU connected via USB in DFU mode ...")
             self.flash_options.mcu_list = find_usb_dfu_device()
+        elif conn_type is ConnectionType.USB_RP2040:
+            Logger.print_status("Identifying MCU connected via USB in RP2 Boot mode ...")
+            self.flash_options.mcu_list = find_usb_rp2_boot_device()
 
         if len(self.flash_options.mcu_list) < 1:
             Logger.print_warn("No MCUs found!")
