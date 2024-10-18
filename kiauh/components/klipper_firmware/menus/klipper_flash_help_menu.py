@@ -143,6 +143,8 @@ class KlipperMcuConnectionHelpMenu(BaseMenu):
         count = 62 - len(color) - len(RESET_FORMAT)
         subheader1 = f"{COLOR_CYAN}USB:{RESET_FORMAT}"
         subheader2 = f"{COLOR_CYAN}UART:{RESET_FORMAT}"
+        subheader3 = f"{COLOR_CYAN}USB DFU:{RESET_FORMAT}"
+        subheader4 = f"{COLOR_CYAN}USB RP2040 Boot:{RESET_FORMAT}"
         menu = textwrap.dedent(
             f"""
             ╔═══════════════════════════════════════════════════════╗
@@ -163,6 +165,19 @@ class KlipperMcuConnectionHelpMenu(BaseMenu):
             ║ not. Because of that, you MUST know which UART serial ║
             ║ port your controller board is connected to when using ║
             ║ this connection method.                               ║
+            ║                                                       ║
+            ║ {subheader3:<62} ║
+            ║ Selecting USB DFU as the connection method will scan  ║
+            ║ the USB ports for connected controller boards in      ║
+            ║ STM32 DFU mode, which is usually done by holding down ║
+            ║ the BOOT button or setting a special jumper on the    ║
+            ║ board before powering up.                             ║
+            ║                                                       ║
+            ║ {subheader4:<62} ║
+            ║ Selecting USB RP2 Boot as the connection method will  ║
+            ║ scan the USB ports for connected RP2040 controller    ║
+            ║ boards in Boot mode, which is usually done by holding ║
+            ║ down the BOOT button before powering up.              ║
             ║                                                       ║
             ╟───────────────────────────────────────────────────────╢
             """
