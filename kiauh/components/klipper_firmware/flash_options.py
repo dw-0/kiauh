@@ -26,6 +26,7 @@ class FlashCommand(Enum):
 class ConnectionType(Enum):
     USB = "USB"
     USB_DFU = "USB (DFU)"
+    USB_RP2040 = "USB (RP2040)"
     UART = "UART"
 
 
