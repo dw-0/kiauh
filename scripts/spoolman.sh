@@ -127,9 +127,9 @@ managed_services: Spoolman
   regex="${HOME//\//\\/}\/([A-Za-z0-9_]+)\/moonraker\.asvc"
   moonraker_asvc=$(find "${HOME}" -maxdepth 2 -type f -regextype posix-extended -regex "${regex}" | sort)
 
-  if [[ -n ${moonraker_asvc} ]]; then
+  if ! grep -q "^Spoolman$" "${moonraker_asvc}"; then
     status_msg "Adding Spoolman service to moonraker.asvc..."
-    /bin/sh -c "echo 'Spoolman' >> ${moonraker_asvc}"
+    sed -i '$a''Spoolman' "${moonraker_asvc}"
   fi
 }
 
@@ -248,7 +248,7 @@ function get_spoolman_status() {
 
 function get_local_spoolman_version() {
   [[ ! -d "${SPOOLMAN_DIR}" ]] && return
-  
+
   local version
   version=$(grep -o '"version":\s*"[^"]*' "${SPOOLMAN_DIR}"/release_info.json | cut -d'"' -f4)
   echo "${version}"
