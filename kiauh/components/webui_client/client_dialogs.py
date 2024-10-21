@@ -40,20 +40,25 @@ def print_client_already_installed_dialog(name: str) -> None:
 def print_client_port_select_dialog(
     name: str, port: int, ports_in_use: List[int]
 ) -> None:
-    Logger.print_dialog(
-        DialogType.CUSTOM,
-        [
-            f"Please select the port, {name} should be served on. If your are unsure "
-            f"what to select, hit Enter to apply the suggested value of: {port}",
-            "\n\n",
-            f"In case you need {name} to be served on a specific port, you can set it "
-            f"now. Make sure that the port is not already used by another application "
-            f"on your system!",
-            "\n\n",
-            "The following ports were found to be in use already:",
-            *[f"● {port}" for port in ports_in_use],
-        ],
-    )
+    dialog_content: List[str] = [
+        f"Please select the port, {name} should be served on. If your are unsure "
+        f"what to select, hit Enter to apply the suggested value of: {port}",
+        "\n\n",
+        f"In case you need {name} to be served on a specific port, you can set it "
+        f"now. Make sure that the port is not already used by another application "
+        f"on your system!",
+    ]
+
+    if ports_in_use:
+        dialog_content.extend(
+            [
+                "\n\n",
+                "The following ports were found to be in use already:",
+                *[f"● {port}" for port in ports_in_use],
+            ]
+        )
+
+    Logger.print_dialog(DialogType.CUSTOM, dialog_content)
 
 
 def print_install_client_config_dialog(client: BaseWebClient) -> None:
