@@ -13,15 +13,15 @@ from components.webui_client.base_data import BaseWebClient
 from core.logger import DialogType, Logger
 
 
-def print_moonraker_not_found_dialog() -> None:
+def print_moonraker_not_found_dialog(name: str) -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
             "No local Moonraker installation was found!",
             "\n\n",
-            "It is possible to install Mainsail without a local Moonraker installation. "
+            f"It is possible to install {name} without a local Moonraker installation. "
             "If you continue, you need to make sure, that Moonraker is installed on "
-            "another machine in your network. Otherwise Mainsail will NOT work "
+            f"another machine in your network. Otherwise {name} will NOT work "
             "correctly.",
         ],
     )
@@ -40,20 +40,25 @@ def print_client_already_installed_dialog(name: str) -> None:
 def print_client_port_select_dialog(
     name: str, port: int, ports_in_use: List[int]
 ) -> None:
-    Logger.print_dialog(
-        DialogType.CUSTOM,
-        [
-            f"Please select the port, {name} should be served on. If your are unsure "
-            f"what to select, hit Enter to apply the suggested value of: {port}",
-            "\n\n",
-            f"In case you need {name} to be served on a specific port, you can set it "
-            f"now. Make sure that the port is not already used by another application "
-            f"on your system!",
-            "\n\n",
-            "The following ports were found to be in use already:",
-            *[f"● {port}" for port in ports_in_use],
-        ],
-    )
+    dialog_content: List[str] = [
+        f"Please select the port, {name} should be served on. If your are unsure "
+        f"what to select, hit Enter to apply the suggested value of: {port}",
+        "\n\n",
+        f"In case you need {name} to be served on a specific port, you can set it "
+        f"now. Make sure that the port is not already used by another application "
+        f"on your system!",
+    ]
+
+    if ports_in_use:
+        dialog_content.extend(
+            [
+                "\n\n",
+                "The following ports were found to be in use already:",
+                *[f"● {port}" for port in ports_in_use],
+            ]
+        )
+
+    Logger.print_dialog(DialogType.CUSTOM, dialog_content)
 
 
 def print_install_client_config_dialog(client: BaseWebClient) -> None:

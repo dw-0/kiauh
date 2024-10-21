@@ -90,6 +90,21 @@ def find_usb_dfu_device() -> List[str]:
         return []
 
 
+def find_usb_rp2_boot_device() -> List[str]:
+    try:
+        output = check_output("lsusb", shell=True, text=True, stderr=DEVNULL)
+        device_list = []
+        if output:
+            devices = output.splitlines()
+            device_list = [d.split(" ")[5] for d in devices if "RP2 Boot" in d]
+        return device_list
+
+    except CalledProcessError as e:
+        Logger.print_error("Unable to find a USB RP2 Boot device!")
+        Logger.print_error(e, prefix=False)
+        return []
+
+
 def get_sd_flash_board_list() -> List[str]:
     if not KLIPPER_DIR.exists() or not SD_FLASH_SCRIPT.exists():
         return []

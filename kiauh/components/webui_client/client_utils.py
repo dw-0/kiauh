@@ -21,6 +21,7 @@ from components.webui_client.base_data import (
     BaseWebClient,
     WebClientType,
 )
+from components.webui_client.client_dialogs import print_client_port_select_dialog
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
@@ -33,7 +34,7 @@ from core.constants import (
     RESET_FORMAT,
 )
 from core.logger import Logger
-from core.settings.kiauh_settings import KiauhSettings
+from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -44,6 +45,7 @@ from utils.git_utils import (
     get_latest_remote_tag,
     get_latest_unstable_tag,
 )
+from utils.input_utils import get_number_input
 from utils.instance_utils import get_instances
 
 
@@ -368,8 +370,29 @@ def read_ports_from_nginx_configs() -> List[int]:
     return sorted(ports_to_ints_list, key=lambda x: int(x))
 
 
-def is_valid_port(port: int, ports_in_use: List[int]) -> bool:
-    return port not in ports_in_use
+def get_client_port_selection(client: BaseWebClient) -> int:
+    settings = KiauhSettings()
+    default_port: int = int(settings.get(client.name, "port"))
+
+    ports_in_use: List[int] = read_ports_from_nginx_configs()
+    next_free_port: int = get_next_free_port(ports_in_use)
+
+    port: int = next_free_port if default_port in ports_in_use else default_port
+
+    print_client_port_select_dialog(client.display_name, port, ports_in_use)
+
+    while True:
+        question = f"Configure {client.display_name} for port"
+        port_input = get_number_input(question, min_count=80, default=port)
+
+        if port_input not in ports_in_use:
+            client_settings: WebUiSettings = settings[client.name]
+            client_settings.port = port_input
+            settings.save()
+
+            return port_input
+
+        Logger.print_error("This port is already in use. Please select another one.")
 
 
 def get_next_free_port(ports_in_use: List[int]) -> int:

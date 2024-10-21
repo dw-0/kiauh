@@ -23,7 +23,6 @@ from components.webui_client.client_config.client_config_setup import (
     install_client_config,
 )
 from components.webui_client.client_dialogs import (
-    print_client_port_select_dialog,
     print_install_client_config_dialog,
     print_moonraker_not_found_dialog,
 )
@@ -33,18 +32,15 @@ from components.webui_client.client_utils import (
     create_nginx_cfg,
     detect_client_cfg_conflict,
     enable_mainsail_remotemode,
-    get_next_free_port,
-    is_valid_port,
-    read_ports_from_nginx_configs,
+    get_client_port_selection,
     symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
-from core.settings.kiauh_settings import KiauhSettings
 from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import unzip
-from utils.input_utils import get_confirm, get_number_input
+from utils.input_utils import get_confirm
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
     cmd_sysctl_service,
@@ -67,7 +63,7 @@ def install_client(client: BaseWebClient) -> None:
 
     enable_remotemode = False
     if not mr_instances:
-        print_moonraker_not_found_dialog()
+        print_moonraker_not_found_dialog(client.display_name)
         if not get_confirm(f"Continue {client.display_name} installation?"):
             return
 
@@ -92,21 +88,7 @@ def install_client(client: BaseWebClient) -> None:
         question = f"Download the recommended {client_config.display_name}?"
         install_client_cfg = get_confirm(question, allow_go_back=False)
 
-    settings = KiauhSettings()
-    port: int = settings.get(client.name, "port")
-    ports_in_use: List[int] = read_ports_from_nginx_configs()
-
-    # check if configured port is a valid number and not in use already
-    valid_port = is_valid_port(port, ports_in_use)
-    while not valid_port:
-        next_port = get_next_free_port(ports_in_use)
-        print_client_port_select_dialog(client.display_name, next_port, ports_in_use)
-        port = get_number_input(
-            f"Configure {client.display_name} for port",
-            min_count=int(next_port),
-            default=next_port,
-        )
-        valid_port = is_valid_port(port, ports_in_use)
+    port: int = get_client_port_selection(client)
 
     check_install_dependencies({"nginx"})
 
