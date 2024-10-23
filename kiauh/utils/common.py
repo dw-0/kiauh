@@ -24,6 +24,7 @@ from core.constants import (
 from core.logger import DialogType, Logger
 from core.types import ComponentStatus, StatusCode
 from utils.git_utils import (
+    get_current_branch,
     get_local_commit,
     get_local_tags,
     get_remote_commit,
@@ -103,7 +104,12 @@ def get_install_status(
     """
     from utils.instance_utils import get_instances
 
-    checks = [repo_dir.exists()]
+    checks = []
+    branch: str = ""
+
+    if repo_dir.exists():
+        checks.append(True)
+        branch = get_current_branch(repo_dir)
 
     if env_dir is not None:
         checks.append(env_dir.exists())
@@ -131,6 +137,7 @@ def get_install_status(
         instances=instances,
         owner=org,
         repo=repo,
+        branch=branch,
         local=get_local_commit(repo_dir),
         remote=get_remote_commit(repo_dir),
     )
