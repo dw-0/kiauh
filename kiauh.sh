@@ -10,7 +10,7 @@
 #=======================================================================#
 
 set -e
-clear
+clear -x
 
 # make sure we have the correct permissions while running the script
 umask 022
@@ -110,7 +110,7 @@ function launch_kiauh_v6() {
 
   export PYTHONPATH="${entrypoint}"
 
-  clear
+  clear -x
   python3 "${entrypoint}/kiauh.py"
 }
 

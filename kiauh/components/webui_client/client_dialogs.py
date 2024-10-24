@@ -53,8 +53,8 @@ def print_client_port_select_dialog(
         dialog_content.extend(
             [
                 "\n\n",
-                "The following ports were found to be in use already:",
-                *[f"● {port}" for port in ports_in_use],
+                "The following ports were found to be already in use:",
+                *[f"● {p}" for p in ports_in_use if p != port],
             ]
         )
 

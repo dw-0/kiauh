@@ -29,7 +29,7 @@ from utils.input_utils import get_selection_input
 
 
 def clear() -> None:
-    subprocess.call("clear", shell=True)
+    subprocess.call("clear -x", shell=True)
 
 
 def print_header() -> None:
