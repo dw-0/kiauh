@@ -27,6 +27,9 @@ def add_config_section(
     instances: List[InstanceType],
     options: List[ConfigOption] | None = None,
 ) -> None:
+    if not instances:
+        return
+
     for instance in instances:
         cfg_file = instance.cfg_file
         Logger.print_status(f"Add section '[{section}]' to '{cfg_file}' ...")

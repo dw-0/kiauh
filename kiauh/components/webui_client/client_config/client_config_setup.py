@@ -34,7 +34,7 @@ from utils.input_utils import get_confirm
 from utils.instance_utils import get_instances
 
 
-def install_client_config(client_data: BaseWebClient) -> None:
+def install_client_config(client_data: BaseWebClient, cfg_backup=True) -> None:
     client_config: BaseWebClientConfig = client_data.client_config
     display_name = client_config.display_name
 
@@ -56,7 +56,8 @@ def install_client_config(client_data: BaseWebClient) -> None:
         download_client_config(client_config)
         create_client_config_symlink(client_config, kl_instances)
 
-        backup_printer_config_dir()
+        if cfg_backup:
+            backup_printer_config_dir()
 
         add_config_section(
             section=f"update_manager {client_config.name}",

@@ -36,8 +36,9 @@ from components.webui_client.client_utils import (
     symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
-from core.logger import Logger
-from utils.common import check_install_dependencies
+from core.logger import DialogCustomColor, DialogType, Logger
+from core.settings.kiauh_settings import KiauhSettings
+from utils.common import backup_printer_config_dir, check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import unzip
 from utils.input_utils import get_confirm
@@ -49,16 +50,11 @@ from utils.sys_utils import (
 )
 
 
-def install_client(client: BaseWebClient) -> None:
-    if client is None:
-        raise ValueError("Missing parameter client_data!")
-
-    if client.client_dir.exists():
-        Logger.print_info(
-            f"{client.display_name} seems to be already installed! Skipped ..."
-        )
-        return
-
+def install_client(
+    client: BaseWebClient,
+    settings: KiauhSettings,
+    reinstall: bool = False,
+) -> None:
     mr_instances: List[Moonraker] = get_instances(Moonraker)
 
     enable_remotemode = False
@@ -88,7 +84,10 @@ def install_client(client: BaseWebClient) -> None:
         question = f"Download the recommended {client_config.display_name}?"
         install_client_cfg = get_confirm(question, allow_go_back=False)
 
-    port: int = get_client_port_selection(client)
+    default_port: int = int(settings.get(client.name, "port"))
+    port: int = (
+        default_port if reinstall else get_client_port_selection(client, settings)
+    )
 
     check_install_dependencies({"nginx"})
 
@@ -96,20 +95,22 @@ def install_client(client: BaseWebClient) -> None:
         download_client(client)
         if enable_remotemode and client.client == WebClientType.MAINSAIL:
             enable_mainsail_remotemode()
-        if mr_instances:
-            add_config_section(
-                section=f"update_manager {client.name}",
-                instances=mr_instances,
-                options=[
-                    ("type", "web"),
-                    ("channel", "stable"),
-                    ("repo", str(client.repo_path)),
-                    ("path", str(client.client_dir)),
-                ],
-            )
-            InstanceManager.restart_all(mr_instances)
+
+        backup_printer_config_dir()
+        add_config_section(
+            section=f"update_manager {client.name}",
+            instances=mr_instances,
+            options=[
+                ("type", "web"),
+                ("channel", "stable"),
+                ("repo", str(client.repo_path)),
+                ("path", str(client.client_dir)),
+            ],
+        )
+        InstanceManager.restart_all(mr_instances)
+
         if install_client_cfg and kl_instances:
-            install_client_config(client)
+            install_client_config(client, False)
 
         copy_upstream_nginx_cfg()
         copy_common_vars_nginx_cfg()
@@ -127,12 +128,24 @@ def install_client(client: BaseWebClient) -> None:
         cmd_sysctl_service("nginx", "restart")
 
     except Exception as e:
-        Logger.print_error(f"{client.display_name} installation failed!\n{e}")
+        Logger.print_error(e)
+        Logger.print_dialog(
+            DialogType.ERROR,
+            center_content=True,
+            content=[f"{client.display_name} installation failed!"],
+        )
         return
 
-    log = f"Open {client.display_name} now on: http://{get_ipv4_addr()}:{port}"
-    Logger.print_ok(f"{client.display_name} installation complete!", start="\n")
-    Logger.print_ok(log, prefix=False, end="\n\n")
+    # noinspection HttpUrlsUsage
+    Logger.print_dialog(
+        DialogType.CUSTOM,
+        custom_title=f"{client.display_name} installation complete!",
+        custom_color=DialogCustomColor.GREEN,
+        center_content=True,
+        content=[
+            f"Open {client.display_name} now on: http://{get_ipv4_addr()}:{port}",
+        ],
+    )
 
 
 def download_client(client: BaseWebClient) -> None:

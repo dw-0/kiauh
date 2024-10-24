@@ -370,19 +370,26 @@ def read_ports_from_nginx_configs() -> List[int]:
     return sorted(ports_to_ints_list, key=lambda x: int(x))
 
 
-def get_client_port_selection(client: BaseWebClient) -> int:
-    settings = KiauhSettings()
+def get_client_port_selection(
+    client: BaseWebClient,
+    settings: KiauhSettings,
+    reconfigure=False,
+) -> int:
     default_port: int = int(settings.get(client.name, "port"))
-
     ports_in_use: List[int] = read_ports_from_nginx_configs()
     next_free_port: int = get_next_free_port(ports_in_use)
 
-    port: int = next_free_port if default_port in ports_in_use else default_port
+    port: int = (
+        next_free_port
+        if not reconfigure and default_port in ports_in_use
+        else default_port
+    )
 
     print_client_port_select_dialog(client.display_name, port, ports_in_use)
 
     while True:
-        question = f"Configure {client.display_name} for port"
+        _type = "Reconfigure" if reconfigure else "Configure"
+        question = f"{_type} {client.display_name} for port"
         port_input = get_number_input(question, min_count=80, default=port)
 
         if port_input not in ports_in_use:
@@ -400,3 +407,23 @@ def get_next_free_port(ports_in_use: List[int]) -> int:
     used_ports = set(map(int, ports_in_use))
 
     return min(valid_ports - used_ports)
+
+
+def set_listen_port(client: BaseWebClient, curr_port: int, new_port: int) -> None:
+    """
+    Set the port the client should listen on in the NGINX config
+    :param curr_port: The current port the client listens on
+    :param new_port: The new port to set
+    :param client: The client to set the port for
+    :return: None
+    """
+    config = NGINX_SITES_AVAILABLE.joinpath(client.name)
+    with open(config, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if "listen" in line:
+            lines[i] = line.replace(str(curr_port), str(new_port))
+
+    with open(config, "w") as f:
+        f.writelines(lines)
