@@ -25,6 +25,7 @@ class ComponentStatus:
     status: StatusCode
     owner: str | None = None
     repo: str | None = None
+    branch: str = ""
     local: str | None = None
     remote: str | None = None
     instances: int | None = None

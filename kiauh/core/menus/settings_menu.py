@@ -11,6 +11,8 @@ from __future__ import annotations
 import textwrap
 from typing import Literal, Tuple, Type
 
+from components.klipper.klipper_utils import get_klipper_status
+from components.moonraker.moonraker_utils import get_moonraker_status
 from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
 from core.logger import DialogType, Logger
 from core.menus import Option
@@ -26,8 +28,8 @@ class SettingsMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
         self.previous_menu: Type[BaseMenu] | None = previous_menu
-        self.klipper_repo: str | None = None
-        self.moonraker_repo: str | None = None
+        self.klipper_status = get_klipper_status()
+        self.moonraker_status = get_moonraker_status()
         self.mainsail_unstable: bool | None = None
         self.fluidd_unstable: bool | None = None
         self.auto_backups_enabled: bool | None = None
@@ -49,31 +51,41 @@ class SettingsMenu(BaseMenu):
 
     def print_menu(self) -> None:
         header = " [ KIAUH Settings ] "
-        color = COLOR_CYAN
-        count = 62 - len(color) - len(RESET_FORMAT)
-        checked = f"[{COLOR_GREEN}x{RESET_FORMAT}]"
+        color, rst = COLOR_CYAN, RESET_FORMAT
+        count = 62 - len(color) - len(rst)
+        checked = f"[{COLOR_GREEN}x{rst}]"
         unchecked = "[ ]"
+
+        kl_repo: str = f"{color}{self.klipper_status.repo}{rst}"
+        kl_branch: str = f"{color}{self.klipper_status.branch}{rst}"
+        kl_owner: str = f"{color}{self.klipper_status.owner}{rst}"
+        mr_repo: str = f"{color}{self.moonraker_status.repo}{rst}"
+        mr_branch: str = f"{color}{self.moonraker_status.branch}{rst}"
+        mr_owner: str = f"{color}{self.moonraker_status.owner}{rst}"
         o1 = checked if self.mainsail_unstable else unchecked
         o2 = checked if self.fluidd_unstable else unchecked
         o3 = checked if self.auto_backups_enabled else unchecked
         menu = textwrap.dedent(
             f"""
             ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            ║ {color}{header:~^{count}}{rst} ║
             ╟───────────────────────────────────────────────────────╢
-            ║ Klipper source repository:                            ║
-            ║   ● {self.klipper_repo:<67} ║
-            ║                                                       ║
-            ║ Moonraker source repository:                          ║
-            ║   ● {self.moonraker_repo:<67} ║
-            ║                                                       ║
-            ║ Install unstable Webinterface releases:               ║
+            ║ Klipper:                                              ║
+            ║  ● Repo:   {kl_repo:51} ║
+            ║  ● Owner:  {kl_owner:51} ║
+            ║  ● Branch: {kl_branch:51} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Moonraker:                                            ║
+            ║  ● Repo:   {mr_repo:51} ║
+            ║  ● Owner:  {mr_owner:51} ║
+            ║  ● Branch: {mr_branch:51} ║
+            ╟───────────────────────────────────────────────────────╢
+            ║ Install unstable releases:                            ║
             ║  {o1} Mainsail                                         ║
             ║  {o2} Fluidd                                           ║
-            ║                                                       ║
+            ╟───────────────────────────────────────────────────────╢
             ║ Auto-Backup:                                          ║
             ║  {o3} Automatic backup before update                   ║
-            ║                                                       ║
             ╟───────────────────────────────────────────────────────╢
             ║ 1) Set Klipper source repository                      ║
             ║ 2) Set Moonraker source repository                    ║
@@ -89,24 +101,9 @@ class SettingsMenu(BaseMenu):
 
     def _load_settings(self) -> None:
         self.settings = KiauhSettings()
-
-        self._format_repo_str("klipper")
-        self._format_repo_str("moonraker")
-
         self.auto_backups_enabled = self.settings.kiauh.backup_before_update
         self.mainsail_unstable = self.settings.mainsail.unstable_releases
         self.fluidd_unstable = self.settings.fluidd.unstable_releases
-
-    def _format_repo_str(self, repo_name: Literal["klipper", "moonraker"]) -> None:
-        repo: RepoSettings = self.settings[repo_name]
-        repo_str = f"{'/'.join(repo.repo_url.rsplit('/', 2)[-2:])}"
-        branch_str = f"({COLOR_CYAN}@ {repo.branch}{RESET_FORMAT})"
-
-        setattr(
-            self,
-            f"{repo_name}_repo",
-            f"{COLOR_CYAN}{repo_str}{RESET_FORMAT} {branch_str}",
-        )
 
     def _gather_input(self) -> Tuple[str, str]:
         Logger.print_dialog(

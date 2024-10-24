@@ -87,10 +87,27 @@ def get_repo_name(repo: Path) -> Tuple[str, str]:
         orga: str = substrings[0] if substrings[0] else "-"
         name: str = substrings[1] if substrings[1] else "-"
 
-        return orga, name
+        return orga, name.replace(".git", "")
 
     except CalledProcessError:
         return "-", "-"
+
+
+def get_current_branch(repo: Path) -> str:
+    """
+    Get the current branch of a local Git repository
+    :param repo: Path to the local Git repository
+    :return: Current branch
+    """
+    try:
+        cmd = ["git", "branch", "--show-current"]
+        result: str = check_output(cmd, stderr=DEVNULL, cwd=repo).decode(
+            encoding="utf-8"
+        )
+        return result.strip()
+
+    except CalledProcessError:
+        return ""
 
 
 def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
@@ -209,8 +226,8 @@ def get_local_commit(repo: Path) -> str | None:
         return None
 
     try:
-        cmd = f"cd {repo} && git describe HEAD --always --tags | cut -d '-' -f 1,2"
-        return check_output(cmd, shell=True, text=True).strip()
+        cmd = "git describe HEAD --always --tags | cut -d '-' -f 1,2"
+        return check_output(cmd, shell=True, text=True, cwd=repo).strip()
     except CalledProcessError:
         return None
 
@@ -220,12 +237,15 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
     try:
-        # get locally checked out branch
-        branch_cmd = f"cd {repo} && git branch | grep -E '\*'"
-        branch = check_output(branch_cmd, shell=True, text=True)
-        branch = branch.split("*")[-1].strip()
-        cmd = f"cd {repo} && git describe 'origin/{branch}' --always --tags | cut -d '-' -f 1,2"
-        return check_output(cmd, shell=True, text=True).strip()
+        branch = get_current_branch(repo)
+        cmd = f"git describe 'origin/{branch}' --always --tags | cut -d '-' -f 1,2"
+        return check_output(
+            cmd,
+            shell=True,
+            text=True,
+            cwd=repo,
+            stderr=DEVNULL,
+        ).strip()
     except CalledProcessError:
         return None
 
