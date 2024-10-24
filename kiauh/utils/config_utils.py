@@ -8,6 +8,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import shutil
 import tempfile
 from pathlib import Path
 from typing import List, Tuple
@@ -69,7 +70,7 @@ def add_config_section_at_top(section: str, instances: List[InstanceType]) -> No
             tmp.writelines(org_content)
 
         cfg_file.unlink()
-        tmp_cfg_path.rename(cfg_file)
+        shutil.move(tmp_cfg_path, cfg_file)
 
         Logger.print_ok("OK!")
 
