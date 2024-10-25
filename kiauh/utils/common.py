@@ -16,13 +16,12 @@ from typing import Dict, List, Literal, Optional, Set
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.constants import (
-    COLOR_CYAN,
     GLOBAL_DEPS,
     PRINTER_DATA_BACKUP_DIR,
-    RESET_FORMAT,
 )
 from core.logger import DialogType, Logger
-from core.types import ComponentStatus, StatusCode
+from core.types.color import Color
+from core.types.component_status import ComponentStatus, StatusCode
 from utils.git_utils import (
     get_current_branch,
     get_local_commit,
@@ -83,7 +82,7 @@ def check_install_dependencies(
         Logger.print_status("Installing dependencies ...")
         Logger.print_info("The following packages need installation:")
         for r in requirements:
-            print(f"{COLOR_CYAN}● {r}{RESET_FORMAT}")
+            print(Color.apply(f"● {r}", Color.CYAN))
         update_system_package_lists(silent=False)
         install_system_packages(requirements)
 

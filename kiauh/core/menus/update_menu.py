@@ -32,17 +32,11 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
-from core.constants import (
-    COLOR_GREEN,
-    COLOR_RED,
-    COLOR_YELLOW,
-    RESET_FORMAT,
-)
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
-from core.spinner import Spinner
-from core.types import ComponentStatus
+from core.types.color import Color
+from core.types.component_status import ComponentStatus
 from utils.input_utils import get_confirm
 from utils.sys_utils import (
     get_upgradable_packages,
@@ -56,6 +50,11 @@ from utils.sys_utils import (
 class UpdateMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.loading_msg = "Loading update menu, please wait"
+        self.is_loading(True)
+
+        self.title = "Update Menu"
+        self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
         self.packages: List[str] = []
@@ -123,6 +122,9 @@ class UpdateMenu(BaseMenu):
             },
         }
 
+        self._fetch_update_status()
+        self.is_loading(False)
+
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
@@ -143,29 +145,16 @@ class UpdateMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        spinner = Spinner("Loading update menu, please wait", color="green")
-        spinner.start()
-
-        self._fetch_update_status()
-
-        spinner.stop()
-
-        header = " [ Update Menu ] "
-        color = COLOR_GREEN
-        count = 62 - len(color) - len(RESET_FORMAT)
-
         sysupgrades: str = "No upgrades available."
         padding = 29
         if self.package_count > 0:
-            sysupgrades = (
-                f"{COLOR_GREEN}{self.package_count} upgrades available!{RESET_FORMAT}"
+            sysupgrades = Color.apply(
+                f"{self.package_count} upgrades available!", Color.GREEN
             )
             padding = 38
 
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────┬───────────────┬───────────────╢
             ║  a) Update all        │               │               ║
             ║                       │ Current:      │ Latest:       ║
@@ -265,15 +254,15 @@ class UpdateMenu(BaseMenu):
         self.package_count = len(self.packages)
 
     def _format_local_status(self, local_version, remote_version) -> str:
-        color = COLOR_RED
+        color = Color.RED
         if not local_version:
-            color = COLOR_RED
+            color = Color.RED
         elif local_version == remote_version:
-            color = COLOR_GREEN
+            color = Color.GREEN
         elif local_version != remote_version:
-            color = COLOR_YELLOW
+            color = Color.YELLOW
 
-        return f"{color}{local_version or '-'}{RESET_FORMAT}"
+        return Color.apply(local_version or "-", color)
 
     def _set_status_data(self, name: str, status_fn: Callable, *args) -> None:
         comp_status: ComponentStatus = status_fn(*args)
@@ -288,9 +277,9 @@ class UpdateMenu(BaseMenu):
         local_status = self.status_data[name].get("local", None)
         remote_status = self.status_data[name].get("remote", None)
 
-        color = COLOR_GREEN if remote_status else COLOR_RED
+        color = Color.GREEN if remote_status else Color.RED
         local_txt = self._format_local_status(local_status, remote_status)
-        remote_txt = f"{color}{remote_status or '-'}{RESET_FORMAT}"
+        remote_txt = Color.apply(remote_status or "-", color)
 
         setattr(self, f"{name}_local", local_txt)
         setattr(self, f"{name}_remote", remote_txt)

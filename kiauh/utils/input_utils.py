@@ -11,8 +11,9 @@ from __future__ import annotations
 import re
 from typing import Dict, List
 
-from core.constants import COLOR_CYAN, INVALID_CHOICE, RESET_FORMAT
+from core.constants import INVALID_CHOICE
 from core.logger import Logger
+from core.types.color import Color
 
 
 def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool | None:
@@ -151,7 +152,7 @@ def format_question(question: str, default=None) -> str:
     if default is not None:
         formatted_q += f" (default={default})"
 
-    return f"{COLOR_CYAN}###### {formatted_q}: {RESET_FORMAT}"
+    return Color.apply(f"###### {formatted_q}: ", Color.CYAN)
 
 
 def validate_number_input(value: str, min_count: int, max_count: int | None) -> int:

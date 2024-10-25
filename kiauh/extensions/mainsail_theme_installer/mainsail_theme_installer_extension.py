@@ -20,10 +20,10 @@ from components.klipper.klipper_dialogs import (
     DisplayType,
     print_instance_overview,
 )
-from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 from extensions.base_extension import BaseExtension
 from utils.git_utils import git_clone_wrapper
 from utils.input_utils import get_selection_input
@@ -80,6 +80,8 @@ class MainsailThemeInstallMenu(BaseMenu):
 
     def __init__(self, instances: List[Klipper]):
         super().__init__()
+        self.title = "Mainsail Theme Installer"
+        self.title_color = Color.YELLOW
         self.themes: List[ThemeData] = self.load_themes()
         self.instances = instances
 
@@ -97,14 +99,11 @@ class MainsailThemeInstallMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Mainsail Theme Installer ] "
-        color = COLOR_YELLOW
-        line1 = f"{COLOR_CYAN}A preview of each Mainsail theme can be found here:{RESET_FORMAT}"
-        count = 62 - len(color) - len(RESET_FORMAT)
+        line1 = Color.apply(
+            "A preview of each Mainsail theme can be found here:", Color.YELLOW
+        )
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ {line1:<62} ║
             ║ https://docs.mainsail.xyz/theming/themes              ║

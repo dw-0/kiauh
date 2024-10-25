@@ -9,16 +9,21 @@
 from __future__ import annotations
 
 import textwrap
-from typing import Type
+from typing import Tuple, Type
 
-from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
-from core.menus.base_menu import BaseMenu
+from core.menus.base_menu import BaseMenu, MenuTitleStyle
+from core.types.color import Color
+
+
+def __title_config__() -> Tuple[str, Color, MenuTitleStyle]:
+    return "< ? > Help: Flash MCU < ? >", Color.YELLOW, MenuTitleStyle.PLAIN
 
 
 # noinspection DuplicatedCode
 class KlipperFlashMethodHelpMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title, self.title_color, self.title_style = __title_config__()
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -34,15 +39,10 @@ class KlipperFlashMethodHelpMenu(BaseMenu):
         pass
 
     def print_menu(self) -> None:
-        header = " < ? > Help: Flash MCU < ? > "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
-        subheader1 = f"{COLOR_CYAN}Regular flashing method:{RESET_FORMAT}"
-        subheader2 = f"{COLOR_CYAN}Updating via SD-Card Update:{RESET_FORMAT}"
+        subheader1 = Color.apply("Regular flashing method:", Color.CYAN)
+        subheader2 = Color.apply("Updating via SD-Card Update:", Color.CYAN)
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ {subheader1:<62} ║
             ║ The default method to flash controller boards which   ║
@@ -77,6 +77,7 @@ class KlipperFlashMethodHelpMenu(BaseMenu):
 class KlipperFlashCommandHelpMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title, self.title_color, self.title_style = __title_config__()
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -92,15 +93,10 @@ class KlipperFlashCommandHelpMenu(BaseMenu):
         pass
 
     def print_menu(self) -> None:
-        header = " < ? > Help: Flash MCU < ? > "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
-        subheader1 = f"{COLOR_CYAN}make flash:{RESET_FORMAT}"
-        subheader2 = f"{COLOR_CYAN}make serialflash:{RESET_FORMAT}"
+        subheader1 = Color.apply("make flash:", Color.CYAN)
+        subheader2 = Color.apply("make serialflash:", Color.CYAN)
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ {subheader1:<62} ║
             ║ The default command to flash controller board, it     ║
@@ -121,6 +117,7 @@ class KlipperFlashCommandHelpMenu(BaseMenu):
 class KlipperMcuConnectionHelpMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title, self.title_color, self.title_style = __title_config__()
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -138,17 +135,12 @@ class KlipperMcuConnectionHelpMenu(BaseMenu):
         pass
 
     def print_menu(self) -> None:
-        header = " < ? > Help: Flash MCU < ? > "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
-        subheader1 = f"{COLOR_CYAN}USB:{RESET_FORMAT}"
-        subheader2 = f"{COLOR_CYAN}UART:{RESET_FORMAT}"
-        subheader3 = f"{COLOR_CYAN}USB DFU:{RESET_FORMAT}"
-        subheader4 = f"{COLOR_CYAN}USB RP2040 Boot:{RESET_FORMAT}"
+        subheader1 = Color.apply("USB:", Color.CYAN)
+        subheader2 = Color.apply("UART:", Color.CYAN)
+        subheader3 = Color.apply("USB DFU:", Color.CYAN)
+        subheader4 = Color.apply("USB RP2040 Boot:", Color.CYAN)
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ {subheader1:<62} ║
             ║ Selecting USB as the connection method will scan the  ║

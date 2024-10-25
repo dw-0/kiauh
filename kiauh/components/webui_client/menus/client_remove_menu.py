@@ -13,9 +13,9 @@ from typing import Type
 
 from components.webui_client import client_remove
 from components.webui_client.base_data import BaseWebClient
-from core.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 
 
 # noinspection PyUnusedLocal
@@ -24,6 +24,8 @@ class ClientRemoveMenu(BaseMenu):
         self, client: BaseWebClient, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
+        self.title = f"Remove {client.display_name}"
+        self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.client: BaseWebClient = client
         self.remove_client: bool = False
@@ -50,18 +52,13 @@ class ClientRemoveMenu(BaseMenu):
         client_config = self.client.client_config
         client_config_name = client_config.display_name
 
-        header = f" [ Remove {client_name} ] "
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
-        checked = f"[{COLOR_CYAN}x{RESET_FORMAT}]"
+        checked = f"[{Color.apply('x', Color.CYAN)}]"
         unchecked = "[ ]"
         o1 = checked if self.remove_client else unchecked
         o2 = checked if self.remove_client_cfg else unchecked
         o3 = checked if self.backup_config_json else unchecked
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Enter a number and hit enter to select / deselect     ║
             ║ the specific option for removal.                      ║
@@ -99,8 +96,7 @@ class ClientRemoveMenu(BaseMenu):
             and not self.remove_client_cfg
             and not self.backup_config_json
         ):
-            error = f"{COLOR_RED}Nothing selected ...{RESET_FORMAT}"
-            print(error)
+            print(Color.apply("Nothing selected ...", Color.RED))
             return
 
         client_remove.run_client_removal(

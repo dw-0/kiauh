@@ -13,11 +13,11 @@ from typing import Literal, Tuple, Type
 
 from components.klipper.klipper_utils import get_klipper_status
 from components.moonraker.moonraker_utils import get_moonraker_status
-from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings, RepoSettings
+from core.types.color import Color
 from procedures.switch_repo import run_switch_repo_routine
 from utils.input_utils import get_confirm, get_string_input
 
@@ -27,6 +27,8 @@ from utils.input_utils import get_confirm, get_string_input
 class SettingsMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.title = "Settings Menu"
+        self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.klipper_status = get_klipper_status()
         self.moonraker_status = get_moonraker_status()
@@ -50,25 +52,21 @@ class SettingsMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ KIAUH Settings ] "
-        color, rst = COLOR_CYAN, RESET_FORMAT
-        count = 62 - len(color) - len(rst)
-        checked = f"[{COLOR_GREEN}x{rst}]"
+        color = Color.CYAN
+        checked = f"[{Color.apply('x', Color.GREEN)}]"
         unchecked = "[ ]"
 
-        kl_repo: str = f"{color}{self.klipper_status.repo}{rst}"
-        kl_branch: str = f"{color}{self.klipper_status.branch}{rst}"
-        kl_owner: str = f"{color}{self.klipper_status.owner}{rst}"
-        mr_repo: str = f"{color}{self.moonraker_status.repo}{rst}"
-        mr_branch: str = f"{color}{self.moonraker_status.branch}{rst}"
-        mr_owner: str = f"{color}{self.moonraker_status.owner}{rst}"
+        kl_repo: str = Color.apply(self.klipper_status.repo, color)
+        kl_branch: str = Color.apply(self.klipper_status.branch, color)
+        kl_owner: str = Color.apply(self.klipper_status.owner, color)
+        mr_repo: str = Color.apply(self.moonraker_status.repo, color)
+        mr_branch: str = Color.apply(self.moonraker_status.branch, color)
+        mr_owner: str = Color.apply(self.moonraker_status.owner, color)
         o1 = checked if self.mainsail_unstable else unchecked
         o2 = checked if self.fluidd_unstable else unchecked
         o3 = checked if self.auto_backups_enabled else unchecked
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{rst} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Klipper:                                              ║
             ║  ● Repo:   {kl_repo:51} ║

@@ -30,7 +30,7 @@ from core.constants import SYSTEMD
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
-from core.types import ComponentStatus
+from core.types.component_status import ComponentStatus
 from utils.common import (
     check_install_dependencies,
     get_install_status,

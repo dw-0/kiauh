@@ -14,17 +14,13 @@ import sys
 import textwrap
 import traceback
 from abc import abstractmethod
+from enum import Enum
 from typing import Dict, Type
 
-from core.constants import (
-    COLOR_CYAN,
-    COLOR_GREEN,
-    COLOR_RED,
-    COLOR_YELLOW,
-    RESET_FORMAT,
-)
 from core.logger import Logger
 from core.menus import FooterType, Option
+from core.spinner import Spinner
+from core.types.color import Color
 from utils.input_utils import get_selection_input
 
 
@@ -36,14 +32,14 @@ def print_header() -> None:
     line1 = " [ KIAUH ] "
     line2 = "Klipper Installation And Update Helper"
     line3 = ""
-    color = COLOR_CYAN
-    count = 62 - len(color) - len(RESET_FORMAT)
+    color = Color.CYAN
+    count = 62 - len(str(color)) - len(str(Color.RST))
     header = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗
-        ║ {color}{line1:~^{count}}{RESET_FORMAT} ║
-        ║ {color}{line2:^{count}}{RESET_FORMAT} ║
-        ║ {color}{line3:~^{count}}{RESET_FORMAT} ║
+        ║ {Color.apply(f"{line1:~^{count}}", color)} ║
+        ║ {Color.apply(f"{line2:^{count}}", color)} ║
+        ║ {Color.apply(f"{line3:~^{count}}", color)} ║
         ╚═══════════════════════════════════════════════════════╝
         """
     )[1:]
@@ -52,11 +48,11 @@ def print_header() -> None:
 
 def print_quit_footer() -> None:
     text = "Q) Quit"
-    color = COLOR_RED
-    count = 62 - len(color) - len(RESET_FORMAT)
+    color = Color.RED
+    count = 62 - len(str(color)) - len(str(Color.RST))
     footer = textwrap.dedent(
         f"""
-        ║ {color}{text:^{count}}{RESET_FORMAT} ║
+        ║ {color}{text:^{count}}{Color.RST} ║
         ╚═══════════════════════════════════════════════════════╝
         """
     )[1:]
@@ -65,11 +61,11 @@ def print_quit_footer() -> None:
 
 def print_back_footer() -> None:
     text = "B) « Back"
-    color = COLOR_GREEN
-    count = 62 - len(color) - len(RESET_FORMAT)
+    color = Color.GREEN
+    count = 62 - len(str(color)) - len(str(Color.RST))
     footer = textwrap.dedent(
         f"""
-        ║ {color}{text:^{count}}{RESET_FORMAT} ║
+        ║ {color}{text:^{count}}{Color.RST} ║
         ╚═══════════════════════════════════════════════════════╝
         """
     )[1:]
@@ -79,12 +75,12 @@ def print_back_footer() -> None:
 def print_back_help_footer() -> None:
     text1 = "B) « Back"
     text2 = "H) Help [?]"
-    color1 = COLOR_GREEN
-    color2 = COLOR_YELLOW
-    count = 34 - len(color1) - len(RESET_FORMAT)
+    color1 = Color.GREEN
+    color2 = Color.YELLOW
+    count = 34 - len(str(color1)) - len(str(Color.RST))
     footer = textwrap.dedent(
         f"""
-        ║ {color1}{text1:^{count}}{RESET_FORMAT} │ {color2}{text2:^{count}}{RESET_FORMAT} ║
+        ║ {color1}{text1:^{count}}{Color.RST} │ {color2}{text2:^{count}}{Color.RST} ║
         ╚═══════════════════════════╧═══════════════════════════╝
         """
     )[1:]
@@ -93,6 +89,11 @@ def print_back_help_footer() -> None:
 
 def print_blank_footer() -> None:
     print("╚═══════════════════════════════════════════════════════╝")
+
+
+class MenuTitleStyle(Enum):
+    PLAIN = "plain"
+    STYLED = "styled"
 
 
 class PostInitCaller(type):
@@ -110,6 +111,14 @@ class BaseMenu(metaclass=PostInitCaller):
     default_option: Option = None
     input_label_txt: str = "Perform action"
     header: bool = False
+
+    loading_msg: str = ""
+    spinner: Spinner | None = None
+
+    title: str = ""
+    title_style: MenuTitleStyle = MenuTitleStyle.STYLED
+    title_color: Color = Color.WHITE
+
     previous_menu: Type[BaseMenu] | None = None
     help_menu: Type[BaseMenu] | None = None
     footer_type: FooterType = FooterType.BACK
@@ -160,7 +169,32 @@ class BaseMenu(metaclass=PostInitCaller):
     def print_menu(self) -> None:
         raise NotImplementedError
 
-    def print_footer(self) -> None:
+    def is_loading(self, state: bool) -> None:
+        if not self.spinner and state:
+            self.spinner = Spinner(self.loading_msg)
+            self.spinner.start()
+        else:
+            self.spinner.stop()
+            self.spinner = None
+
+    def __print_menu_title(self) -> None:
+        count = 62 - len(str(self.title_color)) - len(str(Color.RST))
+        menu_title = "╔═══════════════════════════════════════════════════════╗\n"
+        if self.title:
+            title = (
+                f" [ {self.title} ] "
+                if self.title_style == MenuTitleStyle.STYLED
+                else self.title
+            )
+            line = (
+                f"{title:~^{count}}"
+                if self.title_style == MenuTitleStyle.STYLED
+                else f"{title:^{count}}"
+            )
+            menu_title += f"║ {Color.apply(line, self.title_color)} ║\n"
+        print(menu_title, end="")
+
+    def __print_footer(self) -> None:
         if self.footer_type is FooterType.QUIT:
             print_quit_footer()
         elif self.footer_type is FooterType.BACK:
@@ -172,16 +206,17 @@ class BaseMenu(metaclass=PostInitCaller):
         else:
             raise NotImplementedError("FooterType not correctly implemented!")
 
-    def display_menu(self) -> None:
+    def __display_menu(self) -> None:
         if self.header:
             print_header()
+        self.__print_menu_title()
         self.print_menu()
-        self.print_footer()
+        self.__print_footer()
 
     def run(self) -> None:
         """Start the menu lifecycle. When this function returns, the lifecycle of the menu ends."""
         try:
-            self.display_menu()
+            self.__display_menu()
             option = get_selection_input(self.input_label_txt, self.options)
             selected_option: Option = self.options.get(option)
 

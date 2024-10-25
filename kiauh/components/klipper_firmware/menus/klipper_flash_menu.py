@@ -36,10 +36,10 @@ from components.klipper_firmware.menus.klipper_flash_help_menu import (
     KlipperFlashMethodHelpMenu,
     KlipperMcuConnectionHelpMenu,
 )
-from core.constants import COLOR_CYAN, COLOR_RED, COLOR_YELLOW, RESET_FORMAT
 from core.logger import DialogType, Logger
 from core.menus import FooterType, Option
-from core.menus.base_menu import BaseMenu
+from core.menus.base_menu import BaseMenu, MenuTitleStyle
+from core.types.color import Color
 from utils.input_utils import get_number_input
 
 
@@ -48,6 +48,8 @@ from utils.input_utils import get_number_input
 class KlipperFlashMethodMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "MCU Flash Menu"
+        self.title_color = Color.CYAN
         self.help_menu = KlipperFlashMethodHelpMenu
         self.input_label_txt = "Select flash method"
         self.footer_type = FooterType.BACK_HELP
@@ -67,17 +69,13 @@ class KlipperFlashMethodMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ MCU Flash Menu ] "
-        subheader = f"{COLOR_YELLOW}ATTENTION:{RESET_FORMAT}"
-        subline1 = f"{COLOR_YELLOW}Make sure to select the correct method for the  MCU!{RESET_FORMAT}"
-        subline2 = f"{COLOR_YELLOW}Not all MCUs support both methods!{RESET_FORMAT}"
-
-        color = COLOR_CYAN
-        count = 62 - len(color) - len(RESET_FORMAT)
+        subheader = Color.apply("ATTENTION:", Color.YELLOW)
+        subline1 = Color.apply(
+            "Make sure to select the correct method for the MCU!", Color.YELLOW
+        )
+        subline2 = Color.apply("Not all MCUs support both methods!", Color.YELLOW)
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Select the flash method for flashing the MCU.         ║
             ║                                                       ║
@@ -112,6 +110,9 @@ class KlipperFlashMethodMenu(BaseMenu):
 class KlipperFlashCommandMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "Which flash command to use for flashing the MCU?"
+        self.title_style = MenuTitleStyle.PLAIN
+        self.title_color = Color.YELLOW
         self.help_menu = KlipperFlashCommandHelpMenu
         self.input_label_txt = "Select flash command"
         self.footer_type = FooterType.BACK_HELP
@@ -132,8 +133,6 @@ class KlipperFlashCommandMenu(BaseMenu):
     def print_menu(self) -> None:
         menu = textwrap.dedent(
             """
-            ╔═══════════════════════════════════════════════════════╗
-            ║ Which flash command to use for flashing the MCU?      ║
             ╟───────────────────────────────────────────────────────╢
             ║ 1) make flash (default)                               ║
             ║ 2) make serialflash (stm32flash)                      ║
@@ -161,6 +160,9 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         self, previous_menu: Type[BaseMenu] | None = None, standalone: bool = False
     ):
         super().__init__()
+        self.title = "Make sure that the controller board is connected now!"
+        self.title_style = MenuTitleStyle.PLAIN
+        self.title_color = Color.YELLOW
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.__standalone = standalone
         self.help_menu = KlipperMcuConnectionHelpMenu
@@ -182,13 +184,8 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = "Make sure that the controller board is connected now!"
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
-            f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:^{count}}{RESET_FORMAT} ║
+            """
             ╟───────────────────────────────────────────────────────╢
             ║ How is the controller board connected to the host?    ║
             ╟───────────────────────────────────────────────────────╢
@@ -230,7 +227,9 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
             Logger.print_status("Identifying MCU connected via USB in DFU mode ...")
             self.flash_options.mcu_list = find_usb_dfu_device()
         elif conn_type is ConnectionType.USB_RP2040:
-            Logger.print_status("Identifying MCU connected via USB in RP2 Boot mode ...")
+            Logger.print_status(
+                "Identifying MCU connected via USB in RP2 Boot mode ..."
+            )
             self.flash_options.mcu_list = find_usb_rp2_boot_device()
 
         if len(self.flash_options.mcu_list) < 1:
@@ -241,7 +240,7 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
         if self.__standalone and len(self.flash_options.mcu_list) > 0:
             Logger.print_ok("The following MCUs were found:", prefix=False)
             for i, mcu in enumerate(self.flash_options.mcu_list):
-                print(f"   ● MCU #{i}: {COLOR_CYAN}{mcu}{RESET_FORMAT}")
+                print(f"   ● MCU #{i}: {Color.CYAN}{mcu}{Color.RST}")
             time.sleep(3)
             return
 
@@ -256,6 +255,9 @@ class KlipperSelectMcuConnectionMenu(BaseMenu):
 class KlipperSelectMcuIdMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "!!! ATTENTION !!!"
+        self.title_style = MenuTitleStyle.PLAIN
+        self.title_color = Color.RED
         self.flash_options = FlashOptions()
         self.mcu_list = self.flash_options.mcu_list
         self.input_label_txt = "Select MCU to flash"
@@ -274,14 +276,9 @@ class KlipperSelectMcuIdMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = "!!! ATTENTION !!!"
-        header2 = f"[{COLOR_CYAN}List of detected MCUs{RESET_FORMAT}]"
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
+        header2 = f"[{Color.apply('List of detected MCUs', Color.CYAN)}]"
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Make sure, to select the correct MCU!                 ║
             ║ ONLY flash a firmware created for the respective MCU! ║
@@ -293,7 +290,7 @@ class KlipperSelectMcuIdMenu(BaseMenu):
 
         for i, mcu in enumerate(self.mcu_list):
             mcu = mcu.split("/")[-1]
-            menu += f"║ {i}) {COLOR_CYAN}{mcu:<51}{RESET_FORMAT}║\n"
+            menu += f"║ {i}) {Color.apply(f'{mcu:<51}', Color.CYAN)}║\n"
 
         menu += textwrap.dedent(
             """
@@ -348,7 +345,6 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
         else:
             menu = textwrap.dedent(
                 """
-                ╔═══════════════════════════════════════════════════════╗
                 ║ Please select the type of board that corresponds to   ║
                 ║ the currently selected MCU ID you chose before.       ║
                 ║                                                       ║
@@ -400,6 +396,9 @@ class KlipperSelectSDFlashBoardMenu(BaseMenu):
 class KlipperFlashOverviewMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "!!! ATTENTION !!!"
+        self.title_style = MenuTitleStyle.PLAIN
+        self.title_color = Color.RED
         self.flash_options = FlashOptions()
         self.input_label_txt = "Perform action (default=Y)"
 
@@ -415,21 +414,16 @@ class KlipperFlashOverviewMenu(BaseMenu):
         self.default_option = Option(self.execute_flash)
 
     def print_menu(self) -> None:
-        header = "!!! ATTENTION !!!"
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
-
         method = self.flash_options.flash_method.value
         command = self.flash_options.flash_command.value
         conn_type = self.flash_options.connection_type.value
         mcu = self.flash_options.selected_mcu.split("/")[-1]
         board = self.flash_options.selected_board
         baudrate = self.flash_options.selected_baudrate
-        subheader = f"[{COLOR_CYAN}Overview{RESET_FORMAT}]"
+        color = Color.CYAN
+        subheader = f"[{Color.apply('Overview', color)}]"
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Before contuining the flashing process, please check  ║
             ║ if all parameters were set correctly! Once you made   ║
@@ -443,18 +437,18 @@ class KlipperFlashOverviewMenu(BaseMenu):
 
         menu += textwrap.dedent(
             f"""
-            ║ MCU: {COLOR_CYAN}{mcu:<48}{RESET_FORMAT} ║
-            ║ Connection: {COLOR_CYAN}{conn_type:<41}{RESET_FORMAT} ║
-            ║ Flash method: {COLOR_CYAN}{method:<39}{RESET_FORMAT} ║
-            ║ Flash command: {COLOR_CYAN}{command:<38}{RESET_FORMAT} ║
+            ║ MCU: {Color.apply(f"{mcu:<48}", color)} ║
+            ║ Connection: {Color.apply(f"{conn_type:<41}", color)} ║
+            ║ Flash method: {Color.apply(f"{method:<39}", color)} ║
+            ║ Flash command: {Color.apply(f"{command:<38}", color)} ║
             """
         )[1:]
 
         if self.flash_options.flash_method is FlashMethod.SD_CARD:
             menu += textwrap.dedent(
                 f"""
-                ║ Board type: {COLOR_CYAN}{board:<41}{RESET_FORMAT} ║
-                ║ Baudrate: {COLOR_CYAN}{baudrate:<43}{RESET_FORMAT} ║
+                ║ Board type: {Color.apply(f"{board:<41}", color)} ║
+                ║ Baudrate: {Color.apply(f"{baudrate:<43}", color)} ║
                 """
             )[1:]
 

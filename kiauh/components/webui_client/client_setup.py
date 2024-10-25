@@ -36,8 +36,9 @@ from components.webui_client.client_utils import (
     symlink_webui_nginx_log,
 )
 from core.instance_manager.instance_manager import InstanceManager
-from core.logger import DialogCustomColor, DialogType, Logger
+from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
+from core.types.color import Color
 from utils.common import backup_printer_config_dir, check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import unzip
@@ -140,7 +141,7 @@ def install_client(
     Logger.print_dialog(
         DialogType.CUSTOM,
         custom_title=f"{client.display_name} installation complete!",
-        custom_color=DialogCustomColor.GREEN,
+        custom_color=Color.GREEN,
         center_content=True,
         content=[
             f"Open {client.display_name} now on: http://{get_ipv4_addr()}:{port}",

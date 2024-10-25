@@ -23,14 +23,6 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
-from core.constants import (
-    COLOR_CYAN,
-    COLOR_GREEN,
-    COLOR_MAGENTA,
-    COLOR_RED,
-    COLOR_YELLOW,
-    RESET_FORMAT,
-)
 from core.logger import Logger
 from core.menus import FooterType
 from core.menus.advanced_menu import AdvancedMenu
@@ -40,7 +32,8 @@ from core.menus.install_menu import InstallMenu
 from core.menus.remove_menu import RemoveMenu
 from core.menus.settings_menu import SettingsMenu
 from core.menus.update_menu import UpdateMenu
-from core.types import ComponentStatus, StatusMap, StatusText
+from core.types.color import Color
+from core.types.component_status import ComponentStatus, StatusMap, StatusText
 from extensions.extensions_menu import ExtensionsMenu
 from utils.common import get_kiauh_version, trunc_string
 
@@ -52,6 +45,8 @@ class MainMenu(BaseMenu):
         super().__init__()
 
         self.header: bool = True
+        self.title = "Main Menu"
+        self.title_color = Color.CYAN
         self.footer_type: FooterType = FooterType.QUIT
 
         self.version = ""
@@ -83,7 +78,7 @@ class MainMenu(BaseMenu):
             setattr(
                 self,
                 f"{var}_status",
-                f"{COLOR_RED}Not installed{RESET_FORMAT}",
+                Color.apply("Not installed", Color.RED),
             )
 
     def _fetch_status(self) -> None:
@@ -109,34 +104,30 @@ class MainMenu(BaseMenu):
             count_txt = f": {instance_count}"
 
         setattr(self, f"{name}_status", self._format_by_code(code, status, count_txt))
-        setattr(self, f"{name}_owner", f"{COLOR_CYAN}{owner}{RESET_FORMAT}")
-        setattr(self, f"{name}_repo", f"{COLOR_CYAN}{repo}{RESET_FORMAT}")
+        setattr(self, f"{name}_owner", Color.apply(owner, Color.CYAN))
+        setattr(self, f"{name}_repo", Color.apply(repo, Color.CYAN))
 
     def _format_by_code(self, code: int, status: str, count: str) -> str:
-        color = COLOR_RED
+        color = Color.RED
         if code == 0:
-            color = COLOR_RED
+            color = Color.RED
         elif code == 1:
-            color = COLOR_YELLOW
+            color = Color.YELLOW
         elif code == 2:
-            color = COLOR_GREEN
+            color = Color.GREEN
 
-        return f"{color}{status}{count}{RESET_FORMAT}"
+        return Color.apply(f"{status}{count}", color)
 
     def print_menu(self) -> None:
         self._fetch_status()
 
-        header = " [ Main Menu ] "
-        footer1 = f"{COLOR_CYAN}{self.version}{RESET_FORMAT}"
-        footer2 = f"Changelog: {COLOR_MAGENTA}https://git.io/JnmlX{RESET_FORMAT}"
-        color = COLOR_CYAN
-        count = 62 - len(color) - len(RESET_FORMAT)
+        footer1 = Color.apply(self.version, Color.CYAN)
+        link = Color.apply("https://git.io/JnmlX", Color.MAGENTA)
+        footer2 = f"Changelog: {link}"
         pad1 = 32
         pad2 = 26
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟──────────────────┬────────────────────────────────────╢
             ║  0) [Log-Upload] │   Klipper: {self.kl_status:<{pad1}} ║
             ║                  │     Owner: {self.kl_owner:<{pad1}} ║

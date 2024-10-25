@@ -12,16 +12,18 @@ import textwrap
 from typing import Type
 
 from components.log_uploads.log_upload_utils import get_logfile_list, upload_logfile
-from core.constants import COLOR_YELLOW, RESET_FORMAT
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 
 
 # noinspection PyMethodMayBeStatic
 class LogUploadMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "Log Upload"
+        self.title_color = Color.YELLOW
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.logfile_list = get_logfile_list()
 
@@ -37,13 +39,8 @@ class LogUploadMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Log Upload ] "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
-            f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            """
             ╟───────────────────────────────────────────────────────╢
             ║ You can select the following logfiles for uploading:  ║
             ║                                                       ║

@@ -26,19 +26,17 @@ from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import (
-    COLOR_CYAN,
-    COLOR_YELLOW,
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
-    RESET_FORMAT,
 )
 from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from core.types import ComponentStatus
+from core.types.color import Color
+from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.fs_utils import create_symlink, remove_file
 from utils.git_utils import (
@@ -79,10 +77,10 @@ def get_current_client_config() -> str:
     installed = [c for c in clients if c.client_config.config_dir.exists()]
 
     if not installed:
-        return f"{COLOR_CYAN}-{RESET_FORMAT}"
+        return Color.apply("-", Color.CYAN)
     elif len(installed) == 1:
         cfg = installed[0].client_config
-        return f"{COLOR_CYAN}{cfg.display_name}{RESET_FORMAT}"
+        return Color.apply(cfg.display_name, Color.CYAN)
 
     # at this point, both client config folders exists, so we need to check
     # which are actually included in the printer.cfg of all klipper instances
@@ -101,18 +99,18 @@ def get_current_client_config() -> str:
 
         # if both are included in the same file, we have a potential conflict
         if includes_mainsail and includes_fluidd:
-            return f"{COLOR_YELLOW}Conflict!{RESET_FORMAT}"
+            return Color.apply("Conflict", Color.YELLOW)
 
     if not mainsail_includes and not fluidd_includes:
         # there are no includes at all, even though the client config folders exist
-        return f"{COLOR_CYAN}-{RESET_FORMAT}"
+        return Color.apply("-", Color.CYAN)
     elif len(fluidd_includes) > len(mainsail_includes):
         # there are more instances that include fluidd than mainsail
-        return f"{COLOR_CYAN}{fluidd.client_config.display_name}{RESET_FORMAT}"
+        return Color.apply(fluidd.client_config.display_name, Color.CYAN)
     else:
         # there are the same amount of non-conflicting includes for each config
         # or more instances include mainsail than fluidd
-        return f"{COLOR_CYAN}{mainsail.client_config.display_name}{RESET_FORMAT}"
+        return Color.apply(mainsail.client_config.display_name, Color.CYAN)
 
 
 def enable_mainsail_remotemode() -> None:

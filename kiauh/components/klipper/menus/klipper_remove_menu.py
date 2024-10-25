@@ -12,15 +12,17 @@ import textwrap
 from typing import Type
 
 from components.klipper import klipper_remove
-from core.constants import COLOR_CYAN, COLOR_RED, RESET_FORMAT
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 
 
 # noinspection PyUnusedLocal
 class KlipperRemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "Remove Klipper"
+        self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.footer_type = FooterType.BACK
         self.remove_klipper_service = False
@@ -43,18 +45,13 @@ class KlipperRemoveMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Remove Klipper ] "
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
-        checked = f"[{COLOR_CYAN}x{RESET_FORMAT}]"
+        checked = f"[{Color.apply('x', Color.CYAN)}]"
         unchecked = "[ ]"
         o1 = checked if self.remove_klipper_service else unchecked
         o2 = checked if self.remove_klipper_dir else unchecked
         o3 = checked if self.remove_klipper_env else unchecked
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Enter a number and hit enter to select / deselect     ║
             ║ the specific option for removal.                      ║
@@ -92,8 +89,11 @@ class KlipperRemoveMenu(BaseMenu):
             and not self.remove_klipper_dir
             and not self.remove_klipper_env
         ):
-            error = f"{COLOR_RED}Nothing selected! Select options to remove first.{RESET_FORMAT}"
-            print(error)
+            print(
+                Color.apply(
+                    "Nothing selected! Select options to remove first.", Color.RED
+                )
+            )
             return
 
         klipper_remove.run_klipper_removal(

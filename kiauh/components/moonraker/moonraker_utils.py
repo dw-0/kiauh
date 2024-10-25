@@ -25,7 +25,7 @@ from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from core.types import ComponentStatus
+from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.instance_utils import get_instances
 from utils.sys_utils import (

@@ -18,11 +18,11 @@ from components.webui_client.client_utils import (
     get_nginx_listen_port,
     set_listen_port,
 )
-from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
-from core.logger import DialogCustomColor, DialogType, Logger
+from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
+from core.types.color import Color
 from utils.sys_utils import cmd_sysctl_service, get_ipv4_addr
 
 
@@ -32,6 +32,8 @@ class ClientInstallMenu(BaseMenu):
         self, client: BaseWebClient, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
+        self.title = f"Installation Menu > {client.display_name}"
+        self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.client: BaseWebClient = client
         self.settings = KiauhSettings()
@@ -50,15 +52,9 @@ class ClientInstallMenu(BaseMenu):
 
     def print_menu(self) -> None:
         client_name = self.client.display_name
-
-        header = f" [ Installation Menu > {client_name} ] "
-        color = COLOR_GREEN
-        count = 62 - len(color) - len(RESET_FORMAT)
-        port = f"(Current: {COLOR_CYAN}{self._get_current_port()}{RESET_FORMAT})"
+        port = f"(Current: {Color.apply(self._get_current_port(), Color.GREEN)})"
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║  1) Reinstall {client_name:16}                        ║
             ║  2) Reconfigure Listen Port {port:<34} ║
@@ -92,7 +88,7 @@ class ClientInstallMenu(BaseMenu):
         Logger.print_dialog(
             DialogType.CUSTOM,
             custom_title="Port reconfiguration complete!",
-            custom_color=DialogCustomColor.GREEN,
+            custom_color=Color.GREEN,
             center_content=True,
             content=[
                 f"Open {self.client.display_name} now on: "
