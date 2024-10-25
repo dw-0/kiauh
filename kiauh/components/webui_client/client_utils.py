@@ -338,36 +338,62 @@ def create_nginx_cfg(
         raise
 
 
+def get_nginx_config_list() -> List[Path]:
+    """
+    Get a list of all NGINX config files in /etc/nginx/sites-enabled
+    :return: List of NGINX config files
+    """
+    configs: List[Path] = []
+    for config in NGINX_SITES_ENABLED.iterdir():
+        if not config.is_file():
+            continue
+        configs.append(config)
+    return configs
+
+
+def get_nginx_listen_port(config: Path) -> int | None:
+    """
+    Get the listen port from an NGINX config file
+    :param config: The NGINX config file to read the port from
+    :return: The listen port as int or None if not found/parsable
+    """
+
+    # noinspection HttpUrlsUsage
+    pattern = r"default_server|http://|https://|[;\[\]]"
+    port = ""
+    with open(config, "r") as cfg:
+        for line in cfg.readlines():
+            line = re.sub(pattern, "", line.strip())
+            if line.startswith("listen"):
+                if ":" not in line:
+                    port = line.split()[-1]
+                else:
+                    port = line.split(":")[-1]
+        try:
+            return int(port)
+        except ValueError:
+            Logger.print_error(
+                f"Unable to parse listen port {port} from {config.name}!"
+            )
+            return None
+
+
 def read_ports_from_nginx_configs() -> List[int]:
     """
-    Helper function to iterate over all NGINX configs and read all ports defined for listen
+    Helper function to iterate over all NGINX configs
+    and read all ports defined for listen
     :return: A sorted list of listen ports
     """
     if not NGINX_SITES_ENABLED.exists():
         return []
 
-    port_list = []
-    for config in NGINX_SITES_ENABLED.iterdir():
-        if not config.is_file():
-            continue
+    port_list: List[int] = []
+    for config in get_nginx_config_list():
+        port = get_nginx_listen_port(config)
+        if port is not None:
+            port_list.append(port)
 
-        with open(config, "r") as cfg:
-            lines = cfg.readlines()
-
-        for line in lines:
-            line = re.sub(
-                r"default_server|http://|https://|[;\[\]]",
-                "",
-                line.strip(),
-            )
-            if line.startswith("listen"):
-                if ":" not in line:
-                    port_list.append(line.split()[-1])
-                else:
-                    port_list.append(line.split(":")[-1])
-
-    ports_to_ints_list = [int(port) for port in port_list]
-    return sorted(ports_to_ints_list, key=lambda x: int(x))
+    return sorted(port_list, key=lambda x: int(x))
 
 
 def get_client_port_selection(

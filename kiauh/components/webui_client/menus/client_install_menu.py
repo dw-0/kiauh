@@ -15,6 +15,7 @@ from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_setup import install_client
 from components.webui_client.client_utils import (
     get_client_port_selection,
+    get_nginx_listen_port,
     set_listen_port,
 )
 from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
@@ -53,7 +54,7 @@ class ClientInstallMenu(BaseMenu):
         header = f" [ Installation Menu > {client_name} ] "
         color = COLOR_GREEN
         count = 62 - len(color) - len(RESET_FORMAT)
-        port = f"(Current: {COLOR_CYAN}{int(self.client_settings.port)}{RESET_FORMAT})"
+        port = f"(Current: {COLOR_CYAN}{self._get_current_port()}{RESET_FORMAT})"
         menu = textwrap.dedent(
             f"""
             ╔═══════════════════════════════════════════════════════╗
@@ -70,7 +71,7 @@ class ClientInstallMenu(BaseMenu):
         install_client(self.client, settings=self.settings, reinstall=True)
 
     def change_listen_port(self, **kwargs) -> None:
-        curr_port = int(self.client_settings.port)
+        curr_port = self._get_current_port()
         new_port = get_client_port_selection(
             self.client,
             self.settings,
@@ -98,6 +99,14 @@ class ClientInstallMenu(BaseMenu):
                 f"http://{get_ipv4_addr()}:{new_port}",
             ],
         )
+
+    def _get_current_port(self) -> int:
+        curr_port = get_nginx_listen_port(self.client.nginx_config)
+        if curr_port is None:
+            # if the port is not found in the config file we use
+            # the default port from the kiauh settings as fallback
+            return int(self.client_settings.port)
+        return curr_port
 
     def _go_back(self, **kwargs) -> None:
         if self.previous_menu is not None:

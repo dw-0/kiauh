@@ -37,6 +37,7 @@ class BaseWebClient(ABC):
     backup_dir: Path
     repo_path: str
     download_url: str
+    nginx_config: Path
     nginx_access_log: Path
     nginx_error_log: Path
     client_config: BaseWebClientConfig
