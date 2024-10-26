@@ -18,9 +18,10 @@ from components.webui_client.client_utils import (
     get_nginx_listen_port,
     set_listen_port,
 )
-from core.logger import DialogType, Logger
+from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.services.message_service import Message
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
 from core.types.color import Color
 from utils.sys_utils import cmd_sysctl_service, get_ipv4_addr
@@ -85,16 +86,15 @@ class ClientInstallMenu(BaseMenu):
         cmd_sysctl_service("nginx", "start")
 
         # noinspection HttpUrlsUsage
-        Logger.print_dialog(
-            DialogType.CUSTOM,
-            custom_title="Port reconfiguration complete!",
-            custom_color=Color.GREEN,
-            center_content=True,
-            content=[
+        message = Message(
+            title="Port reconfiguration complete!",
+            text=[
                 f"Open {self.client.display_name} now on: "
                 f"http://{get_ipv4_addr()}:{new_port}",
             ],
+            color=Color.GREEN,
         )
+        self.message_service.set_message(message)
 
     def _get_current_port(self) -> int:
         curr_port = get_nginx_listen_port(self.client.nginx_config)
@@ -103,7 +103,3 @@ class ClientInstallMenu(BaseMenu):
             # the default port from the kiauh settings as fallback
             return int(self.client_settings.port)
         return curr_port
-
-    def _go_back(self, **kwargs) -> None:
-        if self.previous_menu is not None:
-            self.previous_menu().run()

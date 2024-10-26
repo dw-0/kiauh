@@ -19,6 +19,7 @@ from typing import Dict, Type
 
 from core.logger import Logger
 from core.menus import FooterType, Option
+from core.services.message_service import MessageService
 from core.spinner import Spinner
 from core.types.color import Color
 from utils.input_utils import get_selection_input
@@ -123,6 +124,8 @@ class BaseMenu(metaclass=PostInitCaller):
     help_menu: Type[BaseMenu] | None = None
     footer_type: FooterType = FooterType.BACK
 
+    message_service = MessageService()
+
     def __init__(self, **kwargs) -> None:
         if type(self) is BaseMenu:
             raise NotImplementedError("BaseMenu cannot be instantiated directly.")
@@ -207,8 +210,11 @@ class BaseMenu(metaclass=PostInitCaller):
             raise NotImplementedError("FooterType not correctly implemented!")
 
     def __display_menu(self) -> None:
+        self.message_service.display_message()
+
         if self.header:
             print_header()
+
         self.__print_menu_title()
         self.print_menu()
         self.__print_footer()
