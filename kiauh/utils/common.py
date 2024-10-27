@@ -6,12 +6,13 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+
 from __future__ import annotations
 
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Set
+from typing import Dict, List, Literal, Set
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
@@ -89,9 +90,9 @@ def check_install_dependencies(
 
 def get_install_status(
     repo_dir: Path,
-    env_dir: Optional[Path] = None,
+    env_dir: Path | None = None,
     instance_type: type | None = None,
-    files: Optional[List[Path]] = None,
+    files: List[Path] | None = None,
 ) -> ComponentStatus:
     """
     Helper method to get the installation status of software components
@@ -123,7 +124,7 @@ def get_install_status(
             checks.append(f.exists())
 
     status: StatusCode
-    if all(checks):
+    if checks and all(checks):
         status = 2  # installed
     elif not any(checks):
         status = 0  # not installed
