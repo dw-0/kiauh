@@ -18,6 +18,7 @@ from core.services.message_service import Message
 from core.types.color import Color
 from utils.config_utils import remove_config_section
 from utils.fs_utils import run_remove_routines
+from utils.instance_type import InstanceType
 from utils.instance_utils import get_instances
 
 
@@ -34,40 +35,57 @@ def run_client_config_removal(
     if run_remove_routines(client_config.config_dir):
         completion_msg.text.append(f"● {client_config.display_name} removed")
 
-    instances: List[Klipper] = get_instances(Klipper)
-    handled_configs = []
-    for instance in instances:
-        if run_remove_routines(
-            instance.base.cfg_dir.joinpath(client_config.config_filename)
-        ):
-            handled_configs.append(instance)
-    if handled_configs:
-        instance_names = [i.service_file_path.stem for i in handled_configs]
-        completion_msg.text.append(
-            f"● {client_config.display_name} removed from instances: {', '.join(instance_names)}"
-        )
+    completion_msg = remove_moonraker_config_section(
+        completion_msg, client_config, mr_instances
+    )
 
-    mr_section = f"update_manager {client_config.name}"
-    handled_mr_instances = remove_config_section(mr_section, mr_instances)
-    if handled_mr_instances:
-        instance_names = [i.service_file_path.stem for i in handled_mr_instances]
-        completion_msg.text.append(
-            f"● Moonraker config section '{mr_section}' removed for instance: {', '.join(instance_names)}"
-        )
+    completion_msg = remove_printer_config_section(
+        completion_msg, client_config, kl_instances
+    )
 
-    kl_section = client_config.config_section
-    handled_kl_instances = remove_config_section(kl_section, kl_instances)
-    if handled_kl_instances:
-        instance_names = [i.service_file_path.stem for i in handled_kl_instances]
-        completion_msg.text.append(
-            f"● Klipper config section '{mr_section}' removed for instance: {', '.join(instance_names)}"
-        )
-
-    if not completion_msg.text:
+    if completion_msg.text:
+        completion_msg.text.insert(0, "The following actions were performed:")
+    else:
         completion_msg.color = Color.YELLOW
         completion_msg.centered = True
-        completion_msg.text.append("Nothing to remove.")
-    else:
-        completion_msg.text.insert(0, "The following actions were performed:")
+        completion_msg.text = ["Nothing to remove."]
 
     return completion_msg
+
+
+def remove_cfg_symlink(client_config: BaseWebClientConfig, message: Message) -> Message:
+    instances: List[Klipper] = get_instances(Klipper)
+    kl_instances = []
+    for instance in instances:
+        cfg = instance.base.cfg_dir.joinpath(client_config.config_filename)
+        if run_remove_routines(cfg):
+            kl_instances.append(instance)
+    text = f"{client_config.display_name} removed from instance"
+    return update_msg(kl_instances, message, text)
+
+
+def remove_printer_config_section(
+    message: Message, client_config: BaseWebClientConfig, kl_instances: List[Klipper]
+) -> Message:
+    kl_section = client_config.config_section
+    kl_instances = remove_config_section(kl_section, kl_instances)
+    text = f"Klipper config section '{kl_section}' removed for instance"
+    return update_msg(kl_instances, message, text)
+
+
+def remove_moonraker_config_section(
+    message: Message, client_config: BaseWebClientConfig, mr_instances: List[Moonraker]
+) -> Message:
+    mr_section = f"update_manager {client_config.name}"
+    mr_instances = remove_config_section(mr_section, mr_instances)
+    text = f"Moonraker config section '{mr_section}' removed for instance"
+    return update_msg(mr_instances, message, text)
+
+
+def update_msg(instances: List[InstanceType], message: Message, text: str) -> Message:
+    if not instances:
+        return message
+
+    instance_names = [i.service_file_path.stem for i in instances]
+    message.text.append(f"● {text}: {', '.join(instance_names)}")
+    return message
