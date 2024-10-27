@@ -7,7 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 from core.logger import DialogType, Logger
@@ -16,9 +16,10 @@ from core.types.color import Color
 
 @dataclass()
 class Message:
-    title: str
-    text: List[str]
-    color: Color
+    title: str = field(default="")
+    text: List[str] = field(default_factory=list)
+    color: Color = field(default=Color.WHITE)
+    centered: bool = field(default=False)
 
 
 class MessageService:
@@ -49,6 +50,7 @@ class MessageService:
             content=self.message.text,
             custom_title=self.message.title,
             custom_color=self.message.color,
+            center_content=self.message.centered,
         )
 
         self.__clear_message()
