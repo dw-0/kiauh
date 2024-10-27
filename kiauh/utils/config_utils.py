@@ -78,7 +78,10 @@ def add_config_section_at_top(section: str, instances: List[InstanceType]) -> No
         Logger.print_ok("OK!")
 
 
-def remove_config_section(section: str, instances: List[InstanceType]) -> None:
+def remove_config_section(
+    section: str, instances: List[InstanceType]
+) -> List[InstanceType]:
+    removed_from: List[instances] = []
     for instance in instances:
         cfg_file = instance.cfg_file
         Logger.print_status(f"Remove section '[{section}]' from '{cfg_file}' ...")
@@ -96,4 +99,7 @@ def remove_config_section(section: str, instances: List[InstanceType]) -> None:
         scp.remove_section(section)
         scp.write_file(cfg_file)
 
+        removed_from.append(instance)
         Logger.print_ok("OK!")
+
+    return removed_from

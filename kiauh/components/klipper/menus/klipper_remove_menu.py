@@ -106,3 +106,4 @@ class KlipperRemoveMenu(BaseMenu):
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
         self.remove_klipper_env = False
+        self.select_state = False

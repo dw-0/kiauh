@@ -31,7 +31,7 @@ class ClientRemoveMenu(BaseMenu):
         self.remove_client: bool = False
         self.remove_client_cfg: bool = False
         self.backup_config_json: bool = False
-        self.selection_state: bool = False
+        self.select_state: bool = False
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.remove_menu import RemoveMenu
@@ -57,13 +57,14 @@ class ClientRemoveMenu(BaseMenu):
         o1 = checked if self.remove_client else unchecked
         o2 = checked if self.remove_client_cfg else unchecked
         o3 = checked if self.backup_config_json else unchecked
+        sel_state = f"{'Select'if not self.select_state else 'Deselect'} everything"
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
             ║ Enter a number and hit enter to select / deselect     ║
             ║ the specific option for removal.                      ║
             ╟───────────────────────────────────────────────────────╢
-            ║  a) {self._get_selection_state_str():37}             ║
+            ║  a) {sel_state:49} ║
             ╟───────────────────────────────────────────────────────╢
             ║  1) {o1} Remove {client_name:16}                       ║
             ║  2) {o2} Remove {client_config_name:24}               ║
@@ -76,10 +77,10 @@ class ClientRemoveMenu(BaseMenu):
         print(menu, end="")
 
     def toggle_all(self, **kwargs) -> None:
-        self.selection_state = not self.selection_state
-        self.remove_client = self.selection_state
-        self.remove_client_cfg = self.selection_state
-        self.backup_config_json = self.selection_state
+        self.select_state = not self.select_state
+        self.remove_client = self.select_state
+        self.remove_client_cfg = self.select_state
+        self.backup_config_json = self.select_state
 
     def toggle_rm_client(self, **kwargs) -> None:
         self.remove_client = not self.remove_client
@@ -110,12 +111,4 @@ class ClientRemoveMenu(BaseMenu):
         self.remove_client = False
         self.remove_client_cfg = False
         self.backup_config_json = False
-
-    def _get_selection_state_str(self) -> str:
-        return (
-            "Select everything" if not self.selection_state else "Deselect everything"
-        )
-
-    def _go_back(self, **kwargs) -> None:
-        if self.previous_menu is not None:
-            self.previous_menu().run()
+        self.select_state = False

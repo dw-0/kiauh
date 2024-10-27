@@ -44,27 +44,36 @@ def run_client_removal(
 
     if backup_config:
         bm = BackupManager()
-        bm.backup_file(client.config_file)
-        completion_msg.text.append(f"● {client.config_file.name} backup created")
+        if bm.backup_file(client.config_file):
+            completion_msg.text.append(f"● {client.config_file.name} backup created")
 
     if remove_client:
         client_name = client.name
-        remove_client_dir(client)
-        remove_client_nginx_config(client_name)
-        remove_client_nginx_logs(client, kl_instances)
+        if remove_client_dir(client):
+            completion_msg.text.append(f"● {client.display_name} removed")
+        if remove_client_nginx_config(client_name):
+            completion_msg.text.append("● NGINX config removed")
+        if remove_client_nginx_logs(client, kl_instances):
+            completion_msg.text.append("● NGINX logs removed")
 
         section = f"update_manager {client_name}"
-        remove_config_section(section, mr_instances)
-        completion_msg.text.append(f"● {client.display_name} removed")
+        handled_instances: List[Moonraker] = remove_config_section(
+            section, mr_instances
+        )
+        if handled_instances:
+            names = [i.service_file_path.stem for i in handled_instances]
+            completion_msg.text.append(
+                f"● Moonraker config section '{section}' removed for instance: {', '.join(names)}"
+            )
 
     if remove_client_cfg:
-        # todo: return a Message here as well to display correct actions taken
-        run_client_config_removal(
+        cfg_completion_msg = run_client_config_removal(
             client.client_config,
             kl_instances,
             mr_instances,
         )
-        completion_msg.text.append(f"● {client.client_config.display_name} removed")
+        if cfg_completion_msg.color == Color.GREEN:
+            completion_msg.text.extend(cfg_completion_msg.text[1:])
 
     if not completion_msg.text:
         completion_msg.color = Color.YELLOW
@@ -76,29 +85,28 @@ def run_client_removal(
     return completion_msg
 
 
-def remove_client_dir(client: BaseWebClient) -> None:
+def remove_client_dir(client: BaseWebClient) -> bool:
     Logger.print_status(f"Removing {client.display_name} ...")
-    run_remove_routines(client.client_dir)
+    return run_remove_routines(client.client_dir)
 
 
-def remove_client_nginx_config(name: str) -> None:
+def remove_client_nginx_config(name: str) -> bool:
     Logger.print_status(f"Removing NGINX config for {name.capitalize()} ...")
+    return remove_with_sudo(
+        [
+            NGINX_SITES_AVAILABLE.joinpath(name),
+            NGINX_SITES_ENABLED.joinpath(name),
+        ]
+    )
 
-    remove_with_sudo(NGINX_SITES_AVAILABLE.joinpath(name))
-    remove_with_sudo(NGINX_SITES_ENABLED.joinpath(name))
 
-
-def remove_client_nginx_logs(client: BaseWebClient, instances: List[Klipper]) -> None:
+def remove_client_nginx_logs(client: BaseWebClient, instances: List[Klipper]) -> bool:
     Logger.print_status(f"Removing NGINX logs for {client.display_name} ...")
 
-    remove_with_sudo(client.nginx_access_log)
-    remove_with_sudo(client.nginx_error_log)
+    files = [client.nginx_access_log, client.nginx_error_log]
+    if instances:
+        for instance in instances:
+            files.append(instance.base.log_dir.joinpath(client.nginx_access_log.name))
+            files.append(instance.base.log_dir.joinpath(client.nginx_error_log.name))
 
-    if not instances:
-        return
-
-    for instance in instances:
-        run_remove_routines(
-            instance.base.log_dir.joinpath(client.nginx_access_log.name)
-        )
-        run_remove_routines(instance.base.log_dir.joinpath(client.nginx_error_log.name))
+    return remove_with_sudo(files)
