@@ -21,14 +21,16 @@ from core.types.color import Color
 class KlipperRemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+
         self.title = "Remove Klipper"
         self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.footer_type = FooterType.BACK
+
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
         self.remove_klipper_env = False
-        self.selection_state = False
+        self.select_state = False
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.remove_menu import RemoveMenu
@@ -50,13 +52,14 @@ class KlipperRemoveMenu(BaseMenu):
         o1 = checked if self.remove_klipper_service else unchecked
         o2 = checked if self.remove_klipper_dir else unchecked
         o3 = checked if self.remove_klipper_env else unchecked
+        sel_state = f"{'Select'if not self.select_state else 'Deselect'} everything"
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
             ║ Enter a number and hit enter to select / deselect     ║
             ║ the specific option for removal.                      ║
             ╟───────────────────────────────────────────────────────╢
-            ║  a) {self._get_selection_state_str():37}             ║
+            ║  a) {sel_state:49} ║
             ╟───────────────────────────────────────────────────────╢
             ║  1) {o1} Remove Service                                ║
             ║  2) {o2} Remove Local Repository                       ║
@@ -69,10 +72,10 @@ class KlipperRemoveMenu(BaseMenu):
         print(menu, end="")
 
     def toggle_all(self, **kwargs) -> None:
-        self.selection_state = not self.selection_state
-        self.remove_klipper_service = self.selection_state
-        self.remove_klipper_dir = self.selection_state
-        self.remove_klipper_env = self.selection_state
+        self.select_state = not self.select_state
+        self.remove_klipper_service = self.select_state
+        self.remove_klipper_dir = self.select_state
+        self.remove_klipper_env = self.select_state
 
     def toggle_remove_klipper_service(self, **kwargs) -> None:
         self.remove_klipper_service = not self.remove_klipper_service
@@ -89,30 +92,17 @@ class KlipperRemoveMenu(BaseMenu):
             and not self.remove_klipper_dir
             and not self.remove_klipper_env
         ):
-            print(
-                Color.apply(
-                    "Nothing selected! Select options to remove first.", Color.RED
-                )
-            )
+            msg = "Nothing selected! Select options to remove first."
+            print(Color.apply(msg, Color.RED))
             return
 
-        klipper_remove.run_klipper_removal(
+        completion_msg = klipper_remove.run_klipper_removal(
             self.remove_klipper_service,
             self.remove_klipper_dir,
             self.remove_klipper_env,
         )
+        self.message_service.set_message(completion_msg)
 
         self.remove_klipper_service = False
         self.remove_klipper_dir = False
         self.remove_klipper_env = False
-
-        self._go_back()
-
-    def _get_selection_state_str(self) -> str:
-        return (
-            "Select everything" if not self.selection_state else "Deselect everything"
-        )
-
-    def _go_back(self, **kwargs) -> None:
-        if self.previous_menu is not None:
-            self.previous_menu().run()
