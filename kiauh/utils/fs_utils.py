@@ -73,11 +73,11 @@ def remove_file(file_path: Path, sudo=False) -> None:
         raise
 
 
-def run_remove_routines(file: Path) -> None:
+def run_remove_routines(file: Path) -> bool:
     try:
         if not file.is_symlink() and not file.exists():
             Logger.print_info(f"File '{file}' does not exist. Skipped ...")
-            return
+            return False
 
         if file.is_dir():
             shutil.rmtree(file)
@@ -86,15 +86,18 @@ def run_remove_routines(file: Path) -> None:
         else:
             raise OSError(f"File '{file}' is neither a file nor a directory!")
         Logger.print_ok(f"File '{file}' was successfully removed!")
+        return True
     except OSError as e:
         Logger.print_error(f"Unable to delete '{file}':\n{e}")
         try:
             Logger.print_info("Trying to remove with sudo ...")
             remove_with_sudo(file)
             Logger.print_ok(f"File '{file}' was successfully removed!")
+            return True
         except CalledProcessError as e:
             Logger.print_error(f"Error deleting '{file}' with sudo:\n{e}")
             Logger.print_error("Remove this directory manually!")
+            return False
 
 
 def unzip(filepath: Path, target_dir: Path) -> None:
