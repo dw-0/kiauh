@@ -136,7 +136,7 @@ class Logger:
     @staticmethod
     def _format_dialog_title(title: str | None, color: Color) -> str:
         if title is None:
-            return "\n"
+            return ""
 
         _title = Color.apply(f"┃ {title:^{LINE_WIDTH}} ┃\n", color)
         _title += Color.apply(
