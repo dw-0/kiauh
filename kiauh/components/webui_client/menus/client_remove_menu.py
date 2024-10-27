@@ -99,18 +99,17 @@ class ClientRemoveMenu(BaseMenu):
             print(Color.apply("Nothing selected ...", Color.RED))
             return
 
-        client_remove.run_client_removal(
+        completion_msg = client_remove.run_client_removal(
             client=self.client,
             remove_client=self.remove_client,
             remove_client_cfg=self.remove_client_cfg,
             backup_config=self.backup_config_json,
         )
+        self.message_service.set_message(completion_msg)
 
         self.remove_client = False
         self.remove_client_cfg = False
         self.backup_config_json = False
-
-        self._go_back()
 
     def _get_selection_state_str(self) -> str:
         return (

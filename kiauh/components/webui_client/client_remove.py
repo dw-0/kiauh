@@ -19,6 +19,8 @@ from components.webui_client.client_config.client_config_remove import (
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from core.logger import Logger
+from core.services.message_service import Message
+from core.types.color import Color
 from utils.config_utils import remove_config_section
 from utils.fs_utils import (
     remove_with_sudo,
@@ -32,13 +34,18 @@ def run_client_removal(
     remove_client: bool,
     remove_client_cfg: bool,
     backup_config: bool,
-) -> None:
+) -> Message:
+    completion_msg = Message(
+        title=f"{client.display_name} Removal Process completed",
+        color=Color.GREEN,
+    )
     mr_instances: List[Moonraker] = get_instances(Moonraker)
     kl_instances: List[Klipper] = get_instances(Klipper)
 
     if backup_config:
         bm = BackupManager()
         bm.backup_file(client.config_file)
+        completion_msg.text.append(f"● {client.config_file.name} backup created")
 
     if remove_client:
         client_name = client.name
@@ -48,13 +55,25 @@ def run_client_removal(
 
         section = f"update_manager {client_name}"
         remove_config_section(section, mr_instances)
+        completion_msg.text.append(f"● {client.display_name} removed")
 
     if remove_client_cfg:
+        # todo: return a Message here as well to display correct actions taken
         run_client_config_removal(
             client.client_config,
             kl_instances,
             mr_instances,
         )
+        completion_msg.text.append(f"● {client.client_config.display_name} removed")
+
+    if not completion_msg.text:
+        completion_msg.color = Color.YELLOW
+        completion_msg.centered = True
+        completion_msg.text.append("Nothing to remove.")
+    else:
+        completion_msg.text.insert(0, "The following actions were performed:")
+
+    return completion_msg
 
 
 def remove_client_dir(client: BaseWebClient) -> None:
