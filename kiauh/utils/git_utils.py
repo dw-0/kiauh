@@ -104,10 +104,10 @@ def get_current_branch(repo: Path) -> str:
         result: str = check_output(cmd, stderr=DEVNULL, cwd=repo).decode(
             encoding="utf-8"
         )
-        return result.strip()
+        return result.strip() if result else "-"
 
     except CalledProcessError:
-        return ""
+        return "-"
 
 
 def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
