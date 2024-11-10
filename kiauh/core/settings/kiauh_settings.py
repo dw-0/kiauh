@@ -145,7 +145,8 @@ class KiauhSettings:
     def _validate_str(self, section: str, option: str) -> None:
         self._v_section, self._v_option = (section, option)
         v = self.config.getval(section, option)
-        if v.isdigit() or v.lower() == "true" or v.lower() == "false":
+
+        if not v:
             raise ValueError
 
     def _apply_settings_from_file(self) -> None:
