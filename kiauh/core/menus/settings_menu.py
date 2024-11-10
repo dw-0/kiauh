@@ -19,6 +19,7 @@ from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings, RepoSettings
 from core.types.color import Color
 from procedures.switch_repo import run_switch_repo_routine
+from utils.git_utils import get_repo_name
 from utils.input_utils import get_confirm, get_string_input
 
 
@@ -30,12 +31,13 @@ class SettingsMenu(BaseMenu):
         self.title = "Settings Menu"
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
-        self.klipper_status = get_klipper_status()
-        self.moonraker_status = get_moonraker_status()
+
         self.mainsail_unstable: bool | None = None
         self.fluidd_unstable: bool | None = None
         self.auto_backups_enabled: bool | None = None
         self._load_settings()
+        print(self.klipper_status)
+
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
@@ -102,6 +104,21 @@ class SettingsMenu(BaseMenu):
         self.auto_backups_enabled = self.settings.kiauh.backup_before_update
         self.mainsail_unstable = self.settings.mainsail.unstable_releases
         self.fluidd_unstable = self.settings.fluidd.unstable_releases
+
+        # by default, we show the status of the installed repositories
+        self.klipper_status = get_klipper_status()
+        self.moonraker_status = get_moonraker_status()
+        # if the repository is not installed, we show the status of the settings from the config file
+        if self.klipper_status.repo == "-":
+            url_parts = self.settings.klipper.repo_url.split("/")
+            self.klipper_status.repo = url_parts[-1]
+            self.klipper_status.owner = url_parts[-2]
+            self.klipper_status.branch = self.settings.klipper.branch
+        if self.moonraker_status.repo == "-":
+            url_parts = self.settings.moonraker.repo_url.split("/")
+            self.moonraker_status.repo = url_parts[-1]
+            self.moonraker_status.owner = url_parts[-2]
+            self.moonraker_status.branch = self.settings.moonraker.branch
 
     def _gather_input(self) -> Tuple[str, str]:
         Logger.print_dialog(
