@@ -64,7 +64,7 @@ def run_switch_repo_routine(
 
     try:
         # step 2: backup old repo and env
-        org, repo = get_repo_name(repo_dir)
+        org, _ = get_repo_name(repo_dir)
         backup_dir = backup_dir.joinpath(org)
         bm = BackupManager()
         repo_dir_backup_path = bm.backup_directory(

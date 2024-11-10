@@ -9,15 +9,19 @@
 from __future__ import annotations
 
 import textwrap
+from pathlib import Path
 from typing import Literal, Tuple, Type
 
+from components.klipper import KLIPPER_DIR
 from components.klipper.klipper_utils import get_klipper_status
+from components.moonraker import MOONRAKER_DIR
 from components.moonraker.moonraker_utils import get_moonraker_status
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings, RepoSettings
 from core.types.color import Color
+from core.types.component_status import ComponentStatus
 from procedures.switch_repo import run_switch_repo_routine
 from utils.git_utils import get_repo_name
 from utils.input_utils import get_confirm, get_string_input
@@ -144,7 +148,7 @@ class SettingsMenu(BaseMenu):
 
         return repo, branch
 
-    def _set_repo(self, repo_name: Literal["klipper", "moonraker"]) -> None:
+    def _set_repo(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> None:
         repo_url, branch = self._gather_input()
         display_name = repo_name.capitalize()
         Logger.print_dialog(
@@ -168,22 +172,26 @@ class SettingsMenu(BaseMenu):
             Logger.print_ok("Changes saved!")
         else:
             Logger.print_info(
-                f"Skipping change of {display_name} source repository  ..."
+                f"Changing of {display_name} source repository canceled ..."
             )
             return
 
-        Logger.print_status(f"Switching to {display_name}'s new source repository ...")
-        self._switch_repo(repo_name)
+        self._switch_repo(repo_name, repo_dir)
 
-    def _switch_repo(self, name: Literal["klipper", "moonraker"]) -> None:
+    def _switch_repo(self, name: Literal["klipper", "moonraker"], repo_dir: Path ) -> None:
+        if not repo_dir.exists():
+            return
+
+        Logger.print_status(f"Switching to {name.capitalize()}'s new source repository ...")
+
         repo: RepoSettings = self.settings[name]
         run_switch_repo_routine(name, repo)
 
     def set_klipper_repo(self, **kwargs) -> None:
-        self._set_repo("klipper")
+        self._set_repo("klipper", KLIPPER_DIR)
 
     def set_moonraker_repo(self, **kwargs) -> None:
-        self._set_repo("moonraker")
+        self._set_repo("moonraker", MOONRAKER_DIR)
 
     def toggle_mainsail_release(self, **kwargs) -> None:
         self.mainsail_unstable = not self.mainsail_unstable
