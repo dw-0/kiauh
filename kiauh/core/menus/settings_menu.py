@@ -12,9 +12,9 @@ import textwrap
 from pathlib import Path
 from typing import Literal, Tuple, Type
 
-from components.klipper import KLIPPER_DIR
+from components.klipper import KLIPPER_DIR, KLIPPER_REPO_URL
 from components.klipper.klipper_utils import get_klipper_status
-from components.moonraker import MOONRAKER_DIR
+from components.moonraker import MOONRAKER_DIR, MOONRAKER_REPO_URL
 from components.moonraker.moonraker_utils import get_moonraker_status
 from core.logger import DialogType, Logger
 from core.menus import Option
@@ -124,32 +124,36 @@ class SettingsMenu(BaseMenu):
             self.moonraker_status.owner = url_parts[-2]
             self.moonraker_status.branch = self.settings.moonraker.branch
 
-    def _gather_input(self) -> Tuple[str, str]:
-        Logger.print_dialog(
-            DialogType.ATTENTION,
-            [
-                "There is no input validation in place! Make sure your the input is "
-                "valid and has no typos or invalid characters! For the change to take "
-                "effect, the new repository will be cloned. A backup of the old "
-                "repository will be created.",
+    def _gather_input(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> Tuple[str, str]:
+        warn_msg = [
+            "There is only basic input validation in place! "
+            "Make sure your the input is valid and has no typos or invalid characters!"]
+
+        if repo_dir.exists():
+            warn_msg.extend([
+                "For the change to take effect, the new repository will be cloned. "
+                "A backup of the old repository will be created.",
                 "\n\n",
                 "Make sure you don't have any ongoing prints running, as the services "
-                "will be restarted during this process! You will loose any ongoing print!",
-            ],
-        )
+                "will be restarted during this process! You will loose any ongoing print!"])
+
+        Logger.print_dialog(DialogType.ATTENTION, warn_msg)
+
         repo = get_string_input(
             "Enter new repository URL",
-            allow_special_chars=True,
+            regex="^[\w/.:-]+$",
+            default=KLIPPER_REPO_URL if repo_name == "klipper" else MOONRAKER_REPO_URL,
         )
         branch = get_string_input(
             "Enter new branch name",
-            allow_special_chars=True,
+            regex="^.+$",
+            default="master"
         )
 
         return repo, branch
 
     def _set_repo(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> None:
-        repo_url, branch = self._gather_input()
+        repo_url, branch = self._gather_input(repo_name, repo_dir)
         display_name = repo_name.capitalize()
         Logger.print_dialog(
             DialogType.CUSTOM,

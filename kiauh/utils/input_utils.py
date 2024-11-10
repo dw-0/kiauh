@@ -86,6 +86,7 @@ def get_string_input(
     question: str,
     regex: str | None = None,
     exclude: List[str] | None = None,
+    allow_empty: bool = False,
     allow_special_chars: bool = False,
     default: str | None = None,
 ) -> str:
@@ -94,6 +95,7 @@ def get_string_input(
     :param question: The question to display
     :param regex: An optional regex pattern to validate the input against
     :param exclude: List of strings which are not allowed
+    :param allow_empty: Whether to allow empty input
     :param allow_special_chars: Wheter to allow special characters in the input
     :param default: Optional default value
     :return: The validated string value
@@ -104,12 +106,14 @@ def get_string_input(
     while True:
         _input = input(_question)
 
-        if _input.lower() in _exclude:
-            Logger.print_error("This value is already in use/reserved.")
-        elif default is not None and _input == "":
+        if default is not None and _input == "":
             return default
+        elif _input == "" and not allow_empty:
+            Logger.print_error("Input must not be empty!")
         elif _pattern is not None and _pattern.match(_input):
             return _input
+        elif _input.lower() in _exclude:
+            Logger.print_error("This value is already in use/reserved.")
         elif allow_special_chars:
             return _input
         elif not allow_special_chars and _input.isalnum():
