@@ -44,12 +44,14 @@ class BackupManager:
     def ignore_folders(self, value: List[str]):
         self._ignore_folders = value
 
-    def backup_file(self, file: Path, target: Path | None = None, custom_filename=None):
+    def backup_file(
+        self, file: Path, target: Path | None = None, custom_filename=None
+    ) -> bool:
         Logger.print_status(f"Creating backup of {file} ...")
 
         if not file.exists():
             Logger.print_info("File does not exist! Skipping ...")
-            return
+            return False
 
         target = self.backup_root_dir if target is None else target
 
@@ -62,10 +64,13 @@ class BackupManager:
                 Path(target).mkdir(exist_ok=True)
                 shutil.copyfile(file, target.joinpath(filename))
                 Logger.print_ok("Backup successful!")
+                return True
             except OSError as e:
                 Logger.print_error(f"Unable to backup '{file}':\n{e}")
+                return False
         else:
             Logger.print_info(f"File '{file}' not found ...")
+            return False
 
     def backup_directory(
         self, name: str, source: Path, target: Path | None = None

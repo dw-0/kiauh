@@ -36,7 +36,7 @@ from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from core.types import ComponentStatus
+from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances

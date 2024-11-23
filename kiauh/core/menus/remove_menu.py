@@ -20,9 +20,9 @@ from components.moonraker.menus.moonraker_remove_menu import (
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
-from core.constants import COLOR_RED, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 
 
 # noinspection PyUnusedLocal
@@ -30,6 +30,8 @@ from core.menus.base_menu import BaseMenu
 class RemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.title = "Remove Menu"
+        self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -48,13 +50,8 @@ class RemoveMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Remove Menu ] "
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
-            f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            """
             ╟───────────────────────────────────────────────────────╢
             ║ INFO: Configurations and/or any backups will be kept! ║
             ╟───────────────────────────┬───────────────────────────╢

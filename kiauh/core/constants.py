@@ -13,15 +13,6 @@ from pathlib import Path
 
 from core.backup_manager import BACKUP_ROOT_DIR
 
-# text colors and formats
-COLOR_WHITE = "\033[37m"  # white
-COLOR_MAGENTA = "\033[35m"  # magenta
-COLOR_GREEN = "\033[92m"  # bright green
-COLOR_YELLOW = "\033[93m"  # bright yellow
-COLOR_RED = "\033[91m"  # bright red
-COLOR_CYAN = "\033[96m"  # bright cyan
-RESET_FORMAT = "\033[0m"  # reset format
-
 # global dependencies
 GLOBAL_DEPS = ["git", "wget", "curl", "unzip", "dfu-util", "python3-virtualenv"]
 

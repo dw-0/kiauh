@@ -6,24 +6,24 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-import io
-import sys
+from __future__ import annotations
 
-from core.logger import Logger
-from core.menus.main_menu import MainMenu
-from core.settings.kiauh_settings import KiauhSettings
+from enum import Enum
 
 
-def ensure_encoding() -> None:
-    if sys.stdout.encoding == "UTF-8" or not isinstance(sys.stdout, io.TextIOWrapper):
-        return
-    sys.stdout.reconfigure(encoding="utf-8")
+class Color(Enum):
+    WHITE = "\033[37m"  # white
+    MAGENTA = "\033[35m"  # magenta
+    GREEN = "\033[92m"  # bright green
+    YELLOW = "\033[93m"  # bright yellow
+    RED = "\033[91m"  # bright red
+    CYAN = "\033[96m"  # bright cyan
+    RST = "\033[0m"  # reset format
 
+    def __str__(self):
+        return self.value
 
-def main() -> None:
-    try:
-        KiauhSettings()
-        ensure_encoding()
-        MainMenu().run()
-    except KeyboardInterrupt:
-        Logger.print_ok("\nHappy printing!\n", prefix=False)
+    @staticmethod
+    def apply(text: str | int, color: "Color") -> str:
+        """Apply a given color to a given text string."""
+        return f"{color}{text}{Color.RST}"

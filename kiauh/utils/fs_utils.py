@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 import shutil
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
+from subprocess import DEVNULL, PIPE, CalledProcessError, call, check_output, run
 from typing import List
 from zipfile import ZipFile
 
@@ -53,13 +53,28 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
         raise
 
 
-def remove_with_sudo(file: Path) -> None:
-    try:
-        cmd = ["sudo", "rm", "-rf", file.as_posix()]
-        run(cmd, stderr=PIPE, check=True)
-    except CalledProcessError as e:
-        Logger.print_error(f"Failed to remove {file}: {e}")
-        raise
+def remove_with_sudo(files: Path | List[Path]) -> bool:
+    _files = []
+    _removed = []
+    if isinstance(files, list):
+        _files = files
+    else:
+        _files.append(files)
+
+    for f in _files:
+        try:
+            cmd = ["sudo", "find", f.as_posix()]
+            if call(cmd, stderr=DEVNULL, stdout=DEVNULL) == 1:
+                Logger.print_info(f"File '{f}' does not exist. Skipped ...")
+                continue
+            cmd = ["sudo", "rm", "-rf", f.as_posix()]
+            run(cmd, stderr=PIPE, check=True)
+            Logger.print_ok(f"File '{f}' was successfully removed!")
+            _removed.append(f)
+        except CalledProcessError as e:
+            Logger.print_error(f"Error removing file '{f}': {e}")
+
+    return len(_removed) > 0
 
 
 @deprecated(info="Use remove_with_sudo instead", replaced_by=remove_with_sudo)
@@ -73,28 +88,32 @@ def remove_file(file_path: Path, sudo=False) -> None:
         raise
 
 
-def run_remove_routines(file: Path) -> None:
+def run_remove_routines(file: Path) -> bool:
     try:
         if not file.is_symlink() and not file.exists():
             Logger.print_info(f"File '{file}' does not exist. Skipped ...")
-            return
+            return False
 
         if file.is_dir():
             shutil.rmtree(file)
         elif file.is_file() or file.is_symlink():
             file.unlink()
         else:
-            raise OSError(f"File '{file}' is neither a file nor a directory!")
+            Logger.print_error(f"File '{file}' is neither a file nor a directory!")
+            return False
         Logger.print_ok(f"File '{file}' was successfully removed!")
+        return True
     except OSError as e:
         Logger.print_error(f"Unable to delete '{file}':\n{e}")
         try:
             Logger.print_info("Trying to remove with sudo ...")
-            remove_with_sudo(file)
-            Logger.print_ok(f"File '{file}' was successfully removed!")
+            if remove_with_sudo(file):
+                Logger.print_ok(f"File '{file}' was successfully removed!")
+                return True
         except CalledProcessError as e:
             Logger.print_error(f"Error deleting '{file}' with sudo:\n{e}")
             Logger.print_error("Remove this directory manually!")
+            return False
 
 
 def unzip(filepath: Path, target_dir: Path) -> None:

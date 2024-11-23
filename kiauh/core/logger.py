@@ -12,33 +12,16 @@ import textwrap
 from enum import Enum
 from typing import List
 
-from core.constants import (
-    COLOR_CYAN,
-    COLOR_GREEN,
-    COLOR_MAGENTA,
-    COLOR_RED,
-    COLOR_WHITE,
-    COLOR_YELLOW,
-    RESET_FORMAT,
-)
+from core.types.color import Color
 
 
 class DialogType(Enum):
-    INFO = ("INFO", COLOR_WHITE)
-    SUCCESS = ("SUCCESS", COLOR_GREEN)
-    ATTENTION = ("ATTENTION", COLOR_YELLOW)
-    WARNING = ("WARNING", COLOR_YELLOW)
-    ERROR = ("ERROR", COLOR_RED)
+    INFO = ("INFO", Color.WHITE)
+    SUCCESS = ("SUCCESS", Color.GREEN)
+    ATTENTION = ("ATTENTION", Color.YELLOW)
+    WARNING = ("WARNING", Color.YELLOW)
+    ERROR = ("ERROR", Color.RED)
     CUSTOM = (None, None)
-
-
-class DialogCustomColor(Enum):
-    WHITE = COLOR_WHITE
-    GREEN = COLOR_GREEN
-    YELLOW = COLOR_YELLOW
-    RED = COLOR_RED
-    CYAN = COLOR_CYAN
-    MAGENTA = COLOR_MAGENTA
 
 
 LINE_WIDTH = 53
@@ -46,44 +29,33 @@ LINE_WIDTH = 53
 
 class Logger:
     @staticmethod
-    def info(msg) -> None:
-        # log to kiauh.log
-        pass
-
-    @staticmethod
-    def warn(msg) -> None:
-        # log to kiauh.log
-        pass
-
-    @staticmethod
-    def error(msg) -> None:
-        # log to kiauh.log
-        pass
-
-    @staticmethod
     def print_info(msg, prefix=True, start="", end="\n") -> None:
         message = f"[INFO] {msg}" if prefix else msg
-        print(f"{COLOR_WHITE}{start}{message}{RESET_FORMAT}", end=end)
+        Logger.__print(Color.WHITE, start, message, end)
 
     @staticmethod
     def print_ok(msg: str = "Success!", prefix=True, start="", end="\n") -> None:
         message = f"[OK] {msg}" if prefix else msg
-        print(f"{COLOR_GREEN}{start}{message}{RESET_FORMAT}", end=end)
+        Logger.__print(Color.GREEN, start, message, end)
 
     @staticmethod
     def print_warn(msg, prefix=True, start="", end="\n") -> None:
         message = f"[WARN] {msg}" if prefix else msg
-        print(f"{COLOR_YELLOW}{start}{message}{RESET_FORMAT}", end=end)
+        Logger.__print(Color.YELLOW, start, message, end)
 
     @staticmethod
     def print_error(msg, prefix=True, start="", end="\n") -> None:
         message = f"[ERROR] {msg}" if prefix else msg
-        print(f"{COLOR_RED}{start}{message}{RESET_FORMAT}", end=end)
+        Logger.__print(Color.RED, start, message, end)
 
     @staticmethod
     def print_status(msg, prefix=True, start="", end="\n") -> None:
         message = f"\n###### {msg}" if prefix else msg
-        print(f"{COLOR_MAGENTA}{start}{message}{RESET_FORMAT}", end=end)
+        Logger.__print(Color.MAGENTA, start, message, end)
+
+    @staticmethod
+    def __print(color: Color, start: str, message: str, end: str) -> None:
+        print(Color.apply(f"{start}{message}", color), end=end)
 
     @staticmethod
     def print_dialog(
@@ -91,7 +63,7 @@ class Logger:
         content: List[str],
         center_content: bool = False,
         custom_title: str | None = None,
-        custom_color: DialogCustomColor | None = None,
+        custom_color: Color | None = None,
         margin_top: int = 0,
         margin_bottom: int = 0,
     ) -> None:
@@ -111,10 +83,15 @@ class Logger:
         """
         dialog_color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
-        dialog_title_formatted = Logger._format_dialog_title(dialog_title)
-        dialog_content = Logger.format_content(content, LINE_WIDTH, center_content)
+        dialog_title_formatted = Logger._format_dialog_title(dialog_title, dialog_color)
+        dialog_content = Logger.format_content(
+            content,
+            LINE_WIDTH,
+            dialog_color,
+            center_content,
+        )
         top = Logger._format_top_border(dialog_color)
-        bottom = Logger._format_bottom_border()
+        bottom = Logger._format_bottom_border(dialog_color)
 
         print("\n" * margin_top)
         print(
@@ -133,39 +110,45 @@ class Logger:
 
     @staticmethod
     def _get_dialog_color(
-        title: DialogType, custom_color: DialogCustomColor | None = None
-    ) -> str:
+        title: DialogType, custom_color: Color | None = None
+    ) -> Color:
         if title == DialogType.CUSTOM and custom_color:
-            return str(custom_color.value)
+            return custom_color
 
-        color: str = title.value[1] if title.value[1] else DialogCustomColor.WHITE.value
+        color: Color = title.value[1] if title.value[1] else Color.WHITE
 
         return color
 
     @staticmethod
-    def _format_top_border(color: str) -> str:
-        return f"{color}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
-
-    @staticmethod
-    def _format_bottom_border() -> str:
-        return (
-            f"\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{RESET_FORMAT}"
+    def _format_top_border(color: Color) -> str:
+        _border = Color.apply(
+            "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n", color
         )
+        return _border
 
     @staticmethod
-    def _format_dialog_title(title: str | None) -> str:
-        if title is not None:
-            return textwrap.dedent(f"""
-                ┃ {title:^{LINE_WIDTH}} ┃
-                ┠───────────────────────────────────────────────────────┨
-                """)
-        else:
-            return "\n"
+    def _format_bottom_border(color: Color) -> str:
+        _border = Color.apply(
+            "\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛", color
+        )
+        return _border
+
+    @staticmethod
+    def _format_dialog_title(title: str | None, color: Color) -> str:
+        if title is None:
+            return ""
+
+        _title = Color.apply(f"┃ {title:^{LINE_WIDTH}} ┃\n", color)
+        _title += Color.apply(
+            "┠───────────────────────────────────────────────────────┨\n", color
+        )
+        return _title
 
     @staticmethod
     def format_content(
         content: List[str],
         line_width: int,
+        color: Color = Color.WHITE,
         center_content: bool = False,
         border_left: str = "┃",
         border_right: str = "┃",
@@ -184,11 +167,13 @@ class Logger:
 
         if not center_content:
             formatted_lines = [
-                f"{border_left} {line:<{line_width}} {border_right}" for line in lines
+                Color.apply(f"{border_left} {line:<{line_width}} {border_right}", color)
+                for line in lines
             ]
         else:
             formatted_lines = [
-                f"{border_left} {line:^{line_width}} {border_right}" for line in lines
+                Color.apply(f"{border_left} {line:^{line_width}} {border_right}", color)
+                for line in lines
             ]
 
         return "\n".join(formatted_lines)

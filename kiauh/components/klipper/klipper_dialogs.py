@@ -11,13 +11,8 @@ import textwrap
 from enum import Enum, unique
 from typing import List
 
-from core.constants import (
-    COLOR_CYAN,
-    COLOR_GREEN,
-    COLOR_YELLOW,
-    RESET_FORMAT,
-)
 from core.menus.base_menu import print_back_footer
+from core.types.color import Color
 from utils.instance_type import InstanceType
 
 
@@ -42,12 +37,12 @@ def print_instance_overview(
             if display_type is DisplayType.SERVICE_NAME
             else "printer directories"
         )
-        headline = f"{COLOR_GREEN}The following {d_type} were found:{RESET_FORMAT}"
+        headline = Color.apply(f"The following {d_type} were found:", Color.GREEN)
         dialog += f"║{headline:^64}║\n"
         dialog += "╟───────────────────────────────────────────────────────╢\n"
 
     if show_select_all:
-        select_all = f"{COLOR_YELLOW}a) Select all{RESET_FORMAT}"
+        select_all = Color.apply("a) Select all", Color.YELLOW)
         dialog += f"║ {select_all:<63}║\n"
         dialog += "║                                                       ║\n"
 
@@ -56,7 +51,9 @@ def print_instance_overview(
             name = s.service_file_path.stem
         else:
             name = s.data_dir
-        line = f"{COLOR_CYAN}{f'{i + start_index})' if show_index else '●'} {name}{RESET_FORMAT}"
+        line = Color.apply(
+            f"{f'{i + start_index})' if show_index else '●'} {name}", Color.CYAN
+        )
         dialog += f"║ {line:<63}║\n"
     dialog += "╟───────────────────────────────────────────────────────╢\n"
 
@@ -65,8 +62,10 @@ def print_instance_overview(
 
 
 def print_select_instance_count_dialog() -> None:
-    line1 = f"{COLOR_YELLOW}WARNING:{RESET_FORMAT}"
-    line2 = f"{COLOR_YELLOW}Setting up too many instances may crash your system.{RESET_FORMAT}"
+    line1 = Color.apply("WARNING:", Color.YELLOW)
+    line2 = Color.apply(
+        "Setting up too many instances may crash your system.", Color.YELLOW
+    )
     dialog = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗
@@ -85,8 +84,8 @@ def print_select_instance_count_dialog() -> None:
 
 
 def print_select_custom_name_dialog() -> None:
-    line1 = f"{COLOR_YELLOW}INFO:{RESET_FORMAT}"
-    line2 = f"{COLOR_YELLOW}Only alphanumeric characters are allowed!{RESET_FORMAT}"
+    line1 = Color.apply("INFO:", Color.YELLOW)
+    line2 = Color.apply("Only alphanumeric characters are allowed!", Color.YELLOW)
     dialog = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗

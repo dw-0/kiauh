@@ -13,6 +13,8 @@ from core.backup_manager import BACKUP_ROOT_DIR
 
 MODULE_PATH = Path(__file__).resolve().parent
 
+MOONRAKER_REPO_URL = "https://github.com/Arksine/moonraker.git"
+
 # names
 MOONRAKER_CFG_NAME = "moonraker.conf"
 MOONRAKER_LOG_NAME = "moonraker.log"

@@ -26,19 +26,17 @@ from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.backup_manager.backup_manager import BackupManager
 from core.constants import (
-    COLOR_CYAN,
-    COLOR_YELLOW,
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
-    RESET_FORMAT,
 )
 from core.logger import Logger
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
-from core.types import ComponentStatus
+from core.types.color import Color
+from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.fs_utils import create_symlink, remove_file
 from utils.git_utils import (
@@ -79,10 +77,10 @@ def get_current_client_config() -> str:
     installed = [c for c in clients if c.client_config.config_dir.exists()]
 
     if not installed:
-        return f"{COLOR_CYAN}-{RESET_FORMAT}"
+        return Color.apply("-", Color.CYAN)
     elif len(installed) == 1:
         cfg = installed[0].client_config
-        return f"{COLOR_CYAN}{cfg.display_name}{RESET_FORMAT}"
+        return Color.apply(cfg.display_name, Color.CYAN)
 
     # at this point, both client config folders exists, so we need to check
     # which are actually included in the printer.cfg of all klipper instances
@@ -101,18 +99,18 @@ def get_current_client_config() -> str:
 
         # if both are included in the same file, we have a potential conflict
         if includes_mainsail and includes_fluidd:
-            return f"{COLOR_YELLOW}Conflict!{RESET_FORMAT}"
+            return Color.apply("Conflict", Color.YELLOW)
 
     if not mainsail_includes and not fluidd_includes:
         # there are no includes at all, even though the client config folders exist
-        return f"{COLOR_CYAN}-{RESET_FORMAT}"
+        return Color.apply("-", Color.CYAN)
     elif len(fluidd_includes) > len(mainsail_includes):
         # there are more instances that include fluidd than mainsail
-        return f"{COLOR_CYAN}{fluidd.client_config.display_name}{RESET_FORMAT}"
+        return Color.apply(fluidd.client_config.display_name, Color.CYAN)
     else:
         # there are the same amount of non-conflicting includes for each config
         # or more instances include mainsail than fluidd
-        return f"{COLOR_CYAN}{mainsail.client_config.display_name}{RESET_FORMAT}"
+        return Color.apply(mainsail.client_config.display_name, Color.CYAN)
 
 
 def enable_mainsail_remotemode() -> None:
@@ -338,36 +336,62 @@ def create_nginx_cfg(
         raise
 
 
+def get_nginx_config_list() -> List[Path]:
+    """
+    Get a list of all NGINX config files in /etc/nginx/sites-enabled
+    :return: List of NGINX config files
+    """
+    configs: List[Path] = []
+    for config in NGINX_SITES_ENABLED.iterdir():
+        if not config.is_file():
+            continue
+        configs.append(config)
+    return configs
+
+
+def get_nginx_listen_port(config: Path) -> int | None:
+    """
+    Get the listen port from an NGINX config file
+    :param config: The NGINX config file to read the port from
+    :return: The listen port as int or None if not found/parsable
+    """
+
+    # noinspection HttpUrlsUsage
+    pattern = r"default_server|http://|https://|[;\[\]]"
+    port = ""
+    with open(config, "r") as cfg:
+        for line in cfg.readlines():
+            line = re.sub(pattern, "", line.strip())
+            if line.startswith("listen"):
+                if ":" not in line:
+                    port = line.split()[-1]
+                else:
+                    port = line.split(":")[-1]
+        try:
+            return int(port)
+        except ValueError:
+            Logger.print_error(
+                f"Unable to parse listen port {port} from {config.name}!"
+            )
+            return None
+
+
 def read_ports_from_nginx_configs() -> List[int]:
     """
-    Helper function to iterate over all NGINX configs and read all ports defined for listen
+    Helper function to iterate over all NGINX configs
+    and read all ports defined for listen
     :return: A sorted list of listen ports
     """
     if not NGINX_SITES_ENABLED.exists():
         return []
 
-    port_list = []
-    for config in NGINX_SITES_ENABLED.iterdir():
-        if not config.is_file():
-            continue
+    port_list: List[int] = []
+    for config in get_nginx_config_list():
+        port = get_nginx_listen_port(config)
+        if port is not None:
+            port_list.append(port)
 
-        with open(config, "r") as cfg:
-            lines = cfg.readlines()
-
-        for line in lines:
-            line = re.sub(
-                r"default_server|http://|https://|[;\[\]]",
-                "",
-                line.strip(),
-            )
-            if line.startswith("listen"):
-                if ":" not in line:
-                    port_list.append(line.split()[-1])
-                else:
-                    port_list.append(line.split(":")[-1])
-
-    ports_to_ints_list = [int(port) for port in port_list]
-    return sorted(ports_to_ints_list, key=lambda x: int(x))
+    return sorted(port_list, key=lambda x: int(x))
 
 
 def get_client_port_selection(

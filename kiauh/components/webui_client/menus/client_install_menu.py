@@ -15,13 +15,15 @@ from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_setup import install_client
 from components.webui_client.client_utils import (
     get_client_port_selection,
+    get_nginx_listen_port,
     set_listen_port,
 )
-from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
-from core.logger import DialogCustomColor, DialogType, Logger
+from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.services.message_service import Message
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
+from core.types.color import Color
 from utils.sys_utils import cmd_sysctl_service, get_ipv4_addr
 
 
@@ -31,6 +33,8 @@ class ClientInstallMenu(BaseMenu):
         self, client: BaseWebClient, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
+        self.title = f"Installation Menu > {client.display_name}"
+        self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.client: BaseWebClient = client
         self.settings = KiauhSettings()
@@ -49,15 +53,9 @@ class ClientInstallMenu(BaseMenu):
 
     def print_menu(self) -> None:
         client_name = self.client.display_name
-
-        header = f" [ Installation Menu > {client_name} ] "
-        color = COLOR_GREEN
-        count = 62 - len(color) - len(RESET_FORMAT)
-        port = f"(Current: {COLOR_CYAN}{int(self.client_settings.port)}{RESET_FORMAT})"
+        port = f"(Current: {Color.apply(self._get_current_port(), Color.GREEN)})"
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║  1) Reinstall {client_name:16}                        ║
             ║  2) Reconfigure Listen Port {port:<34} ║
@@ -70,7 +68,7 @@ class ClientInstallMenu(BaseMenu):
         install_client(self.client, settings=self.settings, reinstall=True)
 
     def change_listen_port(self, **kwargs) -> None:
-        curr_port = int(self.client_settings.port)
+        curr_port = self._get_current_port()
         new_port = get_client_port_selection(
             self.client,
             self.settings,
@@ -88,17 +86,20 @@ class ClientInstallMenu(BaseMenu):
         cmd_sysctl_service("nginx", "start")
 
         # noinspection HttpUrlsUsage
-        Logger.print_dialog(
-            DialogType.CUSTOM,
-            custom_title="Port reconfiguration complete!",
-            custom_color=DialogCustomColor.GREEN,
-            center_content=True,
-            content=[
+        message = Message(
+            title="Port reconfiguration complete!",
+            text=[
                 f"Open {self.client.display_name} now on: "
                 f"http://{get_ipv4_addr()}:{new_port}",
             ],
+            color=Color.GREEN,
         )
+        self.message_service.set_message(message)
 
-    def _go_back(self, **kwargs) -> None:
-        if self.previous_menu is not None:
-            self.previous_menu().run()
+    def _get_current_port(self) -> int:
+        curr_port = get_nginx_listen_port(self.client.nginx_config)
+        if curr_port is None:
+            # if the port is not found in the config file we use
+            # the default port from the kiauh settings as fallback
+            return int(self.client_settings.port)
+        return curr_port

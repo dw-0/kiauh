@@ -15,6 +15,8 @@ from components.klipper.klipper import Klipper
 from components.klipper.klipper_dialogs import print_instance_overview
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
+from core.services.message_service import Message
+from core.types.color import Color
 from utils.fs_utils import run_remove_routines
 from utils.input_utils import get_selection_input
 from utils.instance_utils import get_instances
@@ -25,7 +27,11 @@ def run_klipper_removal(
     remove_service: bool,
     remove_dir: bool,
     remove_env: bool,
-) -> None:
+) -> Message:
+    completion_msg = Message(
+        title="Klipper Removal Process completed",
+        color=Color.GREEN,
+    )
     klipper_instances: List[Klipper] = get_instances(Klipper)
 
     if remove_service:
@@ -33,20 +39,36 @@ def run_klipper_removal(
         if klipper_instances:
             instances_to_remove = select_instances_to_remove(klipper_instances)
             remove_instances(instances_to_remove)
+            instance_names = [i.service_file_path.stem for i in instances_to_remove]
+            txt = f"● Klipper instances removed: {', '.join(instance_names)}"
+            completion_msg.text.append(txt)
         else:
             Logger.print_info("No Klipper Services installed! Skipped ...")
 
     if (remove_dir or remove_env) and unit_file_exists("klipper", suffix="service"):
-        Logger.print_info("There are still other Klipper services installed:")
-        Logger.print_info(f"● '{KLIPPER_DIR}' was not removed.", prefix=False)
-        Logger.print_info(f"● '{KLIPPER_ENV_DIR}' was not removed.", prefix=False)
+        completion_msg.text = [
+            "Some Klipper services are still installed:",
+            f"● '{KLIPPER_DIR}' was not removed, even though selected for removal.",
+            f"● '{KLIPPER_ENV_DIR}' was not removed, even though selected for removal.",
+        ]
     else:
         if remove_dir:
             Logger.print_status("Removing Klipper local repository ...")
-            run_remove_routines(KLIPPER_DIR)
+            if run_remove_routines(KLIPPER_DIR):
+                completion_msg.text.append("● Klipper local repository removed")
         if remove_env:
             Logger.print_status("Removing Klipper Python environment ...")
-            run_remove_routines(KLIPPER_ENV_DIR)
+            if run_remove_routines(KLIPPER_ENV_DIR):
+                completion_msg.text.append("● Klipper Python environment removed")
+
+    if completion_msg.text:
+        completion_msg.text.insert(0, "The following actions were performed:")
+    else:
+        completion_msg.color = Color.YELLOW
+        completion_msg.centered = True
+        completion_msg.text = ["Nothing to remove."]
+
+    return completion_msg
 
 
 def select_instances_to_remove(instances: List[Klipper]) -> List[Klipper] | None:

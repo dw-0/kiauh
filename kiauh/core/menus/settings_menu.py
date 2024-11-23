@@ -9,16 +9,21 @@
 from __future__ import annotations
 
 import textwrap
+from pathlib import Path
 from typing import Literal, Tuple, Type
 
+from components.klipper import KLIPPER_DIR, KLIPPER_REPO_URL
 from components.klipper.klipper_utils import get_klipper_status
+from components.moonraker import MOONRAKER_DIR, MOONRAKER_REPO_URL
 from components.moonraker.moonraker_utils import get_moonraker_status
-from core.constants import COLOR_CYAN, COLOR_GREEN, RESET_FORMAT
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings, RepoSettings
+from core.types.color import Color
+from core.types.component_status import ComponentStatus
 from procedures.switch_repo import run_switch_repo_routine
+from utils.git_utils import get_repo_name
 from utils.input_utils import get_confirm, get_string_input
 
 
@@ -27,13 +32,16 @@ from utils.input_utils import get_confirm, get_string_input
 class SettingsMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.title = "Settings Menu"
+        self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
-        self.klipper_status = get_klipper_status()
-        self.moonraker_status = get_moonraker_status()
+
         self.mainsail_unstable: bool | None = None
         self.fluidd_unstable: bool | None = None
         self.auto_backups_enabled: bool | None = None
         self._load_settings()
+        print(self.klipper_status)
+
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
@@ -50,25 +58,21 @@ class SettingsMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ KIAUH Settings ] "
-        color, rst = COLOR_CYAN, RESET_FORMAT
-        count = 62 - len(color) - len(rst)
-        checked = f"[{COLOR_GREEN}x{rst}]"
+        color = Color.CYAN
+        checked = f"[{Color.apply('x', Color.GREEN)}]"
         unchecked = "[ ]"
 
-        kl_repo: str = f"{color}{self.klipper_status.repo}{rst}"
-        kl_branch: str = f"{color}{self.klipper_status.branch}{rst}"
-        kl_owner: str = f"{color}{self.klipper_status.owner}{rst}"
-        mr_repo: str = f"{color}{self.moonraker_status.repo}{rst}"
-        mr_branch: str = f"{color}{self.moonraker_status.branch}{rst}"
-        mr_owner: str = f"{color}{self.moonraker_status.owner}{rst}"
+        kl_repo: str = Color.apply(self.klipper_status.repo, color)
+        kl_branch: str = Color.apply(self.klipper_status.branch, color)
+        kl_owner: str = Color.apply(self.klipper_status.owner, color)
+        mr_repo: str = Color.apply(self.moonraker_status.repo, color)
+        mr_branch: str = Color.apply(self.moonraker_status.branch, color)
+        mr_owner: str = Color.apply(self.moonraker_status.owner, color)
         o1 = checked if self.mainsail_unstable else unchecked
         o2 = checked if self.fluidd_unstable else unchecked
         o3 = checked if self.auto_backups_enabled else unchecked
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{rst} ║
             ╟───────────────────────────────────────────────────────╢
             ║ Klipper:                                              ║
             ║  ● Repo:   {kl_repo:51} ║
@@ -105,32 +109,51 @@ class SettingsMenu(BaseMenu):
         self.mainsail_unstable = self.settings.mainsail.unstable_releases
         self.fluidd_unstable = self.settings.fluidd.unstable_releases
 
-    def _gather_input(self) -> Tuple[str, str]:
-        Logger.print_dialog(
-            DialogType.ATTENTION,
-            [
-                "There is no input validation in place! Make sure your the input is "
-                "valid and has no typos or invalid characters! For the change to take "
-                "effect, the new repository will be cloned. A backup of the old "
-                "repository will be created.",
+        # by default, we show the status of the installed repositories
+        self.klipper_status = get_klipper_status()
+        self.moonraker_status = get_moonraker_status()
+        # if the repository is not installed, we show the status of the settings from the config file
+        if self.klipper_status.repo == "-":
+            url_parts = self.settings.klipper.repo_url.split("/")
+            self.klipper_status.repo = url_parts[-1]
+            self.klipper_status.owner = url_parts[-2]
+            self.klipper_status.branch = self.settings.klipper.branch
+        if self.moonraker_status.repo == "-":
+            url_parts = self.settings.moonraker.repo_url.split("/")
+            self.moonraker_status.repo = url_parts[-1]
+            self.moonraker_status.owner = url_parts[-2]
+            self.moonraker_status.branch = self.settings.moonraker.branch
+
+    def _gather_input(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> Tuple[str, str]:
+        warn_msg = [
+            "There is only basic input validation in place! "
+            "Make sure your the input is valid and has no typos or invalid characters!"]
+
+        if repo_dir.exists():
+            warn_msg.extend([
+                "For the change to take effect, the new repository will be cloned. "
+                "A backup of the old repository will be created.",
                 "\n\n",
                 "Make sure you don't have any ongoing prints running, as the services "
-                "will be restarted during this process! You will loose any ongoing print!",
-            ],
-        )
+                "will be restarted during this process! You will loose any ongoing print!"])
+
+        Logger.print_dialog(DialogType.ATTENTION, warn_msg)
+
         repo = get_string_input(
             "Enter new repository URL",
-            allow_special_chars=True,
+            regex="^[\w/.:-]+$",
+            default=KLIPPER_REPO_URL if repo_name == "klipper" else MOONRAKER_REPO_URL,
         )
         branch = get_string_input(
             "Enter new branch name",
-            allow_special_chars=True,
+            regex="^.+$",
+            default="master"
         )
 
         return repo, branch
 
-    def _set_repo(self, repo_name: Literal["klipper", "moonraker"]) -> None:
-        repo_url, branch = self._gather_input()
+    def _set_repo(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> None:
+        repo_url, branch = self._gather_input(repo_name, repo_dir)
         display_name = repo_name.capitalize()
         Logger.print_dialog(
             DialogType.CUSTOM,
@@ -153,22 +176,26 @@ class SettingsMenu(BaseMenu):
             Logger.print_ok("Changes saved!")
         else:
             Logger.print_info(
-                f"Skipping change of {display_name} source repository  ..."
+                f"Changing of {display_name} source repository canceled ..."
             )
             return
 
-        Logger.print_status(f"Switching to {display_name}'s new source repository ...")
-        self._switch_repo(repo_name)
+        self._switch_repo(repo_name, repo_dir)
 
-    def _switch_repo(self, name: Literal["klipper", "moonraker"]) -> None:
+    def _switch_repo(self, name: Literal["klipper", "moonraker"], repo_dir: Path ) -> None:
+        if not repo_dir.exists():
+            return
+
+        Logger.print_status(f"Switching to {name.capitalize()}'s new source repository ...")
+
         repo: RepoSettings = self.settings[name]
         run_switch_repo_routine(name, repo)
 
     def set_klipper_repo(self, **kwargs) -> None:
-        self._set_repo("klipper")
+        self._set_repo("klipper", KLIPPER_DIR)
 
     def set_moonraker_repo(self, **kwargs) -> None:
-        self._set_repo("moonraker")
+        self._set_repo("moonraker", MOONRAKER_DIR)
 
     def toggle_mainsail_release(self, **kwargs) -> None:
         self.mainsail_unstable = not self.mainsail_unstable

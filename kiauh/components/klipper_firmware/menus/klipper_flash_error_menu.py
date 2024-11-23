@@ -12,9 +12,9 @@ import textwrap
 from typing import Type
 
 from components.klipper_firmware.flash_options import FlashMethod, FlashOptions
-from core.constants import COLOR_RED, RESET_FORMAT
 from core.menus import FooterType, Option
-from core.menus.base_menu import BaseMenu
+from core.menus.base_menu import BaseMenu, MenuTitleStyle
+from core.types.color import Color
 
 
 # noinspection PyUnusedLocal
@@ -22,6 +22,9 @@ from core.menus.base_menu import BaseMenu
 class KlipperNoFirmwareErrorMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "!!! NO FIRMWARE FILE FOUND !!!"
+        self.title_color = Color.RED
+        self.title_style = MenuTitleStyle.PLAIN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
         self.flash_options = FlashOptions()
@@ -35,16 +38,11 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
         self.default_option = Option(method=self.go_back)
 
     def print_menu(self) -> None:
-        header = "!!! NO FIRMWARE FILE FOUND !!!"
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
-        line1 = f"{color}Unable to find a compiled firmware file!{RESET_FORMAT}"
+        line1 = "Unable to find a compiled firmware file!"
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
-            ║ {line1:<62} ║
+            ║ {Color.apply(line1, Color.RED):<62} ║
             ║                                                       ║
             ║ Make sure, that:                                      ║
             ║ ● the folder '~/klipper/out' and its content exist    ║
@@ -71,6 +69,9 @@ class KlipperNoFirmwareErrorMenu(BaseMenu):
 class KlipperNoBoardTypesErrorMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "!!! ERROR GETTING BOARD LIST !!!"
+        self.title_color = Color.RED
+        self.title_style = MenuTitleStyle.PLAIN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.footer_type = FooterType.BLANK
         self.input_label_txt = "Press ENTER to go back to [Main Menu]"
@@ -82,16 +83,11 @@ class KlipperNoBoardTypesErrorMenu(BaseMenu):
         self.default_option = Option(method=self.go_back)
 
     def print_menu(self) -> None:
-        header = "!!! ERROR GETTING BOARD LIST !!!"
-        color = COLOR_RED
-        count = 62 - len(color) - len(RESET_FORMAT)
-        line1 = f"{color}Reading the list of supported boards failed!{RESET_FORMAT}"
+        line1 = "Reading the list of supported boards failed!"
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
-            ║ {line1:<62} ║
+            ║ {Color.apply(line1, Color.RED):<62} ║
             ║                                                       ║
             ║ Make sure, that:                                      ║
             ║ ● the folder '~/klipper' and all its content exist    ║

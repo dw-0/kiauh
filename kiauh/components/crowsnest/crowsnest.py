@@ -30,7 +30,7 @@ from core.backup_manager.backup_manager import BackupManager
 from core.constants import CURRENT_USER
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
-from core.types import ComponentStatus
+from core.types.component_status import ComponentStatus
 from utils.common import (
     check_install_dependencies,
     get_install_status,

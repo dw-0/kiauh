@@ -15,10 +15,10 @@ import textwrap
 from pathlib import Path
 from typing import Dict, List, Type
 
-from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 from extensions import EXTENSION_ROOT
 from extensions.base_extension import BaseExtension
 
@@ -28,6 +28,8 @@ from extensions.base_extension import BaseExtension
 class ExtensionsMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
+        self.title = "Extensions Menu"
+        self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.extensions: Dict[str, BaseExtension] = self.discover_extensions()
 
@@ -82,14 +84,9 @@ class ExtensionsMenu(BaseMenu):
         ExtensionSubmenu(kwargs.get("opt_data"), self.__class__).run()
 
     def print_menu(self) -> None:
-        header = " [ Extensions Menu ] "
-        color = COLOR_CYAN
-        line1 = f"{COLOR_YELLOW}Available Extensions:{RESET_FORMAT}"
-        count = 62 - len(color) - len(RESET_FORMAT)
+        line1 = Color.apply("Available Extensions:", Color.YELLOW)
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ {line1:<62} ║
             ║                                                       ║
@@ -112,6 +109,8 @@ class ExtensionSubmenu(BaseMenu):
         self, extension: BaseExtension, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
+        self.title = extension.metadata.get("display_name")
+        self.title_color = Color.YELLOW
         self.extension = extension
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
@@ -129,9 +128,6 @@ class ExtensionSubmenu(BaseMenu):
             self.options["2"] = Option(self.extension.remove_extension)
 
     def print_menu(self) -> None:
-        header = f" [ {self.extension.metadata.get('display_name')} ] "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
         line_width = 53
         description: List[str] = self.extension.metadata.get("description", [])
         description_text = Logger.format_content(
@@ -142,9 +138,7 @@ class ExtensionSubmenu(BaseMenu):
         )
 
         menu = textwrap.dedent(
-            f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            """
             ╟───────────────────────────────────────────────────────╢
             """
         )[1:]

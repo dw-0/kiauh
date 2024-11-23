@@ -22,10 +22,10 @@ from components.webui_client.client_setup import install_client
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_install_menu import ClientInstallMenu
-from core.constants import COLOR_GREEN, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings
+from core.types.color import Color
 
 
 # noinspection PyUnusedLocal
@@ -33,6 +33,8 @@ from core.settings.kiauh_settings import KiauhSettings
 class InstallMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.title = "Installation Menu"
+        self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -53,13 +55,8 @@ class InstallMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Installation Menu ] "
-        color = COLOR_GREEN
-        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
-            f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            """
             ╟───────────────────────────┬───────────────────────────╢
             ║ Firmware & API:           │ Touchscreen GUI:          ║
             ║  1) [Klipper]             │  7) [KlipperScreen]       ║

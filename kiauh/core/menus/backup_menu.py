@@ -23,9 +23,9 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
-from core.constants import COLOR_CYAN, COLOR_YELLOW, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 from utils.common import backup_printer_config_dir
 
 
@@ -34,6 +34,8 @@ from utils.common import backup_printer_config_dir
 class BackupMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.title = "Backup Menu"
+        self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -55,14 +57,11 @@ class BackupMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Backup Menu ] "
-        line1 = f"{COLOR_YELLOW}INFO: Backups are located in '~/kiauh-backups'{RESET_FORMAT}"
-        color = COLOR_CYAN
-        count = 62 - len(color) - len(RESET_FORMAT)
+        line1 = Color.apply(
+            "INFO: Backups are located in '~/kiauh-backups'", Color.YELLOW
+        )
         menu = textwrap.dedent(
             f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
             ╟───────────────────────────────────────────────────────╢
             ║ {line1:^62} ║
             ╟───────────────────────────┬───────────────────────────╢

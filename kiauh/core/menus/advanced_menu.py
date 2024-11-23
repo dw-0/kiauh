@@ -22,9 +22,9 @@ from components.klipper_firmware.menus.klipper_flash_menu import (
 )
 from components.moonraker import MOONRAKER_DIR
 from components.moonraker.moonraker import Moonraker
-from core.constants import COLOR_YELLOW, RESET_FORMAT
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.types.color import Color
 from procedures.system import change_system_hostname
 from utils.git_utils import rollback_repository
 
@@ -34,6 +34,8 @@ from utils.git_utils import rollback_repository
 class AdvancedMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
+        self.title = "Advanced Menu"
+        self.title_color = Color.YELLOW
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -53,13 +55,8 @@ class AdvancedMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        header = " [ Advanced Menu ] "
-        color = COLOR_YELLOW
-        count = 62 - len(color) - len(RESET_FORMAT)
         menu = textwrap.dedent(
-            f"""
-            ╔═══════════════════════════════════════════════════════╗
-            ║ {color}{header:~^{count}}{RESET_FORMAT} ║
+            """
             ╟───────────────────────────┬───────────────────────────╢
             ║ Klipper Firmware:         │ Repository Rollback:      ║
             ║  1) [Build]               │  5) [Klipper]             ║
