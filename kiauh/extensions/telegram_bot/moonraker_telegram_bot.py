@@ -118,7 +118,7 @@ class MoonrakerTelegramBot:
         )
         env_file_content = env_file_content.replace(
             "%CFG%",
-            f"{self.base.cfg_dir}/printer.cfg",
+            self.cfg_file.as_posix()
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
