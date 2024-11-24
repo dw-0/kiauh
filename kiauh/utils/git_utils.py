@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import urllib.request
 from http.client import HTTPResponse
@@ -118,7 +119,7 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
     :return: List of tags
     """
     try:
-        cmd = ["git", "tag", "-l"]
+        cmd: List[str] = ["git", "tag", "-l"]
 
         if _filter is not None:
             cmd.append(f"'${_filter}'")
@@ -129,8 +130,10 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
             cwd=repo_path.as_posix(),
         ).decode(encoding="utf-8")
 
-        tags = result.split("\n")
-        return tags[:-1]
+        tags: List[str] = result.split("\n")[:-1]
+
+        return sorted(tags, key=lambda x: [int(i) if i.isdigit() else i for i in
+                                                re.split(r'(\d+)', x)])
 
     except CalledProcessError:
         return []
