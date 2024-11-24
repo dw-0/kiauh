@@ -118,7 +118,7 @@ class MoonrakerTelegramBot:
         )
         env_file_content = env_file_content.replace(
             "%CFG%",
-            self.base.cfg_dir.joinpath(self.cfg_file).as_posix()
+            self.cfg_file.as_posix()
         )
         env_file_content = env_file_content.replace(
             "%LOG%",
