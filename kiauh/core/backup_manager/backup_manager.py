@@ -79,14 +79,14 @@ class BackupManager:
 
         if source is None or not Path(source).exists():
             Logger.print_info("Source directory does not exist! Skipping ...")
-            return
+            return None
 
         target = self.backup_root_dir if target is None else target
         try:
             date = get_current_date().get("date")
             time = get_current_date().get("time")
             backup_target = target.joinpath(f"{name.lower()}-{date}-{time}")
-            shutil.copytree(source, backup_target, ignore=self.ignore_folders_func)
+            shutil.copytree(source, backup_target, ignore=self.ignore_folders_func, ignore_dangling_symlinks=True)
             Logger.print_ok("Backup successful!")
 
             return backup_target
