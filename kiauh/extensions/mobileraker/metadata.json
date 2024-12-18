@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "index": 3,
+        "module": "mobileraker_extension",
+        "maintained_by": "Clon1998",
+        "display_name": "Mobileraker",
+        "description": [
+            "Companion for Mobileraker, enabling push notification for Klipper using Moonraker."
+        ],
+        "updates": true
+    }
+}

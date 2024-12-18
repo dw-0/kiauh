@@ -218,6 +218,10 @@ function init_ini() {
     echo -e "\nmulti_instance_names=\c" >> "${INI_FILE}"
   fi
 
+  if ! grep -Eq "^version_to_launch=" "${INI_FILE}"; then
+    echo -e "\nversion_to_launch=\n\c" >> "${INI_FILE}"
+  fi
+
   ### strip all empty lines out of the file
   sed -i "/^[[:blank:]]*$/ d" "${INI_FILE}"
 }

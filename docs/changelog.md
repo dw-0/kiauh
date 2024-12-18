@@ -2,6 +2,47 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2024-08-31 (v6.0.0-alpha.1)
+Long time no see, but here we are again!
+A lot has happened in the background, but now it is time to take it out into the wild.
+
+#### KIAUH has now reached version 6! Well, at least in an alpha state...
+
+The project has seen a complete rewrite of the script from scratch in Python.
+It requires Python 3.8 or newer to run. Because this update is still in an alpha state, bugs may or will occur.
+During startup, you will be asked if you want to start the new version 6 or the old version 5.
+As long as version 6 is in a pre-release state, version 5 will still be available. If there are any critical issues
+with the new version that were overlooked, you can always switch back to the old version.
+
+In case you selected not to get asked about which version to start (option 3 or 4 in the startup dialog) and you want to
+revert that decision, you will find a line called `version_to_launch=` within the `.kiauh.ini` file in your home directory.
+Just delete that line, save the file and restart KIAUH. KIAUH will then ask you again which version you want to start.
+
+Here is a list of the most important changes to KIAUH in regard to version 6:
+- The majority of features available in KIAUH v5 are still available; they just got migrated from Bash to Python.
+- It is now possible to add new/remove instances to/from existing multi-instance installations of Klipper and Moonraker
+- KIAUH now has an Extension-System. This allows contributors to add new installers to KIAUH without having to modify the main script.
+    - You will now find some of the features that were previously available in the Installer-Menu in the Extensions-Menu.
+    - The current extensions are:
+        - G-Code Shell Command (previously found in the Advanced-Menu)
+        - Mainsail Theme Installer (previously found in the Advanced-Menu)
+        - Klipper-Backup (new in v6!)
+        - Moonraker Telegram Bot (previously found in the Installer-Menu)
+        - PrettyGCode for Klipper (previously found in the Installer-Menu)
+        - Obico for Klipper (previously found in the Installer-Menu)
+    - The following additional extensions are planned, but not yet available:
+        - Spoolman (available in v5 in the Installer-Menu)
+        - OctoApp (available in v5 in the Installer-Menu)
+- KIAUH has its own config file now
+    - The file has some default values for the currently supported options
+    - There might be more options in the future
+    - It is located in KIAUH's root directory and is called `default.kiauh.cfg`
+        - DO NOT EDIT the default file directly, instead make a copy of it and call it `kiauh.cfg`
+        - Settings changed via the Advanced-Menu will be written to the `kiauh.cfg`
+- Support for OctoPrint was removed
+
+Feel free to give version 6 a try and report any bugs or issues you encounter! Every feedback is appreciated.
+
 ### 2023-06-17
 
 KIAUH has now added support for installing Mobileraker's companion!

@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "index": 4,
+    "module": "klipper_backup_extension",
+    "maintained_by": "Staubgeborener",
+    "display_name": "Klipper-Backup",
+    "description": ["Backup all your Klipper files to GitHub"],
+    "updates": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "index": 8,
+    "module": "pretty_gcode_extension",
+    "maintained_by": "Kragrathea",
+    "display_name": "PrettyGCode for Klipper",
+    "description": ["3D G-Code viewer for Klipper"],
+    "updates": true
+  }
+}

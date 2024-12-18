@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "index": 5,
+    "module": "moonraker_telegram_bot_extension",
+    "maintained_by": "nlef",
+    "display_name": "Moonraker Telegram Bot",
+    "description": ["Control your printer with the Telegram messenger app."],
+    "project_url": "https://github.com/nlef/moonraker-telegram-bot",
+    "updates": true
+  }
+}
