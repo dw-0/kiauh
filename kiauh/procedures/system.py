@@ -51,7 +51,7 @@ def change_system_hostname() -> None:
     )
     hostname = get_string_input(
         "Enter the new hostname",
-        regex="^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$",
+        regex=r"^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$",
     )
     if not get_confirm(f"Change the hostname to '{hostname}'?", default_choice=False):
         Logger.print_info("Aborting hostname change ...")
