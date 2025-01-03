@@ -21,9 +21,7 @@ from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.settings.kiauh_settings import KiauhSettings, RepoSettings
 from core.types.color import Color
-from core.types.component_status import ComponentStatus
 from procedures.switch_repo import run_switch_repo_routine
-from utils.git_utils import get_repo_name
 from utils.input_utils import get_confirm, get_string_input
 
 
@@ -141,12 +139,12 @@ class SettingsMenu(BaseMenu):
 
         repo = get_string_input(
             "Enter new repository URL",
-            regex="^[\w/.:-]+$",
+            regex=r"^[\w/.:-]+$",
             default=KLIPPER_REPO_URL if repo_name == "klipper" else MOONRAKER_REPO_URL,
         )
         branch = get_string_input(
             "Enter new branch name",
-            regex="^.+$",
+            regex=r"^.+$",
             default="master"
         )
 
