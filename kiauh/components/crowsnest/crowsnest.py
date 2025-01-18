@@ -27,7 +27,6 @@ from components.crowsnest import (
 )
 from components.klipper.klipper import Klipper
 from core.backup_manager.backup_manager import BackupManager
-from core.constants import CURRENT_USER
 from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
 from core.types.component_status import ComponentStatus
@@ -73,7 +72,7 @@ def install_crowsnest() -> None:
     Logger.print_info("Installer will prompt you for sudo password!")
     try:
         run(
-            f"sudo make install BASE_USER={CURRENT_USER}",
+            f"sudo make install",
             cwd=CROWSNEST_DIR,
             shell=True,
             check=True,
