@@ -144,7 +144,7 @@ def install_client(
         custom_color=Color.GREEN,
         center_content=True,
         content=[
-            f"Open {client.display_name} now on: http://{get_ipv4_addr()}:{port}",
+            f"Open {client.display_name} now on: http://{get_ipv4_addr()}{'' if port == 80 else f':{port}'}",
         ],
     )
 
