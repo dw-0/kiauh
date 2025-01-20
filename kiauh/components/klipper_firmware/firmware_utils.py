@@ -138,6 +138,7 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         if flash_options.flash_method is FlashMethod.REGULAR:
             cmd = [
                 "make",
+                f"KCONFIG_CONFIG={flash_options.selected_kconfig}",
                 flash_options.flash_command.value,
                 f"FLASH_DEVICE={flash_options.selected_mcu}",
             ]
@@ -172,10 +173,10 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         Logger.print_error("See the console output above!", end="\n\n")
 
 
-def run_make_clean() -> None:
+def run_make_clean(kconfig = '.config') -> None:
     try:
         run(
-            "make clean",
+            f"make KCONFIG_CONFIG={kconfig} clean",
             cwd=KLIPPER_DIR,
             shell=True,
             check=True,
@@ -185,10 +186,10 @@ def run_make_clean() -> None:
         raise
 
 
-def run_make_menuconfig() -> None:
+def run_make_menuconfig(kconfig = '.config') -> None:
     try:
         run(
-            "make PYTHON=python3 menuconfig",
+            f"make PYTHON=python3 KCONFIG_CONFIG={kconfig} menuconfig",
             cwd=KLIPPER_DIR,
             shell=True,
             check=True,
@@ -198,10 +199,10 @@ def run_make_menuconfig() -> None:
         raise
 
 
-def run_make() -> None:
+def run_make(kconfig = '.config') -> None:
     try:
         run(
-            "make PYTHON=python3",
+            f"make PYTHON=python3 KCONFIG_CONFIG={kconfig}",
             cwd=KLIPPER_DIR,
             shell=True,
             check=True,

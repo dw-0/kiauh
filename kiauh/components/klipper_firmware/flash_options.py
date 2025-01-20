@@ -39,6 +39,7 @@ class FlashOptions:
     _selected_mcu: str = ""
     _selected_board: str = ""
     _selected_baudrate: int = 250000
+    _selected_kconfig: str = ".config"
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -104,3 +105,11 @@ class FlashOptions:
     @selected_baudrate.setter
     def selected_baudrate(self, value: int) -> None:
         self._selected_baudrate = value
+
+    @property
+    def selected_kconfig(self) -> str:
+        return self._selected_kconfig
+
+    @selected_kconfig.setter
+    def selected_kconfig(self, value: str) -> None:
+        self._selected_kconfig = value
