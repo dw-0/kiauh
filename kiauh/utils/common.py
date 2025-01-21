@@ -9,6 +9,8 @@
 
 from __future__ import annotations
 
+from components.droidklipp.droidklipp import install_droidklipp
+
 import re
 from datetime import datetime
 from pathlib import Path
