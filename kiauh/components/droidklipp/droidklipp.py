@@ -1,11 +1,13 @@
-import os
-import subprocess
-
 def install_droidklipp():
     try:
-        print("Installing DroidKlipp...")
+        print("Are you sure you want to install DroidKlipp? (Y/N)")
+        user_confirmation = input().strip().lower()
 
-        # Install necessary dependencies
+        if user_confirmation != 'y':
+            print("DroidKlipp installation aborted.")
+            return
+
+        print("Installing DroidKlipp...")
         subprocess.run(['sudo', 'apt', 'install', '-y', 'adb', 'tmux'], check=True)
 
         # Define the DroidKlipp repository URL and directory
@@ -39,5 +41,4 @@ def install_droidklipp():
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-# Run the function
-install_droidklipp()
+# Ensure you call this with proper confirmation before installation
