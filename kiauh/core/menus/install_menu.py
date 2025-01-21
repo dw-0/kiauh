@@ -109,6 +109,5 @@ class InstallMenu(BaseMenu):
     def install_crowsnest(self, **kwargs) -> None:
         install_crowsnest()
 
-    # Add this method to handle DroidKlipp installation
     def install_droidklipp(self, **kwargs) -> None:
-        install_droidklipp()  # Call the function to install DroidKlipp
+        install_droidklipp()
