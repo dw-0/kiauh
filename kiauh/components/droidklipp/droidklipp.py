@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 def install_droidklipp():
     try:
         print("Are you sure you want to install DroidKlipp? (Y/N)")
