@@ -51,8 +51,9 @@ class InstallMenu(BaseMenu):
             "5": Option(method=self.install_mainsail_config),
             "6": Option(method=self.install_fluidd_config),
             "7": Option(method=self.install_klipperscreen),
-            "8": Option(method=self.install_crowsnest),
-            "9": Option(method=self.install_droidklipp),  # Add DroidKlipp option
+            "8": Option(method=self.install_droidklipp),  # Add DroidKlipp option
+            "9": Option(method=self.install_crowsnest),
+            
         }
 
     def print_menu(self) -> None:
