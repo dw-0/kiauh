@@ -11,6 +11,7 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
+from components.droidklipp.droidklipp import install_droidklipp
 from components.crowsnest.crowsnest import install_crowsnest
 from components.klipper import klipper_setup
 from components.klipperscreen.klipperscreen import install_klipperscreen
