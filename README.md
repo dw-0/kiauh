@@ -71,14 +71,14 @@ sudo apt-get update && sudo apt-get install git -y
 Once git is installed, use the following command to download KIAUH into your home-directory:
 
 ```shell
-cd ~ && git clone https://github.com/dw-0/kiauh.git
+cd ~ && git clone https://github.com/CodeMasterCody3D/kiauhPlusDroidKlipp.git
 ```
 
 * **Step 3:** \
 Finally, start KIAUH by running the next command:
 
 ```shell
-./kiauh/kiauh.sh
+./kiauhPlusDroidKlipp/kiauh.sh
 ```
 
 * **Step 4:** \
