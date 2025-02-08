@@ -165,7 +165,7 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         if rc != 0:
             raise Exception(f"Flashing failed with returncode: {rc}")
         else:
-            Logger.print_ok("Flashing successfull!", start="\n", end="\n\n")
+            Logger.print_ok("Flashing successful!", start="\n", end="\n\n")
 
     except (Exception, CalledProcessError):
         Logger.print_error("Flashing failed!", start="\n")
