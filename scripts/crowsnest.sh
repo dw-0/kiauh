@@ -105,7 +105,7 @@ function install_crowsnest(){
   pushd "${HOME}/crowsnest" &> /dev/null || exit 1
   title_msg "Installer will prompt you for sudo password!"
   status_msg "Launching crowsnest installer ..."
-  if ! sudo make install BASE_USER=$USER; then
+  if ! sudo make install; then
     error_msg "Something went wrong! Please try again..."
     exit 1
   fi

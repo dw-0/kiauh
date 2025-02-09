@@ -31,7 +31,7 @@ def change_system_hostname() -> None:
             "http://<hostname>.local",
             "\n\n",
             "Example: If you set your hostname to 'my-printer', you can access an "
-            "installed webinterface by tyoing 'http://my-printer.local' in the "
+            "installed webinterface by typing 'http://my-printer.local' in the "
             "browser.",
         ],
         custom_title="CHANGE SYSTEM HOSTNAME",

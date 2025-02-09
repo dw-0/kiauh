@@ -25,6 +25,7 @@ KLIPPER_SERVICE_NAME = "klipper.service"
 
 # directories
 KLIPPER_DIR = Path.home().joinpath("klipper")
+KLIPPER_KCONFIGS_DIR = Path.home().joinpath("klipper-kconfigs")
 KLIPPER_ENV_DIR = Path.home().joinpath("klippy-env")
 KLIPPER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("klipper-backups")
 

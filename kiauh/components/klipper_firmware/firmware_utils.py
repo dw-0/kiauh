@@ -7,6 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import re
+from pathlib import Path
 from subprocess import (
     DEVNULL,
     PIPE,
@@ -138,6 +139,7 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         if flash_options.flash_method is FlashMethod.REGULAR:
             cmd = [
                 "make",
+                f"KCONFIG_CONFIG={flash_options.selected_kconfig}",
                 flash_options.flash_command.value,
                 f"FLASH_DEVICE={flash_options.selected_mcu}",
             ]
@@ -165,17 +167,17 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         if rc != 0:
             raise Exception(f"Flashing failed with returncode: {rc}")
         else:
-            Logger.print_ok("Flashing successfull!", start="\n", end="\n\n")
+            Logger.print_ok("Flashing successful!", start="\n", end="\n\n")
 
     except (Exception, CalledProcessError):
         Logger.print_error("Flashing failed!", start="\n")
         Logger.print_error("See the console output above!", end="\n\n")
 
 
-def run_make_clean() -> None:
+def run_make_clean(kconfig=Path(KLIPPER_DIR.joinpath(".config"))) -> None:
     try:
         run(
-            "make clean",
+            f"make KCONFIG_CONFIG={kconfig} clean",
             cwd=KLIPPER_DIR,
             shell=True,
             check=True,
@@ -185,10 +187,10 @@ def run_make_clean() -> None:
         raise
 
 
-def run_make_menuconfig() -> None:
+def run_make_menuconfig(kconfig=Path(KLIPPER_DIR.joinpath(".config"))) -> None:
     try:
         run(
-            "make PYTHON=python3 menuconfig",
+            f"make PYTHON=python3 KCONFIG_CONFIG={kconfig} menuconfig",
             cwd=KLIPPER_DIR,
             shell=True,
             check=True,
@@ -198,10 +200,10 @@ def run_make_menuconfig() -> None:
         raise
 
 
-def run_make() -> None:
+def run_make(kconfig=Path(KLIPPER_DIR.joinpath(".config"))) -> None:
     try:
         run(
-            "make PYTHON=python3",
+            f"make PYTHON=python3 KCONFIG_CONFIG={kconfig}",
             cwd=KLIPPER_DIR,
             shell=True,
             check=True,

@@ -15,6 +15,7 @@ from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from components.klipper_firmware.menus.klipper_build_menu import (
     KlipperBuildFirmwareMenu,
+    KlipperKConfigMenu,
 )
 from components.klipper_firmware.menus.klipper_flash_menu import (
     KlipperFlashMethodMenu,
@@ -76,12 +77,15 @@ class AdvancedMenu(BaseMenu):
         rollback_repository(MOONRAKER_DIR, Moonraker)
 
     def build(self, **kwargs) -> None:
+        KlipperKConfigMenu().run()
         KlipperBuildFirmwareMenu(previous_menu=self.__class__).run()
 
     def flash(self, **kwargs) -> None:
+        KlipperKConfigMenu().run()
         KlipperFlashMethodMenu(previous_menu=self.__class__).run()
 
     def build_flash(self, **kwargs) -> None:
+        KlipperKConfigMenu().run()
         KlipperBuildFirmwareMenu(previous_menu=KlipperFlashMethodMenu).run()
         KlipperFlashMethodMenu(previous_menu=self.__class__).run()
 
