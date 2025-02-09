@@ -7,6 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import re
+from pathlib import Path
 from subprocess import (
     DEVNULL,
     PIPE,
@@ -173,7 +174,7 @@ def start_flash_process(flash_options: FlashOptions) -> None:
         Logger.print_error("See the console output above!", end="\n\n")
 
 
-def run_make_clean(kconfig = '.config') -> None:
+def run_make_clean(kconfig=Path(KLIPPER_DIR.joinpath(".config"))) -> None:
     try:
         run(
             f"make KCONFIG_CONFIG={kconfig} clean",
@@ -186,7 +187,7 @@ def run_make_clean(kconfig = '.config') -> None:
         raise
 
 
-def run_make_menuconfig(kconfig = '.config') -> None:
+def run_make_menuconfig(kconfig=Path(KLIPPER_DIR.joinpath(".config"))) -> None:
     try:
         run(
             f"make PYTHON=python3 KCONFIG_CONFIG={kconfig} menuconfig",
@@ -199,7 +200,7 @@ def run_make_menuconfig(kconfig = '.config') -> None:
         raise
 
 
-def run_make(kconfig = '.config') -> None:
+def run_make(kconfig=Path(KLIPPER_DIR.joinpath(".config"))) -> None:
     try:
         run(
             f"make PYTHON=python3 KCONFIG_CONFIG={kconfig}",

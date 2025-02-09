@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import textwrap
 import time
-from os.path import basename
+from pathlib import Path
 from typing import Type
 
 from components.klipper_firmware.firmware_utils import (
@@ -421,7 +421,7 @@ class KlipperFlashOverviewMenu(BaseMenu):
         mcu = self.flash_options.selected_mcu.split("/")[-1]
         board = self.flash_options.selected_board
         baudrate = self.flash_options.selected_baudrate
-        kconfig = basename(self.flash_options.selected_kconfig)
+        kconfig = Path(self.flash_options.selected_kconfig).name
         color = Color.CYAN
         subheader = f"[{Color.apply('Overview', color)}]"
         menu = textwrap.dedent(
