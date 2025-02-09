@@ -8,7 +8,6 @@
 # ======================================================================= #
 from __future__ import annotations
 
-import json
 import subprocess
 from typing import List
 
@@ -31,6 +30,7 @@ from components.moonraker.moonraker_dialogs import print_moonraker_overview
 from components.moonraker.moonraker_utils import (
     backup_moonraker_dir,
     create_example_moonraker_conf,
+    parse_sysdeps_file,
 )
 from components.webui_client.client_utils import (
     enable_mainsail_remotemode,
@@ -53,6 +53,8 @@ from utils.sys_utils import (
     cmd_sysctl_manage,
     cmd_sysctl_service,
     create_python_venv,
+    get_distro_name,
+    get_distro_version,
     install_python_requirements,
     parse_packages_from_file,
 )
@@ -157,9 +159,35 @@ def install_moonraker_packages() -> None:
     moonraker_deps = []
 
     if MOONRAKER_DEPS_JSON_FILE.exists():
-        with open(MOONRAKER_DEPS_JSON_FILE, "r") as deps:
-            moonraker_deps = json.load(deps).get("debian", [])
+        Logger.print_status(
+            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ..."
+        )
+        parsed_sysdeps = parse_sysdeps_file(MOONRAKER_DEPS_JSON_FILE)
+        distro_name = get_distro_name().lower()
+        distro_version = get_distro_version()
+
+        for dep in parsed_sysdeps.get(distro_name, []):
+            pkg = dep[0].strip()
+            comparator = dep[1].strip()
+            req_version = dep[2].strip()
+
+            comparisons = {
+                "": lambda x, y: True,
+                "<": lambda x, y: x < y,
+                ">": lambda x, y: x > y,
+                "<=": lambda x, y: x <= y,
+                ">=": lambda x, y: x >= y,
+                "==": lambda x, y: x == y,
+                "!=": lambda x, y: x != y,
+            }
+
+            if comparisons[comparator](float(distro_version), float(req_version or 0)):
+                moonraker_deps.append(pkg)
+
     elif MOONRAKER_INSTALL_SCRIPT.exists():
+        Logger.print_status(
+            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ..."
+        )
         moonraker_deps = parse_packages_from_file(MOONRAKER_INSTALL_SCRIPT)
 
     if not moonraker_deps:

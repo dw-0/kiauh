@@ -539,3 +539,10 @@ def get_service_file_path(instance_type: type, suffix: str) -> Path:
     file_path: Path = SYSTEMD.joinpath(f"{name}.service")
 
     return file_path
+
+def get_distro_name() -> str:
+    return check_output(["lsb_release", "-is"]).decode().strip()
+
+
+def get_distro_version() -> str:
+    return check_output(["lsb_release", "-rs"]).decode().strip()
