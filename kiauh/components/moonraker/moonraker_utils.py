@@ -6,9 +6,11 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-
+import json
+import re
 import shutil
-from typing import Dict, List, Optional
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 from components.moonraker import (
     MODULE_PATH,
@@ -138,3 +140,34 @@ def backup_moonraker_db_dir() -> None:
         bm.backup_directory(
             name, source=instance.db_dir, target=MOONRAKER_DB_BACKUP_DIR
         )
+
+
+# This function is from sync_dependencies.py script from the Moonraker project on GitHub:
+# https://github.com/Arksine/moonraker/blob/master/scripts/sync_dependencies.py
+# Thanks to Arksine for his work on this project!
+def parse_sysdeps_file(sysdeps_file: Path) -> Dict[str, List[Tuple[str, str, str]]]:
+    """
+    Parses the system dependencies file and returns a dictionary with the parsed dependencies.
+    :param sysdeps_file: The path to the system dependencies file.
+    :return: A dictionary with the parsed dependencies in the format {distro: [(package, comparator, version)]}.
+    """
+    base_deps: Dict[str, List[str]] = json.loads(sysdeps_file.read_bytes())
+    parsed_deps: Dict[str, List[Tuple[str, str, str]]] = {}
+
+    for distro, pkgs in base_deps.items():
+        parsed_deps[distro] = []
+        for dep in pkgs:
+            parts = dep.split(";", maxsplit=1)
+            if len(parts) == 1:
+                parsed_deps[distro].append((dep.strip(), "", ""))
+            else:
+                pkg_name = parts[0].strip()
+                dep_parts = re.split(r"(==|!=|<=|>=|<|>)", parts[1].strip())
+                comp_var = dep_parts[0].strip().lower()
+                if len(dep_parts) != 3 or comp_var != "distro_version":
+                    continue
+                operator = dep_parts[1].strip()
+                req_version = dep_parts[2].strip()
+                parsed_deps[distro].append((pkg_name, operator, req_version))
+
+    return parsed_deps
