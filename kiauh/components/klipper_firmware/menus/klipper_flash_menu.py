@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import textwrap
 import time
+from pathlib import Path
 from typing import Type
 
 from components.klipper_firmware.firmware_utils import (
@@ -420,6 +421,7 @@ class KlipperFlashOverviewMenu(BaseMenu):
         mcu = self.flash_options.selected_mcu.split("/")[-1]
         board = self.flash_options.selected_board
         baudrate = self.flash_options.selected_baudrate
+        kconfig = Path(self.flash_options.selected_kconfig).name
         color = Color.CYAN
         subheader = f"[{Color.apply('Overview', color)}]"
         menu = textwrap.dedent(
@@ -449,6 +451,13 @@ class KlipperFlashOverviewMenu(BaseMenu):
                 f"""
                 ║ Board type: {Color.apply(f"{board:<41}", color)} ║
                 ║ Baudrate: {Color.apply(f"{baudrate:<43}", color)} ║
+                """
+            )[1:]
+
+        if self.flash_options.flash_method is FlashMethod.REGULAR:
+            menu += textwrap.dedent(
+                f"""
+                ║ Firmware config: {Color.apply(f"{kconfig:<36}", color)} ║
                 """
             )[1:]
 
