@@ -14,8 +14,8 @@ from typing import Type
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from components.klipper_firmware.menus.klipper_build_menu import (
-    KlipperKConfigMenu,
     KlipperBuildFirmwareMenu,
+    KlipperKConfigMenu,
 )
 from components.klipper_firmware.menus.klipper_flash_menu import (
     KlipperFlashMethodMenu,

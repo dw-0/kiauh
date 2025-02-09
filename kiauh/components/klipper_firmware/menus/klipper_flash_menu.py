@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import textwrap
 import time
-from typing import Type
 from os.path import basename
+from typing import Type
 
 from components.klipper_firmware.firmware_utils import (
     find_firmware_file,
@@ -37,7 +37,6 @@ from components.klipper_firmware.menus.klipper_flash_help_menu import (
     KlipperFlashMethodHelpMenu,
     KlipperMcuConnectionHelpMenu,
 )
-from components.klipper_firmware.menus.klipper_build_menu import KlipperKConfigMenu
 from core.logger import DialogType, Logger
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu, MenuTitleStyle

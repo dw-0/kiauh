@@ -9,9 +9,9 @@
 from __future__ import annotations
 
 import textwrap
-from typing import List, Set, Type
-from os import path, listdir, mkdir
+from os import listdir, mkdir, path
 from shutil import copyfile
+from typing import List, Set, Type
 
 from components.klipper import KLIPPER_DIR, KLIPPER_KCONFIGS_DIR
 from components.klipper_firmware.firmware_utils import (
@@ -22,14 +22,14 @@ from components.klipper_firmware.firmware_utils import (
 from components.klipper_firmware.flash_options import FlashOptions
 from core.logger import DialogType, Logger
 from core.menus import Option
-from core.menus.base_menu import BaseMenu, print_back_footer
+from core.menus.base_menu import BaseMenu
 from core.types.color import Color
+from utils.input_utils import get_confirm, get_string_input
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
     update_system_package_lists,
 )
-from utils.input_utils import get_confirm, get_string_input, get_selection_input
 
 
 # noinspection PyUnusedLocal
@@ -43,7 +43,9 @@ class KlipperKConfigMenu(BaseMenu):
         self.flash_options = FlashOptions()
         self.kconfigs_dirname = KLIPPER_KCONFIGS_DIR
         self.kconfig_default = path.join(KLIPPER_DIR, ".config")
-        self.kconfig = self.kconfig_default if not path.isdir(self.kconfigs_dirname) else None
+        self.kconfig = (
+            self.kconfig_default if not path.isdir(self.kconfigs_dirname) else None
+        )
 
     def run(self) -> None:
         if not self.kconfig:
@@ -63,7 +65,9 @@ class KlipperKConfigMenu(BaseMenu):
             return
 
         self.input_label_txt = "Select config or action to continue (default=n)"
-        self.default_option = Option(method=self.select_config, opt_data=self.kconfig_default)
+        self.default_option = Option(
+            method=self.select_config, opt_data=self.kconfig_default
+        )
 
         self.configs = []
         option_index = 1
@@ -73,9 +77,13 @@ class KlipperKConfigMenu(BaseMenu):
             kconfig_path = path.join(self.kconfigs_dirname, kconfig)
             if path.isfile(kconfig_path):
                 self.configs += [kconfig]
-                self.options[str(option_index)] = Option(method=self.select_config, opt_data=kconfig_path)
+                self.options[str(option_index)] = Option(
+                    method=self.select_config, opt_data=kconfig_path
+                )
                 option_index += 1
-        self.options['n'] = Option(method=self.select_config, opt_data=self.kconfig_default)
+        self.options["n"] = Option(
+            method=self.select_config, opt_data=self.kconfig_default
+        )
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
@@ -89,12 +97,11 @@ class KlipperKConfigMenu(BaseMenu):
             """
         )[1:]
 
-        
         start_index = 1
         for i, s in enumerate(self.configs):
             line = f"{start_index + i}) {s}"
             menu += f"║ {line:<54}║\n"
-            
+
         new_config = Color.apply("n) New firmware config", Color.YELLOW)
         menu += f"║ {new_config:<63}║\n"
 
@@ -111,10 +118,13 @@ class KlipperKConfigMenu(BaseMenu):
             raise Exception("opt_data does not exists")
         self.kconfig = selection
 
+
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
 class KlipperBuildFirmwareMenu(BaseMenu):
-    def __init__(self, kconfig: str | None = None, previous_menu: Type[BaseMenu] | None = None):
+    def __init__(
+        self, kconfig: str | None = None, previous_menu: Type[BaseMenu] | None = None
+    ):
         super().__init__()
         self.title = "Build Firmware Menu"
         self.title_color = Color.CYAN
@@ -202,7 +212,7 @@ class KlipperBuildFirmwareMenu(BaseMenu):
         finally:
             if self.previous_menu is not None:
                 self.previous_menu().run()
-                
+
     def save_firmware_config(self) -> None:
         Logger.print_dialog(
             DialogType.CUSTOM,
@@ -212,7 +222,9 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             ],
             custom_title="Save firmware config",
         )
-        if not get_confirm("Do you want to save firmware config?", default_choice=False):
+        if not get_confirm(
+            "Do you want to save firmware config?", default_choice=False
+        ):
             return
 
         filename = self.kconfig_default
@@ -234,7 +246,10 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             filename = path.join(self.kconfigs_dirname, f"{input_name}.config")
 
             if path.isfile(filename):
-                if get_confirm(f"Firmware config {input_name} already exists, overwrite?", default_choice=False):
+                if get_confirm(
+                    f"Firmware config {input_name} already exists, overwrite?",
+                    default_choice=False,
+                ):
                     break
 
             if path.isdir(filename):
@@ -243,16 +258,16 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             if not path.exists(filename):
                 break
 
-        if not get_confirm(f"Save firmware config to '{filename}'?", default_choice=True):
+        if not get_confirm(
+            f"Save firmware config to '{filename}'?", default_choice=True
+        ):
             Logger.print_info("Aborted saving firmware config ...")
             return
-        
+
         if not path.exists(self.kconfigs_dirname):
             mkdir(self.kconfigs_dirname)
-        
+
         copyfile(self.kconfig_default, filename)
 
         Logger.print_ok()
         Logger.print_ok(f"Firmware config successfully saved to {filename}")
-
-
