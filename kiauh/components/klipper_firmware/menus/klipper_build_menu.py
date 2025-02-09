@@ -147,16 +147,22 @@ class KlipperBuildFirmwareMenu(BaseMenu):
         )
 
     def set_options(self) -> None:
+        self.input_label_txt = "Press ENTER to install dependencies"
+        self.default_option = Option(method=self.install_missing_deps)
+
+    def run(self):
+        # immediately start the build process if all dependencies are met
         if len(self.missing_deps) == 0:
-            self.input_label_txt = "Press ENTER to continue"
-            self.default_option = Option(method=self.start_build_process)
+            self.start_build_process()
         else:
-            self.input_label_txt = "Press ENTER to install dependencies"
-            self.default_option = Option(method=self.install_missing_deps)
+            super().run()
 
     def print_menu(self) -> None:
+        txt = Color.apply("Dependencies are missing!", Color.RED)
         menu = textwrap.dedent(
-            """
+            f"""
+            ╟───────────────────────────────────────────────────────╢
+            ║ {txt:^62} ║
             ╟───────────────────────────────────────────────────────╢
             ║ The following dependencies are required:              ║
             ║                                                       ║
@@ -170,16 +176,8 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             padding = 40 - len(d) + len(status) + (len(status_ok) - len(status))
             d = Color.apply(f"● {d}", Color.CYAN)
             menu += f"║ {d}{status:>{padding}} ║\n"
+
         menu += "║                                                       ║\n"
-
-        color = Color.GREEN if len(self.missing_deps) == 0 else Color.RED
-        txt = (
-            "All dependencies are met!"
-            if len(self.missing_deps) == 0
-            else "Dependencies are missing!"
-        )
-
-        menu += f"║ {Color.apply(txt, color):<62} ║\n"
         menu += "╟───────────────────────────────────────────────────────╢\n"
 
         print(menu, end="")
