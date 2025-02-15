@@ -19,7 +19,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output, run
-from typing import List, Literal, Set
+from typing import List, Literal, Set, Tuple
 
 from core.constants import SYSTEMD
 from core.logger import Logger
@@ -540,9 +540,31 @@ def get_service_file_path(instance_type: type, suffix: str) -> Path:
 
     return file_path
 
-def get_distro_name() -> str:
-    return check_output(["lsb_release", "-is"]).decode().strip()
 
+def get_distro_info() -> Tuple[str, str]:
+    distro_info: str = check_output(["cat", "/etc/os-release"]).decode().strip()
 
-def get_distro_version() -> str:
-    return check_output(["lsb_release", "-rs"]).decode().strip()
+    if not distro_info:
+        raise ValueError("Error reading distro info!")
+
+    distro_id: str = ""
+    distro_id_like: str = ""
+    distro_version: str = ""
+
+    for line in distro_info.split("\n"):
+        if line.startswith("ID="):
+            distro_id = line.split("=")[1].strip('"').strip()
+        if line.startswith("ID_LIKE="):
+            distro_id_like = line.split("=")[1].strip('"').strip()
+        if line.startswith("VERSION_ID="):
+            distro_version = line.split("=")[1].strip('"').strip()
+
+    if distro_id == "raspbian":
+        distro_id = distro_id_like
+
+    if not distro_id:
+        raise ValueError("Error reading distro id!")
+    if not distro_version:
+        raise ValueError("Error reading distro version!")
+
+    return distro_id.lower(), distro_version
