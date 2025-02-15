@@ -53,8 +53,7 @@ from utils.sys_utils import (
     cmd_sysctl_manage,
     cmd_sysctl_service,
     create_python_venv,
-    get_distro_name,
-    get_distro_version,
+    get_distro_info,
     install_python_requirements,
     parse_packages_from_file,
 )
@@ -163,8 +162,10 @@ def install_moonraker_packages() -> None:
             f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ..."
         )
         parsed_sysdeps = parse_sysdeps_file(MOONRAKER_DEPS_JSON_FILE)
-        distro_name = get_distro_name().lower()
-        distro_version = get_distro_version()
+        distro_name, distro_version = get_distro_info()
+
+        Logger.print_info(f"Distro name: {distro_name}")
+        Logger.print_info(f"Distro version: {distro_version}")
 
         for dep in parsed_sysdeps.get(distro_name, []):
             pkg = dep[0].strip()
