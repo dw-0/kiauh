@@ -253,11 +253,16 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
 
-def git_cmd_clone(repo: str, target_dir: Path) -> None:
+def git_cmd_clone(repo: str, target_dir: Path, depth: int = 1) -> None:
     try:
-        command = ["git", "clone", repo, target_dir.as_posix()]
+        command = [
+            "git", "clone",
+            "--depth", str(depth),
+            "--single-branch",
+            repo,
+            target_dir.as_posix()
+        ]
         run(command, check=True)
-
         Logger.print_ok("Clone successful!")
     except CalledProcessError as e:
         error = e.stderr.decode() if e.stderr else "Unknown error"
