@@ -253,15 +253,29 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
 
-def git_cmd_clone(repo: str, target_dir: Path, depth: int = 1) -> None:
+def git_cmd_clone(repo: str, target_dir: Path, depth: int = 0, single_branch: bool = False) -> None:
+    """
+    Clones a repository with optional depth and single-branch parameters.
+
+    :param repo: URL of the repository to clone.
+    :param target_dir: Path where the repository will be cloned.
+    :param depth: Clone depth. If 0, the depth option will be omitted.
+    :param single_branch: Clone only a single branch if True.
+    :return: None
+    """
     try:
-        command = [
-            "git", "clone",
-            "--depth", str(depth),
-            "--single-branch",
-            repo,
-            target_dir.as_posix()
-        ]
+        command = ["git", "clone"]
+
+        # Add --depth flag if depth > 0
+        if depth > 0:
+            command += ["--depth", str(depth)]
+
+        # Add --single-branch flag if single_branch is True
+        if single_branch:
+            command.append("--single-branch")
+
+        command += [repo, target_dir.as_posix()]
+
         run(command, check=True)
 
         Logger.print_ok("Clone successful!")
