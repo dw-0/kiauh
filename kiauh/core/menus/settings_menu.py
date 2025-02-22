@@ -15,7 +15,7 @@ from typing import Literal, Tuple, Type
 from components.klipper import KLIPPER_DIR, KLIPPER_REPO_URL
 from components.klipper.klipper_utils import get_klipper_status
 from components.moonraker import MOONRAKER_DIR, MOONRAKER_REPO_URL
-from components.moonraker.moonraker_utils import get_moonraker_status
+from components.moonraker.utils.utils import get_moonraker_status
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
