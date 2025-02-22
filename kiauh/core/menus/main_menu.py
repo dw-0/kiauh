@@ -16,7 +16,7 @@ from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from components.moonraker.moonraker_utils import get_moonraker_status
+from components.moonraker.utils.utils import get_moonraker_status
 from components.webui_client.client_utils import (
     get_client_status,
     get_current_client_config,

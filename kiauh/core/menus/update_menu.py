@@ -21,7 +21,7 @@ from components.klipperscreen.klipperscreen import (
     update_klipperscreen,
 )
 from components.moonraker.moonraker_setup import update_moonraker
-from components.moonraker.moonraker_utils import get_moonraker_status
+from components.moonraker.utils.utils import get_moonraker_status
 from components.webui_client.client_config.client_config_setup import (
     update_client_config,
 )
