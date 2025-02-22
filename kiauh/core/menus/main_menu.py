@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -16,7 +16,7 @@ from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
-from components.moonraker.moonraker_utils import get_moonraker_status
+from components.moonraker.utils.utils import get_moonraker_status
 from components.webui_client.client_utils import (
     get_client_status,
     get_current_client_config,

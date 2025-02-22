@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -188,7 +188,7 @@ class OctoappExtension(BaseExtension):
         Logger.print_status("Removing OctoApp for Klipper store directory ...")
 
         klipper_instances: List[Moonraker] = get_instances(Klipper)
-        
+
         for instance in klipper_instances:
             store_dir = instance.data_dir.joinpath("octoapp-store")
             if not store_dir.exists():

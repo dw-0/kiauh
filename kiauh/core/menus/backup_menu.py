@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -13,7 +13,7 @@ from typing import Type
 
 from components.klipper.klipper_utils import backup_klipper_dir
 from components.klipperscreen.klipperscreen import backup_klipperscreen_dir
-from components.moonraker.moonraker_utils import (
+from components.moonraker.utils.utils import (
     backup_moonraker_db_dir,
     backup_moonraker_dir,
 )

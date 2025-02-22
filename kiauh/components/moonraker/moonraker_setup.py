@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -27,10 +27,11 @@ from components.moonraker import (
 )
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_dialogs import print_moonraker_overview
-from components.moonraker.moonraker_utils import (
+from components.moonraker.utils.sysdeps_parser import SysDepsParser
+from components.moonraker.utils.utils import (
     backup_moonraker_dir,
     create_example_moonraker_conf,
-    parse_sysdeps_file,
+    load_sysdeps_json,
 )
 from components.webui_client.client_utils import (
     enable_mainsail_remotemode,
@@ -53,7 +54,6 @@ from utils.sys_utils import (
     cmd_sysctl_manage,
     cmd_sysctl_service,
     create_python_venv,
-    get_distro_info,
     install_python_requirements,
     parse_packages_from_file,
 )
@@ -155,44 +155,24 @@ def setup_moonraker_prerequesites() -> None:
 
 
 def install_moonraker_packages() -> None:
+    Logger.print_status("Parsing Moonraker system dependencies  ...")
+
     moonraker_deps = []
-
     if MOONRAKER_DEPS_JSON_FILE.exists():
-        Logger.print_status(
-            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ..."
-        )
-        parsed_sysdeps = parse_sysdeps_file(MOONRAKER_DEPS_JSON_FILE)
-        distro_name, distro_version = get_distro_info()
-
-        Logger.print_info(f"Distro name: {distro_name}")
-        Logger.print_info(f"Distro version: {distro_version}")
-
-        for dep in parsed_sysdeps.get(distro_name, []):
-            pkg = dep[0].strip()
-            comparator = dep[1].strip()
-            req_version = dep[2].strip()
-
-            comparisons = {
-                "": lambda x, y: True,
-                "<": lambda x, y: x < y,
-                ">": lambda x, y: x > y,
-                "<=": lambda x, y: x <= y,
-                ">=": lambda x, y: x >= y,
-                "==": lambda x, y: x == y,
-                "!=": lambda x, y: x != y,
-            }
-
-            if comparisons[comparator](float(distro_version), float(req_version or 0)):
-                moonraker_deps.append(pkg)
+        Logger.print_info(
+            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ...")
+        parser = SysDepsParser()
+        sysdeps = load_sysdeps_json(MOONRAKER_DEPS_JSON_FILE)
+        moonraker_deps.extend(parser.parse_dependencies(sysdeps))
 
     elif MOONRAKER_INSTALL_SCRIPT.exists():
-        Logger.print_status(
-            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ..."
-        )
+        Logger.print_warn(f"{MOONRAKER_DEPS_JSON_FILE.name} not found!")
+        Logger.print_info(
+            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ...")
         moonraker_deps = parse_packages_from_file(MOONRAKER_INSTALL_SCRIPT)
 
     if not moonraker_deps:
-        raise ValueError("Error reading Moonraker dependencies!")
+        raise ValueError("Error parsing Moonraker dependencies!")
 
     check_install_dependencies({*moonraker_deps})
 

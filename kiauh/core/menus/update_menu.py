@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -21,7 +21,7 @@ from components.klipperscreen.klipperscreen import (
     update_klipperscreen,
 )
 from components.moonraker.moonraker_setup import update_moonraker
-from components.moonraker.moonraker_utils import get_moonraker_status
+from components.moonraker.utils.utils import get_moonraker_status
 from components.webui_client.client_config.client_config_setup import (
     update_client_config,
 )
