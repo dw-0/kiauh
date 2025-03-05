@@ -176,6 +176,9 @@ def install_klipper_packages() -> None:
     script = KLIPPER_INSTALL_SCRIPT
     packages = parse_packages_from_file(script)
 
+    # Add pkg-config for rp2040 build
+    packages.append("pkg-config")
+
     # Add dbus requirement for DietPi distro
     if Path("/boot/dietpi/.version").exists():
         packages.append("dbus")
