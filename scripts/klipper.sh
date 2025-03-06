@@ -304,6 +304,8 @@ function install_klipper_packages() {
   packages=$(grep "PKGLIST=" "${install_script}" | cut -d'"' -f2 | sed 's/\${PKGLIST}//g' | tr -d '\n')
   ### add dfu-util for octopi-images
   packages+=" dfu-util"
+  ### add pkg-config for rp2040 build
+  packages+=" pkg-config"
   ### add dbus requirement for DietPi distro
   [[ -e "/boot/dietpi/.version" ]] && packages+=" dbus"
 
