@@ -45,9 +45,7 @@ class Octoapp:
         self.base: BaseInstance = BaseInstance(Moonraker, self.suffix)
         self.base.log_file_name = self.log_file_name
 
-        self.service_file_path: Path = get_service_file_path(
-            Octoapp, self.suffix
-        )
+        self.service_file_path: Path = get_service_file_path(Octoapp, self.suffix)
         self.store_dir = self.base.data_dir.joinpath("store")
         self.cfg_file = self.base.cfg_dir.joinpath(OA_CFG_NAME)
         self.sys_cfg_file = self.base.cfg_dir.joinpath(OA_SYS_CFG_NAME)

@@ -5,12 +5,13 @@ requires-python = ">=3.8"
 dev=["ruff", "mypy"]
 
 [tool.ruff]
-required-version = ">=0.3.4"
+required-version = ">=0.9.10"
 respect-gitignore = true
-exclude = [".git",".github", "./docs"]
+exclude = [".git",".github", "./docs", "kiauh/core/submodules"]
 line-length = 88
 indent-width = 4
 output-format = "full"
+target-version = "py38"
 
 [tool.ruff.format]
 indent-style = "space"

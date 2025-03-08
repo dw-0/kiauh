@@ -40,7 +40,6 @@ class SettingsMenu(BaseMenu):
         self._load_settings()
         print(self.klipper_status)
 
-
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
 
@@ -122,18 +121,24 @@ class SettingsMenu(BaseMenu):
             self.moonraker_status.owner = url_parts[-2]
             self.moonraker_status.branch = self.settings.moonraker.branch
 
-    def _gather_input(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> Tuple[str, str]:
+    def _gather_input(
+        self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path
+    ) -> Tuple[str, str]:
         warn_msg = [
             "There is only basic input validation in place! "
-            "Make sure your the input is valid and has no typos or invalid characters!"]
+            "Make sure your the input is valid and has no typos or invalid characters!"
+        ]
 
         if repo_dir.exists():
-            warn_msg.extend([
-                "For the change to take effect, the new repository will be cloned. "
-                "A backup of the old repository will be created.",
-                "\n\n",
-                "Make sure you don't have any ongoing prints running, as the services "
-                "will be restarted during this process! You will loose any ongoing print!"])
+            warn_msg.extend(
+                [
+                    "For the change to take effect, the new repository will be cloned. "
+                    "A backup of the old repository will be created.",
+                    "\n\n",
+                    "Make sure you don't have any ongoing prints running, as the services "
+                    "will be restarted during this process! You will loose any ongoing print!",
+                ]
+            )
 
         Logger.print_dialog(DialogType.ATTENTION, warn_msg)
 
@@ -143,14 +148,14 @@ class SettingsMenu(BaseMenu):
             default=KLIPPER_REPO_URL if repo_name == "klipper" else MOONRAKER_REPO_URL,
         )
         branch = get_string_input(
-            "Enter new branch name",
-            regex=r"^.+$",
-            default="master"
+            "Enter new branch name", regex=r"^.+$", default="master"
         )
 
         return repo, branch
 
-    def _set_repo(self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path) -> None:
+    def _set_repo(
+        self, repo_name: Literal["klipper", "moonraker"], repo_dir: Path
+    ) -> None:
         repo_url, branch = self._gather_input(repo_name, repo_dir)
         display_name = repo_name.capitalize()
         Logger.print_dialog(
@@ -180,11 +185,15 @@ class SettingsMenu(BaseMenu):
 
         self._switch_repo(repo_name, repo_dir)
 
-    def _switch_repo(self, name: Literal["klipper", "moonraker"], repo_dir: Path ) -> None:
+    def _switch_repo(
+        self, name: Literal["klipper", "moonraker"], repo_dir: Path
+    ) -> None:
         if not repo_dir.exists():
             return
 
-        Logger.print_status(f"Switching to {name.capitalize()}'s new source repository ...")
+        Logger.print_status(
+            f"Switching to {name.capitalize()}'s new source repository ..."
+        )
 
         repo: RepoSettings = self.settings[name]
         run_switch_repo_routine(name, repo)

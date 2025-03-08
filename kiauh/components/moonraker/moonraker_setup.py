@@ -29,7 +29,7 @@ from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_dialogs import print_moonraker_overview
 from components.moonraker.services.moonraker_instance_service import (
     MoonrakerInstanceService,
-    )
+)
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.moonraker.utils.utils import (
     backup_moonraker_dir,
@@ -100,8 +100,9 @@ def install_moonraker() -> None:
             return
 
         if selected_option == "a":
-            new_inst_list: List[Moonraker] = (
-                [instance_service.create_new_instance(k.suffix) for k in klipper_list])
+            new_inst_list: List[Moonraker] = [
+                instance_service.create_new_instance(k.suffix) for k in klipper_list
+            ]
             new_instances.extend(new_inst_list)
         else:
             klipper_instance: Klipper | None = options.get(selected_option)
@@ -138,13 +139,17 @@ def install_moonraker() -> None:
             enable_mainsail_remotemode()
 
         instance_service.load_instances()
-        new_instances = [instance_service.get_instance_by_suffix(i.suffix) for i in
-                         new_instances]
+        new_instances = [
+            instance_service.get_instance_by_suffix(i.suffix) for i in new_instances
+        ]
 
         ip: str = get_ipv4_addr()
         # noinspection HttpUrlsUsage
-        url_list = [f"● {i.service_file_path.stem}: http://{ip}:{i.port}" for i in
-               new_instances if i.port]
+        url_list = [
+            f"● {i.service_file_path.stem}: http://{ip}:{i.port}"
+            for i in new_instances
+            if i.port
+        ]
         dialog_content = []
         if url_list:
             dialog_content.append("You can access Moonraker via the following URL:")
@@ -154,8 +159,8 @@ def install_moonraker() -> None:
             DialogType.CUSTOM,
             custom_title="Moonraker successfully installed!",
             custom_color=Color.GREEN,
-            content=dialog_content)
-
+            content=dialog_content,
+        )
 
     except Exception as e:
         Logger.print_error(f"Error while installing Moonraker: {e}")
@@ -194,7 +199,8 @@ def install_moonraker_packages() -> None:
     moonraker_deps = []
     if MOONRAKER_DEPS_JSON_FILE.exists():
         Logger.print_info(
-            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ...")
+            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ..."
+        )
         parser = SysDepsParser()
         sysdeps = load_sysdeps_json(MOONRAKER_DEPS_JSON_FILE)
         moonraker_deps.extend(parser.parse_dependencies(sysdeps))
@@ -202,7 +208,8 @@ def install_moonraker_packages() -> None:
     elif MOONRAKER_INSTALL_SCRIPT.exists():
         Logger.print_warn(f"{MOONRAKER_DEPS_JSON_FILE.name} not found!")
         Logger.print_info(
-            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ...")
+            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ..."
+        )
         moonraker_deps = parse_packages_from_file(MOONRAKER_INSTALL_SCRIPT)
 
     if not moonraker_deps:

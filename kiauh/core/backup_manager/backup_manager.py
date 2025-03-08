@@ -86,7 +86,12 @@ class BackupManager:
             date = get_current_date().get("date")
             time = get_current_date().get("time")
             backup_target = target.joinpath(f"{name.lower()}-{date}-{time}")
-            shutil.copytree(source, backup_target, ignore=self.ignore_folders_func, ignore_dangling_symlinks=True)
+            shutil.copytree(
+                source,
+                backup_target,
+                ignore=self.ignore_folders_func,
+                ignore_dangling_symlinks=True,
+            )
             Logger.print_ok("Backup successful!")
 
             return backup_target

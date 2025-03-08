@@ -192,5 +192,5 @@ def moonraker_exists(name: str = "") -> List[Moonraker]:
 
 def trunc_string(input_str: str, length: int) -> str:
     if len(input_str) > length:
-        return f"{input_str[:length - 3]}..."
+        return f"{input_str[: length - 3]}..."
     return input_str
