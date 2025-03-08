@@ -33,6 +33,7 @@ BORDER_TITLE: str = "┠──────────────────�
 BORDER_LEFT: str = "┃"
 BORDER_RIGHT: str = "┃"
 
+
 class Logger:
     @staticmethod
     def print_info(msg, prefix=True, start="", end="\n") -> None:
@@ -99,12 +100,14 @@ class Logger:
             print(Color.apply(BORDER_TITLE, color))
 
         if content:
-            print(Logger.format_content(
-                content,
-                LINE_WIDTH,
-                color,
-                center_content,
-                ))
+            print(
+                Logger.format_content(
+                    content,
+                    LINE_WIDTH,
+                    color,
+                    center_content,
+                )
+            )
 
         print(Color.apply(BORDER_BOTTOM, color))
 
