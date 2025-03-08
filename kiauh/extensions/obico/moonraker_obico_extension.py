@@ -11,8 +11,8 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
-from core.instance_manager.instance_manager import InstanceManager
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
+from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
@@ -309,8 +309,12 @@ class ObicoExtension(BaseExtension):
     def _check_and_opt_link_instances(self) -> None:
         Logger.print_status("Checking link status of Obico instances ...")
 
-        suffix_blacklist: List[str] = [suffix for suffix in SUFFIX_BLACKLIST if suffix != 'obico']
-        ob_instances: List[MoonrakerObico] = get_instances(MoonrakerObico, suffix_blacklist=suffix_blacklist)
+        suffix_blacklist: List[str] = [
+            suffix for suffix in SUFFIX_BLACKLIST if suffix != "obico"
+        ]
+        ob_instances: List[MoonrakerObico] = get_instances(
+            MoonrakerObico, suffix_blacklist=suffix_blacklist
+        )
         unlinked_instances: List[MoonrakerObico] = [
             obico for obico in ob_instances if not obico.is_linked
         ]
