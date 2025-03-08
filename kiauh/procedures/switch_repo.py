@@ -19,7 +19,7 @@ from components.klipper import (
     KLIPPER_REQ_FILE,
 )
 from components.klipper.klipper import Klipper
-from components.klipper.klipper_setup import install_klipper_packages
+from components.klipper.klipper_utils import install_klipper_packages
 from components.moonraker import (
     MOONRAKER_BACKUP_DIR,
     MOONRAKER_DIR,

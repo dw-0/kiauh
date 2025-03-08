@@ -11,6 +11,7 @@ from __future__ import annotations
 import grp
 import os
 import shutil
+from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import Dict, List
 
@@ -18,6 +19,7 @@ from components.klipper import (
     KLIPPER_BACKUP_DIR,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
+    KLIPPER_INSTALL_SCRIPT,
     MODULE_PATH,
 )
 from components.klipper.klipper import Klipper
@@ -37,10 +39,10 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
-from utils.common import get_install_status
+from utils.common import check_install_dependencies, get_install_status
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances
-from utils.sys_utils import cmd_sysctl_service
+from utils.sys_utils import cmd_sysctl_service, parse_packages_from_file
 
 
 def get_klipper_status() -> ComponentStatus:
@@ -194,3 +196,17 @@ def backup_klipper_dir() -> None:
     bm = BackupManager()
     bm.backup_directory("klipper", source=KLIPPER_DIR, target=KLIPPER_BACKUP_DIR)
     bm.backup_directory("klippy-env", source=KLIPPER_ENV_DIR, target=KLIPPER_BACKUP_DIR)
+
+
+def install_klipper_packages() -> None:
+    script = KLIPPER_INSTALL_SCRIPT
+    packages = parse_packages_from_file(script)
+
+    # Add pkg-config for rp2040 build
+    packages.append("pkg-config")
+
+    # Add dbus requirement for DietPi distro
+    if Path("/boot/dietpi/.version").exists():
+        packages.append("dbus")
+
+    check_install_dependencies({*packages})

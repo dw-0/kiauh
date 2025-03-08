@@ -8,19 +8,19 @@
 # ======================================================================= #
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import List
 
-from components.moonraker.moonraker import Moonraker
+from components.klipper.klipper import Klipper
 from utils.instance_utils import get_instances
 
 
-class MoonrakerInstanceService:
+class KlipperInstanceService:
     __cls_instance = None
-    __instances: List[Moonraker] = []
+    __instances: List[Klipper] = []
 
-    def __new__(cls) -> "MoonrakerInstanceService":
+    def __new__(cls) -> "KlipperInstanceService":
         if cls.__cls_instance is None:
-            cls.__cls_instance = super(MoonrakerInstanceService, cls).__new__(cls)
+            cls.__cls_instance = super(KlipperInstanceService, cls).__new__(cls)
         return cls.__cls_instance
 
     def __init__(self) -> None:
@@ -31,19 +31,16 @@ class MoonrakerInstanceService:
         self.__initialized = True
 
     def load_instances(self) -> None:
-        self.__instances = get_instances(Moonraker)
+        self.__instances = get_instances(Klipper)
 
-    def create_new_instance(self, suffix: str) -> Moonraker:
-        instance = Moonraker(suffix)
+    def create_new_instance(self, suffix: str) -> Klipper:
+        instance = Klipper(suffix)
         self.__instances.append(instance)
         return instance
 
-    def get_all_instances(self) -> List[Moonraker]:
+    def get_all_instances(self) -> List[Klipper]:
         return self.__instances
 
-    def get_instance_by_suffix(self, suffix: str) -> Moonraker | None:
-        instances: List[Moonraker] = [i for i in self.__instances if i.suffix == suffix]
+    def get_instance_by_suffix(self, suffix: str) -> Klipper | None:
+        instances: List[Klipper] = [i for i in self.__instances if i.suffix == suffix]
         return instances[0] if instances else None
-
-    def get_instance_port_map(self) -> Dict[str, int]:
-        return {i.suffix: i.port for i in self.__instances}
