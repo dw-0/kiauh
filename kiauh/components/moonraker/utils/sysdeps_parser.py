@@ -34,18 +34,22 @@ def _get_distro_info() -> Dict[str, Any]:
     return dict(
         distro_id=release_info.get("ID", ""),
         distro_version=release_info.get("VERSION_ID", ""),
-        aliases=release_info.get("ID_LIKE", "").split()
+        aliases=release_info.get("ID_LIKE", "").split(),
     )
+
 
 def _convert_version(version: str) -> Tuple[str | int, ...]:
     version = version.strip()
     ver_match = re.match(r"\d+(\.\d+)*((?:-|\.).+)?", version)
     if ver_match is not None:
-        return tuple([
-            int(part) if part.isdigit() else part
-            for part in re.split(r"\.|-", version)
-        ])
+        return tuple(
+            [
+                int(part) if part.isdigit() else part
+                for part in re.split(r"\.|-", version)
+            ]
+        )
     return (version,)
+
 
 class SysDepsParser:
     def __init__(self, distro_info: Dict[str, Any] | None = None) -> None:
@@ -86,14 +90,16 @@ class SysDepsParser:
                 if logical_op not in ("and", "or"):
                     logging.info(
                         f"Invalid logical operator {logical_op} in requirement "
-                        f"specifier: {full_spec}")
+                        f"specifier: {full_spec}"
+                    )
                     return None
                 last_logical_op = logical_op
                 continue
             elif last_logical_op is None:
                 logging.info(
                     f"Requirement specifier contains two seqential expressions "
-                    f"without a logical operator: {full_spec}")
+                    f"without a logical operator: {full_spec}"
+                )
                 return None
             dep_parts = re.split(r"(==|!=|<=|>=|<|>)", exp.strip())
             req_var = dep_parts[0].strip().lower()
@@ -123,7 +129,7 @@ class SysDepsParser:
                     "==": lambda x, y: x == y,
                     "!=": lambda x, y: x != y,
                     ">=": lambda x, y: x >= y,
-                    "<=": lambda x, y: x <= y
+                    "<=": lambda x, y: x <= y,
                 }.get(operator, lambda x, y: False)
                 result = compfunc(left_op, right_op)
                 if last_logical_op == "and":

@@ -17,7 +17,9 @@ from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from utils.instance_type import InstanceType
 
 
-def get_instances(instance_type: type, suffix_blacklist: List[str] = SUFFIX_BLACKLIST) -> List[InstanceType]:
+def get_instances(
+    instance_type: type, suffix_blacklist: List[str] = SUFFIX_BLACKLIST
+) -> List[InstanceType]:
     from utils.common import convert_camelcase_to_kebabcase
 
     if not isinstance(instance_type, type):

@@ -9,8 +9,8 @@
 import json
 from typing import List
 
-from components.moonraker.moonraker import Moonraker
 from components.klipper.klipper import Klipper
+from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
@@ -107,9 +107,7 @@ class OctoappExtension(BaseExtension):
             )
 
         except Exception as e:
-            Logger.print_error(
-                f"Error during OctoApp for Klipper installation:\n{e}"
-            )
+            Logger.print_error(f"Error during OctoApp for Klipper installation:\n{e}")
 
     def update_extension(self, **kwargs) -> None:
         Logger.print_status("Updating OctoApp for Klipper ...")
@@ -183,7 +181,6 @@ class OctoappExtension(BaseExtension):
 
         run_remove_routines(OA_DIR)
 
-
     def _remove_OA_store_dirs(self) -> None:
         Logger.print_status("Removing OctoApp for Klipper store directory ...")
 
@@ -196,7 +193,6 @@ class OctoappExtension(BaseExtension):
                 return
 
             run_remove_routines(store_dir)
-
 
     def _remove_OA_env(self) -> None:
         Logger.print_status("Removing OctoApp for Klipper environment ...")
