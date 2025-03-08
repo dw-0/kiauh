@@ -27,6 +27,9 @@ from components.moonraker import (
 )
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.moonraker_dialogs import print_moonraker_overview
+from components.moonraker.services.moonraker_instance_service import (
+    MoonrakerInstanceService,
+    )
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.moonraker.utils.utils import (
     backup_moonraker_dir,
@@ -39,8 +42,9 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.mainsail_data import MainsailData
 from core.instance_manager.instance_manager import InstanceManager
-from core.logger import Logger
+from core.logger import DialogType, Logger
 from core.settings.kiauh_settings import KiauhSettings
+from core.types.color import Color
 from utils.common import check_install_dependencies
 from utils.fs_utils import check_file_exist
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
@@ -54,6 +58,7 @@ from utils.sys_utils import (
     cmd_sysctl_manage,
     cmd_sysctl_service,
     create_python_venv,
+    get_ipv4_addr,
     install_python_requirements,
     parse_packages_from_file,
 )
@@ -65,12 +70,18 @@ def install_moonraker() -> None:
     if not check_moonraker_install_requirements(klipper_list):
         return
 
-    moonraker_list: List[Moonraker] = get_instances(Moonraker)
-    instances: List[Moonraker] = []
+    instance_service = MoonrakerInstanceService()
+    instance_service.load_instances()
+
+    moonraker_list: List[Moonraker] = instance_service.get_all_instances()
+    new_instances: List[Moonraker] = []
     selected_option: str | Klipper
 
     if len(klipper_list) == 1:
-        instances.append(Moonraker(klipper_list[0].suffix))
+        suffix: str = klipper_list[0].suffix
+        new_inst = instance_service.create_new_instance(suffix)
+        new_instances.append(new_inst)
+
     else:
         print_moonraker_overview(
             klipper_list,
@@ -89,12 +100,15 @@ def install_moonraker() -> None:
             return
 
         if selected_option == "a":
-            instances.extend([Moonraker(k.suffix) for k in klipper_list])
+            new_inst_list: List[Moonraker] = (
+                [instance_service.create_new_instance(k.suffix) for k in klipper_list])
+            new_instances.extend(new_inst_list)
         else:
             klipper_instance: Klipper | None = options.get(selected_option)
             if klipper_instance is None:
                 raise Exception("Error selecting instance!")
-            instances.append(Moonraker(klipper_instance.suffix))
+            new_inst = instance_service.create_new_instance(klipper_instance.suffix)
+            new_instances.append(new_inst)
 
     create_example_cfg = get_confirm("Create example moonraker.conf?")
 
@@ -103,8 +117,8 @@ def install_moonraker() -> None:
         setup_moonraker_prerequesites()
         install_moonraker_polkit()
 
-        used_ports_map = {m.suffix: m.port for m in moonraker_list}
-        for instance in instances:
+        ports_map = instance_service.get_instance_port_map()
+        for instance in new_instances:
             instance.create()
             cmd_sysctl_service(instance.service_file_path.name, "enable")
 
@@ -112,7 +126,7 @@ def install_moonraker() -> None:
                 # if a webclient and/or it's config is installed, patch
                 # its update section to the config
                 clients = get_existing_clients()
-                create_example_moonraker_conf(instance, used_ports_map, clients)
+                create_example_moonraker_conf(instance, ports_map, clients)
 
             cmd_sysctl_service(instance.service_file_path.name, "start")
 
@@ -122,6 +136,26 @@ def install_moonraker() -> None:
         # multiple moonraker instances, we enable mainsails remote mode
         if MainsailData().client_dir.exists() and len(moonraker_list) > 1:
             enable_mainsail_remotemode()
+
+        instance_service.load_instances()
+        new_instances = [instance_service.get_instance_by_suffix(i.suffix) for i in
+                         new_instances]
+
+        ip: str = get_ipv4_addr()
+        # noinspection HttpUrlsUsage
+        url_list = [f"● {i.service_file_path.stem}: http://{ip}:{i.port}" for i in
+               new_instances if i.port]
+        dialog_content = []
+        if url_list:
+            dialog_content.append("You can access Moonraker via the following URL:")
+            dialog_content.extend(url_list)
+
+        Logger.print_dialog(
+            DialogType.CUSTOM,
+            custom_title="Moonraker successfully installed!",
+            custom_color=Color.GREEN,
+            content=dialog_content)
+
 
     except Exception as e:
         Logger.print_error(f"Error while installing Moonraker: {e}")
