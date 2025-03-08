@@ -12,10 +12,10 @@ import textwrap
 from typing import Callable, List, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status, update_crowsnest
-from components.klipper.klipper_setup import update_klipper
 from components.klipper.klipper_utils import (
     get_klipper_status,
 )
+from components.klipper.services.klipper_setup_service import KlipperSetupService
 from components.klipperscreen.klipperscreen import (
     get_klipperscreen_status,
     update_klipperscreen,
@@ -193,7 +193,8 @@ class UpdateMenu(BaseMenu):
         self.upgrade_system_packages()
 
     def update_klipper(self, **kwargs) -> None:
-        self._run_update_routine("klipper", update_klipper)
+        klsvc = KlipperSetupService()
+        self._run_update_routine("klipper", klsvc.update)
 
     def update_moonraker(self, **kwargs) -> None:
         self._run_update_routine("moonraker", update_moonraker)

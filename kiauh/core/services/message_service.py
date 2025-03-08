@@ -6,6 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import List
@@ -23,12 +24,13 @@ class Message:
 
 
 class MessageService:
-    _instance = None
+    __cls_instance = None
+    __message: Message | None
 
     def __new__(cls) -> "MessageService":
-        if cls._instance is None:
-            cls._instance = super(MessageService, cls).__new__(cls)
-        return cls._instance
+        if cls.__cls_instance is None:
+            cls.__cls_instance = super(MessageService, cls).__new__(cls)
+        return cls.__cls_instance
 
     def __init__(self) -> None:
         if not hasattr(self, "__initialized"):
@@ -36,24 +38,24 @@ class MessageService:
         if self.__initialized:
             return
         self.__initialized = True
-        self.message = None
+        self.__message = None
 
     def set_message(self, message: Message) -> None:
-        self.message = message
+        self.__message = message
 
     def display_message(self) -> None:
-        if self.message is None:
+        if self.__message is None:
             return
 
         Logger.print_dialog(
             title=DialogType.CUSTOM,
-            content=self.message.text,
-            custom_title=self.message.title,
-            custom_color=self.message.color,
-            center_content=self.message.centered,
+            content=self.__message.text,
+            custom_title=self.__message.title,
+            custom_color=self.__message.color,
+            center_content=self.__message.centered,
         )
 
         self.__clear_message()
 
     def __clear_message(self) -> None:
-        self.message = None
+        self.__message = None
