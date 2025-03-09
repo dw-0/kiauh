@@ -40,6 +40,7 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 )
 from core.types.component_status import ComponentStatus
 from utils.common import check_install_dependencies, get_install_status
+from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances
 from utils.sys_utils import cmd_sysctl_service, parse_packages_from_file
@@ -206,7 +207,7 @@ def install_klipper_packages() -> None:
     packages.append("pkg-config")
 
     # Add dbus requirement for DietPi distro
-    if Path("/boot/dietpi/.version").exists():
+    if check_file_exist(Path("/boot/dietpi/.version")):
         packages.append("dbus")
 
     check_install_dependencies({*packages})
