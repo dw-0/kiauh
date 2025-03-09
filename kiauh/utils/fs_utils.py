@@ -10,6 +10,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import os
 import re
 import shutil
 from pathlib import Path
@@ -29,15 +30,15 @@ def check_file_exist(file_path: Path, sudo=False) -> bool:
     :return: True, if file exists, otherwise False
     """
     if sudo:
+        command = ["sudo", "find", file_path.as_posix()]
         try:
-            command = ["sudo", "find", file_path.as_posix()]
             check_output(command, stderr=DEVNULL)
             return True
         except CalledProcessError:
             return False
     else:
-        if file_path.exists():
-            return True
+        if os.access(file_path, os.F_OK):
+            return file_path.exists()
         else:
             return False
 
