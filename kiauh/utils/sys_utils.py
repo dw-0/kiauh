@@ -197,6 +197,38 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
         raise VenvCreationFailedException(log)
 
 
+def install_python_packages(target: Path, packages: List[str]) -> None:
+    """
+    Installs the python packages based on a provided packages list |
+    :param target: Path of the virtualenv
+    :param packages: str list of required packages
+    :return: None
+    """
+    try:
+        # always update pip before installing requirements
+        update_python_pip(target)
+
+        Logger.print_status("Installing Python requirements ...")
+        command = [
+            target.joinpath("bin/pip").as_posix(),
+            "install",
+        ]
+        for pkg in packages:
+            command.append(pkg)
+        result = run(command, stderr=PIPE, text=True)
+
+        if result.returncode != 0 or result.stderr:
+            Logger.print_error(f"{result.stderr}", False)
+            raise VenvCreationFailedException("Installing Python requirements failed!")
+
+        Logger.print_ok("Installing Python requirements successful!")
+
+    except Exception as e:
+        log = f"Error installing Python requirements: {e}"
+        Logger.print_error(log)
+        raise VenvCreationFailedException(log)
+
+
 def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     """
     Updates the systems package list |
