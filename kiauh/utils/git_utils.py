@@ -185,8 +185,7 @@ def get_latest_unstable_tag(repo_path: str) -> str:
     """
     try:
         if (
-            len(unstable_tags := [
-                t for t in get_remote_tags(repo_path) if "-" in t])
+            len(unstable_tags := [t for t in get_remote_tags(repo_path) if "-" in t])
             > 0
         ):
             return unstable_tags[0]
@@ -265,7 +264,6 @@ def git_cmd_clone(repo: str, target_dir: Path, blolbless: bool = False) -> None:
     try:
         command = ["git", "clone"]
 
-        # Добавляем флаг для blolbless clone, если требуется
         if blolbless:
             command.append("--blolbless")
 
@@ -311,8 +309,7 @@ def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
 
     instances = get_instances(instance)
 
-    Logger.print_warn(
-        "Do not continue if you have ongoing prints!", start="\n")
+    Logger.print_warn("Do not continue if you have ongoing prints!", start="\n")
     Logger.print_warn(
         f"All currently running {instance.__name__} services will be stopped!"
     )
