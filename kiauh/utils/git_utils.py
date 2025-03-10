@@ -253,19 +253,19 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
 
-def git_cmd_clone(repo: str, target_dir: Path, blolbless: bool = False) -> None:
+def git_cmd_clone(repo: str, target_dir: Path, blobless: bool = False) -> None:
     """
-    Clones a repository with optional blolbless clone.
+    Clones a repository with optional blobless clone.
 
     :param repo: URL of the repository to clone.
     :param target_dir: Path where the repository will be cloned.
-    :param blolbless: If True, perform a blolbless clone by adding the '--blolbless' flag.
+    :param blobless: If True, perform a blobless clone by adding the '--filter=blob:none' flag.
     """
     try:
         command = ["git", "clone"]
 
-        if blolbless:
-            command.append("--blolbless")
+        if blobless:
+            command.append("--filter=blob:none")
 
         command += [repo, target_dir.as_posix()]
 
