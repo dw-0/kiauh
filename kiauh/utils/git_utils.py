@@ -255,11 +255,23 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
 
-def git_cmd_clone(repo: str, target_dir: Path) -> None:
-    try:
-        command = ["git", "clone", repo, target_dir.as_posix()]
-        run(command, check=True)
+def git_cmd_clone(repo: str, target_dir: Path, blobless: bool = False) -> None:
+    """
+    Clones a repository with optional blobless clone.
 
+    :param repo: URL of the repository to clone.
+    :param target_dir: Path where the repository will be cloned.
+    :param blobless: If True, perform a blobless clone by adding the '--filter=blob:none' flag.
+    """
+    try:
+        command = ["git", "clone"]
+
+        if blobless:
+            command.append("--filter=blob:none")
+
+        command += [repo, target_dir.as_posix()]
+
+        run(command, check=True)
         Logger.print_ok("Clone successful!")
     except CalledProcessError as e:
         error = e.stderr.decode() if e.stderr else "Unknown error"
