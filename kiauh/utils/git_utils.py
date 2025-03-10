@@ -81,10 +81,8 @@ def get_repo_name(repo: Path) -> Tuple[str, str]:
         return "-", "-"
 
     try:
-        cmd = ["git", "-C", repo.as_posix(), "config", "--get",
-               "remote.origin.url"]
-        result: str = check_output(
-            cmd, stderr=DEVNULL).decode(encoding="utf-8")
+        cmd = ["git", "-C", repo.as_posix(), "config", "--get", "remote.origin.url"]
+        result: str = check_output(cmd, stderr=DEVNULL).decode(encoding="utf-8")
         substrings: List[str] = result.strip().split("/")[-2:]
 
         orga: str = substrings[0] if substrings[0] else "-"
@@ -135,7 +133,7 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
         tags: List[str] = result.split("\n")[:-1]
 
         return sorted(tags, key=lambda x: [int(i) if i.isdigit() else i for i in
-                                           re.split(r'(\d+)', x)])
+                                            re.split(r'(\d+)', x)])
 
     except CalledProcessError:
         return []
