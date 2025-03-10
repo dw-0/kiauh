@@ -133,7 +133,7 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
         tags: List[str] = result.split("\n")[:-1]
 
         return sorted(tags, key=lambda x: [int(i) if i.isdigit() else i for i in
-                                            re.split(r'(\d+)', x)])
+                                                re.split(r'(\d+)', x)])
 
     except CalledProcessError:
         return []
