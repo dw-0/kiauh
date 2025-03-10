@@ -81,8 +81,10 @@ def get_repo_name(repo: Path) -> Tuple[str, str]:
         return "-", "-"
 
     try:
-        cmd = ["git", "-C", repo.as_posix(), "config", "--get", "remote.origin.url"]
-        result: str = check_output(cmd, stderr=DEVNULL).decode(encoding="utf-8")
+        cmd = ["git", "-C", repo.as_posix(), "config", "--get",
+               "remote.origin.url"]
+        result: str = check_output(
+            cmd, stderr=DEVNULL).decode(encoding="utf-8")
         substrings: List[str] = result.strip().split("/")[-2:]
 
         orga: str = substrings[0] if substrings[0] else "-"
@@ -133,7 +135,7 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
         tags: List[str] = result.split("\n")[:-1]
 
         return sorted(tags, key=lambda x: [int(i) if i.isdigit() else i for i in
-                                                re.split(r'(\d+)', x)])
+                                           re.split(r'(\d+)', x)])
 
     except CalledProcessError:
         return []
@@ -185,7 +187,8 @@ def get_latest_unstable_tag(repo_path: str) -> str:
     """
     try:
         if (
-            len(unstable_tags := [t for t in get_remote_tags(repo_path) if "-" in t])
+            len(unstable_tags := [
+                t for t in get_remote_tags(repo_path) if "-" in t])
             > 0
         ):
             return unstable_tags[0]
@@ -253,31 +256,24 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
 
-def git_cmd_clone(repo: str, target_dir: Path, depth: int = 0, single_branch: bool = False) -> None:
+def git_cmd_clone(repo: str, target_dir: Path, blolbless: bool = False) -> None:
     """
-    Clones a repository with optional depth and single-branch parameters.
+    Clones a repository with optional blolbless clone.
 
     :param repo: URL of the repository to clone.
     :param target_dir: Path where the repository will be cloned.
-    :param depth: Clone depth. If 0, the depth option will be omitted.
-    :param single_branch: Clone only a single branch if True.
-    :return: None
+    :param blolbless: If True, perform a blolbless clone by adding the '--blolbless' flag.
     """
     try:
         command = ["git", "clone"]
 
-        # Add --depth flag if depth > 0
-        if depth > 0:
-            command += ["--depth", str(depth)]
-
-        # Add --single-branch flag if single_branch is True
-        if single_branch:
-            command.append("--single-branch")
+        # Добавляем флаг для blolbless clone, если требуется
+        if blolbless:
+            command.append("--blolbless")
 
         command += [repo, target_dir.as_posix()]
 
         run(command, check=True)
-
         Logger.print_ok("Clone successful!")
     except CalledProcessError as e:
         error = e.stderr.decode() if e.stderr else "Unknown error"
@@ -317,7 +313,8 @@ def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
 
     instances = get_instances(instance)
 
-    Logger.print_warn("Do not continue if you have ongoing prints!", start="\n")
+    Logger.print_warn(
+        "Do not continue if you have ongoing prints!", start="\n")
     Logger.print_warn(
         f"All currently running {instance.__name__} services will be stopped!"
     )
