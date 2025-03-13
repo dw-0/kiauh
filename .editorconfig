@@ -11,5 +11,5 @@ end_of_line = lf
 [*.py]
 max_line_length = 88
 
-[*.sh]
+[*.{sh,yml,yaml}]
 indent_size = 2
