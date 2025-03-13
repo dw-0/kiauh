@@ -13,6 +13,7 @@ from typing import Type
 
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
+from components.klipper.klipper_utils import install_input_shaper_deps
 from components.klipper_firmware.menus.klipper_build_menu import (
     KlipperBuildFirmwareMenu,
     KlipperKConfigMenu,
@@ -50,9 +51,10 @@ class AdvancedMenu(BaseMenu):
             "2": Option(method=self.flash),
             "3": Option(method=self.build_flash),
             "4": Option(method=self.get_id),
-            "5": Option(method=self.klipper_rollback),
-            "6": Option(method=self.moonraker_rollback),
-            "7": Option(method=self.change_hostname),
+            "5": Option(method=self.input_shaper),
+            "6": Option(method=self.klipper_rollback),
+            "7": Option(method=self.moonraker_rollback),
+            "8": Option(method=self.change_hostname),
         }
 
     def print_menu(self) -> None:
@@ -60,11 +62,13 @@ class AdvancedMenu(BaseMenu):
             """
             ╟───────────────────────────┬───────────────────────────╢
             ║ Klipper Firmware:         │ Repository Rollback:      ║
-            ║  1) [Build]               │  5) [Klipper]             ║
-            ║  2) [Flash]               │  6) [Moonraker]           ║
+            ║  1) [Build]               │  6) [Klipper]             ║
+            ║  2) [Flash]               │  7) [Moonraker]           ║
             ║  3) [Build + Flash]       │                           ║
             ║  4) [Get MCU ID]          │ System:                   ║
-            ║                           │  7) [Change hostname]     ║
+            ║                           │  8) [Change hostname]     ║
+            ║ Extra Dependencies:       │                           ║
+            ║  5) [Input Shaper]        │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -97,3 +101,6 @@ class AdvancedMenu(BaseMenu):
 
     def change_hostname(self, **kwargs) -> None:
         change_system_hostname()
+
+    def input_shaper(self, **kwargs) -> None:
+        install_input_shaper_deps()

@@ -43,7 +43,11 @@ from utils.common import check_install_dependencies, get_install_status
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances
-from utils.sys_utils import cmd_sysctl_service, parse_packages_from_file
+from utils.sys_utils import (
+    cmd_sysctl_service,
+    install_python_packages,
+    parse_packages_from_file,
+)
 
 
 def get_klipper_status() -> ComponentStatus:
@@ -211,3 +215,42 @@ def install_klipper_packages() -> None:
         packages.append("dbus")
 
     check_install_dependencies({*packages})
+
+
+def install_input_shaper_deps() -> None:
+    if not KLIPPER_ENV_DIR.exists():
+        Logger.print_warn("Required Klipper python environment not found!")
+        return
+
+    Logger.print_dialog(
+        DialogType.CUSTOM,
+        [
+            "Resonance measurements and shaper auto-calibration require additional "
+            "software dependencies which are not installed by default. "
+            "If you agree, the following additional system packages will be installed:",
+            "● python3-numpy",
+            "● python3-matplotlib",
+            "● libatlas-base-dev",
+            "● libopenblas-dev",
+            "\n\n",
+            "Also, the following Python package will be installed:",
+            "● numpy",
+        ],
+        custom_title="Install Input Shaper Dependencies",
+    )
+    if not get_confirm(
+        "Do you want to install the required packages?", default_choice=False
+    ):
+        return
+
+    apt_deps = (
+        "python3-numpy",
+        "python3-matplotlib",
+        "libatlas-base-dev",
+        "libopenblas-dev",
+    )
+    check_install_dependencies({*apt_deps})
+
+    py_deps = ("numpy",)
+
+    install_python_packages(KLIPPER_ENV_DIR, {*py_deps})
