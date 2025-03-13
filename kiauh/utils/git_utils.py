@@ -26,9 +26,10 @@ def git_clone_wrapper(
 ) -> None:
     """
     Clones a repository from the given URL and checks out the specified branch if given.
+    The clone will be performed with the '--filter=blob:none' flag to perform a blobless clone.
 
     :param repo: The URL of the repository to clone.
-    :param branch: The branch to check out. If None, the default branch will be checked out.
+    :param branch: The branch to check out. If None, master or main, no checkout will be performed.
     :param target_dir: The directory where the repository will be cloned.
     :param force: Force the cloning of the repository even if it already exists.
     :return: None
@@ -43,8 +44,11 @@ def git_clone_wrapper(
                 return
             shutil.rmtree(target_dir)
 
-        git_cmd_clone(repo, target_dir)
-        git_cmd_checkout(branch, target_dir)
+        git_cmd_clone(repo, target_dir, blobless=True)
+
+        if branch not in ("master", "main"):
+            git_cmd_checkout(branch, target_dir)
+
     except CalledProcessError:
         log = "An unexpected error occured during cloning of the repository."
         Logger.print_error(log)
@@ -255,11 +259,23 @@ def get_remote_commit(repo: Path) -> str | None:
         return None
 
 
-def git_cmd_clone(repo: str, target_dir: Path) -> None:
-    try:
-        command = ["git", "clone", repo, target_dir.as_posix()]
-        run(command, check=True)
+def git_cmd_clone(repo: str, target_dir: Path, blobless: bool = False) -> None:
+    """
+    Clones a repository with optional blobless clone.
 
+    :param repo: URL of the repository to clone.
+    :param target_dir: Path where the repository will be cloned.
+    :param blobless: If True, perform a blobless clone by adding the '--filter=blob:none' flag.
+    """
+    try:
+        command = ["git", "clone"]
+
+        if blobless:
+            command.append("--filter=blob:none")
+
+        command += [repo, target_dir.as_posix()]
+
+        run(command, check=True)
         Logger.print_ok("Clone successful!")
     except CalledProcessError as e:
         error = e.stderr.decode() if e.stderr else "Unknown error"
