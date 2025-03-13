@@ -67,8 +67,8 @@ class AdvancedMenu(BaseMenu):
             ║  3) [Build + Flash]       │                           ║
             ║  4) [Get MCU ID]          │ System:                   ║
             ║                           │  8) [Change hostname]     ║
-            ║ Extra dependencies:       │                           ║
-            ║  5) [Input shaper]        │                           ║
+            ║ Extra Dependencies:       │                           ║
+            ║  5) [Input Shaper]        │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
