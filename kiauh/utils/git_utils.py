@@ -26,9 +26,10 @@ def git_clone_wrapper(
 ) -> None:
     """
     Clones a repository from the given URL and checks out the specified branch if given.
+    The clone will be performed with the '--filter=blob:none' flag to perform a blobless clone.
 
     :param repo: The URL of the repository to clone.
-    :param branch: The branch to check out. If None, the default branch will be checked out.
+    :param branch: The branch to check out. If None, master or main, no checkout will be performed.
     :param target_dir: The directory where the repository will be cloned.
     :param force: Force the cloning of the repository even if it already exists.
     :return: None
@@ -43,8 +44,11 @@ def git_clone_wrapper(
                 return
             shutil.rmtree(target_dir)
 
-        git_cmd_clone(repo, target_dir)
-        git_cmd_checkout(branch, target_dir)
+        git_cmd_clone(repo, target_dir, blobless=True)
+
+        if branch not in ("master", "main"):
+            git_cmd_checkout(branch, target_dir)
+
     except CalledProcessError:
         log = "An unexpected error occured during cloning of the repository."
         Logger.print_error(log)
@@ -132,8 +136,10 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
 
         tags: List[str] = result.split("\n")[:-1]
 
-        return sorted(tags, key=lambda x: [int(i) if i.isdigit() else i for i in
-                                                re.split(r'(\d+)', x)])
+        return sorted(
+            tags,
+            key=lambda x: [int(i) if i.isdigit() else i for i in re.split(r"(\d+)", x)],
+        )
 
     except CalledProcessError:
         return []
