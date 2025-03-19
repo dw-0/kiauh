@@ -1,0 +1,33 @@
+name: Release - Fast-Forward and Tag
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Provide a tag name (e.g. v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  ff-and-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: 'master'
+      - name: Merge Fast Forward
+        uses: MaximeHeckel/github-action-merge-fast-forward@v1.1.0
+        with:
+          branchtomerge: origin/develop
+          branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create and Push Tag
+        run: |
+          git tag ${{ inputs.tag_name }}
+          git push origin ${{ inputs.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
