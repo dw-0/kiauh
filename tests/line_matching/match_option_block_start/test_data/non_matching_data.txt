@@ -1,0 +1,31 @@
+type: jsonfile
+path: /dev/shm/drying_box.json
+baud: 250000
+minimum_cruise_ratio: 0.5
+square_corner_velocity: 5.0
+full_steps_per_rotation: 200
+position_min: 0
+homing_speed: 5.0
+# baud: 250000
+# minimum_cruise_ratio: 0.5
+# square_corner_velocity: 5.0
+# full_steps_per_rotation: 200
+# position_min: 0
+# homing_speed: 5.0
+
+### this is a comment
+; this is also a comment
+;
+#
+homing_speed::
+homing_speed::
+homing_speed ::
+homing_speed ::
+homing_speed==
+homing_speed==
+homing_speed ==
+homing_speed ==
+homing_speed :=
+homing_speed :=
+homing_speed =:
+homing_speed =:
