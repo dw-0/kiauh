@@ -1,0 +1,15 @@
+trusted_clients:
+gcode:
+cors_domains:
+an_options_block_start_with_comment: ; this is a comment
+an_options_block_start_with_comment: # this is a comment
+options_block_start_with_comment:;this is a comment
+options_block_start_with_comment :;this is a comment
+options_block_start_with_comment:#this is a comment
+options_block_start_with_comment :#this is a comment
+parameter_temperature_(°C):
+parameter_temperature_(°C)=
+parameter_humidity_(%_RH):
+parameter_humidity_(%_RH) :
+parameter_spool_weight_(%):
+parameter_spool_weight_(%) =
