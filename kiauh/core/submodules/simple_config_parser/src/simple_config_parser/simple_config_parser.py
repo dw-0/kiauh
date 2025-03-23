@@ -134,14 +134,52 @@ class SimpleConfigParser:
 
         # print(json.dumps(self.config, indent=4))
 
-    def write_file(self, file: Path) -> None:
-        """Write the current config to the config file"""
-        if not file:
-            raise ValueError("No config file specified")
+    def write_file(self, path: str | Path) -> None:
+        """Write the config to a file"""
+        if path is None:
+            raise ValueError("File path cannot be None")
 
-        with open(file, "w") as file:
-            self._write_header(file)
-            self._write_sections(file)
+        with open(path, "w", encoding="utf-8") as f:
+            # Write header if exists
+            if HEADER_IDENT in self.config:
+                for line in self.config[HEADER_IDENT]:
+                    f.write(line)
+
+            # Write sections
+            sections = self.get_sections()
+            for i, section in enumerate(sections):
+                if i > 0:  # Add newline before section (except first)
+                    # Check if previous section already ends with a blank line
+                    prev_section = sections[i-1]
+                    prev_section_content = self.config[prev_section]
+                    last_key = list(prev_section_content.keys())[-1]
+
+                    # If the last item is not a comment collector or doesn't end with blank line
+                    if not (last_key.startswith("#_") and
+                            prev_section_content[last_key][-1].isspace()):
+                        f.write("\n")
+
+                # Write section header with its raw content to preserve comments
+                f.write(self.config[section]["_raw"])
+
+                # Write section content
+                section_content = self.config[section]
+                for key in section_content:
+                    self._write_section_content(f, key, section_content[key])
+
+            # Ensure file ends with a single newline
+            if sections:  # Only if we have any sections
+                last_section = sections[-1]
+                last_section_content = self.config[last_section]
+                last_key = list(last_section_content.keys())[-1]
+
+                if isinstance(last_section_content[last_key], dict):
+                    last_line = last_section_content[last_key]["_raw"]
+                else:  # Comment collector
+                    last_line = last_section_content[last_key][-1]
+
+                if not last_line.endswith("\n"):
+                    f.write("\n")
 
     def _write_header(self, file) -> None:
         """Write the header to the config file"""
@@ -157,16 +195,23 @@ class SimpleConfigParser:
     def _write_section_content(self, file, key, value) -> None:
         """Write the content of a section to the config file"""
         if key == "_raw":
-            file.write(value)
+            return  # Skip raw section header
         elif key.startswith("#_"):
+            # Only write actual comments, skip collected blank lines
+            last_was_empty = False
             for line in value:
+                is_empty = not line.strip()
+                if is_empty and last_was_empty:
+                    continue
                 file.write(line)
+                last_was_empty = is_empty
         elif isinstance(value["value"], list):
-            file.write(value["_raw"])
+            file.write(value["_raw"])  # Write option name
             for line in value["value"]:
-                file.write(line)
+                # Indent with 4 spaces
+                file.write("    " + line.strip() + "\n")
         else:
-            file.write(value["_raw"])
+            file.write(value["_raw"].rstrip() + "\n")
 
     def get_sections(self) -> List[str]:
         """Return a list of all section names, but exclude any section starting with '#_'"""
