@@ -27,7 +27,9 @@ from components.moonraker import (
     MOONRAKER_REQ_FILE,
 )
 from components.moonraker.moonraker import Moonraker
-from components.moonraker.moonraker_setup import install_moonraker_packages
+from components.moonraker.services.moonraker_setup_service import (
+    install_moonraker_packages,
+)
 from core.backup_manager.backup_manager import BackupManager, BackupManagerException
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger

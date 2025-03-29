@@ -102,6 +102,8 @@ class KlipperSetupService:
         self.moonraker_list = self.misvc.get_all_instances()
 
     def install(self) -> None:
+        self.__refresh_state()
+
         Logger.print_status("Installing Klipper ...")
 
         match_moonraker: bool = False

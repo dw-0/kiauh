@@ -9,6 +9,7 @@
 import json
 import shutil
 from pathlib import Path
+from subprocess import DEVNULL, PIPE, CalledProcessError, run
 from typing import Dict, List, Optional
 
 from components.moonraker import (
@@ -16,10 +17,13 @@ from components.moonraker import (
     MOONRAKER_BACKUP_DIR,
     MOONRAKER_DB_BACKUP_DIR,
     MOONRAKER_DEFAULT_PORT,
+    MOONRAKER_DEPS_JSON_FILE,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
+    MOONRAKER_INSTALL_SCRIPT,
 )
 from components.moonraker.moonraker import Moonraker
+from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.webui_client.base_data import BaseWebClient
 from core.backup_manager.backup_manager import BackupManager
 from core.logger import Logger
@@ -27,15 +31,56 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
-from utils.common import get_install_status
+from utils.common import check_install_dependencies, get_install_status
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
     get_ipv4_addr,
+    parse_packages_from_file,
 )
 
 
 def get_moonraker_status() -> ComponentStatus:
     return get_install_status(MOONRAKER_DIR, MOONRAKER_ENV_DIR, Moonraker)
+
+
+def install_moonraker_packages() -> None:
+    Logger.print_status("Parsing Moonraker system dependencies  ...")
+
+    moonraker_deps = []
+    if MOONRAKER_DEPS_JSON_FILE.exists():
+        Logger.print_info(
+            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ..."
+        )
+        parser = SysDepsParser()
+        sysdeps = load_sysdeps_json(MOONRAKER_DEPS_JSON_FILE)
+        moonraker_deps.extend(parser.parse_dependencies(sysdeps))
+
+    elif MOONRAKER_INSTALL_SCRIPT.exists():
+        Logger.print_warn(f"{MOONRAKER_DEPS_JSON_FILE.name} not found!")
+        Logger.print_info(
+            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ..."
+        )
+        moonraker_deps = parse_packages_from_file(MOONRAKER_INSTALL_SCRIPT)
+
+    if not moonraker_deps:
+        raise ValueError("Error parsing Moonraker dependencies!")
+
+    check_install_dependencies({*moonraker_deps})
+
+
+def remove_polkit_rules() -> bool:
+    if not MOONRAKER_DIR.exists():
+        log = "Cannot remove policykit rules. Moonraker directory not found."
+        Logger.print_warn(log)
+        return False
+
+    try:
+        cmd = [f"{MOONRAKER_DIR}/scripts/set-policykit-rules.sh", "--clear"]
+        run(cmd, stderr=PIPE, stdout=DEVNULL, check=True)
+        return True
+    except CalledProcessError as e:
+        Logger.print_error(f"Error while removing policykit rules: {e}")
+        return False
 
 
 def create_example_moonraker_conf(

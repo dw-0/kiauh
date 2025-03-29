@@ -20,7 +20,7 @@ from components.klipperscreen.klipperscreen import (
     get_klipperscreen_status,
     update_klipperscreen,
 )
-from components.moonraker.moonraker_setup import update_moonraker
+from components.moonraker.services.moonraker_setup_service import MoonrakerSetupService
 from components.moonraker.utils.utils import get_moonraker_status
 from components.webui_client.client_config.client_config_setup import (
     update_client_config,
@@ -197,7 +197,8 @@ class UpdateMenu(BaseMenu):
         self._run_update_routine("klipper", klsvc.update)
 
     def update_moonraker(self, **kwargs) -> None:
-        self._run_update_routine("moonraker", update_moonraker)
+        mrsvc = MoonrakerSetupService()
+        self._run_update_routine("moonraker", mrsvc.update)
 
     def update_mainsail(self, **kwargs) -> None:
         self._run_update_routine(
