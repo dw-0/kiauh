@@ -18,6 +18,7 @@ from components.moonraker import (
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
     MOONRAKER_INSTALL_SCRIPT,
+    MOONRAKER_REPO_URL,
     MOONRAKER_REQ_FILE,
     MOONRAKER_SPEEDUPS_REQ_FILE,
     POLKIT_FILE,
@@ -181,9 +182,10 @@ def check_moonraker_install_requirements(klipper_list: List[Klipper]) -> bool:
 
 def setup_moonraker_prerequesites() -> None:
     settings = KiauhSettings()
-    repo = settings.moonraker.repo_url
-    branch = settings.moonraker.branch
-
+    default_repo = (MOONRAKER_REPO_URL, "master")
+    repo = settings.moonraker.repositories
+    # pull the first repo defined in kiauh.cfg or fallback to the official Moonraker repo
+    repo, branch = (repo[0].url, repo[0].branch) if repo else default_repo
     git_clone_wrapper(repo, MOONRAKER_DIR, branch)
 
     # install moonraker dependencies and create python virtualenv
@@ -259,7 +261,7 @@ def update_moonraker() -> None:
     instances = get_instances(Moonraker)
     InstanceManager.stop_all(instances)
 
-    git_pull_wrapper(repo=settings.moonraker.repo_url, target_dir=MOONRAKER_DIR)
+    git_pull_wrapper("", target_dir=MOONRAKER_DIR)
 
     # install possible new system packages
     install_moonraker_packages()

@@ -29,6 +29,7 @@ from utils.git_utils import (
     get_local_tags,
     get_remote_commit,
     get_repo_name,
+    get_repo_url,
 )
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
@@ -133,11 +134,14 @@ def get_install_status(
         status = 1  # incomplete
 
     org, repo = get_repo_name(repo_dir)
+    repo_url = get_repo_url(repo_dir) if repo_dir.exists() else None
+
     return ComponentStatus(
         status=status,
         instances=instances,
         owner=org,
         repo=repo,
+        repo_url=repo_url,
         branch=branch,
         local=get_local_commit(repo_dir),
         remote=get_remote_commit(repo_dir),
