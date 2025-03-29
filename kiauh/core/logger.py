@@ -91,7 +91,8 @@ class Logger:
         color = Logger._get_dialog_color(title, custom_color)
         dialog_title = Logger._get_dialog_title(title, custom_title)
 
-        print("\n" * margin_top)
+        if margin_top > 0:
+            print("\n" * margin_top, end="")
 
         print(Color.apply(BORDER_TOP, color))
 
@@ -111,7 +112,8 @@ class Logger:
 
         print(Color.apply(BORDER_BOTTOM, color))
 
-        print("\n" * margin_bottom)
+        if margin_bottom > 0:
+            print("\n" * margin_bottom, end="")
 
     @staticmethod
     def _get_dialog_title(

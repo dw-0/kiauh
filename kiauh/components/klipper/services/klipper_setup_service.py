@@ -15,6 +15,7 @@ from components.klipper import (
     EXIT_KLIPPER_SETUP,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
+    KLIPPER_REPO_URL,
     KLIPPER_REQ_FILE,
 )
 from components.klipper.klipper import Klipper
@@ -161,7 +162,7 @@ class KlipperSetupService:
             backup_klipper_dir()
 
         InstanceManager.stop_all(self.klipper_list)
-        git_pull_wrapper(self.settings.klipper.repo_url, KLIPPER_DIR)
+        git_pull_wrapper("", KLIPPER_DIR)
         install_klipper_packages()
         install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
         InstanceManager.start_all(self.klipper_list)
@@ -266,9 +267,10 @@ class KlipperSetupService:
         check_user_groups()
 
     def __install_deps(self) -> None:
-        repo = self.settings.klipper.repo_url
-        branch = self.settings.klipper.branch
-
+        default_repo = (KLIPPER_REPO_URL, "master")
+        repo = self.settings.klipper.repositories
+        # pull the first repo defined in kiauh.cfg or fallback to the official Klipper repo
+        repo, branch = (repo[0].url, repo[0].branch) if repo else default_repo
         git_clone_wrapper(repo, KLIPPER_DIR, branch)
 
         try:

@@ -31,7 +31,6 @@ from components.moonraker.moonraker_setup import install_moonraker_packages
 from core.backup_manager.backup_manager import BackupManager, BackupManagerException
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
-from core.settings.kiauh_settings import RepoSettings
 from utils.git_utils import GitException, get_repo_name, git_clone_wrapper
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
@@ -46,7 +45,7 @@ class RepoSwitchFailedException(Exception):
 
 
 def run_switch_repo_routine(
-    name: Literal["klipper", "moonraker"], repo_settings: RepoSettings
+    name: Literal["klipper", "moonraker"], repo_url: str, branch: str
 ) -> None:
     repo_dir: Path = KLIPPER_DIR if name == "klipper" else MOONRAKER_DIR
     env_dir: Path = KLIPPER_ENV_DIR if name == "klipper" else MOONRAKER_ENV_DIR
@@ -77,10 +76,6 @@ def run_switch_repo_routine(
             env_dir,
             backup_dir,
         )
-
-        # step 3: read repo url and branch from settings
-        repo_url = repo_settings.repo_url
-        branch = repo_settings.branch
 
         if not (repo_url or branch):
             error = f"Invalid repository URL ({repo_url}) or branch ({branch})!"
