@@ -8,8 +8,6 @@
 
 from __future__ import annotations
 
-import secrets
-import string
 from pathlib import Path
 from typing import Callable, Dict, List
 
@@ -20,7 +18,7 @@ from ..simple_config_parser.constants import (
     LINE_COMMENT_RE,
     OPTION_RE,
     OPTIONS_BLOCK_START_RE,
-    SECTION_RE,
+    SECTION_RE, LineType, INDENT,
 )
 
 _UNSET = object()
@@ -49,6 +47,13 @@ class NoOptionError(Exception):
         msg = f"Option '{option}' in section '{section}' is not defined"
         super().__init__(msg)
 
+class UnknownLineError(Exception):
+    """Raised when a line is not recognized as any known type"""
+
+    def __init__(self, line: str):
+        msg = f"Unknown line: '{line}'"
+        super().__init__(msg)
+
 
 # noinspection PyMethodMayBeStatic
 class SimpleConfigParser:
@@ -59,7 +64,6 @@ class SimpleConfigParser:
         self.config: Dict = {}
         self.current_section: str | None = None
         self.current_opt_block: str | None = None
-        self.current_collector: str | None = None
         self.in_option_block: bool = False
 
     def _match_section(self, line: str) -> bool:
@@ -85,28 +89,40 @@ class SimpleConfigParser:
     def _parse_line(self, line: str) -> None:
         """Parses a line and determines its type"""
         if self._match_section(line):
-            self.current_collector = None
             self.current_opt_block = None
             self.current_section = SECTION_RE.match(line).group(1)
-            self.config[self.current_section] = {"_raw": line}
+            self.config[self.current_section] = {
+                "header": line,
+                "elements": []
+            }
 
         elif self._match_option(line):
-            self.current_collector = None
             self.current_opt_block = None
             option = OPTION_RE.match(line).group(1)
             value = OPTION_RE.match(line).group(2)
-            self.config[self.current_section][option] = {"_raw": line, "value": value}
+            self.config[self.current_section]["elements"].append({
+                "type": LineType.OPTION.value,
+                "name": option,
+                "value": value,
+                "raw": line
+            })
 
         elif self._match_options_block_start(line):
-            self.current_collector = None
             option = OPTIONS_BLOCK_START_RE.match(line).group(1)
             self.current_opt_block = option
-            self.config[self.current_section][option] = {"_raw": line, "value": []}
+            self.config[self.current_section]["elements"].append({
+                "type": LineType.OPTION_BLOCK.value,
+                "name": option,
+                "value": [],
+                "raw": line
+            })
 
         elif self.current_opt_block is not None:
-            self.config[self.current_section][self.current_opt_block]["value"].append(
-                line
-            )
+            # we are in an option block, so we add the line to the option's value
+            for element in reversed(self.config[self.current_section]["elements"]):
+                if element["type"] == LineType.OPTION_BLOCK.value and element["name"] == self.current_opt_block:
+                    element["value"].append(line.strip()) # indentation is removed
+                    break
 
         elif self._match_empty_line(line) or self._match_line_comment(line):
             self.current_opt_block = None
@@ -116,15 +132,11 @@ class SimpleConfigParser:
             if not self.current_section:
                 self.config.setdefault(HEADER_IDENT, []).append(line)
             else:
-                section = self.config[self.current_section]
-
-                # set the current collector to a new value, so that continuous
-                # empty lines or comments are collected into the same collector
-                if not self.current_collector:
-                    self.current_collector = self._generate_rand_id()
-                    section[self.current_collector] = []
-
-                section[self.current_collector].append(line)
+                element_type = LineType.BLANK.value if self._match_empty_line(line) else LineType.COMMENT.value
+                self.config[self.current_section]["elements"].append({
+                    "type": element_type,
+                    "content": line
+                })
 
     def read_file(self, file: Path) -> None:
         """Read and parse a config file"""
@@ -138,67 +150,40 @@ class SimpleConfigParser:
             raise ValueError("File path cannot be None")
 
         with open(path, "w", encoding="utf-8") as f:
-            # Write header if exists
             if HEADER_IDENT in self.config:
                 for line in self.config[HEADER_IDENT]:
                     f.write(line)
 
-            # Write sections
             sections = self.get_sections()
             for i, section in enumerate(sections):
-                # Write section header with its raw content to preserve comments
-                f.write(self.config[section]["_raw"])
+                f.write(self.config[section]["header"])
 
-                # Write section content
-                section_content = self.config[section]
-                for key in section_content:
-                    self._write_section_content(f, key, section_content[key])
+                for element in self.config[section]["elements"]:
+                    if element["type"] == LineType.OPTION.value:
+                        f.write(element["raw"])
+                    elif element["type"] == LineType.OPTION_BLOCK.value:
+                        f.write(element["raw"])
+                        for line in element["value"]:
+                            f.write(INDENT + line.strip() + "\n")
+                    elif element["type"] in [LineType.COMMENT.value, LineType.BLANK.value]:
+                        f.write(element["content"])
+                    else:
+                        raise UnknownLineError(element["raw"])
 
             # Ensure file ends with a single newline
             if sections:  # Only if we have any sections
                 last_section = sections[-1]
-                last_section_content = self.config[last_section]
-                last_key = list(last_section_content.keys())[-1]
+                last_elements = self.config[last_section]["elements"]
 
-                if isinstance(last_section_content[last_key], dict):
-                    last_line = last_section_content[last_key]["_raw"]
-                else:  # Comment collector
-                    last_line = last_section_content[last_key][-1]
+                if last_elements:
+                    last_element = last_elements[-1]
+                    if "raw" in last_element:
+                        last_line = last_element["raw"]
+                    else:  # comment or blank line
+                        last_line = last_element["content"]
 
-                if not last_line.endswith("\n"):
-                    f.write("\n")
-
-    def _write_header(self, file) -> None:
-        """Write the header to the config file"""
-        for line in self.config.get(HEADER_IDENT, []):
-            file.write(line)
-
-    def _write_sections(self, file) -> None:
-        """Write the sections to the config file"""
-        for section in self.get_sections():
-            for key, value in self.config[section].items():
-                self._write_section_content(file, key, value)
-
-    def _write_section_content(self, file, key, value) -> None:
-        """Write the content of a section to the config file"""
-        if key == "_raw":
-            return  # Skip raw section header
-        elif key.startswith("#_"):
-            # Only write actual comments, skip collected blank lines
-            last_was_empty = False
-            for line in value:
-                is_empty = not line.strip()
-                if is_empty and last_was_empty:
-                    continue
-                file.write(line)
-                last_was_empty = is_empty
-        elif isinstance(value["value"], list):
-            file.write(value["_raw"])  # Write option name
-            for line in value["value"]:
-                # Indent with 4 spaces
-                file.write("    " + line.strip() + "\n")
-        else:
-            file.write(value["_raw"].rstrip() + "\n")
+                    if not last_line.endswith("\n"):
+                        f.write("\n")
 
     def get_sections(self) -> List[str]:
         """Return a list of all section names, but exclude any section starting with '#_'"""
@@ -221,29 +206,40 @@ class SimpleConfigParser:
         if len(self.get_sections()) >= 1:
             self._check_set_section_spacing()
 
-        self.config[section] = {"_raw": f"[{section}]\n"}
+        self.config[section] = {
+            "header": f"[{section}]\n",
+            "elements": []
+        }
 
     def _check_set_section_spacing(self):
+        """Check if there is a blank line between the last section and the new section"""
         prev_section_name: str = self.get_sections()[-1]
-        prev_section_content: Dict = self.config[prev_section_name]
-        last_option_name: str = list(prev_section_content.keys())[-1]
+        prev_section = self.config[prev_section_name]
+        prev_elements = prev_section["elements"]
 
-        if last_option_name.startswith("#_"):
-            last_elem_value: str = prev_section_content[last_option_name][-1]
+        if prev_elements:
+            last_element = prev_elements[-1]
 
-            # if the last section is a collector, we first check if the last element
-            # in the collector ends with a newline. if it does not, we append a newline.
-            # this can happen if the config file does not end with a newline.
-            if not last_elem_value.endswith("\n"):
-                prev_section_content[last_option_name][-1] = f"{last_elem_value}\n"
+            # If the last element is a comment or blank line
+            if last_element["type"] in [LineType.COMMENT.value, LineType.BLANK.value]:
+                last_content = last_element["content"]
 
-            # if the last item in a collector is not a newline, we append a newline, so
-            # that the new section is seperated from the options of the previous section
-            # by a newline
-            if last_elem_value != "\n":
-                prev_section_content[last_option_name].append("\n")
-        else:
-            prev_section_content[self._generate_rand_id()] = ["\n"]
+                # If the last element doesn't end with a newline, add one
+                if not last_content.endswith("\n"):
+                    last_element["content"] += "\n"
+
+                # If the last element is not a blank line, add a blank line
+                if last_content.strip() != "":
+                    prev_elements.append({
+                        "type": "blank",
+                        "content": "\n"
+                    })
+            else:
+                # If the last element is an option, add a blank line
+                prev_elements.append({
+                    "type": LineType.BLANK.value,
+                    "content": "\n"
+                })
 
     def remove_section(self, section: str) -> None:
         """Remove a section from the config"""
@@ -251,12 +247,12 @@ class SimpleConfigParser:
 
     def get_options(self, section: str) -> List[str]:
         """Return a list of all option names for a given section"""
-        return list(
-            filter(
-                lambda option: option != "_raw" and not option.startswith("#_"),
-                self.config[section].keys(),
-            )
-        )
+        options = []
+        if self.has_section(section):
+            for element in self.config[section]["elements"]:
+                if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value]:
+                    options.append(element["name"])
+        return options
 
     def has_option(self, section: str, option: str) -> bool:
         """Check if an option exists in a section"""
@@ -270,22 +266,53 @@ class SimpleConfigParser:
         if not self.has_section(section):
             self.add_section(section)
 
-        if not self.has_option(section, option):
-            self.config[section][option] = {
-                "_raw": f"{option}:\n"
-                if isinstance(value, list)
-                else f"{option}: {value}\n",
+        # Check if option already exists
+        for element in self.config[section]["elements"]:
+            if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value] and element["name"] == option:
+                # Update existing option
+                if isinstance(value, list):
+                    element["type"] = LineType.OPTION_BLOCK.value
+                    element["value"] = value
+                    element["raw"] = f"{option}:\n"
+                else:
+                    element["type"] = LineType.OPTION.value
+                    element["value"] = value
+                    element["raw"] = f"{option}: {value}\n"
+                return
+
+        # Option doesn't exist, create new one
+        if isinstance(value, list):
+            new_element = {
+                "type": LineType.OPTION_BLOCK.value,
+                "name": option,
                 "value": value,
+                "raw": f"{option}:\n"
             }
         else:
-            opt = self.config[section][option]
-            if not isinstance(value, list):
-                opt["_raw"] = opt["_raw"].replace(opt["value"], value)
-            opt["value"] = value
+            new_element = {
+                "type": LineType.OPTION.value,
+                "name": option,
+                "value": value,
+                "raw": f"{option}: {value}\n"
+            }
+
+        # scan through elements to find the last option, after which we insert the new option
+        insert_pos = 0
+        elements = self.config[section]["elements"]
+        for i, element in enumerate(elements):
+            if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value]:
+                insert_pos = i + 1
+
+        elements.insert(insert_pos, new_element)
 
     def remove_option(self, section: str, option: str) -> None:
         """Remove an option from a section"""
-        self.config[section].pop(option, None)
+        if self.has_section(section):
+            elements = self.config[section]["elements"]
+            for i, element in enumerate(elements):
+                if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value] and element["name"] == option:
+                    elements.pop(i)
+                    break
 
     def getval(
         self, section: str, option: str, fallback: str | _UNSET = _UNSET
@@ -302,18 +329,22 @@ class SimpleConfigParser:
             if option not in self.get_options(section):
                 raise NoOptionError(option, section)
 
-            raw_value = self.config[section][option]["value"]
-            if isinstance(raw_value, str) and raw_value.endswith("\n"):
-                return raw_value[:-1].strip()
-            elif isinstance(raw_value, list):
-                values: List[str] = []
-                for i, val in enumerate(raw_value):
-                    val = val.strip().strip("\n")
-                    if len(val) < 1:
-                        continue
-                    values.append(val.strip())
-                return values
-            return str(raw_value)
+            # Find the option in the elements list
+            for element in self.config[section]["elements"]:
+                if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value] and element["name"] == option:
+                    raw_value = element["value"]
+                    if isinstance(raw_value, str) and raw_value.endswith("\n"):
+                        return raw_value[:-1].strip()
+                    elif isinstance(raw_value, list):
+                        values: List[str] = []
+                        for i, val in enumerate(raw_value):
+                            val = val.strip().strip("\n")
+                            if len(val) < 1:
+                                continue
+                            values.append(val.strip())
+                        return values
+                    return str(raw_value)
+            raise NoOptionError(option, section)
         except (NoSectionError, NoOptionError):
             if fallback is _UNSET:
                 raise
@@ -361,9 +392,3 @@ class SimpleConfigParser:
             raise ValueError(
                 f"Cannot convert {self.getval(section, option)} to {conv.__name__}"
             ) from e
-
-    def _generate_rand_id(self) -> str:
-        """Generate a random id with 6 characters"""
-        chars = string.ascii_letters + string.digits
-        rand_string = "".join(secrets.choice(chars) for _ in range(12))
-        return f"#_{rand_string}"
