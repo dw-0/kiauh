@@ -41,16 +41,15 @@ def test_add_section(parser):
 
     new_section = parser.config["new_section"]
     assert isinstance(new_section, dict)
-    assert new_section["_raw"] == "[new_section]\n"
-
-    # this should be the collector, added by the parser before
-    # then second section was added
-    assert list(new_section.keys())[-1].startswith("#_")
-    assert "\n" in new_section[list(new_section.keys())[-1]]
+    assert new_section["header"] == "[new_section]\n"
+    assert new_section["elements"] is not None
+    assert new_section["elements"] == []
 
     new_section2 = parser.config["new_section2"]
     assert isinstance(new_section2, dict)
-    assert new_section2["_raw"] == "[new_section2]\n"
+    assert new_section2["header"] == "[new_section2]\n"
+    assert new_section2["elements"] is not None
+    assert new_section2["elements"] == []
 
 
 def test_add_section_duplicate(parser):

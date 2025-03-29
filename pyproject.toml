@@ -36,7 +36,7 @@ extend-select = ["I"]
 [tool.pytest.ini_options]
 minversion = "8.2.1"
 testpaths = ["tests/**/*.py"]
-addopts = "--cov --cov-config=pyproject.toml --cov-report=html"
+addopts = "-svvv --cov --cov-config=pyproject.toml --cov-report=html"
 
 [tool.coverage.run]
 branch = true

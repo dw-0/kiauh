@@ -79,7 +79,7 @@ def test_remove_section_and_write(tmp_path):
 
     # Write modified config
     parser.write_file(output_file)
-    parser.write_file(test_dir.joinpath("output.cfg"))
+    # parser.write_file(test_dir.joinpath("output.cfg"))
 
     # Compare with expected output
     with open(expected_file, "r") as expected, open(output_file, "r") as actual:
@@ -91,3 +91,29 @@ def test_remove_section_and_write(tmp_path):
     assert not parser2.has_section("section_to_remove")
     assert "section_1" in parser2.get_sections()
     assert "section_2" in parser2.get_sections()
+
+def test_add_option_and_write(tmp_path):
+    # Setup paths
+    test_dir = BASE_DIR.joinpath("write_tests/add_option")
+    input_file = test_dir.joinpath("input.cfg")
+    expected_file = test_dir.joinpath("expected.cfg")
+    output_file = Path(tmp_path).joinpath("output.cfg")
+
+    # Read input file and add option
+    parser = SimpleConfigParser()
+    parser.read_file(input_file)
+    parser.set_option("section_1", "new_option", "new_value")
+
+    # Write modified config
+    parser.write_file(output_file)
+    # parser.write_file(test_dir.joinpath("output.cfg"))
+
+    # Compare with expected output
+    with open(expected_file, "r") as expected, open(output_file, "r") as actual:
+        assert expected.read() == actual.read()
+
+    # Additional verification
+    parser2 = SimpleConfigParser()
+    parser2.read_file(output_file)
+    assert parser2.has_option("section_1", "new_option")
+    assert parser2.getval("section_1", "new_option") == "new_value"

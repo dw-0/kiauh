@@ -6,6 +6,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import re
+from enum import Enum
 
 # definition of section line:
 #  - then line MUST start with an opening square bracket - it is the first section marker
@@ -60,3 +61,11 @@ BOOLEAN_STATES = {
 }
 
 HEADER_IDENT = "#_header"
+
+INDENT = " " * 4
+
+class LineType(Enum):
+    OPTION = "option"
+    OPTION_BLOCK = "option_block"
+    COMMENT = "comment"
+    BLANK = "blank"
