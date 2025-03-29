@@ -106,7 +106,7 @@ def update_client_config(client: BaseWebClient) -> None:
     if settings.kiauh.backup_before_update:
         backup_client_config_data(client)
 
-    git_pull_wrapper(client_config.repo_url, client_config.config_dir)
+    git_pull_wrapper(client_config.config_dir)
 
     Logger.print_ok(f"Successfully updated {client_config.display_name}.")
     Logger.print_info("Restart Klipper to reload the configuration!")

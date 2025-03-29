@@ -126,7 +126,7 @@ def update_klipperscreen() -> None:
         if settings.kiauh.backup_before_update:
             backup_klipperscreen_dir()
 
-        git_pull_wrapper(KLIPPERSCREEN_REPO, KLIPPERSCREEN_DIR)
+        git_pull_wrapper(KLIPPERSCREEN_DIR)
 
         install_python_requirements(KLIPPERSCREEN_ENV_DIR, KLIPPERSCREEN_REQ_FILE)
 

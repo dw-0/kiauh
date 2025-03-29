@@ -145,7 +145,7 @@ class ObicoExtension(BaseExtension):
             instances = get_instances(MoonrakerObico)
             InstanceManager.stop_all(instances)
 
-            git_pull_wrapper(OBICO_REPO, OBICO_DIR)
+            git_pull_wrapper(OBICO_DIR)
             self._install_dependencies()
 
             InstanceManager.start_all(instances)

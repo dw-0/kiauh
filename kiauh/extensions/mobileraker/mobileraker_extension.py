@@ -104,7 +104,7 @@ class MobilerakerExtension(BaseExtension):
             if settings.kiauh.backup_before_update:
                 self._backup_mobileraker_dir()
 
-            git_pull_wrapper(MOBILERAKER_REPO, MOBILERAKER_DIR)
+            git_pull_wrapper(MOBILERAKER_DIR)
 
             install_python_requirements(MOBILERAKER_ENV_DIR, MOBILERAKER_REQ_FILE)
 

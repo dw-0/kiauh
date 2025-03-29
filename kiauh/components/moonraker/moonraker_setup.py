@@ -261,7 +261,7 @@ def update_moonraker() -> None:
     instances = get_instances(Moonraker)
     InstanceManager.stop_all(instances)
 
-    git_pull_wrapper("", target_dir=MOONRAKER_DIR)
+    git_pull_wrapper(MOONRAKER_DIR)
 
     # install possible new system packages
     install_moonraker_packages()

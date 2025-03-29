@@ -58,17 +58,14 @@ def git_clone_wrapper(
         raise GitException(f"Error removing existing repository: {e.strerror}")
 
 
-# !todo: remove url parameter, as it is not really required. may be a reason to remove this function completely
-def git_pull_wrapper(url: str, target_dir: Path) -> None:
+def git_pull_wrapper(target_dir: Path) -> None:
     """
     A function that updates a repository using git pull.
 
-    :param url: The repo url - only used for logging.
     :param target_dir: The directory of the repository.
     :return: None
     """
-    _repo = f"'{url}'" if url else ""
-    Logger.print_status(f"Updating repository {_repo}...")
+    Logger.print_status("Updating repository ...")
     try:
         git_cmd_pull(target_dir)
     except CalledProcessError:

@@ -72,7 +72,7 @@ def install_crowsnest() -> None:
     Logger.print_info("Installer will prompt you for sudo password!")
     try:
         run(
-            f"sudo make install",
+            "sudo make install",
             cwd=CROWSNEST_DIR,
             shell=True,
             check=True,
@@ -134,7 +134,7 @@ def update_crowsnest() -> None:
                     target=CROWSNEST_BACKUP_DIR,
                 )
 
-            git_pull_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
+            git_pull_wrapper(CROWSNEST_DIR)
 
             deps = parse_packages_from_file(CROWSNEST_INSTALL_SCRIPT)
             check_install_dependencies({*deps})

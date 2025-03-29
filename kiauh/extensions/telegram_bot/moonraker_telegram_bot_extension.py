@@ -135,7 +135,7 @@ class TelegramBotExtension(BaseExtension):
         instances = get_instances(MoonrakerTelegramBot)
         InstanceManager.stop_all(instances)
 
-        git_pull_wrapper(TG_BOT_REPO, TG_BOT_DIR)
+        git_pull_wrapper(TG_BOT_DIR)
         self._install_dependencies()
 
         InstanceManager.start_all(instances)

@@ -162,7 +162,7 @@ class KlipperSetupService:
             backup_klipper_dir()
 
         InstanceManager.stop_all(self.klipper_list)
-        git_pull_wrapper("", KLIPPER_DIR)
+        git_pull_wrapper(KLIPPER_DIR)
         install_klipper_packages()
         install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
         InstanceManager.start_all(self.klipper_list)
