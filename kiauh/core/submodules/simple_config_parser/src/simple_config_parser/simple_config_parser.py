@@ -132,8 +132,6 @@ class SimpleConfigParser:
             for line in file:
                 self._parse_line(line)
 
-        # print(json.dumps(self.config, indent=4))
-
     def write_file(self, path: str | Path) -> None:
         """Write the config to a file"""
         if path is None:
@@ -148,17 +146,6 @@ class SimpleConfigParser:
             # Write sections
             sections = self.get_sections()
             for i, section in enumerate(sections):
-                if i > 0:  # Add newline before section (except first)
-                    # Check if previous section already ends with a blank line
-                    prev_section = sections[i-1]
-                    prev_section_content = self.config[prev_section]
-                    last_key = list(prev_section_content.keys())[-1]
-
-                    # If the last item is not a comment collector or doesn't end with blank line
-                    if not (last_key.startswith("#_") and
-                            prev_section_content[last_key][-1].isspace()):
-                        f.write("\n")
-
                 # Write section header with its raw content to preserve comments
                 f.write(self.config[section]["_raw"])
 
