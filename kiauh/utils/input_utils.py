@@ -52,16 +52,16 @@ def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool
 
 def get_number_input(
     question: str,
-    min_count: int,
-    max_count: int | None = None,
+    min_value: int,
+    max_value: int | None = None,
     default: int | None = None,
     allow_go_back: bool = False,
 ) -> int | None:
     """
     Helper method to get a number input from the user
     :param question: The question to display
-    :param min_count: The lowest allowed value
-    :param max_count: The highest allowed value (or None)
+    :param min_value: The lowest allowed value
+    :param max_value: The highest allowed value (or None)
     :param default: Optional default value
     :param allow_go_back: Navigate back to a previous dialog
     :return: Either the validated number input, or None on go_back
@@ -77,7 +77,7 @@ def get_number_input(
             return default
 
         try:
-            return validate_number_input(_input, min_count, max_count)
+            return validate_number_input(_input, min_value, max_value)
         except ValueError:
             Logger.print_error(INVALID_CHOICE)
 

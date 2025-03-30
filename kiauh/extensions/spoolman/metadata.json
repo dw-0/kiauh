@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "index": 11,
+    "module": "spoolman_extension",
+    "maintained_by": "dw-0",
+    "display_name": "Spoolman (Docker)",
+    "description": [
+      "Filament manager for 3D printing",
+      "- Track your filament inventory",
+      "- Monitor filament usage",
+      "- Manage vendors, materials, and spools",
+      "- Integrates with Moonraker",
+      "\n\n",
+      "Note: This extension installs Spoolman using Docker. Docker must be installed on your system before installing Spoolman."
+    ],
+    "updates": true
+  }
+}

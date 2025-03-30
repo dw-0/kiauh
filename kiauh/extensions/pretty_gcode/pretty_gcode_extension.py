@@ -43,7 +43,7 @@ class PrettyGcodeExtension(BaseExtension):
 
         port = get_number_input(
             "On which port should PrettyGCode run",
-            min_count=0,
+            min_value=0,
             default=7136,
             allow_go_back=True,
         )

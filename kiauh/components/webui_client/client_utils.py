@@ -414,7 +414,7 @@ def get_client_port_selection(
     while True:
         _type = "Reconfigure" if reconfigure else "Configure"
         question = f"{_type} {client.display_name} for port"
-        port_input = get_number_input(question, min_count=80, default=port)
+        port_input = get_number_input(question, min_value=80, default=port)
 
         if port_input not in ports_in_use:
             client_settings: WebUiSettings = settings[client.name]
