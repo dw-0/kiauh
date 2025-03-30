@@ -359,11 +359,12 @@ def get_ipv4_addr() -> str:
     try:
         # doesn't even have to be reachable
         s.connect(("192.255.255.255", 1))
-        return str(s.getsockname()[0])
-    except Exception:
-        return "127.0.0.1"
-    finally:
+        ipv4: str = str(s.getsockname()[0])
         s.close()
+        return ipv4
+    except Exception:
+        s.close()
+        return "127.0.0.1"
 
 
 def download_file(url: str, target: Path, show_progress=True) -> None:
@@ -600,3 +601,33 @@ def get_distro_info() -> Tuple[str, str]:
         raise ValueError("Error reading distro version!")
 
     return distro_id.lower(), distro_version
+
+
+def get_system_timezone() -> str:
+    timezone = "UTC"
+    try:
+        with open("/etc/timezone", "r") as f:
+            timezone = f.read().strip()
+    except FileNotFoundError:
+        # fallback to reading timezone from timedatectl
+        try:
+            result = run(
+                ["timedatectl", "show", "--property=Timezone"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            timezone = result.stdout.strip().split("=")[1]
+        except CalledProcessError:
+            # fallback if timedatectl fails, try reading from readlink
+            try:
+                result = run(
+                    ["readlink", "-f", "/etc/localtime"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                timezone = result.stdout.strip().split("zoneinfo/")[1]
+            except (CalledProcessError, IndexError):
+                Logger.print_warn("Could not determine system timezone, using UTC")
+    return timezone
