@@ -11,6 +11,7 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
+from components.droidklipp.droidklipp import install_droidklipp
 from components.crowsnest.crowsnest import install_crowsnest
 from components.klipper.services.klipper_setup_service import KlipperSetupService
 from components.klipperscreen.klipperscreen import install_klipperscreen
@@ -41,7 +42,6 @@ class InstallMenu(BaseMenu):
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.main_menu import MainMenu
-
         self.previous_menu = previous_menu if previous_menu is not None else MainMenu
 
     def set_options(self) -> None:
@@ -53,7 +53,9 @@ class InstallMenu(BaseMenu):
             "5": Option(method=self.install_mainsail_config),
             "6": Option(method=self.install_fluidd_config),
             "7": Option(method=self.install_klipperscreen),
-            "8": Option(method=self.install_crowsnest),
+            "8": Option(method=self.install_droidklipp),  # Add DroidKlipp option
+            "9": Option(method=self.install_crowsnest),
+            
         }
 
     def print_menu(self) -> None:
@@ -62,15 +64,17 @@ class InstallMenu(BaseMenu):
             ╟───────────────────────────┬───────────────────────────╢
             ║ Firmware & API:           │ Touchscreen GUI:          ║
             ║  1) [Klipper]             │  7) [KlipperScreen]       ║
-            ║  2) [Moonraker]           │                           ║
+            ║  2) [Moonraker]           │  8) [DroidKlipp]          ║
+            ║                           │                           ║
             ║                           │ Webcam Streamer:          ║
-            ║ Webinterface:             │  8) [Crowsnest]           ║
+            ║ Webinterface:             │  9) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
             ║  4) [Fluidd]              │                           ║
             ║                           │                           ║
             ║ Client-Config:            │                           ║
             ║  5) [Mainsail-Config]     │                           ║
             ║  6) [Fluidd-Config]       │                           ║
+            ║                           │                           ║ 
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -107,3 +111,6 @@ class InstallMenu(BaseMenu):
 
     def install_crowsnest(self, **kwargs) -> None:
         install_crowsnest()
+
+    def install_droidklipp(self, **kwargs) -> None:
+        install_droidklipp()
