@@ -315,11 +315,12 @@ class MoonrakerSetupService:
 
         try:
             install_moonraker_packages()
-            if create_python_venv(MOONRAKER_ENV_DIR):
+            if create_python_venv(MOONRAKER_ENV_DIR, False, False, self.settings.moonraker.use_python_binary):
                 install_python_requirements(MOONRAKER_ENV_DIR, MOONRAKER_REQ_FILE)
-                install_python_requirements(
-                    MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE
-                )
+                if self.settings.moonraker.optional_speedups:
+                    install_python_requirements(
+                        MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE
+                    )
             self.__install_polkit()
         except Exception:
             Logger.print_error("Error during installation of Moonraker requirements!")

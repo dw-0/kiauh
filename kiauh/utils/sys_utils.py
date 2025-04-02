@@ -95,6 +95,7 @@ def create_python_venv(
     target: Path,
     force: bool = False,
     allow_access_to_system_site_packages: bool = False,
+    use_python_binary: str | None = None
 ) -> bool:
     """
     Create a python 3 virtualenv at the provided target destination.
@@ -103,36 +104,46 @@ def create_python_venv(
     :param target: Path where to create the virtualenv at
     :param force: Force recreation of the virtualenv
     :param allow_access_to_system_site_packages: give the virtual environment access to the system site-packages dir
+    :param use_python_binary: allows to override default python binary
     :return: bool
     """
     Logger.print_status("Set up Python virtual environment ...")
-    cmd = ["virtualenv", "-p", "/usr/bin/python3", target.as_posix()]
+    # If binarry override is not set, we use default defined here
+    python_binary = use_python_binary if use_python_binary else "/usr/bin/python3"
+    cmd = ["virtualenv", "-p", python_binary, target.as_posix()]
     cmd.append(
         "--system-site-packages"
     ) if allow_access_to_system_site_packages else None
-    if not target.exists():
-        try:
-            run(cmd, check=True)
-            Logger.print_ok("Setup of virtualenv successful!")
-            return True
-        except CalledProcessError as e:
-            Logger.print_error(f"Error setting up virtualenv:\n{e}")
-            return False
-    else:
-        if not force and not get_confirm(
-            "Virtualenv already exists. Re-create?", default_choice=False
-        ):
-            Logger.print_info("Skipping re-creation of virtualenv ...")
-            return False
 
-        try:
-            shutil.rmtree(target)
-            create_python_venv(target)
-            return True
-        except OSError as e:
-            log = f"Error removing existing virtualenv: {e.strerror}"
-            Logger.print_error(log, False)
-            return False
+    n = 2
+    while(n > 0):
+        if not target.exists():
+            try:
+                run(cmd, check=True)
+                Logger.print_ok("Setup of virtualenv successful!")
+                return True
+            except CalledProcessError as e:
+                Logger.print_error(f"Error setting up virtualenv:\n{e}")
+                return False
+        else:
+            if n == 1:
+                # This case should never happen, 
+                # but the function should still behave correctly
+                Logger.print_error("Virtualenv still exists after deletion.")
+                return False                            
+            if not force and not get_confirm(
+                "Virtualenv already exists. Re-create?", default_choice=False
+            ):
+                Logger.print_info("Skipping re-creation of virtualenv ...")
+                return False
+
+            try:
+                shutil.rmtree(target)
+                n -= 1
+            except OSError as e:
+                log = f"Error removing existing virtualenv: {e.strerror}"
+                Logger.print_error(log, False)
+                return False
 
 
 def update_python_pip(target: Path) -> None:
