@@ -277,7 +277,7 @@ class KlipperSetupService:
 
         try:
             install_klipper_packages()
-            if create_python_venv(KLIPPER_ENV_DIR):
+            if create_python_venv(KLIPPER_ENV_DIR, False, False, self.settings.klipper.use_python_binary):
                 install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
         except Exception:
             Logger.print_error("Error during installation of Klipper requirements!")
