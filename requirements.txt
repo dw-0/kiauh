@@ -1,0 +1,4 @@
+mkdocs-material
+mkdocs
+mkdocstrings[python]
+mkdocs-git-revision-date-localized-plugin
