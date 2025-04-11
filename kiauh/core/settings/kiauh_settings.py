@@ -53,16 +53,19 @@ class Repository:
     url: str
     branch: str
 
+
 @dataclass
 class KlipperSettings:
     repositories: List[Repository] | None = field(default=None)
     use_python_binary: str | None = field(default=None)
+
 
 @dataclass
 class MoonrakerSettings:
     optional_speedups: bool | None = field(default=None)
     repositories: List[Repository] | None = field(default=None)
     use_python_binary: str | None = field(default=None)
+
 
 @dataclass
 class WebUiSettings:
@@ -158,8 +161,6 @@ class KiauhSettings:
 
             self._validate_int("fluidd", "port")
             self._validate_bool("fluidd", "unstable_releases")
-            
-            self._validate_bool("moonraker", "optional_speedups")
 
         except ValueError:
             err = f"Invalid value for option '{self._v_option}' in section '{self._v_section}'"
@@ -215,7 +216,9 @@ class KiauhSettings:
             "kiauh", "backup_before_update"
         )
 
-        self.moonraker.optional_speedups = self.config.getboolean("moonraker", "optional_speedups", True)
+        self.moonraker.optional_speedups = self.config.getboolean(
+            "moonraker", "optional_speedups", True
+        )
 
         kl_repos = self.config.getval("klipper", "repositories")
         self.klipper.repositories = self.__set_repo_state(kl_repos)
@@ -223,8 +226,12 @@ class KiauhSettings:
         mr_repos = self.config.getval("moonraker", "repositories")
         self.moonraker.repositories = self.__set_repo_state(mr_repos)
 
-        self.klipper.use_python_binary = self.config.getval("klipper", "use_python_binary", None)
-        self.moonraker.use_python_binary = self.config.getval("moonraker", "use_python_binary", None)
+        self.klipper.use_python_binary = self.config.getval(
+            "klipper", "use_python_binary", None
+        )
+        self.moonraker.use_python_binary = self.config.getval(
+            "moonraker", "use_python_binary", None
+        )
 
         self.mainsail.port = self.config.getint("mainsail", "port")
         self.mainsail.unstable_releases = self.config.getboolean(
