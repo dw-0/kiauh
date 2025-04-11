@@ -1,0 +1,1541 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for the Klipper Installation And Update Helper">
+      
+      
+      
+      
+        <link rel="prev" href="../gcode_shell_command/">
+      
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Changelog - KIAUH Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="KIAUH Documentation" class="md-header__button md-logo" aria-label="KIAUH Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            KIAUH Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dw-0/kiauh" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dw-0/kiauh
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="KIAUH Documentation" class="md-nav__button md-logo" aria-label="KIAUH Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    KIAUH Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dw-0/kiauh" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dw-0/kiauh
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extensions.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extensions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gcode_shell_command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    G-Code Shell Command
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#changelog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changelog
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Changelog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2024-08-31-v600-alpha1" class="md-nav__link">
+    <span class="md-ellipsis">
+      2024-08-31 (v6.0.0-alpha.1)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2024-08-31 (v6.0.0-alpha.1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kiauh-has-now-reached-version-6-well-at-least-in-an-alpha-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      KIAUH has now reached version 6! Well, at least in an alpha state...
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2023-06-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      2023-06-17
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2023-02-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      2023-02-03
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-10-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-10-31
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-10-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-10-20
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-08-15
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-05-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-05-29
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-01-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-01-29
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-12-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-12-30
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-09-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-09-28
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-09-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-09-24
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-08-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-08-10
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-07-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-07-10
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-06-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-06-29
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-06-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-06-15
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-01-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-01-31
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-11-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-11-28
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-11-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-11-18
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-10-30:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-10-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-10-10:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-10-06" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-10-06:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-09-17:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-09-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-09-12:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#changelog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changelog
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Changelog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2024-08-31-v600-alpha1" class="md-nav__link">
+    <span class="md-ellipsis">
+      2024-08-31 (v6.0.0-alpha.1)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2024-08-31 (v6.0.0-alpha.1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kiauh-has-now-reached-version-6-well-at-least-in-an-alpha-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      KIAUH has now reached version 6! Well, at least in an alpha state...
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2023-06-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      2023-06-17
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2023-02-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      2023-02-03
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-10-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-10-31
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-10-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-10-20
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-08-15
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-05-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-05-29
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2022-01-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      2022-01-29
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-12-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-12-30
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-09-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-09-28
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-09-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-09-24
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-08-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-08-10
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-07-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-07-10
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-06-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-06-29
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-06-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-06-15
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2021-01-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      2021-01-31
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-11-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-11-28
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-11-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-11-18
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-10-30:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-10-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-10-10:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-10-06" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-10-06:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-09-17:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2020-09-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      2020-09-12:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Changelog</h1>
+
+<h2 id="changelog">Changelog</h2>
+<p>This document covers possible important changes to KIAUH.</p>
+<h3 id="2024-08-31-v600-alpha1">2024-08-31 (v6.0.0-alpha.1)</h3>
+<p>Long time no see, but here we are again!
+A lot has happened in the background, but now it is time to take it out into the wild.</p>
+<h4 id="kiauh-has-now-reached-version-6-well-at-least-in-an-alpha-state">KIAUH has now reached version 6! Well, at least in an alpha state...</h4>
+<p>The project has seen a complete rewrite of the script from scratch in Python.
+It requires Python 3.8 or newer to run. Because this update is still in an alpha state, bugs may or will occur.
+During startup, you will be asked if you want to start the new version 6 or the old version 5.
+As long as version 6 is in a pre-release state, version 5 will still be available. If there are any critical issues
+with the new version that were overlooked, you can always switch back to the old version.</p>
+<p>In case you selected not to get asked about which version to start (option 3 or 4 in the startup dialog) and you want to
+revert that decision, you will find a line called <code>version_to_launch=</code> within the <code>.kiauh.ini</code> file in your home directory.
+Just delete that line, save the file and restart KIAUH. KIAUH will then ask you again which version you want to start.</p>
+<p>Here is a list of the most important changes to KIAUH in regard to version 6:
+- The majority of features available in KIAUH v5 are still available; they just got migrated from Bash to Python.
+- It is now possible to add new/remove instances to/from existing multi-instance installations of Klipper and Moonraker
+- KIAUH now has an Extension-System. This allows contributors to add new installers to KIAUH without having to modify the main script.
+    - You will now find some of the features that were previously available in the Installer-Menu in the Extensions-Menu.
+    - The current extensions are:
+        - G-Code Shell Command (previously found in the Advanced-Menu)
+        - Mainsail Theme Installer (previously found in the Advanced-Menu)
+        - Klipper-Backup (new in v6!)
+        - Moonraker Telegram Bot (previously found in the Installer-Menu)
+        - PrettyGCode for Klipper (previously found in the Installer-Menu)
+        - Obico for Klipper (previously found in the Installer-Menu)
+    - The following additional extensions are planned, but not yet available:
+        - Spoolman (available in v5 in the Installer-Menu)
+        - OctoApp (available in v5 in the Installer-Menu)
+- KIAUH has its own config file now
+    - The file has some default values for the currently supported options
+    - There might be more options in the future
+    - It is located in KIAUH's root directory and is called <code>default.kiauh.cfg</code>
+        - DO NOT EDIT the default file directly, instead make a copy of it and call it <code>kiauh.cfg</code>
+        - Settings changed via the Advanced-Menu will be written to the <code>kiauh.cfg</code>
+- Support for OctoPrint was removed</p>
+<p>Feel free to give version 6 a try and report any bugs or issues you encounter! Every feedback is appreciated.</p>
+<h3 id="2023-06-17">2023-06-17</h3>
+<p>KIAUH has now added support for installing Mobileraker's companion!
+Mobileraker is a free and Open Source Android and iOS App for Klipper, utilizing the Moonraker API, allowing you
+to control your printer. Thank you to <a href="https://github.com/Clon1998">Clon1998</a> for adding this feature!</p>
+<h3 id="2023-02-03">2023-02-03</h3>
+<p>The installer for MJPG-Streamer got replaced by crowsnest. It is an improved webcam service, utilizing ustreamer.
+Please have a look here for additional info about crowsnest and how to configure it: https://github.com/mainsail-crew/crowsnest \
+It's unsure if the previous MJPG-Streamer installer will be updated and make its way back into KIAUH.
+A big thanks to <a href="https://github.com/KwadFan">KwadFan</a> for writing the crowsnest implementation.</p>
+<h3 id="2022-10-31">2022-10-31</h3>
+<p>Some functions got updated, though not all of them.</p>
+<p>The following functions are still currently unavailable:
+- Installation of: MJPG-Streamer
+- All backup functions and the Log-Upload</p>
+<h3 id="2022-10-20">2022-10-20</h3>
+<p>KIAUH has now reached major version 5 !</p>
+<p>Recently Moonraker introduced some changes which makes it necessary to change the folder structure of printer setups.
+If you are interested in the details, check out this PR: https://github.com/Arksine/moonraker/pull/491 \
+Although Moonraker has some mechanics available to migrate existing setups to the new file structure with the use of symlinks, fresh and clean installs
+should be considered.</p>
+<p>The version jump of KIAUH to v5 is a breaking change due to those major changes! That means v4 and v5 are not compatible with each other!
+This is also the reason why you will currently be greeted by a yellow notification in the main menu of KIAUH leading to this changelog.
+I decided to disable a few functions of the script and focus on releasing the required changes to the core components of this script.
+I will work on updating the other parts of the script piece by piece during the next days/weeks.
+So I am already sorry in advance if one of your desired components you wanted to install or use temporarily cannot be installed or used right now.</p>
+<p>The following functions are currently unavailable:
+- Installation of: KlipperScreen, Obico, Octoprint, MJPG-Streamer, Telegram Bot and PrettyGCode
+- All backup functions and the Log-Upload</p>
+<p><strong>So what is working?</strong>\
+Installation of Klipper, Moonraker, Mainsail and Fluidd. Both, single and multi-instance setups work!\
+As already said, the rest will follow in the near future. Updating and removal of already installed components should continue to work.</p>
+<p><strong>What was removed?</strong>\
+The option to change Klippers configuration directory got removed. From now on it will not be possible anymore to change
+the configuration directory from within KIAUH and the new filestructure is enforced.</p>
+<p><strong>What if I don't have an existing Klipper/Moonraker install right now?</strong>\
+Nothing important to think about, install Klipper and Moonraker. KIAUH will install both of them with the new filestructure.</p>
+<p><strong>What if I have an existing Klipper/Moonraker install?</strong>\
+First of all: Backups! Please copy all of your config files and the Moonraker database (it is a hidden folder, usually <code>~/.moonraker_database</code>) to a safe location.
+After that, uninstall Klipper and Moonraker with KIAUH. You can then proceed and re-install both of them with KIAUH again. It is important that you are on KIAUH v5 for that!
+Once everything is installed again, you need to manually copy your configuration files from the old <code>~/klipper_config</code> folder to the new <code>~/printer_data/config</code> folder.
+Previous, by Moonraker created symlinks to folder of the old filestructure will not work anymore, you need to move the files to their new location now!
+Do the same with the two files inside of <code>~/.moonraker_database</code>. Move/copy them into <code>~/printer_data/database</code>. If <code>~/printer_data/database</code> is already populated with a <code>data.mdb</code> and <code>lock.mdb</code>
+delete them or simply overwrite them. Nothing should be lost as those should be empty database files. Anyway, you made backups, right?
+You can now proceed and restart Moonraker. Either from within Mainsail or Fluidd, or use SSH and execute <code>sudo systemctl restart moonraker</code>.
+If everything went smooth, you should be good to go again. If you see some Moonraker warnings about deprecated options in the <code>moonraker.conf</code>, go ahead and resolve them.
+I will not cover them in detail here. A good source is the Moonraker documentation: https://moonraker.readthedocs.io/en/latest/configuration/</p>
+<p><strong>What if I have an existing Klipper/Moonraker multi-instance install?</strong>\
+Pretty much the same steps that are required for single instance installs apply to multi-instance setups. So please go ahead and read the previous paragraph if you didn't already.
+Make backups of everything first. Then remove and install the desired amount of Klipper and Moonraker instances again.
+Now you need to move all config and database files to their new locations.\
+Example with an instance called <code>printer_1</code>:\
+The config files go from <code>~/klipper_config/printer_1</code> to <code>~/printer_1_data/config</code>.
+The database files go from <code>~/.moonraker_database_1</code> to <code>~/printer_1_data/database</code>.
+Now restart all Moonraker services. You can restart all of them at once if you launch KIAUH, and in the main menu type <code>restart moonraker</code> and hit Enter.</p>
+<p>I hope I have covered the most important things. In case you need further support, the official Klipper Discord is a good place to ask for help.</p>
+<h3 id="2022-08-15">2022-08-15</h3>
+<p>Support for "Obico for Klipper" was added! Huge thanks to <a href="https://github.com/kennethjiang">kennethjiang</a> for helping me with the implementation!</p>
+<h3 id="2022-05-29">2022-05-29</h3>
+<p>KIAUH has now reached major version 4 !
+* feat: Klipper can be installed under Python3 (still considered as experimental)
+* feat: Klipper can be installed from custom repositories / inofficial forks
+* feat: Custom instance name for multi instance installations of Klipper
+  * Any other multi instance will share the same name given to the corresponding Klipper instance
+  * E.g. klipper-voron2 -&gt; moonraker-voron2 -&gt; moonraker-telegram-bot-voron2
+* feat: Option to allow installation of / updating to unstable Mainsail and Fluidd versions
+  * by default only stable versions get installed/updated
+* feat: Multi-Instance OctoPrint installations now each have their own virtual python environment
+  * allows independent installation of plugins for each instance
+* feat: Implementing the use of shellcheck during development
+* feat: Implementing a simple logging mechanic
+* feat: Log-upload function now also allows uploading other logfiles (kiauh.log, webcamd.log etc.)
+* feat: added several new help dialogs which try to explain various functions
+* fix: During Klipper installation, checks for group membership of <code>tty</code> and <code>dialout</code> are made
+* refactor: rework of the settings menu for better control the new KIAUH features
+* refactor: Support for DWC and DWC-for-Klipper has been removed
+* refactor: The backup before update settings were moved to the KIAUH settings menu
+* refactor: Switch branch function has been removed (was replaced by the custom Klipper repo feature)
+* refactor: The update manager sections for Mainsail, Fluidd and KlipperScreen were removed from the moonraker.conf template
+  * They will now be individually added during installation of the corresponding interface
+* refactor: The rollback function was reworked and now also allows rollbacks of Moonraker
+  * It now takes numerical inputs and reverts the corresponding repository by the given amount instead
+  * KIAUH does not save previous states to its config anymore like it did with the previous approach</p>
+<h3 id="2022-01-29">2022-01-29</h3>
+<ul>
+<li>Starting from the 28th of January, Moonraker can make use of PackageKit and PolicyKit.\
+More details on that can be found <a href="https://github.com/Arksine/moonraker/issues/349">here</a> and <a href="https://github.com/Arksine/moonraker/pull/346">here</a></li>
+<li>KIAUH will install Moonrakers PolicyKit rules by default when <strong>installing</strong> Moonraker</li>
+<li>KIAUH will also install Moonrakers PolicyKit rules when <strong>updating</strong> Moonraker <strong>via KIAUH</strong> as of now</li>
+</ul>
+<h3 id="2021-12-30">2021-12-30</h3>
+<ul>
+<li>Updated the doc for the usage of the <a href="docs/gcode_shell_command.md">G-Code Shell Command Extension</a></li>
+<li>It became apparent, that some user groups are missing on some systems. A missing video group \
+membership for example caused issues when installing mjpg-streamer while not using the default pi user. \
+Other issues could occur when trying to flash an MCU on Debian or Ubuntu distributions where a user might not be part
+of the dialout group by default. A check for the tty group is also done. The tty group is needed for setting
+up a linux MCU (currently not yet supported by KIAUH).</li>
+<li>There is an issue when trying to install Mainsail or Fluidd on Ubuntu 21.10. Permissions on that distro seem to have seen a rework
+ in comparison to 20.04 and users will be greeted with an "Error 403 - Permission denied" message after installing one of Klippers webinterfaces.
+I still have to figure out a viable solution for that.</li>
+</ul>
+<h3 id="2021-09-28">2021-09-28</h3>
+<ul>
+<li>New Feature! Added an installer for the Telegram Bot for Moonraker by <a href="https://github.com/nlef">nlef</a>.
+Checkout his project! Remember to report all issues and/or bugs regarding that project in its corresponding repo and not here 😛.\
+You can find it here: https://github.com/nlef/moonraker-telegram-bot</li>
+</ul>
+<h3 id="2021-09-24">2021-09-24</h3>
+<ul>
+<li>The flashing function got adjusted a bit. It is now possible to also flash controllers which are connected over UART and thus accessible via <code>/dev/ttyAMA0</code>. You now have to select a connection methop prior flashing which is either USB or UART.</li>
+<li>Due to several requests over time I have now created a Ko-fi account for those who want to support this project and my work with a small donation. Many thanks in advance to all future donors. You can support me on Ko-fi with this link: https://ko-fi.com/th33xitus</li>
+<li>As usual, if you find any bugs or issues please report them. I tested the little rework i did with the hardware i have available and haven't encountered any malfunctions of flashing them yet.</li>
+</ul>
+<h3 id="2021-08-10">2021-08-10</h3>
+<ul>
+<li>KIAUH now supports the installation of the "PrettyGCode for Klipper" GCode-Viewer created by <a href="https://github.com/Kragrathea">Kragrathea</a>! Installation, updating and removal are possible with KIAUH. For more details to this cool piece of software, please have a look here: https://github.com/Kragrathea/pgcode</li>
+</ul>
+<h3 id="2021-07-10">2021-07-10</h3>
+<ul>
+<li>
+<p>The NGINX configuration files got updated to be in sync with MainsailOS and FluiddPi. Issues with the NGINX service not starting up due to wrong configuration should be resolved now. To get the updated configuration files, please remove Moonraker and Mainsail / Fluidd with KIAUH first and then re-install it. An automated file check for those configuration files might follow in the future which then automates updating those files if there were important changes.</p>
+</li>
+<li>
+<p>The default <code>moonraker.conf</code> was updated to reflect the recent changes to the update manager section. The update channel is set to <code>dev</code>.</p>
+</li>
+</ul>
+<h3 id="2021-06-29">2021-06-29</h3>
+<ul>
+<li>KIAUH will now patch the new <code>log_path</code> to existing moonraker.conf files when updating Moonraker and the entry is missing. Before that, it was necessary that the user provided that path manually to make Fluidd display the logfiles in its interface. This issue should be resolved now.</li>
+</ul>
+<h3 id="2021-06-15">2021-06-15</h3>
+<ul>
+<li>Moonraker introduced an optional <code>log_path</code> which clients can make use of to show log files located in that folder to their users. More info here: https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a \
+Client developers agreed upon using <code>~/klipper_logs</code> as the new default log path.\
+That means, from now on, Klipper and Moonraker services installed with KIAUH will place their logfiles in that mentioned folder.</li>
+<li>Additionally, KIAUH will now detect Klipper and Moonraker systemd services that still use the old default location of <code>/tmp/&lt;service&gt;.log</code> and will update them next time the user updates Klipper and/or Moonraker with the KIAUH update function.</li>
+<li>Additional symlinks for the following logfiles will get created along those update procedures to make them accessible through the webinterface once its supported:<ul>
+<li>webcamd.log</li>
+<li>mainsail-access.log</li>
+<li>mainsail-error.log</li>
+<li>fluidd-access.log</li>
+<li>fluidd-error.log</li>
+</ul>
+</li>
+<li>For MainsailOS and FluiddPi users:\
+MainsailOS and FluiddPi will switch the shipped Klipper service from SysVinit to systemd probably with their next release. KIAUH can already help migrate older MainsailOS (0.4.0 and below) and FluiddPi (v1.13.0) releases to match their new service-, file- and folder-structure so you don't have to re-flash the SD-Card of your Raspberry Pi.\
+In detail here is what is going to happen when you use the new "CustomPiOS Migration Helper" from the Advanced Menu\
+<code>(Main Menu -&gt; 4 -&gt; Enter -&gt; 10 -&gt; Enter)</code> in a short summary:<ul>
+<li>The Klipper SysVinit service will get replaced by a Klipper systemd service</li>
+<li>Klipper and Moonraker will use the new log-directory <code>~/klipper_logs</code></li>
+<li>The webcamd service gets updated</li>
+<li>The webcamd script gets updated and moved from <code>/root/bin/webcamd</code> to <code>/usr/local/bin/webcamd</code></li>
+<li>The NGINX <code>upstreams.conf</code> gets updated to be able to configure up to 4 webcams</li>
+<li>The <code>mainsail.txt</code> / <code>fluiddpi.txt</code> gets moved from <code>/boot</code> to <code>~/klipper_config</code> and renamed to <code>webcam.txt</code></li>
+<li>Symlinks for the webcamd.log and various NGINX logs get created in <code>~/klipper_config</code></li>
+<li>Configuration files for Klipper, Moonraker and webcamd get added to <code>/etc/logrotate.d</code></li>
+<li>If they still exist, two lines will be removed from the mainsail.cfg or client_macros.cfg macro configurations:\
+<code>SAVE_GCODE_STATE NAME=PAUSE_state</code> and <code>RESTORE_GCODE_STATE NAME=PAUSE_state</code></li>
+</ul>
+</li>
+<li><strong>Please note:</strong>\
+The "CustomPiOS Migration Helper" is intended to only work on "vanilla" MainsailOS and FluiddPi systems. Do not try to migrate a modified MainsailOS or FluiddPi system (for example if you already used KIAUH to re-install services or to set up a multi-instance installation for Klipper / Moonraker). This won't work.</li>
+</ul>
+<h3 id="2021-01-31">2021-01-31</h3>
+<ul>
+<li>
+<p><strong>This is a big one... KIAUH v3.0 is out.</strong>\
+With this update you can now install multiple instances of Klipper, Moonraker, Duet Web Control or Octoprint on the same Pi. This was quite a big rework of the whole script. So bugs can appear but with the help of some testers, i think there shouldn't be any critical ones anymore. In this regards thanks to @lixxbox and @zellneralex for testing.</p>
+</li>
+<li>
+<p>Important changes to how installations are set up now: All components get installed as systemd services. Installation via init.d was dropped completely! This shouldn't affect you at all, since the common linux distributions like RaspberryPi OS or custom distributions like MainsailOS, FluiddPi or OctoPi support both ways of installing services. I just wanted to mention it here.</p>
+</li>
+<li>
+<p>Now with KIAUH v3.0 and multi-instance installation capabilities, there are some things to point out. You will now need to tell KIAUH where your printers configurations are located when installing Klipper for the first time. Even though it is not recommended, you can change this location with the help of KIAUH and rewrite Klipper and Moonraker to use the new location.</p>
+</li>
+<li>
+<p>When setting up a multi-instance system, the folder structure will only change slightly. The goal was to keep it as compatible as possible with the custom distributions like mainsailOS and FluiddPi. This should help converting a single-instance setup of mainsailOS/FluiddPi to a multi-instance setup in no time, but keeping single-instance backwards compatibility if needed at a later point in time.</p>
+</li>
+<li>
+<p>The folder structure is as follows when setting up multi-instances:\
+Each printer instance will get its own folder within your configuration location. The decision to this specific structure was made to make it as painless and easy as possible to convert to a multi-instance setup.
+Here is an example:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/home/&lt;username&gt;
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">          </span>└──<span class="w"> </span>klipper_config
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">              </span>├──<span class="w"> </span>printer_1
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">              </span>│<span class="w">   </span>├──<span class="w"> </span>printer.cfg
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">              </span>│<span class="w">   </span>└──<span class="w"> </span>moonraker.conf
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">              </span>├──<span class="w"> </span>printer_2
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">              </span>│<span class="w">   </span>├──<span class="w"> </span>printer.cfg
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">              </span>│<span class="w">   </span>└──<span class="w"> </span>moonraker.conf
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">              </span>└──<span class="w"> </span>printer_n
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">                  </span>├──<span class="w"> </span>printer.cfg
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">                  </span>└──<span class="w"> </span>moonraker.conf
+</code></pre></div></p>
+</li>
+<li>
+<p>Also when setting up multi-instances of each service, the name of each service slightly changes.
+Each service gets its corresponding instance added to the service filename.</p>
+<p><strong>This only applies to multi-instances! Single instance installations with KIAUH will keep their original names!</strong></p>
+<p>Corresponding to the filetree example from above that would mean:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Klipper services:
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>        --&gt; klipper-1.service
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        --&gt; klipper-2.service
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        --&gt; klipper-n.service
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Moonraker services:
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        --&gt; moonraker-1.service
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        --&gt; moonraker-2.service
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        --&gt; moonraker-n.service
+</code></pre></div>
+* The same service file rules from above apply to OctoPrint even though only Klipper and Moonraker are shown in this example.</p>
+</li>
+<li>
+<p>You can start, stop and restart all Klipper, Moonraker and OctoPrint instances from the KIAUH main menu. For doing this, just type "stop klipper", "start moonraker", "restart octoprint" and so on.</p>
+</li>
+<li>
+<p>KIAUH v3.0 relocated its ini-file. It is now a hidden file in the users home-directory calles <code>.kiauh.ini</code>. This has the benefit of keeping all values in that file between possible re-installations of KIAUH. Otherwise that file would be lost.</p>
+</li>
+<li>
+<p>The option of adding more trusted clients to the moonraker.conf file was dropped. Since you can edit this file right inside of Mainsail or Fluidd, only some basic entries are made which get you running.</p>
+</li>
+<li>
+<p>I bet i have missed mentioning other stuff as well because it took me quite some time to re-write many functions. So i just hope you like the new version 😄</p>
+</li>
+</ul>
+<h3 id="2020-11-28">2020-11-28</h3>
+<ul>
+<li>KIAUH now supports the installation, update and removal of <a href="https://github.com/jordanruthe/KlipperScreen">KlipperScreen</a>. This feature was was provided by <a href="https://github.com/jordanruthe">jordanruthe</a>! Thank you!</li>
+</ul>
+<h3 id="2020-11-18">2020-11-18</h3>
+<ul>
+<li>Some changes to Fluidd caused a little rework on how KIAUH will install/update Fluidd from now on. Please see the <a href="https://github.com/cadriel/fluidd/releases/tag/v1.0.0-rc.0">fluidd v1.0.0-rc0 release notes</a> for further information about what modifications to the moonraker.conf file exactly had to be done. In a nutshell, KIAUH will now always patch the required entries to the moonraker.conf if not already there.</li>
+</ul>
+<h3 id="2020-10-30">2020-10-30:</h3>
+<ul>
+<li>
+<p>The user can now choose to install Klipper as a systemd service.</p>
+</li>
+<li>
+<p>The Shell Command extension and <code>shell_command.py</code> got renamed to G-Code Shell Command extension and <code>gcode_shell_command.py</code>. In case the <a href="https://github.com/KevinOConnor/klipper/pull/2173">pending PR</a> will be merged in the future, this was an early attempt to dodge possible incompatibilities. The <a href="../gcode_shell_command/">G-Code Shell Command docs</a> has been updated accordingly.</p>
+</li>
+<li>
+<p>The way how KIAUH interacts and writes to the users printer.cfg got changed. Usually KIAUH wrote everything directly into the printer.cfg. The way it will work from now on is, that a new file called <code>kiauh.cfg</code> will be created if there is something that needs to be written to the printer.cfg and everything gets written to <code>kiauh.cfg</code> instead. The only thing which then gets written to the users printer.cfg is <code>[include kiauh.cfg]</code>. This line will be located at the very top of the existing printer.cfg with a little comment as a note. The user can then decide to either keep the <code>kiauh.cfg</code> or take its content, places it into the printer.cfg directly and remove the <code>[include kiauh.cfg]</code>.</p>
+</li>
+<li>
+<p>The <code>mainsail_macros.cfg</code> got renamed to <code>webui_macros.cfg</code>. Since Mainsail and Fluidd both use the same kind of pause, cancel and resume macros, a more generic name was chosen for the file containing the example macros one can choose to install when installing those webinterfaces.</p>
+</li>
+</ul>
+<h3 id="2020-10-10">2020-10-10:</h3>
+<ul>
+<li>
+<p>Support for changing the Klipper branch to the moonraker-dev branch from @Arksine has been dropped. Support for Moonraker has been merged into Klipper mainline a long time ago.</p>
+</li>
+<li>
+<p>A new function is available from the main menu. You can now upload your log files to http://paste.c-net.org/ to share them for debugging purposes.</p>
+</li>
+</ul>
+<h3 id="2020-10-06">2020-10-06:</h3>
+<ul>
+<li>
+<p>Fluidd, a new Klipper interface got added to the list of available installers. At the same time some installation routines have changed or have seen some rework. Changes were made to the installation of NGINX configurations. A method was introduced to change the listen port of a webinterface configuration if there is already another webinterface listening on the default port (80).</p>
+</li>
+<li>
+<p>At the moment, the Moonraker installer no longer asks you whether you want to install a web interface too. For now you therefore have to install them with their respective installers. Please report any bugs or issues you encounter.</p>
+</li>
+</ul>
+<h3 id="2020-09-17">2020-09-17:</h3>
+<ul>
+<li>The dev-2.0 branch will be abandoned as of today. If you did a checkout to that branch in the past, you have to checkout back to master to receive updates.</li>
+</ul>
+<h3 id="2020-09-12">2020-09-12:</h3>
+<ul>
+<li>The old <a href="https://github.com/Stephan3/dwc2-for-klipper">dwc2-for-klipper</a> won't be supported anymore!\
+The is a new, fully rewritten project available: <a href="https://github.com/Stephan3/dwc2-for-klipper-socket">dwc2-for-klipper-socket</a>.\
+The installer of this script also got rewritten to make use of that new project. You will not be able to install or remove the old <a href="https://github.com/Stephan3/dwc2-for-klipper">dwc2-for-klipper</a> with KIAUH anymore if you updated KIAUH to the newest version.</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 11, 2025 17:24:18">April 11, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 11, 2025 17:24:18">April 11, 2025</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
