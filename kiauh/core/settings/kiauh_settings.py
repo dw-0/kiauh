@@ -8,14 +8,15 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import shutil
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Literal
 
+from components.klipper import KLIPPER_REPO_URL
+from components.moonraker import MOONRAKER_REPO_URL
 from core.backup_manager.backup_manager import BackupManager
 from core.logger import DialogType, Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
-    NoOptionError,
-    NoSectionError,
     SimpleConfigParser,
 )
 from utils.input_utils import get_confirm
@@ -25,14 +26,6 @@ from kiauh import PROJECT_ROOT
 
 DEFAULT_CFG = PROJECT_ROOT.joinpath("default.kiauh.cfg")
 CUSTOM_CFG = PROJECT_ROOT.joinpath("kiauh.cfg")
-
-
-class NoValueError(Exception):
-    """Raised when a required value is not defined for an option"""
-
-    def __init__(self, section: str, option: str):
-        msg = f"Missing value for option '{option}' in section '{section}'"
-        super().__init__(msg)
 
 
 class InvalidValueError(Exception):
@@ -77,6 +70,7 @@ class WebUiSettings:
 # noinspection PyMethodMayBeStatic
 class KiauhSettings:
     __instance = None
+    __initialized = False
 
     def __new__(cls, *args, **kwargs) -> "KiauhSettings":
         if cls.__instance is None:
@@ -94,11 +88,10 @@ class KiauhSettings:
         return getattr(self, item)
 
     def __init__(self) -> None:
-        if not hasattr(self, "__initialized"):
-            self.__initialized = False
         if self.__initialized:
             return
         self.__initialized = True
+
         self.config = SimpleConfigParser()
         self.kiauh = AppSettings()
         self.klipper = KlipperSettings()
@@ -106,8 +99,9 @@ class KiauhSettings:
         self.mainsail = WebUiSettings()
         self.fluidd = WebUiSettings()
 
-        self._load_config()
+        self.__read_config_set_internal_state()
 
+    # todo: refactor this, at least rename to something else!
     def get(self, section: str, option: str) -> str | int | bool:
         """
         Get a value from the settings state by providing the section and option name as
@@ -125,139 +119,178 @@ class KiauhSettings:
             raise
 
     def save(self) -> None:
-        self._set_config_options_state()
-        self.config.write_file(CUSTOM_CFG)
-        self._load_config()
+        self.__write_internal_state_to_cfg()
+        self.__read_config_set_internal_state()
 
-    def _load_config(self) -> None:
+    def __read_config_set_internal_state(self) -> None:
         if not CUSTOM_CFG.exists() and not DEFAULT_CFG.exists():
-            self.__kill()
-
-        cfg = CUSTOM_CFG if CUSTOM_CFG.exists() else DEFAULT_CFG
-        self.config.read_file(cfg)
-
-        needs_migration = self._check_deprecated_repo_config()
-        if needs_migration:
-            self._prompt_migration_dialog()
-            return
-        else:
-            # Only validate if no migration was needed
-            self._validate_cfg()
-            self.__set_internal_state()
-
-    def _validate_cfg(self) -> None:
-        def __err_and_kill(error: str) -> None:
-            Logger.print_error(f"Error validating kiauh.cfg: {error}")
+            Logger.print_dialog(
+                DialogType.ERROR,
+                [
+                    "No KIAUH configuration file found! Please make sure you have at least "
+                    "one of the following configuration files in KIAUH's root directory:",
+                    "● default.kiauh.cfg",
+                    "● kiauh.cfg",
+                ],
+            )
             kill()
 
-        try:
-            self._validate_bool("kiauh", "backup_before_update")
+        # copy default config to custom config if it does not exist
+        if not CUSTOM_CFG.exists():
+            shutil.copyfile(DEFAULT_CFG, CUSTOM_CFG)
 
-            self._validate_repositories("klipper", "repositories")
-            self._validate_repositories("moonraker", "repositories")
+        self.config.read_file(CUSTOM_CFG)
 
-            self._validate_int("mainsail", "port")
-            self._validate_bool("mainsail", "unstable_releases")
+        # check if there are deprecated repo_url and branch options in the kiauh.cfg
+        if self._check_deprecated_repo_config():
+            self._prompt_migration_dialog()
 
-            self._validate_int("fluidd", "port")
-            self._validate_bool("fluidd", "unstable_releases")
-
-        except ValueError:
-            err = f"Invalid value for option '{self._v_option}' in section '{self._v_section}'"
-            __err_and_kill(err)
-        except NoSectionError:
-            err = f"Missing section '{self._v_section}' in config file"
-            __err_and_kill(err)
-        except NoOptionError:
-            err = f"Missing option '{self._v_option}' in section '{self._v_section}'"
-            __err_and_kill(err)
-        except NoValueError:
-            err = f"Missing value for option '{self._v_option}' in section '{self._v_section}'"
-            __err_and_kill(err)
-
-    def _validate_bool(self, section: str, option: str) -> None:
-        self._v_section, self._v_option = (section, option)
-        (bool(self.config.getboolean(section, option)))
-
-    def _validate_int(self, section: str, option: str) -> None:
-        self._v_section, self._v_option = (section, option)
-        int(self.config.getint(section, option))
-
-    def _validate_str(self, section: str, option: str) -> None:
-        self._v_section, self._v_option = (section, option)
-        v = self.config.getval(section, option)
-
-        if not v:
-            raise ValueError
-
-    def _validate_repositories(self, section: str, option: str) -> None:
-        self._v_section, self._v_option = (section, option)
-        repos = self.config.getval(section, option)
-        if not repos:
-            raise NoValueError(section, option)
-
-        for repo in repos:
-            if repo.strip().startswith("#") or repo.strip().startswith(";"):
-                continue
-            try:
-                if "," in repo:
-                    url, branch = repo.strip().split(",")
-                    if not url:
-                        raise InvalidValueError(section, option, repo)
-                else:
-                    url = repo.strip()
-                    if not url:
-                        raise InvalidValueError(section, option, repo)
-            except ValueError:
-                raise InvalidValueError(section, option, repo)
+        self.__set_internal_state()
 
     def __set_internal_state(self) -> None:
-        self.kiauh.backup_before_update = self.config.getboolean(
-            "kiauh", "backup_before_update"
+        # parse Kiauh options
+        self.kiauh.backup_before_update = self.__read_from_cfg(
+            "kiauh",
+            "backup_before_update",
+            "bool",
+            False,
+            False,
         )
 
-        self.moonraker.optional_speedups = self.config.getboolean(
-            "moonraker", "optional_speedups", True
+        # parse Klipper options
+        self.klipper.use_python_binary = self.__read_from_cfg(
+            "klipper",
+            "use_python_binary",
+            "str",
+            None,
+            True,
+        )
+        kl_repos: List[str] = self.__read_from_cfg(
+            "klipper",
+            "repositories",
+            "list",
+            [KLIPPER_REPO_URL],
+            False,
+        )
+        self.klipper.repositories = self.__set_repo_state("klipper", kl_repos)
+
+        # parse Moonraker options
+        self.moonraker.use_python_binary = self.__read_from_cfg(
+            "moonraker",
+            "use_python_binary",
+            "str",
+            None,
+            True,
+        )
+        self.moonraker.optional_speedups = self.__read_from_cfg(
+            "moonraker",
+            "optional_speedups",
+            "bool",
+            True,
+            False,
+        )
+        mr_repos: List[str] = self.__read_from_cfg(
+            "moonraker",
+            "repositories",
+            "list",
+            [MOONRAKER_REPO_URL],
+            False,
+        )
+        self.moonraker.repositories = self.__set_repo_state("moonraker", mr_repos)
+
+        # parse Mainsail options
+        self.mainsail.port = self.__read_from_cfg(
+            "mainsail",
+            "port",
+            "int",
+            80,
+            False,
+        )
+        self.mainsail.unstable_releases = self.__read_from_cfg(
+            "mainsail",
+            "unstable_releases",
+            "bool",
+            False,
+            False,
         )
 
-        kl_repos = self.config.getval("klipper", "repositories")
-        self.klipper.repositories = self.__set_repo_state(kl_repos)
-
-        mr_repos = self.config.getval("moonraker", "repositories")
-        self.moonraker.repositories = self.__set_repo_state(mr_repos)
-
-        self.klipper.use_python_binary = self.config.getval(
-            "klipper", "use_python_binary", None
+        # parse Fluidd options
+        self.fluidd.port = self.__read_from_cfg(
+            "fluidd",
+            "port",
+            "int",
+            80,
+            False,
         )
-        self.moonraker.use_python_binary = self.config.getval(
-            "moonraker", "use_python_binary", None
-        )
-
-        self.mainsail.port = self.config.getint("mainsail", "port")
-        self.mainsail.unstable_releases = self.config.getboolean(
-            "mainsail", "unstable_releases"
-        )
-        self.fluidd.port = self.config.getint("fluidd", "port")
-        self.fluidd.unstable_releases = self.config.getboolean(
-            "fluidd", "unstable_releases"
+        self.fluidd.unstable_releases = self.__read_from_cfg(
+            "fluidd",
+            "unstable_releases",
+            "bool",
+            False,
+            False,
         )
 
-    def __set_repo_state(self, repos: List[str]) -> List[Repository]:
+    def __read_from_cfg(
+        self,
+        section: str,
+        option: str,
+        value_type: Literal["str", "int", "bool", "list"] = "str",
+        fallback: str | int | bool | List[str] | None = None,
+        silent_fallback: bool = False,
+    ) -> str | int | bool | List[str] | None:
+        has_section = self.config.has_section(section)
+        has_option = self.config.has_option(section, option)
+
+        if not (has_section and has_option):
+            if not silent_fallback:
+                Logger.print_warn(
+                    f"Option '{option}' in section '{section}' not defined. Falling back to '{fallback}'."
+                )
+            return fallback
+
+        try:
+            return {
+                "int": self.config.getint,
+                "bool": self.config.getboolean,
+                "list": self.config.getval,
+                "str": self.config.getval,
+            }[value_type](section, option)
+        except (ValueError, TypeError) as e:
+            if not silent_fallback:
+                Logger.print_warn(
+                    f"Failed to parse value of option '{option}' in section '{section}' as {value_type}. Falling back to '{fallback}'. Error: {e}"
+                )
+            return fallback
+
+    def __set_repo_state(self, section: str, repos: List[str]) -> List[Repository]:
         _repos: List[Repository] = []
         for repo in repos:
-            if repo.strip().startswith("#") or repo.strip().startswith(";"):
-                continue
-            if "," in repo:
-                url, branch = repo.strip().split(",")
-                if not branch:
+            try:
+                if repo.strip().startswith("#") or repo.strip().startswith(";"):
+                    continue
+                if "," in repo:
+                    url, branch = repo.strip().split(",")
+
+                    if not branch:
+                        branch = "master"
+                else:
+                    url = repo.strip()
                     branch = "master"
-            else:
-                url = repo.strip()
-                branch = "master"
-            _repos.append(Repository(url.strip(), branch.strip()))
+
+                # url must not be empty otherwise it's considered
+                # as an unrecoverable, invalid configuration
+                if not url:
+                    raise InvalidValueError(section, "repositories", repo)
+
+                _repos.append(Repository(url.strip(), branch.strip()))
+
+            except InvalidValueError as e:
+                Logger.print_error(f"Error parsing kiauh.cfg: {e}")
+                kill()
+
         return _repos
 
-    def _set_config_options_state(self) -> None:
+    def __write_internal_state_to_cfg(self) -> None:
         """Updates the config with current settings, preserving values that haven't been modified"""
         if self.kiauh.backup_before_update is not None:
             self.config.set_option(
@@ -295,6 +328,8 @@ class KiauhSettings:
                 "fluidd", "unstable_releases", str(self.fluidd.unstable_releases)
             )
 
+        self.config.write_file(CUSTOM_CFG)
+
     def _check_deprecated_repo_config(self) -> bool:
         # repo_url and branch are deprecated - 2025.03.23
         for section in ["klipper", "moonraker"]:
@@ -306,22 +341,23 @@ class KiauhSettings:
 
     def _prompt_migration_dialog(self) -> None:
         migration_1: List[str] = [
-            "The old 'repo_url' and 'branch' options are now combined under 'repositories'.",
+            "Options 'repo_url' and 'branch' are now combined into a 'repositories' option.",
             "\n\n",
-            "Example format:",
-            "[klipper]",
-            "repositories:",
-            "    https://github.com/Klipper3d/klipper, master",
+            "● Old format:",
+            "  [klipper]",
+            "  repo_url: https://github.com/Klipper3d/klipper",
+            "  branch: master",
             "\n\n",
-            "[moonraker]",
-            "repositories:",
-            "    https://github.com/Arksine/moonraker, master",
+            "● New format:",
+            "  [klipper]",
+            "  repositories:",
+            "      https://github.com/Klipper3d/klipper, master",
         ]
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Deprecated repository configuration found!",
-                "KAIUH can now attempt to automatically migrate your configuration.",
+                "Deprecated kiauh.cfg configuration found!",
+                "KAIUH can now attempt to automatically migrate the configuration.",
                 "\n\n",
                 *migration_1,
             ],
@@ -332,7 +368,7 @@ class KiauhSettings:
             Logger.print_dialog(
                 DialogType.ERROR,
                 [
-                    "Please update your configuration file manually.",
+                    "Please update the configuration file manually.",
                 ],
                 center_content=True,
             )
@@ -373,23 +409,7 @@ class KiauhSettings:
             self.config.write_file(CUSTOM_CFG)
             self.config.read_file(CUSTOM_CFG)  # reload config
 
-            # Validate the migrated config
-            self._validate_cfg()
-            self.__set_internal_state()
-
         except Exception as e:
             Logger.print_error(f"Error migrating configuration: {e}")
             Logger.print_error("Please migrate manually.")
             kill()
-
-    def __kill(self) -> None:
-        Logger.print_dialog(
-            DialogType.ERROR,
-            [
-                "No KIAUH configuration file found! Please make sure you have at least "
-                "one of the following configuration files in KIAUH's root directory:",
-                "● default.kiauh.cfg",
-                "● kiauh.cfg",
-            ],
-        )
-        kill()
