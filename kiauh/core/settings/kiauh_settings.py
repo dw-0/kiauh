@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import shutil
 from dataclasses import dataclass, field
-from typing import Any, List, Literal
+from typing import Any, Callable, List, TypeVar
 
 from components.klipper import KLIPPER_REPO_URL
 from components.moonraker import MOONRAKER_REPO_URL
@@ -26,6 +26,8 @@ from kiauh import PROJECT_ROOT
 
 DEFAULT_CFG = PROJECT_ROOT.joinpath("default.kiauh.cfg")
 CUSTOM_CFG = PROJECT_ROOT.joinpath("kiauh.cfg")
+
+T = TypeVar("T")
 
 
 class InvalidValueError(Exception):
@@ -152,8 +154,7 @@ class KiauhSettings:
         self.kiauh.backup_before_update = self.__read_from_cfg(
             "kiauh",
             "backup_before_update",
-            "bool",
-            False,
+            self.config.getboolean,
             False,
         )
 
@@ -161,16 +162,15 @@ class KiauhSettings:
         self.klipper.use_python_binary = self.__read_from_cfg(
             "klipper",
             "use_python_binary",
-            "str",
+            self.config.getval,
             None,
             True,
         )
         kl_repos: List[str] = self.__read_from_cfg(
             "klipper",
             "repositories",
-            "list",
+            self.config.getvals,
             [KLIPPER_REPO_URL],
-            False,
         )
         self.klipper.repositories = self.__set_repo_state("klipper", kl_repos)
 
@@ -178,23 +178,21 @@ class KiauhSettings:
         self.moonraker.use_python_binary = self.__read_from_cfg(
             "moonraker",
             "use_python_binary",
-            "str",
+            self.config.getval,
             None,
             True,
         )
         self.moonraker.optional_speedups = self.__read_from_cfg(
             "moonraker",
             "optional_speedups",
-            "bool",
+            self.config.getboolean,
             True,
-            False,
         )
         mr_repos: List[str] = self.__read_from_cfg(
             "moonraker",
             "repositories",
-            "list",
+            self.config.getvals,
             [MOONRAKER_REPO_URL],
-            False,
         )
         self.moonraker.repositories = self.__set_repo_state("moonraker", mr_repos)
 
@@ -202,15 +200,13 @@ class KiauhSettings:
         self.mainsail.port = self.__read_from_cfg(
             "mainsail",
             "port",
-            "int",
+            self.config.getint,
             80,
-            False,
         )
         self.mainsail.unstable_releases = self.__read_from_cfg(
             "mainsail",
             "unstable_releases",
-            "bool",
-            False,
+            self.config.getboolean,
             False,
         )
 
@@ -218,49 +214,52 @@ class KiauhSettings:
         self.fluidd.port = self.__read_from_cfg(
             "fluidd",
             "port",
-            "int",
+            self.config.getint,
             80,
-            False,
         )
         self.fluidd.unstable_releases = self.__read_from_cfg(
             "fluidd",
             "unstable_releases",
-            "bool",
-            False,
+            self.config.getboolean,
             False,
         )
+
+    def __check_option_exists(
+        self, section: str, option: str, fallback: Any, silent: bool = False
+    ) -> bool:
+        has_section = self.config.has_section(section)
+        has_option = self.config.has_option(section, option)
+
+        if not (has_section and has_option):
+            if not silent:
+                Logger.print_warn(
+                    f"Option '{option}' in section '{section}' not defined. Falling back to '{fallback}'."
+                )
+            return False
+        return True
+
+    def __read_bool_from_cfg(
+        self,
+        section: str,
+        option: str,
+        fallback: bool | None = None,
+        silent: bool = False,
+    ) -> bool | None:
+        if not self.__check_option_exists(section, option, fallback, silent):
+            return fallback
+        return self.config.getboolean(section, option, fallback)
 
     def __read_from_cfg(
         self,
         section: str,
         option: str,
-        value_type: Literal["str", "int", "bool", "list"] = "str",
-        fallback: str | int | bool | List[str] | None = None,
-        silent_fallback: bool = False,
-    ) -> str | int | bool | List[str] | None:
-        has_section = self.config.has_section(section)
-        has_option = self.config.has_option(section, option)
-
-        if not (has_section and has_option):
-            if not silent_fallback:
-                Logger.print_warn(
-                    f"Option '{option}' in section '{section}' not defined. Falling back to '{fallback}'."
-                )
+        getter: Callable[[str, str, T | None], T],
+        fallback: T = None,
+        silent: bool = False,
+    ) -> T:
+        if not self.__check_option_exists(section, option, fallback, silent):
             return fallback
-
-        try:
-            return {
-                "int": self.config.getint,
-                "bool": self.config.getboolean,
-                "list": self.config.getval,
-                "str": self.config.getval,
-            }[value_type](section, option)
-        except (ValueError, TypeError) as e:
-            if not silent_fallback:
-                Logger.print_warn(
-                    f"Failed to parse value of option '{option}' in section '{section}' as {value_type}. Falling back to '{fallback}'. Error: {e}"
-                )
-            return fallback
+        return getter(section, option, fallback)
 
     def __set_repo_state(self, section: str, repos: List[str]) -> List[Repository]:
         _repos: List[Repository] = []
