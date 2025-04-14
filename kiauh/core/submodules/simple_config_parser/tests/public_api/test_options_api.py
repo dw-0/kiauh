@@ -51,7 +51,7 @@ def test_getval(parser):
     assert parser.getval("section_2", "option_2") == "value_2"
 
     # test multiline option values
-    ml_val = parser.getval("section number 5", "multi_option")
+    ml_val = parser.getvals("section number 5", "multi_option")
     assert isinstance(ml_val, list)
     assert len(ml_val) > 0
 
@@ -164,7 +164,7 @@ def test_set_new_option(parser):
     assert parser.getval("new_section", "very_new_option") == "very_new_value"
 
     parser.set_option("section_2", "array_option", ["value_1", "value_2", "value_3"])
-    assert parser.getval("section_2", "array_option") == [
+    assert parser.getvals("section_2", "array_option") == [
         "value_1",
         "value_2",
         "value_3",

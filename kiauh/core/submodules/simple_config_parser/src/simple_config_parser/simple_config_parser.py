@@ -314,9 +314,7 @@ class SimpleConfigParser:
                     elements.pop(i)
                     break
 
-    def getval(
-        self, section: str, option: str, fallback: str | _UNSET = _UNSET
-    ) -> str | List[str]:
+    def getval(self, section: str, option: str, fallback: str | _UNSET = _UNSET) -> str:
         """
         Return the value of the given option in the given section
 
@@ -329,22 +327,34 @@ class SimpleConfigParser:
             if option not in self.get_options(section):
                 raise NoOptionError(option, section)
 
-            # Find the option in the elements list
             for element in self.config[section]["elements"]:
-                if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value] and element["name"] == option:
-                    raw_value = element["value"]
-                    if isinstance(raw_value, str) and raw_value.endswith("\n"):
-                        return raw_value[:-1].strip()
-                    elif isinstance(raw_value, list):
-                        values: List[str] = []
-                        for i, val in enumerate(raw_value):
-                            val = val.strip().strip("\n")
-                            if len(val) < 1:
-                                continue
-                            values.append(val.strip())
-                        return values
-                    return str(raw_value)
-            raise NoOptionError(option, section)
+                if element["type"] is LineType.OPTION.value and element["name"] == option:
+                    return str(element["value"].strip().replace("\n", ""))
+            return ""
+
+        except (NoSectionError, NoOptionError):
+            if fallback is _UNSET:
+                raise
+            return fallback
+
+    def getvals(self, section: str, option: str, fallback: List[str] | _UNSET = _UNSET) -> List[str]:
+        """
+        Return the values of the given multi-line option in the given section
+
+        If the key is not found and 'fallback' is provided, it is used as
+        a fallback value.
+        """
+        try:
+            if section not in self.get_sections():
+                raise NoSectionError(section)
+            if option not in self.get_options(section):
+                raise NoOptionError(option, section)
+
+            for element in self.config[section]["elements"]:
+                if element["type"] is LineType.OPTION_BLOCK.value and element["name"] == option:
+                    return [val.strip() for val in element["value"] if val.strip()]
+            return []
+
         except (NoSectionError, NoOptionError):
             if fallback is _UNSET:
                 raise
