@@ -184,9 +184,6 @@ def install_python_requirements(target: Path, requirements: Path) -> None:
     :return: None
     """
     try:
-        # always update pip before installing requirements
-        update_python_pip(target)
-
         Logger.print_status("Installing Python requirements ...")
         command = [
             target.joinpath("bin/pip").as_posix(),
@@ -216,9 +213,6 @@ def install_python_packages(target: Path, packages: List[str]) -> None:
     :return: None
     """
     try:
-        # always update pip before installing requirements
-        update_python_pip(target)
-
         Logger.print_status("Installing Python requirements ...")
         command = [
             target.joinpath("bin/pip").as_posix(),
