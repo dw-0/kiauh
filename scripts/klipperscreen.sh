@@ -126,7 +126,7 @@ function update_klipperscreen() {
   git checkout -f master && ok_msg "Checkout successfull"
 
   if [[ $(md5sum "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
-    status_msg "New dependecies detected..."
+    status_msg "New dependencies detected..."
     "${KLIPPERSCREEN_ENV}"/bin/pip install -r "${KLIPPERSCREEN_DIR}/scripts/KlipperScreen-requirements.txt"
     ok_msg "Dependencies have been installed!"
   fi
