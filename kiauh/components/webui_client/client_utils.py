@@ -118,8 +118,8 @@ def enable_mainsail_remotemode() -> None:
     c_json = MainsailData().client_dir.joinpath("config.json")
     with open(c_json, "r") as f:
         config_data = json.load(f)
-
-    if config_data["instancesDB"] == "browser":
+    
+    if config_data["instancesDB"] == "browser" or config_data["instancesDB"] == "json":
         Logger.print_info("Remote mode already configured. Skipped ...")
         return
 
