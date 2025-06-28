@@ -11,7 +11,7 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from core.logger import Logger
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
@@ -19,7 +19,7 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 )
 from utils.instance_type import InstanceType
 
-ConfigOption = Tuple[str, str]
+ConfigOption = Tuple[str, Union[str, List[str]]]
 
 
 def add_config_section(

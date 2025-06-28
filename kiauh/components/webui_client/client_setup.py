@@ -102,6 +102,7 @@ def install_client(
             section=f"update_manager {client.name}",
             instances=mr_instances,
             options=[
+                ("persistent_files", ["config.json"]),
                 ("type", "web"),
                 ("channel", "stable"),
                 ("repo", str(client.repo_path)),
