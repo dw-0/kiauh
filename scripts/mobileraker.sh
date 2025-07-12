@@ -133,7 +133,7 @@ function update_mobileraker() {
   git checkout -f main && ok_msg "Checkout successfull"
 
   if [[ $(md5sum "${MOBILERAKER_DIR}/scripts/mobileraker-requirements.txt" | cut -d " " -f1) != "${old_md5}" ]]; then
-    status_msg "New dependecies detected..."
+    status_msg "New dependencies detected..."
     "${MOBILERAKER_ENV}"/bin/pip install -r "${MOBILERAKER_DIR}/scripts/mobileraker-requirements.txt"
     ok_msg "Dependencies have been installed!"
   fi
