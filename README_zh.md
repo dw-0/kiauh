@@ -26,8 +26,8 @@
 
 ### 📋 系统要求
 KIAUH 是一个帮助您在 Linux 系统上安装 Klipper 的脚本工具，
-它需要一个已经写入 Raspberry Pi（或其他单板计算机）SD 卡的 Linux 系统。
-如果您使用 Raspberry Pi，推荐使用 `Raspberry Pi OS Lite (32位或64位)` 系统镜像。
+它需要一个已经写入树莓派（或其他单板计算机）SD 卡的 Linux 系统。
+如果您使用树莓派，推荐使用 `Raspberry Pi OS Lite (32位或64位)` 系统镜像。
 [官方 Raspberry Pi Imager](https://www.raspberrypi.com/software/) 是将此类镜像写入 SD 卡的最简单方式。
 
 * 下载、安装并启动 Raspberry Pi Imager 后，
@@ -50,7 +50,7 @@ KIAUH 是一个帮助您在 Linux 系统上安装 Klipper 的脚本工具，
 
 * 如果您需要更多关于使用 Raspberry Pi Imager 的帮助，请访问 [官方文档](https://www.raspberrypi.com/documentation/computers/getting-started.html)。
 
-这些步骤**仅适用于**您实际使用 Raspberry Pi 的情况。如果您想使用其他单板计算机（如 Orange Pi 或其他 Pi 衍生产品），
+这些步骤**仅适用于**您实际使用树莓派的情况。如果您想使用其他单板计算机（如香橙派或其他 Pi 衍生产品），
 请查找如何将合适的 Linux 镜像写入 SD 卡（通常使用 Balena Etcher）。
 同时确保 KIAUH 能够在您要安装的 Linux 发行版上运行。
 您在使用基于 Debian 11 Bullseye 的系统时可能会获得最佳体验。
