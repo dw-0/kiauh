@@ -126,7 +126,7 @@ def create_example_moonraker_conf(
     scp.read_file(target)
     trusted_clients: List[str] = [
         f"    {'.'.join(ip)}\n",
-        *scp.getval("authorization", "trusted_clients"),
+        *scp.getvals("authorization", "trusted_clients"),
     ]
 
     scp.set_option("server", "port", str(port))
