@@ -117,20 +117,12 @@ class SettingsMenu(BaseMenu):
         )
 
     def switch_klipper_repo(self, **kwargs) -> None:
-        name = "Klipper"
         repos = self.settings.klipper.repositories
-        if not repos:
-            self._warn_no_repos(name)
-            return
-        RepoSelectMenu(name.lower(), repos=repos, previous_menu=self.__class__).run()
+        RepoSelectMenu("klipper", repos=repos, previous_menu=self.__class__).run()
 
     def switch_moonraker_repo(self, **kwargs) -> None:
-        name = "Moonraker"
         repos = self.settings.moonraker.repositories
-        if not repos:
-            self._warn_no_repos(name)
-            return
-        RepoSelectMenu(name.lower(), repos=repos, previous_menu=self.__class__).run()
+        RepoSelectMenu("moonraker", repos=repos, previous_menu=self.__class__).run()
 
     def toggle_mainsail_release(self, **kwargs) -> None:
         self.mainsail_unstable = not self.mainsail_unstable
