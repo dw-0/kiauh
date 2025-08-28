@@ -143,6 +143,31 @@ class ExtensionSubmenu(BaseMenu):
             """
         )[1:]
         menu += f"{description_text}\n"
+
+        # add links if available
+        website: str = (self.extension.metadata.get("website") or "").strip()
+        repo: str = (self.extension.metadata.get("repo") or "").strip()
+        if website or repo:
+            links_lines: List[str] = ["Links:"]
+            if website:
+                links_lines.append(f"- Website: {website}")
+            if repo:
+                links_lines.append(f"- GitHub: {repo}")
+
+            links_text = Logger.format_content(
+                links_lines,
+                line_width,
+                border_left="║",
+                border_right="║",
+            )
+
+            menu += textwrap.dedent(
+                """
+                ╟───────────────────────────────────────────────────────╢
+                """
+            )[1:]
+            menu += f"{links_text}\n"
+
         menu += textwrap.dedent(
             """
             ╟───────────────────────────────────────────────────────╢

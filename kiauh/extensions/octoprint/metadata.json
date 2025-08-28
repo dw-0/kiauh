@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "index": 12,
+    "module": "octoprint_extension",
+    "maintained_by": "dw-0",
+    "display_name": "OctoPrint",
+    "description": [
+      "Open-source web interface to control and monitor your 3D printer",
+      "- Upload and manage G-code, start/pause/cancel prints",
+      "- Live webcam view and timelapse support",
+      "- Real-time temperature graphs and printer status",
+      "- Powerful plugin ecosystem"
+    ],
+    "website": "https://octoprint.org",
+    "repo": "https://github.com/OctoPrint/OctoPrint",
+    "updates": false
+  }
+}

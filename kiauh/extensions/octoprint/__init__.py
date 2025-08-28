@@ -6,24 +6,17 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
+from pathlib import Path
 
-from typing import TypeVar
+# Constants
+OP_DEFAULT_PORT = 5000
 
-from components.klipper.klipper import Klipper
-from components.moonraker.moonraker import Moonraker
-from extensions.obico.moonraker_obico import MoonrakerObico
-from extensions.octoeverywhere.octoeverywhere import Octoeverywhere
-from extensions.octoapp.octoapp import Octoapp
-from extensions.telegram_bot.moonraker_telegram_bot import MoonrakerTelegramBot
-from extensions.octoprint.octoprint import Octoprint
+# OctoPrint instance naming/prefixes
+OP_ENV_PREFIX = "OctoPrint"
+OP_BASEDIR_PREFIX = ".octoprint"
 
-InstanceType = TypeVar(
-    "InstanceType",
-    Klipper,
-    Moonraker,
-    MoonrakerTelegramBot,
-    MoonrakerObico,
-    Octoeverywhere,
-    Octoapp,
-    Octoprint,
-)
+# Service/log filenames
+OP_LOG_NAME = "octoprint.log"
+
+# Files/paths (computed per-instance where applicable)
+OP_SUDOERS_FILE = Path("/etc/sudoers.d/octoprint-shutdown")
