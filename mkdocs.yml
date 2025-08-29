@@ -63,7 +63,9 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Installation: installation.md
+  - Installation:
+      - setup/raspberry-pi-setup.md
+      - setup/installation.md
   - Configuration: configuration.md
   - Extensions:
       - extensions/index.md
