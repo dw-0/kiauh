@@ -1,0 +1,82 @@
+site_name: KIAUH Documentation
+site_description: Documentation for the Klipper Installation And Update Helper
+repo_url: https://github.com/dw-0/kiauh
+repo_name: dw-0/kiauh
+edit_uri: edit/master/docs
+
+copyright: Copyright &copy; 2025 Dominik Willner
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue-grey
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue-grey
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Extensions:
+      - extensions/index.md
+      - extensions/gcode-shell-command.md
+  - Development:
+      - development/contributing.md
+      - development/changelog.md
+
+extra:
+  social:
+    - icon: simple/github
+      link: https://github.com/dw-0
+    - icon: simple/kofi
+      link: https://ko-fi.com/dw__0
+    - icon: simple/paypal
+      link: https://www.paypal.com/paypalme/dwillner0
