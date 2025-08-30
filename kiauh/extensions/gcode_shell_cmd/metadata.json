@@ -4,6 +4,7 @@
     "module": "gcode_shell_cmd_extension",
     "maintained_by": "dw-0",
     "display_name": "G-Code Shell Command",
-    "description": ["Run a shell commands from gcode."]
+    "description": ["Run a shell commands from gcode."],
+    "updates": false
   }
 }

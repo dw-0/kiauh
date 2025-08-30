@@ -12,6 +12,7 @@
             "- Live Gcode preview",
             "- And much much more!"
         ],
+        "repo": "https://github.com/crysxd/OctoApp-Plugin",
         "updates": true
     }
 }

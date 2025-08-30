@@ -11,6 +11,8 @@
             "- Real-time Notifications",
             "- Live Streaming, and More!"
         ],
+        "website": "https://octoeverywhere.com",
+        "repo": "github.com/QuinnDamerell/OctoPrint-OctoEverywhere",
         "updates": true
     }
 }

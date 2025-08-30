@@ -11,6 +11,8 @@
         "- 25FPS High-Def Webcam Streaming",
         "- Free 4.9-Star Mobile App"
     ],
+    "website": "https://obico.io",
+    "repo": "github.com/TheSpaghettiDetective/moonraker-obico",
     "updates": true
   }
 }

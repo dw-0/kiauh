@@ -4,6 +4,8 @@
     "module": "mainsail_theme_installer_extension",
     "maintained_by": "dw-0",
     "display_name": "Mainsail Theme Installer",
-    "description": ["Install Mainsail Themes maintained by the Mainsail community."]
+    "description": ["Install Mainsail Themes maintained by the Mainsail community."],
+    "website": "https://docs.mainsail.xyz/theming/themes",
+    "updates": false
   }
 }

@@ -7,6 +7,7 @@
         "description": [
             "Companion for Mobileraker, enabling push notification for Klipper using Moonraker."
         ],
+        "repo": "https://github.com/Clon1998/mobileraker_companion",
         "updates": true
     }
 }

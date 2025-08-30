@@ -5,6 +5,8 @@
     "maintained_by": "Staubgeborener",
     "display_name": "Klipper-Backup",
     "description": ["Backup all your Klipper files to GitHub"],
+    "website": "https://klipperbackup.xyz",
+    "repo": "https://github.com/Staubgeborener/klipper-backup",
     "updates": true
   }
 }
