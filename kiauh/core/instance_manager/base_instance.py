@@ -16,8 +16,9 @@ from typing import List
 
 from utils.fs_utils import get_data_dir
 
-SUFFIX_BLACKLIST: List[str] = ["None", "mcu", "obico", "bambu", "companion"]
-
+# suffixes that are not allowed to be used for instances
+# because they would cause conflicts with other components or are reserved
+SUFFIX_BLACKLIST: List[str] = ["None", "mcu", "obico", "bambu", "companion", "hmi"]
 
 @dataclass(repr=True)
 class BaseInstance:
