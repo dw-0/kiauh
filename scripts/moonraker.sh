@@ -27,7 +27,7 @@ function moonraker_systemd() {
   ###
   # any moonraker client that uses "moonraker" in its own name must be blacklisted using
   # this variable, otherwise they will be falsely recognized as moonraker instances
-  blacklist="obico"
+  blacklist="obico|hmi|telegram-bot"
 
   ignore="${SYSTEMD}/moonraker-(${blacklist}).service"
   match="${SYSTEMD}/moonraker(-[0-9a-zA-Z]+)?.service"
