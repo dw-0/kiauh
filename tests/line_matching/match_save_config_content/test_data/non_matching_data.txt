@@ -1,0 +1,6 @@
+ #*# leading space prevents match
+random
+*# not starting with hash-star-hash
+#   *# spaced out
+<- SAVE_CONFIG ->
+;#*# semicolon first
