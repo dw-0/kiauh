@@ -12,6 +12,7 @@ Specialized for handling Klipper style config files.
 - Option Block: A line starting with a word, followed by a `:` or `=` and a newline
 - Comment: A line starting with a `#` or `;`
 - Blank: A line containing only whitespace characters
+- SaveConfig: Klippers auto-generated SAVE_CONFIG section that can be found at the very end of the config file
 
 ---
 

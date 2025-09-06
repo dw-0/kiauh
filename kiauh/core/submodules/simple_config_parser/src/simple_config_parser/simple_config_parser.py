@@ -18,7 +18,7 @@ from ..simple_config_parser.constants import (
     LINE_COMMENT_RE,
     OPTION_RE,
     OPTIONS_BLOCK_START_RE,
-    SECTION_RE, LineType, INDENT,
+    SECTION_RE, LineType, INDENT, SAVE_CONFIG_START_RE, SAVE_CONFIG_CONTENT_RE,
 )
 
 _UNSET = object()
@@ -61,25 +61,34 @@ class SimpleConfigParser:
 
     def __init__(self) -> None:
         self.header: List[str] = []
+        self.save_config_block: List[str] = []
         self.config: Dict = {}
         self.current_section: str | None = None
         self.current_opt_block: str | None = None
         self.in_option_block: bool = False
 
     def _match_section(self, line: str) -> bool:
-        """Wheter or not the given line matches the definition of a section"""
+        """Whether the given line matches the definition of a section"""
         return SECTION_RE.match(line) is not None
 
     def _match_option(self, line: str) -> bool:
-        """Wheter or not the given line matches the definition of an option"""
+        """Whether the given line matches the definition of an option"""
         return OPTION_RE.match(line) is not None
 
     def _match_options_block_start(self, line: str) -> bool:
-        """Wheter or not the given line matches the definition of a multiline option"""
+        """Whether the given line matches the definition of a multiline option"""
         return OPTIONS_BLOCK_START_RE.match(line) is not None
 
+    def _match_save_config_start(self, line: str) -> bool:
+        """Whether the given line matches the definition of a save config start"""
+        return SAVE_CONFIG_START_RE.match(line) is not None
+
+    def _match_save_config_content(self, line: str) -> bool:
+        """Whether the given line matches the definition of a save config content"""
+        return SAVE_CONFIG_CONTENT_RE.match(line) is not None
+
     def _match_line_comment(self, line: str) -> bool:
-        """Wheter or not the given line matches the definition of a comment"""
+        """Whether the given line matches the definition of a comment"""
         return LINE_COMMENT_RE.match(line) is not None
 
     def _match_empty_line(self, line: str) -> bool:
@@ -123,6 +132,14 @@ class SimpleConfigParser:
                 if element["type"] == LineType.OPTION_BLOCK.value and element["name"] == self.current_opt_block:
                     element["value"].append(line.strip()) # indentation is removed
                     break
+
+        elif self._match_save_config_start(line):
+            self.current_opt_block = None
+            self.save_config_block.append(line)
+
+        elif self._match_save_config_content(line):
+            self.current_opt_block = None
+            self.save_config_block.append(line)
 
         elif self._match_empty_line(line) or self._match_line_comment(line):
             self.current_opt_block = None
@@ -184,6 +201,11 @@ class SimpleConfigParser:
 
                     if not last_line.endswith("\n"):
                         f.write("\n")
+
+            if self.save_config_block:
+                for line in self.save_config_block:
+                    f.write(line)
+                f.write("\n")
 
     def get_sections(self) -> List[str]:
         """Return a list of all section names, but exclude any section starting with '#_'"""
