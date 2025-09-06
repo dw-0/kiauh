@@ -49,6 +49,9 @@ LINE_COMMENT_RE = re.compile(r"^\s*[#;].*")
 #  - the line MUST contain only whitespace characters
 EMPTY_LINE_RE = re.compile(r"^\s*$")
 
+SAVE_CONFIG_START_RE = re.compile(r"^#\*# <-+ SAVE_CONFIG -+>$")
+SAVE_CONFIG_CONTENT_RE = re.compile(r"^#\*#.*$")
+
 BOOLEAN_STATES = {
     "1": True,
     "yes": True,

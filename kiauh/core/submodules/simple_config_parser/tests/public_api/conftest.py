@@ -13,7 +13,7 @@ from src.simple_config_parser.simple_config_parser import SimpleConfigParser
 from tests.utils import load_testdata_from_file
 
 BASE_DIR = Path(__file__).parent.parent.joinpath("assets")
-CONFIG_FILES = ["test_config_1.cfg", "test_config_2.cfg", "test_config_3.cfg"]
+CONFIG_FILES = ["test_config_1.cfg", "test_config_2.cfg", "test_config_3.cfg", "test_config_4.cfg"]
 
 
 @pytest.fixture(params=CONFIG_FILES)
