@@ -10,3 +10,4 @@ __pycache__
 *.code-workspace
 *.iml
 kiauh.cfg
+klipper_repos.txt
