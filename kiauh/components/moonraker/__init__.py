@@ -9,8 +9,6 @@
 
 from pathlib import Path
 
-from core.backup_manager import BACKUP_ROOT_DIR
-
 MODULE_PATH = Path(__file__).resolve().parent
 
 MOONRAKER_REPO_URL = "https://github.com/Arksine/moonraker.git"
@@ -25,8 +23,6 @@ MOONRAKER_ENV_FILE_NAME = "moonraker.env"
 # directories
 MOONRAKER_DIR = Path.home().joinpath("moonraker")
 MOONRAKER_ENV_DIR = Path.home().joinpath("moonraker-env")
-MOONRAKER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-backups")
-MOONRAKER_DB_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("moonraker-db-backups")
 
 # files
 MOONRAKER_INSTALL_SCRIPT = MOONRAKER_DIR.joinpath("scripts/install-moonraker.sh")

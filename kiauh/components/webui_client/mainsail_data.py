@@ -18,7 +18,6 @@ from components.webui_client.base_data import (
     WebClientConfigType,
     WebClientType,
 )
-from core.backup_manager import BACKUP_ROOT_DIR
 from core.constants import NGINX_SITES_AVAILABLE
 
 
@@ -30,7 +29,6 @@ class MainsailConfigWeb(BaseWebClientConfig):
     config_dir: Path = Path.home().joinpath("mainsail-config")
     config_filename: str = "mainsail.cfg"
     config_section: str = f"include {config_filename}"
-    backup_dir: Path = BACKUP_ROOT_DIR.joinpath("mainsail-config-backups")
     repo_url: str = "https://github.com/mainsail-crew/mainsail-config.git"
 
 
@@ -43,7 +41,6 @@ class MainsailData(BaseWebClient):
     display_name: str = name.capitalize()
     client_dir: Path = Path.home().joinpath("mainsail")
     config_file: Path = client_dir.joinpath("config.json")
-    backup_dir: Path = BACKUP_ROOT_DIR.joinpath("mainsail-backups")
     repo_path: str = "mainsail-crew/mainsail"
     nginx_config: Path = NGINX_SITES_AVAILABLE.joinpath("mainsail")
     nginx_access_log: Path = Path("/var/log/nginx/mainsail-access.log")

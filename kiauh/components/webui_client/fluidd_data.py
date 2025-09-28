@@ -18,7 +18,6 @@ from components.webui_client.base_data import (
     WebClientConfigType,
     WebClientType,
 )
-from core.backup_manager import BACKUP_ROOT_DIR
 from core.constants import NGINX_SITES_AVAILABLE
 
 
@@ -30,7 +29,6 @@ class FluiddConfigWeb(BaseWebClientConfig):
     config_dir: Path = Path.home().joinpath("fluidd-config")
     config_filename: str = "fluidd.cfg"
     config_section: str = f"include {config_filename}"
-    backup_dir: Path = BACKUP_ROOT_DIR.joinpath("fluidd-config-backups")
     repo_url: str = "https://github.com/fluidd-core/fluidd-config.git"
 
 
@@ -43,7 +41,6 @@ class FluiddData(BaseWebClient):
     display_name: str = name.capitalize()
     client_dir: Path = Path.home().joinpath("fluidd")
     config_file: Path = client_dir.joinpath("config.json")
-    backup_dir: Path = BACKUP_ROOT_DIR.joinpath("fluidd-backups")
     repo_path: str = "fluidd-core/fluidd"
     nginx_config: Path = NGINX_SITES_AVAILABLE.joinpath("fluidd")
     nginx_access_log: Path = Path("/var/log/nginx/fluidd-access.log")

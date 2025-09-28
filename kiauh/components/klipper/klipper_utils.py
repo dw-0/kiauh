@@ -16,7 +16,6 @@ from subprocess import CalledProcessError, run
 from typing import Dict, List
 
 from components.klipper import (
-    KLIPPER_BACKUP_DIR,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_INSTALL_SCRIPT,
@@ -31,10 +30,10 @@ from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_config.client_config_setup import (
     create_client_config_symlink,
 )
-from core.backup_manager.backup_manager import BackupManager
 from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -198,9 +197,17 @@ def create_example_printer_cfg(
 
 
 def backup_klipper_dir() -> None:
-    bm = BackupManager()
-    bm.backup_directory("klipper", source=KLIPPER_DIR, target=KLIPPER_BACKUP_DIR)
-    bm.backup_directory("klippy-env", source=KLIPPER_ENV_DIR, target=KLIPPER_BACKUP_DIR)
+    svc = BackupService()
+    svc.backup_directory(
+        source_path=KLIPPER_DIR,
+        backup_name="klipper",
+        target_path="klipper",
+    )
+    svc.backup_directory(
+        source_path=KLIPPER_ENV_DIR,
+        backup_name="klippy-env",
+        target_path="klipper",
+    )
 
 
 def install_klipper_packages() -> None:

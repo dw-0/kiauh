@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Literal
 
 from components.klipper import (
-    KLIPPER_BACKUP_DIR,
     KLIPPER_DIR,
     KLIPPER_ENV_DIR,
     KLIPPER_REQ_FILE,
@@ -21,7 +20,6 @@ from components.klipper import (
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_utils import install_klipper_packages
 from components.moonraker import (
-    MOONRAKER_BACKUP_DIR,
     MOONRAKER_DIR,
     MOONRAKER_ENV_DIR,
     MOONRAKER_REQ_FILE,
@@ -30,10 +28,10 @@ from components.moonraker.moonraker import Moonraker
 from components.moonraker.services.moonraker_setup_service import (
     install_moonraker_packages,
 )
-from core.backup_manager.backup_manager import BackupManager, BackupManagerException
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
-from utils.git_utils import GitException, get_repo_name, git_clone_wrapper
+from core.services.backup_service import BackupService
+from utils.git_utils import GitException, git_clone_wrapper
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
     VenvCreationFailedException,
@@ -52,7 +50,6 @@ def run_switch_repo_routine(
     repo_dir: Path = KLIPPER_DIR if name == "klipper" else MOONRAKER_DIR
     env_dir: Path = KLIPPER_ENV_DIR if name == "klipper" else MOONRAKER_ENV_DIR
     req_file = KLIPPER_REQ_FILE if name == "klipper" else MOONRAKER_REQ_FILE
-    backup_dir: Path = KLIPPER_BACKUP_DIR if name == "klipper" else MOONRAKER_BACKUP_DIR
     _type = Klipper if name == "klipper" else Moonraker
 
     # step 1: stop all instances
@@ -64,19 +61,17 @@ def run_switch_repo_routine(
     env_dir_backup_path: Path | None = None
 
     try:
-        # step 2: backup old repo and env
-        org, _ = get_repo_name(repo_dir)
-        backup_dir = backup_dir.joinpath(org)
-        bm = BackupManager()
-        repo_dir_backup_path = bm.backup_directory(
-            repo_dir.name,
-            repo_dir,
-            backup_dir,
+        svc = BackupService()
+        svc.backup_directory(
+            source_path=repo_dir,
+            backup_name=name,
+            target_path=name,
         )
-        env_dir_backup_path = bm.backup_directory(
-            env_dir.name,
-            env_dir,
-            backup_dir,
+        env_backup_name: str = f"{name if name == 'moonraker' else 'klippy'}-env"
+        svc.backup_directory(
+            source_path=env_dir,
+            backup_name=env_backup_name,
+            target_path=name,
         )
 
         if not (repo_url or branch):
@@ -101,10 +96,6 @@ def run_switch_repo_routine(
 
         Logger.print_ok(f"Switched to {repo_url} at branch {branch}!")
 
-    except BackupManagerException as e:
-        Logger.print_error(f"Error during backup of repository: {e}")
-        raise RepoSwitchFailedException(e)
-
     except (GitException, VenvCreationFailedException) as e:
         # if something goes wrong during cloning or recreating the virtualenv,
         # we restore the backup of the repo and env
@@ -121,6 +112,9 @@ def run_switch_repo_routine(
     except RepoSwitchFailedException as e:
         Logger.print_error(f"Something went wrong: {e}")
         return
+
+    except Exception as e:
+        raise RepoSwitchFailedException(e)
 
     Logger.print_status(f"Restarting all {_type.__name__} instances ...")
     InstanceManager.start_all(instances)

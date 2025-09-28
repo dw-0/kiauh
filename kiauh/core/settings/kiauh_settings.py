@@ -14,8 +14,8 @@ from typing import Any, Callable, List, TypeVar
 
 from components.klipper import KLIPPER_REPO_URL
 from components.moonraker import MOONRAKER_REPO_URL
-from core.backup_manager.backup_manager import BackupManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -374,8 +374,8 @@ class KiauhSettings:
             kill()
 
     def _migrate_repo_config(self) -> None:
-        bm = BackupManager()
-        if not bm.backup_file(CUSTOM_CFG):
+        svc = BackupService()
+        if not svc.backup_file(CUSTOM_CFG):
             Logger.print_dialog(
                 DialogType.ERROR,
                 [

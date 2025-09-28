@@ -9,8 +9,6 @@
 
 from pathlib import Path
 
-from core.backup_manager import BACKUP_ROOT_DIR
-
 MODULE_PATH = Path(__file__).resolve().parent
 
 KLIPPER_REPO_URL = "https://github.com/Klipper3d/klipper.git"
@@ -27,7 +25,6 @@ KLIPPER_SERVICE_NAME = "klipper.service"
 KLIPPER_DIR = Path.home().joinpath("klipper")
 KLIPPER_KCONFIGS_DIR = Path.home().joinpath("klipper-kconfigs")
 KLIPPER_ENV_DIR = Path.home().joinpath("klippy-env")
-KLIPPER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("klipper-backups")
 
 # files
 KLIPPER_REQ_FILE = KLIPPER_DIR.joinpath("scripts/klippy-requirements.txt")

@@ -14,8 +14,6 @@ from typing import Dict, List, Optional
 
 from components.moonraker import (
     MODULE_PATH,
-    MOONRAKER_BACKUP_DIR,
-    MOONRAKER_DB_BACKUP_DIR,
     MOONRAKER_DEFAULT_PORT,
     MOONRAKER_DEPS_JSON_FILE,
     MOONRAKER_DIR,
@@ -25,8 +23,8 @@ from components.moonraker import (
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.webui_client.base_data import BaseWebClient
-from core.backup_manager.backup_manager import BackupManager
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -168,21 +166,31 @@ def create_example_moonraker_conf(
 
 
 def backup_moonraker_dir() -> None:
-    bm = BackupManager()
-    bm.backup_directory("moonraker", source=MOONRAKER_DIR, target=MOONRAKER_BACKUP_DIR)
-    bm.backup_directory(
-        "moonraker-env", source=MOONRAKER_ENV_DIR, target=MOONRAKER_BACKUP_DIR
+    svc = BackupService()
+    svc.backup_directory(
+        source_path=MOONRAKER_DIR, backup_name="moonraker", target_path="moonraker"
+    )
+    svc.backup_directory(
+        source_path=MOONRAKER_ENV_DIR,
+        backup_name="moonraker-env",
+        target_path="moonraker",
     )
 
 
 def backup_moonraker_db_dir() -> None:
     instances: List[Moonraker] = get_instances(Moonraker)
-    bm = BackupManager()
+    svc = BackupService()
+
+    if not instances:
+        Logger.print_info("Unable to find directory to backup!")
+        Logger.print_info("Are there no Moonraker instances installed?")
+        return
 
     for instance in instances:
-        name = f"database-{instance.data_dir.name}"
-        bm.backup_directory(
-            name, source=instance.db_dir, target=MOONRAKER_DB_BACKUP_DIR
+        svc.backup_directory(
+            source_path=instance.db_dir,
+            target_path=f"{instance.data_dir.name}",
+            backup_name="database",
         )
 
 

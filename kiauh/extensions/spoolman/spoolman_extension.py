@@ -15,9 +15,9 @@ from components.moonraker.moonraker import Moonraker
 from components.moonraker.services.moonraker_instance_service import (
     MoonrakerInstanceService,
 )
-from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
 from extensions.spoolman import (
     SPOOLMAN_COMPOSE_FILE,
@@ -123,16 +123,15 @@ class SpoolmanExtension(BaseExtension):
                     "Failed to remove Spoolman image! Please remove it manually."
                 )
 
-        # backup Spoolman directory to ~/spoolman_data-<timestamp> before removing it
         try:
-            bm = BackupManager()
-            result = bm.backup_directory(
-                f"{SPOOLMAN_DIR.name}_data",
-                source=SPOOLMAN_DIR,
-                target=SPOOLMAN_DIR.parent,
+            svc = BackupService()
+            success = svc.backup_directory(
+                source_path=SPOOLMAN_DIR,
+                backup_name="spoolman",
+                target_path="spoolman",
             )
-            if result:
-                Logger.print_ok(f"Spoolman data backed up to {result}")
+            if success:
+                Logger.print_ok(f"Spoolman data backed up to {success}")
                 Logger.print_status("Removing Spoolman directory...")
                 if run_remove_routines(SPOOLMAN_DIR):
                     Logger.print_ok("Spoolman directory removed!")
