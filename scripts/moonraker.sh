@@ -153,11 +153,20 @@ import shlex
 import re
 import pathlib
 import logging
-import json
 
 from typing import Tuple, Dict, List, Any
 
 def _get_distro_info() -> Dict[str, Any]:
+    try:
+        import distro
+    except ModuleNotFoundError:
+        pass
+    else:
+        return dict(
+            distro_id=distro.id(),
+            distro_version=distro.version(),
+            aliases=distro.like().split()
+        )
     release_file = pathlib.Path("/etc/os-release")
     release_info: Dict[str, str] = {}
     with release_file.open("r") as f:
@@ -193,6 +202,9 @@ class SysDepsParser:
         version = distro_info.get("distro_version")
         if version:
             self.distro_version = _convert_version(version)
+        self.vendor: str = ""
+        if pathlib.Path("/etc/rpi-issue").is_file():
+            self.vendor = "raspberry-pi"
 
     def _parse_spec(self, full_spec: str) -> str | None:
         parts = full_spec.split(";", maxsplit=1)
@@ -236,6 +248,9 @@ class SysDepsParser:
                 return None
             elif req_var == "distro_id":
                 left_op: str | Tuple[int | str, ...] = self.distro_id
+                right_op = dep_parts[2].strip().strip("\"'")
+            elif req_var == "vendor":
+                left_op = self.vendor
                 right_op = dep_parts[2].strip().strip("\"'")
             elif req_var == "distro_version":
                 if not self.distro_version:
@@ -305,12 +320,12 @@ system_deps = {
         "python3-virtualenv", "python3-dev", "libopenjp2-7", "libsodium-dev",
         "zlib1g-dev", "libjpeg-dev", "packagekit",
         "wireless-tools; distro_id != 'ubuntu' or distro_version <= '24.04'",
-        "iw; distro_id == 'ubuntu' and distro_version >= '24.10'", "curl",
-        "build-essential"
+        "iw; distro_id == 'ubuntu' and distro_version >= '24.10'",
+        "python3-libcamera; vendor == 'raspberry-pi' and distro_version >= '11'",
+        "curl", "build-essential"
     ],
 }
-system_deps_json = pathlib.Path("$package_json")
-system_deps = json.loads(system_deps_json.read_bytes())
+# *** SYSTEM DEPENDENCIES END ***
 parser = SysDepsParser()
 pkgs = parser.parse_dependencies(system_deps)
 if pkgs:
