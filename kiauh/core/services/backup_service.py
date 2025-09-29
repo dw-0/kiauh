@@ -11,9 +11,12 @@ from __future__ import annotations
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
+from components.klipper.klipper import Klipper
+from components.moonraker.moonraker import Moonraker
 from core.logger import Logger
+from utils.instance_utils import get_instances
 
 
 class BackupService:
@@ -23,6 +26,14 @@ class BackupService:
     @property
     def backup_root(self) -> Path:
         return self._backup_root
+
+    @property
+    def timestamp(self) -> str:
+        return datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    ################################################
+    # GENERIC BACKUP METHODS
+    ################################################
 
     def backup_file(
         self,
@@ -47,9 +58,9 @@ class BackupService:
         try:
             self._backup_root.mkdir(parents=True, exist_ok=True)
 
-            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
             filename = (
-                target_name or f"{source_path.stem}_{timestamp}{source_path.suffix}"
+                target_name
+                or f"{source_path.stem}_{self.timestamp}{source_path.suffix}"
             )
             if target_path is not None:
                 backup_path = self._backup_root.joinpath(target_path, filename)
@@ -91,8 +102,7 @@ class BackupService:
         try:
             self._backup_root.mkdir(parents=True, exist_ok=True)
 
-            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-            backup_dir_name = f"{backup_name}_{timestamp}"
+            backup_dir_name = f"{backup_name}_{self.timestamp}"
 
             if target_path is not None:
                 backup_path = self._backup_root.joinpath(target_path, backup_dir_name)
@@ -109,3 +119,31 @@ class BackupService:
         except Exception as e:
             Logger.print_error(f"Failed to backup directory '{source_path}': {e}")
             return None
+
+    ################################################
+    # SPECIFIC BACKUP METHODS
+    ################################################
+
+    def backup_printer_cfg(self):
+        klipper_instances: List[Klipper] = get_instances(Klipper)
+        for instance in klipper_instances:
+            target_path: Path = self._backup_root.joinpath(
+                instance.data_dir.name, f"config_{self.timestamp}"
+            )
+            self.backup_file(
+                source_path=instance.cfg_file,
+                target_path=target_path,
+                target_name=instance.cfg_file.name,
+            )
+
+    def backup_moonraker_conf(self):
+        moonraker_instances: List[Moonraker] = get_instances(Moonraker)
+        for instance in moonraker_instances:
+            target_path: Path = self._backup_root.joinpath(
+                instance.data_dir.name, f"config_{self.timestamp}"
+            )
+            self.backup_file(
+                source_path=instance.cfg_file,
+                target_path=target_path,
+                target_name=instance.cfg_file.name,
+            )
