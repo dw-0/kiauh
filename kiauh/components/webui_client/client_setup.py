@@ -37,9 +37,10 @@ from components.webui_client.client_utils import (
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
 from core.types.color import Color
-from utils.common import backup_printer_config_dir, check_install_dependencies
+from utils.common import check_install_dependencies
 from utils.config_utils import add_config_section
 from utils.fs_utils import unzip
 from utils.input_utils import get_confirm
@@ -97,7 +98,7 @@ def install_client(
         if enable_remotemode and client.client == WebClientType.MAINSAIL:
             enable_mainsail_remotemode()
 
-        backup_printer_config_dir()
+        BackupService().backup_printer_config_dir()
         add_config_section(
             section=f"update_manager {client.name}",
             instances=mr_instances,

@@ -14,13 +14,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Literal, Set
 
-from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.constants import (
     GLOBAL_DEPS,
 )
 from core.logger import DialogType, Logger
-from core.services.backup_service import BackupService
 from core.types.color import Color
 from core.types.component_status import ComponentStatus, StatusCode
 from utils.git_utils import (
@@ -149,47 +147,6 @@ def get_install_status(
         local=get_local_commit(repo_dir),
         remote=get_remote_commit(repo_dir),
     )
-
-
-def backup_printer_config_dir() -> None:
-    instances: List[Klipper] = get_instances(Klipper)
-    svc = BackupService()
-
-    if not instances:
-        # fallback: search for printer data directories in the user's home directory
-        Logger.print_info("No Klipper instances found via systemd services.")
-        Logger.print_info(
-            "Attempting to find printer data directories in home directory..."
-        )
-
-        home_dir = Path.home()
-        printer_data_dirs = []
-
-        for pattern in ["printer_data", "printer_*_data"]:
-            for data_dir in home_dir.glob(pattern):
-                if data_dir.is_dir():
-                    printer_data_dirs.append(data_dir)
-
-        if not printer_data_dirs:
-            Logger.print_info("Unable to find directory to backup!")
-            Logger.print_info("No printer data directories found in home directory.")
-            return
-
-        for data_dir in printer_data_dirs:
-            svc.backup_directory(
-                source_path=data_dir.joinpath("config"),
-                target_path=data_dir.name,
-                backup_name="config",
-            )
-
-        return
-
-    for instance in instances:
-        svc.backup_directory(
-            source_path=instance.base.cfg_dir,
-            target_path=f"{instance.data_dir.name}",
-            backup_name="config",
-        )
 
 
 def moonraker_exists(name: str = "") -> List[Moonraker]:

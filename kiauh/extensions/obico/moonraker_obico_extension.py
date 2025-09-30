@@ -14,6 +14,7 @@ from components.moonraker.moonraker import Moonraker
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -32,7 +33,6 @@ from extensions.obico.moonraker_obico import (
     MoonrakerObico,
 )
 from utils.common import (
-    backup_printer_config_dir,
     check_install_dependencies,
     moonraker_exists,
 )
@@ -123,7 +123,7 @@ class ObicoExtension(BaseExtension):
 
             cmd_sysctl_manage("daemon-reload")
 
-            backup_printer_config_dir()
+            BackupService().backup_printer_config_dir()
 
             # add to klippers config
             self._patch_printer_cfg(kl_instances)
@@ -171,7 +171,7 @@ class ObicoExtension(BaseExtension):
             self._remove_obico_instances(ob_instances)
             self._remove_obico_dir()
             self._remove_obico_env()
-            backup_printer_config_dir()
+            BackupService().backup_printer_config_dir()
             remove_config_section(f"include {OBICO_MACROS_CFG_NAME}", kl_instances)
             remove_config_section(f"include {OBICO_UPDATE_CFG_NAME}", mr_instances)
             Logger.print_dialog(
