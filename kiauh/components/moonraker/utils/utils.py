@@ -182,8 +182,32 @@ def backup_moonraker_db_dir() -> None:
     svc = BackupService()
 
     if not instances:
-        Logger.print_info("Unable to find directory to backup!")
-        Logger.print_info("Are there no Moonraker instances installed?")
+        # fallback: search for printer data directories in the user's home directory
+        Logger.print_info("No Moonraker instances found via systemd services.")
+        Logger.print_info(
+            "Attempting to find printer data directories in home directory..."
+        )
+
+        home_dir = Path.home()
+        printer_data_dirs = []
+
+        for pattern in ["printer_data", "printer_*_data"]:
+            for data_dir in home_dir.glob(pattern):
+                if data_dir.is_dir():
+                    printer_data_dirs.append(data_dir)
+
+        if not printer_data_dirs:
+            Logger.print_info("Unable to find directory to backup!")
+            Logger.print_info("No printer data directories found in home directory.")
+            return
+
+        for data_dir in printer_data_dirs:
+            svc.backup_directory(
+                source_path=data_dir.joinpath("database"),
+                target_path=data_dir.name,
+                backup_name="database",
+            )
+
         return
 
     for instance in instances:
