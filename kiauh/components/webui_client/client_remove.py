@@ -67,6 +67,7 @@ def run_client_removal(
         if remove_client_nginx_logs(client, kl_instances):
             completion_msg.text.append("● NGINX logs removed")
 
+        BackupService().backup_moonraker_conf()
         section = f"update_manager {client_name}"
         handled_instances: List[Moonraker] = remove_config_section(
             section, mr_instances

@@ -16,6 +16,7 @@ from components.webui_client.base_data import BaseWebClientConfig
 from core.logger import Logger
 from core.services.message_service import Message
 from core.types.color import Color
+from utils.common import backup_printer_config_dir
 from utils.config_utils import remove_config_section
 from utils.fs_utils import run_remove_routines
 from utils.instance_type import InstanceType
@@ -34,6 +35,8 @@ def run_client_config_removal(
     Logger.print_status(f"Removing {client_config.display_name} ...")
     if run_remove_routines(client_config.config_dir):
         completion_msg.text.append(f"● {client_config.display_name} removed")
+
+    backup_printer_config_dir()
 
     completion_msg = remove_moonraker_config_section(
         completion_msg, client_config, mr_instances

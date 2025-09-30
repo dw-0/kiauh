@@ -31,7 +31,11 @@ from extensions.obico import (
 from extensions.obico.moonraker_obico import (
     MoonrakerObico,
 )
-from utils.common import check_install_dependencies, moonraker_exists
+from utils.common import (
+    backup_printer_config_dir,
+    check_install_dependencies,
+    moonraker_exists,
+)
 from utils.config_utils import (
     add_config_section,
     remove_config_section,
@@ -119,6 +123,8 @@ class ObicoExtension(BaseExtension):
 
             cmd_sysctl_manage("daemon-reload")
 
+            backup_printer_config_dir()
+
             # add to klippers config
             self._patch_printer_cfg(kl_instances)
             InstanceManager.restart_all(kl_instances)
@@ -165,6 +171,7 @@ class ObicoExtension(BaseExtension):
             self._remove_obico_instances(ob_instances)
             self._remove_obico_dir()
             self._remove_obico_env()
+            backup_printer_config_dir()
             remove_config_section(f"include {OBICO_MACROS_CFG_NAME}", kl_instances)
             remove_config_section(f"include {OBICO_UPDATE_CFG_NAME}", mr_instances)
             Logger.print_dialog(

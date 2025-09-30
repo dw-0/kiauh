@@ -96,6 +96,7 @@ def install_klipperscreen() -> None:
 
 
 def patch_klipperscreen_update_manager(instances: List[Moonraker]) -> None:
+    BackupService().backup_moonraker_conf()
     add_config_section(
         section=KLIPPERSCREEN_UPDATER_SECTION_NAME,
         instances=instances,
@@ -182,6 +183,7 @@ def remove_klipperscreen() -> None:
         mr_instances: List[Moonraker] = get_instances(Moonraker)
         if mr_instances:
             Logger.print_status("Removing KlipperScreen from update manager ...")
+            BackupService().backup_moonraker_conf()
             remove_config_section("update_manager KlipperScreen", mr_instances)
             Logger.print_ok("KlipperScreen successfully removed from update manager!")
 

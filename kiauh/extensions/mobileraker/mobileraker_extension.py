@@ -151,6 +151,7 @@ class MobilerakerExtension(BaseExtension):
                 Logger.print_status(
                     "Removing Mobileraker's companion from update manager ..."
                 )
+                BackupService().backup_moonraker_conf()
                 remove_config_section(MOBILERAKER_UPDATER_SECTION_NAME, mr_instances)
                 Logger.print_ok(
                     "Mobileraker's companion successfully removed from update manager!"
@@ -162,6 +163,7 @@ class MobilerakerExtension(BaseExtension):
             Logger.print_error(f"Error removing Mobileraker's companion:\n{e}")
 
     def _patch_mobileraker_update_manager(self, instances: List[Moonraker]) -> None:
+        BackupService().backup_moonraker_conf()
         add_config_section(
             section=MOBILERAKER_UPDATER_SECTION_NAME,
             instances=instances,

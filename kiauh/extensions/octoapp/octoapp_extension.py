@@ -13,6 +13,7 @@ from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
 from extensions.octoapp import (
     OA_DEPS_JSON_FILE,
@@ -133,6 +134,7 @@ class OctoappExtension(BaseExtension):
             self._remove_OA_store_dirs()
             self._remove_OA_dir()
             self._remove_OA_env()
+            BackupService().backup_moonraker_conf()
             remove_config_section(f"include {OA_SYS_CFG_NAME}", mr_instances)
             run_remove_routines(OA_INSTALLER_LOG_FILE)
             Logger.print_dialog(

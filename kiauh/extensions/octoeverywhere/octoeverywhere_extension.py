@@ -12,6 +12,7 @@ from typing import List
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
 from extensions.octoeverywhere import (
     OE_DEPS_JSON_FILE,
@@ -133,6 +134,7 @@ class OctoeverywhereExtension(BaseExtension):
             self._remove_oe_instances(ob_instances)
             self._remove_oe_dir()
             self._remove_oe_env()
+            BackupService().backup_moonraker_conf()
             remove_config_section(f"include {OE_SYS_CFG_NAME}", mr_instances)
             run_remove_routines(OE_INSTALLER_LOG_FILE)
             Logger.print_dialog(

@@ -100,6 +100,7 @@ class SpoolmanExtension(BaseExtension):
         mr_instances: List[Moonraker] = mrsvc.get_all_instances()
 
         Logger.print_status("Removing Spoolman configuration from moonraker.conf...")
+        BackupService().backup_moonraker_conf()
         remove_config_section("spoolman", mr_instances)
 
         Logger.print_status("Removing Spoolman from moonraker.asvc...")
@@ -289,6 +290,7 @@ class SpoolmanExtension(BaseExtension):
         mrsvc.load_instances()
         mr_instances = mrsvc.get_all_instances()
 
+        BackupService().backup_moonraker_conf()
         # noinspection HttpUrlsUsage
         add_config_section(
             section="spoolman",
