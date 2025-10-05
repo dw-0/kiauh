@@ -123,19 +123,19 @@ function main() {
     launch_kiauh_v6
   else
     top_border
-    echo -e "|         ${green}KIAUH v6.0.0-alpha1 is available now!${white}         |"
+    echo -e "|         ${green}KIAUH v6.0.0-rc.2 is available now!${white}           |"
     hr
     echo -e "|         View Changelog: ${magenta}https://git.io/JnmlX${white}          |"
     blank_line
     echo -e "| KIAUH v6 was completely rewritten from the ground up. |"
     echo -e "| It's based on Python 3.8 and has many improvements.   |"
     blank_line
-    echo -e "| ${yellow}NOTE: Version 6 is still in alpha, so bugs may occur!${white} |"
-    echo -e "| ${yellow}Yet, your feedback and bug reports are very much${white}      |"
-    echo -e "| ${yellow}appreciated and will help finalize the release.${white}       |"
+    echo -e "| ${yellow}NOTE: Version 6 is still not final yet, but most bugs${white} |"
+    echo -e "| ${yellow}should be fixed by now. Still, if you encounter any${white}   |"
+    echo -e "| ${yellow}issues, please report them so they can get fixed.${white}     |"
     hr
     echo -e "| Would you like to try out KIAUH v6?                   |"
-    echo -e "| 1) Yes                                                |"
+    echo -e "| 1) Yes (recommended - v5 is sunsetting soon)          |"
     echo -e "| 2) No                                                 |"
     echo -e "| 3) Yes, remember my choice for next time              |"
     echo -e "| 4) No, remember my choice for next time               |"
