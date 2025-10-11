@@ -358,6 +358,7 @@ function get_usb_id() {
   unset mcu_list
   sleep 1
   mcus=$(find /dev/serial/by-id/* 2>/dev/null)
+  mcus+=" $(find /dev/serial/by-path/* 2>/dev/null)"
 
   for mcu in ${mcus}; do
     mcu_list+=("${mcu}")
