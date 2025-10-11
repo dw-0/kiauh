@@ -1,2 +1,0 @@
-ruff (>=0.9.10)
-pyright
