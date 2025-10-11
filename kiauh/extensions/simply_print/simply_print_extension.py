@@ -11,11 +11,12 @@ from typing import List
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from extensions.base_extension import BaseExtension
-from utils.common import backup_printer_config_dir, moonraker_exists
+from utils.common import moonraker_exists
 from utils.input_utils import get_confirm
 
 
@@ -112,10 +113,10 @@ class SimplyPrintExtension(BaseExtension):
                 continue
 
             if is_install and not scp.has_section("simplyprint"):
-                backup_printer_config_dir()
+                BackupService().backup_printer_config_dir()
                 scp.add_section(section)
             elif not is_install and scp.has_section("simplyprint"):
-                backup_printer_config_dir()
+                BackupService().backup_printer_config_dir()
                 scp.remove_section(section)
             scp.write_file(moonraker.cfg_file)
             patched_files.append(moonraker.cfg_file)

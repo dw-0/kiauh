@@ -27,3 +27,7 @@ def main() -> None:
         MainMenu().run()
     except KeyboardInterrupt:
         Logger.print_ok("\nHappy printing!\n", prefix=False)
+
+
+if __name__ == "__main__":
+    main()

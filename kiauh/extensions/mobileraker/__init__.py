@@ -9,7 +9,6 @@
 
 from pathlib import Path
 
-from core.backup_manager import BACKUP_ROOT_DIR
 from core.constants import SYSTEMD
 
 # repo
@@ -23,7 +22,6 @@ MOBILERAKER_LOG_NAME = "mobileraker.log"
 # directories
 MOBILERAKER_DIR = Path.home().joinpath("mobileraker_companion")
 MOBILERAKER_ENV_DIR = Path.home().joinpath("mobileraker-env")
-MOBILERAKER_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("mobileraker-backups")
 
 # files
 MOBILERAKER_INSTALL_SCRIPT = MOBILERAKER_DIR.joinpath("scripts/install.sh")

@@ -25,8 +25,8 @@ from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
+from core.services.backup_service import BackupService
 from core.types.color import Color
-from utils.common import backup_printer_config_dir
 
 
 # noinspection PyUnusedLocal
@@ -86,7 +86,7 @@ class BackupMenu(BaseMenu):
         backup_moonraker_dir()
 
     def backup_printer_config(self, **kwargs) -> None:
-        backup_printer_config_dir()
+        BackupService().backup_printer_config_dir()
 
     def backup_moonraker_db(self, **kwargs) -> None:
         backup_moonraker_db_dir()

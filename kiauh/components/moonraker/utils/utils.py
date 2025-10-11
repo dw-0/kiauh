@@ -14,8 +14,6 @@ from typing import Dict, List, Optional
 
 from components.moonraker import (
     MODULE_PATH,
-    MOONRAKER_BACKUP_DIR,
-    MOONRAKER_DB_BACKUP_DIR,
     MOONRAKER_DEFAULT_PORT,
     MOONRAKER_DEPS_JSON_FILE,
     MOONRAKER_DIR,
@@ -25,8 +23,8 @@ from components.moonraker import (
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.webui_client.base_data import BaseWebClient
-from core.backup_manager.backup_manager import BackupManager
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -168,21 +166,55 @@ def create_example_moonraker_conf(
 
 
 def backup_moonraker_dir() -> None:
-    bm = BackupManager()
-    bm.backup_directory("moonraker", source=MOONRAKER_DIR, target=MOONRAKER_BACKUP_DIR)
-    bm.backup_directory(
-        "moonraker-env", source=MOONRAKER_ENV_DIR, target=MOONRAKER_BACKUP_DIR
+    svc = BackupService()
+    svc.backup_directory(
+        source_path=MOONRAKER_DIR, backup_name="moonraker", target_path="moonraker"
+    )
+    svc.backup_directory(
+        source_path=MOONRAKER_ENV_DIR,
+        backup_name="moonraker-env",
+        target_path="moonraker",
     )
 
 
 def backup_moonraker_db_dir() -> None:
     instances: List[Moonraker] = get_instances(Moonraker)
-    bm = BackupManager()
+    svc = BackupService()
+
+    if not instances:
+        # fallback: search for printer data directories in the user's home directory
+        Logger.print_info("No Moonraker instances found via systemd services.")
+        Logger.print_info(
+            "Attempting to find printer data directories in home directory..."
+        )
+
+        home_dir = Path.home()
+        printer_data_dirs = []
+
+        for pattern in ["printer_data", "printer_*_data"]:
+            for data_dir in home_dir.glob(pattern):
+                if data_dir.is_dir():
+                    printer_data_dirs.append(data_dir)
+
+        if not printer_data_dirs:
+            Logger.print_info("Unable to find directory to backup!")
+            Logger.print_info("No printer data directories found in home directory.")
+            return
+
+        for data_dir in printer_data_dirs:
+            svc.backup_directory(
+                source_path=data_dir.joinpath("database"),
+                target_path=data_dir.name,
+                backup_name="database",
+            )
+
+        return
 
     for instance in instances:
-        name = f"database-{instance.data_dir.name}"
-        bm.backup_directory(
-            name, source=instance.db_dir, target=MOONRAKER_DB_BACKUP_DIR
+        svc.backup_directory(
+            source_path=instance.db_dir,
+            target_path=f"{instance.data_dir.name}",
+            backup_name="database",
         )
 
 

@@ -13,6 +13,7 @@ from typing import List
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
 from extensions.telegram_bot import TG_BOT_REPO, TG_BOT_REQ_FILE
 from extensions.telegram_bot.moonraker_telegram_bot import (
@@ -105,6 +106,7 @@ class TelegramBotExtension(BaseExtension):
             cmd_sysctl_manage("daemon-reload")
 
             # add to moonraker update manager
+            BackupService().backup_moonraker_conf()
             self._patch_bot_update_manager(mr_instances)
 
             # restart moonraker
@@ -150,6 +152,7 @@ class TelegramBotExtension(BaseExtension):
             self._remove_bot_instances(tb_instances)
             self._remove_bot_dir()
             self._remove_bot_env()
+            BackupService().backup_moonraker_conf()
             remove_config_section("update_manager moonraker-telegram-bot", mr_instances)
             self._delete_bot_logs(tb_instances)
         except Exception as e:

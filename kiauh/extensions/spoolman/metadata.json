@@ -13,6 +13,7 @@
       "\n\n",
       "Note: This extension installs Spoolman using Docker. Docker must be installed on your system before installing Spoolman."
     ],
+    "repo": "https://github.com/Donkie/Spoolman",
     "updates": true
   }
 }

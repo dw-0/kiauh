@@ -24,13 +24,13 @@ from components.webui_client.base_data import (
 from components.webui_client.client_dialogs import print_client_port_select_dialog
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
-from core.backup_manager.backup_manager import BackupManager
 from core.constants import (
     NGINX_CONFD,
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
@@ -118,7 +118,7 @@ def enable_mainsail_remotemode() -> None:
     c_json = MainsailData().client_dir.joinpath("config.json")
     with open(c_json, "r") as f:
         config_data = json.load(f)
-    
+
     if config_data["instancesDB"] == "browser" or config_data["instancesDB"] == "json":
         Logger.print_info("Remote mode already configured. Skipped ...")
         return
@@ -175,26 +175,39 @@ def get_remote_client_version(client: BaseWebClient) -> str | None:
 
 
 def backup_client_data(client: BaseWebClient) -> None:
-    name = client.name
+    version = ""
     src = client.client_dir
-    dest = client.backup_dir
+    if src.joinpath(".version").exists():
+        with open(src.joinpath(".version"), "r") as v:
+            version = v.readlines()[0]
 
-    with open(src.joinpath(".version"), "r") as v:
-        version = v.readlines()[0]
-
-    bm = BackupManager()
-    bm.backup_directory(f"{name}-{version}", src, dest)
-    bm.backup_file(client.config_file, dest)
-    bm.backup_file(NGINX_SITES_AVAILABLE.joinpath(name), dest)
+    svc = BackupService()
+    target_path = svc.backup_root.joinpath(f"{client.client_dir.name}_{version}")
+    svc.backup_directory(
+        source_path=client.client_dir,
+        target_path=target_path,
+        backup_name=client.name,
+    )
+    svc.backup_file(
+        source_path=client.config_file,
+        target_path=target_path,
+    )
 
 
 def backup_client_config_data(client: BaseWebClient) -> None:
-    client_config = client.client_config
-    name = client_config.name
-    source = client_config.config_dir
-    target = client_config.backup_dir
-    bm = BackupManager()
-    bm.backup_directory(name, source, target)
+    version = ""
+    src = client.client_dir
+    if src.joinpath(".version").exists():
+        with open(src.joinpath(".version"), "r") as v:
+            version = v.readlines()[0]
+
+    svc = BackupService()
+    target_path = svc.backup_root.joinpath(f"{client.client_dir.name}_{version}")
+    svc.backup_directory(
+        source_path=client.client_config.config_dir,
+        target_path=target_path,
+        backup_name=client.client_config.name,
+    )
 
 
 def get_existing_clients() -> List[BaseWebClient]:

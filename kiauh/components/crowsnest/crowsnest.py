@@ -15,7 +15,6 @@ from subprocess import CalledProcessError, run
 from typing import List
 
 from components.crowsnest import (
-    CROWSNEST_BACKUP_DIR,
     CROWSNEST_BIN_FILE,
     CROWSNEST_DIR,
     CROWSNEST_INSTALL_SCRIPT,
@@ -26,8 +25,8 @@ from components.crowsnest import (
     CROWSNEST_SERVICE_NAME,
 )
 from components.klipper.klipper import Klipper
-from core.backup_manager.backup_manager import BackupManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
 from core.types.component_status import ComponentStatus
 from utils.common import (
@@ -127,11 +126,11 @@ def update_crowsnest() -> None:
 
             settings = KiauhSettings()
             if settings.kiauh.backup_before_update:
-                bm = BackupManager()
-                bm.backup_directory(
-                    CROWSNEST_DIR.name,
-                    source=CROWSNEST_DIR,
-                    target=CROWSNEST_BACKUP_DIR,
+                svc = BackupService()
+                svc.backup_directory(
+                    source_path=CROWSNEST_DIR,
+                    target_path="crowsnest",
+                    backup_name="crowsnest",
                 )
 
             git_pull_wrapper(CROWSNEST_DIR)

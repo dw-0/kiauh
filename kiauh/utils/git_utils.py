@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 import urllib.request
 from http.client import HTTPResponse
@@ -121,6 +120,59 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
     :param _filter: Optional filter to filter the tags by
     :return: List of tags
     """
+
+    def parse_version(version: str) -> tuple:
+        # Remove 'v' prefix if present
+        if version.startswith("v") and version[1:][0].isdigit():
+            version = version[1:]
+
+        # Split into version parts and pre-release parts
+        if "-" in version:
+            version_part, pre_part = version.split("-", 1)
+            pre_parts = pre_part.replace("-", ".").split(".")
+        else:
+            version_part = version
+            pre_parts = []
+
+        # Split version into components
+        version_parts = version_part.split(".")
+
+        # Convert to integers where possible
+        def try_int(x):
+            try:
+                return int(x)
+            except ValueError:
+                return (
+                    x.lower()
+                )  # Convert strings to lowercase for case-insensitive comparison
+
+        version_ints = [try_int(part) for part in version_parts]
+
+        # Pad version parts to at least 3 components
+        while len(version_ints) < 3:
+            version_ints.append(0)
+
+        # Handle pre-release versions
+        pre_type = 999  # High number for stable releases
+        pre_num = 0
+
+        if pre_parts:
+            pre_type_map = {"alpha": 0, "beta": 1, "rc": 2}
+            pre_type = pre_type_map.get(
+                pre_parts[0].lower(), 3
+            )  # Default to 3 for unknown pre-release types
+
+            if len(pre_parts) > 1 and str(pre_parts[1]).isdigit():
+                pre_num = int(pre_parts[1])
+
+        return (
+            version_ints[0],  # major
+            version_ints[1],  # minor
+            version_ints[2],  # patch
+            pre_type,  # pre-release type (higher number = more stable)
+            pre_num,  # pre-release number
+        )
+
     try:
         cmd: List[str] = ["git", "tag", "-l"]
 
@@ -135,10 +187,8 @@ def get_local_tags(repo_path: Path, _filter: str | None = None) -> List[str]:
 
         tags: List[str] = result.split("\n")[:-1]
 
-        return sorted(
-            tags,
-            key=lambda x: [int(i) if i.isdigit() else i for i in re.split(r"(\d+)", x)],
-        )
+        # Sort using our custom version parser
+        return sorted(tags, key=parse_version)
 
     except CalledProcessError:
         return []

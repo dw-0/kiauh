@@ -14,6 +14,7 @@ from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from components.webui_client.base_data import BaseWebClientConfig
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.services.message_service import Message
 from core.types.color import Color
 from utils.config_utils import remove_config_section
@@ -34,6 +35,8 @@ def run_client_config_removal(
     Logger.print_status(f"Removing {client_config.display_name} ...")
     if run_remove_routines(client_config.config_dir):
         completion_msg.text.append(f"● {client_config.display_name} removed")
+
+    BackupService().backup_printer_config_dir()
 
     completion_msg = remove_moonraker_config_section(
         completion_msg, client_config, mr_instances

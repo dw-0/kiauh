@@ -16,9 +16,9 @@ from components.webui_client.base_data import (
 from components.webui_client.client_config.client_config_remove import (
     run_client_config_removal,
 )
-from core.backup_manager.backup_manager import BackupManager
 from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.services.message_service import Message
 from core.types.color import Color
 from utils.config_utils import remove_config_section
@@ -43,8 +43,19 @@ def run_client_removal(
     kl_instances: List[Klipper] = get_instances(Klipper)
 
     if backup_config:
-        bm = BackupManager()
-        if bm.backup_file(client.config_file):
+        version = ""
+        src = client.client_dir
+        if src.joinpath(".version").exists():
+            with open(src.joinpath(".version"), "r") as v:
+                version = v.readlines()[0]
+
+        svc = BackupService()
+        target_path = svc.backup_root.joinpath(f"{client.client_dir.name}_{version}")
+        success = svc.backup_file(
+            source_path=client.config_file,
+            target_path=target_path,
+        )
+        if success:
             completion_msg.text.append(f"● {client.config_file.name} backup created")
 
     if remove_client:
@@ -56,6 +67,7 @@ def run_client_removal(
         if remove_client_nginx_logs(client, kl_instances):
             completion_msg.text.append("● NGINX logs removed")
 
+        BackupService().backup_moonraker_conf()
         section = f"update_manager {client_name}"
         handled_instances: List[Moonraker] = remove_config_section(
             section, mr_instances

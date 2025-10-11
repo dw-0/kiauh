@@ -13,13 +13,12 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
-from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
 from extensions.base_extension import BaseExtension
 from extensions.mobileraker import (
-    MOBILERAKER_BACKUP_DIR,
     MOBILERAKER_DIR,
     MOBILERAKER_ENV_DIR,
     MOBILERAKER_INSTALL_SCRIPT,
@@ -152,6 +151,7 @@ class MobilerakerExtension(BaseExtension):
                 Logger.print_status(
                     "Removing Mobileraker's companion from update manager ..."
                 )
+                BackupService().backup_moonraker_conf()
                 remove_config_section(MOBILERAKER_UPDATER_SECTION_NAME, mr_instances)
                 Logger.print_ok(
                     "Mobileraker's companion successfully removed from update manager!"
@@ -163,6 +163,7 @@ class MobilerakerExtension(BaseExtension):
             Logger.print_error(f"Error removing Mobileraker's companion:\n{e}")
 
     def _patch_mobileraker_update_manager(self, instances: List[Moonraker]) -> None:
+        BackupService().backup_moonraker_conf()
         add_config_section(
             section=MOBILERAKER_UPDATER_SECTION_NAME,
             instances=instances,
@@ -179,14 +180,14 @@ class MobilerakerExtension(BaseExtension):
         )
 
     def _backup_mobileraker_dir(self) -> None:
-        bm = BackupManager()
-        bm.backup_directory(
-            MOBILERAKER_DIR.name,
-            source=MOBILERAKER_DIR,
-            target=MOBILERAKER_BACKUP_DIR,
+        svc = BackupService()
+        svc.backup_directory(
+            source_path=MOBILERAKER_DIR,
+            backup_name="mobileraker",
+            target_path="mobileraker",
         )
-        bm.backup_directory(
-            MOBILERAKER_ENV_DIR.name,
-            source=MOBILERAKER_ENV_DIR,
-            target=MOBILERAKER_BACKUP_DIR,
+        svc.backup_directory(
+            source_path=MOBILERAKER_ENV_DIR,
+            backup_name="mobileraker-env",
+            target_path="mobileraker",
         )

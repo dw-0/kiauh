@@ -14,11 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Literal, Set
 
-from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.constants import (
     GLOBAL_DEPS,
-    PRINTER_DATA_BACKUP_DIR,
 )
 from core.logger import DialogType, Logger
 from core.types.color import Color
@@ -149,26 +147,6 @@ def get_install_status(
         local=get_local_commit(repo_dir),
         remote=get_remote_commit(repo_dir),
     )
-
-
-def backup_printer_config_dir() -> None:
-    # local import to prevent circular import
-    from core.backup_manager.backup_manager import BackupManager
-
-    instances: List[Klipper] = get_instances(Klipper)
-    bm = BackupManager()
-
-    if not instances:
-        Logger.print_info("Unable to find directory to backup!")
-        Logger.print_info("Are there no Klipper instances installed?")
-        return
-
-    for instance in instances:
-        bm.backup_directory(
-            instance.data_dir.name,
-            source=instance.base.cfg_dir,
-            target=PRINTER_DATA_BACKUP_DIR,
-        )
 
 
 def moonraker_exists(name: str = "") -> List[Moonraker]:

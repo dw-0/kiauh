@@ -9,12 +9,13 @@
 
 import os
 import shutil
+from datetime import datetime
 from typing import List
 
 from components.klipper.klipper import Klipper
-from core.backup_manager.backup_manager import BackupManager
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
@@ -109,11 +110,13 @@ class GcodeShellCmdExtension(BaseExtension):
                 Logger.warn(f"Unable to create example config: {e}")
 
         # backup each printer.cfg before modification
-        bm = BackupManager()
+        svc = BackupService()
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         for instance in instances:
-            bm.backup_file(
-                instance.cfg_file,
-                custom_filename=f"{instance.suffix}.printer.cfg",
+            svc.backup_file(
+                source_path=instance.cfg_file,
+                target_path=f"{instance.data_dir.name}/config_{timestamp}",
+                target_name=instance.cfg_file.name,
             )
 
         # add section to printer.cfg if not already defined

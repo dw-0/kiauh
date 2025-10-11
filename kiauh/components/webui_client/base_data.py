@@ -34,7 +34,6 @@ class BaseWebClient(ABC):
     display_name: str
     client_dir: Path
     config_file: Path
-    backup_dir: Path
     repo_path: str
     download_url: str
     nginx_config: Path
@@ -52,6 +51,5 @@ class BaseWebClientConfig(ABC):
     display_name: str
     config_filename: str
     config_dir: Path
-    backup_dir: Path
     repo_url: str
     config_section: str

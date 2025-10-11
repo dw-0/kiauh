@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=======================================================================#
-# Copyright (C) 2020 - 2024 Dominik Willner <th33xitus@gmail.com>       #
+# Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>       #
 #                                                                       #
 # This file is part of KIAUH - Klipper Installation And Update Helper   #
 # https://github.com/dw-0/kiauh                                         #
@@ -14,11 +14,6 @@ clear -x
 
 # make sure we have the correct permissions while running the script
 umask 022
-
-### sourcing all additional scripts
-KIAUH_SRCDIR="$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")"
-for script in "${KIAUH_SRCDIR}/scripts/"*.sh; do . "${script}"; done
-for script in "${KIAUH_SRCDIR}/scripts/ui/"*.sh; do . "${script}"; done
 
 #===================================================#
 #=================== UPDATE KIAUH ==================#
@@ -57,15 +52,6 @@ function kiauh_update_avail() {
   fi
 }
 
-function save_startup_version() {
-  local launch_version
-
-  echo "${1}"
-
-  sed -i "/^version_to_launch=/d" "${INI_FILE}"
-  sed -i '$a'"version_to_launch=${1}" "${INI_FILE}"
-}
-
 function kiauh_update_dialog() {
   [[ ! $(kiauh_update_avail) == "true" ]] && return
   top_border
@@ -93,85 +79,52 @@ function kiauh_update_dialog() {
   done
 }
 
-function launch_kiauh_v5() {
-    main_menu
-}
-
-function launch_kiauh_v6() {
-  local entrypoint
-
-  if ! command -v python3 &>/dev/null || [[ $(python3 -V | cut -d " " -f2 | cut -d "." -f2) -lt 8 ]]; then
-    echo "Python 3.8 or higher is not installed!"
-    echo "Please install Python 3.8 or higher and try again."
+function check_euid() {
+  if [[ ${EUID} -eq 0 ]]; then
+    echo -e "${red}"
+    top_border
+    echo -e "|       !!! THIS SCRIPT MUST NOT RUN AS ROOT !!!        |"
+    echo -e "|                                                       |"
+    echo -e "|        It will ask for credentials as needed.         |"
+    bottom_border
+    echo -e "${white}"
     exit 1
   fi
+}
 
-  entrypoint=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-
-  export PYTHONPATH="${entrypoint}"
-
-  clear -x
-  python3 "${entrypoint}/kiauh.py"
+function check_if_ratos() {
+  if [[ -n $(which ratos) ]]; then
+    echo -e "${red}"
+    top_border
+    echo -e "|        !!! RatOS 2.1 or greater detected !!!          |"
+    echo -e "|                                                       |"
+    echo -e "|        KIAUH does currently not support RatOS.        |"
+    echo -e "| If you have any questions, please ask for help on the |"
+    echo -e "| RatRig Community Discord: https://discord.gg/ratrig   |"
+    bottom_border
+    echo -e "${white}"
+    exit 1
+  fi
 }
 
 function main() {
-  read_kiauh_ini "${FUNCNAME[0]}"
+   local entrypoint
 
-  if [[ ${version_to_launch} -eq 5 ]]; then
-    launch_kiauh_v5
-  elif [[ ${version_to_launch} -eq 6 ]]; then
-    launch_kiauh_v6
-  else
-    top_border
-    echo -e "|         ${green}KIAUH v6.0.0-alpha1 is available now!${white}         |"
-    hr
-    echo -e "|         View Changelog: ${magenta}https://git.io/JnmlX${white}          |"
-    blank_line
-    echo -e "| KIAUH v6 was completely rewritten from the ground up. |"
-    echo -e "| It's based on Python 3.8 and has many improvements.   |"
-    blank_line
-    echo -e "| ${yellow}NOTE: Version 6 is still in alpha, so bugs may occur!${white} |"
-    echo -e "| ${yellow}Yet, your feedback and bug reports are very much${white}      |"
-    echo -e "| ${yellow}appreciated and will help finalize the release.${white}       |"
-    hr
-    echo -e "| Would you like to try out KIAUH v6?                   |"
-    echo -e "| 1) Yes                                                |"
-    echo -e "| 2) No                                                 |"
-    echo -e "| 3) Yes, remember my choice for next time              |"
-    echo -e "| 4) No, remember my choice for next time               |"
-    quit_footer
-    while true; do
-      read -p "${cyan}###### Select action:${white} " -e input
-      case "${input}" in
-        1)
-          launch_kiauh_v6
-          break;;
-        2)
-          launch_kiauh_v5
-          break;;
-        3)
-          save_startup_version 6
-          launch_kiauh_v6
-          break;;
-        4)
-          save_startup_version 5
-          launch_kiauh_v5
-          break;;
-        Q|q)
-          echo -e "${green}###### Happy printing! ######${white}"; echo
-          exit 0;;
-        *)
-          error_msg "Invalid Input!\n";;
-      esac
-    done && input=""
-  fi
+   if ! command -v python3 &>/dev/null || [[ $(python3 -V | cut -d " " -f2 | cut -d "." -f2) -lt 8 ]]; then
+     echo "Python 3.8 or higher is not installed!"
+     echo "Please install Python 3.8 or higher and try again."
+     exit 1
+   fi
+
+   entrypoint=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+
+   export PYTHONPATH="${entrypoint}"
+
+   clear -x
+   python3 "${entrypoint}/kiauh/main.py"
 }
 
 check_if_ratos
 check_euid
-init_logfile
-set_globals
 kiauh_update_dialog
-read_kiauh_ini
-init_ini
 main

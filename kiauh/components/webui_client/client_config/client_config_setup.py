@@ -25,8 +25,8 @@ from components.webui_client.client_utils import (
 )
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
+from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
-from utils.common import backup_printer_config_dir
 from utils.config_utils import add_config_section, add_config_section_at_top
 from utils.fs_utils import create_symlink
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
@@ -57,7 +57,7 @@ def install_client_config(client_data: BaseWebClient, cfg_backup=True) -> None:
         create_client_config_symlink(client_config, kl_instances)
 
         if cfg_backup:
-            backup_printer_config_dir()
+            BackupService().backup_printer_config_dir()
 
         add_config_section(
             section=f"update_manager {client_config.name}",

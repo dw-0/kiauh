@@ -150,9 +150,9 @@ class ExtensionSubmenu(BaseMenu):
         if website or repo:
             links_lines: List[str] = ["Links:"]
             if website:
-                links_lines.append(f"- Website: {website}")
+                links_lines.append(f"● {website}")
             if repo:
-                links_lines.append(f"- GitHub: {repo}")
+                links_lines.append(f"● {repo}")
 
             links_text = Logger.format_content(
                 links_lines,

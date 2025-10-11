@@ -8,7 +8,6 @@
 # ======================================================================= #
 from pathlib import Path
 
-from core.backup_manager import BACKUP_ROOT_DIR
 from core.constants import SYSTEMD
 
 # repo
@@ -22,7 +21,6 @@ KLIPPERSCREEN_LOG_NAME = "KlipperScreen.log"
 # directories
 KLIPPERSCREEN_DIR = Path.home().joinpath("KlipperScreen")
 KLIPPERSCREEN_ENV_DIR = Path.home().joinpath(".KlipperScreen-env")
-KLIPPERSCREEN_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("klipperscreen-backups")
 
 # files
 KLIPPERSCREEN_REQ_FILE = KLIPPERSCREEN_DIR.joinpath(

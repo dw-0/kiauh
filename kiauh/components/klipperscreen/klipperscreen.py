@@ -13,7 +13,6 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.klipperscreen import (
-    KLIPPERSCREEN_BACKUP_DIR,
     KLIPPERSCREEN_DIR,
     KLIPPERSCREEN_ENV_DIR,
     KLIPPERSCREEN_INSTALL_SCRIPT,
@@ -25,10 +24,10 @@ from components.klipperscreen import (
     KLIPPERSCREEN_UPDATER_SECTION_NAME,
 )
 from components.moonraker.moonraker import Moonraker
-from core.backup_manager.backup_manager import BackupManager
 from core.constants import SYSTEMD
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
 from core.types.component_status import ComponentStatus
 from utils.common import (
@@ -97,6 +96,7 @@ def install_klipperscreen() -> None:
 
 
 def patch_klipperscreen_update_manager(instances: List[Moonraker]) -> None:
+    BackupService().backup_moonraker_conf()
     add_config_section(
         section=KLIPPERSCREEN_UPDATER_SECTION_NAME,
         instances=instances,
@@ -183,6 +183,7 @@ def remove_klipperscreen() -> None:
         mr_instances: List[Moonraker] = get_instances(Moonraker)
         if mr_instances:
             Logger.print_status("Removing KlipperScreen from update manager ...")
+            BackupService().backup_moonraker_conf()
             remove_config_section("update_manager KlipperScreen", mr_instances)
             Logger.print_ok("KlipperScreen successfully removed from update manager!")
 
@@ -193,14 +194,14 @@ def remove_klipperscreen() -> None:
 
 
 def backup_klipperscreen_dir() -> None:
-    bm = BackupManager()
-    bm.backup_directory(
-        KLIPPERSCREEN_DIR.name,
-        source=KLIPPERSCREEN_DIR,
-        target=KLIPPERSCREEN_BACKUP_DIR,
+    svc = BackupService()
+    svc.backup_directory(
+        source_path=KLIPPERSCREEN_DIR,
+        backup_name="KlipperScreen",
+        target_path="KlipperScreen",
     )
-    bm.backup_directory(
-        KLIPPERSCREEN_ENV_DIR.name,
-        source=KLIPPERSCREEN_ENV_DIR,
-        target=KLIPPERSCREEN_BACKUP_DIR,
+    svc.backup_directory(
+        source_path=KLIPPERSCREEN_ENV_DIR,
+        backup_name="KlipperScreen-env",
+        target_path="KlipperScreen",
     )

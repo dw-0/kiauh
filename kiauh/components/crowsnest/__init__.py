@@ -9,7 +9,6 @@
 
 from pathlib import Path
 
-from core.backup_manager import BACKUP_ROOT_DIR
 from core.constants import SYSTEMD
 
 # repo
@@ -20,7 +19,6 @@ CROWSNEST_SERVICE_NAME = "crowsnest.service"
 
 # directories
 CROWSNEST_DIR = Path.home().joinpath("crowsnest")
-CROWSNEST_BACKUP_DIR = BACKUP_ROOT_DIR.joinpath("crowsnest-backups")
 
 # files
 CROWSNEST_MULTI_CONFIG = CROWSNEST_DIR.joinpath("tools/.config")
