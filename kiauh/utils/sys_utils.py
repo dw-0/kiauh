@@ -423,13 +423,19 @@ def set_nginx_permissions() -> None:
     This seems to have become necessary with Ubuntu 21+. |
     :return: None
     """
-    cmd = f"ls -ld {Path.home()} | cut -d' ' -f1"
+    from core.install_paths import get_install_root
+
+    target_dir = get_install_root()
+    if not target_dir.exists():
+        target_dir = Path.home()
+
+    cmd = f"ls -ld {target_dir} | cut -d' ' -f1"
     homedir_perm = run(cmd, shell=True, stdout=PIPE, text=True)
     permissions = homedir_perm.stdout
 
     if permissions.count("x") < 3:
         Logger.print_status("Granting NGINX the required permissions ...")
-        run(["chmod", "og+x", Path.home()])
+        run(["chmod", "og+x", target_dir])
         Logger.print_ok("Permissions granted.")
 
 

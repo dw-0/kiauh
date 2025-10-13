@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import re
 import shutil
+import errno
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, call, check_output, run
 from typing import List
@@ -20,6 +21,8 @@ from zipfile import ZipFile
 
 from core.decorators import deprecated
 from core.logger import Logger
+from core.constants import CURRENT_USER
+from core.install_paths import get_install_root
 
 
 def check_file_exist(file_path: Path, sudo=False) -> bool:
@@ -129,14 +132,47 @@ def unzip(filepath: Path, target_dir: Path) -> None:
 
 
 def create_folders(dirs: List[Path]) -> None:
-    try:
-        for _dir in dirs:
-            if _dir.exists():
+    for _dir in dirs:
+        if _dir.exists():
+            if os.access(_dir, os.W_OK | os.X_OK):
                 continue
-            _dir.mkdir(exist_ok=True)
-            Logger.print_ok(f"Created directory '{_dir}'!")
-    except OSError as e:
-        Logger.print_error(f"Error creating directories: {e}")
+            _ensure_dir_ownership(_dir)
+            Logger.print_ok(f"Adjusted ownership for '{_dir}'!")
+            continue
+        try:
+            _dir.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            _create_dir_with_sudo(_dir)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                continue
+            Logger.print_error(f"Error creating directories: {e}")
+            raise
+        Logger.print_ok(f"Created directory '{_dir}'!")
+
+
+def _create_dir_with_sudo(target: Path) -> None:
+    try:
+        run(
+            ["sudo", "mkdir", "-p", target.as_posix()],
+            stderr=PIPE,
+            check=True,
+        )
+        _ensure_dir_ownership(target)
+    except CalledProcessError as e:
+        Logger.print_error(f"Error creating directory '{target}' with elevated privileges: {e}")
+        raise
+
+
+def _ensure_dir_ownership(target: Path) -> None:
+    try:
+        run(
+            ["sudo", "chown", "-R", f"{CURRENT_USER}:{CURRENT_USER}", target.as_posix()],
+            stderr=PIPE,
+            check=True,
+        )
+    except CalledProcessError as e:
+        Logger.print_error(f"Error adjusting ownership for '{target}': {e}")
         raise
 
 
@@ -157,6 +193,6 @@ def get_data_dir(instance_type: type, suffix: str) -> Path:
 
     if suffix != "":
         # this is the new data dir naming scheme introduced in v6.0.0
-        return Path.home().joinpath(f"printer_{suffix}_data")
+        return get_install_root().joinpath(f"printer_{suffix}_data")
 
-    return Path.home().joinpath("printer_data")
+    return get_install_root().joinpath("printer_data")

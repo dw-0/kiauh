@@ -62,6 +62,7 @@ class Klipper:
         Logger.print_status("Creating new Klipper Instance ...")
 
         try:
+            create_folders([self.base.data_dir.parent])
             create_folders(self.base.base_folders)
 
             create_service_file(

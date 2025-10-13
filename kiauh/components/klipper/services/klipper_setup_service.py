@@ -45,7 +45,7 @@ from core.logger import DialogType, Logger
 from core.services.message_service import Message, MessageService
 from core.settings.kiauh_settings import KiauhSettings
 from core.types.color import Color
-from utils.fs_utils import run_remove_routines
+from utils.fs_utils import create_folders, run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm, get_selection_input
 from utils.sys_utils import (
@@ -273,6 +273,7 @@ class KlipperSetupService:
         repo = self.settings.klipper.repositories
         # pull the first repo defined in kiauh.cfg or fallback to the official Klipper repo
         repo, branch = (repo[0].url, repo[0].branch) if repo else default_repo
+        create_folders([KLIPPER_DIR.parent])
         git_clone_wrapper(repo, KLIPPER_DIR, branch)
 
         try:

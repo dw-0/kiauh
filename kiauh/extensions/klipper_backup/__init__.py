@@ -11,9 +11,12 @@
 
 from pathlib import Path
 
+from core.install_paths import get_install_root
+
 EXT_MODULE_NAME = "klipper_backup_extension.py"
 MODULE_PATH = Path(__file__).resolve().parent
-MOONRAKER_CONF = Path.home().joinpath("printer_data", "config", "moonraker.conf")
-KLIPPERBACKUP_DIR = Path.home().joinpath("klipper-backup")
-KLIPPERBACKUP_CONFIG_DIR = Path.home().joinpath("config_backup")
+INSTALL_ROOT = get_install_root()
+MOONRAKER_CONF = INSTALL_ROOT.joinpath("printer_data", "config", "moonraker.conf")
+KLIPPERBACKUP_DIR = INSTALL_ROOT.joinpath("klipper-backup")
+KLIPPERBACKUP_CONFIG_DIR = INSTALL_ROOT.joinpath("config_backup")
 KLIPPERBACKUP_REPO_URL = "https://github.com/staubgeborener/klipper-backup"
