@@ -54,15 +54,15 @@ function kiauh_update_avail() {
 
 function kiauh_update_dialog() {
   [[ ! $(kiauh_update_avail) == "true" ]] && return
-  top_border
+  echo -e "/-------------------------------------------------------\\"
   echo -e "|${green}              New KIAUH update available!              ${white}|"
-  hr
+  echo -e "|-------------------------------------------------------|"
   echo -e "|${green}  View Changelog: https://git.io/JnmlX                 ${white}|"
-  blank_line
+  echo -e "|                                                       |"
   echo -e "|${yellow}  It is recommended to keep KIAUH up to date. Updates  ${white}|"
   echo -e "|${yellow}  usually contain bugfixes, important changes or new   ${white}|"
   echo -e "|${yellow}  features. Please consider updating!                  ${white}|"
-  bottom_border
+  echo -e "\-------------------------------------------------------/"
 
   local yn
   read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
@@ -82,11 +82,11 @@ function kiauh_update_dialog() {
 function check_euid() {
   if [[ ${EUID} -eq 0 ]]; then
     echo -e "${red}"
-    top_border
+    echo -e "/-------------------------------------------------------\\"
     echo -e "|       !!! THIS SCRIPT MUST NOT RUN AS ROOT !!!        |"
     echo -e "|                                                       |"
     echo -e "|        It will ask for credentials as needed.         |"
-    bottom_border
+    echo -e "\-------------------------------------------------------/"
     echo -e "${white}"
     exit 1
   fi
@@ -95,13 +95,13 @@ function check_euid() {
 function check_if_ratos() {
   if [[ -n $(which ratos) ]]; then
     echo -e "${red}"
-    top_border
+    echo -e "/-------------------------------------------------------\\"
     echo -e "|        !!! RatOS 2.1 or greater detected !!!          |"
     echo -e "|                                                       |"
     echo -e "|        KIAUH does currently not support RatOS.        |"
     echo -e "| If you have any questions, please ask for help on the |"
     echo -e "| RatRig Community Discord: https://discord.gg/ratrig   |"
-    bottom_border
+    echo -e "\-------------------------------------------------------/"
     echo -e "${white}"
     exit 1
   fi
