@@ -15,6 +15,57 @@ clear -x
 # make sure we have the correct permissions while running the script
 umask 022
 
+# ANSI color codes used for fancy shell output
+red="\033[31m"
+green="\033[32m"
+yellow="\033[33m"
+cyan="\033[36m"
+white="\033[0m"
+
+#===================================================#
+#============== SHELL UI HELPERS ===================#
+#===================================================#
+
+function top_border() {
+  printf "+--------------------------------------------------------------+\n"
+}
+
+function bottom_border() {
+  printf "+--------------------------------------------------------------+\n"
+}
+
+function hr() {
+  printf "|--------------------------------------------------------------|\n"
+}
+
+function blank_line() {
+  printf "|                                                              |\n"
+}
+
+function status_msg() {
+  printf "%b\n" "${cyan}==> ${1}${white}"
+}
+
+function ok_msg() {
+  printf "%b\n" "${green}==> ${1}${white}"
+}
+
+function deny_action() {
+  printf "%b\n" "${red}Invalid selection. Please try again.${white}"
+  read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
+}
+
+function do_action() {
+  local action="$1"
+  shift || true
+
+  if declare -f "${action}" >/dev/null 2>&1; then
+    "${action}" "$@"
+  else
+    printf "%b\n" "${red}Unable to execute action '${action}'.${white}"
+  fi
+}
+
 #===================================================#
 #=================== UPDATE KIAUH ==================#
 #===================================================#

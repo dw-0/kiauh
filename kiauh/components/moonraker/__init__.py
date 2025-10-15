@@ -9,6 +9,8 @@
 
 from pathlib import Path
 
+from core.install_paths import install_root_join
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 MOONRAKER_REPO_URL = "https://github.com/Arksine/moonraker.git"
@@ -21,8 +23,8 @@ MOONRAKER_DEFAULT_PORT = 7125
 MOONRAKER_ENV_FILE_NAME = "moonraker.env"
 
 # directories
-MOONRAKER_DIR = Path.home().joinpath("moonraker")
-MOONRAKER_ENV_DIR = Path.home().joinpath("moonraker-env")
+MOONRAKER_DIR = install_root_join("moonraker")
+MOONRAKER_ENV_DIR = install_root_join("moonraker-env")
 
 # files
 MOONRAKER_INSTALL_SCRIPT = MOONRAKER_DIR.joinpath("scripts/install-moonraker.sh")

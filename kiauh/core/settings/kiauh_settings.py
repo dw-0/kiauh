@@ -19,6 +19,7 @@ from core.services.backup_service import BackupService
 from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
+from core.install_paths import DEFAULT_INSTALL_ROOT
 from utils.input_utils import get_confirm
 from utils.sys_utils import kill
 
@@ -41,6 +42,7 @@ class InvalidValueError(Exception):
 @dataclass
 class AppSettings:
     backup_before_update: bool | None = field(default=None)
+    install_root: str | None = field(default=None)
 
 
 @dataclass
@@ -156,6 +158,13 @@ class KiauhSettings:
             "backup_before_update",
             self.config.getboolean,
             False,
+        )
+        self.kiauh.install_root = self.__read_from_cfg(
+            "kiauh",
+            "install_root",
+            self.config.getval,
+            DEFAULT_INSTALL_ROOT.as_posix(),
+            True,
         )
 
         # parse Klipper options
@@ -296,6 +305,12 @@ class KiauhSettings:
                 "kiauh",
                 "backup_before_update",
                 str(self.kiauh.backup_before_update),
+            )
+        if self.kiauh.install_root is not None:
+            self.config.set_option(
+                "kiauh",
+                "install_root",
+                str(self.kiauh.install_root),
             )
 
         # Handle repositories

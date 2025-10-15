@@ -10,6 +10,7 @@
 from pathlib import Path
 
 from core.constants import SYSTEMD
+from core.install_paths import install_root_join
 
 # repo
 CROWSNEST_REPO = "https://github.com/mainsail-crew/crowsnest.git"
@@ -18,7 +19,7 @@ CROWSNEST_REPO = "https://github.com/mainsail-crew/crowsnest.git"
 CROWSNEST_SERVICE_NAME = "crowsnest.service"
 
 # directories
-CROWSNEST_DIR = Path.home().joinpath("crowsnest")
+CROWSNEST_DIR = install_root_join("crowsnest")
 
 # files
 CROWSNEST_MULTI_CONFIG = CROWSNEST_DIR.joinpath("tools/.config")

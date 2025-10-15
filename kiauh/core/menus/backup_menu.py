@@ -57,8 +57,9 @@ class BackupMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
+        backup_root = BackupService().backup_root
         line1 = Color.apply(
-            "INFO: Backups are located in '~/kiauh-backups'", Color.YELLOW
+            f"INFO: Backups are located in '{backup_root}'", Color.YELLOW
         )
         menu = textwrap.dedent(
             f"""
