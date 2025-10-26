@@ -468,8 +468,8 @@ class SimpleConfigParser:
         elif opt and isinstance(opt, Option) and isinstance(value, str):
             curr_val = opt.value
             new_val = value
-            opt.value = value
-            opt.raw.replace(curr_val, new_val)
+            opt.value = new_val
+            opt.raw = opt.raw.replace(curr_val, new_val)
 
         elif opt and isinstance(opt, MultiLineOption) and isinstance(value, list):
             # note: we completely replace the existing values
