@@ -13,6 +13,14 @@ homing_speed: 5.0
 # position_min: 0
 # homing_speed: 5.0
 
+option:
+option :
+option :
+option=
+option =
+option =
+
+
 ### this is a comment
 ; this is also a comment
 ;
@@ -29,9 +37,3 @@ homing_speed :=
 homing_speed :=
 homing_speed =:
 homing_speed =:
-gcode:
-gcode :
-gcode :
-gcode=
-gcode =
-gcode =

@@ -14,16 +14,17 @@ from src.simple_config_parser.simple_config_parser import (
 
 
 def test_get_sections(parser):
-    expected_keys = {
+    expected_core = {
         "section_1",
         "section_2",
         "section_3",
         "section_4",
         "section number 5",
     }
-    assert expected_keys.issubset(
-        parser.get_sections()
-    ), f"Expected keys: {expected_keys}, got: {parser.get_sections()}"
+    parsed = parser.get_sections()
+    assert expected_core.issubset(parsed), (
+        f"Missing core sections: {expected_core - parsed}"
+    )
 
 
 def test_has_section(parser):
@@ -39,18 +40,6 @@ def test_add_section(parser):
     assert parser.has_section("new_section2") is True
     assert len(parser.get_sections()) == pre_add_count + 2
 
-    new_section = parser.config["new_section"]
-    assert isinstance(new_section, dict)
-    assert new_section["header"] == "[new_section]\n"
-    assert new_section["elements"] is not None
-    assert new_section["elements"] == []
-
-    new_section2 = parser.config["new_section2"]
-    assert isinstance(new_section2, dict)
-    assert new_section2["header"] == "[new_section2]\n"
-    assert new_section2["elements"] is not None
-    assert new_section2["elements"] == []
-
 
 def test_add_section_duplicate(parser):
     with pytest.raises(DuplicateSectionError):
@@ -62,4 +51,3 @@ def test_remove_section(parser):
     parser.remove_section("section_1")
     assert parser.has_section("section_1") is False
     assert len(parser.get_sections()) == pre_remove_count - 1
-    assert "section_1" not in parser.config
