@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2024 Dominik Willner <th33xitus@gmail.com>               #
+#  Copyright (C) 2025 Dominik Willner <th33xitus@gmail.com>               #
 #                                                                         #
 #  https://github.com/dw-0/simple-config-parser                           #
 #                                                                         #
@@ -8,20 +8,87 @@
 
 from __future__ import annotations
 
+import re
+from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
-from ..simple_config_parser.constants import (
-    BOOLEAN_STATES,
-    EMPTY_LINE_RE,
-    HEADER_IDENT,
-    LINE_COMMENT_RE,
-    OPTION_RE,
-    OPTIONS_BLOCK_START_RE,
-    SECTION_RE, LineType, INDENT, SAVE_CONFIG_START_RE, SAVE_CONFIG_CONTENT_RE,
+# definition of section line:
+#  - the line MUST start with an opening square bracket - it is the first section marker
+#  - the section marker MUST be followed by at least one character - it is the section name
+#  - the section name MUST be followed by a closing square bracket - it is the second section marker
+#  - the second section marker MAY be followed by any amount of whitespace characters
+#  - the second section marker MAY be followed by a # or ; - it is the comment marker
+#  - the inline comment MAY be of any length and character
+SECTION_RE = re.compile(r"^\[(\S.*\S|\S)]\s*([#;].*)?$")
+
+# definition of option line:
+#  - the line MUST start with a word - it is the option name
+#  - the option name MUST be followed by a colon or an equal sign - it is the separator
+#  - the separator MUST be followed by a value
+#    - the separator MAY have any amount of leading or trailing whitespaces
+#    - the separator MUST NOT be directly followed by a colon or equal sign
+#  - the value MAY be of any length and character
+#    - the value MAY contain any amount of trailing whitespaces
+#    - the value MAY be followed by a # or ; - it is the comment marker
+#  - the inline comment MAY be of any length and character
+OPTION_RE = re.compile(r"^([^;#:=\s]+)\s?[:=]\s*([^;#:=\s][^;#]*?)\s*([#;].*)?$")
+
+# definition of options block start line:
+#  - the line MUST start with a word - it is the option name
+#  - the option name MUST NOT be "gcode"
+#  - the option name MUST be followed by a colon or an equal sign - it is the separator
+#  - the separator MUST NOT be followed by a value
+#    - the separator MAY have any amount of leading or trailing whitespaces
+#    - the separator MUST NOT be directly followed by a colon or equal sign
+#    - the separator MAY be followed by a # or ; - it is the comment marker
+#  - the inline comment MAY be of any length and character
+OPTIONS_BLOCK_START_RE = re.compile(
+    r"^(?!\s*gcode\s*[:=])([^;#:=\s]+)\s*[:=]\s*([#;].*)?$"
 )
 
-_UNSET = object()
+# definition of gcode block start line:
+#  - the line MUST start with the word "gcode"
+#  - the word "gcode" MUST be followed by a colon or an equal sign - it is the separator
+#  - the separator MUST NOT be followed by a value
+#    - the separator MAY have any amount of leading or trailing whitespaces
+#    - the separator MUST NOT be directly followed by a colon or equal sign
+#    - the separator MAY be followed by a # or ; - it is the comment marker
+#  - the inline comment MAY be of any length and character
+GCODE_BLOCK_START_RE = re.compile(r"^\s*gcode\s*[:=]\s*(?:[#;].*)?$")
+
+# definition of comment line:
+#  - the line MAY start with any amount of whitespace characters
+#  - the line MUST contain a # or ; - it is the comment marker
+#  - the comment marker MAY be followed by any amount of whitespace characters
+#  - the comment MAY be of any length and character
+LINE_COMMENT_RE = re.compile(r"^\s*[#;].*")
+
+# definition of empty line:
+#  - the line MUST contain only whitespace characters
+EMPTY_LINE_RE = re.compile(r"^\s*$")
+
+SAVE_CONFIG_START_RE = re.compile(r"^#\*# <-+ SAVE_CONFIG -+>$")
+SAVE_CONFIG_CONTENT_RE = re.compile(r"^#\*#.*$")
+
+BOOLEAN_STATES = {
+    "1": True,
+    "yes": True,
+    "true": True,
+    "on": True,
+    "0": False,
+    "no": False,
+    "false": False,
+    "off": False,
+}
+
+
+class LineType(Enum):
+    OPTION = "option"
+    OPTION_BLOCK = "option_block"
+    COMMENT = "comment"
+    BLANK = "blank"
 
 
 class NoSectionError(Exception):
@@ -47,6 +114,7 @@ class NoOptionError(Exception):
         msg = f"Option '{option}' in section '{section}' is not defined"
         super().__init__(msg)
 
+
 class UnknownLineError(Exception):
     """Raised when a line is not recognized as any known type"""
 
@@ -55,17 +123,81 @@ class UnknownLineError(Exception):
         super().__init__(msg)
 
 
+@dataclass
+class Option:
+    """Dataclass representing a (pseudo) config option"""
+
+    name: str
+    raw: str
+    value: str
+
+
+@dataclass
+class MultiLineOption:
+    """Dataclass representing a multi-line config option"""
+
+    name: str
+    raw: str
+    values: List[MLOptionValue] = field(default_factory=list)
+
+
+@dataclass
+class MLOptionValue:
+    """Dataclass representing a value in a multi-line option"""
+
+    raw: str
+    indent: int
+    value: str
+
+
+@dataclass
+class Gcode:
+    """Dataclass representing a gcode block"""
+
+    name: str
+    raw: str
+    gcode: List[str] = field(default_factory=list)
+
+
+@dataclass
+class BlankLine:
+    """Dataclass representing a blank line"""
+
+    raw: str = "\n"
+
+
+@dataclass
+class CommentLine:
+    """Dataclass representing a comment line"""
+
+    raw: str
+
+
+SectionItem = Union[Option, MultiLineOption, Gcode, BlankLine, CommentLine]
+
+
+@dataclass
+class Section:
+    """Dataclass representing a config section"""
+
+    name: str
+    raw: str
+    items: List[SectionItem] = field(default_factory=list)
+
+
 # noinspection PyMethodMayBeStatic
 class SimpleConfigParser:
     """A customized config parser targeted at handling Klipper style config files"""
 
     def __init__(self) -> None:
-        self.header: List[str] = []
-        self.save_config_block: List[str] = []
         self.config: Dict = {}
-        self.current_section: str | None = None
-        self.current_opt_block: str | None = None
-        self.in_option_block: bool = False
+
+        self._header: List[str] = []
+        self._save_config_block: List[str] = []
+        self._config: List[Section] = []
+        self._curr_sect: Union[Section, None] = None
+        self._curr_ml_opt: Union[MultiLineOption, None] = None
+        self._curr_gcode: Union[Gcode, None] = None
 
     def _match_section(self, line: str) -> bool:
         """Whether the given line matches the definition of a section"""
@@ -78,6 +210,10 @@ class SimpleConfigParser:
     def _match_options_block_start(self, line: str) -> bool:
         """Whether the given line matches the definition of a multiline option"""
         return OPTIONS_BLOCK_START_RE.match(line) is not None
+
+    def _match_gcode_block_start(self, line: str) -> bool:
+        """Whether the given line matches the definition of a gcode block start"""
+        return GCODE_BLOCK_START_RE.match(line) is not None
 
     def _match_save_config_start(self, line: str) -> bool:
         """Whether the given line matches the definition of a save config start"""
@@ -97,246 +233,335 @@ class SimpleConfigParser:
 
     def _parse_line(self, line: str) -> None:
         """Parses a line and determines its type"""
+        if self._curr_sect is None and not self._match_section(line):
+            # we are at the beginning of the file, so we consider the part
+            # up to the first section as the file header and store it separately
+            self._header.append(line)
+            return
+
         if self._match_section(line):
-            self.current_opt_block = None
-            self.current_section = SECTION_RE.match(line).group(1)
-            self.config[self.current_section] = {
-                "header": line,
-                "elements": []
-            }
+            self._reset_special_items()
 
-        elif self._match_option(line):
-            self.current_opt_block = None
-            option = OPTION_RE.match(line).group(1)
-            value = OPTION_RE.match(line).group(2)
-            self.config[self.current_section]["elements"].append({
-                "type": LineType.OPTION.value,
-                "name": option,
-                "value": value,
-                "raw": line
-            })
+            sect_name: str = SECTION_RE.match(line).group(1)
+            sect = Section(name=sect_name, raw=line)
+            self._curr_sect = sect
+            self._config.append(sect)
+            return
 
-        elif self._match_options_block_start(line):
-            option = OPTIONS_BLOCK_START_RE.match(line).group(1)
-            self.current_opt_block = option
-            self.config[self.current_section]["elements"].append({
-                "type": LineType.OPTION_BLOCK.value,
-                "name": option,
-                "value": [],
-                "raw": line
-            })
+        if self._match_option(line):
+            self._reset_special_items()
 
-        elif self.current_opt_block is not None:
-            # we are in an option block, so we add the line to the option's value
-            for element in reversed(self.config[self.current_section]["elements"]):
-                if element["type"] == LineType.OPTION_BLOCK.value and element["name"] == self.current_opt_block:
-                    element["value"].append(line.strip()) # indentation is removed
-                    break
+            name: str = OPTION_RE.match(line).group(1)
+            val: str = OPTION_RE.match(line).group(2)
+            opt = Option(
+                name=name,
+                raw=line,
+                value=val,
+            )
+            self._curr_sect.items.append(opt)
+            return
 
-        elif self._match_save_config_start(line):
-            self.current_opt_block = None
-            self.save_config_block.append(line)
+        if self._match_options_block_start(line):
+            self._reset_special_items()
 
-        elif self._match_save_config_content(line):
-            self.current_opt_block = None
-            self.save_config_block.append(line)
+            name: str = OPTIONS_BLOCK_START_RE.match(line).group(1)
+            ml_opt = MultiLineOption(
+                name=name,
+                raw=line,
+            )
+            self._curr_ml_opt = ml_opt
+            self._curr_sect.items.append(ml_opt)
+            return
 
-        elif self._match_empty_line(line) or self._match_line_comment(line):
-            self.current_opt_block = None
+        if self._curr_ml_opt is not None:
+            # we are in an option block, so we consecutively add values
+            # to the current multiline option until we hit a different line type
 
-            # if current_section is None, we are at the beginning of the file,
-            # so we consider the part up to the first section as the file header
-            if not self.current_section:
-                self.config.setdefault(HEADER_IDENT, []).append(line)
+            if "#" in line:
+                value = line.split("#", 1)[0].strip()
+            elif ";" in line:
+                value = line.split(";", 1)[0].strip()
             else:
-                element_type = LineType.BLANK.value if self._match_empty_line(line) else LineType.COMMENT.value
-                self.config[self.current_section]["elements"].append({
-                    "type": element_type,
-                    "content": line
-                })
+                value = line.strip()
+
+            ml_value = MLOptionValue(
+                raw=line,
+                indent=self._get_indent(line),
+                value=value,
+            )
+            self._curr_ml_opt.values.append(ml_value)
+            return
+
+        if self._match_gcode_block_start(line):
+            self._curr_gcode = Gcode(
+                name="gcode",
+                raw=line,
+            )
+            self._curr_sect.items.append(self._curr_gcode)
+            return
+
+        if self._curr_gcode is not None:
+            # we are in a gcode block, so we add any following line
+            # without further checks to the gcode block
+            self._curr_gcode.gcode.append(line)
+            return
+
+        if self._match_save_config_start(line):
+            self._reset_special_items()
+            self._save_config_block.append(line)
+            return
+
+        if self._match_save_config_content(line):
+            self._reset_special_items()
+            self._save_config_block.append(line)
+            return
+
+        if self._match_empty_line(line):
+            self._reset_special_items()
+            self._curr_sect.items.append(BlankLine(raw=line))
+            return
+
+        if self._match_line_comment(line):
+            self._reset_special_items()
+            self._curr_sect.items.append(CommentLine(raw=line))
+            return
+
+    def _reset_special_items(self) -> None:
+        """Reset special items like current multine option and gcode block"""
+        self._curr_ml_opt = None
+        self._curr_gcode = None
+
+    def _get_indent(self, line: str) -> int:
+        """Return the indentation level of a line"""
+        return len(line) - len(line.lstrip())
 
     def read_file(self, file: Path) -> None:
         """Read and parse a config file"""
-        with open(file, "r") as file:
+        self._config = []
+        with open(file, "r", encoding="utf-8") as file:
             for line in file:
                 self._parse_line(line)
 
-    def write_file(self, path: str | Path) -> None:
+    def write_file(self, path: Union[str, Path]) -> None:
         """Write the config to a file"""
         if path is None:
             raise ValueError("File path cannot be None")
 
-        with open(path, "w", encoding="utf-8") as f:
-            if HEADER_IDENT in self.config:
-                for line in self.config[HEADER_IDENT]:
-                    f.write(line)
+        # first write the header
+        content: List[str] = list(self._header)
 
-            sections = self.get_sections()
-            for i, section in enumerate(sections):
-                f.write(self.config[section]["header"])
+        # then write all sections
+        for i in self._config:
+            content.append(i.raw)
+            for item in i.items:
+                content.append(item.raw)
+                if isinstance(item, MultiLineOption):
+                    content.extend(val.raw for val in item.values)
+                elif isinstance(item, Gcode):
+                    content.extend(item.gcode)
 
-                for element in self.config[section]["elements"]:
-                    if element["type"] == LineType.OPTION.value:
-                        f.write(element["raw"])
-                    elif element["type"] == LineType.OPTION_BLOCK.value:
-                        f.write(element["raw"])
-                        for line in element["value"]:
-                            f.write(INDENT + line.strip() + "\n")
-                    elif element["type"] in [LineType.COMMENT.value, LineType.BLANK.value]:
-                        f.write(element["content"])
-                    else:
-                        raise UnknownLineError(element["raw"])
+        # then write the save config block
+        content.extend(self._save_config_block)
 
-            # Ensure file ends with a single newline
-            if sections:  # Only if we have any sections
-                last_section = sections[-1]
-                last_elements = self.config[last_section]["elements"]
+        # ensure file ends with a newline
+        if content and not content[-1].endswith("\n"):
+            content.append("\n")
 
-                if last_elements:
-                    last_element = last_elements[-1]
-                    if "raw" in last_element:
-                        last_line = last_element["raw"]
-                    else:  # comment or blank line
-                        last_line = last_element["content"]
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.writelines(content)
 
-                    if not last_line.endswith("\n"):
-                        f.write("\n")
-
-            if self.save_config_block:
-                for line in self.save_config_block:
-                    f.write(line)
-                f.write("\n")
-
-    def get_sections(self) -> List[str]:
-        """Return a list of all section names, but exclude any section starting with '#_'"""
-        return list(
-            filter(
-                lambda section: not section.startswith("#_"),
-                self.config.keys(),
-            )
-        )
+    def get_sections(self) -> Set[str]:
+        """Return a set of all section names"""
+        return {s.name for s in self._config} if self._config else set()
 
     def has_section(self, section: str) -> bool:
         """Check if a section exists"""
         return section in self.get_sections()
 
-    def add_section(self, section: str) -> None:
+    def add_section(self, section: str) -> Section:
         """Add a new section to the config"""
         if section in self.get_sections():
             raise DuplicateSectionError(section)
 
-        if len(self.get_sections()) >= 1:
-            self._check_set_section_spacing()
+        if not self._config:
+            new_sect = Section(name=section, raw=f"[{section}]\n")
+            self._config.append(new_sect)
+            return new_sect
 
-        self.config[section] = {
-            "header": f"[{section}]\n",
-            "elements": []
-        }
+        last_sect: Section = self._config[-1]
+        if not last_sect.items or (
+            last_sect.items and not isinstance(last_sect.items[-1], BlankLine)
+        ):
+            last_sect.items.append(BlankLine())
 
-    def _check_set_section_spacing(self):
-        """Check if there is a blank line between the last section and the new section"""
-        prev_section_name: str = self.get_sections()[-1]
-        prev_section = self.config[prev_section_name]
-        prev_elements = prev_section["elements"]
-
-        if prev_elements:
-            last_element = prev_elements[-1]
-
-            # If the last element is a comment or blank line
-            if last_element["type"] in [LineType.COMMENT.value, LineType.BLANK.value]:
-                last_content = last_element["content"]
-
-                # If the last element doesn't end with a newline, add one
-                if not last_content.endswith("\n"):
-                    last_element["content"] += "\n"
-
-                # If the last element is not a blank line, add a blank line
-                if last_content.strip() != "":
-                    prev_elements.append({
-                        "type": "blank",
-                        "content": "\n"
-                    })
-            else:
-                # If the last element is an option, add a blank line
-                prev_elements.append({
-                    "type": LineType.BLANK.value,
-                    "content": "\n"
-                })
+        new_sect = Section(name=section, raw=f"[{section}]\n")
+        self._config.append(new_sect)
+        return new_sect
 
     def remove_section(self, section: str) -> None:
-        """Remove a section from the config"""
-        self.config.pop(section, None)
+        """Remove a section from the config
 
-    def get_options(self, section: str) -> List[str]:
-        """Return a list of all option names for a given section"""
-        options = []
-        if self.has_section(section):
-            for element in self.config[section]["elements"]:
-                if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value]:
-                    options.append(element["name"])
-        return options
+        This will remove ALL occurences of sections with the given name.
+        """
+        self._config = [s for s in self._config if s.name != section]
+
+    def get_options(self, section: str) -> Set[str]:
+        """Return a set of all option names for a given section"""
+        sections: List[Section] = [s for s in self._config if s.name == section]
+        all_items: List[SectionItem] = [
+            item for section in sections for item in section.items
+        ]
+
+        return {o.name for o in all_items if isinstance(o, (Option, MultiLineOption))}
 
     def has_option(self, section: str, option: str) -> bool:
         """Check if an option exists in a section"""
         return self.has_section(section) and option in self.get_options(section)
 
-    def set_option(self, section: str, option: str, value: str | List[str]) -> None:
+    def set_option(
+        self, section: str, option: str, value: Union[str, List[str]]
+    ) -> None:
         """
         Set the value of an option in a section. If the section does not exist,
         it is created. If the option does not exist, it is created.
         """
-        if not self.has_section(section):
+
+        # when adding options, we add them to the first matching section
+        # if the section does not exist, we create it
+        section: Section = (
             self.add_section(section)
+            if not self.has_section(section)
+            else next(s for s in self._config if s.name == section)
+        )
 
-        # Check if option already exists
-        for element in self.config[section]["elements"]:
-            if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value] and element["name"] == option:
-                # Update existing option
-                if isinstance(value, list):
-                    element["type"] = LineType.OPTION_BLOCK.value
-                    element["value"] = value
-                    element["raw"] = f"{option}:\n"
-                else:
-                    element["type"] = LineType.OPTION.value
-                    element["value"] = value
-                    element["raw"] = f"{option}: {value}\n"
-                return
+        opt = self._find_option_by_name(option, section=section)
+        if opt is None:
+            if isinstance(value, list):
+                indent = 4
+                _opt = MultiLineOption(
+                    name=option,
+                    raw=f"{option}:\n",
+                    values=[
+                        MLOptionValue(
+                            raw=f"{' ' * indent}{val}\n",
+                            indent=indent,
+                            value=val,
+                        )
+                        for val in value
+                    ],
+                )
+            else:
+                _opt = Option(
+                    name=option,
+                    raw=f"{option}: {value}\n",
+                    value=value,
+                )
 
-        # Option doesn't exist, create new one
-        if isinstance(value, list):
-            new_element = {
-                "type": LineType.OPTION_BLOCK.value,
-                "name": option,
-                "value": value,
-                "raw": f"{option}:\n"
-            }
+            last_opt_idx: int = 0
+            for idx, item in enumerate(section.items):
+                if isinstance(item, (Option, MultiLineOption)):
+                    last_opt_idx = idx
+            # insert the new option after the last existing option
+            section.items.insert(last_opt_idx + 1, _opt)
+
+        elif opt and isinstance(opt, Option) and isinstance(value, str):
+            curr_val = opt.value
+            new_val = value
+            opt.value = value
+            opt.raw.replace(curr_val, new_val)
+
+        elif opt and isinstance(opt, MultiLineOption) and isinstance(value, list):
+            # note: we completely replace the existing values
+            # so any existing indentation, comments, etc. will be lost
+            indent = 4
+            opt.values = [
+                MLOptionValue(
+                    raw=f"{' ' * indent}{val}\n",
+                    indent=indent,
+                    value=val,
+                )
+                for val in value
+            ]
+
+    def _find_section_by_name(
+        self, sect_name: str
+    ) -> Union[None, Section, List[Section]]:
+        """Find a section by name"""
+        _sects = [s for s in self._config if s.name == sect_name]
+        if len(_sects) > 1:
+            return _sects
+        elif len(_sects) == 1:
+            return _sects[0]
         else:
-            new_element = {
-                "type": LineType.OPTION.value,
-                "name": option,
-                "value": value,
-                "raw": f"{option}: {value}\n"
-            }
+            return None
 
-        # scan through elements to find the last option, after which we insert the new option
-        insert_pos = 0
-        elements = self.config[section]["elements"]
-        for i, element in enumerate(elements):
-            if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value]:
-                insert_pos = i + 1
+    def _find_option_by_name(
+        self,
+        opt_name: str,
+        section: Union[Section, None] = None,
+        sections: Union[List[Section], None] = None,
+    ) -> Union[None, Option, MultiLineOption]:
+        """Find an option or multi-line option by name in a section"""
 
-        elements.insert(insert_pos, new_element)
+        # if a single section is provided, search its items for the option
+        if section is not None:
+            for item in section.items:
+                if (
+                    isinstance(item, (Option, MultiLineOption))
+                    and item.name == opt_name
+                ):
+                    return item
+
+        # if multiple sections with the same name are provided, merge their
+        # items and search for the option
+        if sections is not None:
+            all_items: List[SectionItem] = [
+                item for sect in sections for item in sect.items
+            ]
+            for item in all_items:
+                if (
+                    isinstance(item, (Option, MultiLineOption))
+                    and item.name == opt_name
+                ):
+                    return item
+
+        return None
 
     def remove_option(self, section: str, option: str) -> None:
-        """Remove an option from a section"""
-        if self.has_section(section):
-            elements = self.config[section]["elements"]
-            for i, element in enumerate(elements):
-                if element["type"] in [LineType.OPTION.value, LineType.OPTION_BLOCK.value] and element["name"] == option:
-                    elements.pop(i)
-                    break
+        """Remove an option from a section
 
-    def getval(self, section: str, option: str, fallback: str | _UNSET = _UNSET) -> str:
+        This will remove the option from ALL occurences of sections with the given name.
+        Other non-option items (comments, blank lines, etc.) are preserved.
+        """
+        sections: List[Section] = [s for s in self._config if s.name == section]
+        if not sections:
+            return
+
+        for sect in sections:
+            sect.items = [
+                item
+                for item in sect.items
+                if not (
+                    isinstance(item, (Option, MultiLineOption)) and item.name == option
+                )
+            ]
+
+    def _get_option(
+        self, section: str, option: str
+    ) -> Union[Option, MultiLineOption, None]:
+        """Internal helper to resolve an option or multi-line option."""
+        if section not in self.get_sections():
+            raise NoSectionError(section)
+        if option not in self.get_options(section):
+            raise NoOptionError(option, section)
+        sects: List[Section] = [s for s in self._config if s.name == section]
+        return (
+            self._find_option_by_name(option, sections=sects)
+            if len(sects) > 1
+            else self._find_option_by_name(option, section=sects[0])
+        )
+
+    def getval(self, section: str, option: str, fallback: Optional[str] = None) -> str:
         """
         Return the value of the given option in the given section
 
@@ -344,22 +569,20 @@ class SimpleConfigParser:
         a fallback value.
         """
         try:
-            if section not in self.get_sections():
-                raise NoSectionError(section)
-            if option not in self.get_options(section):
+            opt = self._get_option(section, option)
+            if not isinstance(opt, Option):
                 raise NoOptionError(option, section)
 
-            for element in self.config[section]["elements"]:
-                if element["type"] is LineType.OPTION.value and element["name"] == option:
-                    return str(element["value"].strip().replace("\n", ""))
-            return ""
+            return opt.value if opt else ""
 
         except (NoSectionError, NoOptionError):
-            if fallback is _UNSET:
+            if fallback is None:
                 raise
             return fallback
 
-    def getvals(self, section: str, option: str, fallback: List[str] | _UNSET = _UNSET) -> List[str]:
+    def getvals(
+        self, section: str, option: str, fallback: Optional[List[str]] = None
+    ) -> List[str]:
         """
         Return the values of the given multi-line option in the given section
 
@@ -367,33 +590,29 @@ class SimpleConfigParser:
         a fallback value.
         """
         try:
-            if section not in self.get_sections():
-                raise NoSectionError(section)
-            if option not in self.get_options(section):
+            opt = self._get_option(section, option)
+            if not isinstance(opt, MultiLineOption):
                 raise NoOptionError(option, section)
 
-            for element in self.config[section]["elements"]:
-                if element["type"] is LineType.OPTION_BLOCK.value and element["name"] == option:
-                    return [val.strip() for val in element["value"] if val.strip()]
-            return []
+            return [v.value for v in opt.values] if opt else []
 
         except (NoSectionError, NoOptionError):
-            if fallback is _UNSET:
+            if fallback is None:
                 raise
             return fallback
 
-    def getint(self, section: str, option: str, fallback: int | _UNSET = _UNSET) -> int:
+    def getint(self, section: str, option: str, fallback: Optional[int] = None) -> int:
         """Return the value of the given option in the given section as an int"""
         return self._get_conv(section, option, int, fallback=fallback)
 
     def getfloat(
-        self, section: str, option: str, fallback: float | _UNSET = _UNSET
+        self, section: str, option: str, fallback: Optional[float] = None
     ) -> float:
         """Return the value of the given option in the given section as a float"""
         return self._get_conv(section, option, float, fallback=fallback)
 
     def getboolean(
-        self, section: str, option: str, fallback: bool | _UNSET = _UNSET
+        self, section: str, option: str, fallback: Optional[bool] = None
     ) -> bool:
         """Return the value of the given option in the given section as a boolean"""
         return self._get_conv(
@@ -412,14 +631,14 @@ class SimpleConfigParser:
         self,
         section: str,
         option: str,
-        conv: Callable[[str], int | float | bool],
-        fallback: _UNSET = _UNSET,
-    ) -> int | float | bool:
+        conv: Callable[[str], Union[int, float, bool]],
+        fallback: Optional[Any] = None,
+    ) -> Union[int, float, bool]:
         """Return the value of the given option in the given section as a converted value"""
         try:
             return conv(self.getval(section, option, fallback))
         except (ValueError, TypeError, AttributeError) as e:
-            if fallback is not _UNSET:
+            if fallback is not None:
                 return fallback
             raise ValueError(
                 f"Cannot convert {self.getval(section, option)} to {conv.__name__}"

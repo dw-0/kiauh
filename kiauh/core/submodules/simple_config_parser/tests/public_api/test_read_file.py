@@ -7,16 +7,32 @@
 # ======================================================================= #
 from pathlib import Path
 
-from src.simple_config_parser.simple_config_parser import (
-    SimpleConfigParser,
-)
+from src.simple_config_parser.simple_config_parser import Section, SimpleConfigParser
 
-BASE_DIR = Path(__file__).parent.parent.joinpath("assets")
-TEST_DATA_PATH = BASE_DIR.joinpath("test_config_1.cfg")
+BASE_DIR = Path(__file__).parent.parent / "assets"
+TEST_DATA_PATH = BASE_DIR / "test_config_1.cfg"
 
 
-def test_read_file():
+def test_read_file_sections_and_header():
     parser = SimpleConfigParser()
     parser.read_file(TEST_DATA_PATH)
-    assert parser.config is not None
-    assert parser.config.keys() is not None
+
+    # Header erhalten
+    assert parser._header, "Header darf nicht leer sein"
+    assert any("a comment at the very top" in ln for ln in parser._header)
+
+    # Sektionen korrekt eingelesen
+    expected = {"section_1", "section_2", "section_3", "section_4", "section number 5"}
+    assert parser.get_sections() == expected
+
+    # Reihenfolge bleibt erhalten
+    assert [s.name for s in parser._config] == [
+        "section_1",
+        "section_2",
+        "section_3",
+        "section_4",
+        "section number 5",
+    ]
+
+    # Jede Section ist ein Section-Dataclass
+    assert all(isinstance(s, Section) for s in parser._config)
