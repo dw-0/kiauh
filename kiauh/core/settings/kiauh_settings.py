@@ -254,32 +254,34 @@ class KiauhSettings:
         section: str,
         option: str,
         getter: Callable[[str, str, T | None], T],
-        fallback: T = None,
+        fallback: T | None = None,
         silent: bool = False,
-    ) -> T:
+    ) -> T | None:
         if not self.__check_option_exists(section, option, fallback, silent):
             return fallback
         return getter(section, option, fallback)
 
     def __set_repo_state(self, section: str, repos: List[str]) -> List[Repository]:
         _repos: List[Repository] = []
-        for repo in repos:
-            try:
-                if repo.strip().startswith("#") or repo.strip().startswith(";"):
-                    continue
-                if "," in repo:
-                    url, branch = repo.strip().split(",")
+        for raw in repos:
+            line = raw.strip()
 
-                    if not branch:
-                        branch = "master"
+            if not line or line.startswith("#") or line.startswith(";"):
+                continue
+
+            try:
+                if "," in line:
+                    url_part, branch_part = line.split(",")
+                    url = url_part.strip()
+                    branch = branch_part.strip() or "master"
                 else:
-                    url = repo.strip()
+                    url = line
                     branch = "master"
 
                 # url must not be empty otherwise it's considered
                 # as an unrecoverable, invalid configuration
                 if not url:
-                    raise InvalidValueError(section, "repositories", repo)
+                    raise InvalidValueError(section, "repositories", line)
 
                 _repos.append(Repository(url.strip(), branch.strip()))
 
