@@ -29,9 +29,3 @@ homing_speed :=
 homing_speed :=
 homing_speed =:
 homing_speed =:
-gcode:
-gcode :
-gcode :
-gcode=
-gcode =
-gcode =

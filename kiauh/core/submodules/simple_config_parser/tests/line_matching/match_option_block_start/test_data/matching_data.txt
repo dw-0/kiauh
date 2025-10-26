@@ -1,4 +1,5 @@
 trusted_clients:
+gcode:
 cors_domains:
 an_options_block_start_with_comment: ; this is a comment
 an_options_block_start_with_comment: # this is a comment
