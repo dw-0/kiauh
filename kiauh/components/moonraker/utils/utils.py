@@ -123,7 +123,7 @@ def create_example_moonraker_conf(
     scp = SimpleConfigParser()
     scp.read_file(target)
     trusted_clients: List[str] = [
-        f"    {'.'.join(ip)}\n",
+        f"{'.'.join(ip)}",
         *scp.getvals("authorization", "trusted_clients"),
     ]
 
