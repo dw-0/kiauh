@@ -1,0 +1,16 @@
+gcode:
+gcode:
+gcode: # comment
+gcode: ; comment
+gcode :
+gcode :
+gcode : # comment
+gcode : ; comment
+gcode=
+gcode=
+gcode= # comment
+gcode= ; comment
+gcode =
+gcode =
+gcode = # comment
+gcode = ; comment

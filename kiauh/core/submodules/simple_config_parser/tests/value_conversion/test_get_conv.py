@@ -10,80 +10,58 @@ from pathlib import Path
 import pytest
 
 from src.simple_config_parser.simple_config_parser import SimpleConfigParser
-from tests.utils import load_testdata_from_file
 
-BASE_DIR = Path(__file__).parent.parent.joinpath("assets")
-TEST_DATA_PATH = BASE_DIR.joinpath("test_config_1.cfg")
+BASE_DIR = Path(__file__).parent.parent / "assets"
+TEST_DATA_PATH = BASE_DIR / "test_config_1.cfg"
 
 
 @pytest.fixture
 def parser():
-    parser = SimpleConfigParser()
-    for line in load_testdata_from_file(TEST_DATA_PATH):
-        parser._parse_line(line)  # noqa
-
-    return parser
+    p = SimpleConfigParser()
+    p.read_file(TEST_DATA_PATH)
+    return p
 
 
 def test_get_int_conv(parser):
-    should_be_int = parser._get_conv("section_1", "option_1_2", int)
-    assert isinstance(should_be_int, int)
+    assert parser.getint("section_1", "option_1_2") == 5
 
 
 def test_get_float_conv(parser):
-    should_be_float = parser._get_conv("section_1", "option_1_3", float)
-    assert isinstance(should_be_float, float)
+    assert pytest.approx(parser.getfloat("section_1", "option_1_3"), rel=1e-9) == 1.123
 
 
 def test_get_bool_conv(parser):
-    should_be_bool = parser._get_conv(
-        "section_1", "option_1_1", parser._convert_to_boolean
-    )
-    assert isinstance(should_be_bool, bool)
+    assert parser.getboolean("section_1", "option_1_1") is True
 
 
 def test_get_int_conv_fallback(parser):
-    should_be_fallback_int = parser._get_conv(
-        "section_1", "option_128", int, fallback=128
-    )
-    assert isinstance(should_be_fallback_int, int)
-    assert should_be_fallback_int == 128
-    assert parser._get_conv("section_1", "option_128", int, None) is None
+    assert parser.getint("section_1", "missing", fallback=128) == 128
+    with pytest.raises(Exception):
+        parser.getint("section_1", "missing")
 
 
 def test_get_float_conv_fallback(parser):
-    should_be_fallback_float = parser._get_conv(
-        "section_1", "option_128", float, fallback=1.234
-    )
-    assert isinstance(should_be_fallback_float, float)
-    assert should_be_fallback_float == 1.234
-
-    assert parser._get_conv("section_1", "option_128", float, None) is None
+    assert parser.getfloat("section_1", "missing", fallback=1.234) == 1.234
+    with pytest.raises(Exception):
+        parser.getfloat("section_1", "missing")
 
 
 def test_get_bool_conv_fallback(parser):
-    should_be_fallback_bool = parser._get_conv(
-        "section_1", "option_128", parser._convert_to_boolean, fallback=True
-    )
-    assert isinstance(should_be_fallback_bool, bool)
-    assert should_be_fallback_bool is True
-
-    assert (
-        parser._get_conv("section_1", "option_128", parser._convert_to_boolean, None)
-        is None
-    )
+    assert parser.getboolean("section_1", "missing", fallback=True) is True
+    with pytest.raises(Exception):
+        parser.getboolean("section_1", "missing")
 
 
 def test_get_int_conv_exception(parser):
     with pytest.raises(ValueError):
-        parser._get_conv("section_1", "option_1", int)
+        parser.getint("section_1", "option_1")
 
 
 def test_get_float_conv_exception(parser):
     with pytest.raises(ValueError):
-        parser._get_conv("section_1", "option_1", float)
+        parser.getfloat("section_1", "option_1")
 
 
 def test_get_bool_conv_exception(parser):
     with pytest.raises(ValueError):
-        parser._get_conv("section_1", "option_1", parser._convert_to_boolean)
+        parser.getboolean("section_1", "option_1")
