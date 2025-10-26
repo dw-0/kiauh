@@ -107,7 +107,7 @@ class GcodeShellCmdExtension(BaseExtension):
                 shutil.copy(EXAMPLE_CFG_SRC, cfg_dir)
                 Logger.print_ok("Done!")
             except OSError as e:
-                Logger.print_error(f"Unable to create example config: {e}")
+                Logger.warn(f"Unable to create example config: {e}")
 
         # backup each printer.cfg before modification
         svc = BackupService()
