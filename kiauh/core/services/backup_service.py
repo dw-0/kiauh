@@ -109,7 +109,16 @@ class BackupService:
             else:
                 backup_path = self._backup_root.joinpath(backup_dir_name)
 
-            shutil.copytree(source_path, backup_path)
+            if backup_path.exists():
+                Logger.print_info(f"Reusing existing backup directory '{backup_path}'")
+
+            shutil.copytree(
+                source_path,
+                backup_path,
+                dirs_exist_ok=True,
+                symlinks=True,
+                ignore_dangling_symlinks=True,
+            )
 
             Logger.print_ok(
                 f"Successfully backed up '{source_path}' to '{backup_path}'"
