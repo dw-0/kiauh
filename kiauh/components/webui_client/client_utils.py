@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+from json import JSONDecodeError
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, run
 from typing import List, get_args
@@ -151,18 +152,36 @@ def symlink_webui_nginx_log(
 def get_local_client_version(client: BaseWebClient) -> str | None:
     relinfo_file = client.client_dir.joinpath("release_info.json")
     version_file = client.client_dir.joinpath(".version")
+    default = "n/a"
 
     if not client.client_dir.exists():
-        return None
-    if not relinfo_file.is_file() and not version_file.is_file():
-        return "n/a"
+        return default
 
+    # try to get version from release_info.json first
     if relinfo_file.is_file():
-        with open(relinfo_file, "r") as f:
-            return str(json.load(f)["version"])
-    else:
-        with open(version_file, "r") as f:
-            return f.readlines()[0]
+        try:
+            if relinfo_file.stat().st_size == 0:
+                raise JSONDecodeError("Empty file", "", 0)
+            with open(relinfo_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            raw_version = data.get("version")
+            if raw_version is not None:
+                parsed = str(raw_version).strip()
+                if parsed:
+                    return parsed
+        except (JSONDecodeError, OSError):
+            Logger.print_error("Invalid 'release_info.json'")
+
+    # fallback to .version file
+    if version_file.is_file():
+        try:
+            with open(version_file, "r") as f:
+                line = f.readline().strip()
+            return line or default
+        except OSError:
+            Logger.print_error("Unable to read '.version'")
+
+    return default
 
 
 def get_remote_client_version(client: BaseWebClient) -> str | None:
