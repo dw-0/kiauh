@@ -11,6 +11,7 @@ from pathlib import Path
 
 from components.webui_client.client_utils import create_nginx_cfg
 from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
+from core.install_paths import install_root_join
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
 from utils.common import check_install_dependencies
@@ -22,7 +23,7 @@ from utils.input_utils import get_number_input
 from utils.sys_utils import cmd_sysctl_service, get_ipv4_addr
 
 MODULE_PATH = Path(__file__).resolve().parent
-PGC_DIR = Path.home().joinpath("pgcode")
+PGC_DIR = install_root_join("pgcode")
 PGC_REPO = "https://github.com/Kragrathea/pgcode"
 PGC_CONF = "pgcode.local.conf"
 

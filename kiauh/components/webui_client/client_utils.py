@@ -30,6 +30,7 @@ from core.constants import (
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
+from core.install_paths import install_root_join
 from core.logger import Logger
 from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
@@ -39,7 +40,7 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 from core.types.color import Color
 from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
-from utils.fs_utils import create_symlink, remove_file
+from utils.fs_utils import create_folders, create_symlink, remove_file
 from utils.git_utils import (
     get_latest_remote_tag,
     get_latest_unstable_tag,
@@ -322,7 +323,8 @@ def generate_nginx_cfg_from_template(name: str, template_src: Path, **kwargs) ->
     :param template_src: the path to the template file
     :return: None
     """
-    tmp = Path.home().joinpath(f"{name}.tmp")
+    tmp = install_root_join("tmp", f"{name}.tmp")
+    create_folders([tmp.parent])
     shutil.copy(template_src, tmp)
     with open(tmp, "r+") as f:
         content = f.read()

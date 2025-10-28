@@ -8,6 +8,8 @@
 # ======================================================================= #
 from pathlib import Path
 
+from core.install_paths import install_root_join
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 # repo
@@ -20,8 +22,8 @@ TG_BOT_SERVICE_NAME = "moonraker-telegram-bot.service"
 TG_BOT_ENV_FILE_NAME = "moonraker-telegram-bot.env"
 
 # directories
-TG_BOT_DIR = Path.home().joinpath("moonraker-telegram-bot")
-TG_BOT_ENV = Path.home().joinpath("moonraker-telegram-bot-env")
+TG_BOT_DIR = install_root_join("moonraker-telegram-bot")
+TG_BOT_ENV = install_root_join("moonraker-telegram-bot-env")
 
 # files
 TG_BOT_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{TG_BOT_SERVICE_NAME}")
