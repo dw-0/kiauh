@@ -8,6 +8,7 @@
 # ======================================================================= #
 
 import re
+from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List, Tuple
 
@@ -311,13 +312,19 @@ class SpoolmanExtension(BaseExtension):
         mrsvc.load_instances()
         mr_instances = mrsvc.get_all_instances()
         for instance in mr_instances:
-            asvc_path = instance.data_dir.joinpath("moonraker.asvc")
-            if asvc_path.exists():
-                if "Spoolman" in open(asvc_path).read():
-                    Logger.print_info(f"Spoolman already in {asvc_path}. Skipping...")
-                    continue
+            asvc_path: Path = instance.data_dir.joinpath("moonraker.asvc")
+            if asvc_path.exists() and asvc_path.is_file():
+                with open(asvc_path, "a+") as f:
+                    if "Spoolman" in f.read():
+                        Logger.print_info(
+                            f"Spoolman already in {asvc_path}. Skipping..."
+                        )
+                        continue
 
-                with open(asvc_path, "a") as f:
+                    content: List[str] = f.readlines()
+                    if content and not content[-1].endswith("\n"):
+                        f.write("\n")
+
                     f.write("Spoolman\n")
 
                 Logger.print_ok(f"Spoolman added to {asvc_path}!")
