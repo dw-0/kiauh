@@ -86,17 +86,27 @@ def print_katapult_brick_warning() -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
-            "Katapult is a CAN flashtool for 3D printer controllers.",
+            "          CRITICAL WARNING — PROCEED AT YOUR OWN RISK             ",
             "\n\n",
-            "Please ensure you understand the risks involved in flashing "
-            "firmware to your device. Improper use may lead to bricking "
-            "your hardware.",
+            "   Katapult is a low-level CAN bootloader and flashtool for       ",
+            "      3D printer controllers. It writes directly to your          ",
+            "    device’s firmware memory, and improper use can permanently    ",
+            "                   disable or 'brick' your hardware.              ",
+            "\n",
+            "  Proceed only if you fully understand the flashing process,      ",
+            " have verified your firmware and configuration, and backed up     ",
+            " all necessary data. This is far riskier than flashing standard   ",
+            "                      firmware such as Klipper.                   ",
+            "\n",
+            "     If you are unsure, stop immediately and seek help from       ",
+            "   experienced community members. A bricked device WILL require   ",
+            "               recovery using an external programmer.             ",
             "\n\n",
-            "Proceed only if you are confident and have backed up "
-            "necessary configurations. This is much riskier than flashing Klipper",
-            "\n\n",
-            "If unsure, seek assistance from the community. A bricked device "
-            "WILL need to be recovered via an external programmer.",
+            "     DISCLAIMER: The developers and maintainers of KIAUH assume   ",
+            "   no responsibility for any damage, data loss, hurt or hardware  ",
+            "  failure resulting from use or misuse of this tool. You use      ",
+            "          Katapult and KIAUH entirely at your own risk.           ",
+            "                                                                  ",
         ],
     )
 
