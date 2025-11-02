@@ -20,6 +20,8 @@ from components.katapult import (
 )
 from components.klipper.klipper import Klipper
 from core.logger import DialogType, Logger
+from core.types.component_status import ComponentStatus
+from utils.common import get_install_status
 from utils.git_utils import (
     git_clone_wrapper,
     git_pull_wrapper,
@@ -93,7 +95,7 @@ def print_katapult_brick_warning() -> None:
             "Proceed only if you are confident and have backed up "
             "necessary configurations. This is much riskier than flashing Klipper",
             "\n\n",
-            "If unsure, seek assistance from the community. A bricked device"
+            "If unsure, seek assistance from the community. A bricked device "
             "WILL need to be recovered via an external programmer.",
         ],
     )
@@ -144,6 +146,10 @@ def update_katapult() -> None:
         return
 
 
+def get_katapult_status() -> ComponentStatus:
+    return get_install_status(KATAPULT_DIR)
+
+
 def remove_katapult() -> None:
     if not KATAPULT_DIR.exists():
         Logger.print_info("Katapult does not seem to be installed! Skipping ...")
@@ -152,5 +158,5 @@ def remove_katapult() -> None:
     Logger.print_status("Removing katapult directory ...")
     shutil.rmtree(KATAPULT_DIR)
     Logger.print_ok("Directory removed! Katapult has been sucessfully uninstalled.")
-    
+
     # TODO add option to remove kconfigs dir as well
