@@ -11,9 +11,9 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
+from components.katapult.katapult import backup_katapult_dir
 from components.klipper.klipper_utils import backup_klipper_dir
 from components.klipperscreen.klipperscreen import backup_klipperscreen_dir
-from components.katapult.katapult import backup_katapult_dir
 from components.moonraker.utils.utils import (
     backup_moonraker_db_dir,
     backup_moonraker_dir,
