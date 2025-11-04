@@ -20,6 +20,7 @@ from components.katapult import (
 )
 from components.klipper.klipper import Klipper
 from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
 from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.git_utils import (
@@ -168,3 +169,12 @@ def remove_katapult() -> None:
     Logger.print_ok("Directory removed! Katapult has been sucessfully uninstalled.")
 
     # TODO add option to remove kconfigs dir as well
+
+
+def backup_katapult_dir() -> None:
+    svc = BackupService()
+    svc.backup_directory(
+        source_path=KATAPULT_DIR,
+        backup_name="Katapult",
+        target_path="Katapult",
+    )
