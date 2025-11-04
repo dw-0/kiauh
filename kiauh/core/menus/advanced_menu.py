@@ -11,10 +11,14 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
-from components.katapult.katapult import (
-    build_deployer,
-    flash_deployer,
-    flash_klipper_via_deployer,
+from components.katapult.katapult import flash_klipper_via_deployer
+from components.katapult.menus.katapult_build_menu import (
+    KatapultBuildDeployerMenu,
+    KatapultKConfigMenu,
+)
+from components.katapult.menus.katapult_flash_menu import (
+    KatapultFlashMethodMenu,
+    # KatapultSelectMcuConnectionMenu,
 )
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
@@ -123,10 +127,12 @@ class AdvancedMenu(BaseMenu):
         install_input_shaper_deps()
 
     def build_deployer(self, **kwargs) -> None:
-        build_deployer()
+        KatapultKConfigMenu().run()
+        KatapultBuildDeployerMenu(previous_menu=self.__class__).run()
 
     def flash_deployer(self, **kwargs) -> None:
-        flash_deployer()
+        KatapultKConfigMenu().run()
+        KatapultFlashMethodMenu(previous_menu=self.__class__).run()
 
     def flash_klipper_via_deployer(self, **kwargs) -> None:
         flash_klipper_via_deployer()

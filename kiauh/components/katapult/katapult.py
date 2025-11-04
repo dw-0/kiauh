@@ -178,3 +178,6 @@ def backup_katapult_dir() -> None:
         backup_name="Katapult",
         target_path="Katapult",
     )
+
+def flash_klipper_via_deployer() -> None:
+    raise NotImplementedError
