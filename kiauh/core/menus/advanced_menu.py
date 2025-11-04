@@ -11,7 +11,7 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
-from components.katapult.katapult import flash_klipper_via_deployer
+from components.katapult.katapult import flash_klipper_via_katapult
 from components.katapult.menus.katapult_build_menu import (
     KatapultBuildDeployerMenu,
     KatapultKConfigMenu,
@@ -60,9 +60,9 @@ class AdvancedMenu(BaseMenu):
             "2": Option(method=self.flash),
             "3": Option(method=self.build_flash),
             "4": Option(method=self.get_id),
-            "5": Option(method=self.build_deployer),
+            "5": Option(method=self.build_katapult),
             "6": Option(method=self.flash_deployer),
-            "7": Option(method=self.flash_klipper_via_deployer),
+            "7": Option(method=self.flash_klipper_via_katapult),
             "8": Option(method=self.input_shaper),
             "9": Option(method=self.klipper_rollback),
             "10": Option(method=self.moonraker_rollback),
@@ -85,7 +85,7 @@ class AdvancedMenu(BaseMenu):
             ║  4) [Get MCU ID]          │  9) [Klipper]             ║
             ║                           │  10) [Moonraker]          ║
             ║ Katapult :                │                           ║
-            ║  5) [Build Deployer]      │ System:                   ║
+            ║  5) [Build Katapult]      │ System:                   ║
             ║  6) [Flash Deployer]      │  11) [Change hostname]    ║
             ║  7) [Flash Klipper]       │                           ║
             ║                           │                           ║
@@ -126,7 +126,7 @@ class AdvancedMenu(BaseMenu):
     def input_shaper(self, **kwargs) -> None:
         install_input_shaper_deps()
 
-    def build_deployer(self, **kwargs) -> None:
+    def build_katapult(self, **kwargs) -> None:
         KatapultKConfigMenu().run()
         KatapultBuildDeployerMenu(previous_menu=self.__class__).run()
 
@@ -134,5 +134,5 @@ class AdvancedMenu(BaseMenu):
         KatapultKConfigMenu().run()
         KatapultFlashMethodMenu(previous_menu=self.__class__).run()
 
-    def flash_klipper_via_deployer(self, **kwargs) -> None:
-        flash_klipper_via_deployer()
+    def flash_klipper_via_katapult(self, **kwargs) -> None:
+        flash_klipper_via_katapult()

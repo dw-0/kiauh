@@ -179,5 +179,6 @@ def backup_katapult_dir() -> None:
         target_path="Katapult",
     )
 
-def flash_klipper_via_deployer() -> None:
+def flash_klipper_via_katapult() -> None:
+    # TODO implement flashing Klipper using Katapult
     raise NotImplementedError
