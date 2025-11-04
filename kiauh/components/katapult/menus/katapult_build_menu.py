@@ -37,7 +37,7 @@ from utils.sys_utils import (
 class KatapultKConfigMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.title = "Katapult Deployer Config Menu"
+        self.title = "Katapult Bootloader Config Menu"
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.flash_options = FlashOptions()
@@ -87,7 +87,7 @@ class KatapultKConfigMenu(BaseMenu):
 
     def print_menu(self) -> None:
         cfg_found_str = Color.apply(
-            "Previously saved deployer configs found!", Color.GREEN
+            "Previously saved Katapult configs found!", Color.GREEN
         )
         menu = textwrap.dedent(
             f"""
@@ -96,7 +96,7 @@ class KatapultKConfigMenu(BaseMenu):
             ║                                                       ║
             ║    Select an existing config or create a new one.     ║
             ╟───────────────────────────────────────────────────────╢
-            ║ Available deployer configs:                           ║
+            ║ Available Katapult configs:                           ║
             """
         )[1:]
 
@@ -105,7 +105,7 @@ class KatapultKConfigMenu(BaseMenu):
             line = f"{start_index + i}) {s.name}"
             menu += f"║ {line:<54}║\n"
 
-        new_config = Color.apply("N) Create new deployer config", Color.GREEN)
+        new_config = Color.apply("N) Create new Katapult config", Color.GREEN)
         menu += "║                                                       ║\n"
         menu += f"║ {new_config:<62} ║\n"
 
@@ -200,31 +200,31 @@ class KatapultBuildDeployerMenu(BaseMenu):
             run_make_menuconfig(self.kconfig)
             run_make(self.kconfig)
 
-            Logger.print_ok("Deployer successfully built!")
-            Logger.print_ok(f"Deployer file located in '{KATAPULT_DIR}/out'!")
+            Logger.print_ok("Katapult successfully built!")
+            Logger.print_ok(f"Katapult file located in '{KATAPULT_DIR}/out'!")
 
             if self.kconfig == self.kconfig_default:
-                self.save_deployer_config()
+                self.save_katapult_config()
 
         except Exception as e:
             Logger.print_error(e)
-            Logger.print_error("Building Katapult deployer failed!")
+            Logger.print_error("Building Katapult failed!")
 
         finally:
             if self.previous_menu is not None:
                 self.previous_menu().run()
 
-    def save_deployer_config(self) -> None:
+    def save_katapult_config(self) -> None:
         Logger.print_dialog(
             DialogType.CUSTOM,
             [
-                "You can save the deployer build configs for multiple MCUs,"
-                " and use them to update the deployer after a Katapult version upgrade"
+                "You can save the Katapult build configs for multiple MCUs,"
+                " and use them to update the bootloader after a Katapult version upgrade"
             ],
-            custom_title="Save deployer config",
+            custom_title="Save Katapult config",
         )
         if not get_confirm(
-            "Do you want to save deployer config?", default_choice=False
+            "Do you want to save Katapult config?", default_choice=False
         ):
             return
 
@@ -241,14 +241,14 @@ class KatapultBuildDeployerMenu(BaseMenu):
                 ],
             )
             input_name = get_string_input(
-                "Enter the new deployer config name",
+                "Enter the new Katapult config name",
                 regex=r"^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$",
             )
             filename = self.kconfigs_dirname.joinpath(f"{input_name}.config")
 
             if Path(filename).is_file():
                 if get_confirm(
-                    f"Deployer config {input_name} already exists, overwrite?",
+                    f"Katapult config {input_name} already exists, overwrite?",
                     default_choice=False,
                 ):
                     break
@@ -260,7 +260,7 @@ class KatapultBuildDeployerMenu(BaseMenu):
                 break
 
         if not get_confirm(
-            f"Save deployer config to '{filename}'?", default_choice=True
+            f"Save Katapult config to '{filename}'?", default_choice=True
         ):
             Logger.print_info("Aborted saving firmware config ...")
             return
@@ -271,4 +271,4 @@ class KatapultBuildDeployerMenu(BaseMenu):
         copyfile(self.kconfig_default, filename)
 
         Logger.print_ok()
-        Logger.print_ok(f"Deployer config successfully saved to {filename}")
+        Logger.print_ok(f"Katapult config successfully saved to {filename}")

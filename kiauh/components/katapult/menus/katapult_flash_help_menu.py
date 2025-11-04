@@ -18,7 +18,7 @@ from core.types.color import Color
 def __title_config__() -> Tuple[str, Color, MenuTitleStyle]:
     return "< ? > Help: Flash MCU < ? >", Color.YELLOW, MenuTitleStyle.PLAIN
 
-
+# TODO extensive rewrite of the instructions here needed
 # noinspection DuplicatedCode
 class KatapultFlashMethodHelpMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):

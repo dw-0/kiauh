@@ -22,12 +22,6 @@ from components.katapult.firmware_utils import (
     get_sd_flash_board_list,
     start_flash_process,
 )
-from components.klipper_firmware.flash_options import (
-    ConnectionType,
-    FlashCommand,
-    FlashMethod,
-    FlashOptions,
-)
 from components.katapult.menus.katapult_flash_error_menu import (
     KatapultNoBoardTypesErrorMenu,
     KatapultNoDeployerErrorMenu,
@@ -36,6 +30,12 @@ from components.katapult.menus.katapult_flash_help_menu import (
     KatapultFlashCommandHelpMenu,
     KatapultFlashMethodHelpMenu,
     KatapultMcuConnectionHelpMenu,
+)
+from components.klipper_firmware.flash_options import (
+    ConnectionType,
+    FlashCommand,
+    FlashMethod,
+    FlashOptions,
 )
 from core.logger import DialogType, Logger
 from core.menus import FooterType, Option

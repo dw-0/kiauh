@@ -93,15 +93,13 @@ class KatapultNoBoardTypesErrorMenu(BaseMenu):
             ║ {Color.apply(line1, Color.RED):<62} ║
             ║                                                       ║
             ║ Make sure, that:                                      ║
-            ║ ● the folder '~/klipper' and all its content exist    ║
             ║ ● the folder '~/katapult' and all its content exist   ║
-            ║ ● the content of folder '~/klipper' is not currupted  ║
             ║ ● the content of folder '~/katapult' is not currupted ║
             ║ ● the file '~/klipper/scripts/flash-sd.py' exist      ║
             ║ ● your current user has access to those files/folders ║
             ║                                                       ║
             ║ If in doubt or this process continues to fail, please ║
-            ║ consider to download Klipper and Katapult again.      ║
+            ║ consider to download Katapult again.      ║
             """
         )[1:]
         print(menu, end="")
