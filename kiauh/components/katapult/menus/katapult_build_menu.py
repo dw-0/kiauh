@@ -14,9 +14,7 @@ from shutil import copyfile
 from typing import List, Set, Type
 
 from components.katapult import KATAPULT_DIR, KATAPULT_KCONFIGS_DIR
-
-# TODO should we copy those into components.katapult ?
-from components.klipper_firmware.firmware_utils import (
+from components.katapult.firmware_utils import (
     run_make,
     run_make_clean,
     run_make_menuconfig,
@@ -89,7 +87,7 @@ class KatapultKConfigMenu(BaseMenu):
 
     def print_menu(self) -> None:
         cfg_found_str = Color.apply(
-            "Previously saved bootloader configs found!", Color.GREEN
+            "Previously saved deployer configs found!", Color.GREEN
         )
         menu = textwrap.dedent(
             f"""
@@ -98,7 +96,7 @@ class KatapultKConfigMenu(BaseMenu):
             ║                                                       ║
             ║    Select an existing config or create a new one.     ║
             ╟───────────────────────────────────────────────────────╢
-            ║ Available bootloader configs:                           ║
+            ║ Available deployer configs:                           ║
             """
         )[1:]
 
@@ -107,7 +105,7 @@ class KatapultKConfigMenu(BaseMenu):
             line = f"{start_index + i}) {s.name}"
             menu += f"║ {line:<54}║\n"
 
-        new_config = Color.apply("N) Create new bootloader config", Color.GREEN)
+        new_config = Color.apply("N) Create new deployer config", Color.GREEN)
         menu += "║                                                       ║\n"
         menu += f"║ {new_config:<62} ║\n"
 
