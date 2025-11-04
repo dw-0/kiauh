@@ -124,12 +124,12 @@ class KatapultKConfigMenu(BaseMenu):
 
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
-class KatapultBuildDeployerMenu(BaseMenu):
+class KatapultBuildBootloaderMenu(BaseMenu):
     def __init__(
         self, kconfig: str | None = None, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
-        self.title = "Build Katapult Deployer Menu"
+        self.title = "Build Katapult Bootloader Menu"
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.deps: Set[str] = {"build-essential", "dpkg-dev", "make"}
@@ -192,7 +192,7 @@ class KatapultBuildDeployerMenu(BaseMenu):
             Logger.print_error("Installing dependencies failed!")
         finally:
             # restart this menu
-            KatapultBuildDeployerMenu().run()
+            KatapultBuildBootloaderMenu().run()
 
     def start_build_process(self, **kwargs) -> None:
         try:

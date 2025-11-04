@@ -13,7 +13,7 @@ from typing import Type
 
 from components.katapult.katapult import flash_klipper_via_katapult
 from components.katapult.menus.katapult_build_menu import (
-    KatapultBuildDeployerMenu,
+    KatapultBuildBootloaderMenu,
     KatapultKConfigMenu,
 )
 from components.katapult.menus.katapult_flash_menu import (
@@ -128,7 +128,7 @@ class AdvancedMenu(BaseMenu):
 
     def build_katapult(self, **kwargs) -> None:
         KatapultKConfigMenu().run()
-        KatapultBuildDeployerMenu(previous_menu=self.__class__).run()
+        KatapultBuildBootloaderMenu(previous_menu=self.__class__).run()
 
     def flash_deployer(self, **kwargs) -> None:
         KatapultKConfigMenu().run()
