@@ -29,6 +29,7 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
+from core.install_paths import get_install_root
 from utils.common import check_install_dependencies, get_install_status
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
@@ -185,20 +186,22 @@ def backup_moonraker_db_dir() -> None:
         # fallback: search for printer data directories in the user's home directory
         Logger.print_info("No Moonraker instances found via systemd services.")
         Logger.print_info(
-            "Attempting to find printer data directories in home directory..."
+            "Attempting to find printer data directories in the installation root..."
         )
 
-        home_dir = Path.home()
+        install_root = get_install_root()
         printer_data_dirs = []
 
         for pattern in ["printer_data", "printer_*_data"]:
-            for data_dir in home_dir.glob(pattern):
+            for data_dir in install_root.glob(pattern):
                 if data_dir.is_dir():
                     printer_data_dirs.append(data_dir)
 
         if not printer_data_dirs:
             Logger.print_info("Unable to find directory to backup!")
-            Logger.print_info("No printer data directories found in home directory.")
+            Logger.print_info(
+                "No printer data directories found in installation root."
+            )
             return
 
         for data_dir in printer_data_dirs:

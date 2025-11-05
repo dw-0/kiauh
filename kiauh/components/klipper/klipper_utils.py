@@ -12,7 +12,7 @@ import grp
 import os
 import shutil
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError, PIPE, run
 from typing import Dict, List
 
 from components.klipper import (
@@ -44,6 +44,7 @@ from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
     cmd_sysctl_service,
+    check_package_install,
     install_python_packages,
     parse_packages_from_file,
 )
@@ -229,6 +230,8 @@ def install_input_shaper_deps() -> None:
         Logger.print_warn("Required Klipper python environment not found!")
         return
 
+    atlas_pkg = _resolve_atlas_dependency()
+
     Logger.print_dialog(
         DialogType.CUSTOM,
         [
@@ -237,7 +240,7 @@ def install_input_shaper_deps() -> None:
             "If you agree, the following additional system packages will be installed:",
             "● python3-numpy",
             "● python3-matplotlib",
-            "● libatlas-base-dev",
+            f"● {atlas_pkg}",
             "● libopenblas-dev",
             "\n\n",
             "Also, the following Python package will be installed:",
@@ -253,7 +256,7 @@ def install_input_shaper_deps() -> None:
     apt_deps = (
         "python3-numpy",
         "python3-matplotlib",
-        "libatlas-base-dev",
+        atlas_pkg,
         "libopenblas-dev",
     )
     check_install_dependencies({*apt_deps})
@@ -261,3 +264,48 @@ def install_input_shaper_deps() -> None:
     py_deps = ("numpy",)
 
     install_python_packages(KLIPPER_ENV_DIR, {*py_deps})
+
+
+def _resolve_atlas_dependency() -> str:
+    """
+    Determine which ATLAS package is available on the current system.
+    Debian Trixie and later renamed libatlas-base-dev to libatlas3-base.
+    """
+    candidates = ("libatlas3-base", "libatlas-base-dev")
+
+    # Prefer an already installed package to avoid unnecessary prompts.
+    for candidate in candidates:
+        if not check_package_install({candidate}):
+            return candidate
+
+    # Fall back to whichever package apt-cache reports as available.
+    for candidate in candidates:
+        if _apt_has_candidate(candidate):
+            return candidate
+
+    # Default to the legacy package name if detection fails.
+    return candidates[-1]
+
+
+def _apt_has_candidate(package: str) -> bool:
+    if shutil.which("apt-cache") is None:
+        return False
+
+    try:
+        result = run(
+            ["apt-cache", "policy", package],
+            stdout=PIPE,
+            stderr=PIPE,
+            text=True,
+        )
+    except OSError:
+        return False
+
+    if result.returncode != 0:
+        return False
+
+    for line in result.stdout.splitlines():
+        if line.strip().startswith("Candidate:"):
+            return "(none)" not in line
+
+    return False

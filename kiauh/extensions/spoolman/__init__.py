@@ -8,9 +8,11 @@
 # ======================================================================= #
 from pathlib import Path
 
+from core.install_paths import install_root_join
+
 MODULE_PATH = Path(__file__).resolve().parent
 SPOOLMAN_DOCKER_IMAGE = "ghcr.io/donkie/spoolman:latest"
-SPOOLMAN_DIR = Path.home().joinpath("spoolman")
+SPOOLMAN_DIR = install_root_join("spoolman")
 SPOOLMAN_DATA_DIR = SPOOLMAN_DIR.joinpath("data")
 SPOOLMAN_COMPOSE_FILE = SPOOLMAN_DIR.joinpath("docker-compose.yml")
 SPOOLMAN_DEFAULT_PORT = 7912

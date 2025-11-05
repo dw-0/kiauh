@@ -9,6 +9,7 @@
 from pathlib import Path
 
 from core.constants import SYSTEMD
+from core.install_paths import install_root_join
 
 # repo
 KLIPPERSCREEN_REPO = "https://github.com/KlipperScreen/KlipperScreen.git"
@@ -19,8 +20,8 @@ KLIPPERSCREEN_UPDATER_SECTION_NAME = "update_manager KlipperScreen"
 KLIPPERSCREEN_LOG_NAME = "KlipperScreen.log"
 
 # directories
-KLIPPERSCREEN_DIR = Path.home().joinpath("KlipperScreen")
-KLIPPERSCREEN_ENV_DIR = Path.home().joinpath(".KlipperScreen-env")
+KLIPPERSCREEN_DIR = install_root_join("KlipperScreen")
+KLIPPERSCREEN_ENV_DIR = install_root_join(".KlipperScreen-env")
 
 # files
 KLIPPERSCREEN_REQ_FILE = KLIPPERSCREEN_DIR.joinpath(

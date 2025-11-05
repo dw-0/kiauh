@@ -8,6 +8,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import os
 import shutil
 import time
 from pathlib import Path
@@ -27,6 +28,7 @@ from components.crowsnest import (
 from components.klipper.klipper import Klipper
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
+from core.install_paths import INSTALL_ROOT_ENV_VAR, get_install_root
 from core.settings.kiauh_settings import KiauhSettings
 from core.types.component_status import ComponentStatus
 from utils.common import (
@@ -43,6 +45,12 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     parse_packages_from_file,
 )
+
+
+def _build_crowsnest_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env[INSTALL_ROOT_ENV_VAR] = str(get_install_root())
+    return env
 
 
 def install_crowsnest() -> None:
@@ -71,9 +79,14 @@ def install_crowsnest() -> None:
     Logger.print_info("Installer will prompt you for sudo password!")
     try:
         run(
-            "sudo make install",
+            [
+                "sudo",
+                f"--preserve-env={INSTALL_ROOT_ENV_VAR}",
+                "make",
+                "install",
+            ],
             cwd=CROWSNEST_DIR,
-            shell=True,
+            env=_build_crowsnest_env(),
             check=True,
         )
     except CalledProcessError as e:
@@ -100,9 +113,9 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
 def configure_multi_instance() -> None:
     try:
         run(
-            "make config",
+            ["make", "config"],
             cwd=CROWSNEST_DIR,
-            shell=True,
+            env=_build_crowsnest_env(),
             check=True,
         )
     except CalledProcessError as e:
@@ -162,9 +175,9 @@ def remove_crowsnest() -> None:
 
     try:
         run(
-            "make uninstall",
+            ["make", "uninstall"],
             cwd=CROWSNEST_DIR,
-            shell=True,
+            env=_build_crowsnest_env(),
             check=True,
         )
     except CalledProcessError as e:

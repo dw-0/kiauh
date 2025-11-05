@@ -16,12 +16,13 @@ from typing import List, Optional
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.logger import Logger
+from core.install_paths import get_install_root
 from utils.instance_utils import get_instances
 
 
 class BackupService:
     def __init__(self):
-        self._backup_root = Path.home().joinpath("kiauh_backups")
+        self._backup_root = get_install_root().joinpath("kiauh_backups")
 
     @property
     def backup_root(self) -> Path:
@@ -163,21 +164,21 @@ class BackupService:
             # fallback: search for printer data directories in the user's home directory
             Logger.print_info("No Klipper instances found via systemd services.")
             Logger.print_info(
-                "Attempting to find printer data directories in home directory..."
+                "Attempting to find printer data directories in the installation root..."
             )
 
-            home_dir = Path.home()
+            install_root = get_install_root()
             printer_data_dirs = []
 
             for pattern in ["printer_data", "printer_*_data"]:
-                for data_dir in home_dir.glob(pattern):
+                for data_dir in install_root.glob(pattern):
                     if data_dir.is_dir():
                         printer_data_dirs.append(data_dir)
 
             if not printer_data_dirs:
                 Logger.print_info("Unable to find directory to backup!")
                 Logger.print_info(
-                    "No printer data directories found in home directory."
+                    "No printer data directories found in installation root."
                 )
                 return
 
