@@ -115,7 +115,8 @@ def run_switch_repo_routine(
 
     except Exception as e:
         raise RepoSwitchFailedException(e)
-
+    
+    # step 7: restart all instances
     Logger.print_status(f"Restarting all {_type.__name__} instances ...")
     InstanceManager.start_all(instances)
 
