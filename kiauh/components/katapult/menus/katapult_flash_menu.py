@@ -49,7 +49,7 @@ from utils.input_utils import get_number_input
 class KatapultFlashMethodMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.title = "MCU Flash Menu"
+        self.title = "MCU Bootloader Flash Menu"
         self.title_color = Color.CYAN
         self.help_menu = KatapultFlashMethodHelpMenu
         self.input_label_txt = "Select flash method"
@@ -75,6 +75,12 @@ class KatapultFlashMethodMenu(BaseMenu):
             "Make sure to select the correct method for the MCU!", Color.YELLOW
         )
         subline2 = Color.apply("Not all MCUs support both methods!", Color.YELLOW)
+        subline3 = Color.apply(
+            "Make sure you double-checked settings before proceeding!", Color.RED
+        )
+        subline4 = Color.apply(
+            "Pay special attention to the bootloader offset!!!", Color.RED
+        )
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
@@ -83,6 +89,8 @@ class KatapultFlashMethodMenu(BaseMenu):
             ║ {subheader:<62} ║
             ║ {subline1:<62} ║
             ║ {subline2:<62} ║
+            ║ {subline3:<62} ║
+            ║ {subline4:<62} ║
             ╟───────────────────────────────────────────────────────╢
             ║ 1) Regular flashing method                            ║
             ║ 2) Updating via SD-Card Update                        ║
@@ -185,6 +193,7 @@ class KatapultSelectMcuConnectionMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
+        # TODO add 5) can flash using older katapult bootloader (custom command)
         menu = textwrap.dedent(
             """
             ╟───────────────────────────────────────────────────────╢
@@ -214,6 +223,10 @@ class KatapultSelectMcuConnectionMenu(BaseMenu):
     def select_usb_rp2040(self, **kwargs):
         self.flash_options.connection_type = ConnectionType.USB_RP2040
         self.get_mcu_list()
+    
+    # TODO add can flashing support
+    # def select_canbus(self, **kwargs):
+    #     raise NotImplementedError("Automated flashing over CAN is not supported yet.")
 
     def get_mcu_list(self, **kwargs):
         conn_type = self.flash_options.connection_type
@@ -281,8 +294,8 @@ class KatapultSelectMcuIdMenu(BaseMenu):
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ Make sure, to select the correct MCU!                 ║
-            ║ ONLY flash a firmware created for the respective MCU! ║
+            ║ Make sure to select the correct MCU!                  ║
+            ║ ONLY flash a bootloader created for the specific MCU! ║
             ║                                                       ║
             ╟{header2:─^64}╢
             ║                                                       ║

@@ -1,0 +1,1 @@
+Should we copy components.klipper_firmware.flash_options into something like components.katapult.flash_options. This would make for duplicate code, but ensure that both katapult and klipper are fully independant.

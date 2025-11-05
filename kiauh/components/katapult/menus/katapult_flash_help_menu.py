@@ -146,14 +146,14 @@ class KatapultMcuConnectionHelpMenu(BaseMenu):
             ║ Selecting USB as the connection method will scan the  ║
             ║ USB ports for connected controller boards. This will  ║
             ║ be similar to the 'ls /dev/serial/by-id/*' command    ║
-            ║ suggested by the official Katapult documentation for   ║
+            ║ suggested by the official Klipper documentation for   ║
             ║ determining successfull USB connections!              ║
             ║                                                       ║
             ║ {subheader2:<62} ║
             ║ Selecting UART as the connection method will list all ║
             ║ possible UART serial ports. Note: This method ALWAYS  ║
             ║ returns something as it seems impossible to determine ║
-            ║ if a valid Katapult controller board is connected or   ║
+            ║ if a valid Klipper controller board is connected or   ║
             ║ not. Because of that, you MUST know which UART serial ║
             ║ port your controller board is connected to when using ║
             ║ this connection method.                               ║

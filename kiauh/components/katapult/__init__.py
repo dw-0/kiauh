@@ -15,12 +15,12 @@ KATAPULT_REPO = "https://github.com/Arksine/katapult"
 # names
 KATAPULT_LOG_NAME = "katapult.log"
 
-# directories 
+# directories
 KATAPULT_DIR = Path.home().joinpath("katapult")
 KATAPULT_KCONFIGS_DIR = Path.home().joinpath("katapult-kconfigs")
 
 # scripts
-KATAPULT_FLASHTOOL = KATAPULT_DIR.joinpath("scripts/flashtool.py")
+KATAPULT_FLASHTOOL_PATH = KATAPULT_DIR.joinpath("scripts/flashtool.py")
 
 # messages
 # EXIT_KATAPULT_SETUP = "Exiting katapult setup ..."

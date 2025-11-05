@@ -10,15 +10,14 @@ from __future__ import annotations
 
 import shutil
 import time
-from subprocess import CalledProcessError
+from subprocess import CalledProcessError, run
 from typing import List
 
-from components.katapult import (
-    KATAPULT_DIR,
-    KATAPULT_REPO,
-    # KATAPULT_FLASHTOOL # TODO: to be used when implementing flashing
-)
+from components.katapult import KATAPULT_DIR, KATAPULT_FLASHTOOL_PATH, KATAPULT_REPO
+from components.katapult.firmware_utils import find_firmware_file
+from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
+from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from core.types.component_status import ComponentStatus
@@ -30,16 +29,6 @@ from utils.git_utils import (
 from utils.input_utils import get_confirm
 from utils.instance_utils import get_instances
 
-### TODO: update imports when implementing backup support
-# from core.services.backup_service import BackupService
-# from core.settings.kiauh_settings import KiauhSettings
-# from core.types.component_status import ComponentStatus
-
-# from utils.sys_utils import (
-#     # cmd_sysctl_service,
-#     # parse_packages_from_file,
-# )
-
 ### TODO: update imports when implementing CAN interface check
 # from utils.common import (
 #     # check_install_dependencies,
@@ -48,7 +37,7 @@ from utils.instance_utils import get_instances
 
 
 def install_katapult() -> None:
-    # Step 1: Print disclaimer and get confirmation
+    # step 1: print disclaimer and get confirmation
     print_katapult_brick_warning()
 
     if not get_confirm("Do you want to continue with the installation?"):
@@ -58,10 +47,10 @@ def install_katapult() -> None:
     Logger.print_status("Starting the installer script for Katapult ...")
     time.sleep(1)
 
-    # Step 2: Check for a valid CAN interface
+    # step 2: check for a valid CAN interface
     # TODO: implement CAN interface check
 
-    # Step 3: Check for Multi Instance
+    # step 3: check for Multi Instance
     #
     # TODO Add multi instance support. I believe we only need to ensure people
     # are offered a way to choose which CAN interface to use.
@@ -76,11 +65,12 @@ def install_katapult() -> None:
         Logger.print_info("Katapult installation aborted!")
         return
 
-    # Step 4: Clone Katapult repo
+    # step 4: clone Katapult repo
     git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
 
-    # Step 5: Install dependencies
+    # step 5: install dependencies
     # TODO: check for python3-serial, or maybe add an interactive prompt (only used for flashing over USB/UART)
+    # dependencies are actually check for only at flash time, which is a better alternative
 
 
 def print_katapult_brick_warning() -> None:
@@ -179,6 +169,67 @@ def backup_katapult_dir() -> None:
         target_path="Katapult",
     )
 
+
+# TODO implement flashing Klipper using Katapult
+
+
 def flash_klipper_via_katapult() -> None:
-    # TODO implement flashing Klipper using Katapult
-    raise NotImplementedError
+    # step 1: stop all instances
+    Logger.print_status(f"Stopping all {Klipper.__name__} instances ...")
+    instances = get_instances(Klipper)
+    InstanceManager.stop_all(instances)
+
+    # step 2: check there is a valid Klipper bin file to flash
+    if not find_firmware_file():
+        raise Exception("No firmware file found in /klipper/out")
+    # TODO add a better dialog, such as the one in katapult_flash_error_menu
+
+    # step 3 : enter the bootloader mode on the target device flashtool.py --request-bootloader
+    try:
+        run(
+            f"python3 {KATAPULT_FLASHTOOL_PATH} --request-bootloader",
+            cwd=KATAPULT_DIR,
+            shell=True,
+            check=True,
+        )
+    except CalledProcessError as e:
+        Logger.print_error(f"Unexpected error:\n{e}")
+        raise
+
+    # step 4 : run the flash script
+    # python3 flashtool.py -i can0 -f ~/klipper/out/klipper.bin -u <uuid>
+    # or if usb
+    # python3 flashtool.py -d <serial device> -b <baud_rate>
+
+    # TODO pass can interface number as a parameter
+    # TODO add a menu to select query and confirm for the uuid
+    # TODO add a menu to select status and print the report (or log it anyway)
+    # TODO implement a switch or if/else in order to choose from can or serial
+    try:
+        run(
+            f"python3 {KATAPULT_FLASHTOOL_PATH} --firmware {KLIPPER_DIR}/out --interface can0 --uuid {UUID}",
+            cwd=KATAPULT_DIR,
+            shell=True,
+            check=True,
+        )
+    except CalledProcessError as e:
+        Logger.print_error(f"Unexpected error:\n{e}")
+        raise
+
+    # TODO Implement BaudRate Specification
+    try:
+        run(
+            f"python3 {KATAPULT_FLASHTOOL_PATH} --firmware {KLIPPER_DIR}/out --device {SerialDevice} --baud {BaudRate}",
+            cwd=KATAPULT_DIR,
+            shell=True,
+            check=True,
+        )
+    except CalledProcessError as e:
+        Logger.print_error(f"Unexpected error:\n{e}")
+        raise
+
+    # step 5: Restart Klipper
+    Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
+    InstanceManager.start_all(instances)
+
+

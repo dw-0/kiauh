@@ -132,7 +132,7 @@ class KatapultBuildBootloaderMenu(BaseMenu):
         self.title = "Build Katapult Bootloader Menu"
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
-        self.deps: Set[str] = {"build-essential", "dpkg-dev", "make"}
+        self.deps: Set[str] = {"build-essential", "dpkg-dev", "make", "python3-serial"} #TODO only check for python3-serial if user decides to go with serial
         self.missing_deps: List[str] = check_package_install(self.deps)
         self.flash_options = FlashOptions()
         self.kconfigs_dirname = KATAPULT_KCONFIGS_DIR
