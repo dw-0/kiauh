@@ -172,7 +172,11 @@ def backup_katapult_dir() -> None:
 
 # TODO implement flashing Klipper using Katapult
 
+def flash_klipper_via_katapult() -> None:
+    raise NotImplementedError("Feature not yet implemented")
 
+
+'''
 def flash_klipper_via_katapult() -> None:
     # step 1: stop all instances
     Logger.print_status(f"Stopping all {Klipper.__name__} instances ...")
@@ -231,5 +235,8 @@ def flash_klipper_via_katapult() -> None:
     # step 5: Restart Klipper
     Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
     InstanceManager.start_all(instances)
+    
+
+'''
 
 
