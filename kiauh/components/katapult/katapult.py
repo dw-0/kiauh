@@ -13,8 +13,12 @@ import time
 from subprocess import CalledProcessError, run
 from typing import List
 
+import psutil
 from components.katapult import KATAPULT_DIR, KATAPULT_FLASHTOOL_PATH, KATAPULT_REPO
-from components.katapult.firmware_utils import find_firmware_file
+from components.katapult.firmware_utils import (
+    find_firmware_file,
+    find_uart_device,
+)
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from core.instance_manager.instance_manager import InstanceManager
@@ -26,7 +30,12 @@ from utils.git_utils import (
     git_clone_wrapper,
     git_pull_wrapper,
 )
-from utils.input_utils import get_confirm
+from utils.input_utils import (
+    get_confirm,
+    get_number_input,
+    get_selection_input,
+    get_string_input,
+)
 from utils.instance_utils import get_instances
 
 ### TODO: update imports when implementing CAN interface check
@@ -48,15 +57,28 @@ def install_katapult() -> None:
     time.sleep(1)
 
     # step 2: check for a valid CAN interface
-    # TODO: implement CAN interface check
+    if not check_can_interface("can0"):
+        Logger.print_info("Aborting Katapult installation — no CAN interface found.")
+        return
 
-    # step 3: check for Multi Instance
-    #
+    # step 3: check for Multi Instances
+
     # TODO Add multi instance support. I believe we only need to ensure people
     # are offered a way to choose which CAN interface to use.
     # For now, default is to block multi instance installs.
     # This should really be thought through more carefully later on,
     # as Katapult has the potential to brick devices if used improperly.
+
+    # if len(instances) > 1:
+    #     Logger.print_dialog(DialogType.INFO, ["Multiple Klipper instances found:"])
+    #     for i, instance in enumerate(instances, 1):
+    #         print(f"{i}. {instance.data_dir.name}")
+    #     choice = input("Select instance to flash: ")
+    #     selected = instances[int(choice) - 1]
+    # else:
+    #     selected = instances[0]
+    #
+    # Then we'd only need to find a way to 'assign' each interface to its corresponding instance
 
     instances: List[Klipper] = get_instances(Klipper)
 
@@ -64,6 +86,8 @@ def install_katapult() -> None:
         print_multi_instance_warning(instances)
         Logger.print_info("Katapult installation aborted!")
         return
+
+    instances = get_instances(Klipper)
 
     # step 4: clone Katapult repo
     git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
@@ -118,6 +142,7 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
 
 def update_katapult() -> None:
     ### TODO Check if katapult updating works as intended
+
     try:
         ### TODO : check if there is a PID for an instance of Katapult and abort if so
         # cmd_sysctl_service(CROWSNEST_SERVICE_NAME, "stop")
@@ -172,11 +197,10 @@ def backup_katapult_dir() -> None:
 
 # TODO implement flashing Klipper using Katapult
 
-def flash_klipper_via_katapult() -> None:
-    raise NotImplementedError("Feature not yet implemented")
+# def flash_klipper_via_katapult() -> None:
+#     raise NotImplementedError("Feature not yet implemented")
 
 
-'''
 def flash_klipper_via_katapult() -> None:
     # step 1: stop all instances
     Logger.print_status(f"Stopping all {Klipper.__name__} instances ...")
@@ -189,6 +213,10 @@ def flash_klipper_via_katapult() -> None:
     # TODO add a better dialog, such as the one in katapult_flash_error_menu
 
     # step 3 : enter the bootloader mode on the target device flashtool.py --request-bootloader
+    # First, check there is only one node on the network
+    # NOTE: A query should only be performed when a single can node is on the network. Attempting to query multiple nodes may result in transmission errors that can force a node into a "bus off" state. When a node enters "bus off" it becomes unresponsive. The node must be reset to recover.
+
+    # Then proceed
     try:
         run(
             f"python3 {KATAPULT_FLASHTOOL_PATH} --request-bootloader",
@@ -209,34 +237,111 @@ def flash_klipper_via_katapult() -> None:
     # TODO add a menu to select query and confirm for the uuid
     # TODO add a menu to select status and print the report (or log it anyway)
     # TODO implement a switch or if/else in order to choose from can or serial
-    try:
-        run(
-            f"python3 {KATAPULT_FLASHTOOL_PATH} --firmware {KLIPPER_DIR}/out --interface can0 --uuid {UUID}",
-            cwd=KATAPULT_DIR,
-            shell=True,
-            check=True,
-        )
-    except CalledProcessError as e:
-        Logger.print_error(f"Unexpected error:\n{e}")
-        raise
+    # Ask user whether to flash via CAN or Serial
+    Logger.print_status("Select flashing transport for Klipper (CAN or Serial) ...")
 
-    # TODO Implement BaudRate Specification
-    try:
-        run(
-            f"python3 {KATAPULT_FLASHTOOL_PATH} --firmware {KLIPPER_DIR}/out --device {SerialDevice} --baud {BaudRate}",
-            cwd=KATAPULT_DIR,
-            shell=True,
-            check=True,
+    choice = get_selection_input(
+        question="Select transport: 1) CAN  2) Serial (default= CAN)",
+        option_list={"1": "CAN", "2": "Serial"},
+        default="1",
+    )
+
+    # Validate katapult not already running
+    if check_katapult_running():
+        raise Exception("An instance of Katapult is already running! Aborting...")
+
+    if choice == "1":
+        # CAN flash
+        interface = get_string_input(
+            question="Enter CAN interface, or hit enter to use default (can0)",
+            default="can0",
+            allow_special_chars=True,
+            allow_empty=True,
         )
-    except CalledProcessError as e:
-        Logger.print_error(f"Unexpected error:\n{e}")
-        raise
+
+        uuid = get_string_input(
+            question=("Enter UUID of target node to flash (copy from 'Query UUID')"),
+            allow_empty=False,
+        )
+
+        try:
+            run(
+                f"python3 {KATAPULT_FLASHTOOL_PATH} --firmware {KLIPPER_DIR}/out --interface {interface} --uuid {uuid}",
+                cwd=KATAPULT_DIR,
+                shell=True,
+                check=True,
+            )
+        except CalledProcessError as e:
+            Logger.print_error(f"Unexpected error:\n{e}")
+            raise
+
+    else:
+        # Serial (UART/USB) flash
+        # Try to auto-detect UART devices first
+        devices = find_uart_device()
+        serial_device: str | None = None
+
+        if devices:
+            Logger.print_ok("Detected UART devices:", prefix=False)
+            for i, d in enumerate(devices):
+                print(f"  {i}) {d}")
+
+                idx = get_number_input(
+                    question="Select serial device index",
+                    min_value=0,
+                    max_value=len(devices) - 1,
+                    allow_go_back=False,
+                )
+                if idx is None:
+                    raise Exception("No serial device selected")
+                serial_device = devices[int(idx)]
+        else:
+            serial_device = get_string_input(
+                question="Enter serial device path (e.g. /dev/ttyUSB0)",
+                allow_special_chars=True,
+                allow_empty=False,
+            )
+
+        baud_rate = get_number_input(
+            question="Please set the baud rate, if you are not sure, use the default (250000)",
+            default=250000,
+            min_value=9600,
+        )
+
+        try:
+            run(
+                f"python3 {KATAPULT_FLASHTOOL_PATH} --firmware {KLIPPER_DIR}/out --device {serial_device} --baud {baud_rate}",
+                cwd=KATAPULT_DIR,
+                shell=True,
+                check=True,
+            )
+        except CalledProcessError as e:
+            Logger.print_error(f"Unexpected error:\n{e}")
+            raise
 
     # step 5: Restart Klipper
     Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
     InstanceManager.start_all(instances)
-    
-
-'''
 
 
+def check_can_interface(interface="can0") -> bool:
+    try:
+        run(
+            ["ip", "link", "show", interface],
+            check=True,
+            capture_output=True,
+        )
+        return True
+    except CalledProcessError:
+        Logger.print_error(f"CAN interface '{interface}' not found or not up!")
+        return False
+
+
+# TODO Maybe there is a better way to do this using a helper ? Couldn't find it
+def check_katapult_running() -> bool:
+    for proc in psutil.process_iter(attrs=["cmdline"]):
+        cmd = " ".join(proc.info["cmdline"])
+        if "katapult" in cmd and "flashtool.py" in cmd:
+            Logger.print_error("Katapult flashing process detected! Aborting update.")
+            return True
+    return False
