@@ -211,22 +211,22 @@ def flash_klipper_via_katapult() -> None:
         raise Exception("No firmware file found in /klipper/out")
     # TODO add a better dialog, such as the one in katapult_flash_error_menu
 
-    # step 3 : enter the bootloader mode on the target device flashtool.py --request-bootloader
-    # First, check there is only one node on the network
-    # NOTE: A query should only be performed when a single can node is on the network. Attempting to query multiple nodes may result in transmission errors that can force a node into a "bus off" state. When a node enters "bus off" it becomes unresponsive. The node must be reset to recover.
+    # # step 3 : enter the bootloader mode on the target device flashtool.py --request-bootloader
+    # # First, check there is only one node on the network
+    # # NOTE: A query should only be performed when a single can node is on the network. Attempting to query multiple nodes may result in transmission errors that can force a node into a "bus off" state. When a node enters "bus off" it becomes unresponsive. The node must be reset to recover.
 
-    # Then proceed
-    try:
-        run(
-            f"python3 {KATAPULT_FLASHTOOL_PATH} --request-bootloader",
-            cwd=KATAPULT_DIR,
-            shell=True,
-            check=True,
-        )
-    except CalledProcessError as e:
-        restart_all_klipper_instances()
-        Logger.print_error(f"Unexpected error:\n{e}")
-        raise
+    # # Then proceed
+    # try:
+    #     run(
+    #         f"python3 {KATAPULT_FLASHTOOL_PATH} --request-bootloader",
+    #         cwd=KATAPULT_DIR,
+    #         shell=True,
+    #         check=True,
+    #     )
+    # except CalledProcessError as e:
+    #     restart_all_klipper_instances()
+    #     Logger.print_error(f"Unexpected error:\n{e}")
+    #     raise
 
     # step 4 : run the flash script
     # python3 flashtool.py -i can0 -f ~/klipper/out/klipper.bin -u <uuid>
