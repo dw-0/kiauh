@@ -16,11 +16,11 @@ from typing import List
 import psutil
 from components.katapult import KATAPULT_DIR, KATAPULT_FLASHTOOL_PATH, KATAPULT_REPO
 from components.katapult.firmware_utils import (
-    find_firmware_file,
     find_uart_device,
 )
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
+from components.klipper_firmware.firmware_utils import find_firmware_file
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService

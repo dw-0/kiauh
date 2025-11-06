@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Type
 
 from components.katapult.firmware_utils import (
-    find_firmware_file,
+    find_bootloader_file,
     find_uart_device,
     find_usb_device_by_id,
     find_usb_dfu_device,
@@ -108,7 +108,7 @@ class KatapultFlashMethodMenu(BaseMenu):
         self.goto_next_menu()
 
     def goto_next_menu(self, **kwargs):
-        if find_firmware_file():
+        if find_bootloader_file():
             KatapultFlashCommandMenu(previous_menu=self.__class__).run()
         else:
             KatapultNoDeployerErrorMenu().run()

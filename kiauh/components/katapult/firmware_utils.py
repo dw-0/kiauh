@@ -32,7 +32,7 @@ from utils.instance_utils import get_instances
 from utils.sys_utils import log_process
 
 
-def find_firmware_file() -> bool:
+def find_bootloader_file() -> bool:
     target = KATAPULT_DIR.joinpath("out")
     target_exists: bool = target.exists()
 
