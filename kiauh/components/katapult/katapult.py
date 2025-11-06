@@ -253,12 +253,11 @@ def flash_klipper_via_katapult() -> None:
         interface = get_string_input(
             question="Enter CAN interface, or hit enter to use default (can0)",
             default="can0",
-            allow_special_chars=True,
-            allow_empty=True,
         )
 
+        # TODO check if there is a way to retrieve the UUID automatically from printer.cfg in the [mcu] section
         uuid = get_string_input(
-            question=("Enter UUID of target node to flash (copy from 'Query UUID')"),
+            question=("Enter UUID of target node to flash (copy from 'Query UUID', it will look something like 'bd9dc195c7eb')"),
             allow_empty=False,
         )
 
@@ -271,7 +270,7 @@ def flash_klipper_via_katapult() -> None:
             )
         except CalledProcessError as e:
             restart_all_klipper_instances()
-            Logger.print_error(f"Unexpected error:\n{e}")
+            Logger.print_error(f"There was an error during the call of flashtool.py:\n{e}")
             raise
 
     else:
@@ -302,7 +301,7 @@ def flash_klipper_via_katapult() -> None:
             )
 
         baud_rate = get_number_input(
-            question="Please set the baud rate, if you are not sure, use the default (250000)",
+            question="Please set the baud rate, if you are not sure, hit enter to use the default (250000)",
             default=250000,
             min_value=9600,
         )
@@ -316,7 +315,7 @@ def flash_klipper_via_katapult() -> None:
             )
         except CalledProcessError as e:
             restart_all_klipper_instances()
-            Logger.print_error(f"Unexpected error:\n{e}")
+            Logger.print_error(f"There was an error during the call of flashtool.py:\n{e}")
             raise
 
     # step 5: Restart Klipper
