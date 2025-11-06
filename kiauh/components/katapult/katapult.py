@@ -14,7 +14,12 @@ from subprocess import CalledProcessError, run
 from typing import List
 
 import psutil
-from components.katapult import KATAPULT_DIR, KATAPULT_FLASHTOOL_PATH, KATAPULT_REPO
+from components.katapult import (
+    KATAPULT_DIR,
+    KATAPULT_FLASHTOOL_PATH,
+    KATAPULT_KCONFIGS_DIR,
+    KATAPULT_REPO,
+)
 from components.katapult.firmware_utils import (
     find_uart_device,
 )
@@ -38,12 +43,6 @@ from utils.input_utils import (
 )
 from utils.instance_utils import get_instances
 
-### TODO: update imports when implementing CAN interface check
-# from utils.common import (
-#     # check_install_dependencies,
-#     # get_install_status,
-# )
-
 
 def install_katapult() -> None:
     # step 1: print disclaimer and get confirmation
@@ -57,14 +56,15 @@ def install_katapult() -> None:
     time.sleep(1)
 
     # step 2: check for a valid CAN interface
+    # TODO add support for multiple CAN interfaces (or at least list them for the user to choose from)
     if not check_can_interface("can0"):
         Logger.print_info("Aborting Katapult installation — no CAN interface found.")
         return
 
     # step 3: check for Multi Instances
 
-    # TODO Add multi instance support. I believe we only need to ensure people
-    # are offered a way to choose which CAN interface to use.
+    # TODO Add multi instance support.
+    # I believe we only need to ensure people are offered a way to choose which CAN interface to use.
     # For now, default is to block multi instance installs.
     # This should really be thought through more carefully later on,
     # as Katapult has the potential to brick devices if used improperly.
@@ -87,14 +87,12 @@ def install_katapult() -> None:
         Logger.print_info("Katapult installation aborted!")
         return
 
-    instances = get_instances(Klipper)
-
     # step 4: clone Katapult repo
     git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
 
     # step 5: install dependencies
     # TODO: check for python3-serial, or maybe add an interactive prompt (only used for flashing over USB/UART)
-    # dependencies are actually check for only at flash time, which is a better alternative
+    # as of now, we only check for python3-serial when building, which will install it along with Katapult even if not needed.
 
 
 def print_katapult_brick_warning() -> None:
@@ -141,26 +139,19 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
 
 
 def update_katapult() -> None:
-    ### TODO Check if katapult updating works as intended
-
     try:
-        ### TODO : check if there is a PID for an instance of Katapult and abort if so
-        # cmd_sysctl_service(CROWSNEST_SERVICE_NAME, "stop")
+        if check_katapult_running():
+            raise Exception("An instance of Katapult is running! Aborting...")
 
         if not KATAPULT_DIR.exists():
             git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
         else:
             Logger.print_status("Updating Katapult ...")
 
-            ### TODO : backup katapult dir
-            # settings = KiauhSettings()
-            # if settings.kiauh.backup_before_update:
-            #     svc = BackupService()
-            #     svc.backup_directory(
-            #         source_path=KATAPULT_DIR,
-            #         target_path="katapult",
-            #         backup_name="katapult",
-            #     )
+            if get_confirm(
+                "Do you want to backup the Katapult directory before updating?"
+            ):
+                backup_katapult_dir()
 
             git_pull_wrapper(KATAPULT_DIR)
 
@@ -183,7 +174,12 @@ def remove_katapult() -> None:
     shutil.rmtree(KATAPULT_DIR)
     Logger.print_ok("Directory removed! Katapult has been sucessfully uninstalled.")
 
-    # TODO add option to remove kconfigs dir as well
+    if KATAPULT_KCONFIGS_DIR.exists():
+        if get_confirm("Do you also want to remove the configurations directory ?"):
+            shutil.rmtree(KATAPULT_KCONFIGS_DIR)
+            Logger.print_ok(
+                "Directory removed! Katapult configurations have been sucessfully deleted."
+            )
 
 
 def backup_katapult_dir() -> None:
@@ -195,27 +191,29 @@ def backup_katapult_dir() -> None:
     )
 
 
-# TODO implement flashing Klipper using Katapult
-
-# def flash_klipper_via_katapult() -> None:
-#     raise NotImplementedError("Feature not yet implemented")
-
-
 def flash_klipper_via_katapult() -> None:
-    # step 1: stop all instances
+    # step 1: check if there is a valid Klipper bin file to flash
+    # TODO add a better dialog, such as the one in katapult_flash_error_menu
+    if not find_firmware_file():
+        raise Exception("No firmware file found in /klipper/out")
+
+    # step 2: stop all instances
     stop_all_klipper_instances()
 
-    # step 2: check there is a valid Klipper bin file to flash
-    if not find_firmware_file():
+    # step 3 : enter the bootloader mode on the target device
+    # TODO try to find uuids automatically
+    # same as in step 4, in order to offer a list to the user and put devices in bootloader mode using flashtool.
+    # For now, just ask the user manually, as doing it incorrectly could lead to an unresponsive node (as per Katapult documentation).
+    if not get_confirm(
+        "Put the device you intend to flash into bootloader mode, then confirm to continue."
+    ):
+        Logger.print_info("Katapult installation aborted by user!")
         restart_all_klipper_instances()
-        raise Exception("No firmware file found in /klipper/out")
-    # TODO add a better dialog, such as the one in katapult_flash_error_menu
+        return
 
-    # # step 3 : enter the bootloader mode on the target device flashtool.py --request-bootloader
-    # # First, check there is only one node on the network
-    # # NOTE: A query should only be performed when a single can node is on the network. Attempting to query multiple nodes may result in transmission errors that can force a node into a "bus off" state. When a node enters "bus off" it becomes unresponsive. The node must be reset to recover.
-
-    # # Then proceed
+    # First, check there is only one node on the network
+    # NOTE: A query should only be performed when a single can node is on the network. Attempting to query multiple nodes may result in transmission errors that can force a node into a "bus off" state. When a node enters "bus off" it becomes unresponsive. The node must be reset to recover.
+    # Then proceed
     # try:
     #     run(
     #         f"python3 {KATAPULT_FLASHTOOL_PATH} --request-bootloader",
@@ -229,15 +227,6 @@ def flash_klipper_via_katapult() -> None:
     #     raise
 
     # step 4 : run the flash script
-    # python3 flashtool.py -i can0 -f ~/klipper/out/klipper.bin -u <uuid>
-    # or if usb
-    # python3 flashtool.py -d <serial device> -b <baud_rate>
-
-    # TODO pass can interface number as a parameter
-    # TODO add a menu to select query and confirm for the uuid
-    # TODO add a menu to select status and print the report (or log it anyway)
-    # TODO implement a switch or if/else in order to choose from can or serial
-    # Ask user whether to flash via CAN or Serial
     Logger.print_status("Select flashing transport for Klipper (CAN or Serial) ...")
 
     options = ["1", "2"]
@@ -250,14 +239,17 @@ def flash_klipper_via_katapult() -> None:
 
     if choice == "1":
         # CAN flash
+        # TODO list all can interfaces available, if there is only one, default to it without asking
         interface = get_string_input(
             question="Enter CAN interface, or hit enter to use default (can0)",
             default="can0",
         )
 
-        # TODO check if there is a way to retrieve the UUID automatically from printer.cfg in the [mcu] section
+        # TODO automatically retrieve all available UUIDs automatically from printer.cfg in the [mcu] section
         uuid = get_string_input(
-            question=("Enter UUID of target node to flash (copy from 'Query UUID', it will look something like 'bd9dc195c7eb')"),
+            question=(
+                "Enter UUID of target node to flash (copy from 'Query UUID', it will look something like 'bd9dc195c7eb')"
+            ),
             allow_empty=False,
         )
 
@@ -270,7 +262,9 @@ def flash_klipper_via_katapult() -> None:
             )
         except CalledProcessError as e:
             restart_all_klipper_instances()
-            Logger.print_error(f"There was an error during the call of flashtool.py:\n{e}")
+            Logger.print_error(
+                f"There was an error during the call of flashtool.py:\n{e}"
+            )
             raise
 
     else:
@@ -315,12 +309,12 @@ def flash_klipper_via_katapult() -> None:
             )
         except CalledProcessError as e:
             restart_all_klipper_instances()
-            Logger.print_error(f"There was an error during the call of flashtool.py:\n{e}")
+            Logger.print_error(
+                f"There was an error during the call of flashtool.py:\n{e}"
+            )
             raise
 
     # step 5: Restart Klipper
-    # Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
-    # InstanceManager.start_all(instances)
     restart_all_klipper_instances()
 
 
