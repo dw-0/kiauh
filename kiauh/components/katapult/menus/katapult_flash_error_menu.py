@@ -11,7 +11,6 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
-# TODO should we copy those into components.katapult ?
 from components.klipper_firmware.flash_options import FlashMethod, FlashOptions
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu, MenuTitleStyle
@@ -83,8 +82,6 @@ class KatapultNoBoardTypesErrorMenu(BaseMenu):
     def set_options(self) -> None:
         self.default_option = Option(method=self.go_back)
 
-    # TODO if the methods from klipper are copied in /katapult,
-    # we need to update the list here accordingly.
     def print_menu(self) -> None:
         line1 = "Reading the list of supported boards failed!"
         menu = textwrap.dedent(

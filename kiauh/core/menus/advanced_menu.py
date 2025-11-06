@@ -70,9 +70,7 @@ class AdvancedMenu(BaseMenu):
             # "12": Option(method=self.can_management),
         }
 
-        # TODO add katapult deployer build and flash
-        # TODO add the option to flash Klipper using Katapult
-        # TODO add system canbus interface add/remove
+        # TODO implement system canbus interface add/remove
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
@@ -93,7 +91,7 @@ class AdvancedMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
-        # 12) [CAN Management] TODO implement Can bus check, add/remove
+        # TODO implement Can bus check, add/remove.. 12) [CAN Management] 
 
     def klipper_rollback(self, **kwargs) -> None:
         rollback_repository(KLIPPER_DIR, Klipper)
