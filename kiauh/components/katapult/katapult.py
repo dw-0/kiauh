@@ -203,12 +203,11 @@ def backup_katapult_dir() -> None:
 
 def flash_klipper_via_katapult() -> None:
     # step 1: stop all instances
-    Logger.print_status(f"Stopping all {Klipper.__name__} instances ...")
-    instances = get_instances(Klipper)
-    InstanceManager.stop_all(instances)
+    stop_all_klipper_instances()
 
     # step 2: check there is a valid Klipper bin file to flash
     if not find_firmware_file():
+        restart_all_klipper_instances()
         raise Exception("No firmware file found in /klipper/out")
     # TODO add a better dialog, such as the one in katapult_flash_error_menu
 
@@ -225,6 +224,7 @@ def flash_klipper_via_katapult() -> None:
             check=True,
         )
     except CalledProcessError as e:
+        restart_all_klipper_instances()
         Logger.print_error(f"Unexpected error:\n{e}")
         raise
 
@@ -246,8 +246,9 @@ def flash_klipper_via_katapult() -> None:
         default="1",
     )
 
-    # Validate katapult not already running
+    # check katapult not already running
     if check_katapult_running():
+        restart_all_klipper_instances()
         raise Exception("An instance of Katapult is already running! Aborting...")
 
     if choice == "1":
@@ -272,6 +273,7 @@ def flash_klipper_via_katapult() -> None:
                 check=True,
             )
         except CalledProcessError as e:
+            restart_all_klipper_instances()
             Logger.print_error(f"Unexpected error:\n{e}")
             raise
 
@@ -316,12 +318,14 @@ def flash_klipper_via_katapult() -> None:
                 check=True,
             )
         except CalledProcessError as e:
+            restart_all_klipper_instances()
             Logger.print_error(f"Unexpected error:\n{e}")
             raise
 
     # step 5: Restart Klipper
-    Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
-    InstanceManager.start_all(instances)
+    # Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
+    # InstanceManager.start_all(instances)
+    restart_all_klipper_instances()
 
 
 def check_can_interface(interface="can0") -> bool:
@@ -345,3 +349,15 @@ def check_katapult_running() -> bool:
             Logger.print_error("Katapult flashing process detected! Aborting update.")
             return True
     return False
+
+
+def stop_all_klipper_instances() -> None:
+    Logger.print_status(f"Stopping all {Klipper.__name__} instances ...")
+    instances = get_instances(Klipper)
+    InstanceManager.stop_all(instances)
+
+
+def restart_all_klipper_instances() -> None:
+    Logger.print_status(f"Restarting all {Klipper.__name__} instances ...")
+    instances = get_instances(Klipper)
+    InstanceManager.start_all(instances)
