@@ -240,11 +240,8 @@ def flash_klipper_via_katapult() -> None:
     # Ask user whether to flash via CAN or Serial
     Logger.print_status("Select flashing transport for Klipper (CAN or Serial) ...")
 
-    choice = get_selection_input(
-        question="Select transport: 1) CAN  2) Serial (default= CAN)",
-        option_list={"1": "CAN", "2": "Serial"},
-        default="1",
-    )
+    options = ["1", "2"]
+    choice = get_selection_input("Select transport: 1) CAN  2) Serial", options)
 
     # check katapult not already running
     if check_katapult_running():
