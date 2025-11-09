@@ -12,6 +12,7 @@ import textwrap
 from typing import Callable, List, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status, update_crowsnest
+from components.katapult.katapult import get_katapult_status, update_katapult
 from components.klipper.klipper_utils import (
     get_klipper_status,
 )
@@ -68,6 +69,7 @@ class UpdateMenu(BaseMenu):
         self.fluidd_config_local = self.fluidd_config_remote = ""
         self.klipperscreen_local = self.klipperscreen_remote = ""
         self.crowsnest_local = self.crowsnest_remote = ""
+        self.katapult_local = self.katapult_remote = ""
 
         self.mainsail_data = MainsailData()
         self.fluidd_data = FluiddData()
@@ -120,6 +122,12 @@ class UpdateMenu(BaseMenu):
                 "local": None,
                 "remote": None,
             },
+            "katapult": {
+                "display_name": "Katapult",
+                "installed": False,
+                "local": None,
+                "remote": None,
+            },
         }
 
         self._fetch_update_status()
@@ -141,7 +149,8 @@ class UpdateMenu(BaseMenu):
             "6": Option(self.update_fluidd_config),
             "7": Option(self.update_klipperscreen),
             "8": Option(self.update_crowsnest),
-            "9": Option(self.upgrade_system_packages),
+            "9": Option(self.update_katapult),
+            "10": Option(self.upgrade_system_packages),
         }
 
     def print_menu(self) -> None:
@@ -173,8 +182,9 @@ class UpdateMenu(BaseMenu):
             ║ Other:                ├───────────────┼───────────────╢
             ║  7) KlipperScreen     │ {self.klipperscreen_local:<22} │ {self.klipperscreen_remote:<22} ║
             ║  8) Crowsnest         │ {self.crowsnest_local:<22} │ {self.crowsnest_remote:<22} ║
+            ║  9) Katapult          │ {self.katapult_local:<22} │ {self.katapult_remote:<22} ║
             ║                       ├───────────────┴───────────────╢
-            ║  9) System            │ {sysupgrades:^{padding}} ║
+            ║  10) System           │ {sysupgrades:^{padding}} ║
             ╟───────────────────────┴───────────────────────────────╢
             """
         )[1:]
@@ -190,6 +200,7 @@ class UpdateMenu(BaseMenu):
         self.update_fluidd_config()
         self.update_klipperscreen()
         self.update_crowsnest()
+        self.update_katapult()
         self.upgrade_system_packages()
 
     def update_klipper(self, **kwargs) -> None:
@@ -233,6 +244,9 @@ class UpdateMenu(BaseMenu):
 
     def update_crowsnest(self, **kwargs) -> None:
         self._run_update_routine("crowsnest", update_crowsnest)
+        
+    def update_katapult(self, **kwargs) -> None:
+        self._run_update_routine("katapult", update_katapult)
 
     def upgrade_system_packages(self, **kwargs) -> None:
         self._run_system_updates()
@@ -250,6 +264,7 @@ class UpdateMenu(BaseMenu):
         )
         self._set_status_data("klipperscreen", get_klipperscreen_status)
         self._set_status_data("crowsnest", get_crowsnest_status)
+        self._set_status_data("katapult", get_katapult_status)
 
         update_system_package_lists(silent=True)
         self.packages = get_upgradable_packages()
