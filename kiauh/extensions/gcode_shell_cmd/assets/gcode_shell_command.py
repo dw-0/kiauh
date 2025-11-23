@@ -16,6 +16,7 @@ class ShellCommand:
         self.gcode = self.printer.lookup_object("gcode")
         cmd = config.get("command")
         cmd = os.path.expanduser(cmd)
+        cmd = os.path.expandvars(cmd)
         self.command = shlex.split(cmd)
         self.timeout = config.getfloat("timeout", 2.0, above=0.0)
         self.verbose = config.getboolean("verbose", True)
