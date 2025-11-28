@@ -177,12 +177,13 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
         # NOTE: all listed here must be in translations even if empty dict,
         #   so that early return doesn't occur above.
         if package_type == "alpine":
-            if dep.startswith("python3-") and (dep != "python3-devel"):
+            if dep.startswith("python3-") and (dep != "python3-dev"):
                 # All *except* python3-devel are shortened.
                 return "py3-" + dep[8:]
-            # May not be exact, but usually is:
-            if dep.startswith("lib") and dep.endswith("-dev"):
-                return dep[3:]  # Remove "lib" to meet naming convention.
+            # May not be exact, but usually is (commented since not for
+            #   many such as libffi-dev):
+            # if dep.startswith("lib") and dep.endswith("-dev"):
+            #     return dep[3:]  # Remove "lib" to meet naming convention.
         elif package_type == "arch":
             if dep.startswith("python3-"):
                 return "python-" + dep[8:]  # Remove "3" to meet naming convention.
