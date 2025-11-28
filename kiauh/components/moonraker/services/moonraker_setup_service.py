@@ -325,8 +325,8 @@ class MoonrakerSetupService:
                         MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE
                     )
             self.__install_polkit()
-        except Exception:
-            Logger.print_error("Error during installation of Moonraker requirements!")
+        except Exception as e:
+            Logger.print_error(f"Error during installation of Moonraker requirements: {e}")
             raise
 
     def __install_polkit(self) -> None:

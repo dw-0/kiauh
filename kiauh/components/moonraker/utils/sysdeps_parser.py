@@ -20,6 +20,10 @@ import re
 import shlex
 from typing import Any, Dict, List, Tuple
 
+from utils.sys_utils import (
+    PACKAGES_RENAMED,
+)
+
 
 def _get_distro_info() -> Dict[str, Any]:
     release_file = pathlib.Path("/etc/os-release")
@@ -161,23 +165,45 @@ class SysDepsParser:
             )
             return []
         all_ids = [self.distro_id] + self.aliases
+        matching_distro_id = None
+        distro_installers = {
+            "ubuntu": "deb",
+            "debian": "deb",
+        }
+        well_known_package_type = None
+        for distro_id, try_package_type in distro_installers.items():
+            if distro_id in sys_deps:
+                well_known_package_type = try_package_type
+                well_known_distro_id = distro_id
+                break
         for distro_id in all_ids:
             if distro_id in sys_deps:
                 if not sys_deps[distro_id]:
-                    logging.info(
+                    logging.warning(
                         f"Dependency data contains an empty package definition "
                         f"for linux distro '{distro_id}'"
                     )
                     continue
-                processed_deps: List[str] = []
-                for dep in sys_deps[distro_id]:
-                    parsed_dep = self._parse_spec(dep)
-                    if parsed_dep is not None:
-                        processed_deps.append(parsed_dep)
-                return processed_deps
+                matching_distro_id = distro_id
+                break
+        if matching_distro_id is None:
+            if well_known_package_type:
+                # We can translate the package names,
+                #   so use this distro id from moonraker.
+                matching_distro_id = well_known_distro_id
+                logging.warning(
+                    "Translating package names from {} to {}"
+                    .format(matching_distro_id, all_ids))
+        if matching_distro_id is not None:
+            processed_deps: List[str] = []
+            for dep in sys_deps[matching_distro_id]:
+                parsed_dep = self._parse_spec(dep)
+                if parsed_dep is not None:
+                    processed_deps.append(parsed_dep)
+            return processed_deps
         else:
             logging.warning(
                 f"Dependency data has no package definition for linux "
-                f"distro '{self.distro_id}'"
+                f"distro '{self.distro_id}' (nor well-known: {distro_installers})"
             )
         return []
