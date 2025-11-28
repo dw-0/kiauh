@@ -220,8 +220,21 @@ def install_klipper_packages() -> None:
     script = KLIPPER_INSTALL_SCRIPT
     packages = parse_packages_from_file(script)
 
-    # Add pkg-config for rp2040 build
-    packages.append("pkg-config")
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
+    if pkg_t in ("alpine", "pacman", "rpm"):
+        # In Fedora pkgconf-pkg-config is a subpackage of pkgconf, so
+        #   pkgconf will do.
+        packages.append("pkgconf")
+    elif pkg_t == "deb":
+        # Add pkg-config for rp2040 build
+        packages.append("pkg-config")
+    else:
+        print(
+            "Warning: pkg-config cannot be installed"
+            " since {} is not implemented in install_klipper_packages."
+            .format(installer),
+            file=sys.stderr)
 
     # Add dbus requirement for DietPi distro
     if check_file_exist(Path("/boot/dietpi/.version")):
