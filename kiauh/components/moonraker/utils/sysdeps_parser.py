@@ -160,7 +160,7 @@ class SysDepsParser:
                 last_logical_op = None
             except Exception:
                 logging.exception(f"Error comparing requirements: {full_spec}")
-                raise  # Don't hide errors, show for debugging
+                # raise  # Don't hide errors (commented since not fatal: Allow install anyway)
                 return None
         if last_result:
             return pkg_name
