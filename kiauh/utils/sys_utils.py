@@ -606,7 +606,7 @@ def install_system_package_group(group: str) -> None:
     package_t = get_package_type_of(installer)
     command = ["sudo", installer]
     if package_t == "rpm":
-        command += ["groupinstall", group]
+        command += ["groupinstall", "-y", group]
     else:
         raise NotImplementedError(
             "No group install command is implemented for {}."
