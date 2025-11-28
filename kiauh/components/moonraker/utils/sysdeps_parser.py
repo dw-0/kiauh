@@ -23,6 +23,9 @@ from typing import Any, Dict, List, Tuple
 from utils.sys_utils import (
     PACKAGES_RENAMED,
 )
+from core import (
+    emit_cast,
+)
 
 
 def _get_distro_info() -> Dict[str, Any]:
@@ -133,6 +136,14 @@ class SysDepsParser:
                 return None
             operator = dep_parts[1].strip()
             try:
+                if not isinstance(left_op, int):
+                    logging.error(
+                        "Expected int for left_op, got {} in {}"
+                        .format(emit_cast(left_op), dep_parts))
+                if not isinstance(right_op, int):
+                    logging.error(
+                        "Expected int for right_op, got {} in {}"
+                        .format(emit_cast(right_op), dep_parts))
                 compfunc = {
                     "<": lambda x, y: x < y,
                     ">": lambda x, y: x > y,
