@@ -15,9 +15,6 @@ from pathlib import Path
 from typing import Dict, List, Literal, Set
 
 from components.moonraker.moonraker import Moonraker
-from core.constants import (
-    GLOBAL_DEPS,
-)
 from core.logger import DialogType, Logger
 from core.types.color import Color
 from core.types.component_status import ComponentStatus, StatusCode
@@ -34,6 +31,7 @@ from utils.sys_utils import (
     check_package_install,
     install_system_packages,
     update_system_package_lists,
+    get_global_deps,
 )
 
 
@@ -79,7 +77,7 @@ def check_install_dependencies(
         deps = set()
 
     if include_global:
-        deps.update(GLOBAL_DEPS)
+        deps.update(get_global_deps())
 
     requirements = check_package_install(deps)
     if requirements:

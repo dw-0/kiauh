@@ -50,6 +50,8 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     install_python_packages,
     parse_packages_from_file,
+    get_package_installer,
+    get_package_type_of,
 )
 
 
@@ -258,10 +260,11 @@ def install_input_shaper_deps() -> None:
         "python3-matplotlib",
         "libopenblas-dev",
     )
-    package_t = package_type()
+    installer = get_package_installer()
+    package_t = get_package_type_of(installer)
     if package_t == "deb":
         pass  # Default names are good.
-    elif package_t == "apk":
+    elif package_t == "alpine":
         sys_deps = (
             "py3-numpy",
             "py3-matplotlib",

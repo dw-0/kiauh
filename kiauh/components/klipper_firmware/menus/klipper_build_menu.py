@@ -29,6 +29,8 @@ from utils.sys_utils import (
     check_package_install,
     install_system_packages,
     update_system_package_lists,
+    get_package_installer,
+    get_package_type_of,
 )
 
 
@@ -133,7 +135,30 @@ class KlipperBuildFirmwareMenu(BaseMenu):
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.deps: Set[str] = {"build-essential", "dpkg-dev", "make"}
+        self.missing_dep_groups = {}
+        development_tools_g = []
+        installer = get_package_installer()
+        pkg_t = get_package_type_of(installer)
+        if pkg_t == "rpm":
+            self.deps.remove("build-essential")
+            development_tools_g = [
+                "gcc", "g++", "glibc-devel", "dpkg",
+            ]
+            for dep in development_tools_g:
+                self.deps.add(dep)
+        elif pkg_t == "alpine":
+            # Check installer not pkg_t, since "apk"
+            self.deps.remove("build-essential")
+            self.deps.add("build-base")
         self.missing_deps: List[str] = check_package_install(self.deps)
+        is_missing_dev = False
+        if pkg_t == "rpm":
+            for dep in list(self.missing_deps):
+                if dep in development_tools_g:
+                    self.missing_deps.remove(dep)
+                    is_missing_dev = True
+        if is_missing_dev:
+            self.missing_dep_groups['Development Tools'] = development_tools_g
         self.flash_options = FlashOptions()
         self.kconfigs_dirname = KLIPPER_KCONFIGS_DIR
         self.kconfig_default = KLIPPER_DIR.joinpath(".config")
@@ -187,6 +212,10 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             update_system_package_lists(silent=False)
             Logger.print_status("Installing system packages...")
             install_system_packages(self.missing_deps)
+            if self.missing_dep_groups:
+                for group in self.missing_dep_groups:
+                    # only name of group is necessary, not values
+                    install_system_package_group(group)
         except Exception as e:
             Logger.print_error(e)
             Logger.print_error("Installing dependencies failed!")

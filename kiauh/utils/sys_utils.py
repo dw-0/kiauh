@@ -23,6 +23,7 @@ from typing import List, Literal, Set, Tuple
 
 from core.constants import SYSTEMD
 from core.logger import Logger
+from core import emit_cast
 from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.input_utils import get_confirm
 
@@ -66,14 +67,14 @@ def which(command: str):
 # The values in *PACKAGE_MANAGERS dicts group by package type,
 #   to simplify logic when generating install commands. For
 #   example, gcc is installed via
-#   "{package_installer()} groupinstall 'Development Tools'"
+#   "{get_package_installer()} groupinstall 'Development Tools'"
 #   as long as the package type is "rpm", whether it is yum or dnf.
 SUPPORTED_PACKAGE_TYPE_OF_INSTALLER = {
     "apt-get": "deb",
     "apt": "deb",
     "dnf": "rpm",
     "yum": "rpm",
-    "apk": "apk",
+    "apk": "alpine",  # alpine to distinguish it from Android
 }
 PACKAGE_TYPE_OF_INSTALLER = {  # All known package types.
     "pacman": "pacman",
@@ -84,10 +85,6 @@ PACKAGE_TYPE_OF_INSTALLER = {  # All known package types.
 }
 PACKAGE_TYPE_OF_INSTALLER.update(SUPPORTED_PACKAGE_TYPE_OF_INSTALLER)
 
-PACKAGE_INSTALL_ARGS = {
-    "deb": ["install", "-y"],
-    "apk": ["add", "--quiet"],
-}
 
 class VenvCreationFailedException(Exception):
     pass
@@ -97,7 +94,7 @@ def supported_package_type(package_t: str) -> bool:
     return package_t in SUPPORTED_PACKAGE_TYPE_OF_INSTALLER.values()
 
 
-def package_installer() -> str:
+def get_package_installer() -> str:
     """
     Get the name of this platform's package manager if possible.
     :param command: The command to find.
@@ -116,11 +113,8 @@ def package_installer() -> str:
     return None
 
 
-def package_type():
-    installer = package_installer()
-    if installer is None:
-        return None
-    return PACKAGE_TYPE_OF_INSTALLER[installer]
+def get_package_type_of(installer: str) -> str:
+    return PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
 
 
 def kill(opt_err_msg: str = "") -> None:
@@ -321,7 +315,8 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     :param rls_info_change: Flag for "--allow-releaseinfo-change"
     :return: None
     """
-    package_t = package_type()
+    installer = get_package_installer()
+    package_t = get_package_type_of(installer)
     if package_t != "deb":
         # TODO: support pacman as follows:
         # if package_t == "pacman":
@@ -363,23 +358,43 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         raise
 
 
+def get_global_deps() -> List[str]:
+    global_deps = ["git", "wget", "curl", "unzip", "dfu-util", "python3-virtualenv"]
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
+    if pkg_t in ("rpm", "deb"):
+        pass  # ok already
+    elif pkg_t == "alpine":
+        global_deps.remove("python3-virtualenv")
+        global_deps.append("py3-virtualenv")
+    elif pkg_t == "pacman":
+        global_deps.remove("python3-virtualenv")
+        global_deps.append("python-virtualenv")
+    else:
+        raise NotImplementedError(
+            "global_deps is not implemented for {}"
+            .format(installer))
+    return global_deps
+
+
+
 def get_upgradable_packages() -> List[str]:
     """
     Reads all system packages that can be upgraded.
     :return: A list of package names available for upgrade
     """
     try:
-        installer = package_installer()
-        pkg_t = PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
-        if not supported_package_type(pkg_t):
-            installer_msg = installer if installer else "Unknown OS installer"
+        installer = get_package_installer()
+        pkg_t = get_package_type_of(installer)
+        installer_msg = installer if installer else "Unknown OS installer"
+        if pkg_t in ("deb", "alpine"):
+            command = [installer, "list", "--upgradable"]
+        elif pkg_t == "rpm":
+            command = [installer, "check-update"]
+        else:
             print("Error: {} is not implemented. Can't check upgradeable."
                   .format(installer_msg))
             return  # degrade gracefully (not fatal)
-        if pkg_t in ("deb", "apk"):
-            command = ["apt", "list", "--upgradable"]
-        elif pkg_t == "apk":
-            command = ["apk", "list", "--upgradable"]
         output: str = check_output(command, stderr=DEVNULL, text=True, encoding="utf-8")
         pkglist = []
         for line in output.split("\n"):
@@ -399,8 +414,8 @@ def check_package_install(packages: Set[str]) -> List[str]:
     :return: A list containing the names of packages that are not installed
     """
     not_installed = []
-    installer = package_installer()
-    pkg_t = PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
     if not supported_package_type(pkg_t):
         installer_msg = installer if installer else "Unknown OS installer"
         print("Error: {} is not implemented. Can't check whether"
@@ -454,8 +469,8 @@ def install_system_packages(packages: List[str]) -> None:
     :param packages: List of system package names
     :return: None
     """
-    installer = package_installer()
-    pkg_t = PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
     if not supported_package_type(pkg_t):
         installer_msg = installer if installer else "Unknown OS installer"
         error = ("Error: {} is not implemented. Can't install"
@@ -485,14 +500,34 @@ def install_system_packages(packages: List[str]) -> None:
         raise
 
 
+def install_system_package_group(group: str) -> None:
+    assert isinstance(str, group), \
+        'expected str for group, got {}'.format(emit_cast(group))
+    installer = get_package_installer()
+    package_t = get_package_type_of(installer)
+    command = ["sudo", installer]
+    if package_t == "rpm":
+        command += ["groupinstall", group]
+    else:
+        raise NotImplementedError(
+            "No group install command is implemented for {}."
+            .format(package_t))
+    try:
+        run(command, stderr=PIPE, check=True)
+        Logger.print_ok("Package group successfully installed.")
+    except CalledProcessError as e:
+        Logger.print_error(f"Error installing '{group}' package group:\n{e.stderr.decode()}")
+        raise
+
+
 def upgrade_system_packages(packages: List[str]) -> None:
     """
     Updates a list of system packages |
     :param packages: List of system package names
     :return: None
     """
-    installer = package_installer()
-    pkg_t = PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
     if not supported_package_type(pkg_t):
         installer_msg = installer if installer else "Unknown OS installer"
         error = ("Error: {} is not implemented. Can't install"

@@ -11,8 +11,7 @@ import os
 import pwd
 from pathlib import Path
 
-# global dependencies
-GLOBAL_DEPS = ["git", "wget", "curl", "unzip", "dfu-util", "python3-virtualenv"]
+# For global dependencies see global_deps (adapts to distro)
 
 # strings
 INVALID_CHOICE = "Invalid choice. Please select a valid value."
