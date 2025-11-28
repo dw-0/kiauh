@@ -85,6 +85,11 @@ PACKAGE_TYPE_OF_INSTALLER = {  # All known package types.
 }
 PACKAGE_TYPE_OF_INSTALLER.update(SUPPORTED_PACKAGE_TYPE_OF_INSTALLER)
 
+PACKAGE_GROUPS = {
+    "rpm": {
+        "Development Tools": ["gcc", "g++", "glibc-devel", "dpkg"],
+    }
+}
 
 class VenvCreationFailedException(Exception):
     pass
@@ -115,6 +120,15 @@ def get_package_installer() -> str:
 
 def get_package_type_of(installer: str) -> str:
     return PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
+
+
+def get_installer_description(installer):
+    if installer is None:
+        return "Unknown OS package system"
+    pkg_t = get_package_type_of(installer)
+    assert pkg_t is not None, \
+        "Missing value for PACKAGE_TYPE_OF_INSTALLER[{}]".format(installer)
+    return "{} via {}".format(pkg_t, installer)
 
 
 def kill(opt_err_msg: str = "") -> None:
@@ -373,7 +387,7 @@ def get_global_deps() -> List[str]:
     else:
         raise NotImplementedError(
             "global_deps is not implemented for {}"
-            .format(installer))
+            .format(get_installer_description(installer)))
     return global_deps
 
 
@@ -386,14 +400,14 @@ def get_upgradable_packages() -> List[str]:
     try:
         installer = get_package_installer()
         pkg_t = get_package_type_of(installer)
-        installer_msg = installer if installer else "Unknown OS installer"
         if pkg_t in ("deb", "alpine"):
             command = [installer, "list", "--upgradable"]
         elif pkg_t == "rpm":
             command = [installer, "check-update"]
         else:
-            print("Error: {} is not implemented. Can't check upgradeable."
-                  .format(installer_msg))
+            print("Error: get_upgradeable_packages is not implemented"
+                  " for {}. Can't check upgradeable."
+                  .format(get_installer_description(installer)))
             return  # degrade gracefully (not fatal)
         output: str = check_output(command, stderr=DEVNULL, text=True, encoding="utf-8")
         pkglist = []
@@ -417,9 +431,8 @@ def check_package_install(packages: Set[str]) -> List[str]:
     installer = get_package_installer()
     pkg_t = get_package_type_of(installer)
     if not supported_package_type(pkg_t):
-        installer_msg = installer if installer else "Unknown OS installer"
-        print("Error: {} is not implemented. Can't check whether"
-              " installed {}.".format(installer_msg, packages),
+        print("Error: check_package_install is not implemented for {}. Can't check whether"
+              " installed {}.".format(get_installer_description(installer), packages),
               file=sys.stderr)
         return not_installed
     all_installed = None
@@ -472,9 +485,8 @@ def install_system_packages(packages: List[str]) -> None:
     installer = get_package_installer()
     pkg_t = get_package_type_of(installer)
     if not supported_package_type(pkg_t):
-        installer_msg = installer if installer else "Unknown OS installer"
-        error = ("Error: {} is not implemented. Can't install"
-                 " {}.".format(installer_msg, packages))
+        error = ("Error: install_system_package is not implemented for {}. Can't install"
+                 " {}.".format(get_installer_description(installer), packages))
         print(error, file=sys.stderr)
         return  # Degrade gracefully (Do not block kiauh:
         #   Maybe the user installed a package from source).
@@ -529,9 +541,8 @@ def upgrade_system_packages(packages: List[str]) -> None:
     installer = get_package_installer()
     pkg_t = get_package_type_of(installer)
     if not supported_package_type(pkg_t):
-        installer_msg = installer if installer else "Unknown OS installer"
-        error = ("Error: {} is not implemented. Can't install"
-                 " {}.".format(installer_msg, packages))
+        error = ("Error: upgrade_system_packages is not implemented for {}. Can't install"
+                 " {}.".format(get_installer_description(installer), packages))
         print(error, file=sys.stderr)
         return  # degrade gracefully (not fatal)
     try:

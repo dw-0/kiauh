@@ -30,8 +30,12 @@ from utils.instance_utils import get_instances
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
+    install_system_package_group,
     update_system_package_lists,
     get_global_deps,
+    get_package_installer,
+    get_package_type_of,
+    PACKAGE_GROUPS,
 )
 
 
@@ -78,15 +82,45 @@ def check_install_dependencies(
 
     if include_global:
         deps.update(get_global_deps())
-
-    requirements = check_package_install(deps)
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
+    all_groups = PACKAGE_GROUPS.get(pkg_t)
+    detected_groups = set()
+    if all_groups:
+        for dep in set(deps):  # operate on copy so original can be edited
+            for group, g_packages in all_groups.items():
+                if dep == group:
+                    # It is *not* a package, it is a group.
+                    deps.remove(dep)
+                    detected_groups.add(dep)
+                    break
+                if dep in g_packages:
+                    # It is a package in the group.
+                    deps.remove(dep)
+                    detected_groups.add(group)
+                    break
+    missing_groups = set()
+    if detected_groups:
+        for group in detected_groups:
+            missing_group_deps = check_package_install(all_groups[group])
+            if missing_group_deps:
+                missing_groups.add(group)
+        requirements = check_package_install(deps)
+    else:
+        requirements = check_package_install(deps)
     if requirements:
         Logger.print_status("Installing dependencies ...")
         Logger.print_info("The following packages need installation:")
         for r in requirements:
             print(Color.apply(f"● {r}", Color.CYAN))
+        if missing_groups:
+            Logger.print_info("The following groups need installation:")
+            for r in missing_groups:
+                print(Color.apply(f"● {r}", Color.CYAN))
         update_system_package_lists(silent=False)
         install_system_packages(requirements)
+        for group in missing_groups:
+            install_system_package_group(group)
 
 
 def get_install_status(
