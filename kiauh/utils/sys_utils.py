@@ -39,8 +39,85 @@ SysCtlServiceAction = Literal[
 SysCtlManageAction = Literal["daemon-reload", "reset-failed"]
 
 
+def which(command: str):
+    """
+    Get the path to the command, or None if not in PATH. This is
+    redundant with shutil.which but is backward-compatible with earlier
+    version of Python.
+    :param command: The command to find.
+    :return: Full path to command, or None if not present.
+    """
+    PATH = os.environ.get('PATH')
+    if PATH is None:
+        print("Warning: No PATH variable, can't detect {}")
+        return None
+    exe_dirs = PATH.split(os.pathsep)  # such as ":" (separate multiple)
+    # ^ Do *not* use os.path.sep, that is the slash.
+    for exe_dir in exe_dirs:
+        exe_dir = exe_dir.strip()
+        try_path = os.path.join(exe_dir, command)
+        if not os.path.isfile(try_path):
+            continue
+        if os.access(try_path, os.X_OK):
+            return try_path
+    return None
+
+
+# The values in *PACKAGE_MANAGERS dicts group by package type,
+#   to simplify logic when generating install commands. For
+#   example, gcc is installed via
+#   "{package_manager()} groupinstall 'Development Tools'"
+#   as long as the package type is "rpm", whether it is yum or dnf.
+SUPPORTED_PACKAGE_TYPES = {
+    "apt-get": "deb",
+    "apt": "deb",
+    "dnf": "rpm",
+    "yum": "rpm",
+    "apk": "apk",
+}
+PACKAGE_TYPES = {  # All known package types.
+    "pacman": "pacman",
+    "brew": "brew",
+    "macports": "macports",
+    # Not-implemented ones listed are here
+    # but SUPPORTED_PACKAGE_TYPES are added via update below.
+}
+PACKAGE_TYPES.update(SUPPORTED_PACKAGE_TYPES)
+
+PACKAGE_INSTALL_ARGS = {
+    "deb": ["install", "-y"],
+    "apk": ["add", "--quiet"],
+}
+
+
 class VenvCreationFailedException(Exception):
     pass
+
+
+def package_manager():
+    """
+    Get the name of this platform's package manager if possible.
+    :param command: The command to find.
+    :return: Full path to command, or None if not present.
+    """
+    PATH = os.environ.get('PATH')
+    if PATH is None:
+        # Same early return as which, but prevent multiple
+        #   warnings when problem is PATH not missing program.
+        print("Warning: No PATH variable, can't detect {}")
+        return None
+    for mgr_name in PACKAGE_TYPES:
+        command = which(mgr_name)
+        if command is not None:
+            return mgr_name  # return name not path, see docstring
+    return None
+
+
+def package_type():
+    installer = package_manager()
+    if installer is None:
+        return None
+    return PACKAGE_TYPES[installer]
 
 
 def kill(opt_err_msg: str = "") -> None:
@@ -302,16 +379,49 @@ def check_package_install(packages: Set[str]) -> List[str]:
     :return: A list containing the names of packages that are not installed
     """
     not_installed = []
-    for package in packages:
-        command = ["dpkg-query", "-f'${Status}'", "--show", package]
+    installer = package_manager()
+    pkg_t = PACKAGE_TYPES[installer] if installer else None
+    if pkg_t not in SUPPORTED_PACKAGE_TYPES.values():
+        print("Error: {} is not implemented. Can't check whether"
+              " installed {}.".format(pkg_t, packages), file=sys.stderr)
+        return not_installed
+    all_installed = None
+    list_command = None
+    if pkg_t == "apk":
+        list_command = ["apk", "info"]
+    elif pkg_t == "rpm":
+        list_command = ["rpm", "-qa", "--qf", "'%{NAME}\\n'"]
+    if list_command:
+        sys.stderr.write("Listing packages...")
+        sys.stderr.flush()
         result = run(
-            command,
+            list_command,
             stdout=PIPE,
             stderr=DEVNULL,
             text=True,
         )
-        if "installed" not in result.stdout.strip("'").split():
-            not_installed.append(package)
+        all_installed = [s.strip() for s in result.stdout.split("\n")]
+        print("OK", file=sys.stderr)
+
+    for package in packages:
+        if all_installed is not None:
+            if package not in all_installed:
+                not_installed.append(package)
+        elif pkg_t == "deb":
+            command = ["dpkg-query", "-f'${Status}'", "--show", package]
+            result = run(
+                command,
+                stdout=PIPE,
+                stderr=DEVNULL,
+                text=True,
+            )
+            if "installed" not in result.stdout.strip("'").split():
+                not_installed.append(package)
+        else:
+            raise NotImplementedError(
+                "Should have detected {} not in {} and returned"
+                " before getting this far."
+                .format(pkg_t, SUPPORTED_PACKAGE_TYPES.values()))
 
     return not_installed
 
@@ -322,12 +432,30 @@ def install_system_packages(packages: List[str]) -> None:
     :param packages: List of system package names
     :return: None
     """
+    installer = package_manager()
+    pkg_t = PACKAGE_TYPES[installer] if installer else None
+    if pkg_t not in SUPPORTED_PACKAGE_TYPES.values():
+        error = ("Error: {} is not implemented. Can't install"
+                 " {}.".format(pkg_t, packages))
+        print(error, file=sys.stderr)
+        return  # Degrade gracefully (Do not block kiauh:
+        #   Maybe the user installed a package from source).
     try:
-        command = ["sudo", "apt-get", "install", "-y"]
+        command = ["sudo", package_manager]
+        if pkg_t == "deb":
+            command += ["install", "-y"]
+        elif pkg_t == "apk":  # Alpine Linux
+            command += ["add", "--quiet"]
+        elif pkg_t == "rpm":
+            command += ["install", "-y"]
+        else:
+            raise NotImplementedError(
+                "Should have detected {} not in {} and returned"
+                " before getting this far."
+                .format(pkg_t, SUPPORTED_PACKAGE_TYPES.values()))
         for pkg in packages:
             command.append(pkg)
         run(command, stderr=PIPE, check=True)
-
         Logger.print_ok("Packages successfully installed.")
     except CalledProcessError as e:
         Logger.print_error(f"Error installing packages:\n{e.stderr.decode()}")
@@ -340,8 +468,26 @@ def upgrade_system_packages(packages: List[str]) -> None:
     :param packages: List of system package names
     :return: None
     """
+    installer = package_manager()
+    pkg_t = PACKAGE_TYPES[installer] if installer else None
+    if pkg_t not in SUPPORTED_PACKAGE_TYPES.values():
+        error = ("Error: {} is not implemented. Can't install"
+                 " {}.".format(pkg_t, packages))
+        print(error, file=sys.stderr)
+        return  # degrade gracefully (not fatal)
     try:
-        command = ["sudo", "apt-get", "upgrade", "-y"]
+        command = ["sudo", installer]
+        if pkg_t in ("deb", "rpm"):
+            # ^ Same for all of these package managers
+            command += ["upgrade", "-y"]
+        elif pkg_t == "apk":
+            command += ["upgrade"]
+            # --silent is N/A (upgrade is always non-interactive)
+        else:
+            raise NotImplementedError(
+                "Should have detected {} not in {} and returned"
+                " before getting this far."
+                .format(pkg_t, SUPPORTED_PACKAGE_TYPES.values()))
         for pkg in packages:
             command.append(pkg)
         run(command, stderr=PIPE, check=True)

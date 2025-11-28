@@ -11,6 +11,7 @@ from __future__ import annotations
 import grp
 import os
 import shutil
+import sys
 from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import Dict, List
@@ -38,7 +39,11 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
-from utils.common import check_install_dependencies, get_install_status
+from utils.common import (
+    check_install_dependencies,
+    get_install_status,
+    package_type,
+)
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances
@@ -249,12 +254,39 @@ def install_input_shaper_deps() -> None:
     ):
         return
 
-    apt_deps = (
+    sys_deps = (
         "python3-numpy",
         "python3-matplotlib",
         "libopenblas-dev",
     )
-    check_install_dependencies({*apt_deps})
+    package_t = package_type()
+    if package_t == "deb":
+        pass  # Default names are good.
+    elif package_t == "apk":
+        sys_deps = (
+            "py3-numpy",
+            "py3-matplotlib",
+            "openblas-dev",
+        )
+    elif package_t == "rpm":
+        sys_deps = (
+            "python3-numpy",
+            "python3-matplotlib",
+            "openblas-devel",
+        )
+    elif package_t == "pacman":
+        sys_deps = (
+            # The regular one (such as openblas) is also dev on Arch.
+            "python-numpy",
+            "python-matplotlib",
+            "openblas",
+        )
+    else:
+        print("Warning: system deps are unknown for your package manager's"
+              " package type ({}). Trying {}".format(package_t, sys_deps),
+              file=sys.stderr)
+
+    check_install_dependencies({*sys_deps})
 
     py_deps = ("numpy",)
 
