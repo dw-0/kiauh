@@ -77,7 +77,7 @@ SUPPORTED_PACKAGE_TYPE_OF_INSTALLER = {
     "apk": "alpine",  # alpine to distinguish it from Android
 }
 PACKAGE_TYPE_OF_INSTALLER = {  # All known package types.
-    "pacman": "pacman",
+    "pacman": "arch",  # Move to list above after fully supported
     "brew": "brew",
     "macports": "macports",
     # Not-implemented ones listed are here
@@ -90,6 +90,44 @@ PACKAGE_GROUPS = {
         "Development Tools": ["gcc", "g++", "glibc-devel", "dpkg"],
     }
 }
+
+PACKAGES_RENAMED = {
+    "rpm": {
+        "build-essential": "Development Tools",
+        "libopenblas-dev": "openblas-devel",
+        "libncurses-dev": "ncurses-devel",
+        # other lib*-dev: handled by wildcard in translate_deb_package_name
+        "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",  # May also require arm-none-eabi-gcc!
+        "libusb-1.0": "libusb-1",
+        "pkg-config": "pkgconf",
+        "virtualenv": "python3-virtualenv",  # fulfills both python3-virtualenv and virtualenv?
+    },
+    "alpine": {
+        "build-essential": "build-base",
+        "libopenblas-dev": "openblas-dev",
+        "libncurses-dev": "ncurses-dev",
+        "libnewlib-arm-none-eabi": "newlib-arm-none-eabi",
+        "libusb-1.0": "libusb",
+        "pkg-config": "pkgconf",
+        # "python3-virtualenv": "py3-virtualenv",
+        # python3-*: done by wildcard in translate_deb_package_name
+        #   *except* python3-devel which does *not* shorten to the "py3-" prefix.
+        "virtualenv": "py3-virtualenv",   # fulfills both python3-virtualenv and virtualenv?
+    },
+    "arch": {  # Not fully supported. See pkg_t checks to complete code.
+        "build-essential": "base-devel",
+        "libncurses-dev": "ncurses",
+        "libopenblas-dev": "openblas",
+        "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
+        "libusb-1.0": "libusb",
+        "pkg-config": "pkgconf",
+        "python3-dev": "python3",
+        # "python3-virtualenv": "python-virtualenv",
+        # ^ python3-*: handled by wildcard in translate_deb_package_name
+        #   excluding python3-dev which is in "python3" on arch.
+    }
+}
+
 
 class VenvCreationFailedException(Exception):
     pass
@@ -118,6 +156,32 @@ def get_package_installer() -> str:
     return None
 
 
+def translate_deb_package_name(dep: str, package_type: str) -> str:
+    distro_renames = PACKAGES_RENAMED.get(package_type)
+    if not distro_renames:
+        return dep
+    new_dep = distro_renames.get(dep)
+    if not new_dep:
+        # NOTE: all listed here must be in translations even if empty dict,
+        #   so that early return doesn't occur above.
+        if package_type == "alpine":
+            if dep.startswith("python3-") and (dep != "python3-devel"):
+                # All *except* python3-devel are shortened.
+                return "py3-" + dep[8:]
+            # May not be exact, but usually is:
+            if dep.startswith("lib") and dep.endswith("-dev"):
+                return dep[3:]  # Remove "lib" to meet naming convention.
+        elif package_type == "arch":
+            if dep.startswith("python3-"):
+                return "python-" + dep[8:]  # Remove "3" to meet naming convention.
+        elif package_type == "rpm":
+            # May not be exact, but usually is:
+            if dep.endswith("-dev"):
+                return dep + "el"  # rpm naming convention for dev lib is *-devel
+        return dep
+    return new_dep
+
+
 def get_package_type_of(installer: str) -> str:
     return PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
 
@@ -140,7 +204,7 @@ def kill(opt_err_msg: str = "") -> None:
 
     if opt_err_msg:
         Logger.print_error(opt_err_msg)
-    Logger.print_error("A critical error has occured. KIAUH was terminated.")
+    Logger.print_error("A critical error has occurred. KIAUH was terminated.")
     sys.exit(1)
 
 
@@ -333,8 +397,8 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     package_t = get_package_type_of(installer)
     if package_t != "deb":
         # TODO: support pacman as follows:
-        # if package_t == "pacman":
-        #     command = ["pacman", "-Sy"]
+        # if package_t == "arch":
+        #     command = ["sudo", installer, "-Sy"]
         # There is no need to update the package list.
         return
     cache_mtime: float = 0
@@ -376,17 +440,16 @@ def get_global_deps() -> List[str]:
     global_deps = ["git", "wget", "curl", "unzip", "dfu-util", "python3-virtualenv"]
     installer = get_package_installer()
     pkg_t = get_package_type_of(installer)
-    if pkg_t in ("rpm", "deb"):
+    if pkg_t in "deb":
         pass  # ok already
-    elif pkg_t == "alpine":
-        global_deps.remove("python3-virtualenv")
-        global_deps.append("py3-virtualenv")
-    elif pkg_t == "pacman":
-        global_deps.remove("python3-virtualenv")
-        global_deps.append("python-virtualenv")
+    elif pkg_t in PACKAGES_RENAMED:
+        new_deps = []
+        for dep in global_deps:
+            new_deps.append(translate_deb_package_name(dep, pkg_t))
+        global_deps = new_deps
     else:
         raise NotImplementedError(
-            "global_deps is not implemented for {}"
+            "PACKAGES_RENAMED (in global_deps) is not implemented for {}"
             .format(get_installer_description(installer)))
     return global_deps
 

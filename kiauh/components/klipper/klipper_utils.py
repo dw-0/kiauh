@@ -52,6 +52,8 @@ from utils.sys_utils import (
     parse_packages_from_file,
     get_package_installer,
     get_package_type_of,
+    translate_deb_package_name,
+    PACKAGES_RENAMED,
 )
 
 
@@ -222,7 +224,7 @@ def install_klipper_packages() -> None:
 
     installer = get_package_installer()
     pkg_t = get_package_type_of(installer)
-    if pkg_t in ("alpine", "pacman", "rpm"):
+    if pkg_t in ("alpine", "arch", "rpm"):
         # In Fedora pkgconf-pkg-config is a subpackage of pkgconf, so
         #   pkgconf will do.
         packages.append("pkgconf")
@@ -277,31 +279,20 @@ def install_input_shaper_deps() -> None:
     package_t = get_package_type_of(installer)
     if package_t == "deb":
         pass  # Default names are good.
-    elif package_t == "alpine":
-        sys_deps = (
-            "py3-numpy",
-            "py3-matplotlib",
-            "openblas-dev",
-        )
-    elif package_t == "rpm":
-        sys_deps = (
-            "python3-numpy",
-            "python3-matplotlib",
-            "openblas-devel",
-        )
-    elif package_t == "pacman":
-        sys_deps = (
-            # The regular one (such as openblas) is also dev on Arch.
-            "python-numpy",
-            "python-matplotlib",
-            "openblas",
-        )
+    elif package_t in PACKAGES_RENAMED:
+        # NOTE: will be translated by check_install_dependencies, but
+        #   check here as an earlier and more explicit error (in
+        #   "else").
+        new_deps = set()
+        for dep in sys_deps:
+            new_deps.add(translate_deb_package_name(dep))
+        sys_deps = tuple(new_deps)
     else:
         print("Warning: system deps are unknown for your package manager's"
               " package type ({}). Trying {}".format(package_t, sys_deps),
               file=sys.stderr)
 
-    check_install_dependencies({*sys_deps})
+    check_install_dependencies({*sys_deps}, translate_deb=False)
 
     py_deps = ("numpy",)
 

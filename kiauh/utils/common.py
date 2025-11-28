@@ -35,6 +35,7 @@ from utils.sys_utils import (
     get_global_deps,
     get_package_installer,
     get_package_type_of,
+    translate_deb_package_name,
     PACKAGE_GROUPS,
 )
 
@@ -68,17 +69,31 @@ def get_current_date() -> Dict[Literal["date", "time"], str]:
 
 
 def check_install_dependencies(
-    deps: Set[str] | None = None, include_global: bool = True
+    deps: Set[str] | None = None, include_global: bool = True,
+    translate_deb: bool = True,
 ) -> None:
     """
     Common helper method to check if dependencies are installed
     and if not, install them automatically |
     :param include_global: Wether to include the global dependencies or not
     :param deps: List of strings of package names to check if installed
+    :param translate_deb: Check for an alternate package name based on distro.
     :return: None
     """
     if deps is None:
         deps = set()
+
+    # Manually translate package names *always* since they
+    #   may not be from this repo! See
+    #   KLIPPER_DIR.joinpath("scripts/install-ubuntu-22.04.sh")
+    #   and similar external lists such as loaded in
+    #   kiauh/components/klipper/__init__.py
+    if translate_deb:
+        translated_deps = set()
+        installer = get_package_installer()
+        for dep in deps:
+            translated_deps.add(translate_deb_package_name(dep, installer))
+        deps = translated_deps
 
     if include_global:
         deps.update(get_global_deps())
