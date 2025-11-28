@@ -285,7 +285,7 @@ def install_input_shaper_deps() -> None:
         #   "else").
         new_deps = set()
         for dep in sys_deps:
-            new_deps.add(translate_deb_package_name(dep))
+            new_deps.add(translate_deb_package_name(dep, package_t))
         sys_deps = tuple(new_deps)
     else:
         print("Warning: system deps are unknown for your package manager's"

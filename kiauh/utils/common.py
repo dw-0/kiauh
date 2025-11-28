@@ -91,8 +91,9 @@ def check_install_dependencies(
     if translate_deb:
         translated_deps = set()
         installer = get_package_installer()
+        pkg_t = get_package_type_of(installer)
         for dep in deps:
-            translated_deps.add(translate_deb_package_name(dep, installer))
+            translated_deps.add(translate_deb_package_name(dep, pkg_t))
         deps = translated_deps
 
     if include_global:

@@ -157,6 +157,18 @@ def get_package_installer() -> str:
 
 
 def translate_deb_package_name(dep: str, package_type: str) -> str:
+    """
+    Get the name of this platform's name for the deb package.
+    :param dep: The package name using deb (Debian) conventions.
+    :param package_type: The package type using kiauh conventions
+        such as returned by get_package_type_of.
+    :return: Name given the well-known PACKAGES_RENAMED or naming
+        convention, otherwise the original dep string.
+    """
+    if package_type is None:
+        raise ValueError("Expected str package_type, got None")
+    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in PACKAGES_RENAMED), \
+        "Expected package type, got installer."
     distro_renames = PACKAGES_RENAMED.get(package_type)
     if not distro_renames:
         return dep
@@ -183,10 +195,21 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
 
 
 def get_package_type_of(installer: str) -> str:
+    """
+    Get the package type for the given distro's installer.
+    :param installer: The distro's package install command.
+    :return: Package type which can be used as a key in
+        translate_deb_package_name or certain constant dicts in this
+        submodule.
+    """
     return PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
 
 
-def get_installer_description(installer):
+def get_installer_description(installer: str) -> str:
+    """
+    Get human-readable description of the distro's
+    installer, or "Unknown" etc if unknown.
+    """
     if installer is None:
         return "Unknown OS package system"
     pkg_t = get_package_type_of(installer)
