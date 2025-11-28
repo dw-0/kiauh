@@ -8,6 +8,9 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import shlex
+import sys
+
 from copy import copy
 from subprocess import DEVNULL, PIPE, CalledProcessError, run
 from typing import List
@@ -349,6 +352,7 @@ class MoonrakerSetupService:
                 text=True,
             )
             if result.returncode != 0 or result.stderr:
+                print(shlex.join(command), file=sys.stderr)
                 Logger.print_error(f"{result.stderr}", False)
                 Logger.print_error("Installing Moonraker policykit rules failed!")
                 return
