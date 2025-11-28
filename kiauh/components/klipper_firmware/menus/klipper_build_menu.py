@@ -147,7 +147,6 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             for dep in development_tools_g:
                 self.deps.add(dep)
         elif pkg_t == "alpine":
-            # Check installer not pkg_t, since "apk"
             self.deps.remove("build-essential")
             self.deps.add("build-base")
         self.missing_deps: List[str] = check_package_install(self.deps)

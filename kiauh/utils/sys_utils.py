@@ -424,7 +424,7 @@ def check_package_install(packages: Set[str]) -> List[str]:
         return not_installed
     all_installed = None
     list_command = None
-    if pkg_t == "apk":
+    if pkg_t == "alpine":
         list_command = ["apk", "info"]
     elif pkg_t == "rpm":
         list_command = ["rpm", "-qa", "--qf", "'%{NAME}\\n'"]
@@ -482,7 +482,7 @@ def install_system_packages(packages: List[str]) -> None:
         command = ["sudo", installer]
         if pkg_t == "deb":
             command += ["install", "-y"]
-        elif pkg_t == "apk":  # Alpine Linux
+        elif pkg_t == "alpine":
             command += ["add", "--quiet"]
         elif pkg_t == "rpm":
             command += ["install", "-y"]
@@ -539,7 +539,7 @@ def upgrade_system_packages(packages: List[str]) -> None:
         if pkg_t in ("deb", "rpm"):
             # ^ Same for all of these package managers
             command += ["upgrade", "-y"]
-        elif pkg_t == "apk":
+        elif pkg_t == "alpine":
             command += ["upgrade", "--quiet"]
         else:
             raise NotImplementedError(
