@@ -100,7 +100,7 @@ class SysDepsParser:
                 continue
             elif last_logical_op is None:
                 logging.info(
-                    f"Requirement specifier contains two seqential expressions "
+                    f"Requirement specifier contains two sequential expressions "
                     f"without a logical operator: {full_spec}"
                 )
                 return None
@@ -172,7 +172,7 @@ class SysDepsParser:
                         processed_deps.append(parsed_dep)
                 return processed_deps
         else:
-            logging.info(
+            logging.warning(
                 f"Dependency data has no package definition for linux "
                 f"distro '{self.distro_id}'"
             )
