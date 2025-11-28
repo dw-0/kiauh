@@ -51,6 +51,7 @@ def install_moonraker_packages() -> None:
         )
         parser = SysDepsParser()
         sysdeps = load_sysdeps_json(MOONRAKER_DEPS_JSON_FILE)
+        print("{}: {}".format(MOONRAKER_DEPS_JSON_FILE, sysdeps))
         moonraker_deps.extend(parser.parse_dependencies(sysdeps))
 
     elif MOONRAKER_INSTALL_SCRIPT.exists():
