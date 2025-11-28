@@ -84,6 +84,9 @@ this document.
 sudo apt-get update && sudo apt-get install git -y
 ```
 
+On certain distros, certain other packages may not be installed by default and must be installed (preceded by your distro's package manager install command such as `apk add`): `wget bash python3`
+- The `python3` package is called `python` on Arch-based distros.
+
 * **Step 2:** \
   Once git is installed, use the following command to download KIAUH into your
   home-directory:

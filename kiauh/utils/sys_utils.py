@@ -481,8 +481,7 @@ def upgrade_system_packages(packages: List[str]) -> None:
             # ^ Same for all of these package managers
             command += ["upgrade", "-y"]
         elif pkg_t == "apk":
-            command += ["upgrade"]
-            # --silent is N/A (upgrade is always non-interactive)
+            command += ["upgrade", "--quiet"]
         else:
             raise NotImplementedError(
                 "Should have detected {} not in {} and returned"

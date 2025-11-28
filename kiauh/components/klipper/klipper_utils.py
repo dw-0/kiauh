@@ -42,7 +42,6 @@ from core.types.component_status import ComponentStatus
 from utils.common import (
     check_install_dependencies,
     get_install_status,
-    package_type,
 )
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm, get_number_input, get_string_input
