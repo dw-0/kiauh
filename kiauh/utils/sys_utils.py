@@ -94,7 +94,7 @@ class VenvCreationFailedException(Exception):
 
 
 def supported_package_type(package_t: str) -> bool:
-    return package_t in SUPPORTED_PACKAGE_TYPE_OF_INSTALLER.value()
+    return package_t in SUPPORTED_PACKAGE_TYPE_OF_INSTALLER.values()
 
 
 def package_installer() -> str:
