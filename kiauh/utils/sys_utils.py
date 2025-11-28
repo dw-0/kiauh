@@ -259,6 +259,7 @@ def parse_packages_from_file(source_file: Path) -> List[str]:
         for line in file:
             line = line.strip()
             if line.startswith("PKGLIST="):
+                print("Parsing '{}'".format(line))
                 line = line.replace('"', "")
                 line = line.replace("PKGLIST=", "")
                 line = line.replace("${PKGLIST}", "")
