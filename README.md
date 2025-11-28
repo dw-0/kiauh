@@ -224,6 +224,38 @@ changes!**
 
 <hr>
 
+## Contributing
+## Installing system packages.
+- The code for installing system packages is in sys_info.
+- Some of the package names are parsed from moonraker's json file and klipper's ubuntu script.
+  - Package names are translated to other distros using functions in the sys_utils submodule.
+
+### Cross-distro API
+- save_distros_meta can be used to generate ~/.config/kiauh/distros.json (overwrites existing).
+- The sys_utils module has a list of package names to translate deb package naming to other distros.
+- On first checking dependencies, load tries to run, and if load does not find a ~/.config/kiauh/distros.json, save is called.
+- For save_distros_meta and load_distros_meta, the optional
+  "path" argument can be used to change the file location.
+- If creating a new installer, you can simply use the functions
+  in the sys_utils module if no custom behavior is necessary:
+```Python
+from kiauh.utils import sys_utils
+# ^ importing the whole sys_utils module is helpful such as
+#   if you have code completion in your code editor.
+# sys_utils.save_distros_meta()
+from kiauh.utils.common import check_install_dependencies
+deps = ["libusb-1.0"]
+check_install_dependencies(deps)
+# ^ For help using the sys_utils module, read the code of the
+#   check_install_dependencies function and look the docstring
+#   of each function called there.
+# ^ If the "apt" or "apt-get"
+#   command is not detected in the PATH, but the "dnf" or "yum"
+#   command is, then the following will run (including
+#   package name translation, which is automatic):
+#   sudo dnf -y install libusb-1  # or yum if present and dnf is not.
+```
+
 <h2 align="center">✨ Credits ✨</h2>
 
 * A big thank you to [lixxbox](https://github.com/lixxbox) for that awesome
