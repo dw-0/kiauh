@@ -92,40 +92,55 @@ PACKAGE_GROUPS = {
 }
 
 PACKAGES_RENAMED = {
-    "rpm": {
-        "build-essential": "Development Tools",
-        "libopenblas-dev": "openblas-devel",
-        "libncurses-dev": "ncurses-devel",
-        # other lib*-dev: handled by wildcard in translate_deb_package_name
-        "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",  # May also require arm-none-eabi-gcc!
-        "libusb-1.0": "libusb-1",
-        "pkg-config": "pkgconf",
-        "virtualenv": "python3-virtualenv",  # fulfills both python3-virtualenv and virtualenv?
-    },
     "alpine": {
         "build-essential": "build-base",
+        "libjpeg-dev": "jpeg-dev",
         "libopenblas-dev": "openblas-dev",
+        "libopenjp2-7": "openjpeg",
+        "libopenjp2-7-dev": "openjpeg-dev",
         "libncurses-dev": "ncurses-dev",
         "libnewlib-arm-none-eabi": "newlib-arm-none-eabi",
         "libusb-1.0": "libusb",
+        "packagekit": "apk-tools",  # not applicable (similar, used as dummy)
         "pkg-config": "pkgconf",
         # "python3-virtualenv": "py3-virtualenv",
         # python3-*: done by wildcard in translate_deb_package_name
         #   *except* python3-devel which does *not* shorten to the "py3-" prefix.
         "virtualenv": "py3-virtualenv",   # fulfills both python3-virtualenv and virtualenv?
+        "zlib1g-dev": "zlib-dev",
     },
     "arch": {  # Not fully supported. See pkg_t checks to complete code.
         "build-essential": "base-devel",
+        "libjpeg-dev": "libjpeg-turbo",
         "libncurses-dev": "ncurses",
         "libopenblas-dev": "openblas",
+        "libopenjp2-7": "openjpeg2",
+        "libopenjp2-7-dev": "openjpeg2",
         "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
         "libusb-1.0": "libusb",
+        "packagekit": "packagekit",
         "pkg-config": "pkgconf",
         "python3-dev": "python3",
         # "python3-virtualenv": "python-virtualenv",
         # ^ python3-*: handled by wildcard in translate_deb_package_name
         #   excluding python3-dev which is in "python3" on arch.
-    }
+        "zlib1g-dev": "zlib",
+    },
+    "rpm": {
+        "build-essential": "Development Tools",
+        "libjpeg-dev": "libjpeg-turbo-devel",
+        "libopenblas-dev": "openblas-devel",
+        "libopenjp2-7": "openjpeg2",
+        "libopenjp2-7-dev": "openjpeg2-devel",
+        "libncurses-dev": "ncurses-devel",
+        # other lib*-dev: handled by wildcard in translate_deb_package_name
+        "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",  # May also require arm-none-eabi-gcc!
+        "libusb-1.0": "libusb-1",
+        "packagekit": "PackageKit",
+        "pkg-config": "pkgconf",
+        "virtualenv": "python3-virtualenv",  # fulfills both python3-virtualenv and virtualenv?
+        "zlib1g-dev": "zlib-devel",
+    },
 }
 
 
