@@ -160,8 +160,10 @@ class MoonrakerSetupService:
             self.__run_setup(new_instances, create_example_cfg)
         except Exception as e:
             Logger.print_error(f"Error while installing Moonraker: {e}")
-            # ^ Not enough info. Re-raise to help debug:
-            raise
+            # ^ If not enough info. Re-raise to help debug:
+            # raise  # commented since we (should) now use warning
+            #   instead of info in parse_dependencies whenever 0
+            #   dependencies are gathered.
 
     def update(self) -> None:
         Logger.print_dialog(

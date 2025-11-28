@@ -151,8 +151,12 @@ class SysDepsParser:
         return None
 
     def parse_dependencies(self, sys_deps: Dict[str, List[str]]) -> List[str]:
+        # Output is now "warning" so we can see what causes
+        #   "Error during installation of Moonraker requirements"
+        #   for *any* scenario when 0 requirements are added
+        #    (which causes that error in the caller).
         if not self.distro_id:
-            logging.info(
+            logging.warning(
                 "Failed to detect current distro ID, cannot parse dependencies"
             )
             return []
