@@ -464,7 +464,7 @@ def install_system_packages(packages: List[str]) -> None:
         return  # Degrade gracefully (Do not block kiauh:
         #   Maybe the user installed a package from source).
     try:
-        command = ["sudo", package_installer]
+        command = ["sudo", installer]
         if pkg_t == "deb":
             command += ["install", "-y"]
         elif pkg_t == "apk":  # Alpine Linux
