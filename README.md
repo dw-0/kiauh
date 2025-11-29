@@ -257,6 +257,7 @@ check_install_dependencies(deps)
 #   package name translation, which is automatic):
 #   sudo dnf -y install libusb-1  # or yum if present and dnf is not.
 ```
+If you are only trying to use kiauh rather than develop, just run ./kiauh.sh.
 
 <h2 align="center">✨ Credits ✨</h2>
 
