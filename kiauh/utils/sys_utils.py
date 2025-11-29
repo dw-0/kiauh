@@ -21,11 +21,12 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output, run
-from typing import List, Literal, Set, Tuple
+from typing import List, Literal, OrderedDict, Set, Tuple
 
 from core.constants import SYSTEMD
 from core.logger import Logger
 from core import emit_cast
+from typing import NamedTuple
 from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.input_utils import get_confirm
 
@@ -150,6 +151,7 @@ DISTROS = {
 }
 
 DEFAULT_DISTROS = copy.deepcopy(DISTROS)
+DEFAULT_DISTROS_REF = DISTROS
 
 distros_meta_state = None
 distro_meta_is_default = True
@@ -161,14 +163,24 @@ class VenvCreationFailedException(Exception):
 
 
 def supported_package_type(package_t: str) -> bool:
+    """
+    Check whether the package type is supported.
+    Some functions may support additional package types, but this is
+    "fail fast" to avoid repetitive or less explicit checks, as well as
+    to indicate that the API for the type is complete.
+
+    :param package_t: Package type such as returned by
+        get_package_type_of(get_package_installer()) but
+        the caller should cache get_package_installer().
+    :return: Whether the package type is supported by kiauh.
+    """
     return package_t in SUPPORTED_PACKAGE_TYPE_OF_INSTALLER.values()
 
 
 def get_package_installer() -> str:
     """
     Get the name of this platform's package manager if possible.
-    :param command: The command to find.
-    :return: Full path to command, or None if not present.
+    :return: Name of the distro's installer executable.
     """
     PATH = os.environ.get('PATH')
     if PATH is None:
@@ -190,6 +202,63 @@ def get_package_renames_path(path=None):
     return path
 
 
+def namedtuple_to_dict(var: NamedTuple) -> dict:
+    d = {}
+    for k in var._fields:
+        d[k] = getattr(var, k)
+    return d
+
+
+def compare_dict(dict1, dict2, verbose=False, depth=0) -> bool:
+    """
+    Compare two keyed iterables regardless of type
+    (such as dict, OrderedDict, or namedtuple).
+
+    :param dict1: Any keyed iterable with items().
+    :param dict2: Any keyed iterable with items().
+    :return: Whether the keyed iterables match.
+    """
+    assert dict1 is not None
+    assert dict2 is not None
+    if hasattr(dict1, '_fields'):
+        dict1 = namedtuple_to_dict(dict1)
+    if hasattr(dict2, '_fields'):
+        dict2 = namedtuple_to_dict(dict2)
+    for k, v in dict1.items():
+        if k not in dict2:
+            return False
+        if hasattr(v, '_fields'):
+            v = namedtuple_to_dict(v)
+        if not hasattr(v, 'items'):
+            # leaf, so compare directly.
+            if v != dict2[k]:
+                if verbose:
+                    print("[compare_dict] "+depth*"  "+"{} {} != {}"
+                          .format(k, v, dict2[k]),
+                          file=sys.stderr)
+                return False
+            continue
+        if k not in dict2:
+            return False
+        if v is None:
+            if dict2[k] is None:
+                continue
+            else:
+                return False
+        elif dict2[k] is None:
+            if v is None:
+                continue
+            else:
+                return False
+        if not compare_dict(v, dict2[k], depth=depth+1):
+            return False
+    # Check for any that were not in dict1:
+    for k, v in dict2.items():
+        if k not in dict1:
+            return False
+    return True
+
+
 def save_distros_meta(path=None):
     global distros_meta_state
     global last_distros_meta_path
@@ -201,8 +270,11 @@ def save_distros_meta(path=None):
         os.makedirs(dest_dir)
     tmp = path + ".tmp"  # prevent corrupt file on json exception.
     with open(tmp, 'w') as stream:
-        json.dump(DISTROS, stream)
-    # distro_meta_is_default = DISTROS == DEFAULT_DISTROS
+        if compare_dict(DISTROS, DEFAULT_DISTROS):
+            json.dump(DISTROS, stream, indent=2, sort_keys=True)
+        else:
+            json.dump(DISTROS, stream, indent=2)
+    # distro_meta_is_default = compare_dict(DISTROS DEFAULT_DISTROS)
     distro_meta_is_default = first_use
     if os.path.isfile(path):
         os.remove(path)
@@ -216,10 +288,11 @@ def load_distros_meta(path=None):
     global last_distros_meta_path
     global distro_meta_is_default
     global DEB_TO_OTHER
+    global DISTROS
     path = get_package_renames_path(path=path)
     if os.path.isfile(path):
         with open(path, 'r') as stream:
-            distros = json.load(stream)
+            distros = json.load(stream, object_pairs_hook=OrderedDict)
             renames = distros.get('deb_to_other')
         if renames is None:
             print("Warning: No deb_to_other section in {}."
@@ -228,9 +301,9 @@ def load_distros_meta(path=None):
         else:
             DEB_TO_OTHER = renames
 
-        DISTROS.update(distros)
+        DISTROS = distros
 
-        distro_meta_is_default = DISTROS == DEFAULT_DISTROS
+        distro_meta_is_default = compare_dict(DISTROS, DEFAULT_DISTROS)
         distros_meta_state = "loaded"
         last_distros_meta_path = path
         return True
