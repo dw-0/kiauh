@@ -93,7 +93,7 @@ PACKAGE_GROUPS = {
     }
 }
 
-PACKAGES_RENAMED = {
+DEB_TO_OTHER = {  # defaults. See load_distros_meta for file loading.
     "alpine": {
         "build-essential": "build-base",
         "libjpeg-dev": "jpeg-dev",
@@ -146,7 +146,7 @@ PACKAGES_RENAMED = {
 }
 
 DISTROS = {
-    "deb_to_other": PACKAGES_RENAMED,
+    "deb_to_other": DEB_TO_OTHER,
 }
 
 DEFAULT_DISTROS = copy.deepcopy(DISTROS)
@@ -215,6 +215,7 @@ def load_distros_meta(path=None):
     global distros_meta_state
     global last_distros_meta_path
     global distro_meta_is_default
+    global DEB_TO_OTHER
     path = get_package_renames_path(path=path)
     if os.path.isfile(path):
         with open(path, 'r') as stream:
@@ -224,7 +225,11 @@ def load_distros_meta(path=None):
             print("Warning: No deb_to_other section in {}."
                     " Rename the file to create the default file."
                     .format(path))
-            DISTROS.update(distros)
+        else:
+            DEB_TO_OTHER = renames
+
+        DISTROS.update(distros)
+
         distro_meta_is_default = DISTROS == DEFAULT_DISTROS
         distros_meta_state = "loaded"
         last_distros_meta_path = path
@@ -232,28 +237,35 @@ def load_distros_meta(path=None):
     return False
 
 
-def get_package_renames(path=None):
+def get_package_renames(path=None, package_type=None):
     if distros_meta_state is None:
         load_distros_meta(path=path)
+    if package_type is None:
+        installer = get_package_installer()
+        package_type = get_package_type_of(installer)
+    return DEB_TO_OTHER.get(package_type)
 
 
 def translate_deb_package_name(dep: str, package_type: str) -> str:
     """
-    Get the name of this platform's name for the deb package.
+    Get this platform's non-deb name for the deb package.
     :param dep: The package name using deb (Debian) conventions.
     :param package_type: The package type using kiauh conventions
         such as returned by get_package_type_of.
-    :return: Name given the well-known PACKAGES_RENAMED or naming
+    :return: Name given the well-known DEB_TO_OTHER or naming
         convention, otherwise the original dep string.
+        Original list of package_type is "deb".
     """
+    if package_type == "deb":
+        return dep
     if distros_meta_state is None:
         if not load_distros_meta():
             save_distros_meta()
     if package_type is None:
         raise ValueError("Expected str package_type, got None")
-    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in PACKAGES_RENAMED), \
+    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in DEB_TO_OTHER), \
         "Expected package type, got installer."
-    distro_renames = PACKAGES_RENAMED.get(package_type)
+    distro_renames = get_package_renames(package_type=package_type)
     if not distro_renames:
         return dep
     new_dep = distro_renames.get(dep)
@@ -279,6 +291,29 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
     return new_dep
 
 
+def translate_deb_package_names(deps: List[str], package_type: str) -> List[str]:
+    """
+    Get this platform's non-deb name for each deb package.
+    :param dep: The package names using deb (Debian) conventions.
+    :param package_type: The package type using kiauh conventions
+        such as returned by get_package_type_of.
+    :return: Each name given the well-known DEB_TO_OTHER or naming
+        convention, otherwise the original dep string.
+        Original name if package_type is "deb"
+    """
+    if package_type == "deb":
+        return deps
+    new_deps = set()
+    for dep in deps:
+        new_dep = translate_deb_package_name(
+            dep,
+            package_type=package_type,
+        )
+        if new_dep:
+            new_deps.add(new_dep)
+    return new_deps
+
+
 def get_package_type_of(installer: str) -> str:
     """
     Get the package type for the given distro's installer.
@@ -290,12 +325,49 @@ def get_package_type_of(installer: str) -> str:
     return PACKAGE_TYPE_OF_INSTALLER[installer] if installer else None
 
 
+def get_install_command(**kwargs) -> List[str]:
+    """
+    Get the full command and arg list.
+    :param installer: Optional installer binary name
+        for the distro such as "apt" (Set this to a
+        stored value of get_package_installer() to
+        reduce calls to that).
+    :return: full command that should be placed before package name(s)
+        to run an install as detected.
+    """
+    if "installer" in kwargs:
+        installer = kwargs["installer"]
+    else:
+        installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
+    if not pkg_t:
+        print("get_install_command is not implemented for {}"
+              .format(get_installer_description(installer)),
+              file=sys.stderr)
+        return None
+    command = ["sudo", installer]
+    if pkg_t == "deb":
+        command += ["install", "-y"]
+    elif pkg_t == "alpine":
+        command += ["add", "--quiet"]
+    elif pkg_t == "rpm":
+        command += ["install", "-y"]
+    else:
+        raise NotImplementedError(
+            "Should have detected {} not in {} and returned"
+            " before getting this far."
+            .format(pkg_t, SUPPORTED_PACKAGE_TYPE_OF_INSTALLER.values()))
+    return command
+
+
 def get_installer_description(installer: str) -> str:
     """
-    Get human-readable description of the distro's
-    installer, or "Unknown" etc if unknown.
-    Also gives the location of the distro metadata
-    file, "default" if default data was used.
+    Get a description of the installer.
+    :param installer: The installer binary name
+        for the distro such as "apt".
+    :return: Human-readable description of the distro's installer, or
+        "Unknown" etc if unknown. Also gives the location of the distro
+        metadata file, "default" if default data was used.
     """
     if installer is None:
         return "Unknown OS package system"
@@ -503,19 +575,22 @@ def install_python_packages(target: Path, packages: List[str]) -> None:
         raise VenvCreationFailedException(log)
 
 
-def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
+def update_system_package_lists(silent: bool, rls_info_change=False, dry_run: bool = False) -> List[str]:
     """
     Updates the systems package list |
     :param silent: Log info to the console or not
     :param rls_info_change: Flag for "--allow-releaseinfo-change"
-    :return: None
+    :param dry_run: Just return the command (list).
+    :return: The full command to refresh the package kit, or [] if N/A
+        for this distro.
     """
     installer = get_package_installer()
     package_t = get_package_type_of(installer)
-    command = ["sudo", installer, "update"]
+    command = []
     cache_mtime: float = 0
     cache_files: List[Path] = []
     if package_t == "deb":
+        command = ["sudo", installer, "update"]
         cache_files += [
             Path("/var/lib/apt/periodic/update-success-stamp"),
             Path("/var/lib/apt/lists"),
@@ -525,9 +600,11 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
         try_dir = "/var/cache/apk"
         if os.path.isdir(try_dir):
             cache_files.append(try_dir)
-    if not cache_files:
+    if dry_run:
+        return command
+    if not command:
         # Any other OS doesn't need manual updating (normally)
-        return
+        return command
     for cache_file in cache_files:
         if cache_file.exists():
             cache_mtime = max(cache_mtime, os.path.getmtime(cache_file))
@@ -536,7 +613,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     update_interval = 6 * 3600  # 48hrs
 
     if update_age <= update_interval:
-        return
+        return command
 
     if not silent:
         Logger.print_status("Updating package list...")
@@ -564,14 +641,11 @@ def get_global_deps() -> List[str]:
     pkg_t = get_package_type_of(installer)
     if pkg_t in "deb":
         pass  # ok already
-    elif pkg_t in PACKAGES_RENAMED:
-        new_deps = []
-        for dep in global_deps:
-            new_deps.append(translate_deb_package_name(dep, pkg_t))
-        global_deps = new_deps
+    elif pkg_t in DEB_TO_OTHER:
+        global_deps = translate_deb_package_names(global_deps, pkg_t)
     else:
         raise NotImplementedError(
-            "PACKAGES_RENAMED (in global_deps) is not implemented for {}"
+            "DEB_TO_OTHER (in global_deps) is not implemented for {}"
             .format(get_installer_description(installer)))
     return global_deps
 
@@ -676,18 +750,7 @@ def install_system_packages(packages: List[str]) -> None:
         return  # Degrade gracefully (Do not block kiauh:
         #   Maybe the user installed a package from source).
     try:
-        command = ["sudo", installer]
-        if pkg_t == "deb":
-            command += ["install", "-y"]
-        elif pkg_t == "alpine":
-            command += ["add", "--quiet"]
-        elif pkg_t == "rpm":
-            command += ["install", "-y"]
-        else:
-            raise NotImplementedError(
-                "Should have detected {} not in {} and returned"
-                " before getting this far."
-                .format(pkg_t, SUPPORTED_PACKAGE_TYPE_OF_INSTALLER.values()))
+        command = get_install_command()
         for pkg in packages:
             command.append(pkg)
         run(command, stderr=PIPE, check=True)
@@ -715,6 +778,105 @@ def install_system_package_group(group: str) -> None:
     except CalledProcessError as e:
         Logger.print_error(f"Error installing '{group}' package group:\n{e.stderr.decode()}")
         raise
+
+OLD_RELOADS = ["apt-get update", "apt update"]
+new_reload = update_system_package_lists(silent=True, dry_run=True)
+if not new_reload:
+    new_reload = ["echo", "Skipping package list reload"]
+    # ^ has to be an actual command in case script
+    #   checks for a return code, so echo (return 0 (ok) always
+    #   for distro that doesn't require package list cache reload).
+DEB_INSTALLS = ["apt install -y", "apt-get install -y",
+                "apt install", "apt-get install"]
+PACKAGE_BASH_VARS = ["XSERVER", "CAGE", "PYGOBJECT", "MISC", "OPTIONAL"]
+
+
+def translate_script_line(line: str, script_path: str=None,
+                          line_num: int=None,
+                          installer: str=None) -> str:
+    """
+    Translate one line of a shell script.
+    ::param script_path:: Optional path to script (for tracing)
+    ::param line_num:: Optional line number in script (for tracing)
+    ::param installer:: Optional installer binary name such as "apt" for
+        the distro (Set this to avoid multiple calls to
+        get_install_command() by storing its return elsewhere).
+    """
+    if installer is None:
+        installer = get_package_installer()
+    new_install = get_install_command(installer=installer)
+    package_type = get_package_type_of(installer)
+    line = line.strip()
+    line_type = None
+    for old_install in DEB_INSTALLS:
+        start = line.find(old_install)
+        if start > -1:
+            line_type = "install"
+            command_end = start + len(old_install)
+            comment_i = line.find("#", command_end)
+            packages_end = len(line)
+            if comment_i > -1:
+                comment = line[comment_i:]
+                packages_end = comment_i
+            packages_str = line[command_end:packages_end].rstrip()
+            old_packages = packages_str.strip().split()
+            packages = set(translate_deb_package_names(
+                old_packages,
+                package_type,
+            ))
+            line = " ".join(new_install) + " ".join(packages)
+            if comment:
+                line += "  " + comment
+            return line
+
+    for old_reload in OLD_RELOADS:
+        start = line.find(old_reload)
+        if start > -1:
+            line_type = "reload"
+            cmd_end = start + len(old_reload)
+            line = " ".join(new_reload) + "  # " + line[cmd_end:]
+            return line
+
+    op_idx = line.find("=")
+    if op_idx > -1:
+        left = line[:op_idx].strip()
+        if left in PACKAGE_BASH_VARS:
+            right = line[op_idx+1:].strip()
+            packages_end = len(right)
+            comment_i = right.find("#")
+            comment = ""
+            if comment_i > -1:
+                packages_end = comment_i
+                comment = right[comment_i:]
+                right = right[:comment_i]
+            old_packages = right.strip().split()
+            packages = []
+            for package in old_packages:
+                packages
+    return line
+
+
+def translate_script_file(file1, file2):
+    tmp = file2 + ".tmp"  # prevent corrupt file on exception.
+    line_num = 0
+    installer = get_package_installer()
+    with open(tmp, "w") as outs:
+        with open(file1, "r") as ins:
+            for line in ins:
+                line_num += 1  # start at 1.
+                if line_num == 2:
+                    outs.write(
+                        "# translated from deb-based distro to {} by kiauh."
+                        " Translation code contributed by Poikilos at Hierosoft.\n"
+                        .format(get_installer_description(installer)))
+                    # Macros and/or defines can go here if necessary.
+                line = translate_script_line(
+                    line,
+                    installer=installer,
+                    script_path=file1,
+                    line_num=line_num,
+                )
+                outs.write(line+"\n")
 
 
 def upgrade_system_packages(packages: List[str]) -> None:

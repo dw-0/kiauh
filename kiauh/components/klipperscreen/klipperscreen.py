@@ -7,6 +7,8 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 import shutil
+import sys
+
 from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List
@@ -16,6 +18,7 @@ from components.klipperscreen import (
     KLIPPERSCREEN_DIR,
     KLIPPERSCREEN_ENV_DIR,
     KLIPPERSCREEN_INSTALL_SCRIPT,
+    KLIPPERSCREEN_INSTALL_SCRIPT_EDITED,
     KLIPPERSCREEN_LOG_NAME,
     KLIPPERSCREEN_REPO,
     KLIPPERSCREEN_REQ_FILE,
@@ -47,6 +50,7 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     install_python_requirements,
     remove_system_service,
+    translate_script_file,
 )
 
 
@@ -80,7 +84,15 @@ def install_klipperscreen() -> None:
     git_clone_wrapper(KLIPPERSCREEN_REPO, KLIPPERSCREEN_DIR)
 
     try:
-        run(KLIPPERSCREEN_INSTALL_SCRIPT.as_posix(), shell=True, check=True)
+        sys.stderr.write("Translating {}..."
+                         .format(repr(KLIPPERSCREEN_INSTALL_SCRIPT)))
+        sys.stderr.flush()
+        translate_script_file(
+            KLIPPERSCREEN_INSTALL_SCRIPT,
+            KLIPPERSCREEN_INSTALL_SCRIPT_EDITED,
+        )
+        print("OK", file=sys.stderr)
+        run(KLIPPERSCREEN_INSTALL_SCRIPT_EDITED.as_posix(), shell=True, check=True)
         if mr_instances:
             patch_klipperscreen_update_manager(mr_instances)
             InstanceManager.restart_all(mr_instances)

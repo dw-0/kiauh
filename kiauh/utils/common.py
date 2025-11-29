@@ -35,7 +35,7 @@ from utils.sys_utils import (
     get_global_deps,
     get_package_installer,
     get_package_type_of,
-    translate_deb_package_name,
+    translate_deb_package_names,
     PACKAGE_GROUPS,
 )
 
@@ -92,9 +92,7 @@ def check_install_dependencies(
         translated_deps = set()
         installer = get_package_installer()
         pkg_t = get_package_type_of(installer)
-        for dep in deps:
-            translated_deps.add(translate_deb_package_name(dep, pkg_t))
-        deps = translated_deps
+        deps = set(translate_deb_package_names(deps, pkg_t))
 
     if include_global:
         deps.update(get_global_deps())

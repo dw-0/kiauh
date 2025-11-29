@@ -52,8 +52,9 @@ from utils.sys_utils import (
     parse_packages_from_file,
     get_package_installer,
     get_package_type_of,
-    translate_deb_package_name,
-    PACKAGES_RENAMED,
+    get_package_renames,
+    translate_deb_package_names,
+    DEB_TO_OTHER,
 )
 
 
@@ -277,16 +278,15 @@ def install_input_shaper_deps() -> None:
     )
     installer = get_package_installer()
     package_t = get_package_type_of(installer)
+    _ = get_package_renames(package_type=package_t)
+    # ^ loads saved version of DEB_TO_OTHER if not yet loaded.
     if package_t == "deb":
         pass  # Default names are good.
-    elif package_t in PACKAGES_RENAMED:
+    elif package_t in DEB_TO_OTHER:
         # NOTE: will be translated by check_install_dependencies, but
         #   check here as an earlier and more explicit error (in
         #   "else").
-        new_deps = set()
-        for dep in sys_deps:
-            new_deps.add(translate_deb_package_name(dep, package_t))
-        sys_deps = tuple(new_deps)
+        sys_deps = tuple(translate_deb_package_names(sys_deps, package_t))
     else:
         print("Warning: system deps are unknown for your package manager's"
               " package type ({}). Trying {}".format(package_t, sys_deps),

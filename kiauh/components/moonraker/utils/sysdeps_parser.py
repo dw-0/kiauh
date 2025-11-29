@@ -21,7 +21,7 @@ import shlex
 from typing import Any, Dict, List, Tuple
 
 from utils.sys_utils import (
-    PACKAGES_RENAMED,
+    DEB_TO_OTHER,
 )
 from core import (
     emit_cast,
