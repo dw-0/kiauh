@@ -779,16 +779,33 @@ def install_system_package_group(group: str) -> None:
         Logger.print_error(f"Error installing '{group}' package group:\n{e.stderr.decode()}")
         raise
 
-OLD_RELOADS = ["apt-get update", "apt update"]
-new_reload = update_system_package_lists(silent=True, dry_run=True)
-if not new_reload:
-    new_reload = ["echo", "Skipping package list reload"]
-    # ^ has to be an actual command in case script
-    #   checks for a return code, so echo (return 0 (ok) always
-    #   for distro that doesn't require package list cache reload).
+DEB_RELOADS = ["apt-get update", "apt update"]
+_reload_command = None
 DEB_INSTALLS = ["apt install -y", "apt-get install -y",
                 "apt install", "apt-get install"]
 PACKAGE_BASH_VARS = ["XSERVER", "CAGE", "PYGOBJECT", "MISC", "OPTIONAL"]
+
+
+def get_reload_command(echo_if_none: bool=False) -> List[str]:
+    """
+    Get distro's package list cache reload command.
+    :echo_if_none: If there is no reload command for the
+        distro, return an echo command instead of [].
+    :return: The command as a list of command + args,
+        otherwise [] if not applicable to the distro
+        (unless echo_if_none, then is an echo command).
+    """
+    global _reload_command
+    if _reload_command is None:
+        _reload_command = update_system_package_lists(silent=True, dry_run=True)
+        if _reload_command is None:
+            _reload_command = []
+    if not _reload_command and echo_if_none:
+        return ["echo", "Skipping package list reload"]
+        # ^ has to be an actual command in case script
+        #   checks for a return code, so echo (return 0 (ok) always
+        #   for distro that doesn't require package list cache reload).
+    return _reload_command
 
 
 def translate_script_line(line: str, script_path: str=None,
@@ -796,22 +813,33 @@ def translate_script_line(line: str, script_path: str=None,
                           installer: str=None) -> str:
     """
     Translate one line of a shell script.
-    ::param script_path:: Optional path to script (for tracing)
-    ::param line_num:: Optional line number in script (for tracing)
-    ::param installer:: Optional installer binary name such as "apt" for
+    :param script_path: Optional path to script (for tracing)
+    :param line_num: Optional line number in script (for tracing)
+    :param installer: Optional installer binary name such as "apt" for
         the distro (Set this to avoid multiple calls to
         get_install_command() by storing its return elsewhere).
+    :return: The line, with package names translated (or same if deb),
+        with any trailing newline removed if present.
+        If it is a bash var, the package names will be enclosed
+        in double quotes regardless of whether they were before
+        (previous single or double quotes are stripped first).
     """
+    reload_str = " ".join(get_reload_command(echo_if_none=True))
     if installer is None:
         installer = get_package_installer()
     new_install = get_install_command(installer=installer)
+    install_str = " ".join(new_install)
     package_type = get_package_type_of(installer)
-    line = line.strip()
-    line_type = None
+    if package_type == "deb":
+        return line.rstrip()
+    line = line.rstrip()
+    tab_len = len(line) - len(line.lstrip())
+    tab = line[:tab_len]
+    line = line.lstrip()
+
     for old_install in DEB_INSTALLS:
         start = line.find(old_install)
         if start > -1:
-            line_type = "install"
             command_end = start + len(old_install)
             comment_i = line.find("#", command_end)
             packages_end = len(line)
@@ -824,22 +852,21 @@ def translate_script_line(line: str, script_path: str=None,
                 old_packages,
                 package_type,
             ))
-            line = " ".join(new_install) + " ".join(packages)
+            line = tab + line[:start] + install_str + " ".join(packages)
             if comment:
                 line += "  " + comment
             return line
 
-    for old_reload in OLD_RELOADS:
+    for old_reload in DEB_RELOADS:
         start = line.find(old_reload)
         if start > -1:
-            line_type = "reload"
             cmd_end = start + len(old_reload)
-            line = " ".join(new_reload) + "  # " + line[cmd_end:]
+            line = tab + line[:start] + reload_str + "  # " + line[cmd_end:]
             return line
 
     op_idx = line.find("=")
     if op_idx > -1:
-        left = line[:op_idx].strip()
+        left = line[:op_idx].rstrip()
         if left in PACKAGE_BASH_VARS:
             right = line[op_idx+1:].strip()
             packages_end = len(right)
@@ -849,11 +876,21 @@ def translate_script_line(line: str, script_path: str=None,
                 packages_end = comment_i
                 comment = right[comment_i:]
                 right = right[:comment_i]
-            old_packages = right.strip().split()
-            packages = []
-            for package in old_packages:
-                packages
-    return line
+            right = right.strip()
+            if right.startswith('"') and right.endswith('"'):
+                right = right[1:-1]
+            elif right.startswith("'") and right.endswith("'"):
+                right = right[1:-1]
+            old_packages = right.split()
+            packages = translate_deb_package_names(old_packages, package_type)
+            line = '{}{}="{}"{}'.format(
+                tab,
+                left,
+                " ".join(packages),
+                comment
+            )
+            return line
+    return tab + line
 
 
 def translate_script_file(file1, file2):
