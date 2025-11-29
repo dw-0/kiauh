@@ -170,6 +170,32 @@ distros_meta_state = None
 distro_meta_is_default = True
 last_distros_meta_path = None
 
+alpine_nginx_script = """
+# kiauh workaround for nginx on Alpine-based Linux distros:
+sudo mkdir -p /etc/nginx/sites-enabled
+sudo mkdir -p /etc/nginx/sites-available
+echo "# See /etc/nginx/httpd.d instead" | sudo tee /etc/nginx/sites-available/nothing_goes_here.md
+if [ ! -f "/etc/nginx/sites-enabled/nothing_goes_here.md" ]; then
+    if [ -L "/etc/nginx/sites-enabled/nothing_goes_here.md" ]; then
+        # not a file but is a symlink, so must be a bad symlink.
+        rm /etc/nginx/sites-enabled/nothing_goes_here.md
+    fi
+    sudo ln -s /etc/nginx/sites-available/nothing_goes_here.md /etc/nginx/sites-enabled/nothing_goes_here.md
+fi
+sudo mkdir -p /etc/nginx/http.d
+if [ ! -f "/etc/nginx/http.d/00-fluidd.conf" ]; then
+    if [ -L "/etc/nginx/http.d/00-fluidd.conf" ]; then
+        # not a file but is a symlink, so must be a bad symlink.
+        rm /etc/nginx/http.d/00-fluidd.conf
+    fi
+    sudo ln -s /etc/nginx/sites-available/fluidd /etc/nginx/http.d/00-fluidd.conf
+    # ^ must end in conf for the sake of postmarketOS default nginx.conf.
+fi
+if [ -f "/etc/http.d/default.conf" ]; then
+    >&2 echo "Warning: default site /etc/nginx/httpd.d/default.conf is present. This may interfere with /etc/nginx/httpd.d/00-fluid.conf"
+fi
+"""
+
 
 class VenvCreationFailedException(Exception):
     pass
@@ -377,7 +403,7 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
     return new_dep
 
 
-def translate_deb_package_names(deps: List[str], package_type: str) -> List[str]:
+def translate_deb_package_names(deps: List[str], package_type: str) -> Set[str]:
     """
     Get this platform's non-deb name for each deb package.
     :param dep: The package names using deb (Debian) conventions.
@@ -388,7 +414,7 @@ def translate_deb_package_names(deps: List[str], package_type: str) -> List[str]
         Original name if package_type is "deb"
     """
     if package_type == "deb":
-        return deps
+        return set(deps)
     new_deps = set()
     for dep in deps:
         new_dep = translate_deb_package_name(
@@ -397,6 +423,11 @@ def translate_deb_package_names(deps: List[str], package_type: str) -> List[str]
         )
         if new_dep:
             new_deps.add(new_dep)
+        if package_type == "alpine":
+            if new_dep == "nginx":
+                # Help with the transition from
+                #   systemd.
+                new_deps.add("nginx-systemd")
     return new_deps
 
 
@@ -870,6 +901,7 @@ _reload_command = None
 DEB_INSTALLS = ["apt install -y", "apt-get install -y",
                 "apt install", "apt-get install"]
 PACKAGE_BASH_VARS = ["XSERVER", "CAGE", "PYGOBJECT", "MISC", "OPTIONAL"]
+SUDOS = ["sudo", "doas", "runas"]
 
 
 def get_reload_command(echo_if_none: bool=False) -> List[str]:
@@ -892,6 +924,65 @@ def get_reload_command(echo_if_none: bool=False) -> List[str]:
         #   checks for a return code, so echo (return 0 (ok) always
         #   for distro that doesn't require package list cache reload).
     return _reload_command
+
+
+def split_shell_command(line: str, command: str, comment_delimiter="#") -> List[str]:
+    """Split a command into replaceable parts.
+
+    :param line: Any shell script command/line.
+    :param command: Any command to look for.
+    :return: List of: left (anything before command, such as sudo or
+        doas unless also is in command--See SUDO for list of detected
+        ones), found_command (same as command, but If command is None,
+        left will contain everything and other parts will be ""),
+        more_args_str (anything before pre_comment, or everything right
+        of command if no comment), pre_comment (whitespace before
+        comment), comment.
+    """
+    left = None
+    found_command = None
+    more_args_str = ""
+    pre_comment = ""
+    comment = ""
+    start = line.find(command)
+    if start > -1:
+        left = line[:start]
+        pre_comment = ""
+        comment = ""
+        command_end = start + len(command)
+        found_command = line[start:command_end]  # same as command, here for explicitness & testing
+        got_sudo = None
+        left_sudo_idx = -1
+        command_sudo_idx = -1
+        for try_sudo in SUDOS:
+            if left.rstrip().endswith(try_sudo):
+                left_sudo_idx = left.rfind(try_sudo)
+                got_sudo = try_sudo
+                break
+        for try_sudo in SUDOS:
+            if command.lstrip().startswith(try_sudo):
+                command_sudo_idx = command.find(try_sudo)
+                break
+        if (left_sudo_idx > -1) and (command_sudo_idx > -1):
+            left = (
+                left[:left_sudo_idx]  # all before command except got_sudo
+                # + left[left_sudo_idx+len(got_sudo):]  # Capture
+                #   whitespace (commented since we are counting on
+                #   whitespace so keeping this part would just mess up
+                #   the indent level)
+            )
+
+        comment_i = line.find(comment_delimiter, command_end)
+        more_args_end = len(line)
+        if comment_i > -1:
+            more_args_end = comment_i
+            pre_comment_len = len(line[:comment_i]) - len(line[:comment_i].rstrip())
+            pre_comment = line[comment_i-pre_comment_len:comment_i]
+            comment = line[comment_i:]
+        more_args_str = line[command_end:more_args_end].rstrip()
+    if left is None:
+        left = line
+    return left, found_command, more_args_str, pre_comment, comment
 
 
 def translate_script_line(line: str, script_path: str=None,
@@ -921,26 +1012,58 @@ def translate_script_line(line: str, script_path: str=None,
     line = line.rstrip()
     tab_len = len(line) - len(line.lstrip())
     tab = line[:tab_len]
+    # ^ split_shell_command should handle tab (as part of pre_command),
+    #   but get it here for explicitness.
     line = line.lstrip()
 
     for old_install in DEB_INSTALLS:
-        start = line.find(old_install)
-        if start > -1:
-            command_end = start + len(old_install)
-            comment_i = line.find("#", command_end)
-            packages_end = len(line)
-            if comment_i > -1:
-                comment = line[comment_i:]
-                packages_end = comment_i
-            packages_str = line[command_end:packages_end].rstrip()
-            old_packages = packages_str.strip().split()
+        pre_command, command, more_args_str, pre_comment, comment = split_shell_command(
+            line,
+            old_install,
+        )
+        if command:
+            pre_packages_len = len(more_args_str) - len(more_args_str.lstrip())
+            pre_packages = more_args_str[:pre_packages_len]
+            old_packages = more_args_str.strip().split()
             packages = set(translate_deb_package_names(
                 old_packages,
                 package_type,
             ))
-            line = tab + line[:start] + install_str + " ".join(packages)
-            if comment:
-                line += "  " + comment
+            # This is done in split_shell_command but
+            #   in this case it may still have sudo
+            #   since DEB_COMMANDS entries don't start
+            #   with sudo so the double isn't detected
+            #   (the double is in the new command, not
+            #   the old command).
+            pre_sudo_idx = -1
+            got_sudo = None
+            for try_sudo in SUDOS:
+                if pre_command.rstrip().endswith(try_sudo):
+                    pre_sudo_idx = pre_command.rfind(try_sudo)
+                    got_sudo = try_sudo
+            new_sudo_idx = -1
+            for try_sudo in SUDOS:
+                if install_str.lstrip().startswith(try_sudo):
+                    new_sudo_idx = install_str.find(try_sudo)
+            if (pre_sudo_idx > -1) and (new_sudo_idx > -1):
+                # remove redundant got_sudo command
+                pre_command = (
+                    pre_command[:pre_sudo_idx]  # all before command except got_sudo
+                    # + pre_command[pre_sudo_idx+len(got_sudo):]  # Capture
+                    #   whitespace (commented since we are counting on
+                    #   whitespace so keeping this part would just mess up
+                    #   the indent level)
+                )
+
+            line = "{}{}{}{}{}{}{}".format(
+                tab,
+                pre_command,
+                install_str,  # replaces command
+                pre_packages,
+                " ".join(packages),  # replaces more_args_str
+                pre_comment,
+                comment,
+            )
             return line
 
     for old_reload in DEB_RELOADS:
@@ -979,27 +1102,73 @@ def translate_script_line(line: str, script_path: str=None,
     return tab + line
 
 
-def translate_script_file(file1, file2):
-    tmp = file2 + ".tmp"  # prevent corrupt file on exception.
+def get_edit_comment(installer: str) -> str:
+    return (
+        "# translated from deb-based distro to {} by kiauh."
+        " Translation code contributed by Poikilos at Hierosoft."
+        .format(get_installer_description(installer)))
+
+
+def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
+                     installer: str=None, script_path: str=None) -> List[str]:
+    """Translate a shell script's apt or apt-get commands to the given distro.
+    See translate_script_line for details.
+
+    :param old_lines: Shell script lines (any language with apt or
+        apt-get commands)
+    :param add_alpine_nginx_script: Optional add alpine_nginx_script if
+        line contains both installer and "nginx" but only *if"
+        package_type == "alpine" also, defaults to True
+    :param installer: Optional installer executable name for the
+        distro such as "apt", defaults to detected by looking for known
+        installers in PATH
+    :param script_path: Optional script being read (for tracing),
+        defaults to None
+    :return: The translated script.
+    """
     line_num = 0
-    installer = get_package_installer()
-    with open(tmp, "w") as outs:
-        with open(file1, "r") as ins:
-            for line in ins:
-                line_num += 1  # start at 1.
-                if line_num == 2:
-                    outs.write(
-                        "# translated from deb-based distro to {} by kiauh."
-                        " Translation code contributed by Poikilos at Hierosoft.\n"
-                        .format(get_installer_description(installer)))
-                    # Macros and/or defines can go here if necessary.
-                line = translate_script_line(
-                    line,
-                    installer=installer,
-                    script_path=file1,
-                    line_num=line_num,
-                )
+    if installer is None:
+        installer = get_package_installer()
+    package_type = get_package_type_of(installer)
+    command = get_install_command(installer=installer)
+    lines = []
+    for line in old_lines:
+        line_num += 1  # start at 1.
+        if line_num == 2:
+            lines.append(get_edit_comment(installer))
+            # Macros and/or defines can go here if necessary.
+        line = translate_script_line(
+            line,
+            installer=installer,
+            script_path=script_path,
+            line_num=line_num,
+        )
+        if package_type == "alpine":
+            if ("nginx" in line) and (installer in line):
+                # Put the fix on a separate line so it doesn't block
+                #   the previous line if the workaround fails:
+                extra_line = (" ".join(command) + "nginx-systemd")
+                lines.append(extra_line)
+                del extra_line
+                if add_alpine_nginx_script:
+                    for extra_line in alpine_nginx_script.split("\n"):
+                        lines.append(extra_line)
+                    add_alpine_nginx_script = False
+        lines.append(line)
+    return lines
+
+
+def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=True,
+                          installer: str=None) -> None:
+    tmp = file2 + ".tmp"  # prevent corrupt file on exception.
+    with open(file1, "r") as ins:
+        with open(tmp, "w") as outs:
+            old_lines = ins.readlines()
+            new_lines = translate_script(old_lines, add_alpine_nginx_script=add_alpine_nginx_script,
+                                         installer=installer, script_path=file1)
+            for line in new_lines:
                 outs.write(line+"\n")
+    shutil.move(tmp, file2)
 
 
 def upgrade_system_packages(packages: List[str]) -> None:

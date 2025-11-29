@@ -1,11 +1,12 @@
 # tests/test_sys_utils.py
 
+import json
 import pytest
 from collections import namedtuple, OrderedDict
 
 # Import the functions to test
-from kiauh.utils.sys_utils import namedtuple_to_dict, compare_dict
-
+from kiauh.utils.sys_utils import get_package_installer, get_package_type_of, namedtuple_to_dict, compare_dict
+from kiauh.utils import sys_utils
 
 # Sample namedtuples for testing
 Point = namedtuple("Point", "x y")
@@ -222,6 +223,112 @@ def test_compare_dict_namedtuple_with_extra_field():
 
     assert compare_dict(p1, p2) is False  # p2 has extra field
     assert compare_dict(p2, p1) is False
+
+
+def test_split_shell_command():
+    left, command, more_args_str, pre_comment, comment = sys_utils.split_shell_command(
+        "    sudo apt-get install -y python3   # some comment ",
+        "sudo apt-get install",
+    )
+    assert left == "    "
+    assert command == "sudo apt-get install"
+    assert more_args_str == " -y python3"
+    assert pre_comment == "   "
+    assert comment == "# some comment "
+
+    left, command, more_args_str, pre_comment, comment = sys_utils.split_shell_command(
+        "    runas winget install --silent python3 python3-dev   \n:: comment",
+        "winget install --silent",
+        comment_delimiter="\n::",  # only effectively a comment if at start of line in batch file
+    )
+    assert left == "    runas "
+    assert command == "winget install --silent"
+    assert more_args_str == " python3 python3-dev"
+    assert pre_comment == "   "
+    assert comment == "\n:: comment"
+
+    original = "    runas winget install --silent python3 python3-dev   \n:: comment\r\n"
+    left, command, more_args_str, pre_comment, comment = sys_utils.split_shell_command(
+        original,
+        "I didn't say that",
+        comment_delimiter="\n::",  # only effectively a comment if at start of line in batch file
+    )
+    assert left == original
+    assert command == None
+    assert more_args_str == ""
+    assert pre_comment == ""
+    assert comment == ""
+
+
+def test_translate_script_line():
+    # installer = get_package_installer()
+    installer = "apt"  # hard-coded for testing
+    package_type = get_package_type_of(installer)
+    assert sys_utils.translate_script_line("apt install ", installer=installer)
+
+def test_translate_deb_package_names():
+    installer = "apt"  # hard-coded for testing
+    package_type = get_package_type_of(installer)
+    assert sys_utils.translate_deb_package_names([
+        "python3-numpy",
+        "python3-dev",
+    ], package_type=package_type) == set([
+        "python3-numpy",
+        "python3-dev",
+    ])
+    installer = "apk"  # hard-coded for testing
+    package_type = get_package_type_of(installer)
+    assert sys_utils.translate_deb_package_names([
+        "python3-numpy",
+        "python3-dev",
+    ], package_type=package_type) == set([
+        "py3-numpy",
+        "python3-dev",
+    ])
+    installer = "pacman"  # hard-coded for testing
+    package_type = get_package_type_of(installer)
+    assert sys_utils.translate_deb_package_names([
+        "python3",
+        "python3-numpy",
+        "python3-dev",
+    ], package_type=package_type) == set([
+        "python3",
+        # The dev lib is the same package in an arch-based distro.
+        "python-numpy"
+    ])
+
+
+def test_translate_deb_package_name():
+    installer = "apk"  # hard-coded for testing
+    package_type = get_package_type_of(installer)
+    assert sys_utils.translate_deb_package_name("python3-dev", package_type=package_type) == (
+        "python3-dev"
+    )
+    assert sys_utils.translate_deb_package_name("python3-numpy", package_type=package_type) == (
+        "py3-numpy"
+    )
+
+def test_translate_script():
+    installer = "dnf"
+    result = sys_utils.translate_script([
+        "#!/bin/bash",
+        "",
+        "apt-get install python3-dev",
+        "apt-get install -y  python3-dev",
+        "sudo apt-get install -y python3-dev",
+        "",
+    ], installer=installer)
+    assert(result == [
+        "#!/bin/bash",
+        sys_utils.get_edit_comment(installer),
+        "",
+        "sudo dnf install -y python3-devel",
+        "sudo dnf install -y  python3-devel",
+        "sudo dnf install -y python3-devel",  # tests regression: "sudo sudo" is not expected
+        "",
+    ]), "incorrect result {}".format(
+        json.dumps(result, indent=2),
+    )
 
 
 if __name__ == "__main__":
