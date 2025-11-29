@@ -264,7 +264,15 @@ def test_translate_script_line():
     # installer = get_package_installer()
     installer = "apt"  # hard-coded for testing
     package_type = get_package_type_of(installer)
+
     assert sys_utils.translate_script_line("apt install ", installer=installer)
+
+    original = 'MISC = "librsvg2-common libopenjp2-7 libdbus-glib-1-dev autoconf python3-venv"\n'
+    # ^ \n should get removed:
+    good = 'MISC="librsvg openjpeg dbus-glib-dev autoconf python3"'
+    # ^ python3-venv is built into the python3 package on Alpine.
+    # TODO: assert sys_utils.translate_script_line(original, good)
+
 
 def test_translate_deb_package_names():
     installer = "apt"  # hard-coded for testing

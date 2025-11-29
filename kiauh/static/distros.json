@@ -1,0 +1,53 @@
+{
+  "comments": {
+    "deb_to_other": {
+      "alpine": "python3-*: done by wildcard in translate_deb_package_name *except* python3-devel which does *not* shorten to the 'py3-' prefix.",
+      "arch": "python3-*: handled by wildcard in translate_deb_package_name excluding python3-dev which is in 'python3' on arch.",
+      "rpm": "other lib*-dev: handled by wildcard in translate_deb_package_name. "
+    }
+  },
+  "deb_to_other": {
+    "alpine": {
+      "build-essential": "build-base",
+      "libjpeg-dev": "jpeg-dev",
+      "libncurses-dev": "ncurses-dev",
+      "libnewlib-arm-none-eabi": "newlib-arm-none-eabi",
+      "libopenblas-dev": "openblas-dev",
+      "libopenjp2-7": "openjpeg",
+      "libopenjp2-7-dev": "openjpeg-dev",
+      "libusb-1.0": "libusb",
+      "packagekit": "apk-tools",
+      "pkg-config": "pkgconf",
+      "virtualenv": "py3-virtualenv",
+      "zlib1g-dev": "zlib-dev"
+    },
+    "arch": {
+      "build-essential": "base-devel",
+      "libjpeg-dev": "libjpeg-turbo",
+      "libncurses-dev": "ncurses",
+      "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
+      "libopenblas-dev": "openblas",
+      "libopenjp2-7": "openjpeg2",
+      "libopenjp2-7-dev": "openjpeg2",
+      "libusb-1.0": "libusb",
+      "packagekit": "packagekit",
+      "pkg-config": "pkgconf",
+      "python3-dev": "python3",
+      "zlib1g-dev": "zlib"
+    },
+    "rpm": {
+      "build-essential": "Development Tools",
+      "libjpeg-dev": "libjpeg-turbo-devel",
+      "libncurses-dev": "ncurses-devel",
+      "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
+      "libopenblas-dev": "openblas-devel",
+      "libopenjp2-7": "openjpeg2",
+      "libopenjp2-7-dev": "openjpeg2-devel",
+      "libusb-1.0": "libusb-1",
+      "packagekit": "PackageKit",
+      "pkg-config": "pkgconf",
+      "virtualenv": "python3-virtualenv",
+      "zlib1g-dev": "zlib-devel"
+    }
+  }
+}

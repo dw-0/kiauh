@@ -93,82 +93,13 @@ PACKAGE_GROUPS = {
         "Development Tools": ["gcc", "g++", "glibc-devel", "dpkg"],
     }
 }
-
-DEB_TO_OTHER = {  # defaults. See load_distros_meta for file loading.
-    "alpine": {
-        "build-essential": "build-base",
-        "libjpeg-dev": "jpeg-dev",
-        "libopenblas-dev": "openblas-dev",
-        "libopenjp2-7": "openjpeg",
-        "libopenjp2-7-dev": "openjpeg-dev",
-        "libncurses-dev": "ncurses-dev",
-        "libnewlib-arm-none-eabi": "newlib-arm-none-eabi",
-        "libusb-1.0": "libusb",
-        "packagekit": "apk-tools",  # not applicable (similar, used as dummy)
-        "pkg-config": "pkgconf",
-        # "python3-virtualenv": "py3-virtualenv",
-        # python3-*: done by wildcard in translate_deb_package_name
-        #   *except* python3-devel which does *not* shorten to the "py3-" prefix.
-        "virtualenv": "py3-virtualenv",   # fulfills both python3-virtualenv and virtualenv?
-        "zlib1g-dev": "zlib-dev",
-    },
-    "arch": {  # Not fully supported. See pkg_t checks to complete code.
-        "build-essential": "base-devel",
-        "libjpeg-dev": "libjpeg-turbo",
-        "libncurses-dev": "ncurses",
-        "libopenblas-dev": "openblas",
-        "libopenjp2-7": "openjpeg2",
-        "libopenjp2-7-dev": "openjpeg2",
-        "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
-        "libusb-1.0": "libusb",
-        "packagekit": "packagekit",
-        "pkg-config": "pkgconf",
-        "python3-dev": "python3",
-        # "python3-virtualenv": "python-virtualenv",
-        # ^ python3-*: handled by wildcard in translate_deb_package_name
-        #   excluding python3-dev which is in "python3" on arch.
-        "zlib1g-dev": "zlib",
-    },
-    "rpm": {
-        "build-essential": "Development Tools",
-        "libjpeg-dev": "libjpeg-turbo-devel",
-        "libopenblas-dev": "openblas-devel",
-        "libopenjp2-7": "openjpeg2",
-        "libopenjp2-7-dev": "openjpeg2-devel",
-        "libncurses-dev": "ncurses-devel",
-        # other lib*-dev: handled by wildcard in translate_deb_package_name
-        "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",  # May also require arm-none-eabi-gcc!
-        "libusb-1.0": "libusb-1",
-        "packagekit": "PackageKit",
-        "pkg-config": "pkgconf",
-        "virtualenv": "python3-virtualenv",  # fulfills both python3-virtualenv and virtualenv?
-        "zlib1g-dev": "zlib-devel",
-    },
-}
-
-DISTROS = {
-    "deb_to_other": DEB_TO_OTHER,
-    "comments": {
-        "deb_to_other": {
-            "alpine": (
-                "python3-*: done by wildcard in translate_deb_package_name"
-                " *except* python3-devel which does *not* shorten to the 'py3-' prefix."
-            ),
-            "arch": (
-                "python3-*: handled by wildcard in translate_deb_package_name"
-                " excluding python3-dev which is in 'python3' on arch."
-            ),
-            "rpm": "other lib*-dev: handled by wildcard in translate_deb_package_name. ",
-        }
-    }
-}
-
-DEFAULT_DISTROS = copy.deepcopy(DISTROS)
-DEFAULT_DISTROS_REF = DISTROS
+DISTROS = None
+DEFAULT_DISTROS = None
 
 distros_meta_state = None
 distro_meta_is_default = True
 last_distros_meta_path = None
+distros_meta_scope = None
 
 alpine_nginx_script = """
 # kiauh workaround for nginx on Alpine-based Linux distros:
@@ -234,9 +165,34 @@ def get_package_installer() -> str:
     return None
 
 
-def get_package_renames_path(path=None):
+def get_package_renames_path(path=None, scope="repo"):
+    """Get the path to the distros.json file with metadata for adapting
+    to different distros.
+
+    :param path: Optional path to distros.json file, defaults to config
+        dir (see scope).
+    :param scope: Optional scope for where to save:
+        "user" for ~/.config/kiauh, "repo" for
+        <repo root>/kiauh/static/, defaults to "repo"
+    :raises NotImplementedError: If scope is not implemented.
+    :return: The path to distros.json
+    """
     if path is None:
-        conf_dir = os.path.expanduser("~/.config/kiauh")
+        if scope == "user":
+            conf_dir = os.path.expanduser("~/.config/kiauh")
+        elif scope == "repo":
+            utils_dir = os.path.dirname(os.path.abspath(__file__))
+            module_dir = os.path.dirname(utils_dir)
+            assert os.path.isfile(os.path.join(
+                module_dir,
+                "main.py"
+            )), "module_dir detection failed--tried to look for main.py in {}".format(module_dir)
+            conf_dir = os.path.join(
+                module_dir,
+                "static"
+            )
+        else:
+            raise NotImplementedError("scope={}".format(scope))
         path = os.path.join(conf_dir, "distros.json")
     return path
 
@@ -298,12 +254,31 @@ def compare_dict(dict1, dict2, verbose=False, depth=0) -> bool:
     return True
 
 
-def save_distros_meta(path=None):
+def save_distros_meta(path=None) -> str:
+    """Save the distros metadata such as per-distro package names.
+
+    :param path: Optional path (Leave this None for recommended
+        automatic system/user scope detection), defaults to
+        get_package_renames_path()
+    :return: The file path that was saved (global distros_meta_scope is
+        also set if path is None)
+    """
     global distros_meta_state
     global last_distros_meta_path
     global distro_meta_is_default
+    global distros_meta_scope
     first_use = distros_meta_state is None
-    path = get_package_renames_path(path=path)
+    scope = distros_meta_scope
+    if path is None:
+        user_path = get_package_renames_path(path=path, scope="user")
+        path = get_package_renames_path(path=path)
+        scope = "repo"
+        if not os.path.isfile(user_path):
+            if not compare_dict(DISTROS, DEFAULT_DISTROS):
+                # If differs from default save to user as override.
+                scope = "user"
+        if scope == "user":
+            path = user_path
     dest_dir = os.path.dirname(path)
     if not os.path.isdir(dest_dir):
         os.makedirs(dest_dir)
@@ -313,6 +288,7 @@ def save_distros_meta(path=None):
             json.dump(DISTROS, stream, indent=2, sort_keys=True)
         else:
             json.dump(DISTROS, stream, indent=2)
+        distros_meta_scope = scope
     # distro_meta_is_default = compare_dict(DISTROS DEFAULT_DISTROS)
     distro_meta_is_default = first_use
     if os.path.isfile(path):
@@ -320,19 +296,38 @@ def save_distros_meta(path=None):
     shutil.move(tmp, path)
     distros_meta_state = "saved"
     last_distros_meta_path = path
+    return path
 
 
-def load_distros_meta(path=None):
+def load_distros_meta(path=None) -> str:
+    """Load distros metadata such as equivalent package names.
+
+    :param path: Where to load from (leave alone recommended automatic
+        system/user scope detection), defaults to
+        get_package_renames_path().
+    :return: The file path that was loaded (global distros_meta_scope is
+        also set if path is None)
+    """
     global distros_meta_state
     global last_distros_meta_path
     global distro_meta_is_default
+    global distros_meta_scope
     global DEB_TO_OTHER
     global DISTROS
-    path = get_package_renames_path(path=path)
+    global DEFAULT_DISTROS
+    scope = None
+    if path is None:
+        user_path = get_package_renames_path(path=path, scope="user")
+        path = get_package_renames_path(path=path)
+        if os.path.isfile(user_path):
+            scope = "user"
+        else:
+            scope = "repo"
     if os.path.isfile(path):
         with open(path, 'r') as stream:
             distros = json.load(stream, object_pairs_hook=OrderedDict)
             renames = distros.get('deb_to_other')
+            distros_meta_scope = scope
         if renames is None:
             print("Warning: No deb_to_other section in {}."
                     " Rename the file to create the default file."
@@ -341,12 +336,20 @@ def load_distros_meta(path=None):
             DEB_TO_OTHER = renames
 
         DISTROS = distros
+        if DEFAULT_DISTROS is None:
+            if distros_meta_scope == "repo":
+                DEFAULT_DISTROS = copy.deepcopy(DISTROS)
+            else:
+                with open(get_package_renames_path(scope="repo"), 'r') as stream:
+                    DEFAULT_DISTROS = json.load(
+                        stream, object_pairs_hook=OrderedDict
+                    )
 
         distro_meta_is_default = compare_dict(DISTROS, DEFAULT_DISTROS)
         distros_meta_state = "loaded"
         last_distros_meta_path = path
-        return True
-    return False
+        return path
+    return None
 
 
 def get_package_renames(path=None, package_type=None):
@@ -521,7 +524,7 @@ def check_python_version(major: int, minor: int) -> bool:
     :return: bool
     """
     if not (sys.version_info.major >= major and sys.version_info.minor >= minor):
-        Logger.print_error("Versioncheck failed!")
+        Logger.print_error("Version check failed!")
         Logger.print_error(f"Python {major}.{minor} or newer required.")
         return False
     return True
@@ -566,7 +569,7 @@ def create_python_venv(
     :return: bool
     """
     Logger.print_status("Set up Python virtual environment ...")
-    # If binarry override is not set, we use default defined here
+    # If binary override is not set, we use default defined here
     python_binary = use_python_binary if use_python_binary else "/usr/bin/python3"
     cmd = ["virtualenv", "-p", python_binary, target.as_posix()]
     cmd.append(
@@ -951,13 +954,13 @@ def split_shell_command(line: str, command: str, comment_delimiter="#") -> List[
         comment = ""
         command_end = start + len(command)
         found_command = line[start:command_end]  # same as command, here for explicitness & testing
-        got_sudo = None
+        # got_sudo = None
         left_sudo_idx = -1
         command_sudo_idx = -1
         for try_sudo in SUDOS:
             if left.rstrip().endswith(try_sudo):
                 left_sudo_idx = left.rfind(try_sudo)
-                got_sudo = try_sudo
+                # got_sudo = try_sudo
                 break
         for try_sudo in SUDOS:
             if command.lstrip().startswith(try_sudo):
@@ -1036,11 +1039,11 @@ def translate_script_line(line: str, script_path: str=None,
             #   (the double is in the new command, not
             #   the old command).
             pre_sudo_idx = -1
-            got_sudo = None
+            # got_sudo = None
             for try_sudo in SUDOS:
                 if pre_command.rstrip().endswith(try_sudo):
                     pre_sudo_idx = pre_command.rfind(try_sudo)
-                    got_sudo = try_sudo
+                    # got_sudo = try_sudo
             new_sudo_idx = -1
             for try_sudo in SUDOS:
                 if install_str.lstrip().startswith(try_sudo):
@@ -1105,7 +1108,7 @@ def translate_script_line(line: str, script_path: str=None,
 def get_edit_comment(installer: str) -> str:
     return (
         "# translated from deb-based distro to {} by kiauh."
-        " Translation code contributed by Poikilos at Hierosoft."
+        " Initial translation code contributed by Poikilos at Hierosoft."
         .format(get_installer_description(installer)))
 
 
@@ -1241,13 +1244,13 @@ def download_file(url: str, target: Path, show_progress=True) -> None:
         else:
             urllib.request.urlretrieve(url, target)
     except urllib.error.HTTPError as e:
-        Logger.print_error(f"Download failed! HTTP error occured: {e}")
+        Logger.print_error(f"Download failed! HTTP error occurred: {e}")
         raise
     except urllib.error.URLError as e:
-        Logger.print_error(f"Download failed! URL error occured: {e}")
+        Logger.print_error(f"Download failed! URL error occurred: {e}")
         raise
     except Exception as e:
-        Logger.print_error(f"Download failed! An error occured: {e}")
+        Logger.print_error(f"Download failed! An error occurred: {e}")
         raise
 
 
