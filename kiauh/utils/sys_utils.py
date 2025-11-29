@@ -512,17 +512,22 @@ def update_system_package_lists(silent: bool, rls_info_change=False) -> None:
     """
     installer = get_package_installer()
     package_t = get_package_type_of(installer)
-    if package_t != "deb":
-        # TODO: support pacman as follows:
-        # if package_t == "arch":
-        #     command = ["sudo", installer, "-Sy"]
-        # There is no need to update the package list.
-        return
+    command = ["sudo", installer, "update"]
     cache_mtime: float = 0
-    cache_files: List[Path] = [
-        Path("/var/lib/apt/periodic/update-success-stamp"),
-        Path("/var/lib/apt/lists"),
-    ]
+    cache_files: List[Path] = []
+    if package_t == "deb":
+        cache_files += [
+            Path("/var/lib/apt/periodic/update-success-stamp"),
+            Path("/var/lib/apt/lists"),
+        ]
+    elif package_t == "alpine":
+        command = ["sudo", installer, "update"]
+        try_dir = "/var/cache/apk"
+        if os.path.isdir(try_dir):
+            cache_files.append(try_dir)
+    if not cache_files:
+        # Any other OS doesn't need manual updating (normally)
+        return
     for cache_file in cache_files:
         if cache_file.exists():
             cache_mtime = max(cache_mtime, os.path.getmtime(cache_file))
