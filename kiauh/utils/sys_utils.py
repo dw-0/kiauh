@@ -148,6 +148,19 @@ DEB_TO_OTHER = {  # defaults. See load_distros_meta for file loading.
 
 DISTROS = {
     "deb_to_other": DEB_TO_OTHER,
+    "comments": {
+        "deb_to_other": {
+            "alpine": (
+                "python3-*: done by wildcard in translate_deb_package_name"
+                " *except* python3-devel which does *not* shorten to the 'py3-' prefix."
+            ),
+            "arch": (
+                "python3-*: handled by wildcard in translate_deb_package_name"
+                " excluding python3-dev which is in 'python3' on arch."
+            ),
+            "rpm": "other lib*-dev: handled by wildcard in translate_deb_package_name. ",
+        }
+    }
 }
 
 DEFAULT_DISTROS = copy.deepcopy(DISTROS)
