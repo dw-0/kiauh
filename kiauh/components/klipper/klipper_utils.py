@@ -279,7 +279,7 @@ def install_input_shaper_deps() -> None:
     installer = get_package_installer()
     package_t = get_package_type_of(installer)
     _ = get_package_renames(package_type=package_t)
-    # ^ loads saved version of DISTROS if not yet loaded.
+    # ^ loads saved version of _DISTROS if not yet loaded.
     if package_t == "deb":
         pass  # Default names are good.
     elif package_t in get_distros_metadata()['deb_to_other']:
