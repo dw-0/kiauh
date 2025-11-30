@@ -1181,7 +1181,7 @@ def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=
         tmp = file2.with_suffix(".tmp")
     else:
         tmp = file2 + ".tmp"  # prevent corrupt file on json exception.
-
+    print("Creating translated {}".format(repr(file2)))
     with open(file1, "r") as ins:
         with open(tmp, "w") as outs:
             old_lines = ins.readlines()
