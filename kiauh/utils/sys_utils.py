@@ -299,6 +299,10 @@ def save_distros_meta(path=None) -> str:
     return path
 
 
+def get_distros_metadata():
+    return DISTROS
+
+
 def load_distros_meta(path=None) -> str:
     """Load distros metadata such as equivalent package names.
 
@@ -312,7 +316,6 @@ def load_distros_meta(path=None) -> str:
     global last_distros_meta_path
     global distro_meta_is_default
     global distros_meta_scope
-    global DEB_TO_OTHER
     global DISTROS
     global DEFAULT_DISTROS
     scope = None
@@ -332,8 +335,6 @@ def load_distros_meta(path=None) -> str:
             print("Warning: No deb_to_other section in {}."
                     " Rename the file to create the default file."
                     .format(path))
-        else:
-            DEB_TO_OTHER = renames
 
         DISTROS = distros
         if DEFAULT_DISTROS is None:
@@ -358,7 +359,7 @@ def get_package_renames(path=None, package_type=None):
     if package_type is None:
         installer = get_package_installer()
         package_type = get_package_type_of(installer)
-    return DEB_TO_OTHER.get(package_type)
+    return DISTROS['deb_to_other'].get(package_type)
 
 
 def translate_deb_package_name(dep: str, package_type: str) -> str:
@@ -367,7 +368,7 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
     :param dep: The package name using deb (Debian) conventions.
     :param package_type: The package type using kiauh conventions
         such as returned by get_package_type_of.
-    :return: Name given the well-known DEB_TO_OTHER or naming
+    :return: Name given the well-known DISTROS['deb_to_other'] or naming
         convention, otherwise the original dep string.
         Original list of package_type is "deb".
     """
@@ -378,7 +379,7 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
             save_distros_meta()
     if package_type is None:
         raise ValueError("Expected str package_type, got None")
-    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in DEB_TO_OTHER), \
+    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in DISTROS['deb_to_other']), \
         "Expected package type, got installer."
     distro_renames = get_package_renames(package_type=package_type)
     if not distro_renames:
@@ -412,7 +413,7 @@ def translate_deb_package_names(deps: List[str], package_type: str) -> Set[str]:
     :param dep: The package names using deb (Debian) conventions.
     :param package_type: The package type using kiauh conventions
         such as returned by get_package_type_of.
-    :return: Each name given the well-known DEB_TO_OTHER or naming
+    :return: Each name given the well-known DISTROS['deb_to_other'] or naming
         convention, otherwise the original dep string.
         Original name if package_type is "deb"
     """
@@ -761,11 +762,11 @@ def get_global_deps() -> List[str]:
     pkg_t = get_package_type_of(installer)
     if pkg_t in "deb":
         pass  # ok already
-    elif pkg_t in DEB_TO_OTHER:
+    elif pkg_t in DISTROS['deb_to_other']:
         global_deps = translate_deb_package_names(global_deps, pkg_t)
     else:
         raise NotImplementedError(
-            "DEB_TO_OTHER (in global_deps) is not implemented for {}"
+            "DISTROS['deb_to_other'] (in global_deps) is not implemented for {}"
             .format(get_installer_description(installer)))
     return global_deps
 

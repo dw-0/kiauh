@@ -50,11 +50,11 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     install_python_packages,
     parse_packages_from_file,
+    get_distros_metadata,
     get_package_installer,
     get_package_type_of,
     get_package_renames,
     translate_deb_package_names,
-    DEB_TO_OTHER,
 )
 
 
@@ -279,10 +279,10 @@ def install_input_shaper_deps() -> None:
     installer = get_package_installer()
     package_t = get_package_type_of(installer)
     _ = get_package_renames(package_type=package_t)
-    # ^ loads saved version of DEB_TO_OTHER if not yet loaded.
+    # ^ loads saved version of DISTROS if not yet loaded.
     if package_t == "deb":
         pass  # Default names are good.
-    elif package_t in DEB_TO_OTHER:
+    elif package_t in get_distros_metadata()['deb_to_other']:
         # NOTE: will be translated by check_install_dependencies, but
         #   check here as an earlier and more explicit error (in
         #   "else").

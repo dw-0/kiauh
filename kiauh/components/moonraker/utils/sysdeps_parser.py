@@ -20,9 +20,6 @@ import re
 import shlex
 from typing import Any, Dict, List, Tuple
 
-from utils.sys_utils import (
-    DEB_TO_OTHER,
-)
 from core import (
     emit_cast,
 )

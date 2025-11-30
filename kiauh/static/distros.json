@@ -1,6 +1,6 @@
 {
   "comments": {
-    "deb_to_other": {
+    "deb_to_other_comments": {
       "alpine": {
         "comment": "packagekit: There is None, so apk-tools which is somewhat related there as a dummy. python3-*: done by wildcard in translate_deb_package_name *except* python3-devel which does *not* shorten to the 'py3-' prefix.",
         "breaking": {
