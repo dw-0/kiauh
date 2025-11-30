@@ -12,6 +12,9 @@
              "satisfies": "mpv-libs pipewire pipewire-dev pipewire-jack wireplumber wireplumber-libs"
           }
         },
+        "untested_keys": [
+          "x11-xserver-utils"
+        ],
         "untested_values": [
           "font-noto-cjk",
           "xorg-server",
@@ -108,7 +111,7 @@
       "xinput": "xinput",
       "cage": "cage",
       "seatd": "seatd",
-      "x11-xserver-utils": "xorg-server-common-extra",
+      "x11-xserver-utils": "xorg-server",
       "xserver-xorg-input-evdev": "xf86-input-evdev",
       "xserver-xorg-input-libinput": "xf86-input-libinput",
       "xserver-xorg-legacy": "xorg-server",
