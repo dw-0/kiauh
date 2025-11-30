@@ -143,7 +143,7 @@ changes!**
 
 <tr>
     <th><h3><a href="https://github.com/fluidd-core/fluidd">Fluidd</a></h3></th>
-    <th><h3><a href="https://github.com/jordanruthe/KlipperScreen">KlipperScreen</a></h3></th>
+    <th><h3><a href="https://github.com/KlipperScreen/KlipperScreen">KlipperScreen</a></h3></th>
     <th><h3><a href="https://github.com/OctoPrint/OctoPrint">OctoPrint</a></h3></th>
 </tr>
 <tr>
@@ -153,7 +153,7 @@ changes!**
 </tr>
 <tr>
     <th>by <a href="https://github.com/fluidd-core">fluidd-core</a></th>
-    <th>by <a href="https://github.com/jordanruthe">jordanruthe</a></th>
+    <th>by <a href="https://github.com/alfrix">alfrix</a></th>
     <th>by <a href="https://github.com/OctoPrint">OctoPrint</a></th>
 </tr>
 
