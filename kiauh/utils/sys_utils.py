@@ -284,7 +284,12 @@ def save_distros_meta(path=None) -> str:
     dest_dir = os.path.dirname(path)
     if not os.path.isdir(dest_dir):
         os.makedirs(dest_dir)
-    tmp = path + ".tmp"  # prevent corrupt file on json exception.
+    print("Saving {}...".format(repr(path)))
+    path = Path(path)
+    if hasattr(path, 'with_suffix'):  # pathlib.Path
+        tmp = path.with_suffix(".tmp")
+    else:
+        tmp = path + ".tmp"  # prevent corrupt file on json exception.
     with open(tmp, 'w') as stream:
         if compare_dict(_DISTROS, _DEFAULT_DISTROS):
             json.dump(_DISTROS, stream, indent=2, sort_keys=True)
@@ -1172,7 +1177,11 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
 
 def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=True,
                           installer: str=None) -> None:
-    tmp = file2 + ".tmp"  # prevent corrupt file on exception.
+    if hasattr(file2, 'with_suffix'):  # pathlib.Path
+        tmp = file2.with_suffix(".tmp")
+    else:
+        tmp = file2 + ".tmp"  # prevent corrupt file on json exception.
+
     with open(file1, "r") as ins:
         with open(tmp, "w") as outs:
             old_lines = ins.readlines()
