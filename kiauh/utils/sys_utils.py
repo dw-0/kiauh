@@ -1190,6 +1190,8 @@ def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=
             for line in new_lines:
                 outs.write(line+"\n")
     shutil.move(tmp, file2)
+    path = Path(file2)  # cast str to Path
+    path.chmod(path.stat().st_mode | os.stat.S_IXUSR | os.stat.S_IXGRP | os.stat.S_IXOTH)
 
 
 def upgrade_system_packages(packages: List[str]) -> None:
