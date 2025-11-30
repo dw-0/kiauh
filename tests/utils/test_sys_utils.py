@@ -5,6 +5,7 @@ import pytest
 from collections import namedtuple, OrderedDict
 
 # Import the functions to test
+from kiauh.core import emit_cast
 from kiauh.utils.sys_utils import get_package_installer, get_package_type_of, namedtuple_to_dict, compare_dict
 from kiauh.utils import sys_utils
 
@@ -272,16 +273,33 @@ def test_split_shell_command():
 
 def test_translate_script_line():
     # installer = get_package_installer()
-    installer = "apt"  # hard-coded for testing
+    installer = "apk"  # hard-coded for testing
     package_type = get_package_type_of(installer)
 
-    assert sys_utils.translate_script_line("apt install ", installer=installer)
+    assert (
+        sys_utils.translate_script_line("apt install ", installer=installer) == "apk add --quiet"
+        or sys_utils.translate_script_line("apt install ", installer=installer) == "apk add --quiet "
+        or sys_utils.translate_script_line("apt install ", installer=installer) == "sudo apk add --quiet"
+        or sys_utils.translate_script_line("apt install ", installer=installer) == "sudo apk add --quiet "
+        or sys_utils.translate_script_line("apt install ", installer=installer) == "doas apk add --quiet"
+        or sys_utils.translate_script_line("apt install ", installer=installer) == "doas apk add --quiet "
+    )
 
     original = 'MISC = "librsvg2-common libopenjp2-7 libdbus-glib-1-dev autoconf python3-venv"\n'
     # ^ \n should get removed:
-    good = 'MISC="librsvg openjpeg dbus-glib-dev autoconf python3"'
+    # good = 'MISC="librsvg openjpeg dbus-glib-dev autoconf python3"'
+    good_set = set(["librsvg", "openjpeg", "dbus-glib-dev", "autoconf", "python3"])
     # ^ python3-venv is built into the python3 package on Alpine.
-    # TODO: assert sys_utils.translate_script_line(original, good)
+    got = sys_utils.translate_script_line(original, installer=installer)
+    parts = got.split("=", 1)
+    assert len(parts) == 2
+    parts[0] = parts[0].strip()
+    parts[1] = parts[1].strip()
+    assert len(parts[1]) > 1, "expected quoted value got {}".format(emit_cast(parts[1]))
+    assert parts[1].startswith('"') is True, "expected quoted value got {}".format(emit_cast(parts[1]))
+    assert parts[1].endswith('"') is True, "expected quoted value got {}".format(emit_cast(parts[1]))
+    got_set = set(parts[1][1:-1].split())
+    assert got_set == good_set
 
 
 def test_translate_deb_package_names():
