@@ -944,18 +944,24 @@ def get_reload_command(echo_if_none: bool=False) -> List[str]:
     return _reload_command
 
 
-def split_shell_command(line: str, command: str, comment_delimiter="#") -> List[str]:
+def split_shell_command(line: str, command: str, comment_delimiter: str="#",
+                        statement_delimiter: str=";") -> List[str]:
     """Split a command into replaceable parts.
 
     :param line: Any shell script command/line.
     :param command: Any command to look for.
+    :param comment_delimiter: Optional start of comment, defaults to
+        "#".
+    :param statement_delimiter: Optional starts of a new statement on
+        the same line, defaults to ";".
     :return: List of: left (anything before command, such as sudo or
         doas unless also is in command--See SUDO for list of detected
         ones), found_command (same as command, but If command is None,
         left will contain everything and other parts will be ""),
         more_args_str (anything before pre_comment, or everything right
-        of command if no comment), pre_comment (whitespace before
-        comment), comment.
+        of command if no comment, pre_comment (whitespace before
+        comment, which may be a statement starting with
+        statement_delimiter), comment.
     """
     left = None
     found_command = None
@@ -992,11 +998,21 @@ def split_shell_command(line: str, command: str, comment_delimiter="#") -> List[
 
         comment_i = line.find(comment_delimiter, command_end)
         more_args_end = len(line)
+        statement_i = line.find(statement_delimiter, command_end)
         if comment_i > -1:
-            more_args_end = comment_i
-            pre_comment_len = len(line[:comment_i]) - len(line[:comment_i].rstrip())
+            if (statement_i > -1) and (statement_i < comment_i):
+                more_args_end = statement_i
+                pre_comment_len = len(line[:statement_i]) - len(line[:statement_i].rstrip())
+                # ^ first capture whitespace to avoid breaking syntax
+                pre_comment_len += comment_i - statement_i
+            else:
+                more_args_end = comment_i
+                pre_comment_len = len(line[:comment_i]) - len(line[:comment_i].rstrip())
             pre_comment = line[comment_i-pre_comment_len:comment_i]
             comment = line[comment_i:]
+        elif statement_i > -1:
+            more_args_end = statement_i
+            pre_comment = line[statement_i:]
         more_args_str = line[command_end:more_args_end].rstrip()
     if left is None:
         left = line

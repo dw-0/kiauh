@@ -259,6 +259,16 @@ def test_split_shell_command():
     assert pre_comment == ""
     assert comment == ""
 
+    left, command, more_args_str, pre_comment, comment = sys_utils.split_shell_command(
+        "if sudo apt install -y $CAGE; then  # some comment",
+        "apt install -y",
+    )
+    assert left == "if sudo "
+    assert command == "apt install -y"
+    assert more_args_str == " $CAGE"
+    assert pre_comment == "; then  "
+    assert comment == "# some comment"
+
 
 def test_translate_script_line():
     # installer = get_package_installer()
@@ -300,9 +310,10 @@ def test_translate_deb_package_names():
         "python3-numpy",
         "python3-dev",
     ], package_type=package_type) == set([
-        "python3",
+        "python",  # is python3 in arch
         # The dev lib is the same package in an arch-based distro.
-        "python-numpy"
+        "python-numpy",
+        "python3",  # confusingly, the dev package for python3
     ])
 
 
