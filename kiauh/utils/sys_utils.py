@@ -93,13 +93,13 @@ PACKAGE_GROUPS = {
         "Development Tools": ["gcc", "g++", "glibc-devel", "dpkg"],
     }
 }
-DISTROS = None
-DEFAULT_DISTROS = None
+_DISTROS = None
+_DEFAULT_DISTROS = None
 
-distros_meta_state = None
-distro_meta_is_default = True
-last_distros_meta_path = None
-distros_meta_scope = None
+_distros_meta_state = None
+_distro_meta_is_default = True
+_last_distros_meta_path = None
+_distros_meta_scope = None
 
 alpine_nginx_script = """
 # kiauh workaround for nginx on Alpine-based Linux distros:
@@ -260,21 +260,23 @@ def save_distros_meta(path=None) -> str:
     :param path: Optional path (Leave this None for recommended
         automatic system/user scope detection), defaults to
         get_package_renames_path()
-    :return: The file path that was saved (global distros_meta_scope is
+    :return: The file path that was saved (global _distros_meta_scope is
         also set if path is None)
     """
-    global distros_meta_state
-    global last_distros_meta_path
-    global distro_meta_is_default
-    global distros_meta_scope
-    first_use = distros_meta_state is None
-    scope = distros_meta_scope
+    global _distros_meta_state
+    global _last_distros_meta_path
+    global _distro_meta_is_default
+    global _distros_meta_scope
+    first_use = _distros_meta_state is None
+    scope = _distros_meta_scope
+    assert _DISTROS is not None, \
+        "save_distros_meta cannot be used before load_distros_meta (_DISTROS is None)"
     if path is None:
         user_path = get_package_renames_path(path=path, scope="user")
         path = get_package_renames_path(path=path)
         scope = "repo"
         if not os.path.isfile(user_path):
-            if not compare_dict(DISTROS, DEFAULT_DISTROS):
+            if not compare_dict(_DISTROS, _DEFAULT_DISTROS):
                 # If differs from default save to user as override.
                 scope = "user"
         if scope == "user":
@@ -284,23 +286,26 @@ def save_distros_meta(path=None) -> str:
         os.makedirs(dest_dir)
     tmp = path + ".tmp"  # prevent corrupt file on json exception.
     with open(tmp, 'w') as stream:
-        if compare_dict(DISTROS, DEFAULT_DISTROS):
-            json.dump(DISTROS, stream, indent=2, sort_keys=True)
+        if compare_dict(_DISTROS, _DEFAULT_DISTROS):
+            json.dump(_DISTROS, stream, indent=2, sort_keys=True)
         else:
-            json.dump(DISTROS, stream, indent=2)
-        distros_meta_scope = scope
-    # distro_meta_is_default = compare_dict(DISTROS DEFAULT_DISTROS)
-    distro_meta_is_default = first_use
+            json.dump(_DISTROS, stream, indent=2)
+        _distros_meta_scope = scope
+    # _distro_meta_is_default = compare_dict(_DISTROS, _DEFAULT_DISTROS)
+    _distro_meta_is_default = first_use
     if os.path.isfile(path):
         os.remove(path)
     shutil.move(tmp, path)
-    distros_meta_state = "saved"
-    last_distros_meta_path = path
+    _distros_meta_state = "saved"
+    _last_distros_meta_path = path
     return path
 
 
 def get_distros_metadata():
-    return DISTROS
+    global _DISTROS
+    if _DISTROS is None:
+        load_distros_meta()
+    return _DISTROS
 
 
 def load_distros_meta(path=None) -> str:
@@ -309,15 +314,15 @@ def load_distros_meta(path=None) -> str:
     :param path: Where to load from (leave alone recommended automatic
         system/user scope detection), defaults to
         get_package_renames_path().
-    :return: The file path that was loaded (global distros_meta_scope is
+    :return: The file path that was loaded (global _distros_meta_scope is
         also set if path is None)
     """
-    global distros_meta_state
-    global last_distros_meta_path
-    global distro_meta_is_default
-    global distros_meta_scope
-    global DISTROS
-    global DEFAULT_DISTROS
+    global _distros_meta_state
+    global _last_distros_meta_path
+    global _distro_meta_is_default
+    global _distros_meta_scope
+    global _DISTROS
+    global _DEFAULT_DISTROS
     scope = None
     if path is None:
         user_path = get_package_renames_path(path=path, scope="user")
@@ -330,36 +335,36 @@ def load_distros_meta(path=None) -> str:
         with open(path, 'r') as stream:
             distros = json.load(stream, object_pairs_hook=OrderedDict)
             renames = distros.get('deb_to_other')
-            distros_meta_scope = scope
+            _distros_meta_scope = scope
         if renames is None:
             print("Warning: No deb_to_other section in {}."
                     " Rename the file to create the default file."
                     .format(path))
 
-        DISTROS = distros
-        if DEFAULT_DISTROS is None:
-            if distros_meta_scope == "repo":
-                DEFAULT_DISTROS = copy.deepcopy(DISTROS)
+        _DISTROS = distros
+        if _DEFAULT_DISTROS is None:
+            if _distros_meta_scope == "repo":
+                _DEFAULT_DISTROS = copy.deepcopy(_DISTROS)
             else:
                 with open(get_package_renames_path(scope="repo"), 'r') as stream:
-                    DEFAULT_DISTROS = json.load(
+                    _DEFAULT_DISTROS = json.load(
                         stream, object_pairs_hook=OrderedDict
                     )
 
-        distro_meta_is_default = compare_dict(DISTROS, DEFAULT_DISTROS)
-        distros_meta_state = "loaded"
-        last_distros_meta_path = path
+        _distro_meta_is_default = compare_dict(_DISTROS, _DEFAULT_DISTROS)
+        _distros_meta_state = "loaded"
+        _last_distros_meta_path = path
         return path
     return None
 
 
 def get_package_renames(path=None, package_type=None):
-    if distros_meta_state is None:
+    if _distros_meta_state is None:
         load_distros_meta(path=path)
     if package_type is None:
         installer = get_package_installer()
         package_type = get_package_type_of(installer)
-    return DISTROS['deb_to_other'].get(package_type)
+    return _DISTROS['deb_to_other'].get(package_type)
 
 
 def translate_deb_package_name(dep: str, package_type: str) -> str:
@@ -368,18 +373,18 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
     :param dep: The package name using deb (Debian) conventions.
     :param package_type: The package type using kiauh conventions
         such as returned by get_package_type_of.
-    :return: Name given the well-known DISTROS['deb_to_other'] or naming
+    :return: Name given the well-known _DISTROS['deb_to_other'] or naming
         convention, otherwise the original dep string.
         Original list of package_type is "deb".
     """
     if package_type == "deb":
         return dep
-    if distros_meta_state is None:
+    if _distros_meta_state is None:
         if not load_distros_meta():
             save_distros_meta()
     if package_type is None:
         raise ValueError("Expected str package_type, got None")
-    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in DISTROS['deb_to_other']), \
+    assert (package_type not in PACKAGE_TYPE_OF_INSTALLER) or (package_type in _DISTROS['deb_to_other']), \
         "Expected package type, got installer."
     distro_renames = get_package_renames(package_type=package_type)
     if not distro_renames:
@@ -413,7 +418,7 @@ def translate_deb_package_names(deps: List[str], package_type: str) -> Set[str]:
     :param dep: The package names using deb (Debian) conventions.
     :param package_type: The package type using kiauh conventions
         such as returned by get_package_type_of.
-    :return: Each name given the well-known DISTROS['deb_to_other'] or naming
+    :return: Each name given the well-known _DISTROS['deb_to_other'] or naming
         convention, otherwise the original dep string.
         Original name if package_type is "deb"
     """
@@ -495,11 +500,11 @@ def get_installer_description(installer: str) -> str:
     pkg_t = get_package_type_of(installer)
     assert pkg_t is not None, \
         "Missing value for PACKAGE_TYPE_OF_INSTALLER[{}]".format(installer)
-    # distros_meta_state
-    if distro_meta_is_default:
+    # _distros_meta_state
+    if _distro_meta_is_default:
         data_msg = "<default>"
     else:
-        data_msg = last_distros_meta_path
+        data_msg = _last_distros_meta_path
     return ("{} via {} (distro metadata: {})"
             .format(pkg_t, installer, data_msg))
 
@@ -760,13 +765,16 @@ def get_global_deps() -> List[str]:
     global_deps = ["git", "wget", "curl", "unzip", "dfu-util", "python3-virtualenv"]
     installer = get_package_installer()
     pkg_t = get_package_type_of(installer)
+    global _DISTROS
+    if _DISTROS is None:
+        load_distros_meta()
     if pkg_t in "deb":
         pass  # ok already
-    elif pkg_t in DISTROS['deb_to_other']:
+    elif pkg_t in _DISTROS['deb_to_other']:
         global_deps = translate_deb_package_names(global_deps, pkg_t)
     else:
         raise NotImplementedError(
-            "DISTROS['deb_to_other'] (in global_deps) is not implemented for {}"
+            "_DISTROS['deb_to_other'] (in global_deps) is not implemented for {}"
             .format(get_installer_description(installer)))
     return global_deps
 
@@ -1438,6 +1446,9 @@ def get_service_file_path(instance_type: type, suffix: str) -> Path:
 
 
 def get_distro_info() -> Tuple[str, str]:
+    global _DISTROS
+    if _DISTROS is None:
+        load_distros_meta()
     distro_info: str = check_output(["cat", "/etc/os-release"]).decode().strip()
 
     if not distro_info:
