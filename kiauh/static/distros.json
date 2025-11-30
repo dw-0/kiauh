@@ -2,7 +2,7 @@
   "comments": {
     "deb_to_other_comments": {
       "alpine": {
-        "comment": "packagekit: There is None, so apk-tools which is somewhat related there as a dummy. python3-*: done by wildcard in translate_deb_package_name *except* python3-devel which does *not* shorten to the 'py3-' prefix.",
+        "comment": "icu: installed by KlipperScreen install script, and warns to install icu-data-full if you need non-English locales and legacy charset support. pipewire-dev: beware, it removes libyuv (a default package on postmarketOS). packagekit: There is None, so apk-tools which is somewhat related there as a dummy. python3-*: done by wildcard in translate_deb_package_name *except* python3-devel which does *not* shorten to the 'py3-' prefix.",
         "breaking": {
           "pipewire-libs": {
              "breaks": "pipewire-dev",
