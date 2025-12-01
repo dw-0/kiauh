@@ -238,25 +238,7 @@ changes!**
 - On first checking dependencies, load tries to run, and if load does not find a ~/.config/kiauh/distros.json, save is called.
 - For save_distros_meta and load_distros_meta, the optional
   "path" argument can be used to change the file location.
-- If creating a new installer, you can simply use the functions
-  in the sys_utils module if no custom behavior is necessary:
-```Python
-from kiauh.utils import sys_utils
-# ^ importing the whole sys_utils module is helpful such as
-#   if you have code completion in your code editor.
-# sys_utils.save_distros_meta()
-from kiauh.utils.common import check_install_dependencies
-deps = ["libusb-1.0"]
-check_install_dependencies(deps)
-# ^ For help using the sys_utils module, read the code of the
-#   check_install_dependencies function and look the docstring
-#   of each function called there.
-# ^ If the "apt" or "apt-get"
-#   command is not detected in the PATH, but the "dnf" or "yum"
-#   command is, then the following will run (including
-#   package name translation, which is automatic):
-#   sudo dnf -y install libusb-1  # or yum if present and dnf is not.
-```
+- For creating a new installer etc., see further details in [contributing.md](contributing.md).
 If you are only trying to use kiauh rather than develop, just run ./kiauh.sh.
 
 <h2 align="center">✨ Credits ✨</h2>
