@@ -264,14 +264,20 @@
     "alpine": {
       "apt-get install --no-install-recommends": "apk add --quiet",
       "apt-get install --yes --no-install-recommends": "apk add --quiet",
-      "apt-get install -y --no-install-recommends": "apk add --quiet"
+      "apt-get install -y --no-install-recommends": "apk add --quiet",
+      "apt-get install --yes": "apk add --quiet",
+      "apt-get install -y": "apk add --quiet",
+      "apt-get install": "apk add --quiet"
     },
     "arch": {
     },
     "rpm": {
       "apt-get install --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install",
       "apt-get install --yes --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install",
-      "apt-get install -y --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install"
+      "apt-get install -y --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install",
+      "apt-get install --yes": "dnf --setopt=install_weak_deps=False -y install",
+      "apt-get install -y": "dnf --setopt=install_weak_deps=False -y install",
+      "apt-get install": "dnf --setopt=install_weak_deps=False -y install"
     }
   },
   "deb_to_other_subcommands_any_args": {

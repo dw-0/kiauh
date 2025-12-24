@@ -270,13 +270,24 @@ def test_split_shell_command():
     assert pre_comment == "; then  "
     assert comment == "# some comment"
 
+def test_distros_metadata():
+    distros = sys_utils.get_distros_metadata()
+    any_order = distros.get('deb_to_other_install_commands_any_order')
+    assert any_order is not None, "deb_to_other_install_commands_any_order is missing from distros.json ({})".format(repr(sys_utils._last_distros_meta_path))
+    if any_order:
+        for old_command in any_order:
+            assert old_command == old_command.strip(), "Each command must *not* start or end in space, or a line can't be translated reliably due to possible required whitespace surrounding it being eaten, but got '{}' in distros.json ({}).".format(old_command, repr(sys_utils._last_distros_meta_path))
+
 
 def test_translate_script_line():
     # installer = get_package_installer()
     installer = "apk"  # hard-coded for testing
-    package_type = get_package_type_of(installer)
+    # package_type = get_package_type_of(installer)
 
-    assert (
+    assert (  # Preserve spacing or not (not important if at end of line).
+        #   sudo or doas (more common on postmarketOS console install) are
+        #   both ok, *or neither* (since original doesn't specify in this case,
+        #   and `deb_to_other_install_commands_any_order` values are not allowed to end with space).
         sys_utils.translate_script_line("apt install ", installer=installer) == "apk add --quiet"
         or sys_utils.translate_script_line("apt install ", installer=installer) == "apk add --quiet "
         or sys_utils.translate_script_line("apt install ", installer=installer) == "sudo apk add --quiet"

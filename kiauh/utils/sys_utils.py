@@ -20,17 +20,25 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from itertools import chain, combinations
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, Popen, check_output, run
-from typing import List, Literal, OrderedDict, Set, Tuple
+from typing import Dict, List, Literal, OrderedDict, Set, Tuple
 
 from core.constants import SYSTEMD
 from core.logger import Logger
 from core import emit_cast
+from itertools import permutations
 from typing import NamedTuple
 from utils.fs_utils import check_file_exist, remove_with_sudo
 from utils.input_utils import get_confirm
 
+distro_cmd_changes = None
+distro_cmd_changes_type = None
+SCRIPT_DIR_VALUES = [  # values that resolve to directory of shell script
+    '"$(dirname "$(readlink -f "${0}")")"',
+    '"$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)"',
+]
 SysCtlServiceAction = Literal[
     "start",
     "stop",
@@ -126,6 +134,25 @@ fi
 if [ -f "/etc/http.d/default.conf" ]; then
     >&2 echo "Warning: default site /etc/nginx/httpd.d/default.conf is present. This may interfere with /etc/nginx/httpd.d/00-fluid.conf"
 fi
+doas nft add rule inet filter input iifname {"lo","wlan0","eth0","en*"} tcp dport 80 counter accept
+doas nft add rule inet filter input tcp dport 80 counter drop
+doas mkdir -p /etc/nftables.d && echo 'add rule inet filter input tcp dport 80 accept comment "Fluidd"' | doas tee /etc/nftables.d/10-fluidd.nft
+ >/dev/null
+
+sudo apk add dhclient
+sudo mkdir -p /etc/NetworkManager/conf.d
+echo "[main]" | sudo tee /etc/NetworkManager/conf.d/dhcp-client.conf
+echo "dhcp=dhclient" | sudo tee -a /etc/NetworkManager/conf.d/dhcp-client.conf
+echo "[connection]" | sudo tee /etc/NetworkManager/conf.d/disable-powersave.conf
+echo "wifi.powersave=2" | sudo tee -a /etc/NetworkManager/conf.d/disable-powersave.conf
+sudo systemctl restart NetworkManager
+cat <<END
+# Manual steps are required for CLI-based connection (Skip this if KlipperScreen's Network panel can add a connection not disrupted by low power state):
+sudo nmcli connection add type wifi con-name "MyWifi" ifname wlan0 ssid "YOUR_SSID" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YOUR_PASSWORD"
+sudo nmcli connection modify MyWifi connection.permissions ""
+sudo nmcli connection up MyWifi
+END
+
 """
 
 
@@ -166,7 +193,7 @@ def get_package_installer() -> str:
     return None
 
 
-def get_package_renames_path(path=None, scope="repo"):
+def get_distros_meta_path(path=None, scope="repo"):
     """Get the path to the distros.json file with metadata for adapting
     to different distros.
 
@@ -260,7 +287,7 @@ def save_distros_meta(path=None) -> str:
 
     :param path: Optional path (Leave this None for recommended
         automatic system/user scope detection), defaults to
-        get_package_renames_path()
+        get_distros_meta_path()
     :return: The file path that was saved (global _distros_meta_scope is
         also set if path is None)
     """
@@ -273,8 +300,8 @@ def save_distros_meta(path=None) -> str:
     assert _DISTROS is not None, \
         "save_distros_meta cannot be used before load_distros_meta (_DISTROS is None)"
     if path is None:
-        user_path = get_package_renames_path(path=path, scope="user")
-        path = get_package_renames_path(path=path)
+        user_path = get_distros_meta_path(path=path, scope="user")
+        path = get_distros_meta_path(path=path)
         scope = "repo"
         if not os.path.isfile(user_path):
             if not compare_dict(_DISTROS, _DEFAULT_DISTROS):
@@ -319,7 +346,7 @@ def load_distros_meta(path=None) -> str:
 
     :param path: Where to load from (leave alone recommended automatic
         system/user scope detection), defaults to
-        get_package_renames_path().
+        get_distros_meta_path().
     :return: The file path that was loaded (global _distros_meta_scope is
         also set if path is None)
     """
@@ -331,8 +358,8 @@ def load_distros_meta(path=None) -> str:
     global _DEFAULT_DISTROS
     scope = None
     if path is None:
-        user_path = get_package_renames_path(path=path, scope="user")
-        path = get_package_renames_path(path=path)
+        user_path = get_distros_meta_path(path=path, scope="user")
+        path = get_distros_meta_path(path=path)
         if os.path.isfile(user_path):
             scope = "user"
         else:
@@ -352,7 +379,7 @@ def load_distros_meta(path=None) -> str:
             if _distros_meta_scope == "repo":
                 _DEFAULT_DISTROS = copy.deepcopy(_DISTROS)
             else:
-                with open(get_package_renames_path(scope="repo"), 'r') as stream:
+                with open(get_distros_meta_path(scope="repo"), 'r') as stream:
                     _DEFAULT_DISTROS = json.load(
                         stream, object_pairs_hook=OrderedDict
                     )
@@ -916,8 +943,8 @@ def install_system_package_group(group: str) -> None:
 
 DEB_RELOADS = ["apt-get update", "apt update"]
 _reload_command = None
-DEB_INSTALLS = ["apt install -y", "apt-get install -y",
-                "apt install", "apt-get install"]
+# DEB_INSTALLS = ["apt install -y", "apt-get install -y",
+#                 "apt install", "apt-get install"]  # See deb_to_other_subcommands_any_order
 PACKAGE_BASH_VARS = ["XSERVER", "CAGE", "PYGOBJECT", "MISC", "OPTIONAL"]
 SUDOS = ["sudo", "doas", "runas"]
 
@@ -1021,27 +1048,41 @@ def split_shell_command(line: str, command: str, comment_delimiter: str="#",
 
 def translate_script_line(line: str, script_path: str=None,
                           line_num: int=None,
-                          installer: str=None) -> str:
+                          installer: str=None,
+                          add_alpine_nginx_script: bool=True,
+                          variables: Dict[str, str] = None) -> str:
     """
     Translate one line of a shell script.
-    :param script_path: Optional path to script (for tracing)
+    :param script_path: Optional path to script (Required if the script
+        calls another script, so the other script can be found).
     :param line_num: Optional line number in script (for tracing)
     :param installer: Optional installer binary name such as "apt" for
         the distro (Set this to avoid multiple calls to
         get_install_command() by storing its return elsewhere).
+    :param add_alpine_nginx_script: Optional workarounds for
+        alpine linux nginx may be added to the script.
+    :param variables: Optional collection where script variables can be
+        used or added.
     :return: The line, with package names translated (or same if deb),
         with any trailing newline removed if present.
         If it is a bash var, the package names will be enclosed
         in double quotes regardless of whether they were before
         (previous single or double quotes are stripped first).
     """
+    if variables is None:
+        variables = {}  # In this case it is a dummy since not
+        #  preserved, but non-None reduces conditional code below.
+    global distro_cmd_changes
+    global distro_cmd_changes_type
     reload_str = " ".join(get_reload_command(echo_if_none=True))
+    distros = get_distros_metadata()
     if installer is None:
         installer = get_package_installer()
-    new_install = get_install_command(installer=installer)
-    install_str = " ".join(new_install)
+    # new_install = get_install_command(installer=installer)
+    # install_str = " ".join(new_install)
     package_type = get_package_type_of(installer)
     if package_type == "deb":
+        # Current OS is deb-based so *skip translation completely*.
         return line.rstrip()
     line = line.rstrip()
     tab_len = len(line) - len(line.lstrip())
@@ -1049,8 +1090,60 @@ def translate_script_line(line: str, script_path: str=None,
     # ^ split_shell_command should handle tab (as part of pre_command),
     #   but get it here for explicitness.
     line = line.lstrip()
-
-    for old_install in DEB_INSTALLS:
+    if distro_cmd_changes_type != package_type:
+        distro_cmd_changes = None
+    if distro_cmd_changes is None:
+        distro_cmd_changes = OrderedDict()
+        for cmd_key in ['deb_to_other_install_commands_any_order',
+                        'deb_to_other_subcommands_any_args']:
+            assert cmd_key in distros, \
+                '{} is missing from settings'.format(cmd_key)
+            assert package_type in distros[cmd_key], \
+                '{}[{}] is missing from settings'.format(cmd_key, package_type)
+            # Sort from largest to smallest to avoid rewriting a command
+            #   partially (Make sure "apt install -y" is detected before
+            #   "apt install"):
+            if cmd_key.endswith('_any_args'):
+                long_keys = distros[cmd_key].keys()
+                keys = []
+                for long_key in long_keys:
+                    args_idx = None
+                    parts = long_key.split()
+                    for try_idx in range(len(parts)):
+                        if parts[try_idx].startswith("-"):
+                            args_idx = try_idx
+                            break
+                    if args_idx is not None:
+                        args_l = list(parts[args_idx:])
+                        for subset in chain.from_iterable(combinations(args_l, r) for r in range(1, len(args_l) + 1)):
+                            keys.append(" ".join(parts[:args_idx]+subset))
+                        keys.append(" ".join(parts[:args_idx]))
+                    else:
+                        keys.append(long_key)
+            else:
+                keys = distros[cmd_key].keys()
+            keys = sorted(keys, key=len, reverse=True)
+            for this_deb_cmd in keys:
+                this_new_cmd = distros[cmd_key][this_deb_cmd]
+                this_cmd_parts = this_deb_cmd.strip().split()
+                other_cmd = "apt"
+                if this_cmd_parts[0] == "apt":
+                    other_cmd = "apt-get"
+                for this_bin in (this_cmd_parts[0], other_cmd):
+                    reorder_idx = 1
+                    if not this_cmd_parts[1].startswith("-"):
+                        print("Not reordering subcommand {}"
+                            .format(repr(this_cmd_parts[1])))
+                        # ^ such as 'install'
+                        reorder_idx = 2
+                    for perm in permutations(this_cmd_parts[reorder_idx:]):
+                        # Insert permuted part back into the list
+                        resulting_list = (
+                            [this_bin] + this_cmd_parts[1:reorder_idx] + list(perm))
+                        key = " ".join(resulting_list)
+                        distro_cmd_changes[key] = this_new_cmd
+        print("Processing replacements: {}".format(json.dumps(distro_cmd_changes, indent=2)))
+    for old_install, install_str in distro_cmd_changes.items():
         pre_command, command, more_args_str, pre_comment, comment = split_shell_command(
             line,
             old_install,
@@ -1107,11 +1200,61 @@ def translate_script_line(line: str, script_path: str=None,
             line = tab + line[:start] + reload_str + "  # " + line[cmd_end:]
             return line
 
+    for var_name, value in variables.items():
+        placeholders = ['${' + var_name + '}', '$' + var_name]
+        for placeholder in placeholders:
+            name_idx = line.find(placeholder)
+            if name_idx < 0:
+                continue
+            sub_idx = name_idx + len(placeholder)
+            # Characters that typically terminate a path in config/strings
+            terminators = ' \t,"\''
+
+            # Find the earliest occurrence of any terminator in the remaining string
+            end_idx = len(line)  # default: goes to end of line
+            for char in terminators:
+                pos = line.find(char, sub_idx)
+                if pos != -1 and pos < end_idx:
+                    end_idx = pos
+
+            sub = line[sub_idx:end_idx]
+            try_path = os.path.join(value, sub)
+            if os.path.isfile(try_path):
+                new_suffix = ".kiauh-translated.sh"
+                new_path = try_path + new_suffix
+                translate_script_file(
+                    try_path,
+                    new_path,
+                    add_alpine_nginx_script=add_alpine_nginx_script,
+                    installer=installer,
+                )
+                mode = os.stat(new_path).st_mode
+                mode |= stat.S_IXUSR  # make executable for user
+                os.chmod(new_path, mode)
+                return tab + line[:end_idx] + new_suffix + line[end_idx:]
+            else:
+                Logger.warn(
+                    "{} is not a file, so commands won't be translated"
+                    " to {} if it is a called script."
+                    .format(try_path, package_type))
+
     op_idx = line.find("=")
     if op_idx > -1:
         left = line[:op_idx].rstrip()
-        if left in PACKAGE_BASH_VARS:
-            right = line[op_idx+1:].strip()
+        var_name = left.strip()
+        right = line[op_idx+1:].strip()
+        if right in SCRIPT_DIR_VALUES:
+            if script_path:
+                variables[var_name] = os.dirname(script_path)
+                Logger.print_info(
+                    "Detected {}={}"
+                    .format(var_name, variables[var_name]))
+                return tab + line
+            else:
+                Logger.print_warn(
+                    "There is no script_path, so can't resolve {}"
+                    .format(repr(right)))
+        if var_name in PACKAGE_BASH_VARS:
             packages_end = len(right)
             comment_i = right.find("#")
             comment = ""
@@ -1166,6 +1309,7 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
     package_type = get_package_type_of(installer)
     command = get_install_command(installer=installer)
     lines = []
+    variables = {}
     for line in old_lines:
         line_num += 1  # start at 1.
         if line_num == 2:
@@ -1176,6 +1320,8 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
             installer=installer,
             script_path=script_path,
             line_num=line_num,
+            add_alpine_nginx_script=add_alpine_nginx_script,
+            variables=variables,
         )
         if package_type == "alpine":
             if ("nginx" in line) and (installer in line):
