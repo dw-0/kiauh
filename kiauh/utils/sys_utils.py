@@ -1150,9 +1150,10 @@ def translate_script_line(line: str, script_path: str=None,
                     reorder_idx = 1
                     if len(this_cmd_parts) < 2:
                         reorder_idx = len(this_cmd_parts)  # no args to reorder
-                    elif not this_cmd_parts[1].startswith("-"):
-                        # such as 'install'--reorder only options after it
-                        reorder_idx = 2
+                    # elif not this_cmd_parts[1].startswith("-"):
+                    #     # such as 'install'--reorder only options after it
+                    #     reorder_idx = 2
+                    # ^ -q can come before 'update', so even reorder subcommand
                     if reorder_idx < len(this_cmd_parts):
                         for perm in permutations(this_cmd_parts[reorder_idx:]):
                             # Insert permuted part back into the list
