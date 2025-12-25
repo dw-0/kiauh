@@ -79,14 +79,12 @@ def install_crowsnest() -> None:
     if os.path.isdir(CROWSNEST_DIR_NEW):
         shutil.rmtree(CROWSNEST_DIR_NEW)
     shutil.copytree(CROWSNEST_DIR, CROWSNEST_DIR_NEW)
-    variables = {}
     installer = get_package_installer()
     translate_script_file(
         os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
         os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
         add_alpine_nginx_script=False,
         installer=installer,
-        variables=variables,
     )
     try:
         run(

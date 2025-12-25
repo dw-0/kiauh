@@ -1285,7 +1285,8 @@ def get_edit_comment(installer: str) -> str:
 
 
 def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
-                     installer: str=None, script_path: str=None) -> List[str]:
+                     installer: str=None, script_path: str=None,
+                     variables: Dict[str, str]=None) -> List[str]:
     """Translate a shell script's apt or apt-get commands to the given distro.
     See translate_script_line for details.
 
@@ -1307,7 +1308,8 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
     package_type = get_package_type_of(installer)
     command = get_install_command(installer=installer)
     lines = []
-    variables = {}
+    if variables is None:
+        variables = {}
     for line in old_lines:
         line_num += 1  # start at 1.
         if line_num == 2:
@@ -1343,11 +1345,17 @@ def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=
     else:
         tmp = file2 + ".tmp"  # prevent corrupt file on json exception.
     print("Creating translated {}".format(repr(file2)))
+    variables = {}
     with open(file1, "r") as ins:
         with open(tmp, "w") as outs:
             old_lines = ins.readlines()
-            new_lines = translate_script(old_lines, add_alpine_nginx_script=add_alpine_nginx_script,
-                                         installer=installer, script_path=file1)
+            new_lines = translate_script(
+                old_lines,
+                add_alpine_nginx_script=add_alpine_nginx_script,
+                installer=installer,
+                script_path=file1,
+                variables=variables,
+            )
             for line in new_lines:
                 outs.write(line+"\n")
     if os.path.isfile(file2):
