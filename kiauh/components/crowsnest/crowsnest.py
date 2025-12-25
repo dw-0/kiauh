@@ -8,6 +8,7 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import os
 import shutil
 import time
 from pathlib import Path
@@ -41,7 +42,9 @@ from utils.input_utils import get_confirm
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
     cmd_sysctl_service,
+    get_package_installer,
     parse_packages_from_file,
+    translate_script_file,
 )
 
 
@@ -69,10 +72,26 @@ def install_crowsnest() -> None:
     # Step 4: Launch crowsnest installer
     Logger.print_status("Launching crowsnest installer ...")
     Logger.print_info("Installer will prompt you for sudo password!")
+
+    # The use of this script is only implied (called indirectly by sudo
+    #   make install) so translation must be triggered manually:
+    CROWSNEST_DIR_NEW = CROWSNEST_DIR + ".kiauh-translated"
+    if os.path.isdir(CROWSNEST_DIR_NEW):
+        shutil.rmtree(CROWSNEST_DIR_NEW)
+    shutil.copytree(CROWSNEST_DIR, CROWSNEST_DIR_NEW)
+    variables = {}
+    installer = get_package_installer()
+    translate_script_file(
+        os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
+        os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
+        add_alpine_nginx_script=False,
+        installer=installer,
+        variables=variables,
+    )
     try:
         run(
             "sudo make install",
-            cwd=CROWSNEST_DIR,
+            cwd=CROWSNEST_DIR_NEW,
             shell=True,
             check=True,
         )

@@ -941,10 +941,10 @@ def install_system_package_group(group: str) -> None:
         Logger.print_error(f"Error installing '{group}' package group:\n{e.stderr.decode()}")
         raise
 
-DEB_RELOADS = ["apt-get update", "apt update"]
+DEB_RELOADS = ["apt-get update", "apt update"]  # TODO: use deb_to_other_subcommands_any_args
 _reload_command = None
 # DEB_INSTALLS = ["apt install -y", "apt-get install -y",
-#                 "apt install", "apt-get install"]  # See deb_to_other_subcommands_any_order
+#                 "apt install", "apt-get install"]  # Use deb_to_other_install_commands_any_order
 PACKAGE_BASH_VARS = ["XSERVER", "CAGE", "PYGOBJECT", "MISC", "OPTIONAL"]
 SUDOS = ["sudo", "doas", "runas"]
 
@@ -1228,9 +1228,7 @@ def translate_script_line(line: str, script_path: str=None,
                     add_alpine_nginx_script=add_alpine_nginx_script,
                     installer=installer,
                 )
-                mode = os.stat(new_path).st_mode
-                mode |= stat.S_IXUSR  # make executable for user
-                os.chmod(new_path, mode)
+                # ^ Generates new_path & makes it executable
                 return tab + line[:end_idx] + new_suffix + line[end_idx:]
             else:
                 Logger.warn(
@@ -1352,6 +1350,8 @@ def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=
                                          installer=installer, script_path=file1)
             for line in new_lines:
                 outs.write(line+"\n")
+    if os.path.isfile(file2):
+        os.remove(file2)
     shutil.move(tmp, file2)
     path = Path(file2)  # cast str to Path
     path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
