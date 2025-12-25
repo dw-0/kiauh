@@ -73,7 +73,7 @@ def install_crowsnest() -> None:
     Logger.print_status("Launching crowsnest installer ...")
     Logger.print_info("Installer will prompt you for sudo password!")
 
-    # The use of this script is only implied (called indirectly by sudo
+    # The use of these scripts are only implied (called indirectly by sudo
     #   make install) so translation must be triggered manually:
     CROWSNEST_DIR_NEW = str(CROWSNEST_DIR) + ".kiauh-translated"
     if os.path.isdir(CROWSNEST_DIR_NEW):
@@ -83,6 +83,22 @@ def install_crowsnest() -> None:
     translate_script_file(
         os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
         os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
+        add_alpine_nginx_script=False,
+        installer=installer,
+        new_suffix="",  # Overwrite existing scripts when translating
+        #  so that make install can find them.
+    )
+    translate_script_file(
+        os.path.join(CROWSNEST_DIR_NEW, "tools/libs/pkglist-generic.sh"),
+        os.path.join(CROWSNEST_DIR_NEW, "tools/libs/pkglist-generic.sh"),
+        add_alpine_nginx_script=False,
+        installer=installer,
+        new_suffix="",  # Overwrite existing scripts when translating
+        #  so that make install can find them.
+    )
+    translate_script_file(
+        os.path.join(CROWSNEST_DIR_NEW, "tools/libs/pkglist-rpi.sh"),
+        os.path.join(CROWSNEST_DIR_NEW, "tools/libs/pkglist-rpi.sh"),
         add_alpine_nginx_script=False,
         installer=installer,
         new_suffix="",  # Overwrite existing scripts when translating
