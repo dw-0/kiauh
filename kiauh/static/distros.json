@@ -7,6 +7,8 @@
     "deb_to_other_comments": {
       "alpine": {
         "_info_keys": {
+          "bsdutils": "Why crowsnest wants bsdutils rather than coreutils is unclear.",
+          "crudini": "Why crowsnest wants crudini is unclear (trivial to reimplement and not packaged on some distros). Maybe reimplement or install manually.",
           "icu": "installed by KlipperScreen install script, and warns to install icu-data-full if you need non-English locales and legacy charset support.",
           "packagekit": "There is no equivalent to packagekit, so apk-tools which is somewhat related there as a dummy."
         },
@@ -129,9 +131,11 @@
   "deb_to_other": {
     "alpine": {
       "autoconf": "autoconf",
+      "bsdutils": "coreutils",
       "build-essential": "build-base",
       "cage": "cage",
       "cmake": "cmake",
+      "crudini": "inih",
       "fonts-ipafont": "font-ipa",
       "fonts-nanum": "font-noto-cjk",
       "gir1.2-gtk-3.0": "gtk+3.0-dev",
@@ -173,6 +177,7 @@
     },
     "arch": {
       "autoconf": "autoconf",
+      "bsdutils": "coreutils",
       "build-essential": "base-devel",
       "cage": "cage",
       "cmake": "cmake",
@@ -217,6 +222,7 @@
     },
     "rpm": {
       "autoconf": "autoconf",
+      "bsdutils": "coreutils",
       "build-essential": "Development Tools",
       "cage": "cage",
       "cmake": "cmake",
