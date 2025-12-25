@@ -1251,7 +1251,7 @@ def translate_script_line(line: str, script_path: str=None,
         right = line[op_idx+1:].strip()
         if right in SCRIPT_DIR_VALUES:
             if script_path:
-                variables[var_name] = os.dirname(script_path)
+                variables[var_name] = os.path.dirname(script_path)
                 Logger.print_info(
                     "Detected {}={}"
                     .format(var_name, variables[var_name]))
