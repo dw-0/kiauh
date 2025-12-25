@@ -1055,7 +1055,8 @@ def translate_script_line(line: str, script_path: str=None,
                           line_num: int=None,
                           installer: str=None,
                           add_alpine_nginx_script: bool=True,
-                          variables: Dict[str, str] = None) -> str:
+                          variables: Dict[str, str] = None,
+                          new_suffix: str=".kiauh-translated.sh") -> str:
     """
     Translate one line of a shell script.
     :param script_path: Optional path to script (Required if the script
@@ -1068,6 +1069,9 @@ def translate_script_line(line: str, script_path: str=None,
         alpine linux nginx may be added to the script.
     :param variables: Optional collection where script variables can be
         used or added.
+    :param new_suffix: Optional extension for translating called scripts
+        automatically (Set to "" if other programs such as make need to
+        access the scripts, so the original with be overwritten!)
     :return: The line, with package names translated (or same if deb),
         with any trailing newline removed if present.
         If it is a bash var, the package names will be enclosed
@@ -1246,7 +1250,6 @@ def translate_script_line(line: str, script_path: str=None,
                 sub = sub[1:]
             try_path = os.path.join(value, sub)
             if os.path.isfile(try_path):
-                new_suffix = ".kiauh-translated.sh"
                 new_path = try_path + new_suffix
                 translate_script_file(
                     try_path,
@@ -1312,7 +1315,9 @@ def get_edit_comment(installer: str) -> str:
 
 def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
                      installer: str=None, script_path: str=None,
-                     variables: Dict[str, str]=None) -> List[str]:
+                     variables: Dict[str, str]=None,
+                     new_suffix: str=".kiauh-translated.sh") -> List[str]:
+
     """Translate a shell script's apt or apt-get commands to the given distro.
     See translate_script_line for details.
 
@@ -1326,6 +1331,9 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
         installers in PATH
     :param script_path: Optional script being read (for tracing),
         defaults to None
+    :param new_suffix: Optional extension for translating called scripts
+        automatically (Set to "" if other programs such as make need to
+        access the scripts, so the original with be overwritten!)
     :return: The translated script.
     """
     line_num = 0
@@ -1348,6 +1356,7 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
             line_num=line_num,
             add_alpine_nginx_script=add_alpine_nginx_script,
             variables=variables,
+            new_suffix=new_suffix,
         )
         if package_type == "alpine":
             if ("nginx" in line) and (installer in line):
@@ -1365,7 +1374,9 @@ def translate_script(old_lines: List[str], add_alpine_nginx_script: bool=True,
 
 
 def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=True,
-                          installer: str=None) -> None:
+                          installer: str=None, new_suffix: str=".kiauh-translated.sh") -> None:
+    """Translate file to file. See translate_script for options and other details.
+    """
     if hasattr(file2, 'with_suffix'):  # pathlib.Path
         tmp = file2.with_suffix(".tmp")
     else:
@@ -1381,6 +1392,7 @@ def translate_script_file(file1: str, file2: str, add_alpine_nginx_script: bool=
                 installer=installer,
                 script_path=file1,
                 variables=variables,
+                new_suffix=new_suffix,
             )
             for line in new_lines:
                 outs.write(line+"\n")

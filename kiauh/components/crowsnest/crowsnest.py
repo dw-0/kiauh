@@ -85,6 +85,8 @@ def install_crowsnest() -> None:
         os.path.join(CROWSNEST_DIR_NEW, "tools/install.sh"),
         add_alpine_nginx_script=False,
         installer=installer,
+        new_suffix="",  # Overwrite existing scripts when translating
+        #  so that make install can find them.
     )
     try:
         run(
