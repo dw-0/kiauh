@@ -1237,6 +1237,8 @@ def translate_script_line(line: str, script_path: str=None,
                     end_idx = pos
 
             sub = line[sub_idx:end_idx]
+            if sub.startswith("/"):
+                sub = sub[1:]
             try_path = os.path.join(value, sub)
             if os.path.isfile(try_path):
                 new_suffix = ".kiauh-translated.sh"
