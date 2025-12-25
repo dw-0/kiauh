@@ -1104,7 +1104,7 @@ def translate_script_line(line: str, script_path: str=None,
             #   partially (Make sure "apt install -y" is detected before
             #   "apt install"):
             if cmd_key.endswith('_any_args'):
-                long_keys = distros[cmd_key].keys()
+                long_keys = distros[cmd_key][package_type].keys()
                 keys = []
                 for long_key in long_keys:
                     args_idx = None
@@ -1121,10 +1121,10 @@ def translate_script_line(line: str, script_path: str=None,
                     else:
                         keys.append(long_key)
             else:
-                keys = distros[cmd_key].keys()
+                keys = distros[cmd_key][package_type].keys()
             keys = sorted(keys, key=len, reverse=True)
             for this_deb_cmd in keys:
-                this_new_cmd = distros[cmd_key][this_deb_cmd]
+                this_new_cmd = distros[cmd_key][package_type][this_deb_cmd]
                 this_cmd_parts = this_deb_cmd.strip().split()
                 other_cmd = "apt"
                 if this_cmd_parts[0] == "apt":
