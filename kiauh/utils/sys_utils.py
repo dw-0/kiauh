@@ -1116,7 +1116,7 @@ def translate_script_line(line: str, script_path: str=None,
                     if args_idx is not None:
                         args_l = list(parts[args_idx:])
                         for subset in chain.from_iterable(combinations(args_l, r) for r in range(1, len(args_l) + 1)):
-                            keys.append(" ".join(parts[:args_idx]+subset))
+                            keys.append(" ".join(parts[:args_idx]+list(subset)))
                         keys.append(" ".join(parts[:args_idx]))
                     else:
                         keys.append(long_key)
