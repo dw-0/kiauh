@@ -319,31 +319,31 @@ def test_translate_deb_package_names():
     assert sys_utils.translate_deb_package_names([
         "python3-numpy",
         "python3-dev",
-    ], package_type=package_type) == set([
+    ], package_type=package_type) == [
         "python3-numpy",
         "python3-dev",
-    ])
+    ]
     installer = "apk"  # hard-coded for testing
     package_type = get_package_type_of(installer)
     assert sys_utils.translate_deb_package_names([
         "python3-numpy",
         "python3-dev",
-    ], package_type=package_type) == set([
+    ], package_type=package_type) == [
         "py3-numpy",
         "python3-dev",
-    ])
+    ]
     installer = "pacman"  # hard-coded for testing
     package_type = get_package_type_of(installer)
     assert sys_utils.translate_deb_package_names([
         "python3",
         "python3-numpy",
         "python3-dev",
-    ], package_type=package_type) == set([
+    ], package_type=package_type) == [
         "python",  # is python3 in arch
         # The dev lib is the same package in an arch-based distro.
         "python-numpy",
         "python3",  # confusingly, the dev package for python3
-    ])
+    ]
 
 
 def test_translate_deb_package_name():

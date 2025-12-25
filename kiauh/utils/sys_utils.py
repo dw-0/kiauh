@@ -446,9 +446,11 @@ def translate_deb_package_name(dep: str, package_type: str) -> str:
     return new_dep
 
 
-def translate_deb_package_names(deps: List[str], package_type: str) -> Set[str]:
+def translate_deb_package_names(deps: List[str], package_type: str) -> List[str]:
     """
     Get this platform's non-deb name for each deb package.
+    The order is preserved for loose usage such as when there
+    are pipes or other syntax after the packages.
     :param dep: The package names using deb (Debian) conventions.
     :param package_type: The package type using kiauh conventions
         such as returned by get_package_type_of.
@@ -457,20 +459,22 @@ def translate_deb_package_names(deps: List[str], package_type: str) -> Set[str]:
         Original name if package_type is "deb"
     """
     if package_type == "deb":
-        return set(deps)
-    new_deps = set()
+        return deps
+    new_deps = []
     for dep in deps:
         new_dep = translate_deb_package_name(
             dep,
             package_type=package_type,
         )
         if new_dep:
-            new_deps.add(new_dep)
+            if new_dep not in new_deps:
+                new_deps.append(new_dep)
         if package_type == "alpine":
             if new_dep == "nginx":
                 # Help with the transition from
                 #   systemd.
-                new_deps.add("nginx-systemd")
+                if "nginx-systemd" not in new_deps:
+                    new_deps.append("nginx-systemd")
     return new_deps
 
 
@@ -1108,6 +1112,7 @@ def translate_script_line(line: str, script_path: str=None,
             #   partially (Make sure "apt install -y" is detected before
             #   "apt install"):
             if cmd_key.endswith('_any_args'):
+                # Add all subsets (permutations are done later)
                 long_keys = distros[cmd_key][package_type].keys()
                 keys = []
                 for long_key in long_keys:
@@ -1129,6 +1134,7 @@ def translate_script_line(line: str, script_path: str=None,
                     else:
                         keys.append(long_key)
             else:
+                # Add command and args (all permutations are done later)
                 keys = distros[cmd_key][package_type].keys()
             keys = sorted(keys, key=len, reverse=True)
             for this_deb_cmd in keys:
@@ -1145,9 +1151,7 @@ def translate_script_line(line: str, script_path: str=None,
                     if len(this_cmd_parts) < 2:
                         reorder_idx = len(this_cmd_parts)  # no args to reorder
                     elif not this_cmd_parts[1].startswith("-"):
-                        print("Not reordering subcommand {}"
-                            .format(repr(this_cmd_parts[1])))
-                        # ^ such as 'install'
+                        # such as 'install'--reorder only options after it
                         reorder_idx = 2
                     if reorder_idx < len(this_cmd_parts):
                         for perm in permutations(this_cmd_parts[reorder_idx:]):
@@ -1171,10 +1175,10 @@ def translate_script_line(line: str, script_path: str=None,
             pre_packages_len = len(more_args_str) - len(more_args_str.lstrip())
             pre_packages = more_args_str[:pre_packages_len]
             old_packages = more_args_str.strip().split()
-            packages = set(translate_deb_package_names(
+            packages = translate_deb_package_names(
                 old_packages,
                 package_type,
-            ))
+            )
             # This is done in split_shell_command but
             #   in this case it may still have sudo
             #   since DEB_COMMANDS entries don't start
