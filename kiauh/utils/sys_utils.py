@@ -1131,15 +1131,23 @@ def translate_script_line(line: str, script_path: str=None,
                     other_cmd = "apt-get"
                 for this_bin in (this_cmd_parts[0], other_cmd):
                     reorder_idx = 1
-                    if not this_cmd_parts[1].startswith("-"):
+                    if len(this_cmd_parts) < 2:
+                        reorder_idx = len(this_cmd_parts)  # no args to reorder
+                    elif not this_cmd_parts[1].startswith("-"):
                         print("Not reordering subcommand {}"
                             .format(repr(this_cmd_parts[1])))
                         # ^ such as 'install'
                         reorder_idx = 2
-                    for perm in permutations(this_cmd_parts[reorder_idx:]):
-                        # Insert permuted part back into the list
-                        resulting_list = (
-                            [this_bin] + this_cmd_parts[1:reorder_idx] + list(perm))
+                    if reorder_idx < len(this_cmd_parts):
+                        for perm in permutations(this_cmd_parts[reorder_idx:]):
+                            # Insert permuted part back into the list
+                            resulting_list = (
+                                [this_bin] + this_cmd_parts[1:reorder_idx] + list(perm))
+                            key = " ".join(resulting_list)
+                            # this_new_cmd is always the one in distros.json:
+                            distro_cmd_changes[key] = this_new_cmd
+                    else:
+                        resulting_list = [this_bin] + this_cmd_parts[1:]
                         key = " ".join(resulting_list)
                         distro_cmd_changes[key] = this_new_cmd
         print("Processing replacements: {}".format(json.dumps(distro_cmd_changes, indent=2)))
