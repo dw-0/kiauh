@@ -951,6 +951,8 @@ _reload_command = None
 # DEB_INSTALLS = ["apt install -y", "apt-get install -y",
 #                 "apt install", "apt-get install"]  # Use deb_to_other_install_commands_any_order
 PACKAGE_BASH_VARS = ["XSERVER", "CAGE", "PYGOBJECT", "MISC", "OPTIONAL"]
+PACKAGE_BASH_VARS += ["PKGLIST"]  # Crowsnest
+
 SUDOS = ["sudo", "doas", "runas"]
 
 
@@ -1100,6 +1102,14 @@ def translate_script_line(line: str, script_path: str=None,
     # ^ split_shell_command should handle tab (as part of pre_command),
     #   but get it here for explicitness.
     line = line.lstrip()
+    initial_parts = line.strip().split()  # NOTE: "" splits to []!
+    if initial_parts and initial_parts[0] == "check_dep":
+        # bash function such as from core.sh in crowsnest
+        if initial_parts[1].startswith('"'):
+            assert initial_parts[1].endswith('"')
+        return tab + initial_parts[0] + ' "{}"'.format(
+            translate_deb_package_name(initial_parts[1].strip('"'),
+                                       package_type))
     if distro_cmd_changes_type != package_type:
         distro_cmd_changes = None
     if distro_cmd_changes is None:
@@ -1171,6 +1181,7 @@ def translate_script_line(line: str, script_path: str=None,
                         key = " ".join(resulting_list)
                         distro_cmd_changes[key] = this_new_cmd
         print("Processing replacements: {}".format(json.dumps(distro_cmd_changes, indent=2)))
+
     for old_install, install_str in distro_cmd_changes.items():
         pre_command, command, more_args_str, pre_comment, comment = split_shell_command(
             line,
