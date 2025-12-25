@@ -1239,7 +1239,7 @@ def translate_script_line(line: str, script_path: str=None,
                 # ^ Generates new_path & makes it executable
                 return tab + line[:end_idx] + new_suffix + line[end_idx:]
             else:
-                Logger.warn(
+                Logger.print_warn(
                     "{} is not a file, so commands won't be translated"
                     " to {} if it is a called script."
                     .format(try_path, package_type))
