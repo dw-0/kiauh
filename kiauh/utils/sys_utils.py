@@ -35,6 +35,7 @@ from utils.input_utils import get_confirm
 
 distro_cmd_changes = None
 distro_cmd_changes_type = None
+key_of_permutation = None
 SCRIPT_DIR_VALUES = [  # values that resolve to directory of shell script
     '"$(dirname "$(readlink -f "${0}")")"',
     '"$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)"',
@@ -1074,6 +1075,7 @@ def translate_script_line(line: str, script_path: str=None,
         #  preserved, but non-None reduces conditional code below.
     global distro_cmd_changes
     global distro_cmd_changes_type
+    global key_of_permutation
     reload_str = " ".join(get_reload_command(echo_if_none=True))
     distros = get_distros_metadata()
     if installer is None:
@@ -1093,7 +1095,9 @@ def translate_script_line(line: str, script_path: str=None,
     if distro_cmd_changes_type != package_type:
         distro_cmd_changes = None
     if distro_cmd_changes is None:
+        distro_cmd_changes_type = package_type
         distro_cmd_changes = OrderedDict()
+        key_of_permutation = {}
         for cmd_key in ['deb_to_other_install_commands_any_order',
                         'deb_to_other_subcommands_any_args']:
             assert cmd_key in distros, \
@@ -1116,15 +1120,22 @@ def translate_script_line(line: str, script_path: str=None,
                     if args_idx is not None:
                         args_l = list(parts[args_idx:])
                         for subset in chain.from_iterable(combinations(args_l, r) for r in range(1, len(args_l) + 1)):
-                            keys.append(" ".join(parts[:args_idx]+list(subset)))
-                        keys.append(" ".join(parts[:args_idx]))
+                            generated_key = " ".join(parts[:args_idx]+list(subset))
+                            keys.append(generated_key)
+                            key_of_permutation[generated_key] = long_key
+                        generated_key = " ".join(parts[:args_idx])
+                        keys.append(generated_key)
+                        key_of_permutation[generated_key] = long_key
                     else:
                         keys.append(long_key)
             else:
                 keys = distros[cmd_key][package_type].keys()
             keys = sorted(keys, key=len, reverse=True)
             for this_deb_cmd in keys:
-                this_new_cmd = distros[cmd_key][package_type][this_deb_cmd]
+                this_cmd_key = key_of_permutation.get(this_deb_cmd)
+                if this_cmd_key is None:
+                    this_cmd_key = this_deb_cmd
+                this_new_cmd = distros[cmd_key][package_type][this_cmd_key]
                 this_cmd_parts = this_deb_cmd.strip().split()
                 other_cmd = "apt"
                 if this_cmd_parts[0] == "apt":
