@@ -75,7 +75,7 @@ def install_crowsnest() -> None:
 
     # The use of this script is only implied (called indirectly by sudo
     #   make install) so translation must be triggered manually:
-    CROWSNEST_DIR_NEW = CROWSNEST_DIR + ".kiauh-translated"
+    CROWSNEST_DIR_NEW = str(CROWSNEST_DIR) + ".kiauh-translated"
     if os.path.isdir(CROWSNEST_DIR_NEW):
         shutil.rmtree(CROWSNEST_DIR_NEW)
     shutil.copytree(CROWSNEST_DIR, CROWSNEST_DIR_NEW)
