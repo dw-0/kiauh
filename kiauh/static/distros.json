@@ -8,7 +8,7 @@
       "alpine": {
         "_info_keys": {
           "bsdutils": "Why crowsnest wants bsdutils rather than coreutils is unclear.",
-          "crudini": "Why crowsnest wants crudini is unclear (trivial to reimplement and not packaged on some distros). Maybe reimplement or install manually.",
+          "crudini": "Why crowsnest wants crudini is unclear (trivial to reimplement and not packaged on some distros). Maybe reimplement or install manually. Is it just for adding an updater entry in moonraker.conf? If so that is N/A since installed with kiauh patches.",
           "icu": "installed by KlipperScreen install script, and warns to install icu-data-full if you need non-English locales and legacy charset support.",
           "packagekit": "There is no equivalent to packagekit, so apk-tools which is somewhat related there as a dummy."
         },
