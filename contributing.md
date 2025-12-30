@@ -29,6 +29,24 @@ check_install_dependencies(deps)
 #   sudo dnf -y install libusb-1  # or yum if present and dnf is not.
 ```
 
+Testing or usage of the system without kiauh:
+```
+git clone https://github.com/mainsail-crew/moonraker-timelapse.git ~/moonraker-timelapse
+cd ~/moonraker-timelapse
+```
+then (change ~/kiauh to the location of kiauh below and) run this in that directory for example, otherwise change scripts/install.sh to the location of the script you want to translate to your detected package management system:
+```
+#!/usr/bin/env python3
+import os
+import shutil
+import sys
+sys.path.insert(0, os.path.expanduser("~/kiauh"))
+from kiauh.utils import sys_utils
+if not os.path.isfile("scripts/install.sh.1st"):
+    shutil.copy("scripts/install.sh", "scripts/install.sh.1st")
+sys_utils.translate_script_file("scripts/install.sh.1st", "scripts/install.sh")
+```
+
 For status on feature completion (initially in the crossplatform branch of https://github.com/Hierosoft/kiauh.git), see:
 <https://github.com/dw-0/kiauh/issues/749>
 
