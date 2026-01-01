@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2023 - 2024 Staubgeborener and Tylerjet                  #
+#  Copyright (C) 2023 - 2026 Staubgeborener and Tylerjet                  #
 #  https://github.com/Staubgeborener/klipper-backup                       #
 #  https://klipperbackup.xyz                                              #
 #                                                                         #
