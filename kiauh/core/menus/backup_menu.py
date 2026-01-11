@@ -11,6 +11,7 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
+from components.katapult.katapult import backup_katapult_dir
 from components.klipper.klipper_utils import backup_klipper_dir
 from components.klipperscreen.klipperscreen import backup_klipperscreen_dir
 from components.moonraker.utils.utils import (
@@ -54,6 +55,7 @@ class BackupMenu(BaseMenu):
             "7": Option(method=self.backup_mainsail_config),
             "8": Option(method=self.backup_fluidd_config),
             "9": Option(method=self.backup_klipperscreen),
+            "10": Option(method=self.backup_katapult),
         }
 
     def print_menu(self) -> None:
@@ -72,8 +74,8 @@ class BackupMenu(BaseMenu):
             ║  4) [Moonraker Database]  │ Touchscreen GUI:          ║
             ║                           │  9) [KlipperScreen]       ║
             ║ Webinterface:             │                           ║
-            ║  5) [Mainsail]            │                           ║
-            ║  6) [Fluidd]              │                           ║
+            ║  5) [Mainsail]            │ Katapult:                 ║
+            ║  6) [Fluidd]              │  10) [Katapult]           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -105,3 +107,6 @@ class BackupMenu(BaseMenu):
 
     def backup_klipperscreen(self, **kwargs) -> None:
         backup_klipperscreen_dir()
+
+    def backup_katapult(self, **kwargs) -> None:
+        backup_katapult_dir()

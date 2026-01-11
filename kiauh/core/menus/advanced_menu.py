@@ -11,6 +11,15 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
+from components.katapult.katapult import flash_klipper_via_katapult
+from components.katapult.menus.katapult_build_menu import (
+    KatapultBuildBootloaderMenu,
+    KatapultKConfigMenu,
+)
+from components.katapult.menus.katapult_flash_menu import (
+    KatapultFlashMethodMenu,
+    # KatapultSelectMcuConnectionMenu,
+)
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_utils import install_input_shaper_deps
@@ -51,28 +60,38 @@ class AdvancedMenu(BaseMenu):
             "2": Option(method=self.flash),
             "3": Option(method=self.build_flash),
             "4": Option(method=self.get_id),
-            "5": Option(method=self.input_shaper),
-            "6": Option(method=self.klipper_rollback),
-            "7": Option(method=self.moonraker_rollback),
-            "8": Option(method=self.change_hostname),
+            "5": Option(method=self.build_katapult),
+            "6": Option(method=self.flash_deployer),
+            "7": Option(method=self.flash_klipper_via_katapult),
+            "8": Option(method=self.input_shaper),
+            "9": Option(method=self.klipper_rollback),
+            "10": Option(method=self.moonraker_rollback),
+            "11": Option(method=self.change_hostname),
+            # "12": Option(method=self.can_management),
         }
+
+        # TODO implement system canbus interface add/remove
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
             """
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Klipper Firmware:         │ Repository Rollback:      ║
-            ║  1) [Build]               │  6) [Klipper]             ║
-            ║  2) [Flash]               │  7) [Moonraker]           ║
-            ║  3) [Build + Flash]       │                           ║
-            ║  4) [Get MCU ID]          │ System:                   ║
-            ║                           │  8) [Change hostname]     ║
-            ║ Extra Dependencies:       │                           ║
-            ║  5) [Input Shaper]        │                           ║
+            ║ Klipper Firmware:         │ Extra Dependencies:       ║
+            ║  1) [Build]               │  8) [Input Shaper]        ║                     
+            ║  2) [Flash]               │                           ║
+            ║  3) [Build + Flash]       │ Repository Rollback:      ║
+            ║  4) [Get MCU ID]          │  9) [Klipper]             ║
+            ║                           │  10) [Moonraker]          ║
+            ║ Katapult :                │                           ║
+            ║  5) [Build Katapult]      │ System:                   ║
+            ║  6) [Flash Deployer]      │  11) [Change hostname]    ║
+            ║  7) [Flash Klipper]       │                           ║
+            ║                           │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
         print(menu, end="")
+        # TODO implement Can bus check, add/remove.. 12) [CAN Management] 
 
     def klipper_rollback(self, **kwargs) -> None:
         rollback_repository(KLIPPER_DIR, Klipper)
@@ -104,3 +123,14 @@ class AdvancedMenu(BaseMenu):
 
     def input_shaper(self, **kwargs) -> None:
         install_input_shaper_deps()
+
+    def build_katapult(self, **kwargs) -> None:
+        KatapultKConfigMenu().run()
+        KatapultBuildBootloaderMenu(previous_menu=self.__class__).run()
+
+    def flash_deployer(self, **kwargs) -> None:
+        KatapultKConfigMenu().run()
+        KatapultFlashMethodMenu(previous_menu=self.__class__).run()
+
+    def flash_klipper_via_katapult(self, **kwargs) -> None:
+        flash_klipper_via_katapult()
