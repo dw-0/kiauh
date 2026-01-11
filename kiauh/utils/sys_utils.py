@@ -1,5 +1,5 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2026 Dominik Willner <th33xitus@gmail.com>        #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -127,10 +127,10 @@ def create_python_venv(
                 return False
         else:
             if n == 1:
-                # This case should never happen, 
+                # This case should never happen,
                 # but the function should still behave correctly
                 Logger.print_error("Virtualenv still exists after deletion.")
-                return False                            
+                return False
             if not force and not get_confirm(
                 "Virtualenv already exists. Re-create?", default_choice=False
             ):
