@@ -12,6 +12,7 @@ import sys
 import textwrap
 from typing import Callable, Type
 
+from components.droidklipp.droidklipp import install_droidklipp
 from components.crowsnest.crowsnest import get_crowsnest_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
