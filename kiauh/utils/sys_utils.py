@@ -140,7 +140,7 @@ doas nft add rule inet filter input tcp dport 80 counter drop
 doas mkdir -p /etc/nftables.d && echo 'add rule inet filter input tcp dport 80 accept comment "Fluidd"' | doas tee /etc/nftables.d/10-fluidd.nft
  >/dev/null
 
-sudo apk add dhclient
+sudo apk add -q dhclient
 sudo mkdir -p /etc/NetworkManager/conf.d
 echo "[main]" | sudo tee /etc/NetworkManager/conf.d/dhcp-client.conf
 echo "dhcp=dhclient" | sudo tee -a /etc/NetworkManager/conf.d/dhcp-client.conf
@@ -152,6 +152,8 @@ cat <<END
 sudo nmcli connection add type wifi con-name "MyWifi" ifname wlan0 ssid "YOUR_SSID" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YOUR_PASSWORD"
 sudo nmcli connection modify MyWifi connection.permissions ""
 sudo nmcli connection up MyWifi
+# Install ip command (`ip -json -det address` such as used by Klipper [KlipperScreen?], instead of limited BusyBox version)
+sudo apk add -q iproute2
 END
 
 """
