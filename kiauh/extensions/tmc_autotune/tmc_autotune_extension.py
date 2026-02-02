@@ -20,7 +20,7 @@ from core.submodules.simple_config_parser.src.simple_config_parser.simple_config
 from extensions.base_extension import BaseExtension
 from extensions.tmc_autotune import (
     KLIPPER_DIR,
-    KLIPPER_EXTRAS,
+    KLIPPER_EXTENSIONS_PATH,
     TMCA_DIR,
     TMCA_EXAMPLE_CONFIG,
     TMCA_MOONRAKER_UPDATER_NAME,
@@ -44,9 +44,6 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_warn("Python 3.x is required. Aborting install.")
             return
 
-        # Upstream checks for klipper plugins at /klippy/plugins first. Not sure why, but
-        # we default to /klippy/extras here. Since Klipper has supposedly been installed via KIAUH,
-        # we can assume that the extras directory exists if klipper is installed.
         klipper_dir_exists = check_file_exist(KLIPPER_DIR)
         if not klipper_dir_exists:
             Logger.print_warn(
@@ -56,9 +53,9 @@ class TmcAutotuneExtension(BaseExtension):
 
         tmca_exists = (
             check_file_exist(TMCA_DIR)
-            and check_file_exist(KLIPPER_EXTRAS.joinpath("autotune_tmc.py"))
-            and check_file_exist(KLIPPER_EXTRAS.joinpath("motor_constants.py"))
-            and check_file_exist(KLIPPER_EXTRAS.joinpath("motor_database.cfg"))
+            and check_file_exist(KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"))
+            and check_file_exist(KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"))
+            and check_file_exist(KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"))
         )
 
         overwrite = True
@@ -98,15 +95,15 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_info("Creating symlinks in Klipper extras directory...")
             create_symlink(
                 TMCA_DIR.joinpath("autotune_tmc.py"),
-                KLIPPER_EXTRAS.joinpath("autotune_tmc.py"),
+                KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"),
             )
             create_symlink(
                 TMCA_DIR.joinpath("motor_constants.py"),
-                KLIPPER_EXTRAS.joinpath("motor_constants.py"),
+                KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"),
             )
             create_symlink(
                 TMCA_DIR.joinpath("motor_database.cfg"),
-                KLIPPER_EXTRAS.joinpath("motor_database.cfg"),
+                KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"),
             )
             Logger.print_ok(
                 "Symlinks created successfully for all instances.", end="\n\n"
@@ -222,9 +219,9 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_info("Removing Klipper TMC Autotune extension ...")
             run_remove_routines(TMCA_DIR)
             Logger.print_info("Removing symlinks from Klipper extras directory ...")
-            run_remove_routines(KLIPPER_EXTRAS.joinpath("autotune_tmc.py"))
-            run_remove_routines(KLIPPER_EXTRAS.joinpath("motor_constants.py"))
-            run_remove_routines(KLIPPER_EXTRAS.joinpath("motor_database.cfg"))
+            run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"))
+            run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"))
+            run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"))
 
             mr_instances: List[Moonraker] = get_instances(Moonraker)
             if mr_instances:
