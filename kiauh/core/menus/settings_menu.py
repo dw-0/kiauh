@@ -100,11 +100,11 @@ class SettingsMenu(BaseMenu):
         def trim_repo_url(repo: str) -> str:
             return repo.replace(".git", "").replace("https://", "").replace("git@", "")
 
-        if not klipper_status.repo == "-":
+        if klipper_status.repo:
             url = trim_repo_url(klipper_status.repo_url)
             self.kl_repo_url = Color.apply(url, Color.CYAN)
             self.kl_branch = Color.apply(klipper_status.branch, Color.CYAN)
-        if not moonraker_status.repo == "-":
+        if moonraker_status.repo:
             url = trim_repo_url(moonraker_status.repo_url)
             self.mr_repo_url = Color.apply(url, Color.CYAN)
             self.mr_branch = Color.apply(moonraker_status.branch, Color.CYAN)

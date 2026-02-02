@@ -8,7 +8,7 @@
 # ======================================================================= #
 
 
-from typing import List
+from typing import List, Optional
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
@@ -27,6 +27,7 @@ def run_client_config_removal(
     client_config: BaseWebClientConfig,
     kl_instances: List[Klipper],
     mr_instances: List[Moonraker],
+    svc: Optional[BackupService] = None,
 ) -> Message:
     completion_msg = Message(
         title=f"{client_config.display_name} Removal Process completed",
@@ -36,12 +37,15 @@ def run_client_config_removal(
     if run_remove_routines(client_config.config_dir):
         completion_msg.text.append(f"● {client_config.display_name} removed")
 
-    BackupService().backup_printer_config_dir()
+    if svc is None:
+        svc = BackupService()
 
+    svc.backup_moonraker_conf()
     completion_msg = remove_moonraker_config_section(
         completion_msg, client_config, mr_instances
     )
 
+    svc.backup_printer_cfg()
     completion_msg = remove_printer_config_section(
         completion_msg, client_config, kl_instances
     )

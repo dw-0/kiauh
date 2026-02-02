@@ -41,6 +41,7 @@ def run_client_removal(
     )
     mr_instances: List[Moonraker] = get_instances(Moonraker)
     kl_instances: List[Klipper] = get_instances(Klipper)
+    svc = BackupService()
 
     if backup_config:
         version = ""
@@ -49,7 +50,6 @@ def run_client_removal(
             with open(src.joinpath(".version"), "r") as v:
                 version = v.readlines()[0]
 
-        svc = BackupService()
         target_path = svc.backup_root.joinpath(f"{client.client_dir.name}_{version}")
         success = svc.backup_file(
             source_path=client.config_file,
@@ -67,7 +67,7 @@ def run_client_removal(
         if remove_client_nginx_logs(client, kl_instances):
             completion_msg.text.append("● NGINX logs removed")
 
-        BackupService().backup_moonraker_conf()
+        svc.backup_moonraker_conf()
         section = f"update_manager {client_name}"
         handled_instances: List[Moonraker] = remove_config_section(
             section, mr_instances
@@ -83,6 +83,7 @@ def run_client_removal(
             client.client_config,
             kl_instances,
             mr_instances,
+            svc,
         )
         if cfg_completion_msg.color == Color.GREEN:
             completion_msg.text.extend(cfg_completion_msg.text[1:])
