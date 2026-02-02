@@ -224,17 +224,7 @@ class TmcAutotuneExtension(BaseExtension):
             run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"))
 
             mr_instances: List[Moonraker] = get_instances(Moonraker)
-            if mr_instances:
-                Logger.print_info(
-                    "Removing Klipper TMC Autotune from update manager ..."
-                )
-                BackupService().backup_moonraker_conf()
-                remove_config_section(
-                    "update_manager klipper_tmc_autotune", mr_instances
-                )
-                Logger.print_ok(
-                    "Klipper TMC Autotune successfully removed from update manager!"
-                )
+            self._remove_moonraker_update_manager_section(mr_instances)
 
             Logger.print_info("Removing include from printer.cfg files ...")
             BackupService().backup_printer_cfg()
@@ -331,6 +321,28 @@ class TmcAutotuneExtension(BaseExtension):
 
         Logger.print_ok(
             "Klipper TMC Autotune successfully added to Moonraker update manager(s)!"
+        )
+
+    def _remove_moonraker_update_manager_section(
+        self, mr_instances: List[Moonraker]
+    ) -> None:
+        if not mr_instances:
+            Logger.print_dialog(
+                DialogType.WARNING,
+                [
+                    "Moonraker not found! Klipper TMC Autotune update manager support "
+                    "for Moonraker will not be removed from moonraker.conf.",
+                ],
+            )
+            return
+
+        BackupService().backup_moonraker_conf()
+
+        remove_config_section("update_manager klipper_tmc_autotune", mr_instances)
+        InstanceManager.restart_all(mr_instances)
+
+        Logger.print_ok(
+            "Klipper TMC Autotune successfully removed from Moonraker update manager(s)!"
         )
 
     def _stop_klipper_instances_interactively(
