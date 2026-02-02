@@ -61,7 +61,6 @@ class TmcAutotuneExtension(BaseExtension):
             and check_file_exist(KLIPPER_EXTRAS.joinpath("motor_database.cfg"))
         )
 
-        # Interactively ask for parameters before proceeding to enhance user experience on slow systems
         overwrite = True
         if tmca_exists:
             overwrite = get_confirm(
@@ -94,10 +93,8 @@ class TmcAutotuneExtension(BaseExtension):
             return
 
         try:
-            # Clone the repo into the target directory
             git_clone_wrapper(TMCA_REPO, TMCA_DIR, force=True)
 
-            # Link the extension into klipper's extras folder
             Logger.print_info("Creating symlinks in Klipper extras directory...")
             create_symlink(
                 TMCA_DIR.joinpath("autotune_tmc.py"),
@@ -139,12 +136,10 @@ class TmcAutotuneExtension(BaseExtension):
         except Exception as e:
             Logger.print_error(f"Error during Klipper TMC Autotune installation:\n{e}")
 
-            # Restart klipper after installation attempt
             if kl_instances:
                 InstanceManager.start_all(kl_instances)
             return
 
-        # Restart klipper after installation
         if kl_instances:
             InstanceManager.start_all(kl_instances)
 
@@ -172,7 +167,6 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
 
-        # Interactively ask for parameters before proceeding to enhance user experience on slow systems
         backup_before_update = get_confirm(
             question="Backup Klipper TMC Autotune directory before update?",
             default_choice=True,
@@ -202,12 +196,10 @@ class TmcAutotuneExtension(BaseExtension):
         except Exception as e:
             Logger.print_error(f"Error during Klipper TMC Autotune update:\n{e}")
 
-            # Restart klipper after update attempt
             if kl_instances:
                 InstanceManager.start_all(kl_instances)
                 return
 
-        # Restart klipper after update
         if kl_instances:
             InstanceManager.start_all(kl_instances)
 
@@ -221,14 +213,12 @@ class TmcAutotuneExtension(BaseExtension):
 
         kl_instances = get_instances(Klipper)
 
-        # Interactively ask for parameters before proceeding to enhance user experience on slow systems
         if not self._stop_klipper_instances_interactively(
             kl_instances, "removal of TMC Autotune"
         ):
             return
 
         try:
-            # remove symlinks and extension directory
             Logger.print_info("Removing Klipper TMC Autotune extension ...")
             run_remove_routines(TMCA_DIR)
             Logger.print_info("Removing symlinks from Klipper extras directory ...")
@@ -236,7 +226,6 @@ class TmcAutotuneExtension(BaseExtension):
             run_remove_routines(KLIPPER_EXTRAS.joinpath("motor_constants.py"))
             run_remove_routines(KLIPPER_EXTRAS.joinpath("motor_database.cfg"))
 
-            # Remove from moonraker update manager if moonraker is installed
             mr_instances: List[Moonraker] = get_instances(Moonraker)
             if mr_instances:
                 Logger.print_info(
@@ -250,7 +239,6 @@ class TmcAutotuneExtension(BaseExtension):
                     "Klipper TMC Autotune successfully removed from update manager!"
                 )
 
-            # Remove include from printer.cfg files, backing them up first
             Logger.print_info("Removing include from printer.cfg files ...")
             BackupService().backup_printer_cfg()
             remove_config_section("include autotune_tmc.cfg", kl_instances)
@@ -270,12 +258,10 @@ class TmcAutotuneExtension(BaseExtension):
         except Exception as e:
             Logger.print_error(f"Unable to remove extension:\n{e}")
 
-            # Restart klipper after removal attempt
             if kl_instances:
                 InstanceManager.start_all(kl_instances)
             return
 
-        # Restart klipper after removal
         if kl_instances:
             InstanceManager.start_all(kl_instances)
 
@@ -284,7 +270,6 @@ class TmcAutotuneExtension(BaseExtension):
     def _install_example_cfg(self, kl_instances: List[Klipper]):
         cfg_dirs = [instance.base.cfg_dir for instance in kl_instances]
 
-        # copy extension to config directories
         for cfg_dir in cfg_dirs:
             Logger.print_status(f"Create autotune_tmc.cfg in '{cfg_dir}' ...")
             if check_file_exist(cfg_dir.joinpath("autotune_tmc.cfg")):
@@ -296,10 +281,8 @@ class TmcAutotuneExtension(BaseExtension):
             except OSError as e:
                 Logger.print_error(f"Unable to create example config: {e}")
 
-        # backup each printer.cfg before modification
         BackupService().backup_printer_cfg()
 
-        # add section to printer.cfg if not already defined
         section = "include autotune_tmc.cfg"
         cfg_files = [instance.cfg_file for instance in kl_instances]
         for cfg_file in cfg_files:
@@ -316,7 +299,6 @@ class TmcAutotuneExtension(BaseExtension):
     def _add_moonraker_update_manager_section(
         self, mr_instances: List[Moonraker]
     ) -> None:
-        # check for moonraker instances and warn if none found
         if not mr_instances:
             Logger.print_dialog(
                 DialogType.WARNING,
@@ -333,10 +315,8 @@ class TmcAutotuneExtension(BaseExtension):
                 Logger.print_info("Installation aborted due to user request.")
                 return
 
-        # backup any existing moonraker.conf before modification
         BackupService().backup_moonraker_conf()
 
-        # add update_manager section to moonraker.conf
         add_config_section(
             section=TMCA_MOONRAKER_UPDATER_NAME,
             instances=mr_instances,
@@ -347,11 +327,9 @@ class TmcAutotuneExtension(BaseExtension):
                 ("origin", TMCA_REPO),
                 ("managed_services", "klipper"),
                 ("primary_branch", "main"),
-                # ("install_script", "install.sh"), # Shouldn't be necessary as soft links are already created
             ],
         )
 
-        # restart instances after patching
         InstanceManager.restart_all(mr_instances)
 
         Logger.print_ok(
