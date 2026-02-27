@@ -113,7 +113,7 @@ def check_user_groups() -> None:
 
     if not get_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
         log = "Skipped adding user to required groups. You might encounter issues."
-        Logger.warn(log)
+        Logger.print_warn(log)
         return
 
     try:
