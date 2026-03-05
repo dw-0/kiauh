@@ -15,6 +15,9 @@ clear -x
 # make sure we have the correct permissions while running the script
 umask 022
 
+# gets the path where this script is located
+KIAUH_SRCDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+
 #===================================================#
 #=================== UPDATE KIAUH ==================#
 #===================================================#
