@@ -23,13 +23,15 @@ KIAUH_SRCDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 #===================================================#
 
 function update_kiauh() {
-  status_msg "Updating KIAUH ..."
+  echo "Updating KIAUH ..."
 
   cd "${KIAUH_SRCDIR}"
   git reset --hard && git pull
 
-  ok_msg "Update complete! Please restart KIAUH."
-  exit 0
+  echo "Update complete! Restarting..."
+  sleep 1
+  exec "$0" "$@" # restarts the script
+  
 }
 
 #===================================================#
@@ -72,7 +74,7 @@ function kiauh_update_dialog() {
   while true; do
     case "${yn}" in
      Y|y|Yes|yes|"")
-       do_action "update_kiauh"
+       $(update_kiauh)
        break;;
      N|n|No|no)
        break;;
