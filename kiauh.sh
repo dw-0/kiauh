@@ -128,7 +128,7 @@ function main() {
    clear -x
    python3 "${entrypoint}/kiauh/main.py"
 }
-
+echo "testing new version"
 check_if_ratos
 check_euid
 kiauh_update_dialog
