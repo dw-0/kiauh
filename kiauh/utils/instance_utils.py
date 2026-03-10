@@ -63,7 +63,7 @@ def get_instance_suffix(name: str, file_path: Path) -> str:
 
 
 def stop_klipper_instances_interactively(
-    self, kl_instances: List[Klipper], operation_name: str = "operation"
+    kl_instances: List[Klipper], operation_name: str = "operation"
 ) -> bool:
     """
     Interactively stops all active Klipper instances, warning the user that ongoing prints will be disrupted.
