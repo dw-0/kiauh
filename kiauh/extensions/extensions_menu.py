@@ -56,6 +56,21 @@ class ExtensionsMenu(BaseMenu):
                 with open(metadata_json, "r") as m:
                     # read extension metadata from json
                     metadata = json.load(m).get("metadata")
+                    index = str(metadata.get("index"))
+
+                    # Prevent collisions where one extension silently overrides another.
+                    if index in ext_dict:
+                        existing_name = ext_dict[index].metadata.get("display_name")
+                        duplicate_name = metadata.get("display_name")
+                        print(
+                            "Failed loading extension"
+                            f" {ext}: duplicate index '{index}'"
+                            f" already used by '{existing_name}'."
+                            f" Skipping '{duplicate_name}'."
+                        )
+                        continue
+
+                    int(index)
                     module_name = metadata.get("module")
                     module_path = f"kiauh.extensions.{ext.name}.{module_name}"
 
@@ -73,9 +88,16 @@ class ExtensionsMenu(BaseMenu):
 
                     # instantiate the extension with its metadata and add to dict
                     ext_instance: BaseExtension = ext_class(metadata)
-                    ext_dict[f"{metadata.get('index')}"] = ext_instance
+                    ext_dict[index] = ext_instance
 
-            except (IOError, json.JSONDecodeError, ImportError) as e:
+            except (
+                IOError,
+                json.JSONDecodeError,
+                ImportError,
+                TypeError,
+                ValueError,
+                AttributeError,
+            ) as e:
                 print(f"Failed loading extension {ext}: {e}")
 
         return dict(sorted(ext_dict.items(), key=lambda x: int(x[0])))
