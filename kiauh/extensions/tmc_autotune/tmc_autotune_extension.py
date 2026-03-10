@@ -30,7 +30,7 @@ from utils.config_utils import add_config_section, remove_config_section
 from utils.fs_utils import check_file_exist, create_symlink, run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
-from utils.instance_utils import get_instances
+from utils.instance_utils import get_instances, stop_klipper_instances_interactively
 from utils.sys_utils import check_python_version
 
 
@@ -84,7 +84,7 @@ class TmcAutotuneExtension(BaseExtension):
 
         kl_instances = get_instances(Klipper)
 
-        if not self._stop_klipper_instances_interactively(
+        if not stop_klipper_instances_interactively(
             kl_instances, "installation of TMC Autotune"
         ):
             return
@@ -172,7 +172,7 @@ class TmcAutotuneExtension(BaseExtension):
 
         kl_instances = get_instances(Klipper)
 
-        if not self._stop_klipper_instances_interactively(
+        if not stop_klipper_instances_interactively(
             kl_instances, "update of TMC Autotune"
         ):
             return
@@ -210,7 +210,7 @@ class TmcAutotuneExtension(BaseExtension):
 
         kl_instances = get_instances(Klipper)
 
-        if not self._stop_klipper_instances_interactively(
+        if not stop_klipper_instances_interactively(
             kl_instances, "removal of TMC Autotune"
         ):
             return
@@ -345,40 +345,3 @@ class TmcAutotuneExtension(BaseExtension):
             "Klipper TMC Autotune successfully removed from Moonraker update manager(s)!"
         )
 
-    def _stop_klipper_instances_interactively(
-        self, kl_instances: List[Klipper], operation_name: str = "operation"
-    ) -> bool:
-        """
-        Interactively stops all active Klipper instances, warning the user that ongoing prints will be disrupted.
-
-        :param kl_instances: List of Klipper instances to stop.
-        :param operation_name: Optional name of the operation being performed (for user messaging). Do NOT capitalize.
-        :return: True if instances were stopped or no instances found, False if operation was aborted.
-        """
-
-        if not kl_instances:
-            Logger.print_warn("No instances found, skipping instance stopping.")
-            return True
-
-        Logger.print_dialog(
-            DialogType.ATTENTION,
-            [
-                "Do NOT continue if there are ongoing prints running",
-                f"All Klipper instances will be restarted during the {operation_name} and "
-                "ongoing prints WILL FAIL.",
-            ],
-        )
-        stop_klipper = get_confirm(
-            question=f"Stop Klipper now and proceed with {operation_name}?",
-            default_choice=False,
-            allow_go_back=True,
-        )
-
-        if stop_klipper:
-            InstanceManager.stop_all(kl_instances)
-            return True
-        else:
-            Logger.print_warn(
-                f"{operation_name.capitalize()} aborted due to user request."
-            )
-            return False
