@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "index": 14,
+    "module": "klipper_adaptive_meshing_purging_extension",
+    "maintained_by": "theogayar",
+    "display_name": "Klipper Adaptive Meshing Purging",
+    "description": [
+      "Klipper extension for adaptive meshing and purging."
+    ],
+    "repo": "https://github.com/kyleisah/Klipper-Adaptive-Meshing-Purging",
+    "updates": true
+  }
+}
