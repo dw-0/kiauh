@@ -19,7 +19,7 @@ from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.types.color import Color
-from extensions import EXTENSION_ROOT
+from extensions import EXTENSION_ROOT, GITHUB_ISSUES_URL
 from extensions.base_extension import BaseExtension
 
 
@@ -62,11 +62,12 @@ class ExtensionsMenu(BaseMenu):
                     if index in ext_dict:
                         existing_name = ext_dict[index].metadata.get("display_name")
                         duplicate_name = metadata.get("display_name")
-                        print(
+                        Logger.print_warn(
                             "Failed loading extension"
                             f" {ext}: duplicate index '{index}'"
                             f" already used by '{existing_name}'."
                             f" Skipping '{duplicate_name}'."
+                            f" Please report this at {GITHUB_ISSUES_URL}."
                         )
                         continue
 
@@ -98,7 +99,10 @@ class ExtensionsMenu(BaseMenu):
                 ValueError,
                 AttributeError,
             ) as e:
-                print(f"Failed loading extension {ext}: {e}")
+                Logger.print_warn(
+                    f"Failed loading extension {ext}: {e}. "
+                    f"Please report this at {GITHUB_ISSUES_URL}."
+                )
 
         return dict(sorted(ext_dict.items(), key=lambda x: int(x[0])))
 
