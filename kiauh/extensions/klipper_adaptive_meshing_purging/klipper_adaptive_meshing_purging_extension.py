@@ -109,8 +109,8 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
                 f"{KAMP_REPO}",
                 "\n\n",
                 "IMPORTANT:",
-                "1. If you'd like to use adaptive meshing, Klipper already has built-in support. Just call BED_MESH_CALIBRATE ADAPTIVE=1 in your PRINT_START macro. DO NOT USE THE FEATURE FROM THE EXTENSION",
-                "2. You MUST be thoughtful when editing values for the purge settings, as you risk breaking things and WILL BE VERY SAD if you do so (bed scratches, nozzle clogs, etc..)."
+                "1. If you'd like to use adaptive meshing, Klipper already has built-in support. Just call BED_MESH_CALIBRATE ADAPTIVE=1 in your PRINT_START macro. DO NOT USE THE FEATURE FROM THE EXTENSION\n",
+                "2. You MUST be thoughtful when editing values for the purge settings, as you risk breaking things and WILL BE VERY SAD if you do so (bed scratches, nozzle clogs, etc..).\n"
                 "3. According to KAMP's documentation, you should define 'max_extrude_cross_section' in 'printer.cfg' according to your needs.",
             ],
             margin_bottom=1,
