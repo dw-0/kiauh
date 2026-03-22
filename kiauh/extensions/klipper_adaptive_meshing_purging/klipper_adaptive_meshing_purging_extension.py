@@ -224,7 +224,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             Logger.print_status(
                 f"Creating symlink for KAMP directory in '{cfg_dir}' ..."
             )
-            create_symlink(KAMP_DIR, cfg_dir.joinpath("KAMP"))
+            create_symlink(KAMP_DIR.joinpath("Configuration"), cfg_dir.joinpath("KAMP"))
 
             # We do not overwrite the existing config files ever
             Logger.print_status(f"Creating KAMP_Settings.cfg in '{cfg_dir}' ...")
