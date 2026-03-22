@@ -12,8 +12,12 @@ import re
 from pathlib import Path
 from typing import List
 
+from components.klipper.klipper import Klipper
 from core.constants import SYSTEMD
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
+from core.instance_manager.instance_manager import InstanceManager
+from core.logger import DialogType, Logger
+from utils.input_utils import get_confirm
 from utils.instance_type import InstanceType
 
 
@@ -56,3 +60,40 @@ def get_instance_suffix(name: str, file_path: Path) -> str:
     # otherwise there is and hyphen left, and we return the part after the hyphen
     suffix = file_path.stem[len(name) :]
     return suffix[1:] if suffix else ""
+
+
+def stop_klipper_instances_interactively(
+    kl_instances: List[Klipper], operation_name: str = "operation"
+) -> bool:
+    """
+    Interactively stops all active Klipper instances, warning the user that ongoing prints will be disrupted.
+
+    :param kl_instances: List of Klipper instances to stop.
+    :param operation_name: Optional name of the operation being performed (for user messaging). Do NOT capitalize.
+    :return: True if instances were stopped or no instances found, False if operation was aborted.
+    """
+
+    if not kl_instances:
+        Logger.print_warn("No instances found, skipping instance stopping.")
+        return True
+
+    Logger.print_dialog(
+        DialogType.ATTENTION,
+        [
+            "Do NOT continue if there are ongoing prints running",
+            f"All Klipper instances will be restarted during the {operation_name} and "
+            "ongoing prints WILL FAIL.",
+        ],
+    )
+    stop_klipper = get_confirm(
+        question=f"Stop Klipper now and proceed with {operation_name}?",
+        default_choice=False,
+        allow_go_back=True,
+    )
+
+    if stop_klipper:
+        InstanceManager.stop_all(kl_instances)
+        return True
+    else:
+        Logger.print_warn(f"{operation_name.capitalize()} aborted due to user request.")
+        return False
