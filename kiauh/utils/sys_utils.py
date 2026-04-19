@@ -284,12 +284,14 @@ def get_upgradable_packages() -> List[str]:
     try:
         command = ["apt", "list", "--upgradable"]
         output: str = check_output(command, stderr=DEVNULL, text=True, encoding="utf-8")
-        pkglist = []
+        pkglist: List[str] = []
+
         for line in output.split("\n"):
             if "/" not in line:
                 continue
             pkg = line.split("/")[0]
             pkglist.append(pkg)
+
         return pkglist
     except CalledProcessError as e:
         raise Exception(f"Error reading upgradable packages: {e}")
