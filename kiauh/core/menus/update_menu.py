@@ -251,6 +251,9 @@ class UpdateMenu(BaseMenu):
         self._set_status_data("klipperscreen", get_klipperscreen_status)
         self._set_status_data("crowsnest", get_crowsnest_status)
 
+        self._fetch_system_package_update_status()
+
+    def _fetch_system_package_update_status(self) -> None:
         update_system_package_lists(silent=True)
         self.packages = get_upgradable_packages()
         self.package_count = len(self.packages)
@@ -340,15 +343,20 @@ class UpdateMenu(BaseMenu):
 
         try:
             pkgs: str = ", ".join(self.packages)
+
             Logger.print_dialog(
                 DialogType.CUSTOM,
                 ["The following packages will be upgraded:", "\n\n", pkgs],
                 custom_title="UPGRADABLE SYSTEM UPDATES",
             )
-            if not get_confirm("Continue?"):
+
+            if not get_confirm("Upgrade packages?"):
                 return
+
             Logger.print_status("Upgrading system packages ...")
+
             upgrade_system_packages(self.packages)
+            self._fetch_system_package_update_status()
         except Exception as e:
             Logger.print_error(f"Error upgrading system packages:\n{e}")
             raise
