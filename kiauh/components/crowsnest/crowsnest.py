@@ -47,7 +47,7 @@ from utils.sys_utils import (
 
 def install_crowsnest() -> None:
     # Step 1: Clone crowsnest repo
-    git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
+    git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
 
     # Step 2: Install dependencies
     check_install_dependencies({"make"})
