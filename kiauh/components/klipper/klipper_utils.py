@@ -34,7 +34,7 @@ from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus

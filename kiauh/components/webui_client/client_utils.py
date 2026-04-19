@@ -33,7 +33,7 @@ from core.constants import (
 from core.logger import Logger
 from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from core.types.color import Color

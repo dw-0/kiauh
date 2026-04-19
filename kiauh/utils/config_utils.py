@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Tuple, Union
 
 from core.logger import Logger
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from utils.instance_type import InstanceType
