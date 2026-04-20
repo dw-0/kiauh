@@ -1,5 +1,6 @@
 # ======================================================================= #
 #  Copyright (C) 2020 - 2026 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2026 Théo Gaillard <theo.gayar@gmail.com>                #             #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
