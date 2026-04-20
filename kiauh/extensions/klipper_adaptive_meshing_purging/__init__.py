@@ -18,4 +18,4 @@ KAMP_DIR = Path.home().joinpath("Klipper-Adaptive-Meshing-Purging")
 KLIPPER_DIR = Path.home().joinpath("klipper")
 
 # names
-KAMP_MOONRAKER_UPDATER_NAME = "update_manager klipper_adaptive_meshing_purging"
+KAMP_MOONRAKER_UPDATER_NAME = "update_manager Klipper-Adaptive-Meshing-Purging"
