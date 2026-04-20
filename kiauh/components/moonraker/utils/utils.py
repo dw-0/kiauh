@@ -25,7 +25,7 @@ from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.webui_client.base_data import BaseWebClient
 from core.logger import Logger
 from core.services.backup_service import BackupService
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
