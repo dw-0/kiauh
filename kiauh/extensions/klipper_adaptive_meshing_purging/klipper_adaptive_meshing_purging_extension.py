@@ -48,7 +48,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             )
             return
 
-        kl_instances = get_instances(Klipper)
+        kl_instances: List[Klipper] = get_instances(Klipper)
 
         kamp_exists = check_file_exist(KAMP_DIR) and self._check_cfg_exists(
             kl_instances
@@ -83,7 +83,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             self._install_cfg(kl_instances)
 
             if add_moonraker_update_section:
-                mr_instances = get_instances(Moonraker)
+                mr_instances: List[Moonraker] = get_instances(Moonraker)
                 self._add_moonraker_update_manager_section(mr_instances)
             else:
                 Logger.print_info(
@@ -134,7 +134,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             allow_go_back=True,
         )
 
-        kl_instances = get_instances(Klipper)
+        kl_instances: List[Klipper] = get_instances(Klipper)
 
         if not stop_klipper_instances_interactively(kl_instances, "update of KAMP"):
             return
@@ -176,7 +176,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
 
-        kl_instances = get_instances(Klipper)
+        kl_instances: List[Klipper] = get_instances(Klipper)
 
         if not stop_klipper_instances_interactively(kl_instances, "removal of KAMP"):
             return
