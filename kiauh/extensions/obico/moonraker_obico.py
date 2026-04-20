@@ -16,7 +16,7 @@ from components.moonraker.moonraker import Moonraker
 from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from extensions.obico import (

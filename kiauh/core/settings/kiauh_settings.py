@@ -16,7 +16,7 @@ from components.klipper import KLIPPER_REPO_URL
 from components.moonraker import MOONRAKER_REPO_URL
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from utils.input_utils import get_confirm

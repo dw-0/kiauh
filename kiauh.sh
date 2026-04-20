@@ -15,18 +15,30 @@ clear -x
 # make sure we have the correct permissions while running the script
 umask 022
 
+# gets the path where this script is located
+KIAUH_SRCDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+
+# colors
+white="\033[37m"
+cyan="\033[96m"
+red="\033[91m"
+yellow="\033[93m"
+green="\033[92m"
+
 #===================================================#
 #=================== UPDATE KIAUH ==================#
 #===================================================#
 
 function update_kiauh() {
-  status_msg "Updating KIAUH ..."
+  echo "Updating KIAUH ..."
 
   cd "${KIAUH_SRCDIR}"
   git reset --hard && git pull
 
-  ok_msg "Update complete! Please restart KIAUH."
-  exit 0
+  echo "Update complete! Restarting..."
+  sleep 1
+  exec "$0" "$@" # restarts the script
+
 }
 
 #===================================================#
@@ -65,16 +77,18 @@ function kiauh_update_dialog() {
   echo -e "\-------------------------------------------------------/"
 
   local yn
-  read -p "${cyan}###### Do you want to update now? (Y/n):${white} " yn
+  echo -ne "${cyan}###### Do you want to update now? (Y/n):${white} "
+  read yn
   while true; do
     case "${yn}" in
      Y|y|Yes|yes|"")
-       do_action "update_kiauh"
+       update_kiauh
        break;;
      N|n|No|no)
        break;;
      *)
-       deny_action "kiauh_update_dialog";;
+       echo -e "${red}Invalid input. Please try again.${white}"
+       kiauh_update_dialog;;
     esac
   done
 }

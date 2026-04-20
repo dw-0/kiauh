@@ -10,3 +10,4 @@
 from pathlib import Path
 
 EXTENSION_ROOT = Path(__file__).resolve().parents[1].joinpath("extensions")
+GITHUB_ISSUES_URL = "https://github.com/dw-0/kiauh/issues"

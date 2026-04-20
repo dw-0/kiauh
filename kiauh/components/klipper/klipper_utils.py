@@ -34,7 +34,7 @@ from core.constants import CURRENT_USER
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
-from core.submodules.simple_config_parser.src.simple_config_parser.simple_config_parser import (
+from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
@@ -113,7 +113,7 @@ def check_user_groups() -> None:
 
     if not get_confirm(f"Add user '{CURRENT_USER}' to group(s) now?"):
         log = "Skipped adding user to required groups. You might encounter issues."
-        Logger.warn(log)
+        Logger.print_warn(log)
         return
 
     try:
