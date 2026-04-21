@@ -182,16 +182,12 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             return
 
         try:
-            Logger.print_info(
-                "Removing Klipper Adaptive Meshing and Purging extension ..."
-            )
             run_remove_routines(KAMP_DIR)
             self._remove_cfg(kl_instances)
 
             mr_instances: List[Moonraker] = get_instances(Moonraker)
             self._remove_moonraker_update_manager_section(mr_instances)
 
-            Logger.print_info("Removing include from printer.cfg files ...")
             BackupService().backup_printer_cfg()
             remove_config_section("include KAMP_Settings.cfg", kl_instances)
 
@@ -199,8 +195,8 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
                 DialogType.ATTENTION,
                 [
                     "You might want to remove [exclude_object] sections from 'printer.cfg', unless you use them for some other reason.",
-                    "\n"
-                    "You might also want to remove the [file_manager] sections from 'moonraker.conf', unless used otherwise."
+                    "\n\n",
+                    "You might also want to remove the [file_manager] sections from 'moonraker.conf', unless used otherwise.",
                     "\n\n",
                     "NOTE:",
                     "'KAMP_Settings.cfg' is NOT removed automatically. ",
@@ -222,13 +218,17 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
         Logger.print_ok("Klipper Adaptive Meshing and Purging removed successfully.")
 
     def _install_cfg(self, kl_instances: List[Klipper]):
-        cfg_dirs = [instance.base.cfg_dir for instance in kl_instances]
-
-        for cfg_dir in cfg_dirs:
+        is_multi_instance = len(kl_instances) > 1
+        for instance in kl_instances:
+            cfg_dir = instance.base.cfg_dir
             Logger.print_status(
                 f"Creating symlink for KAMP directory in '{cfg_dir}' ..."
             )
             create_symlink(KAMP_DIR.joinpath("Configuration"), cfg_dir.joinpath("KAMP"))
+            if is_multi_instance:
+                Logger.print_ok(f"Symlink successfully created for instance '{instance.suffix}'.")
+            else:
+                Logger.print_ok("Symlink successfully created.")
 
             # We do not overwrite the existing config files ever
             Logger.print_status(f"Creating KAMP_Settings.cfg in '{cfg_dir}' ...")
@@ -240,26 +240,25 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
                     KAMP_DIR.joinpath("Configuration/KAMP_Settings.cfg"),
                     cfg_dir.joinpath("KAMP_Settings.cfg"),
                 )
-                Logger.print_ok("Done!")
+                if is_multi_instance:
+                    Logger.print_ok(f"Config file successfully created for instance '{instance.suffix}'.")
+                else:
+                    Logger.print_ok(f"Config file successfully created.")
             except OSError as e:
                 Logger.print_error(f"Unable to create example config: {e}")
-
-        Logger.print_ok(
-            "Config files created successfully for all instances.", end="\n\n"
-        )
 
         BackupService().backup_printer_cfg()
 
         sections = ["include KAMP_Settings.cfg", "exclude_object"]
-        for section in sections:
-            cfg_files = [instance.cfg_file for instance in kl_instances]
-            for cfg_file in cfg_files:
-                Logger.print_status(f"Include KAMP_Settings.cfg in '{cfg_file}' ...")
-                scp = SimpleConfigParser()
-                scp.read_file(cfg_file)
+        for instance in kl_instances:
+            cfg_file = instance.cfg_file
+            scp = SimpleConfigParser()
+            scp.read_file(cfg_file)
+
+            for section in sections:
                 if scp.has_section(section):
-                    Logger.print_info("Section already defined! Skipping ...")
                     continue
+                Logger.print_status(f"Add '{section}' to '{cfg_file}' ...")
                 scp.add_section(section)
                 scp.write_file(cfg_file)
                 Logger.print_ok("Done!")
