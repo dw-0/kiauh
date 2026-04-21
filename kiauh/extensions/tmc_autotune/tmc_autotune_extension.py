@@ -1,5 +1,6 @@
 # ======================================================================= #
 #  Copyright (C) 2020 - 2026 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2026 Théo Gaillard <theo.gayar@gmail.com>                #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -82,7 +83,7 @@ class TmcAutotuneExtension(BaseExtension):
             allow_go_back=False,
         )
 
-        kl_instances = get_instances(Klipper)
+        kl_instances: List[Klipper] = get_instances(Klipper)
 
         if not stop_klipper_instances_interactively(
             kl_instances, "installation of TMC Autotune"
@@ -120,7 +121,7 @@ class TmcAutotuneExtension(BaseExtension):
                 )
 
             if add_moonraker_update_section:
-                mr_instances = get_instances(Moonraker)
+                mr_instances: List[Moonraker] = get_instances(Moonraker)
                 self._add_moonraker_update_manager_section(mr_instances)
             else:
                 Logger.print_info(
@@ -170,7 +171,7 @@ class TmcAutotuneExtension(BaseExtension):
             allow_go_back=True,
         )
 
-        kl_instances = get_instances(Klipper)
+        kl_instances: List[Klipper] = get_instances(Klipper)
 
         if not stop_klipper_instances_interactively(
             kl_instances, "update of TMC Autotune"
@@ -208,7 +209,7 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_info("Extension does not seem to be installed! Skipping ...")
             return
 
-        kl_instances = get_instances(Klipper)
+        kl_instances: List[Klipper] = get_instances(Klipper)
 
         if not stop_klipper_instances_interactively(
             kl_instances, "removal of TMC Autotune"
@@ -344,4 +345,3 @@ class TmcAutotuneExtension(BaseExtension):
         Logger.print_ok(
             "Klipper TMC Autotune successfully removed from Moonraker update manager(s)!"
         )
-
