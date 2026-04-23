@@ -31,6 +31,7 @@ from components.moonraker.services.moonraker_setup_service import (
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from core.services.backup_service import BackupService
+from core.settings.kiauh_settings import KiauhSettings
 from utils.git_utils import GitException, git_clone_wrapper
 from utils.instance_utils import get_instances
 from utils.sys_utils import (
@@ -89,7 +90,16 @@ def run_switch_repo_routine(
 
         # step 6: recreate python virtualenv
         Logger.print_status(f"Recreating {_type.__name__} virtualenv ...")
-        if not create_python_venv(env_dir, force=True):
+        settings = KiauhSettings()
+        if name == "klipper":
+            use_python_binary = settings.klipper.use_python_binary
+        elif name == "moonraker":
+            use_python_binary = settings.moonraker.use_python_binary
+        else:
+            raise AssertionError("unreachable")
+        if not create_python_venv(
+            env_dir, force=True, use_python_binary=use_python_binary
+        ):
             raise GitException(f"Failed to recreate virtualenv for {_type.__name__}")
         else:
             install_python_requirements(env_dir, req_file)
