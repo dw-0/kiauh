@@ -48,6 +48,11 @@ class RepoSwitchFailedException(Exception):
 def run_switch_repo_routine(
     name: Literal["klipper", "moonraker"], repo_url: str, branch: str
 ) -> None:
+    if name not in ("klipper", "moonraker"):
+        raise ValueError(
+            f"Invalid name: {name!r}. Must be 'klipper' or 'moonraker'."
+        )
+        
     repo_dir: Path = KLIPPER_DIR if name == "klipper" else MOONRAKER_DIR
     env_dir: Path = KLIPPER_ENV_DIR if name == "klipper" else MOONRAKER_ENV_DIR
     req_file = KLIPPER_REQ_FILE if name == "klipper" else MOONRAKER_REQ_FILE
@@ -90,13 +95,13 @@ def run_switch_repo_routine(
 
         # step 6: recreate python virtualenv
         Logger.print_status(f"Recreating {_type.__name__} virtualenv ...")
+
         settings = KiauhSettings()
         if name == "klipper":
             use_python_binary = settings.klipper.use_python_binary
         elif name == "moonraker":
             use_python_binary = settings.moonraker.use_python_binary
-        else:
-            raise AssertionError("unreachable")
+            
         if not create_python_venv(
             env_dir, force=True, use_python_binary=use_python_binary
         ):
