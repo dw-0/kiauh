@@ -13,6 +13,7 @@ import textwrap
 from typing import Callable, Type
 
 from components.crowsnest.crowsnest import get_crowsnest_status
+from components.katapult.katapult import get_katapult_status
 from components.klipper.klipper_utils import get_klipper_status
 from components.klipperscreen.klipperscreen import get_klipperscreen_status
 from components.log_uploads.menus.log_upload_menu import LogUploadMenu
@@ -53,7 +54,7 @@ class MainMenu(BaseMenu):
         self.kl_status, self.kl_owner, self.kl_repo = "", "", ""
         self.mr_status, self.mr_owner, self.mr_repo = "", "", ""
         self.ms_status, self.fl_status, self.ks_status = "", "", ""
-        self.cn_status, self.cc_status = "", ""
+        self.cn_status, self.ka_status, self.cc_status = "", "", ""
         self._init_status()
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
@@ -73,7 +74,7 @@ class MainMenu(BaseMenu):
         }
 
     def _init_status(self) -> None:
-        status_vars = ["kl", "mr", "ms", "fl", "ks", "cn"]
+        status_vars = ["kl", "mr", "ms", "fl", "ks", "cn", "ka"]
         for var in status_vars:
             setattr(
                 self,
@@ -89,6 +90,7 @@ class MainMenu(BaseMenu):
         self._get_component_status("fl", get_client_status, FluiddData())
         self._get_component_status("ks", get_klipperscreen_status)
         self._get_component_status("cn", get_crowsnest_status)
+        self._get_component_status("ka", get_katapult_status)
         self.cc_status = get_current_client_config()
 
     def _get_component_status(self, name: str, status_fn: Callable, *args) -> None:
@@ -143,6 +145,7 @@ class MainMenu(BaseMenu):
             ║  E) [Extensions] │                                    ║
             ║                  │   KlipperScreen: {self.ks_status:<{pad2}} ║
             ║                  │       Crowsnest: {self.cn_status:<{pad2}} ║
+            ║                  |        Katapult: {self.ka_status:<{pad2}} ║
             ╟──────────────────┼────────────────────────────────────╢
             ║ {footer1:^25} │ {footer2:^43} ║
             ╟──────────────────┴────────────────────────────────────╢

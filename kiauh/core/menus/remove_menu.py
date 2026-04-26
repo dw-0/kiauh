@@ -12,6 +12,7 @@ import textwrap
 from typing import Type
 
 from components.crowsnest.crowsnest import remove_crowsnest
+from components.katapult.katapult import remove_katapult
 from components.klipper.menus.klipper_remove_menu import KlipperRemoveMenu
 from components.klipperscreen.klipperscreen import remove_klipperscreen
 from components.moonraker.menus.moonraker_remove_menu import (
@@ -47,6 +48,7 @@ class RemoveMenu(BaseMenu):
             "4": Option(method=self.remove_fluidd),
             "5": Option(method=self.remove_klipperscreen),
             "6": Option(method=self.remove_crowsnest),
+            "7": Option(method=self.remove_katapult),
         }
 
     def print_menu(self) -> None:
@@ -61,7 +63,8 @@ class RemoveMenu(BaseMenu):
             ║                           │ Webcam Streamer:          ║
             ║ Klipper Webinterface:     │  6) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
-            ║  4) [Fluidd]              │                           ║
+            ║  4) [Fluidd]              │ CAN Flashtool :           ║
+            ║                           │  7) [Katapult]            ║
             ╟───────────────────────────┴───────────────────────────╢
             """
         )[1:]
@@ -84,3 +87,6 @@ class RemoveMenu(BaseMenu):
 
     def remove_crowsnest(self, **kwargs) -> None:
         remove_crowsnest()
+
+    def remove_katapult(self, **kwargs) -> None:
+        remove_katapult()
