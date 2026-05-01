@@ -9,6 +9,8 @@
 
 from pathlib import Path
 
+from core.constants import BASE_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 KLIPPER_REPO_URL = "https://github.com/Klipper3d/klipper.git"
@@ -22,9 +24,9 @@ KLIPPER_ENV_FILE_NAME = "klipper.env"
 KLIPPER_SERVICE_NAME = "klipper.service"
 
 # directories
-KLIPPER_DIR = Path.home().joinpath("klipper")
-KLIPPER_KCONFIGS_DIR = Path.home().joinpath("klipper-kconfigs")
-KLIPPER_ENV_DIR = Path.home().joinpath("klippy-env")
+KLIPPER_DIR = BASE_DIR.joinpath("klipper")
+KLIPPER_KCONFIGS_DIR = BASE_DIR.joinpath("klipper-kconfigs")
+KLIPPER_ENV_DIR = BASE_DIR.joinpath("klippy-env")
 
 # files
 KLIPPER_REQ_FILE = KLIPPER_DIR.joinpath("scripts/klippy-requirements.txt")

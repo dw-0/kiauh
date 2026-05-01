@@ -8,6 +8,8 @@
 # ======================================================================= #
 from pathlib import Path
 
+from core.constants import BASE_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 # repo
@@ -20,8 +22,8 @@ TG_BOT_SERVICE_NAME = "moonraker-telegram-bot.service"
 TG_BOT_ENV_FILE_NAME = "moonraker-telegram-bot.env"
 
 # directories
-TG_BOT_DIR = Path.home().joinpath("moonraker-telegram-bot")
-TG_BOT_ENV = Path.home().joinpath("moonraker-telegram-bot-env")
+TG_BOT_DIR = BASE_DIR.joinpath("moonraker-telegram-bot")
+TG_BOT_ENV = BASE_DIR.joinpath("moonraker-telegram-bot-env")
 
 # files
 TG_BOT_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{TG_BOT_SERVICE_NAME}")

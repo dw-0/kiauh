@@ -8,6 +8,8 @@
 # ======================================================================= #
 from pathlib import Path
 
+from core.constants import BASE_DIR
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 # repo
@@ -24,8 +26,8 @@ OBICO_UPDATE_CFG_SAMPLE_NAME = "moonraker-obico-update.cfg.sample"
 OBICO_MACROS_CFG_NAME = "moonraker_obico_macros.cfg"
 
 # directories
-OBICO_DIR = Path.home().joinpath("moonraker-obico")
-OBICO_ENV_DIR = Path.home().joinpath("moonraker-obico-env")
+OBICO_DIR = BASE_DIR.joinpath("moonraker-obico")
+OBICO_ENV_DIR = BASE_DIR.joinpath("moonraker-obico-env")
 
 # files
 OBICO_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{OBICO_SERVICE_NAME}")

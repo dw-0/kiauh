@@ -419,20 +419,29 @@ def download_progress(block_num, block_size, total_size) -> None:
 
 def set_nginx_permissions() -> None:
     """
-    Check if permissions of the users home directory
+    Check if permissions of the users home directory and base directory
     grant execution rights to group and other and set them if not set.
     Required permissions for NGINX to be able to serve Mainsail/Fluidd.
     This seems to have become necessary with Ubuntu 21+. |
     :return: None
     """
-    cmd = f"ls -ld {Path.home()} | cut -d' ' -f1"
-    homedir_perm = run(cmd, shell=True, stdout=PIPE, text=True)
-    permissions = homedir_perm.stdout
+    import shlex
 
-    if permissions.count("x") < 3:
-        Logger.print_status("Granting NGINX the required permissions ...")
-        run(["chmod", "og+x", Path.home()])
-        Logger.print_ok("Permissions granted.")
+    from core.constants import BASE_DIR
+
+    dirs_to_check = [Path.home()]
+    if BASE_DIR != Path.home():
+        dirs_to_check.append(BASE_DIR)
+
+    for check_dir in dirs_to_check:
+        cmd = f"ls -ld {shlex.quote(str(check_dir))} | cut -d' ' -f1"
+        dir_perm = run(cmd, shell=True, stdout=PIPE, text=True)
+        permissions = dir_perm.stdout
+
+        if permissions.count("x") < 3:
+            Logger.print_status("Granting NGINX the required permissions ...")
+            run(["chmod", "og+x", str(check_dir)])
+            Logger.print_ok("Permissions granted.")
 
 
 def cmd_sysctl_service(name: str, action: SysCtlServiceAction) -> None:

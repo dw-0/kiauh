@@ -7,9 +7,7 @@
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
 
-from pathlib import Path
-
-from core.constants import SYSTEMD
+from core.constants import BASE_DIR, SYSTEMD
 
 # repo
 MOBILERAKER_REPO = "https://github.com/Clon1998/mobileraker_companion.git"
@@ -20,8 +18,8 @@ MOBILERAKER_UPDATER_SECTION_NAME = "update_manager mobileraker"
 MOBILERAKER_LOG_NAME = "mobileraker.log"
 
 # directories
-MOBILERAKER_DIR = Path.home().joinpath("mobileraker_companion")
-MOBILERAKER_ENV_DIR = Path.home().joinpath("mobileraker-env")
+MOBILERAKER_DIR = BASE_DIR.joinpath("mobileraker_companion")
+MOBILERAKER_ENV_DIR = BASE_DIR.joinpath("mobileraker-env")
 
 # files
 MOBILERAKER_INSTALL_SCRIPT = MOBILERAKER_DIR.joinpath("scripts/install.sh")

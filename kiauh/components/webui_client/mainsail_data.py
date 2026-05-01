@@ -18,7 +18,7 @@ from components.webui_client.base_data import (
     WebClientConfigType,
     WebClientType,
 )
-from core.constants import NGINX_SITES_AVAILABLE
+from core.constants import BASE_DIR, NGINX_SITES_AVAILABLE
 
 
 @dataclass()
@@ -26,7 +26,7 @@ class MainsailConfigWeb(BaseWebClientConfig):
     client_config: WebClientConfigType = WebClientConfigType.MAINSAIL
     name: str = client_config.value
     display_name: str = name.title()
-    config_dir: Path = Path.home().joinpath("mainsail-config")
+    config_dir: Path = BASE_DIR.joinpath("mainsail-config")
     config_filename: str = "mainsail.cfg"
     config_section: str = f"include {config_filename}"
     repo_url: str = "https://github.com/mainsail-crew/mainsail-config.git"
@@ -39,7 +39,7 @@ class MainsailData(BaseWebClient):
     client: WebClientType = WebClientType.MAINSAIL
     name: str = WebClientType.MAINSAIL.value
     display_name: str = name.capitalize()
-    client_dir: Path = Path.home().joinpath("mainsail")
+    client_dir: Path = BASE_DIR.joinpath("mainsail")
     config_file: Path = client_dir.joinpath("config.json")
     repo_path: str = "mainsail-crew/mainsail"
     nginx_config: Path = NGINX_SITES_AVAILABLE.joinpath("mainsail")

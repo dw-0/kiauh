@@ -18,7 +18,7 @@ from components.webui_client.base_data import (
     WebClientConfigType,
     WebClientType,
 )
-from core.constants import NGINX_SITES_AVAILABLE
+from core.constants import BASE_DIR, NGINX_SITES_AVAILABLE
 
 
 @dataclass()
@@ -26,7 +26,7 @@ class FluiddConfigWeb(BaseWebClientConfig):
     client_config: WebClientConfigType = WebClientConfigType.FLUIDD
     name: str = client_config.value
     display_name: str = name.title()
-    config_dir: Path = Path.home().joinpath("fluidd-config")
+    config_dir: Path = BASE_DIR.joinpath("fluidd-config")
     config_filename: str = "fluidd.cfg"
     config_section: str = f"include {config_filename}"
     repo_url: str = "https://github.com/fluidd-core/fluidd-config.git"
@@ -39,7 +39,7 @@ class FluiddData(BaseWebClient):
     client: WebClientType = WebClientType.FLUIDD
     name: str = client.value
     display_name: str = name.capitalize()
-    client_dir: Path = Path.home().joinpath("fluidd")
+    client_dir: Path = BASE_DIR.joinpath("fluidd")
     config_file: Path = client_dir.joinpath("config.json")
     repo_path: str = "fluidd-core/fluidd"
     nginx_config: Path = NGINX_SITES_AVAILABLE.joinpath("fluidd")

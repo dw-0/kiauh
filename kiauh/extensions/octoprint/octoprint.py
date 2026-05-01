@@ -13,7 +13,7 @@ from pathlib import Path
 from textwrap import dedent
 
 from components.klipper.klipper import Klipper
-from core.constants import CURRENT_USER
+from core.constants import BASE_DIR, CURRENT_USER
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
 from extensions.octoprint import (
@@ -43,17 +43,17 @@ class Octoprint:
 
         # OctoPrint stores its data under ~/.octoprint[_SUFFIX]
         self.basedir = (
-            Path.home().joinpath(OP_BASEDIR_PREFIX)
+            BASE_DIR.joinpath(OP_BASEDIR_PREFIX)
             if self.suffix == ""
-            else Path.home().joinpath(f"{OP_BASEDIR_PREFIX}_{self.suffix}")
+            else BASE_DIR.joinpath(f"{OP_BASEDIR_PREFIX}_{self.suffix}")
         )
         self.cfg_file = self.basedir.joinpath("config.yaml")
 
         # OctoPrint virtualenv lives under ~/OctoPrint[_SUFFIX]
         self.env_dir = (
-            Path.home().joinpath(OP_ENV_PREFIX)
+            BASE_DIR.joinpath(OP_ENV_PREFIX)
             if self.suffix == ""
-            else Path.home().joinpath(f"{OP_ENV_PREFIX}_{self.suffix}")
+            else BASE_DIR.joinpath(f"{OP_ENV_PREFIX}_{self.suffix}")
         )
 
     def create(self, port: int) -> None:

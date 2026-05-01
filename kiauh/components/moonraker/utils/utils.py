@@ -23,6 +23,7 @@ from components.moonraker import (
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.webui_client.base_data import BaseWebClient
+from core.constants import BASE_DIR
 from core.logger import Logger
 from core.services.backup_service import BackupService
 from core.simple_config_parser.simple_config_parser import (
@@ -182,23 +183,30 @@ def backup_moonraker_db_dir() -> None:
     svc = BackupService()
 
     if not instances:
-        # fallback: search for printer data directories in the user's home directory
+        # fallback: search for printer data directories
         Logger.print_info("No Moonraker instances found via systemd services.")
         Logger.print_info(
-            "Attempting to find printer data directories in home directory..."
+            "Attempting to find printer data directories ..."
         )
 
-        home_dir = Path.home()
-        printer_data_dirs = []
+        search_dirs = [Path.home()]
+        if BASE_DIR != Path.home():
+            search_dirs.append(BASE_DIR)
 
-        for pattern in ["printer_data", "printer_*_data"]:
-            for data_dir in home_dir.glob(pattern):
-                if data_dir.is_dir():
-                    printer_data_dirs.append(data_dir)
+        printer_data_dirs: List[Path] = []
+        seen: set = set()
+
+        for search_dir in search_dirs:
+            for pattern in ["printer_data", "printer_*_data"]:
+                for data_dir in search_dir.glob(pattern):
+                    resolved = data_dir.resolve()
+                    if data_dir.is_dir() and resolved not in seen:
+                        seen.add(resolved)
+                        printer_data_dirs.append(data_dir)
 
         if not printer_data_dirs:
             Logger.print_info("Unable to find directory to backup!")
-            Logger.print_info("No printer data directories found in home directory.")
+            Logger.print_info("No printer data directories found.")
             return
 
         for data_dir in printer_data_dirs:

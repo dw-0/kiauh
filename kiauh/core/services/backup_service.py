@@ -21,9 +21,20 @@ from utils.instance_utils import get_instances
 
 class BackupService:
     def __init__(self):
-        self._backup_root = Path.home().joinpath("kiauh_backups")
+        kiauh_root = self._get_kiauh_root()
+        self._backup_root = kiauh_root.parent / "kiauh_backups"
         self._timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        
+    @staticmethod
+    def _get_kiauh_root() -> Path:
+        from core.constants import BASE_DIR
 
+        this_file = Path(__file__).resolve()
+        for parent in this_file.parents:
+            if (parent / "kiauh.sh").exists() and (parent / "default.kiauh.cfg").exists():
+                return parent
+        return BASE_DIR
+        
     @property
     def backup_root(self) -> Path:
         return self._backup_root
@@ -182,21 +193,30 @@ class BackupService:
             # fallback: search for printer data directories in the user's home directory
             Logger.print_info("No Klipper instances found via systemd services.")
             Logger.print_info(
-                "Attempting to find printer data directories in home directory..."
+                "Attempting to find printer data directories ..."
             )
 
-            home_dir = Path.home()
-            printer_data_dirs = []
+            from core.constants import BASE_DIR
 
-            for pattern in ["printer_data", "printer_*_data"]:
-                for data_dir in home_dir.glob(pattern):
-                    if data_dir.is_dir():
-                        printer_data_dirs.append(data_dir)
+            search_dirs = [Path.home()]
+            if BASE_DIR != Path.home():
+                search_dirs.append(BASE_DIR)
+
+            printer_data_dirs: List[Path] = []
+            seen: set = set()
+
+            for search_dir in search_dirs:
+                for pattern in ["printer_data", "printer_*_data"]:
+                    for data_dir in search_dir.glob(pattern):
+                        resolved = data_dir.resolve()
+                        if data_dir.is_dir() and resolved not in seen:
+                            seen.add(resolved)
+                            printer_data_dirs.append(data_dir)
 
             if not printer_data_dirs:
                 Logger.print_info("Unable to find directory to backup!")
                 Logger.print_info(
-                    "No printer data directories found in home directory."
+                    "No printer data directories found."
                 )
                 return
 

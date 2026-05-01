@@ -6,9 +6,7 @@
 #                                                                         #
 #  This file may be distributed under the terms of the GNU GPLv3 license  #
 # ======================================================================= #
-from pathlib import Path
-
-from core.constants import SYSTEMD
+from core.constants import BASE_DIR, SYSTEMD
 
 # repo
 KLIPPERSCREEN_REPO = "https://github.com/KlipperScreen/KlipperScreen.git"
@@ -19,8 +17,8 @@ KLIPPERSCREEN_UPDATER_SECTION_NAME = "update_manager KlipperScreen"
 KLIPPERSCREEN_LOG_NAME = "KlipperScreen.log"
 
 # directories
-KLIPPERSCREEN_DIR = Path.home().joinpath("KlipperScreen")
-KLIPPERSCREEN_ENV_DIR = Path.home().joinpath(".KlipperScreen-env")
+KLIPPERSCREEN_DIR = BASE_DIR.joinpath("KlipperScreen")
+KLIPPERSCREEN_ENV_DIR = BASE_DIR.joinpath(".KlipperScreen-env")
 
 # files
 KLIPPERSCREEN_REQ_FILE = KLIPPERSCREEN_DIR.joinpath(

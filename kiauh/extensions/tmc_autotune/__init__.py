@@ -8,13 +8,15 @@
 # ======================================================================= #
 from pathlib import Path
 
+from core.constants import BASE_DIR
+
 # repo
 TMCA_REPO = "https://github.com/andrewmcgr/klipper_tmc_autotune"
 
 # directories
-TMCA_DIR = Path.home().joinpath("klipper_tmc_autotune")
+TMCA_DIR = BASE_DIR.joinpath("klipper_tmc_autotune")
 MODULE_PATH = Path(__file__).resolve().parent
-KLIPPER_DIR = Path.home().joinpath("klipper")
+KLIPPER_DIR = BASE_DIR.joinpath("klipper")
 KLIPPER_EXTRAS = KLIPPER_DIR.joinpath("klippy/extras")
 KLIPPER_PLUGINS = KLIPPER_DIR.joinpath("klippy/plugins")
 KLIPPER_EXTENSIONS_PATH = (
