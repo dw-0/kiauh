@@ -765,7 +765,7 @@ def update_system_package_lists(silent: bool, rls_info_change=False, dry_run: bo
         command = ["sudo", installer, "update"]
         try_dir = "/var/cache/apk"
         if os.path.isdir(try_dir):
-            cache_files.append(try_dir)
+            cache_files.append(Path(try_dir))
     if dry_run:
         return command
     if not command:
