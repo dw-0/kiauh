@@ -143,9 +143,18 @@ def symlink_webui_nginx_log(
     for instance in klipper_instances:
         desti_access = instance.base.log_dir.joinpath(access_log.name)
         if not desti_access.exists():
+            if desti_access.is_symlink():
+                # bad symlink (such as if log doesn't exist yet but logs
+                #   dir symlink was restored from a backup)
+                os.remove(desti_access)
+        if not desti_access.exists():
             desti_access.symlink_to(access_log)
 
         desti_error = instance.base.log_dir.joinpath(error_log.name)
+        if not desti_error.exists():
+            if desti_error.is_symlink():
+                os.remove(desti_error)
+
         if not desti_error.exists():
             desti_error.symlink_to(error_log)
 
