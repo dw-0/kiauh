@@ -391,6 +391,9 @@ def get_nginx_listen_port(config: Path) -> int | None:
     # noinspection HttpUrlsUsage
     pattern = r"default_server|http://|https://|[;\[\]]"
     port = ""
+    print(f"Checking {repr(config)}...")
+    if not config.exists():
+        return None
     with open(config, "r") as cfg:
         for line in cfg.readlines():
             line = re.sub(pattern, "", line.strip())
