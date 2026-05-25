@@ -344,7 +344,8 @@ class MoonrakerSetupService:
             return
 
         try:
-            command = [POLKIT_SCRIPT, "--disable-systemctl"]
+            command = [str(POLKIT_SCRIPT), "--disable-systemctl"]
+            # ^ str to convert from PosixPath
             result = run(
                 command,
                 stderr=PIPE,
