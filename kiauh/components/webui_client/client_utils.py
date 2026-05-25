@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 from json import JSONDecodeError
@@ -288,6 +289,10 @@ def copy_upstream_nginx_cfg() -> None:
     """
     source = MODULE_PATH.joinpath("assets/upstreams.conf")
     target = NGINX_CONFD.joinpath("upstreams.conf")
+    if not NGINX_CONFD.exists():
+        os.makedirs(NGINX_CONFD)
+        print(f"WARNING: Creating {repr(NGINX_CONFD)}."
+              " Include it in nginx.conf.")
     try:
         command = ["sudo", "cp", source, target]
         run(command, stderr=PIPE, check=True)
@@ -304,6 +309,10 @@ def copy_common_vars_nginx_cfg() -> None:
     """
     source = MODULE_PATH.joinpath("assets/common_vars.conf")
     target = NGINX_CONFD.joinpath("common_vars.conf")
+    if not NGINX_CONFD.exists():
+        os.makedirs(NGINX_CONFD)
+        print(f"WARNING: Creating {repr(NGINX_CONFD)}."
+              " Include it in nginx.conf.")
     try:
         command = ["sudo", "cp", source, target]
         run(command, stderr=PIPE, check=True)
