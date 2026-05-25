@@ -89,6 +89,13 @@ On certain distros, certain other packages may not be installed by default and m
 
 And if your distro has an error running `grep -P` (such as during Moonraker repo's `scripts/set-policykit-rules.sh` which runs during install) you are using BusyBox' built-in grep not GNU grep, so you must install the `grep` package first.
 
+If greenlet will not compile (such as 3.1.1), try downgrading Python. As
+of May 2026, you must use pyenv to install 3.12 to use klipper if your
+distro's Python version is 3.14 and doesn't have the ability to
+downgrade. Then set python 3.12 as the global python for the user using
+`pyenv global 3.12`. Then `python -m venv ~/klippy-env`. When installing
+Klipper, say "no" to re-create the environment, otherwise it (Klipper as of May 2026) will try to use the system's python version not the user's.
+
 * **Step 2:** \
   Once git is installed, use the following command to download KIAUH into your
   home-directory:
