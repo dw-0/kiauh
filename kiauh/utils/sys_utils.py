@@ -135,9 +135,9 @@ fi
 if [ -f "/etc/http.d/default.conf" ]; then
     >&2 echo "Warning: default site /etc/nginx/httpd.d/default.conf is present. This may interfere with /etc/nginx/httpd.d/00-fluid.conf"
 fi
-doas nft add rule inet filter input iifname {"lo","wlan0","eth0","en*"} tcp dport 80 counter accept
-doas nft add rule inet filter input tcp dport 80 counter drop
-doas mkdir -p /etc/nftables.d && echo 'add rule inet filter input tcp dport 80 accept comment "Fluidd"' | doas tee /etc/nftables.d/10-fluidd.nft
+sudo nft add rule inet filter input iifname {"lo","wlan0","eth0","en*"} tcp dport 80 counter accept
+sudo nft add rule inet filter input tcp dport 80 counter drop
+sudo mkdir -p /etc/nftables.d && echo 'add rule inet filter input tcp dport 80 accept comment "Fluidd"' | sudo tee /etc/nftables.d/10-fluidd.nft
  >/dev/null
 
 sudo apk add -q dhclient
@@ -152,6 +152,7 @@ cat <<END
 sudo nmcli connection add type wifi con-name "MyWifi" ifname wlan0 ssid "YOUR_SSID" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YOUR_PASSWORD"
 sudo nmcli connection modify MyWifi connection.permissions ""
 sudo nmcli connection up MyWifi
+sudo nmcli connection modify MyWifi connection.autoconnect yes
 # Install ip command (`ip -json -det address` such as used by Klipper [KlipperScreen?], instead of limited BusyBox version)
 sudo apk add -q iproute2
 END
