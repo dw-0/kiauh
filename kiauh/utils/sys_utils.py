@@ -135,12 +135,14 @@ fi
 if [ -f "/etc/http.d/default.conf" ]; then
     >&2 echo "Warning: default site /etc/nginx/httpd.d/default.conf is present. This may interfere with /etc/nginx/httpd.d/00-fluid.conf"
 fi
-sudo nft add rule inet filter input iifname {"lo","wlan0","eth0","en*"} tcp dport 80 counter accept
+sudo nft add rule inet filter input iifname {"lo","mlan0","wlan0","eth0","en*"} tcp dport 80 counter accept
 sudo nft add rule inet filter input tcp dport 80 counter drop
 sudo mkdir -p /etc/nftables.d && echo 'add rule inet filter input tcp dport 80 accept comment "Fluidd"' | sudo tee /etc/nftables.d/10-fluidd.nft
  >/dev/null
 
 sudo apk add -q dhclient
+sudo apk add -q grep
+sudo apk add -q findutils
 sudo mkdir -p /etc/NetworkManager/conf.d
 echo "[main]" | sudo tee /etc/NetworkManager/conf.d/dhcp-client.conf
 echo "dhcp=dhclient" | sudo tee -a /etc/NetworkManager/conf.d/dhcp-client.conf
