@@ -13,16 +13,20 @@ from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
 from extensions.droidklipp import (
     DROIDKLIPP_APK_URL,
+    DROIDKLIPP_DEPLOYED_MONITOR,
     DROIDKLIPP_DIR,
     DROIDKLIPP_INSTALL_SCRIPT,
+    DROIDKLIPP_MONITOR_FILE,
     DROIDKLIPP_REPO,
     DROIDKLIPP_REQUIRED_PACKAGES,
+    DROIDKLIPP_SERVICE_NAME,
     DROIDKLIPP_UNINSTALL_SCRIPT,
 )
 from utils.common import check_install_dependencies
 from utils.fs_utils import check_file_exist, run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
+from utils.sys_utils import cmd_sysctl_service
 
 
 # noinspection PyMethodMayBeStatic
@@ -84,14 +88,41 @@ class DroidKlippExtension(BaseExtension):
             return
 
         try:
+            # the adb_monitor service runs the deployed monitor as a long-running
+            # daemon, so it must be stopped before and (re)started after the pull,
+            # otherwise the running process keeps executing the old in-memory code.
+            cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "stop")
+
             git_pull_wrapper(DROIDKLIPP_DIR)
+
+            # droidklipp_monitor.py is a tracked file in the repo but the service
+            # executes the copy deployed into $HOME, so re-deploy it after pulling.
+            if check_file_exist(DROIDKLIPP_MONITOR_FILE):
+                run(
+                    [
+                        "install",
+                        "-m",
+                        "755",
+                        str(DROIDKLIPP_MONITOR_FILE),
+                        str(DROIDKLIPP_DEPLOYED_MONITOR),
+                    ],
+                    check=True,
+                )
+
+            cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "start")
+
             Logger.print_dialog(
                 DialogType.SUCCESS,
                 ["DroidKlipp successfully updated!"],
                 center_content=True,
             )
+        except CalledProcessError as e:
+            Logger.print_error(f"Error during DroidKlipp update:\n{e}")
+            # best-effort restart so we never leave the service stopped on failure
+            cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "start")
         except Exception as e:
             Logger.print_error(f"Error during DroidKlipp update:\n{e}")
+            cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "start")
 
     def remove_extension(self, **kwargs) -> None:
         Logger.print_status("Removing DroidKlipp ...")
