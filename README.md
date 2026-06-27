@@ -147,7 +147,7 @@ changes!**
     <th><h3><a href="https://github.com/OctoPrint/OctoPrint">OctoPrint</a></h3></th>
 </tr>
 <tr>
-    <th><img src="https://raw.githubusercontent.com/fluidd-core/fluidd/master/docs/assets/images/logo.svg" alt="Fluidd Logo" height="64"></th>
+    <th><img src="https://avatars.githubusercontent.com/u/93045370?v=4"alt="Fluidd Logo" height="64"></th>
     <th><img src="https://avatars.githubusercontent.com/u/31575189?v=4" alt="jordanruthe avatar" height="64"></th>
     <th><img src="https://raw.githubusercontent.com/OctoPrint/OctoPrint/master/docs/images/octoprint-logo.png" alt="OctoPrint Logo" height="64"></th>
 </tr>
