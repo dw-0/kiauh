@@ -18,7 +18,6 @@ DROIDKLIPP_DIR = Path.home().joinpath("DroidKlipp")
 # files
 DROIDKLIPP_INSTALL_SCRIPT = DROIDKLIPP_DIR.joinpath("install_droidklipp.sh")
 DROIDKLIPP_UNINSTALL_SCRIPT = DROIDKLIPP_DIR.joinpath("uninstall_droidklipp.sh")
-# the monitor is shipped as a tracked file in the repo and deployed into $HOME
 DROIDKLIPP_MONITOR_FILE = DROIDKLIPP_DIR.joinpath("droidklipp_monitor.py")
 DROIDKLIPP_DEPLOYED_MONITOR = Path.home().joinpath("droidklipp_monitor.py")
 

@@ -88,15 +88,10 @@ class DroidKlippExtension(BaseExtension):
             return
 
         try:
-            # the adb_monitor service runs the deployed monitor as a long-running
-            # daemon, so it must be stopped before and (re)started after the pull,
-            # otherwise the running process keeps executing the old in-memory code.
             cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "stop")
 
             git_pull_wrapper(DROIDKLIPP_DIR)
 
-            # droidklipp_monitor.py is a tracked file in the repo but the service
-            # executes the copy deployed into $HOME, so re-deploy it after pulling.
             if check_file_exist(DROIDKLIPP_MONITOR_FILE):
                 run(
                     [
@@ -118,7 +113,6 @@ class DroidKlippExtension(BaseExtension):
             )
         except CalledProcessError as e:
             Logger.print_error(f"Error during DroidKlipp update:\n{e}")
-            # best-effort restart so we never leave the service stopped on failure
             cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "start")
         except Exception as e:
             Logger.print_error(f"Error during DroidKlipp update:\n{e}")

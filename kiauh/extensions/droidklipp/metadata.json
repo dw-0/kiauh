@@ -10,7 +10,7 @@
       "- Optional WiFi fallback",
       "- Starts and monitors KlipperScreen on the Android X server"
     ],
-    "website": "https://github.com/CodeMasterCody3D/DroidKlipp-Android-APK/releases/latest/download/DroidKlipp.apk",
+    "website": "https://github.com/CodeMasterCody3D/DroidKlipp-Android-APK/releases",
     "repo": "https://github.com/CodeMasterCody3D/DroidKlipp",
     "updates": true
   }
