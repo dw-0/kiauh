@@ -35,20 +35,22 @@ from extensions.moongate import (
 )
 from utils.config_utils import remove_config_section
 from utils.fs_utils import check_file_exist
-from utils.git_utils import git_clone_wrapper, git_pull_wrapper
+from utils.git_utils import GitException, git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm, get_number_input
 from utils.instance_utils import get_instances
 
 
 # noinspection PyMethodMayBeStatic
 class MoongateExtension(BaseExtension):
-    # Moongate ships a substantial, security-sensitive and idempotent installer
-    # (cloudflared, two systemd services, an EdDSA auth proxy, a Moonraker host
-    # rebind and a tightly-scoped Avahi sudoers entry). Rather than mirror all
-    # of that in Python — where it would drift out of sync with upstream — this
-    # extension does the KIAUH-idiomatic parts natively (instance discovery,
-    # confirmation, moonraker.conf backup, the repo clone wired to the update
-    # manager) and delegates the heavy lifting to Moongate's own scripts.
+    """
+    Moongate ships a substantial, security-sensitive and idempotent installer
+    (cloudflared, two systemd services, an EdDSA auth proxy, a Moonraker host
+    rebind and a tightly-scoped Avahi sudoers entry). Rather than mirror all
+    of that in Python — where it would drift out of sync with upstream — this
+    extension does the KIAUH-idiomatic parts natively (instance discovery,
+    confirmation, moonraker.conf backup, the repo clone wired to the update
+    manager) and delegates the heavy lifting to Moongate's own scripts.
+    """
 
     def install_extension(self, **kwargs) -> None:
         Logger.print_status("Installing Moongate for Klipper ...")
@@ -94,7 +96,6 @@ class MoongateExtension(BaseExtension):
         try:
             self._clone_or_update_repo()
 
-            # Back up moonraker.conf the KIAUH way before the installer edits it.
             BackupService().backup_moonraker_conf()
 
             # Hand off to Moongate's own installer. It is idempotent,
@@ -106,7 +107,7 @@ class MoongateExtension(BaseExtension):
                 moonraker,
                 extra_env={"MOONGATE_PORT": str(port)},
             )
-        except (CalledProcessError, OSError) as e:
+        except (GitException, CalledProcessError, OSError) as e:
             Logger.print_error(f"Error during Moongate installation:\n{e}")
             return
 
@@ -138,10 +139,9 @@ class MoongateExtension(BaseExtension):
 
         try:
             git_pull_wrapper(MOONGATE_DIR)
-            # update.sh only refreshes the component symlink + QR pair page.
             self._run_script(MOONGATE_UPDATE_SCRIPT, mr_instances[0])
             InstanceManager.restart_all(mr_instances)
-        except (CalledProcessError, OSError) as e:
+        except (GitException, CalledProcessError, OSError) as e:
             Logger.print_error(f"Error during Moongate update:\n{e}")
             return
 
