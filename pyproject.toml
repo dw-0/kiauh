@@ -33,5 +33,9 @@ warn_unreachable = true
 
 [tool.pytest.ini_options]
 minversion = "8.2.1"
-testpaths = ["kiauh/core/simple_config_parser/tests", "kiauh/utils/tests"]
+testpaths = [
+    "kiauh/components/webui_client/tests",
+    "kiauh/core/simple_config_parser/tests",
+    "kiauh/utils/tests",
+]
 pythonpath = ["kiauh"]

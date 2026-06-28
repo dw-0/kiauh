@@ -14,7 +14,7 @@ import shutil
 from json import JSONDecodeError
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, run
-from typing import List, get_args
+from typing import List
 
 from components.klipper.klipper import Klipper
 from components.webui_client import MODULE_PATH
@@ -229,13 +229,11 @@ def backup_client_config_data(client: BaseWebClient) -> None:
 
 
 def get_existing_clients() -> List[BaseWebClient]:
-    clients = list(get_args(WebClientType))
-    installed_clients: List[BaseWebClient] = []
-    for client in clients:
-        if client.client_dir.exists():
-            installed_clients.append(client)
-
-    return installed_clients
+    # WebClientType is an Enum, so typing.get_args() returns () and the old
+    # implementation always reported "no clients". Enumerate the concrete client
+    # data classes directly and keep the ones whose install dir exists.
+    clients: List[BaseWebClient] = [MainsailData(), FluiddData()]
+    return [client for client in clients if client.client_dir.exists()]
 
 
 def detect_client_cfg_conflict(curr_client: BaseWebClient) -> bool:
