@@ -109,7 +109,7 @@ def get_current_branch(repo: Path) -> str | None:
         )
         return result.strip() if result else None
 
-    except CalledProcessError:
+    except (CalledProcessError, FileNotFoundError):
         return None
 
 
