@@ -11,7 +11,8 @@ from typing import List, Tuple, Type
 
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
-from utils.input_utils import get_confirm, get_number_input
+from core.types.color import Color
+from utils.input_utils import get_confirm
 from utils.instance_type import InstanceType
 from utils.instance_utils import get_instances
 
@@ -358,9 +359,74 @@ def git_cmd_pull(target_dir: Path) -> None:
         raise
 
 
+def get_git_log(repo_dir: Path, count: int = 20) -> List[Tuple[str, str]]:
+    """
+    Retrieve recent commit history from a git repository.
+    :param repo_dir: Path to the git repository
+    :param count: Number of commits to retrieve
+    :return: List of tuples (short_sha, message)
+    """
+    try:
+        cmd = ["git", "-C", repo_dir.as_posix(), "log", "--oneline", f"-{count}"]
+        result = check_output(cmd, stderr=DEVNULL, text=True).strip()
+        commits = []
+        for line in result.split("\n"):
+            if line:
+                parts = line.split(" ", 1)
+                if len(parts) >= 2:
+                    commits.append((parts[0], parts[1]))
+        return commits
+    except CalledProcessError:
+        return []
+
+
 def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
-    q1 = "How many commits do you want to roll back"
-    amount = get_number_input(q1, 1, allow_go_back=True)
+    commits = get_git_log(repo_dir, 20)
+    if not commits:
+        Logger.print_error("No commit history found.")
+        return
+
+    print("\n" + "=" * 70)
+    print("Recent commits (current HEAD is at the top):")
+    print("=" * 70)
+    for i, (sha, msg) in enumerate(commits, 1):
+        print(f"  {i:2}. {sha}  {msg}")
+    print("=" * 70 + "\n")
+
+    user_input = input(
+        Color.apply("Enter commit number to rollback to, or full SHA: ", Color.CYAN)
+    ).strip()
+
+    if not user_input:
+        Logger.print_info("Aborting roll back ...")
+        return
+
+    if user_input.lower() in ("b", "B"):
+        Logger.print_info("Aborting roll back ...")
+        return
+
+    target_sha: str | None = None
+
+    if user_input.isdigit():
+        idx = int(user_input)
+        if 1 <= idx <= len(commits):
+            target_sha = commits[idx - 1][0]
+        else:
+            Logger.print_error(
+                f"Invalid selection. Must be between 1 and {len(commits)}."
+            )
+            return
+    else:
+        full_commits = get_git_log(repo_dir, 100)
+        match = next(
+            ((sha, msg) for sha, msg in full_commits if sha.startswith(user_input)),
+            None,
+        )
+        if match:
+            target_sha = match[0]
+        else:
+            Logger.print_error(f"Could not find any commit starting with: {user_input}")
+            return
 
     instances = get_instances(instance)
 
@@ -369,7 +435,7 @@ def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
         f"All currently running {instance.__name__} services will be stopped!"
     )
     if not get_confirm(
-        f"Roll back {amount} commit{'s' if amount > 1 else ''}",
+        f"Roll back to {target_sha}",
         default_choice=False,
         allow_go_back=True,
     ):
@@ -379,9 +445,9 @@ def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
     InstanceManager.stop_all(instances)
 
     try:
-        cmd = ["git", "reset", "--hard", f"HEAD~{amount}"]
+        cmd = ["git", "reset", "--hard", target_sha]
         run(cmd, cwd=repo_dir, check=True, stdout=PIPE, stderr=PIPE)
-        Logger.print_ok(f"Rolled back {amount} commits!", start="\n")
+        Logger.print_ok(f"Rolled back to {target_sha}!", start="\n")
     except CalledProcessError as e:
         Logger.print_error(f"An error occured during repo rollback:\n{e}")
 
