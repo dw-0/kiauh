@@ -4,3 +4,4 @@ pytest
 paramiko
 pytest-testinfra
 pyyaml
+python-dotenv

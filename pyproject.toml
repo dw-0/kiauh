@@ -2,7 +2,7 @@
 requires-python = ">=3.8"
 
 [project.optional-dependencies]
-dev=["ruff", "mypy", "pytest", "paramiko", "pytest-testinfra", "pyyaml"]
+dev=["ruff", "mypy", "pytest", "paramiko", "pytest-testinfra", "pyyaml", "python-dotenv"]
 
 [tool.ruff]
 required-version = ">=0.9.10"

@@ -1,8 +1,11 @@
 vms:
   - name: debian12-kiauh
-    host: 192.168.122.10
+    # Override host/key_file via environment variables or a .env file.
+    # KIAUH_LIVE_DEBIAN12_KIAUH_HOST
+    # KIAUH_LIVE_DEBIAN12_KIAUH_KEY_FILE
+    host: null
     user: kiauh
-    key_file: ~/.ssh/kiauh_vm
+    key_file: null
     os: debian-12
     domain: debian12-kiauh
     snapshot: clean

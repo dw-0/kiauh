@@ -15,6 +15,13 @@ from typing import List
 
 import yaml
 
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).parents[2].joinpath(".env"))
+except ImportError:
+    load_dotenv = None
+
 DEFAULT_INVENTORY_PATH = Path(__file__).parent.joinpath("inventory.yaml")
 
 
@@ -33,6 +40,11 @@ class InventoryError(Exception):
     pass
 
 
+def _env_var_name(vm_name: str, suffix: str) -> str:
+    safe_name = vm_name.replace("-", "_").upper()
+    return f"KIAUH_LIVE_{safe_name}_{suffix.upper()}"
+
+
 def load_inventory(path: Path | None = None) -> List[VM]:
     inventory_path = Path(path or os.environ.get("KIAUH_LIVE_INVENTORY", DEFAULT_INVENTORY_PATH))
     if not inventory_path.exists():
@@ -44,15 +56,25 @@ def load_inventory(path: Path | None = None) -> List[VM]:
 
     vms = []
     for item in data["vms"]:
-        for required in ("name", "host", "user", "key_file", "os"):
+        for required in ("name", "user", "os"):
             if required not in item:
                 raise InventoryError(f"VM '{item.get('name', '?')}' missing '{required}'")
+
+        name = item["name"]
+        host = os.environ.get(_env_var_name(name, "host"), item.get("host"))
+        key_file = os.environ.get(_env_var_name(name, "key_file"), item.get("key_file"))
+
+        if not host:
+            raise InventoryError(f"VM '{name}' missing 'host' (inventory or env)")
+        if not key_file:
+            raise InventoryError(f"VM '{name}' missing 'key_file' (inventory or env)")
+
         vms.append(
             VM(
-                name=item["name"],
-                host=item["host"],
+                name=name,
+                host=host,
                 user=item["user"],
-                key_file=item["key_file"],
+                key_file=key_file,
                 os=item["os"],
                 domain=item.get("domain"),
                 snapshot=item.get("snapshot"),

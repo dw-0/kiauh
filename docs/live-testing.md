@@ -24,17 +24,24 @@ the VM in the inventory.
 
 ## Inventory
 
-Edit `kiauh/live/inventory.yaml` or point to a custom file:
+`kiauh/live/inventory.yaml` defines non-sensitive VM settings. The host and SSH
+key path are read from environment variables or a `.env` file so they are not
+committed.
 
-```yaml
-vms:
-  - name: debian12-kiauh
-    host: 192.168.122.10
-    user: kiauh
-    key_file: ~/.ssh/kiauh_vm
-    os: debian-12
-    domain: debian12-kiauh
-    snapshot: clean
+Create `.env` in the project root:
+
+```bash
+KIAUH_LIVE_DEBIAN12_KIAUH_HOST=192.168.122.10
+KIAUH_LIVE_DEBIAN12_KIAUH_KEY_FILE=/home/you/.ssh/kiauh_vm
+```
+
+Variable naming: `KIAUH_LIVE_<VM_NAME>_HOST` and `KIAUH_LIVE_<VM_NAME>_KEY_FILE`,
+with the VM name uppercased and hyphens replaced by underscores.
+
+You can also point to a custom inventory file:
+
+```bash
+export KIAUH_LIVE_INVENTORY=/path/to/inventory.yaml
 ```
 
 ## Run Live Tests
