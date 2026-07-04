@@ -1,0 +1,24 @@
+name: Backup and restore Klipper data on Debian 12
+vm: debian12-kiauh
+os: debian-12
+steps:
+  - command: ["kiauh", "install", "klipper", "--count", "1"]
+    timeout: 600
+  - command: ["mkdir", "-p", "/home/kiauh/backups"]
+    timeout: 10
+  - command: ["tar", "-czf", "/home/kiauh/backups/printer_data.tar.gz", "-C", "/home/kiauh", "printer_data"]
+    timeout: 60
+  - command: ["rm", "-rf", "/home/kiauh/printer_data"]
+    timeout: 30
+  - command: ["tar", "-xzf", "/home/kiauh/backups/printer_data.tar.gz", "-C", "/home/kiauh"]
+    timeout: 60
+expected:
+  - type: file
+    path: /home/kiauh/backups/printer_data.tar.gz
+    exists: true
+  - type: file
+    path: /home/kiauh/printer_data
+    exists: true
+  - type: service
+    name: klipper.service
+    state: running

@@ -1,0 +1,8 @@
+vms:
+  - name: debian12-kiauh
+    host: 192.168.122.10
+    user: kiauh
+    key_file: ~/.ssh/kiauh_vm
+    os: debian-12
+    domain: debian12-kiauh
+    snapshot: clean

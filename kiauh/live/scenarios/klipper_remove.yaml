@@ -1,0 +1,18 @@
+name: Remove Klipper on Debian 12
+vm: debian12-kiauh
+os: debian-12
+steps:
+  - command: ["kiauh", "install", "klipper", "--count", "1"]
+    timeout: 600
+  - command: ["kiauh", "remove", "klipper", "--service", "--dir", "--env"]
+    timeout: 120
+expected:
+  - type: file
+    path: /etc/systemd/system/klipper.service
+    exists: false
+  - type: file
+    path: /home/kiauh/klipper
+    exists: false
+  - type: file
+    path: /home/kiauh/klippy-env
+    exists: false

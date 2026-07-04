@@ -2,7 +2,7 @@
 requires-python = ">=3.8"
 
 [project.optional-dependencies]
-dev=["ruff", "mypy", "pytest"]
+dev=["ruff", "mypy", "pytest", "paramiko", "pytest-testinfra", "pyyaml"]
 
 [tool.ruff]
 required-version = ">=0.9.10"
@@ -33,5 +33,12 @@ warn_unreachable = true
 
 [tool.pytest.ini_options]
 minversion = "8.2.1"
-testpaths = ["kiauh/core/simple_config_parser/tests", "kiauh/utils/tests"]
+testpaths = [
+    "kiauh/core/simple_config_parser/tests",
+    "kiauh/live/tests",
+    "kiauh/utils/tests",
+]
 pythonpath = ["kiauh"]
+markers = [
+    "live: tests that run against a real VM (isolated, never local)",
+]

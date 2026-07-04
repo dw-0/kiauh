@@ -1,0 +1,18 @@
+name: Install Klipper on Debian 12
+vm: debian12-kiauh
+os: debian-12
+steps:
+  - command: ["kiauh", "install", "klipper", "--count", "1"]
+    timeout: 600
+  - command: ["sudo", "systemctl", "is-active", "klipper.service"]
+    timeout: 30
+expected:
+  - type: service
+    name: klipper.service
+    state: running
+  - type: file
+    path: /home/kiauh/klipper/klipper
+    exists: true
+  - type: command
+    command: systemctl is-enabled klipper.service
+    returncode: 0

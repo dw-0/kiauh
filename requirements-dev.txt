@@ -1,3 +1,6 @@
 ruff (>=0.9.10)
 mypy
 pytest
+paramiko
+pytest-testinfra
+pyyaml

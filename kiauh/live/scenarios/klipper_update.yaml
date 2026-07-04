@@ -1,0 +1,15 @@
+name: Update Klipper on Debian 12
+vm: debian12-kiauh
+os: debian-12
+steps:
+  - command: ["kiauh", "install", "klipper", "--count", "1"]
+    timeout: 600
+  - command: ["kiauh", "update", "klipper"]
+    timeout: 300
+expected:
+  - type: service
+    name: klipper.service
+    state: running
+  - type: command
+    command: test -d /home/kiauh/klipper/.git
+    returncode: 0

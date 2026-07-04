@@ -1,0 +1,17 @@
+name: Remove Moonraker on Debian 12
+vm: debian12-kiauh
+os: debian-12
+steps:
+  - command: ["kiauh", "install", "klipper", "--count", "1"]
+    timeout: 600
+  - command: ["kiauh", "install", "moonraker"]
+    timeout: 600
+  - command: ["kiauh", "remove", "moonraker", "--service", "--dir", "--env"]
+    timeout: 120
+expected:
+  - type: file
+    path: /etc/systemd/system/moonraker.service
+    exists: false
+  - type: file
+    path: /home/kiauh/moonraker
+    exists: false
