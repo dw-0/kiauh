@@ -1,0 +1,23 @@
+# ======================================================================= #
+#  KIAUH code owners - review-routing ownership zones.                     #
+#                                                                          #
+#  Default owner is the project maintainer. Bundled extensions are owned   #
+#  by their respective authors, as declared in each extension's            #
+#  metadata.json ("maintained_by" field).                                  #
+#  https://docs.github.com/articles/about-code-owners                      #
+# ======================================================================= #
+
+# Default owner for the whole repository.
+*                                                    @dw-0
+
+# Externally maintained extensions (owner = metadata.json "maintained_by").
+/kiauh/extensions/https/                             @lexfrei
+/kiauh/extensions/klipper_adaptive_meshing_purging/  @theogayar
+/kiauh/extensions/klipper_backup/                    @Staubgeborener
+/kiauh/extensions/mobileraker/                       @Clon1998
+/kiauh/extensions/obico/                             @obico
+/kiauh/extensions/octoapp/                           @crysxd
+/kiauh/extensions/octoeverywhere/                    @QuinnDamerell
+/kiauh/extensions/pretty_gcode/                      @Kragrathea
+/kiauh/extensions/telegram_bot/                      @nlef
+/kiauh/extensions/tmc_autotune/                      @theogayar
