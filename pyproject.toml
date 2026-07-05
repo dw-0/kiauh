@@ -60,6 +60,7 @@ testpaths = [
     "kiauh/core/tests",
     "kiauh/core/settings/tests",
     "kiauh/core/simple_config_parser/tests",
+    "kiauh/extensions/https/tests",
     "kiauh/extensions/tests",
     "kiauh/tests",
     "kiauh/utils/tests",

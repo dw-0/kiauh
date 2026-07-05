@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "index": 15,
+    "module": "https_extension",
+    "maintained_by": "lexfrei",
+    "display_name": "Enable HTTPS (Let's Encrypt / certbot DNS-01)",
+    "description": [
+      "Obtain a Let's Encrypt certificate via certbot DNS-01 and reconfigure",
+      "the Mainsail/Fluidd nginx site for HTTPS.",
+      "- Works on LAN-only hosts (no public HTTP-01 reachability needed)",
+      "- Forces an HTTP -> HTTPS redirect and serves the UI on port 443",
+      "- Supported DNS providers: Cloudflare, DigitalOcean, Linode",
+      "\n\n",
+      "Requires a domain whose DNS is hosted by a supported provider and a scoped API token with DNS edit rights."
+    ],
+    "updates": false
+  }
+}
