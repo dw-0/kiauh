@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import re
+from getpass import getpass
 from typing import Dict, List
 
 from core.constants import INVALID_CHOICE
@@ -120,6 +121,26 @@ def get_string_input(
             return _input
         else:
             Logger.print_error(INVALID_CHOICE)
+
+
+def get_secret_input(question: str, allow_empty: bool = False) -> str:
+    """
+    Helper method to get a secret (e.g. an API token) from the user WITHOUT
+    echoing it to the terminal. Unlike get_string_input, this never displays
+    the value or leaves it in the terminal scrollback, so it is safe for
+    credentials. The value is returned verbatim (not stripped) so secrets are
+    never silently mutated; only blank input is rejected.
+    :param question: The question to display
+    :param allow_empty: Whether to allow empty input
+    :return: The entered secret
+    """
+    _question = format_question(question, None)
+    while True:
+        value = getpass(_question)
+        if value.strip() == "" and not allow_empty:
+            Logger.print_error("Input must not be empty!")
+            continue
+        return value
 
 
 def get_selection_input(question: str, option_list: List | Dict, default=None) -> str:
