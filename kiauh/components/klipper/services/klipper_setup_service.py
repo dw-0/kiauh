@@ -143,6 +143,7 @@ class KlipperSetupService:
         except Exception as e:
             Logger.print_error(e)
             Logger.print_error("Klipper installation failed!")
+            raise  # Don't hide such errors. Help debug.
             return
 
     def update(self) -> None:
@@ -277,10 +278,14 @@ class KlipperSetupService:
 
         try:
             install_klipper_packages()
+        except Exception:
+            Logger.print_error("Error during installation of Klipper requirements (for system)!")
+            raise
+        try:
             if create_python_venv(KLIPPER_ENV_DIR, False, False, self.settings.klipper.use_python_binary):
                 install_python_requirements(KLIPPER_ENV_DIR, KLIPPER_REQ_FILE)
         except Exception:
-            Logger.print_error("Error during installation of Klipper requirements!")
+            Logger.print_error("Error during installation of Klipper requirements (for Python)!")
             raise
 
     def __display_moonraker_info(self) -> bool:

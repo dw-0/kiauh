@@ -1,0 +1,309 @@
+{
+  "_comments": {
+    "deb_to_other_commands_comments": {
+      "arch": "Arch does not install recommends automatically, so there is no extra argument necessary to emulate apt-get's --no-install-recommends. The blank arch dictionary in deb_to_other_commands is necessary to indicate compatibility is complete.",
+      "alpine": "Alpine Linux apk has no equivalent to apt-get's --no-recommends. The blank alpine dictionary in deb_to_other_commands is necessary to indicate compatibility is complete."
+    },
+    "deb_to_other_comments": {
+      "alpine": {
+        "_info_keys": {
+          "bsdutils": "Why crowsnest wants bsdutils rather than coreutils is unclear.",
+          "crudini": "Why crowsnest wants crudini is unclear (trivial to reimplement and not packaged on some distros). Maybe reimplement or install manually. Is it just for adding an updater entry in moonraker.conf? If so that is N/A since installed with kiauh patches.",
+          "icu": "installed by KlipperScreen install script, and warns to install icu-data-full if you need non-English locales and legacy charset support.",
+          "packagekit": "There is no equivalent to packagekit, so apk-tools which is somewhat related there as a dummy."
+        },
+        "_warning_keys": {
+          "pipewire-dev": "removes libyuv (a default package on postmarketOS).",
+          "x11-xserver-utils": "has no direct equivalent, but KlipperScreen works fine with the xorg-server which includes similar utils."
+        },
+        "_warning_values": {
+          "python3-*": "done by wildcard in translate_deb_package_name *except* python3-devel which does *not* shorten to the 'py3-' prefix."
+        },
+        "breaking": {
+          "pipewire-libs": {
+             "breaks": "pipewire-dev",
+             "mitigated_comment": "Using pipewire-dev instead of mpv-dev",
+             "required_by": "mpv-dev",
+             "required_by_key": "libmpv-dev",
+             "satisfies": "mpv-libs pipewire pipewire-dev pipewire-jack wireplumber wireplumber-libs"
+          }
+        },
+        "untested_keys": [
+          "libavcodec-dev",
+          "libavformat-dev",
+          "libavformat-dev",
+          "libcamera-apps-lite"
+        ],
+        "untested_values": [
+          "font-noto-cjk",
+          "xorg-server",
+          "xorg-server-common-extra"
+        ]
+      },
+      "arch": {
+        "comment": "python3-*: handled by wildcard in translate_deb_package_name excluding python3-dev which is in 'python3' on arch. Headers usually in same package as lib.",
+        "untested_if_exists_values": [
+          "autoconf",
+          "cage",
+          "cmake",
+          "cairo",
+          "dbus-glib",
+          "gobject-introspection",
+          "gtk3",
+          "librsvg",
+          "mpv",
+          "networkmanager",
+          "python-virtualenv",
+          "seatd",
+          "systemd",
+          "ttf-ipa-font",
+          "ttf-nanum",
+          "xf86-input-evdev",
+          "xf86-input-libinput",
+          "xf86-video-fbdev",
+          "xorg-xinit",
+          "xorg-xinput",
+          "xorg-xlsclients xorg-xrandr xorg-xdpyinfo xorg-xwininfo",
+          "xorg-server-legacy",
+          "xorg-xwayland",
+          "zlib"
+        ],
+        "untested_keys": [
+          "libavcodec-dev",
+          "libavformat-dev",
+          "libavutil-dev",
+          "libcamera-apps-lite"
+        ]
+      },
+      "rpm": {
+        "comment": "other lib*-dev: handled by wildcard in translate_deb_package_name. Group 'Development Tools' covers build-essential equivalent.",
+        "untested_if_exists_values": [
+          "cage",
+          "cairo-devel",
+          "dbus-glib-devel",
+          "g-x11-server-Xwayland",
+          "gobject-introspection-devel",
+          "gtk3-devel",
+          "ipafont",
+          "libcamera-apps",
+          "libcamera-devel",
+          "librsvg2",
+          "libusb1",
+          "live555-devel",
+          "mpv-libs-devel",
+          "NetworkManager",
+          "nhn-nanum-gothic-fonts",
+          "python3",
+          "python3-devel",
+          "seatd",
+          "systemd-devel",
+          "xorg-x11-apps",
+          "xorg-x11-drv-evdev",
+          "xorg-x11-drv-fbdev",
+          "xorg-x11-drv-libinput",
+          "xorg-x11-server-legacy",
+          "xorg-x11-utils",
+          "xorg-x11-xinit"
+        ],
+        "untested_keys": [
+          "libavcodec-dev",
+          "libavformat-dev",
+          "libavutil-dev",
+          "libcamera-apps-lite",
+          "python3-venv"
+        ]
+      }
+    }
+  },
+  "deb_called_scripts_to_translate": [
+    "${SRC_DIR}/libs/core.sh"
+  ],
+  "deb_string_replacements": {
+    "alpine": {
+      "\"${SHALLOW_CHECK_PKGLIST}\"": "$SHALLOW_CHECK_PKGLIST"
+    },
+    "arch": {
+
+    },
+    "rpm": {
+    }
+  },
+  "deb_to_other": {
+    "alpine": {
+      "autoconf": "autoconf",
+      "bsdutils": "coreutils",
+      "build-essential": "build-base",
+      "cage": "cage",
+      "cmake": "cmake",
+      "crudini": "inih",
+      "fonts-ipafont": "font-ipa",
+      "fonts-nanum": "font-noto-cjk",
+      "gir1.2-gtk-3.0": "gtk+3.0-dev",
+      "libavcodec-dev": "ffmpeg-dev",
+      "libavformat-dev": "ffmpeg-dev",
+      "libavutil-dev": "ffmpeg-dev",
+      "libcairo2-dev": "cairo-dev",
+      "libcamera-apps-lite": "libcamera-tools",
+      "libcamera-dev": "libcamera-dev",
+      "libdbus-glib-1-dev": "dbus-glib-dev",
+      "libgirepository1.0-dev": "gobject-introspection-dev",
+      "libjpeg-dev": "jpeg-dev",
+      "liblivemedia-dev": "live-media-dev",
+      "libmpv-dev": "pipewire-dev",
+      "libncurses-dev": "ncurses-dev",
+      "libnewlib-arm-none-eabi": "newlib-arm-none-eabi",
+      "libopenblas-dev": "openblas-dev",
+      "libopenjp2-7": "openjpeg",
+      "libopenjp2-7-dev": "openjpeg-dev",
+      "librsvg2-common": "librsvg",
+      "libsystemd-dev": "systemd-dev",
+      "libusb-1.0": "libusb",
+      "network-manager": "networkmanager networkmanager-cli",
+      "packagekit": "apk-tools",
+      "pkg-config": "pkgconf",
+      "python3-dev": "python3-dev",
+      "python3-venv": "python3",
+      "seatd": "seatd",
+      "virtualenv": "py3-virtualenv",
+      "x11-xserver-utils": "xorg-server",
+      "xinit": "xinit",
+      "xinput": "xinput",
+      "xserver-xorg-input-evdev": "xf86-input-evdev",
+      "xserver-xorg-input-libinput": "xf86-input-libinput",
+      "xserver-xorg-legacy": "xorg-server",
+      "xserver-xorg-video-fbdev": "xf86-video-fbdev",
+      "xwayland": "xwayland",
+      "zlib1g-dev": "zlib-dev"
+    },
+    "arch": {
+      "autoconf": "autoconf",
+      "bsdutils": "coreutils",
+      "build-essential": "base-devel",
+      "cage": "cage",
+      "cmake": "cmake",
+      "fonts-ipafont": "ttf-ipa-font",
+      "fonts-nanum": "ttf-nanum",
+      "gir1.2-gtk-3.0": "gtk3",
+      "libavcodec-dev": "ffmpeg",
+      "libavformat-dev": "ffmpeg",
+      "libavutil-dev": "ffmpeg",
+      "libcairo2-dev": "cairo",
+      "libcamera-apps-lite": "libcamera",
+      "libcamera-dev": "libcamera",
+      "libdbus-glib-1-dev": "dbus-glib",
+      "libgirepository1.0-dev": "gobject-introspection",
+      "libjpeg-dev": "libjpeg-turbo",
+      "liblivemedia-dev": "live-media",
+      "libmpv-dev": "mpv",
+      "libncurses-dev": "ncurses",
+      "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
+      "libopenblas-dev": "openblas",
+      "libopenjp2-7": "openjpeg2",
+      "libopenjp2-7-dev": "openjpeg2",
+      "librsvg2-common": "librsvg",
+      "libsystemd-dev": "systemd",
+      "libusb-1.0": "libusb",
+      "network-manager": "networkmanager",
+      "packagekit": "packagekit",
+      "pkg-config": "pkgconf",
+      "python3-dev": "python",
+      "python3-venv": "python",
+      "seatd": "seatd",
+      "virtualenv": "python-virtualenv",
+      "x11-xserver-utils": "xorg-xlsclients xorg-xrandr xorg-xdpyinfo xorg-xwininfo",
+      "xinit": "xorg-xinit",
+      "xinput": "xorg-xinput",
+      "xserver-xorg-input-evdev": "xf86-input-evdev",
+      "xserver-xorg-input-libinput": "xf86-input-libinput",
+      "xserver-xorg-legacy": "xorg-server-legacy",
+      "xserver-xorg-video-fbdev": "xf86-video-fbdev",
+      "xwayland": "xorg-xwayland",
+      "zlib1g-dev": "zlib"
+    },
+    "rpm": {
+      "autoconf": "autoconf",
+      "bsdutils": "coreutils",
+      "build-essential": "Development Tools",
+      "cage": "cage",
+      "cmake": "cmake",
+      "fonts-ipafont": "ipafont",
+      "fonts-nanum": "nhn-nanum-gothic-fonts",
+      "gir1.2-gtk-3.0": "gtk3-devel",
+      "libavcodec-dev": "ffmpeg-devel",
+      "libavformat-dev": "ffmpeg-devel",
+      "libavutil-dev": "ffmpeg-devel",
+      "libcairo2-dev": "cairo-devel",
+      "libcamera-apps-lite": "libcamera-apps",
+      "libcamera-dev": "libcamera-devel",
+      "libdbus-glib-1-dev": "dbus-glib-devel",
+      "libgirepository1.0-dev": "gobject-introspection-devel",
+      "libjpeg-dev": "libjpeg-turbo-devel",
+      "liblivemedia-dev": "live555-devel",
+      "libmpv-dev": "mpv-libs-devel",
+      "libncurses-dev": "ncurses-devel",
+      "libnewlib-arm-none-eabi": "arm-none-eabi-newlib",
+      "libopenblas-dev": "openblas-devel",
+      "libopenjp2-7": "openjpeg2",
+      "libopenjp2-7-dev": "openjpeg2-devel",
+      "librsvg2-common": "librsvg2",
+      "libsystemd-dev": "systemd-devel",
+      "libusb-1.0": "libusb1",
+      "network-manager": "NetworkManager",
+      "packagekit": "PackageKit",
+      "pkg-config": "pkgconf",
+      "python3-dev": "python3-devel",
+      "python3-venv": "python3",
+      "seatd": "seatd",
+      "virtualenv": "python3-virtualenv",
+      "x11-xserver-utils": "xorg-x11-utils",
+      "xinit": "xorg-x11-xinit",
+      "xinput": "xorg-x11-apps",
+      "xserver-xorg-input-evdev": "xorg-x11-drv-evdev",
+      "xserver-xorg-input-libinput": "xorg-x11-drv-libinput",
+      "xserver-xorg-legacy": "xorg-x11-server-legacy",
+      "xserver-xorg-video-fbdev": "xorg-x11-drv-fbdev",
+      "xwayland": "xorg-x11-server-Xwayland",
+      "zlib1g-dev": "zlib-devel"
+    }
+  },
+  "deb_to_other_install_commands_any_order": {
+    "alpine": {
+      "apt-get install --no-install-recommends": "apk add --quiet",
+      "apt-get install --yes --no-install-recommends": "apk add --quiet",
+      "apt-get install -y --no-install-recommends": "apk add --quiet",
+      "apt-get install --yes": "apk add --quiet",
+      "apt-get install -y": "apk add --quiet",
+      "apt-get install": "apk add --quiet"
+    },
+    "arch": {
+    },
+    "rpm": {
+      "apt-get install --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install",
+      "apt-get install --yes --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install",
+      "apt-get install -y --no-install-recommends": "dnf --setopt=install_weak_deps=False --best -y install",
+      "apt-get install --yes": "dnf --setopt=install_weak_deps=False -y install",
+      "apt-get install -y": "dnf --setopt=install_weak_deps=False -y install",
+      "apt-get install": "dnf --setopt=install_weak_deps=False -y install"
+    }
+  },
+  "deb_to_other_subcommands_any_args": {
+    "alpine": {
+      "apt-get update --allow-releaseinfo-change -q": "apk update",
+      "apt-cache search --names-only": "apk info"
+    },
+    "arch": {
+    },
+    "rpm": {
+    }
+  },
+  "deb_variable_replacements": {
+    "alpine": {
+      "SHALLOW_CHECK_PKGLIST": "| grep -E '^(zstd|zlib-dev)$'"
+    },
+    "arch": {
+
+    },
+    "rpm": {
+    }
+  }
+}

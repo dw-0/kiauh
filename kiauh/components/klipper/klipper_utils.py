@@ -11,6 +11,7 @@ from __future__ import annotations
 import grp
 import os
 import shutil
+import sys
 from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import Dict, List
@@ -38,7 +39,10 @@ from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
 )
 from core.types.component_status import ComponentStatus
-from utils.common import check_install_dependencies, get_install_status
+from utils.common import (
+    check_install_dependencies,
+    get_install_status,
+)
 from utils.fs_utils import check_file_exist
 from utils.input_utils import get_confirm, get_number_input, get_string_input
 from utils.instance_utils import get_instances
@@ -46,6 +50,11 @@ from utils.sys_utils import (
     cmd_sysctl_service,
     install_python_packages,
     parse_packages_from_file,
+    get_distros_metadata,
+    get_package_installer,
+    get_package_type_of,
+    get_package_renames,
+    translate_deb_package_names,
 )
 
 
@@ -214,8 +223,21 @@ def install_klipper_packages() -> None:
     script = KLIPPER_INSTALL_SCRIPT
     packages = parse_packages_from_file(script)
 
-    # Add pkg-config for rp2040 build
-    packages.append("pkg-config")
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
+    if pkg_t in ("alpine", "arch", "rpm"):
+        # In Fedora pkgconf-pkg-config is a subpackage of pkgconf, so
+        #   pkgconf will do.
+        packages.append("pkgconf")
+    elif pkg_t == "deb":
+        # Add pkg-config for rp2040 build
+        packages.append("pkg-config")
+    else:
+        print(
+            "Warning: pkg-config cannot be installed"
+            " since {} is not implemented in install_klipper_packages."
+            .format(installer),
+            file=sys.stderr)
 
     # Add dbus requirement for DietPi distro
     if check_file_exist(Path("/boot/dietpi/.version")):
@@ -249,12 +271,28 @@ def install_input_shaper_deps() -> None:
     ):
         return
 
-    apt_deps = (
+    sys_deps = (
         "python3-numpy",
         "python3-matplotlib",
         "libopenblas-dev",
     )
-    check_install_dependencies({*apt_deps})
+    installer = get_package_installer()
+    package_t = get_package_type_of(installer)
+    _ = get_package_renames(package_type=package_t)
+    # ^ loads saved version of _DISTROS if not yet loaded.
+    if package_t == "deb":
+        pass  # Default names are good.
+    elif package_t in get_distros_metadata()['deb_to_other']:
+        # NOTE: will be translated by check_install_dependencies, but
+        #   check here as an earlier and more explicit error (in
+        #   "else").
+        sys_deps = tuple(translate_deb_package_names(sys_deps, package_t))
+    else:
+        print("Warning: system deps are unknown for your package manager's"
+              " package type ({}). Trying {}".format(package_t, sys_deps),
+              file=sys.stderr)
+
+    check_install_dependencies({*sys_deps}, translate_deb=False)
 
     py_deps = ("numpy",)
 

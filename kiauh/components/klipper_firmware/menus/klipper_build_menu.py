@@ -28,7 +28,12 @@ from utils.input_utils import get_confirm, get_string_input
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
+    install_system_package_group,
     update_system_package_lists,
+    get_package_installer,
+    get_package_type_of,
+    get_installer_description,
+    PACKAGE_GROUPS,
 )
 
 
@@ -133,7 +138,34 @@ class KlipperBuildFirmwareMenu(BaseMenu):
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.deps: Set[str] = {"build-essential", "dpkg-dev", "make"}
+        self.missing_dep_groups = {}
+        development_tools_g = []
+        installer = get_package_installer()
+        pkg_t = get_package_type_of(installer)
+        if pkg_t == "deb":
+            pass  # already correct
+        elif pkg_t == "rpm":
+            self.deps.remove("build-essential")
+            development_tools_g = PACKAGE_GROUPS["rpm"]["Development Tools"]
+            for dep in development_tools_g:
+                self.deps.add(dep)
+        elif pkg_t == "alpine":
+            self.deps.remove("build-essential")
+            self.deps.add("build-base")
+        else:
+            raise NotImplementedError(
+                "build-essential package name not implemented for {}"
+                .format(get_installer_description(installer)))
+
         self.missing_deps: List[str] = check_package_install(self.deps)
+        is_missing_dev = False
+        if pkg_t == "rpm":
+            for dep in list(self.missing_deps):
+                if dep in development_tools_g:
+                    self.missing_deps.remove(dep)
+                    is_missing_dev = True
+        if is_missing_dev:
+            self.missing_dep_groups['Development Tools'] = development_tools_g
         self.flash_options = FlashOptions()
         self.kconfigs_dirname = KLIPPER_KCONFIGS_DIR
         self.kconfig_default = KLIPPER_DIR.joinpath(".config")
@@ -152,7 +184,7 @@ class KlipperBuildFirmwareMenu(BaseMenu):
 
     def run(self):
         # immediately start the build process if all dependencies are met
-        if len(self.missing_deps) == 0:
+        if (len(self.missing_deps) == 0) and (len(self.missing_dep_groups) == 0):
             self.start_build_process()
         else:
             super().run()
@@ -173,6 +205,9 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             status_ok = Color.apply("*INSTALLED*", Color.GREEN)
             status_missing = Color.apply("*MISSING*", Color.RED)
             status = status_missing if d in self.missing_deps else status_ok
+            for group, g_packages in self.missing_dep_groups.items():
+                if d in g_packages or d == group:
+                    status = status_missing
             padding = 40 - len(d) + len(status) + (len(status_ok) - len(status))
             d = Color.apply(f"● {d}", Color.CYAN)
             menu += f"║ {d}{status:>{padding}} ║\n"
@@ -187,6 +222,10 @@ class KlipperBuildFirmwareMenu(BaseMenu):
             update_system_package_lists(silent=False)
             Logger.print_status("Installing system packages...")
             install_system_packages(self.missing_deps)
+            if self.missing_dep_groups:
+                for group in self.missing_dep_groups:
+                    # only name of group is necessary, not values
+                    install_system_package_group(group)
         except Exception as e:
             Logger.print_error(e)
             Logger.print_error("Installing dependencies failed!")

@@ -20,6 +20,10 @@ import re
 import shlex
 from typing import Any, Dict, List, Tuple
 
+from core import (
+    emit_cast,
+)
+
 
 def _get_distro_info() -> Dict[str, Any]:
     release_file = pathlib.Path("/etc/os-release")
@@ -100,7 +104,7 @@ class SysDepsParser:
                 continue
             elif last_logical_op is None:
                 logging.info(
-                    f"Requirement specifier contains two seqential expressions "
+                    f"Requirement specifier contains two sequential expressions "
                     f"without a logical operator: {full_spec}"
                 )
                 return None
@@ -129,6 +133,14 @@ class SysDepsParser:
                 return None
             operator = dep_parts[1].strip()
             try:
+                if not isinstance(left_op, int):
+                    logging.error(
+                        "Expected int for left_op, got {} in {}"
+                        .format(emit_cast(left_op), dep_parts))
+                if not isinstance(right_op, int):
+                    logging.error(
+                        "Expected int for right_op, got {} in {}"
+                        .format(emit_cast(right_op), dep_parts))
                 compfunc = {
                     "<": lambda x, y: x < y,
                     ">": lambda x, y: x > y,
@@ -145,35 +157,62 @@ class SysDepsParser:
                 last_logical_op = None
             except Exception:
                 logging.exception(f"Error comparing requirements: {full_spec}")
+                # raise  # Don't hide errors (commented since not fatal: Allow install anyway)
                 return None
         if last_result:
             return pkg_name
         return None
 
     def parse_dependencies(self, sys_deps: Dict[str, List[str]]) -> List[str]:
+        # Output is now "warning" so we can see what causes
+        #   "Error during installation of Moonraker requirements"
+        #   for *any* scenario when 0 requirements are added
+        #    (which causes that error in the caller).
         if not self.distro_id:
-            logging.info(
+            logging.warning(
                 "Failed to detect current distro ID, cannot parse dependencies"
             )
             return []
         all_ids = [self.distro_id] + self.aliases
+        matching_distro_id = None
+        distro_installers = {
+            "ubuntu": "deb",
+            "debian": "deb",
+        }
+        well_known_package_type = None
+        for distro_id, try_package_type in distro_installers.items():
+            if distro_id in sys_deps:
+                well_known_package_type = try_package_type
+                well_known_distro_id = distro_id
+                break
         for distro_id in all_ids:
             if distro_id in sys_deps:
                 if not sys_deps[distro_id]:
-                    logging.info(
+                    logging.warning(
                         f"Dependency data contains an empty package definition "
                         f"for linux distro '{distro_id}'"
                     )
                     continue
-                processed_deps: List[str] = []
-                for dep in sys_deps[distro_id]:
-                    parsed_dep = self._parse_spec(dep)
-                    if parsed_dep is not None:
-                        processed_deps.append(parsed_dep)
-                return processed_deps
+                matching_distro_id = distro_id
+                break
+        if matching_distro_id is None:
+            if well_known_package_type:
+                # We can translate the package names,
+                #   so use this distro id from moonraker.
+                matching_distro_id = well_known_distro_id
+                logging.warning(
+                    "Translating package names from {} to {}"
+                    .format(matching_distro_id, all_ids))
+        if matching_distro_id is not None:
+            processed_deps: List[str] = []
+            for dep in sys_deps[matching_distro_id]:
+                parsed_dep = self._parse_spec(dep)
+                if parsed_dep is not None:
+                    processed_deps.append(parsed_dep)
+            return processed_deps
         else:
-            logging.info(
+            logging.warning(
                 f"Dependency data has no package definition for linux "
-                f"distro '{self.distro_id}'"
+                f"distro '{self.distro_id}' (nor well-known: {distro_installers})"
             )
         return []

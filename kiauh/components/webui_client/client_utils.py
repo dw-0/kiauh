@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 from json import JSONDecodeError
@@ -142,9 +143,18 @@ def symlink_webui_nginx_log(
     for instance in klipper_instances:
         desti_access = instance.base.log_dir.joinpath(access_log.name)
         if not desti_access.exists():
+            if desti_access.is_symlink():
+                # bad symlink (such as if log doesn't exist yet but logs
+                #   dir symlink was restored from a backup)
+                os.remove(desti_access)
+        if not desti_access.exists():
             desti_access.symlink_to(access_log)
 
         desti_error = instance.base.log_dir.joinpath(error_log.name)
+        if not desti_error.exists():
+            if desti_error.is_symlink():
+                os.remove(desti_error)
+
         if not desti_error.exists():
             desti_error.symlink_to(error_log)
 
@@ -287,6 +297,10 @@ def copy_upstream_nginx_cfg() -> None:
     """
     source = MODULE_PATH.joinpath("assets/upstreams.conf")
     target = NGINX_CONFD.joinpath("upstreams.conf")
+    if not NGINX_CONFD.exists():
+        os.makedirs(NGINX_CONFD)
+        print(f"WARNING: Creating {repr(NGINX_CONFD)}."
+              " Include it in nginx.conf.")
     try:
         command = ["sudo", "cp", source, target]
         run(command, stderr=PIPE, check=True)
@@ -303,6 +317,10 @@ def copy_common_vars_nginx_cfg() -> None:
     """
     source = MODULE_PATH.joinpath("assets/common_vars.conf")
     target = NGINX_CONFD.joinpath("common_vars.conf")
+    if not NGINX_CONFD.exists():
+        os.makedirs(NGINX_CONFD)
+        print(f"WARNING: Creating {repr(NGINX_CONFD)}."
+              " Include it in nginx.conf.")
     try:
         command = ["sudo", "cp", source, target]
         run(command, stderr=PIPE, check=True)
@@ -390,6 +408,9 @@ def get_nginx_listen_port(config: Path) -> int | None:
     # noinspection HttpUrlsUsage
     pattern = r"default_server|http://|https://|[;\[\]]"
     port = ""
+    print(f"Checking {repr(config)}...")
+    if not config.exists():
+        return None
     with open(config, "r") as cfg:
         for line in cfg.readlines():
             line = re.sub(pattern, "", line.strip())

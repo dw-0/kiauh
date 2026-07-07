@@ -51,7 +51,12 @@ def install_moonraker_packages() -> None:
         )
         parser = SysDepsParser()
         sysdeps = load_sysdeps_json(MOONRAKER_DEPS_JSON_FILE)
+        print("{}: {}".format(MOONRAKER_DEPS_JSON_FILE, sysdeps))
         moonraker_deps.extend(parser.parse_dependencies(sysdeps))
+        if not moonraker_deps:
+            raise NotImplementedError(
+                "No dependencies found in {} for your distro: {}"
+                .format(MOONRAKER_DEPS_JSON_FILE, parser.distro_id))
 
     elif MOONRAKER_INSTALL_SCRIPT.exists():
         Logger.print_warn(f"{MOONRAKER_DEPS_JSON_FILE.name} not found!")

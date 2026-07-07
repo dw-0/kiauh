@@ -84,6 +84,18 @@ this document.
 sudo apt-get update && sudo apt-get install git -y
 ```
 
+On certain distros, certain other packages may not be installed by default and must be installed (preceded by your distro's package manager install command such as `apk add`): `wget bash python3`
+- The `python3` package is called `python` on Arch-based distros.
+
+And if your distro has an error running `grep -P` (such as during Moonraker repo's `scripts/set-policykit-rules.sh` which runs during install) you are using BusyBox' built-in grep not GNU grep, so you must install the `grep` package first.
+
+If greenlet will not compile (such as 3.1.1), try downgrading Python. As
+of May 2026, you must use pyenv to install 3.12 to use klipper if your
+distro's Python version is 3.14 and doesn't have the ability to
+downgrade. Then set python 3.12 as the global python for the user using
+`pyenv global 3.12`. Then `python -m venv ~/klippy-env`. When installing
+Klipper, say "no" to re-create the environment, otherwise it (Klipper as of May 2026) will try to use the system's python version not the user's.
+
 * **Step 2:** \
   Once git is installed, use the following command to download KIAUH into your
   home-directory:
@@ -241,6 +253,21 @@ changes!**
 </div>
 
 <hr>
+
+## Contributing
+## Installing system packages.
+- The code for installing system packages is in sys_info.
+- Some of the package names are parsed from moonraker's json file and klipper's ubuntu script.
+  - Package names are translated to other distros using functions in the sys_utils submodule.
+
+### Cross-distro API
+- save_distros_meta can be used to generate ~/.config/kiauh/distros.json (overwrites existing).
+- The sys_utils module has a list of package names to translate deb package naming to other distros.
+- On first checking dependencies, load tries to run, and if load does not find a ~/.config/kiauh/distros.json, save is called.
+- For save_distros_meta and load_distros_meta, the optional
+  "path" argument can be used to change the file location.
+- For creating a new installer etc., see further details in [contributing.md](contributing.md).
+If you are only trying to use kiauh rather than develop, just run ./kiauh.sh.
 
 <h2 align="center">✨ Credits ✨</h2>
 

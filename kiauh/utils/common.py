@@ -15,9 +15,6 @@ from pathlib import Path
 from typing import Dict, List, Literal, Set
 
 from components.moonraker.moonraker import Moonraker
-from core.constants import (
-    GLOBAL_DEPS,
-)
 from core.logger import DialogType, Logger
 from core.types.color import Color
 from core.types.component_status import ComponentStatus, StatusCode
@@ -33,7 +30,13 @@ from utils.instance_utils import get_instances
 from utils.sys_utils import (
     check_package_install,
     install_system_packages,
+    install_system_package_group,
     update_system_package_lists,
+    get_global_deps,
+    get_package_installer,
+    get_package_type_of,
+    translate_deb_package_names,
+    PACKAGE_GROUPS,
 )
 
 from kiauh import PROJECT_ROOT
@@ -68,29 +71,73 @@ def get_current_date() -> Dict[Literal["date", "time"], str]:
 
 
 def check_install_dependencies(
-    deps: Set[str] | None = None, include_global: bool = True
+    deps: Set[str] | None = None, include_global: bool = True,
+    translate_deb: bool = True,
 ) -> None:
     """
     Common helper method to check if dependencies are installed
     and if not, install them automatically |
     :param include_global: Wether to include the global dependencies or not
     :param deps: List of strings of package names to check if installed
+    :param translate_deb: Check for an alternate package name based on distro.
     :return: None
     """
     if deps is None:
         deps = set()
 
-    if include_global:
-        deps.update(GLOBAL_DEPS)
+    # Manually translate package names *always* since they
+    #   may not be from this repo! See
+    #   KLIPPER_DIR.joinpath("scripts/install-ubuntu-22.04.sh")
+    #   and similar external lists such as loaded in
+    #   kiauh/components/klipper/__init__.py
+    if translate_deb:
+        translated_deps = set()
+        installer = get_package_installer()
+        pkg_t = get_package_type_of(installer)
+        deps = set(translate_deb_package_names(deps, pkg_t))
+        # ^ cast to set for easy combining below
 
-    requirements = check_package_install(deps)
+    if include_global:
+        deps.update(get_global_deps())
+    installer = get_package_installer()
+    pkg_t = get_package_type_of(installer)
+    all_groups = PACKAGE_GROUPS.get(pkg_t)
+    detected_groups = set()
+    if all_groups:
+        for dep in set(deps):  # operate on copy so original can be edited
+            for group, g_packages in all_groups.items():
+                if dep == group:
+                    # It is *not* a package, it is a group.
+                    deps.remove(dep)
+                    detected_groups.add(dep)
+                    break
+                if dep in g_packages:
+                    # It is a package in the group.
+                    deps.remove(dep)
+                    detected_groups.add(group)
+                    break
+    missing_groups = set()
+    if detected_groups:
+        for group in detected_groups:
+            missing_group_deps = check_package_install(all_groups[group])
+            if missing_group_deps:
+                missing_groups.add(group)
+        requirements = check_package_install(deps)
+    else:
+        requirements = check_package_install(deps)
     if requirements:
         Logger.print_status("Installing dependencies ...")
         Logger.print_info("The following packages need installation:")
         for r in requirements:
             print(Color.apply(f"● {r}", Color.CYAN))
+        if missing_groups:
+            Logger.print_info("The following groups need installation:")
+            for r in missing_groups:
+                print(Color.apply(f"● {r}", Color.CYAN))
         update_system_package_lists(silent=False)
         install_system_packages(requirements)
+        for group in missing_groups:
+            install_system_package_group(group)
 
 
 def get_install_status(

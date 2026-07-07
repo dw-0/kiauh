@@ -29,8 +29,9 @@ from utils.sys_utils import (
     create_python_venv,
     get_ipv4_addr,
     install_python_packages,
+    get_package_installer,
+    get_package_type_of,
 )
-
 
 # noinspection PyMethodMayBeStatic
 class OctoprintExtension(BaseExtension):
@@ -123,6 +124,23 @@ class OctoprintExtension(BaseExtension):
             "python3-setuptools",
             "python3-virtualenv",
         }
+        installer = get_package_installer()
+        pkg_t = get_package_type_of(installer)
+        if pkg_t == "deb":
+            pass  # already correct
+        elif pkg_t == "alpine":
+            for package in list(deps):
+                if package.startswith("python3-") and (package != "python3-dev"):
+                    # NOTE: python3-dev is same on Alpine Linux.
+                    deps.remove(package)
+                    deps.add(package.replace("python3-", "py3-"))
+            deps.remove("build-essential")
+            deps.add("build-base")
+        elif pkg_t == "rpm":
+            deps.remove("build-essential")
+            deps.add("Development Tools")
+            # NOTE: check_install_dependencies will use groupinstall
+            #   *only* since "Development Tools" is in PACKAGE_GROUPS["rpm"]
         check_install_dependencies(deps)
 
         # Determine used ports from existing OctoPrint services and prepare regex

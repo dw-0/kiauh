@@ -8,6 +8,9 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import shlex
+import sys
+
 from copy import copy
 from subprocess import DEVNULL, PIPE, CalledProcessError, run
 from typing import List
@@ -160,7 +163,10 @@ class MoonrakerSetupService:
             self.__run_setup(new_instances, create_example_cfg)
         except Exception as e:
             Logger.print_error(f"Error while installing Moonraker: {e}")
-            return
+            # ^ If not enough info. Re-raise to help debug:
+            # raise  # commented since we (should) now use warning
+            #   instead of info in parse_dependencies whenever 0
+            #   dependencies are gathered.
 
     def update(self) -> None:
         Logger.print_dialog(
@@ -322,8 +328,8 @@ class MoonrakerSetupService:
                         MOONRAKER_ENV_DIR, MOONRAKER_SPEEDUPS_REQ_FILE
                     )
             self.__install_polkit()
-        except Exception:
-            Logger.print_error("Error during installation of Moonraker requirements!")
+        except Exception as e:
+            Logger.print_error(f"Error during installation of Moonraker requirements: {e}")
             raise
 
     def __install_polkit(self) -> None:
@@ -338,7 +344,8 @@ class MoonrakerSetupService:
             return
 
         try:
-            command = [POLKIT_SCRIPT, "--disable-systemctl"]
+            command = [str(POLKIT_SCRIPT), "--disable-systemctl"]
+            # ^ str to convert from PosixPath
             result = run(
                 command,
                 stderr=PIPE,
@@ -346,6 +353,7 @@ class MoonrakerSetupService:
                 text=True,
             )
             if result.returncode != 0 or result.stderr:
+                print(shlex.join(command), file=sys.stderr)
                 Logger.print_error(f"{result.stderr}", False)
                 Logger.print_error("Installing Moonraker policykit rules failed!")
                 return
