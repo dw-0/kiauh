@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "index": 15,
+    "index": 17,
     "module": "https_extension",
     "maintained_by": "lexfrei",
     "display_name": "Enable HTTPS (Let's Encrypt / certbot DNS-01)",
