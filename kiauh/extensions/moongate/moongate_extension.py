@@ -93,19 +93,35 @@ class MoongateExtension(BaseExtension):
         if port is None:
             return
 
+        # LAN-only mode skips the Cloudflare tunnel + auth proxy and keeps
+        # Moonraker reachable on the LAN - for users who reach their printer
+        # over their own VPN (WireGuard/Tailscale) and want no cloud at all.
+        lan_only = get_confirm(
+            "Install in LAN-only mode (no cloud tunnel, LAN/VPN access only)?",
+            default_choice=False,
+            allow_go_back=True,
+        )
+        if lan_only is None:
+            return
+
         try:
             self._clone_or_update_repo()
 
             BackupService().backup_moonraker_conf()
 
-            # Hand off to Moongate's own installer. It is idempotent,
-            # non-interactive and env-driven: it installs cloudflared, adds the
-            # two systemd services, patches moonraker.conf and restarts
-            # Moonraker + Klipper itself.
+            # Hand off to Moongate's own installer. It is idempotent and
+            # env-driven: it installs cloudflared, adds the two systemd
+            # services, patches moonraker.conf and restarts Moonraker +
+            # Klipper itself. MOONGATE_LAN_ONLY is passed either way: an
+            # explicit value also suppresses the installer's own terminal
+            # prompt, so KIAUH users only ever see KIAUH-styled questions.
             self._run_script(
                 MOONGATE_INSTALL_SCRIPT,
                 moonraker,
-                extra_env={"MOONGATE_PORT": str(port)},
+                extra_env={
+                    "MOONGATE_PORT": str(port),
+                    "MOONGATE_LAN_ONLY": "1" if lan_only else "0",
+                },
             )
         except (GitException, CalledProcessError, OSError) as e:
             Logger.print_error(f"Error during Moongate installation:\n{e}")
@@ -118,8 +134,14 @@ class MoongateExtension(BaseExtension):
                 "\n\n",
                 "Next steps:",
                 "● Install the Moongate app on your Android device.",
-                "● Run MOONGATE_PAIR in the Klipper console (or open the pair "
-                "page printed above) and scan the QR code.",
+                (
+                    "● In the app: Add printer > Direct (LAN/VPN), then run "
+                    "MOONGATE_PAIR in the Klipper console and scan the QR (or "
+                    "type the printer's address)."
+                    if lan_only
+                    else "● Run MOONGATE_PAIR in the Klipper console (or open "
+                    "the pair page printed above) and scan the QR code."
+                ),
                 "● Updates from now on: Mainsail/Fluidd > Software Updates > Moongate.",
             ],
             margin_bottom=1,
@@ -212,6 +234,11 @@ class MoongateExtension(BaseExtension):
                 "● add two systemd services: moongate-authproxy + moongate-tunnel",
                 "● bind Moonraker to 127.0.0.1 (the auth proxy fronts the tunnel)",
                 "● add a tightly-scoped Avahi sudoers entry for LAN discovery",
+                "\n\n",
+                "Prefer no cloud at all? A LAN-only option is offered after "
+                "this dialog - it skips the tunnel, the auth proxy and the "
+                "Moonraker rebind, and the printer stays reachable over your "
+                "LAN or your own VPN only.",
                 "\n\n",
                 "Remote access relies on cloud infrastructure operated by the "
                 "Moongate author. Moongate is licensed under PolyForm "
