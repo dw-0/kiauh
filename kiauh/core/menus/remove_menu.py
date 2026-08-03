@@ -21,6 +21,7 @@ from components.moonraker.menus.moonraker_remove_menu import (
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
 from components.webui_client.menus.client_remove_menu import ClientRemoveMenu
+from core.i18n import _tr
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.types.color import Color
@@ -31,7 +32,7 @@ from core.types.color import Color
 class RemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.title = "Remove Menu"
+        self.title = _tr("Remove Menu")
         self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
@@ -51,16 +52,17 @@ class RemoveMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
+        info_line = _tr("INFO: Configurations and/or any backups will be kept!")
         menu = textwrap.dedent(
-            """
+            f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ INFO: Configurations and/or any backups will be kept! ║
+            ║ {info_line:^55} ║
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Firmware & API:           │ Touchscreen GUI:          ║
+            ║ {_tr("Firmware & API:"):<25} │ {_tr("Touchscreen GUI:"):<25} ║
             ║  1) [Klipper]             │  5) [KlipperScreen]       ║
             ║  2) [Moonraker]           │                           ║
-            ║                           │ Webcam Streamer:          ║
-            ║ Klipper Webinterface:     │  6) [Crowsnest]           ║
+            ║                           │ {_tr("Webcam Streamer:"):<25} ║
+            ║ {_tr("Klipper Webinterface:"):<25} │  6) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
             ║  4) [Fluidd]              │                           ║
             ╟───────────────────────────┴───────────────────────────╢

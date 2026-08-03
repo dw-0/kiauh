@@ -11,6 +11,7 @@ from typing import List
 
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from core.simple_config_parser.simple_config_parser import (
@@ -24,9 +25,9 @@ from utils.input_utils import get_confirm
 # noinspection PyMethodMayBeStatic
 class SimplyPrintExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing SimplyPrint ...")
+        Logger.print_status(_tr("Installing SimplyPrint ..."))
 
-        if not (mr_instances := moonraker_exists("SimplyPrint Installer")):
+        if not (mr_instances := moonraker_exists(_tr("SimplyPrint Installer"))):
             return
 
         Logger.print_dialog(
@@ -35,23 +36,23 @@ class SimplyPrintExtension(BaseExtension):
         )
 
         if not get_confirm(
-            "Continue SimplyPrint installation?",
+            _tr("Continue SimplyPrint installation?"),
             default_choice=True,
             allow_go_back=True,
         ):
-            Logger.print_info("Exiting SimplyPrint installation ...")
+            Logger.print_info(_tr("Exiting SimplyPrint installation ..."))
             return
 
         try:
             self._patch_moonraker_confs(mr_instances, True)
 
         except Exception as e:
-            Logger.print_error(f"Error during SimplyPrint installation:\n{e}")
+            Logger.print_error(_tr("Error during SimplyPrint installation:\n{}").format(e))
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing SimplyPrint ...")
+        Logger.print_status(_tr("Removing SimplyPrint ..."))
 
-        if not (mr_instances := moonraker_exists("SimplyPrint Uninstaller")):
+        if not (mr_instances := moonraker_exists(_tr("SimplyPrint Uninstaller"))):
             return
 
         Logger.print_dialog(
@@ -60,18 +61,18 @@ class SimplyPrintExtension(BaseExtension):
         )
 
         if not get_confirm(
-            "Do you really want to uninstall SimplyPrint?",
+            _tr("Do you really want to uninstall SimplyPrint?"),
             default_choice=True,
             allow_go_back=True,
         ):
-            Logger.print_info("Exiting SimplyPrint uninstallation ...")
+            Logger.print_info(_tr("Exiting SimplyPrint uninstallation ..."))
             return
 
         try:
             self._patch_moonraker_confs(mr_instances, False)
 
         except Exception as e:
-            Logger.print_error(f"Error during SimplyPrint installation:\n{e}")
+            Logger.print_error(_tr("Error during SimplyPrint installation:\n{}").format(e))
 
     def _construct_dialog(
         self, mr_instances: List[Moonraker], is_install: bool
@@ -79,24 +80,28 @@ class SimplyPrintExtension(BaseExtension):
         mr_names = [f"● {m.service_file_path.name}" for m in mr_instances]
         _type = "install" if is_install else "uninstall"
 
+        if is_install:
+            desc = _tr("The setup will install SimplyPrint for all Moonraker instances. After installation, all Moonraker services will be restarted!")
+        else:
+            desc = _tr("The setup will uninstall SimplyPrint for all Moonraker instances. After uninstallation, all Moonraker services will be restarted!")
+
         return [
-            "The following Moonraker instances were found:",
+            _tr("The following Moonraker instances were found:"),
             *mr_names,
             "\n\n",
-            f"The setup will {_type} SimplyPrint for all Moonraker instances. "
-            f"After {_type}ation, all Moonraker services will be restarted!",
+            desc,
         ]
 
     def _patch_moonraker_confs(
         self, mr_instances: List[Moonraker], is_install: bool
     ) -> None:
         section = "simplyprint"
-        _type, _ft = ("Adding", "to") if is_install else ("Removing", "from")
+        _type, _ft = (_tr("Adding"), _tr("to")) if is_install else (_tr("Removing"), _tr("from"))
 
         patched_files = []
         for moonraker in mr_instances:
             Logger.print_status(
-                f"{_type} section 'simplyprint' {_ft} {moonraker.cfg_file} ..."
+                _tr("{} section 'simplyprint' {} {} ...").format(_type, _ft, moonraker.cfg_file)
             )
             scp = SimpleConfigParser()
             scp.read_file(moonraker.cfg_file)
@@ -107,10 +112,12 @@ class SimplyPrintExtension(BaseExtension):
             )
 
             if install_and_has_section or uninstall_and_has_no_section:
-                status = "already" if is_install else "does not"
-                Logger.print_info(
-                    f"Section 'simplyprint' {status} exists! Skipping ..."
-                )
+                status = _tr("already") if is_install else _tr("does not")
+                if is_install:
+                    status_msg = _tr("Section 'simplyprint' already exists! Skipping ...")
+                else:
+                    status_msg = _tr("Section 'simplyprint' does not exist! Skipping ...")
+                Logger.print_info(status_msg)
                 continue
 
             if is_install and not scp.has_section("simplyprint"):
@@ -125,9 +132,18 @@ class SimplyPrintExtension(BaseExtension):
         if patched_files:
             InstanceManager.restart_all(mr_instances)
 
-        install_state = "successfully" if patched_files else "was already"
+        if patched_files:
+            if is_install:
+                state_msg = _tr("SimplyPrint successfully installed!")
+            else:
+                state_msg = _tr("SimplyPrint successfully uninstalled!")
+        else:
+            if is_install:
+                state_msg = _tr("SimplyPrint was already installed!")
+            else:
+                state_msg = _tr("SimplyPrint was already uninstalled!")
         Logger.print_dialog(
             DialogType.SUCCESS,
-            [f"SimplyPrint {install_state} {'' if is_install else 'un'}installed!"],
+            [state_msg],
             center_content=True,
         )

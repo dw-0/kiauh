@@ -30,6 +30,7 @@ from components.crowsnest import (
 from components.klipper.klipper import Klipper
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.moonraker.utils.utils import load_sysdeps_json
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
@@ -52,29 +53,25 @@ from utils.sys_utils import (
 
 
 def install_crowsnest() -> None:
-    # Step 1: Clone crowsnest repo
     git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR)
 
-    # Step 2: Install dependencies
     check_install_dependencies({"make"})
 
-    # Step 3: Check for Multi Instance
     instances: List[Klipper] = get_instances(Klipper)
 
     if len(instances) > 1:
         print_multi_instance_warning(instances)
 
-        if not get_confirm("Do you want to continue with the installation?"):
-            Logger.print_info("Crowsnest installation aborted!")
+        if not get_confirm(_tr("Do you want to continue with the installation?")):
+            Logger.print_info(_tr("Crowsnest installation aborted!"))
             return
 
-        Logger.print_status("Launching crowsnest's install configurator ...")
+        Logger.print_status(_tr("Launching crowsnest's install configurator ..."))
         time.sleep(3)
         configure_multi_instance()
 
-    # Step 4: Launch crowsnest installer
-    Logger.print_status("Launching crowsnest installer ...")
-    Logger.print_info("Installer will prompt you for sudo password!")
+    Logger.print_status(_tr("Launching crowsnest installer ..."))
+    Logger.print_info(_tr("Installer will prompt you for sudo password!"))
     try:
         run(
             "sudo make install",
@@ -83,7 +80,7 @@ def install_crowsnest() -> None:
             check=True,
         )
     except CalledProcessError as e:
-        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        Logger.print_error(_tr("Something went wrong! Please try again...\n{}").format(e))
         return
 
 
@@ -91,14 +88,14 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
-            "Multi instance install detected!",
+            _tr("Multi instance install detected!"),
             "\n\n",
-            "Crowsnest is NOT designed to support multi instances. A workaround "
-            "for this is to choose the most used instance as a 'master' and use "
-            "this instance to set up your 'crowsnest.conf' and steering it's service.",
+            _tr("Crowsnest is NOT designed to support multi instances. A workaround "
+                "for this is to choose the most used instance as a 'master' and use "
+                "this instance to set up your 'crowsnest.conf' and steering it's service."),
             "\n\n",
-            "The following instances were found:",
-            *[f"● {instance.data_dir.name}" for instance in instances],
+            _tr("The following instances were found:"),
+            *[_tr("● {}").format(instance.data_dir.name) for instance in instances],
         ],
     )
 
@@ -112,13 +109,13 @@ def configure_multi_instance() -> None:
             check=True,
         )
     except CalledProcessError as e:
-        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        Logger.print_error(_tr("Something went wrong! Please try again...\n{}").format(e))
         if CROWSNEST_MULTI_CONFIG.exists():
             Path.unlink(CROWSNEST_MULTI_CONFIG)
         return
 
     if not CROWSNEST_MULTI_CONFIG.exists():
-        Logger.print_error("Generating .config failed, installation aborted")
+        Logger.print_error(_tr("Generating .config failed, installation aborted"))
 
 
 def update_crowsnest() -> None:
@@ -128,7 +125,7 @@ def update_crowsnest() -> None:
         if not CROWSNEST_DIR.exists():
             git_clone_wrapper(CROWSNEST_REPO, CROWSNEST_DIR, "master")
         else:
-            Logger.print_status("Updating Crowsnest ...")
+            Logger.print_status(_tr("Updating Crowsnest ..."))
 
             settings = KiauhSettings()
             if settings.kiauh.backup_before_update:
@@ -145,19 +142,13 @@ def update_crowsnest() -> None:
 
         cmd_sysctl_service(CROWSNEST_SERVICE_NAME, "restart")
 
-        Logger.print_ok("Crowsnest updated successfully.", end="\n\n")
+        Logger.print_ok(_tr("Crowsnest updated successfully."), end="\n\n")
     except CalledProcessError as e:
-        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        Logger.print_error(_tr("Something went wrong! Please try again...\n{}").format(e))
         return
 
 
 def get_crowsnest_status() -> ComponentStatus:
-    """
-    Get the current install status of Crowsnest. Depending on the version the installed
-    files are different. If a version is not yet specified, it will search for a
-    non_existant file resulting in 'Incomplete' status.
-    :return: Installation status
-    """
     files_dict = {
         4: [
             CROWSNEST_BIN_FILE,
@@ -178,11 +169,6 @@ def get_crowsnest_status() -> ComponentStatus:
 
 
 def get_crowsnest_version() -> int:
-    """
-    Get the current major version. Starting with v5 the default branch will be named
-    after the major version.
-    :return: Current major version
-    """
     version = get_current_branch(CROWSNEST_DIR)
     if version is None:
         return 0
@@ -192,13 +178,15 @@ def get_crowsnest_version() -> int:
 
 
 def install_crowsnest_packages() -> None:
-    Logger.print_status("Parsing Crowsnest system dependencies  ...")
+    Logger.print_status(_tr("Parsing Crowsnest system dependencies  ..."))
 
     crowsnest_deps = []
     crowsnest_version = get_crowsnest_version()
     if crowsnest_version >= 5 and CROWSNEST_DEPS_JSON_FILE.exists():
         Logger.print_info(
-            f"Parsing system dependencies from {CROWSNEST_DEPS_JSON_FILE.name} ..."
+            _tr("Parsing system dependencies from {} ...").format(
+                CROWSNEST_DEPS_JSON_FILE.name
+            )
         )
         parser = SysDepsParser()
         sysdeps = load_sysdeps_json(CROWSNEST_DEPS_JSON_FILE)
@@ -206,19 +194,21 @@ def install_crowsnest_packages() -> None:
 
     elif crowsnest_version <= 4 and CROWSNEST_INSTALL_SCRIPT.exists():
         Logger.print_info(
-            f"Parsing system dependencies from {CROWSNEST_INSTALL_SCRIPT.name} ..."
+            _tr("Parsing system dependencies from {} ...").format(
+                CROWSNEST_INSTALL_SCRIPT.name
+            )
         )
         crowsnest_deps = parse_packages_from_file(CROWSNEST_INSTALL_SCRIPT)
 
     if not crowsnest_deps:
-        raise ValueError("Error parsing crowsnest dependencies!")
+        raise ValueError(_tr("Error parsing crowsnest dependencies!"))
 
     check_install_dependencies({*crowsnest_deps})
 
 
 def remove_crowsnest() -> None:
     if not CROWSNEST_DIR.exists():
-        Logger.print_info("Crowsnest does not seem to be installed! Skipping ...")
+        Logger.print_info(_tr("Crowsnest does not seem to be installed! Skipping ..."))
         return
 
     try:
@@ -229,9 +219,9 @@ def remove_crowsnest() -> None:
             check=True,
         )
     except CalledProcessError as e:
-        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        Logger.print_error(_tr("Something went wrong! Please try again...\n{}").format(e))
         return
 
-    Logger.print_status("Removing crowsnest directory ...")
+    Logger.print_status(_tr("Removing crowsnest directory ..."))
     shutil.rmtree(CROWSNEST_DIR)
-    Logger.print_ok("Directory removed!")
+    Logger.print_ok(_tr("Directory removed!"))

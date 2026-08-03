@@ -9,6 +9,7 @@ from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run
 from typing import List, Tuple, Type
 
+from core.i18n import _tr
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from utils.input_utils import get_confirm, get_number_input
@@ -33,13 +34,12 @@ def git_clone_wrapper(
     :param force: Force the cloning of the repository even if it already exists.
     :return: None
     """
-    log = f"Cloning repository from '{repo}'"
-    Logger.print_status(log)
+    Logger.print_status(_tr("Cloning repository from '{}'").format(repo))
     try:
         if Path(target_dir).exists():
-            question = f"'{target_dir}' already exists. Overwrite?"
+            question = _tr("'{}' already exists. Overwrite?").format(target_dir)
             if not force and not get_confirm(question, default_choice=False):
-                Logger.print_info("Skip cloning of repository ...")
+                Logger.print_info(_tr("Skip cloning of repository ..."))
                 return
             shutil.rmtree(target_dir)
 
@@ -49,12 +49,12 @@ def git_clone_wrapper(
             git_cmd_checkout(branch, target_dir)
 
     except CalledProcessError:
-        log = "An unexpected error occured during cloning of the repository."
+        log = _tr("An unexpected error occured during cloning of the repository.")
         Logger.print_error(log)
         raise GitException(log)
     except OSError as e:
-        Logger.print_error(f"Error removing existing repository: {e.strerror}")
-        raise GitException(f"Error removing existing repository: {e.strerror}")
+        Logger.print_error(_tr("Error removing existing repository: {}").format(e.strerror))
+        raise GitException(_tr("Error removing existing repository: {}").format(e.strerror))
 
 
 def git_pull_wrapper(target_dir: Path) -> None:
@@ -64,11 +64,11 @@ def git_pull_wrapper(target_dir: Path) -> None:
     :param target_dir: The directory of the repository.
     :return: None
     """
-    Logger.print_status("Updating repository ...")
+    Logger.print_status(_tr("Updating repository ..."))
     try:
         git_cmd_pull(target_dir)
     except (CalledProcessError, GitException):
-        log = "An unexpected error occured during updating the repository."
+        log = _tr("An unexpected error occured during updating the repository.")
         Logger.print_error(log)
         return
 
@@ -211,14 +211,14 @@ def get_remote_tags(repo_path: str) -> List[str]:
             response: HTTPResponse = r
             if response.getcode() != 200:
                 Logger.print_error(
-                    f"Error retrieving tags: HTTP status code {response.getcode()}"
+                    _tr("Error retrieving tags: HTTP status code {}").format(response.getcode())
                 )
                 return []
 
             data = json.loads(response.read())
             return [item["name"] for item in data]
     except (JSONDecodeError, TypeError) as e:
-        Logger.print_error(f"Error while processing the response: {e}")
+        Logger.print_error(_tr("Error while processing the response: {}").format(e))
         raise
 
 
@@ -252,7 +252,7 @@ def get_latest_unstable_tag(repo_path: str) -> str:
         else:
             return ""
     except Exception:
-        Logger.print_error("Error while getting the latest unstable tag")
+        Logger.print_error(_tr("Error while getting the latest unstable tag"))
         raise
 
 
@@ -330,10 +330,10 @@ def git_cmd_clone(repo: str, target_dir: Path, blobless: bool = False) -> None:
         command += [repo, target_dir.as_posix()]
 
         run(command, check=True)
-        Logger.print_ok("Clone successful!")
+        Logger.print_ok(_tr("Clone successful!"))
     except CalledProcessError as e:
-        error = e.stderr.decode() if e.stderr else "Unknown error"
-        log = f"Error cloning repository {repo}: {error}"
+        error = e.stderr.decode() if e.stderr else _tr("Unknown error")
+        log = _tr("Error cloning repository {}: {}").format(repo, error)
         Logger.print_error(log)
         raise
 
@@ -343,7 +343,7 @@ def git_cmd_checkout(branch: str | None, target_dir: Path) -> None:
         return
 
     if not target_dir.exists() or not target_dir.joinpath(".git").exists():
-        log = f"'{target_dir}' is not a valid git repository."
+        log = _tr("'{}' is not a valid git repository.").format(target_dir)
         Logger.print_error(log)
         raise GitException(log)
 
@@ -351,16 +351,17 @@ def git_cmd_checkout(branch: str | None, target_dir: Path) -> None:
         command = ["git", "checkout", f"{branch}"]
         run(command, cwd=target_dir, check=True)
 
-        Logger.print_ok("Checkout successful!")
+        Logger.print_ok(_tr("Checkout successful!"))
     except CalledProcessError as e:
-        log = f"Error checking out branch {branch}: {e.stderr.decode()}"
+        stderr_dec = e.stderr.decode() if e.stderr else ""
+        log = _tr("Error checking out branch {}: {}").format(branch, stderr_dec)
         Logger.print_error(log)
         raise
 
 
 def git_cmd_pull(target_dir: Path) -> None:
     if not target_dir.exists() or not target_dir.joinpath(".git").exists():
-        log = f"'{target_dir}' is not a valid git repository."
+        log = _tr("'{}' is not a valid git repository.").format(target_dir)
         Logger.print_error(log)
         raise GitException(log)
 
@@ -368,32 +369,33 @@ def git_cmd_pull(target_dir: Path) -> None:
         command = ["git", "pull"]
         run(command, cwd=target_dir, check=True)
     except CalledProcessError as e:
-        log = f"Error on git pull: {e.stderr.decode()}"
+        stderr_dec = e.stderr.decode() if e.stderr else ""
+        log = _tr("Error on git pull: {}").format(stderr_dec)
         Logger.print_error(log)
         raise
 
 
 def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
     if not repo_dir.exists() or not repo_dir.joinpath(".git").exists():
-        log = f"'{repo_dir}' is not a valid git repository."
+        log = _tr("'{}' is not a valid git repository.").format(repo_dir)
         Logger.print_error(log)
         raise GitException(log)
 
-    q1 = "How many commits do you want to roll back"
+    q1 = _tr("How many commits do you want to roll back")
     amount = get_number_input(q1, 1, allow_go_back=True)
 
     instances = get_instances(instance)
 
-    Logger.print_warn("Do not continue if you have ongoing prints!", start="\n")
+    Logger.print_warn(_tr("Do not continue if you have ongoing prints!"), start="\n")
     Logger.print_warn(
-        f"All currently running {instance.__name__} services will be stopped!"
+        _tr("All currently running {} services will be stopped!").format(instance.__name__)
     )
     if not get_confirm(
-        f"Roll back {amount} commit{'s' if amount > 1 else ''}",
+        _tr("Roll back {} commit{}").format(amount, "s" if amount > 1 else ""),
         default_choice=False,
         allow_go_back=True,
     ):
-        Logger.print_info("Aborting roll back ...")
+        Logger.print_info(_tr("Aborting roll back ..."))
         return
 
     InstanceManager.stop_all(instances)
@@ -401,9 +403,9 @@ def rollback_repository(repo_dir: Path, instance: Type[InstanceType]) -> None:
     try:
         cmd = ["git", "reset", "--hard", f"HEAD~{amount}"]
         run(cmd, cwd=repo_dir, check=True, stdout=PIPE, stderr=PIPE)
-        Logger.print_ok(f"Rolled back {amount} commits!", start="\n")
+        Logger.print_ok(_tr("Rolled back {} commits!").format(amount), start="\n")
     except CalledProcessError as e:
-        Logger.print_error(f"An error occured during repo rollback:\n{e}")
+        Logger.print_error(_tr("An error occured during repo rollback:\n{}").format(e))
 
     InstanceManager.start_all(instances)
 

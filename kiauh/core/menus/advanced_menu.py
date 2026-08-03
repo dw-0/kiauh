@@ -25,6 +25,7 @@ from components.klipper_firmware.menus.klipper_flash_menu import (
 )
 from components.moonraker import MOONRAKER_DIR
 from components.moonraker.moonraker import Moonraker
+from core.i18n import _tr
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.types.color import Color
@@ -37,7 +38,7 @@ from utils.git_utils import rollback_repository
 class AdvancedMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.title = "Advanced Menu"
+        self.title = _tr("Advanced Menu")
         self.title_color = Color.YELLOW
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
@@ -60,15 +61,15 @@ class AdvancedMenu(BaseMenu):
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
-            """
+            f"""
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Klipper Firmware:         │ Repository Rollback:      ║
+            ║ {_tr("Klipper Firmware:"):<25} │ {_tr("Repository Rollback:"):<25} ║
             ║  1) [Build]               │  6) [Klipper]             ║
             ║  2) [Flash]               │  7) [Moonraker]           ║
             ║  3) [Build + Flash]       │                           ║
-            ║  4) [Get MCU ID]          │ System:                   ║
+            ║  4) [Get MCU ID]          │ {_tr("System:"):<25} ║
             ║                           │  8) [Change hostname]     ║
-            ║ Extra Dependencies:       │                           ║
+            ║ {_tr("Extra Dependencies:"):<25} │                           ║
             ║  5) [Input Shaper]        │                           ║
             ╟───────────────────────────┴───────────────────────────╢
             """

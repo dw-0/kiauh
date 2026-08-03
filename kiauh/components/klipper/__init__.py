@@ -9,6 +9,8 @@
 
 from pathlib import Path
 
+from core.i18n import N_
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 KLIPPER_REPO_URL = "https://github.com/Klipper3d/klipper.git"
@@ -33,4 +35,9 @@ KLIPPER_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{KLIPPER_SERVICE_NAME}"
 KLIPPER_ENV_FILE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{KLIPPER_ENV_FILE_NAME}")
 
 
-EXIT_KLIPPER_SETUP = "Exiting Klipper setup ..."
+_EXIT_KLIPPER_SETUP_MSG = N_("Exiting Klipper setup ...")
+
+
+def EXIT_KLIPPER_SETUP():
+    from core.i18n import _tr
+    return _tr(_EXIT_KLIPPER_SETUP_MSG)

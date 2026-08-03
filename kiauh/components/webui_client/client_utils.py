@@ -32,6 +32,7 @@ from core.constants import (
     NGINX_SITES_AVAILABLE,
     NGINX_SITES_ENABLED,
 )
+from core.i18n import _tr
 from core.logger import Logger
 from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings, WebUiSettings
@@ -60,8 +61,6 @@ def get_client_status(
     ]
     comp_status: ComponentStatus = get_install_status(client.client_dir, files=files)
 
-    # if the client dir does not exist, set the status to not
-    # installed even if the other files are present
     if not client.client_dir.exists():
         comp_status.status = 0
 
@@ -85,8 +84,6 @@ def get_current_client_config() -> str:
         cfg = installed[0].client_config
         return str(Color.apply(cfg.display_name, Color.CYAN))
 
-    # at this point, both client config folders exists, so we need to check
-    # which are actually included in the printer.cfg of all klipper instances
     mainsail_includes, fluidd_includes = [], []
     klipper_instances: List[Klipper] = get_instances(Klipper)
     for instance in klipper_instances:
@@ -100,44 +97,39 @@ def get_current_client_config() -> str:
         if includes_fluidd:
             fluidd_includes.append(instance)
 
-        # if both are included in the same file, we have a potential conflict
         if includes_mainsail and includes_fluidd:
             return str(Color.apply("Conflict", Color.YELLOW))
 
     if not mainsail_includes and not fluidd_includes:
-        # there are no includes at all, even though the client config folders exist
         return str(Color.apply("-", Color.CYAN))
     elif len(fluidd_includes) > len(mainsail_includes):
-        # there are more instances that include fluidd than mainsail
         return str(Color.apply(fluidd.client_config.display_name, Color.CYAN))
     else:
-        # there are the same amount of non-conflicting includes for each config
-        # or more instances include mainsail than fluidd
         return str(Color.apply(mainsail.client_config.display_name, Color.CYAN))
 
 
 def enable_mainsail_remotemode() -> None:
-    Logger.print_status("Enable Mainsails remote mode ...")
+    Logger.print_status(_tr("Enable Mainsails remote mode ..."))
     c_json = MainsailData().client_dir.joinpath("config.json")
     with open(c_json, "r") as f:
         config_data = json.load(f)
 
     if config_data["instancesDB"] == "browser" or config_data["instancesDB"] == "json":
-        Logger.print_info("Remote mode already configured. Skipped ...")
+        Logger.print_info(_tr("Remote mode already configured. Skipped ..."))
         return
 
-    Logger.print_status("Setting instance storage location to 'browser' ...")
+    Logger.print_status(_tr("Setting instance storage location to 'browser' ..."))
     config_data["instancesDB"] = "browser"
 
     with open(c_json, "w") as f:
         json.dump(config_data, f, indent=4)
-    Logger.print_ok("Mainsails remote mode enabled!")
+    Logger.print_ok(_tr("Mainsails remote mode enabled!"))
 
 
 def symlink_webui_nginx_log(
     client: BaseWebClient, klipper_instances: List[Klipper]
 ) -> None:
-    Logger.print_status("Link NGINX logs into log directory ...")
+    Logger.print_status(_tr("Link NGINX logs into log directory ..."))
     access_log = client.nginx_access_log
     error_log = client.nginx_error_log
 
@@ -158,7 +150,6 @@ def get_local_client_version(client: BaseWebClient) -> str | None:
     if not client.client_dir.exists():
         return None
 
-    # try to get version from release_info.json first
     if relinfo_file.is_file():
         try:
             if relinfo_file.stat().st_size == 0:
@@ -171,16 +162,15 @@ def get_local_client_version(client: BaseWebClient) -> str | None:
                 if parsed:
                     return parsed
         except (JSONDecodeError, OSError):
-            Logger.print_error("Invalid 'release_info.json'")
+            Logger.print_error(_tr("Invalid 'release_info.json'"))
 
-    # fallback to .version file
     if version_file.is_file():
         try:
             with open(version_file, "r") as f:
                 line = f.readline().strip()
             return line or None
         except OSError:
-            Logger.print_error("Unable to read '.version'")
+            Logger.print_error(_tr("Unable to read '.version'"))
 
     return None
 
@@ -236,14 +226,6 @@ def get_existing_clients() -> List[BaseWebClient]:
 
 
 def detect_client_cfg_conflict(curr_client: BaseWebClient) -> bool:
-    """
-    Check if any other client configs are present on the system.
-    It is usually not harmful, but chances are they can conflict each other.
-    Multiple client configs are, at least, redundant to have them installed
-    :param curr_client: The client name to check for the conflict
-    :return: True, if other client configs were found, else False
-    """
-
     mainsail_cfg_status: ComponentStatus = get_client_config_status(MainsailData())
     fluidd_cfg_status: ComponentStatus = get_client_config_status(FluiddData())
 
@@ -272,52 +254,31 @@ def get_download_url(base_url: str, client: BaseWebClient) -> str:
         return stable_url
 
 
-#################################################
-## NGINX RELATED FUNCTIONS
-#################################################
-
-
 def copy_upstream_nginx_cfg() -> None:
-    """
-    Creates an upstream.conf in /etc/nginx/conf.d
-    :return: None
-    """
     source = MODULE_PATH.joinpath("assets/upstreams.conf")
     target = NGINX_CONFD.joinpath("upstreams.conf")
     try:
         command = ["sudo", "cp", source, target]
         run(command, stderr=PIPE, check=True)
     except CalledProcessError as e:
-        log = f"Unable to create upstreams.conf: {e.stderr.decode()}"
+        log = _tr("Unable to create upstreams.conf: {}").format(e.stderr.decode())
         Logger.print_error(log)
         raise
 
 
 def copy_common_vars_nginx_cfg() -> None:
-    """
-    Creates a common_vars.conf in /etc/nginx/conf.d
-    :return: None
-    """
     source = MODULE_PATH.joinpath("assets/common_vars.conf")
     target = NGINX_CONFD.joinpath("common_vars.conf")
     try:
         command = ["sudo", "cp", source, target]
         run(command, stderr=PIPE, check=True)
     except CalledProcessError as e:
-        log = f"Unable to create upstreams.conf: {e.stderr.decode()}"
+        log = _tr("Unable to create upstreams.conf: {}").format(e.stderr.decode())
         Logger.print_error(log)
         raise
 
 
 def generate_nginx_cfg_from_template(name: str, template_src: Path, **kwargs) -> None:
-    """
-    Creates an NGINX config from a template file and
-    replaces all placeholders passed as kwargs. A placeholder must be defined
-    in the template file as %{placeholder}%.
-    :param name: name of the config to create
-    :param template_src: the path to the template file
-    :return: None
-    """
     tmp = Path.home().joinpath(f"{name}.tmp")
     shutil.copy(template_src, tmp)
     with open(tmp, "r+") as f:
@@ -335,7 +296,7 @@ def generate_nginx_cfg_from_template(name: str, template_src: Path, **kwargs) ->
         command = ["sudo", "mv", tmp, target]
         run(command, stderr=PIPE, check=True)
     except CalledProcessError as e:
-        log = f"Unable to create '{target}': {e.stderr.decode()}"
+        log = _tr("Unable to create '{}': {}").format(target, e.stderr.decode())
         Logger.print_error(log)
         raise
 
@@ -349,7 +310,7 @@ def create_nginx_cfg(
     from utils.sys_utils import set_nginx_permissions
 
     try:
-        Logger.print_status(f"Creating NGINX config for {display_name} ...")
+        Logger.print_status(_tr("Creating NGINX config for {} ...").format(display_name))
 
         source = NGINX_SITES_AVAILABLE.joinpath(cfg_name)
         target = NGINX_SITES_ENABLED.joinpath(cfg_name)
@@ -358,17 +319,13 @@ def create_nginx_cfg(
         create_symlink(source, target, True)
         set_nginx_permissions()
 
-        Logger.print_ok(f"NGINX config for {display_name} successfully created.")
+        Logger.print_ok(_tr("NGINX config for {} successfully created.").format(display_name))
     except Exception:
-        Logger.print_error(f"Creating NGINX config for {display_name} failed!")
+        Logger.print_error(_tr("Creating NGINX config for {} failed!").format(display_name))
         raise
 
 
 def get_nginx_config_list() -> List[Path]:
-    """
-    Get a list of all NGINX config files in /etc/nginx/sites-enabled
-    :return: List of NGINX config files
-    """
     configs: List[Path] = []
     for config in NGINX_SITES_ENABLED.iterdir():
         if not config.is_file():
@@ -378,13 +335,6 @@ def get_nginx_config_list() -> List[Path]:
 
 
 def get_nginx_listen_port(config: Path) -> int | None:
-    """
-    Get the listen port from an NGINX config file
-    :param config: The NGINX config file to read the port from
-    :return: The listen port as int or None if not found/parsable
-    """
-
-    # noinspection HttpUrlsUsage
     pattern = r"default_server|http://|https://|[;\[\]]"
     port = ""
     with open(config, "r") as cfg:
@@ -399,17 +349,12 @@ def get_nginx_listen_port(config: Path) -> int | None:
             return int(port)
         except ValueError:
             Logger.print_error(
-                f"Unable to parse listen port {port} from {config.name}!"
+                _tr("Unable to parse listen port {} from {}!").format(port, config.name)
             )
             return None
 
 
 def read_ports_from_nginx_configs() -> List[int]:
-    """
-    Helper function to iterate over all NGINX configs
-    and read all ports defined for listen
-    :return: A sorted list of listen ports
-    """
     if not NGINX_SITES_ENABLED.exists():
         return []
 
@@ -440,8 +385,8 @@ def get_client_port_selection(
     print_client_port_select_dialog(client.display_name, port, ports_in_use)
 
     while True:
-        _type = "Reconfigure" if reconfigure else "Configure"
-        question = f"{_type} {client.display_name} for port"
+        _type = _tr("Reconfigure") if reconfigure else _tr("Configure")
+        question = _tr("{} {} for port").format(_type, client.display_name)
         port_input: int | None = get_number_input(question, min_value=80, default=port)
 
         if port_input and port_input not in ports_in_use:
@@ -451,7 +396,7 @@ def get_client_port_selection(
 
             return port_input
 
-        Logger.print_error("This port is already in use. Please select another one.")
+        Logger.print_error(_tr("This port is already in use. Please select another one."))
 
 
 def get_next_free_port(ports_in_use: List[int]) -> int:
@@ -462,13 +407,6 @@ def get_next_free_port(ports_in_use: List[int]) -> int:
 
 
 def set_listen_port(client: BaseWebClient, curr_port: int, new_port: int) -> None:
-    """
-    Set the port the client should listen on in the NGINX config
-    :param curr_port: The current port the client listens on
-    :param new_port: The new port to set
-    :param client: The client to set the port for
-    :return: None
-    """
     config = NGINX_SITES_AVAILABLE.joinpath(client.name)
     with open(config, "r") as f:
         lines = f.readlines()
@@ -484,13 +422,12 @@ def set_listen_port(client: BaseWebClient, curr_port: int, new_port: int) -> Non
 def create_client_config_symlink(
     client_config: BaseWebClientConfig, klipper_instances: List[Klipper]
 ) -> None:
-    """Symlink the client config file into every Klipper instance's config dir."""
     for instance in klipper_instances:
-        Logger.print_status(f"Create symlink for {client_config.config_filename} ...")
+        Logger.print_status(_tr("Create symlink for {} ...").format(client_config.config_filename))
         source = Path(client_config.config_dir, client_config.config_filename)
         target = instance.base.cfg_dir
-        Logger.print_status(f"Linking {source} to {target}")
+        Logger.print_status(_tr("Linking {} to {}").format(source, target))
         try:
             create_symlink(source, target)
         except Exception:
-            Logger.print_error("Creating symlink failed!")
+            Logger.print_error(_tr("Creating symlink failed!"))

@@ -20,6 +20,7 @@ from typing import List
 from zipfile import ZipFile
 
 from core import backends
+from core.i18n import _tr
 from core.logger import Logger
 
 # Delegate to the shared backends module so tests can substitute
@@ -81,7 +82,7 @@ def create_symlink(source: Path, target: Path, sudo=False) -> None:
             cmd.insert(0, "sudo")
         run(cmd, stderr=PIPE, check=True)
     except CalledProcessError as e:
-        Logger.print_error(f"Failed to create symlink: {e}")
+        Logger.print_error(_tr("Failed to create symlink: {}").format(e))
         raise
 
 
@@ -97,14 +98,14 @@ def remove_with_sudo(files: Path | List[Path]) -> bool:
         try:
             cmd = ["sudo", "find", f.as_posix()]
             if call(cmd, stderr=DEVNULL, stdout=DEVNULL) == 1:
-                Logger.print_info(f"File '{f}' does not exist. Skipped ...")
+                Logger.print_info(_tr("File '{}' does not exist. Skipped ...").format(f))
                 continue
             cmd = ["sudo", "rm", "-rf", f.as_posix()]
             run(cmd, stderr=PIPE, check=True)
-            Logger.print_ok(f"File '{f}' was successfully removed!")
+            Logger.print_ok(_tr("File '{}' was successfully removed!").format(f))
             _removed.append(f)
         except CalledProcessError as e:
-            Logger.print_error(f"Error removing file '{f}': {e}")
+            Logger.print_error(_tr("Error removing file '{}': {}").format(f, e))
 
     return len(_removed) > 0
 
@@ -112,7 +113,7 @@ def remove_with_sudo(files: Path | List[Path]) -> bool:
 def run_remove_routines(file: Path) -> bool:
     try:
         if not backends.filesystem.is_symlink(file) and not backends.filesystem.exists(file):
-            Logger.print_info(f"File '{file}' does not exist. Skipped ...")
+            Logger.print_info(_tr("File '{}' does not exist. Skipped ...").format(file))
             return False
 
         if backends.filesystem.is_dir(file):
@@ -120,20 +121,20 @@ def run_remove_routines(file: Path) -> bool:
         elif backends.filesystem.is_file(file) or backends.filesystem.is_symlink(file):
             backends.filesystem.unlink(file)
         else:
-            Logger.print_error(f"File '{file}' is neither a file nor a directory!")
+            Logger.print_error(_tr("File '{}' is neither a file nor a directory!").format(file))
             return False
-        Logger.print_ok(f"File '{file}' was successfully removed!")
+        Logger.print_ok(_tr("File '{}' was successfully removed!").format(file))
         return True
     except OSError as e:
-        Logger.print_error(f"Unable to delete '{file}':\n{e}")
+        Logger.print_error(_tr("Unable to delete '{}':\n{}").format(file, e))
         try:
-            Logger.print_info("Trying to remove with sudo ...")
+            Logger.print_info(_tr("Trying to remove with sudo ..."))
             if remove_with_sudo(file):
-                Logger.print_ok(f"File '{file}' was successfully removed!")
+                Logger.print_ok(_tr("File '{}' was successfully removed!").format(file))
                 return True
         except CalledProcessError as e:
-            Logger.print_error(f"Error deleting '{file}' with sudo:\n{e}")
-            Logger.print_error("Remove this directory manually!")
+            Logger.print_error(_tr("Error deleting '{}' with sudo:\n{}").format(file, e))
+            Logger.print_error(_tr("Remove this directory manually!"))
             return False
     # Direct and sudo removal both failed without raising; return a boolean so
     # callers get a predictable result.
@@ -157,9 +158,9 @@ def create_folders(dirs: List[Path]) -> None:
             if backends.filesystem.exists(_dir):
                 continue
             backends.filesystem.mkdir(_dir, exist_ok=True)
-            Logger.print_ok(f"Created directory '{_dir}'!")
+            Logger.print_ok(_tr("Created directory '{}'!").format(_dir))
     except OSError as e:
-        Logger.print_error(f"Error creating directories: {e}")
+        Logger.print_error(_tr("Error creating directories: {}").format(e))
         raise
 
 

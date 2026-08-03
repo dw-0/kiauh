@@ -9,11 +9,17 @@
 
 from pathlib import Path
 
+from core.i18n import N_, _tr
+
 # global dependencies
 GLOBAL_DEPS = ["git", "wget", "curl", "unzip", "dfu-util", "python3-virtualenv"]
 
 # strings
-INVALID_CHOICE = "Invalid choice. Please select a valid value."
+INVALID_CHOICE_MSG = N_("Invalid choice. Please select a valid value.")
+
+
+def INVALID_CHOICE() -> str:
+    return _tr(INVALID_CHOICE_MSG)
 
 # dirs
 SYSTEMD = Path("/etc/systemd/system")

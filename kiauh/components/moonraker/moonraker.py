@@ -23,6 +23,7 @@ from components.moonraker import (
     MOONRAKER_LOG_NAME,
     MOONRAKER_SERVICE_TEMPLATE,
 )
+from core.i18n import _tr
 from core.instance_manager.base_instance import BaseInstance
 from core.logger import Logger
 from core.simple_config_parser.simple_config_parser import (
@@ -65,7 +66,7 @@ class Moonraker:
     def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file
 
-        Logger.print_status("Creating new Moonraker Instance ...")
+        Logger.print_status(_tr("Creating new Moonraker Instance ..."))
 
         try:
             create_folders(self.base.base_folders)
@@ -80,10 +81,10 @@ class Moonraker:
             )
 
         except CalledProcessError as e:
-            Logger.print_error(f"Error creating instance: {e}")
+            Logger.print_error(_tr("Error creating instance: {}").format(e))
             raise
         except OSError as e:
-            Logger.print_error(f"Error creating env file: {e}")
+            Logger.print_error(_tr("Error creating env file: {}").format(e))
             raise
 
     def _prep_service_file_content(self) -> str:
@@ -93,7 +94,7 @@ class Moonraker:
             with open(template, "r") as template_file:
                 template_content = template_file.read()
         except FileNotFoundError:
-            Logger.print_error(f"Unable to open {template} - File not found")
+            Logger.print_error(_tr("Unable to open {} - File not found").format(template))
             raise
 
         service_content = template_content.replace(
@@ -121,7 +122,7 @@ class Moonraker:
             with open(template, "r") as env_file:
                 env_template_file_content = env_file.read()
         except FileNotFoundError:
-            Logger.print_error(f"Unable to open {template} - File not found")
+            Logger.print_error(_tr("Unable to open {} - File not found").format(template))
             raise
 
         env_file_content = env_template_file_content.replace(

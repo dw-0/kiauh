@@ -36,6 +36,7 @@ from components.webui_client.services.web_client_config_setup_service import (
     WebClientConfigSetupService,
 )
 from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
+from core.i18n import _tr
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
@@ -70,14 +71,6 @@ class WebClientSetupService:
         install_client_cfg: bool | None = None,
         continue_without_moonraker: bool = False,
     ) -> bool:
-        """Install the web client.
-
-        When called from the TUI, choices are prompted interactively. The CLI
-        passes explicit values and ``interactive=False``.
-
-        Returns ``True`` on success and ``False`` when the installation could
-        not be completed.
-        """
         mr_instances: List[Moonraker] = get_instances(Moonraker)
 
         enable_remotemode = False
@@ -85,12 +78,14 @@ class WebClientSetupService:
             if interactive:
                 print_moonraker_not_found_dialog(self.client.display_name)
                 if not get_confirm(
-                    f"Continue {self.client.display_name} installation?"
+                    _tr("Continue {} installation?").format(self.client.display_name)
                 ):
                     return False
             elif not continue_without_moonraker:
                 Logger.print_info(
-                    f"Moonraker not installed; skipping {self.client.display_name} installation."
+                    _tr("Moonraker not installed; skipping {} installation.").format(
+                        self.client.display_name
+                    )
                 )
                 return False
 
@@ -106,7 +101,9 @@ class WebClientSetupService:
         ):
             if interactive:
                 print_install_client_config_dialog(self.client)
-                question = f"Download the recommended {client_config.display_name}?"
+                question = _tr("Download the recommended {}?").format(
+                    client_config.display_name
+                )
                 install_cfg = get_confirm(question, allow_go_back=False)
             else:
                 install_cfg = bool(install_client_cfg)
@@ -165,7 +162,7 @@ class WebClientSetupService:
                 Logger.print_dialog(
                     DialogType.ERROR,
                     center_content=True,
-                    content=[f"{self.client.display_name} installation failed!"],
+                    content=[_tr("{} installation failed!").format(self.client.display_name)],
                 )
             return False
 
@@ -173,50 +170,50 @@ class WebClientSetupService:
         if interactive:
             Logger.print_dialog(
                 DialogType.CUSTOM,
-                custom_title=f"{self.client.display_name} installation complete!",
+                custom_title=_tr("{} installation complete!").format(
+                    self.client.display_name
+                ),
                 custom_color=Color.GREEN,
                 center_content=True,
-                content=[f"Open {self.client.display_name} now on: {webui_url}"],
+                content=[_tr("Open {} now on: {}").format(self.client.display_name, webui_url)],
             )
         else:
             Logger.print_info(
-                f"Installation of {self.client.display_name} complete! URL: {webui_url}"
+                _tr("Installation of {} complete! URL: {}").format(
+                    self.client.display_name, webui_url
+                )
             )
 
         return True
 
     def _should_enable_remote_mode(self, mr_instances: List[Moonraker]) -> bool:
-        """Return whether Mainsail remote mode should be enabled.
-
-        Remote mode is required when Mainsail is installed without a local
-        Moonraker instance or when more than one Moonraker instance exists.
-        """
         return self.client.client == WebClientType.MAINSAIL and (
             not mr_instances or len(mr_instances) > 1
         )
 
     def update(self, interactive: bool = True) -> bool:
-        """Update the web client. Returns ``True`` on success, ``False`` on failure."""
-        Logger.print_status(f"Updating {self.client.display_name} ...")
+        Logger.print_status(_tr("Updating {} ...").format(self.client.display_name))
         if not self.client.client_dir.exists():
             Logger.print_info(
-                f"Unable to update {self.client.display_name}. "
-                "Directory does not exist! Skipping ..."
+                _tr("Unable to update {}. Directory does not exist! Skipping ...").format(
+                    self.client.display_name
+                )
             )
             return True
 
         try:
             with tempfile.NamedTemporaryFile(suffix=".json") as tmp_file:
                 Logger.print_status(
-                    f"Creating temporary backup of {self.client.config_file} "
-                    f"as {tmp_file.name} ..."
+                    _tr("Creating temporary backup of {} as {} ...").format(
+                        self.client.config_file, tmp_file.name
+                    )
                 )
                 shutil.copy(self.client.config_file, tmp_file.name)
                 _download_client(self.client)
                 shutil.copy(tmp_file.name, self.client.config_file)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error(f"Updating {self.client.display_name} failed!")
+            Logger.print_error(_tr("Updating {} failed!").format(self.client.display_name))
             return False
 
         return True
@@ -228,10 +225,6 @@ class WebClientSetupService:
         backup_config: bool = True,
         interactive: bool = True,
     ) -> bool:
-        """Remove the web client and (optionally) its config.
-
-        Returns ``True`` on success and ``False`` if removal failed.
-        """
         try:
             message = self._build_removal_message(
                 remove_client=remove_client,
@@ -242,7 +235,7 @@ class WebClientSetupService:
             MessageService().set_message(message)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error(f"Error while removing {self.client.display_name}!")
+            Logger.print_error(_tr("Error while removing {}!").format(self.client.display_name))
             return False
         return True
 
@@ -254,7 +247,7 @@ class WebClientSetupService:
         interactive: bool,
     ) -> Message:
         completion_msg = Message(
-            title=f"{self.client.display_name} Removal Process completed",
+            title=_tr("{} Removal Process completed").format(self.client.display_name),
             color=Color.GREEN,
         )
         mr_instances: List[Moonraker] = get_instances(Moonraker)
@@ -277,16 +270,18 @@ class WebClientSetupService:
             )
             if success:
                 completion_msg.text.append(
-                    f"● {self.client.config_file.name} backup created"
+                    _tr("● {} backup created").format(self.client.config_file.name)
                 )
 
         if remove_client:
             if self._remove_client_dir():
-                completion_msg.text.append(f"● {self.client.display_name} removed")
+                completion_msg.text.append(
+                    _tr("● {} removed").format(self.client.display_name)
+                )
             if self._remove_client_nginx_config(self.client.name):
-                completion_msg.text.append("● NGINX config removed")
+                completion_msg.text.append(_tr("● NGINX config removed"))
             if self._remove_client_nginx_logs(self.client, kl_instances):
-                completion_msg.text.append("● NGINX logs removed")
+                completion_msg.text.append(_tr("● NGINX logs removed"))
 
             svc.backup_moonraker_conf()
             section = f"update_manager {self.client.name}"
@@ -294,8 +289,9 @@ class WebClientSetupService:
             if handled_instances:
                 names = [i.service_file_path.stem for i in handled_instances]
                 completion_msg.text.append(
-                    f"● Moonraker config section '{section}' removed for "
-                    f"instance: {', '.join(names)}"
+                    _tr("● Moonraker config section '{}' removed for instance: {}").format(
+                        section, ", ".join(names)
+                    )
                 )
 
         if remove_client_cfg:
@@ -312,18 +308,18 @@ class WebClientSetupService:
         if not completion_msg.text:
             completion_msg.color = Color.YELLOW
             completion_msg.centered = True
-            completion_msg.text.append("Nothing to remove.")
+            completion_msg.text.append(_tr("Nothing to remove."))
         else:
-            completion_msg.text.insert(0, "The following actions were performed:")
+            completion_msg.text.insert(0, _tr("The following actions were performed:"))
 
         return completion_msg
 
     def _remove_client_dir(self) -> bool:
-        Logger.print_status(f"Removing {self.client.display_name} ...")
+        Logger.print_status(_tr("Removing {} ...").format(self.client.display_name))
         return bool(run_remove_routines(self.client.client_dir))
 
     def _remove_client_nginx_config(self, name: str) -> bool:
-        Logger.print_status(f"Removing NGINX config for {name.capitalize()} ...")
+        Logger.print_status(_tr("Removing NGINX config for {} ...").format(name.capitalize()))
         return bool(
             remove_with_sudo([
                 NGINX_SITES_AVAILABLE.joinpath(name),
@@ -334,7 +330,7 @@ class WebClientSetupService:
     def _remove_client_nginx_logs(
         self, client: BaseWebClient, instances: List[Klipper]
     ) -> bool:
-        Logger.print_status(f"Removing NGINX logs for {client.display_name} ...")
+        Logger.print_status(_tr("Removing NGINX logs for {} ...").format(client.display_name))
         files = [client.nginx_access_log, client.nginx_error_log]
         if instances:
             for instance in instances:
@@ -352,15 +348,17 @@ def _download_client(client: BaseWebClient) -> None:
     target = Path().home().joinpath(zipfile)
     try:
         Logger.print_status(
-            f"Downloading {client.display_name} from {client.download_url} ..."
+            _tr("Downloading {} from {} ...").format(
+                client.display_name, client.download_url
+            )
         )
         download_file(client.download_url, target, True)
-        Logger.print_ok("Download complete!")
+        Logger.print_ok(_tr("Download complete!"))
 
-        Logger.print_status(f"Extracting {zipfile} ...")
+        Logger.print_status(_tr("Extracting {} ...").format(zipfile))
         unzip(target, client.client_dir)
         target.unlink(missing_ok=True)
-        Logger.print_ok("OK!")
+        Logger.print_ok(_tr("OK!"))
     except Exception:
-        Logger.print_error(f"Downloading {client.display_name} failed!")
+        Logger.print_error(_tr("Downloading {} failed!").format(client.display_name))
         raise

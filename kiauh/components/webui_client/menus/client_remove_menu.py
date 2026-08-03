@@ -16,6 +16,7 @@ from components.webui_client.base_data import BaseWebClient
 from components.webui_client.services.web_client_setup_service import (
     WebClientSetupService,
 )
+from core.i18n import _tr
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.types.color import Color
@@ -27,7 +28,7 @@ class ClientRemoveMenu(BaseMenu):
         self, client: BaseWebClient, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
-        self.title = f"Remove {client.display_name}"
+        self.title = _tr("Remove {}").format(client.display_name)
         self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.client: BaseWebClient = client
@@ -60,12 +61,12 @@ class ClientRemoveMenu(BaseMenu):
         o1 = checked if self.remove_client else unchecked
         o2 = checked if self.remove_client_cfg else unchecked
         o3 = checked if self.backup_config_json else unchecked
-        sel_state = f"{'Select' if not self.select_state else 'Deselect'} everything"
+        sel_state = _tr("Deselect everything") if self.select_state else _tr("Select everything")
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ Enter a number and hit enter to select / deselect     ║
-            ║ the specific option for removal.                      ║
+            ║ {_tr("Enter a number and hit enter to select / deselect")}     ║
+            ║ {_tr("the specific option for removal.")}                      ║
             ╟───────────────────────────────────────────────────────╢
             ║  a) {sel_state:49} ║
             ╟───────────────────────────────────────────────────────╢
@@ -100,7 +101,7 @@ class ClientRemoveMenu(BaseMenu):
             and not self.remove_client_cfg
             and not self.backup_config_json
         ):
-            print(Color.apply("Nothing selected ...", Color.RED))
+            print(Color.apply(_tr("Nothing selected ..."), Color.RED))
             return
 
         WebClientSetupService(self.client.name).remove(

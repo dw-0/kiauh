@@ -16,6 +16,7 @@ from subprocess import CalledProcessError, run
 
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.base_instance import BaseInstance
+from core.i18n import _tr
 from core.logger import Logger
 from extensions.spoolman import (
     MODULE_PATH,
@@ -39,7 +40,6 @@ class Spoolman:
 
     @staticmethod
     def is_container_running() -> bool:
-        """Check if the Spoolman container is running"""
         try:
             result = run(
                 ["docker", "compose", "-f", str(SPOOLMAN_COMPOSE_FILE), "ps", "-q"],
@@ -53,7 +53,6 @@ class Spoolman:
 
     @staticmethod
     def is_docker_available() -> bool:
-        """Check if Docker is installed and available"""
         try:
             run(["docker", "--version"], capture_output=True, check=True)
             return True
@@ -62,13 +61,10 @@ class Spoolman:
 
     @staticmethod
     def is_docker_compose_available() -> bool:
-        """Check if Docker Compose is installed and available"""
         try:
-            # Try modern docker compose command
             run(["docker", "compose", "version"], capture_output=True, check=True)
             return True
         except (CalledProcessError, FileNotFoundError):
-            # Try legacy docker-compose command
             try:
                 run(["docker-compose", "--version"], capture_output=True, check=True)
                 return True
@@ -77,14 +73,12 @@ class Spoolman:
 
     @staticmethod
     def create_docker_compose() -> bool:
-        """Copy the docker-compose.yml file for Spoolman and set system timezone"""
         try:
             shutil.copy(
                 MODULE_PATH.joinpath("assets/docker-compose.yml"),
                 SPOOLMAN_COMPOSE_FILE,
             )
 
-            # get system timezone
             timezone = get_system_timezone()
 
             with open(SPOOLMAN_COMPOSE_FILE, "r") as f:
@@ -97,12 +91,11 @@ class Spoolman:
 
             return True
         except Exception as e:
-            Logger.print_error(f"Error creating Docker Compose file: {e}")
+            Logger.print_error(_tr("Error creating Docker Compose file: {}").format(e))
             return False
 
     @staticmethod
     def start_container() -> bool:
-        """Start the Spoolman container"""
         try:
             run(
                 ["docker", "compose", "-f", str(SPOOLMAN_COMPOSE_FILE), "up", "-d"],
@@ -110,15 +103,13 @@ class Spoolman:
             )
             return True
         except CalledProcessError as e:
-            Logger.print_error(f"Failed to start Spoolman container: {e}")
+            Logger.print_error(_tr("Failed to start Spoolman container: {}").format(e))
             return False
 
     @staticmethod
     def update_container() -> bool:
-        """Update the Spoolman container"""
 
         def __get_image_id() -> str:
-            """Get the image ID of the Spoolman Docker image"""
             try:
                 result = run(
                     ["docker", "images", "-q", SPOOLMAN_DOCKER_IMAGE],
@@ -128,29 +119,28 @@ class Spoolman:
                 )
                 return result.stdout.strip()
             except CalledProcessError:
-                raise Exception("Failed to get Spoolman Docker image ID")
+                raise Exception(_tr("Failed to get Spoolman Docker image ID"))
 
         try:
             old_image_id = __get_image_id()
-            Logger.print_status("Pulling latest Spoolman image...")
+            Logger.print_status(_tr("Pulling latest Spoolman image..."))
             Spoolman.pull_image()
             new_image_id = __get_image_id()
-            Logger.print_status("Tearing down old Spoolman container...")
+            Logger.print_status(_tr("Tearing down old Spoolman container..."))
             Spoolman.tear_down_container()
-            Logger.print_status("Spinning up new Spoolman container...")
+            Logger.print_status(_tr("Spinning up new Spoolman container..."))
             Spoolman.start_container()
             if old_image_id != new_image_id:
-                Logger.print_status("Removing old Spoolman image...")
+                Logger.print_status(_tr("Removing old Spoolman image..."))
                 run(["docker", "rmi", old_image_id], check=True)
             return True
 
         except CalledProcessError as e:
-            Logger.print_error(f"Failed to update Spoolman container: {e}")
+            Logger.print_error(_tr("Failed to update Spoolman container: {}").format(e))
             return False
 
     @staticmethod
     def tear_down_container() -> bool:
-        """Stop and remove the Spoolman container"""
         try:
             run(
                 ["docker", "compose", "-f", str(SPOOLMAN_COMPOSE_FILE), "down"],
@@ -158,22 +148,20 @@ class Spoolman:
             )
             return True
         except CalledProcessError as e:
-            Logger.print_error(f"Failed to tear down Spoolman container: {e}")
+            Logger.print_error(_tr("Failed to tear down Spoolman container: {}").format(e))
             return False
 
     @staticmethod
     def pull_image() -> bool:
-        """Pull the Spoolman Docker image"""
         try:
             run(["docker", "pull", SPOOLMAN_DOCKER_IMAGE], check=True)
             return True
         except CalledProcessError as e:
-            Logger.print_error(f"Failed to pull Spoolman Docker image: {e}")
+            Logger.print_error(_tr("Failed to pull Spoolman Docker image: {}").format(e))
             return False
 
     @staticmethod
     def remove_image() -> bool:
-        """Remove the Spoolman Docker image"""
         try:
             image_exists = run(
                 ["docker", "images", "-q", SPOOLMAN_DOCKER_IMAGE],
@@ -181,11 +169,11 @@ class Spoolman:
                 text=True,
             ).stdout.strip()
             if not image_exists:
-                Logger.print_info("Spoolman Docker image not found. Nothing to remove.")
+                Logger.print_info(_tr("Spoolman Docker image not found. Nothing to remove."))
                 return False
 
             run(["docker", "rmi", SPOOLMAN_DOCKER_IMAGE], check=True)
             return True
         except CalledProcessError as e:
-            Logger.print_error(f"Failed to remove Spoolman Docker image: {e}")
+            Logger.print_error(_tr("Failed to remove Spoolman Docker image: {}").format(e))
             return False

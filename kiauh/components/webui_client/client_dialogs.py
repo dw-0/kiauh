@@ -10,6 +10,7 @@
 from typing import List
 
 from components.webui_client.base_data import BaseWebClient
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 
 
@@ -17,12 +18,12 @@ def print_moonraker_not_found_dialog(name: str) -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
-            "No local Moonraker installation was found!",
+            _tr("No local Moonraker installation was found!"),
             "\n\n",
-            f"It is possible to install {name} without a local Moonraker installation. "
-            "If you continue, you need to make sure, that Moonraker is installed on "
-            f"another machine in your network. Otherwise {name} will NOT work "
-            "correctly.",
+            _tr("It is possible to install {} without a local Moonraker installation. "
+                "If you continue, you need to make sure, that Moonraker is installed on "
+                "another machine in your network. Otherwise {} will NOT work "
+                "correctly.").format(name, name),
         ],
     )
 
@@ -31,8 +32,8 @@ def print_client_already_installed_dialog(name: str) -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
-            f"{name} seems to be already installed!",
-            f"If you continue, your current {name} installation will be overwritten.",
+            _tr("{} seems to be already installed!").format(name),
+            _tr("If you continue, your current {} installation will be overwritten.").format(name),
         ],
     )
 
@@ -41,20 +42,20 @@ def print_client_port_select_dialog(
     name: str, port: int, ports_in_use: List[int]
 ) -> None:
     dialog_content: List[str] = [
-        f"Please select the port, {name} should be served on. If your are unsure "
-        f"what to select, hit Enter to apply the suggested value of: {port}",
+        _tr("Please select the port, {} should be served on. If your are unsure "
+            "what to select, hit Enter to apply the suggested value of: {}").format(name, port),
         "\n\n",
-        f"In case you need {name} to be served on a specific port, you can set it "
-        f"now. Make sure that the port is not already used by another application "
-        f"on your system!",
+        _tr("In case you need {} to be served on a specific port, you can set it "
+            "now. Make sure that the port is not already used by another application "
+            "on your system!").format(name),
     ]
 
     if ports_in_use:
         dialog_content.extend(
             [
                 "\n\n",
-                "The following ports were found to be already in use:",
-                *[f"● {p}" for p in ports_in_use if p != port],
+                _tr("The following ports were found to be already in use:"),
+                *[_tr("● {}").format(p) for p in ports_in_use if p != port],
             ]
         )
 
@@ -67,14 +68,14 @@ def print_install_client_config_dialog(client: BaseWebClient) -> None:
     Logger.print_dialog(
         DialogType.INFO,
         [
-            f"It is recommended to use special macros in order to have {name} fully "
-            f"functional and working.",
+            _tr("It is recommended to use special macros in order to have {} fully "
+                "functional and working.").format(name),
             "\n\n",
-            f"The recommended macros for {name} can be seen here:",
+            _tr("The recommended macros for {} can be seen here:").format(name),
             url,
             "\n\n",
-            "If you already use these macros skip this step. Otherwise you should "
-            "consider to answer with 'Y' to download the recommended macros.",
+            _tr("If you already use these macros skip this step. Otherwise you should "
+                "consider to answer with 'Y' to download the recommended macros."),
         ],
     )
 
@@ -83,11 +84,11 @@ def print_ipv6_warning_dialog() -> None:
     Logger.print_dialog(
         DialogType.WARNING,
         [
-            "It looks like IPv6 is enabled on this system!",
-            "This may cause issues with the installation of NGINX in the following "
-            "steps! It is recommended to disable IPv6 on your system to avoid this issue.",
+            _tr("It looks like IPv6 is enabled on this system!"),
+            _tr("This may cause issues with the installation of NGINX in the following "
+                "steps! It is recommended to disable IPv6 on your system to avoid this issue."),
             "\n\n",
-            "If you think this warning is a false alarm, and you are sure that "
-            "IPv6 is disabled, you can continue with the installation.",
+            _tr("If you think this warning is a false alarm, and you are sure that "
+                "IPv6 is disabled, you can continue with the installation."),
         ],
     )

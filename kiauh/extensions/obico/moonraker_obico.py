@@ -15,6 +15,7 @@ from subprocess import CalledProcessError, run
 
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.base_instance import BaseInstance
+from core.i18n import _tr
 from core.logger import Logger
 from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
@@ -60,7 +61,7 @@ class MoonrakerObico:
     def create(self) -> None:
         from utils.sys_utils import create_env_file, create_service_file
 
-        Logger.print_status("Creating new Obico for Klipper Instance ...")
+        Logger.print_status(_tr("Creating new Obico for Klipper Instance ..."))
 
         try:
             create_folders(self.base.base_folders)
@@ -74,15 +75,17 @@ class MoonrakerObico:
             )
 
         except CalledProcessError as e:
-            Logger.print_error(f"Error creating instance: {e}")
+            Logger.print_error(_tr("Error creating instance: {}").format(e))
             raise
         except OSError as e:
-            Logger.print_error(f"Error creating env file: {e}")
+            Logger.print_error(_tr("Error creating env file: {}").format(e))
             raise
 
     def link(self) -> None:
         Logger.print_status(
-            f"Linking instance for printer {self.data_dir.name} to the Obico server ..."
+            _tr("Linking instance for printer {} to the Obico server ...").format(
+                self.data_dir.name
+            )
         )
         try:
             cmd = [f"{OBICO_LINK_SCRIPT} -q -c {self.cfg_file}"]
@@ -90,7 +93,7 @@ class MoonrakerObico:
                 cmd.append(f"-n {self.suffix}")
             run(cmd, check=True, shell=True)
         except CalledProcessError as e:
-            Logger.print_error(f"Error during Obico linking: {e}")
+            Logger.print_error(_tr("Error during Obico linking: {}").format(e))
             raise
 
     def _prep_service_file_content(self) -> str:
@@ -100,7 +103,7 @@ class MoonrakerObico:
             with open(template, "r") as template_file:
                 template_content = template_file.read()
         except FileNotFoundError:
-            Logger.print_error(f"Unable to open {template} - File not found")
+            Logger.print_error(_tr("Unable to open {} - File not found").format(template))
             raise
 
         service_content = template_content.replace(
@@ -128,7 +131,7 @@ class MoonrakerObico:
             with open(template, "r") as env_file:
                 env_template_file_content = env_file.read()
         except FileNotFoundError:
-            Logger.print_error(f"Unable to open {template} - File not found")
+            Logger.print_error(_tr("Unable to open {} - File not found").format(template))
             raise
         env_file_content = env_template_file_content.replace(
             "%CFG%",

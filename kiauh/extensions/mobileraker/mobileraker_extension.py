@@ -15,6 +15,7 @@ from typing import List
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from core.settings.kiauh_settings import KiauhSettings
@@ -46,7 +47,7 @@ from utils.sys_utils import (
 # noinspection PyMethodMayBeStatic
 class MobilerakerExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing Mobileraker's companion ...")
+        Logger.print_status(_tr("Installing Mobileraker's companion ..."))
 
         if not check_python_version(3, 7):
             return
@@ -56,14 +57,12 @@ class MobilerakerExtension(BaseExtension):
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    "Moonraker not found! Mobileraker's companion will not properly "
-                    "work without a working Moonraker installation.",
-                    "Mobileraker's companion's update manager configuration for "
-                    "Moonraker will not be added to any moonraker.conf.",
+                    _tr("Moonraker not found! Mobileraker's companion will not properly work without a working Moonraker installation."),
+                    _tr("Mobileraker's companion's update manager configuration for Moonraker will not be added to any moonraker.conf."),
                 ],
             )
             if not get_confirm(
-                "Continue Mobileraker's companion installation?",
+                _tr("Continue Mobileraker's companion installation?"),
                 default_choice=False,
                 allow_go_back=True,
             ):
@@ -80,23 +79,22 @@ class MobilerakerExtension(BaseExtension):
                 InstanceManager.restart_all(mr_instances)
             else:
                 Logger.print_info(
-                    "Moonraker is not installed! Cannot add Mobileraker's "
-                    "companion to update manager!"
+                    _tr("Moonraker is not installed! Cannot add Mobileraker's companion to update manager!")
                 )
-            Logger.print_ok("Mobileraker's companion successfully installed!")
+            Logger.print_ok(_tr("Mobileraker's companion successfully installed!"))
         except CalledProcessError as e:
-            Logger.print_error(f"Error installing Mobileraker's companion:\n{e}")
+            Logger.print_error(_tr("Error installing Mobileraker's companion:\n{}").format(e))
             return
 
     def update_extension(self, **kwargs) -> None:
         try:
             if not MOBILERAKER_DIR.exists():
                 Logger.print_info(
-                    "Mobileraker's companion doesn't seem to be installed! Skipping ..."
+                    _tr("Mobileraker's companion doesn't seem to be installed! Skipping ...")
                 )
                 return
 
-            Logger.print_status("Updating Mobileraker's companion ...")
+            Logger.print_status(_tr("Updating Mobileraker's companion ..."))
 
             cmd_sysctl_service(MOBILERAKER_SERVICE_NAME, "stop")
 
@@ -110,31 +108,31 @@ class MobilerakerExtension(BaseExtension):
 
             cmd_sysctl_service(MOBILERAKER_SERVICE_NAME, "start")
 
-            Logger.print_ok("Mobileraker's companion updated successfully.", end="\n\n")
+            Logger.print_ok(_tr("Mobileraker's companion updated successfully."), end="\n\n")
         except CalledProcessError as e:
-            Logger.print_error(f"Error updating Mobileraker's companion:\n{e}")
+            Logger.print_error(_tr("Error updating Mobileraker's companion:\n{}").format(e))
             return
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing Mobileraker's companion ...")
+        Logger.print_status(_tr("Removing Mobileraker's companion ..."))
         try:
             if MOBILERAKER_DIR.exists():
-                Logger.print_status("Removing Mobileraker's companion directory ...")
+                Logger.print_status(_tr("Removing Mobileraker's companion directory ..."))
                 shutil.rmtree(MOBILERAKER_DIR)
                 Logger.print_ok(
-                    "Mobileraker's companion directory successfully removed!"
+                    _tr("Mobileraker's companion directory successfully removed!")
                 )
             else:
-                Logger.print_warn("Mobileraker's companion directory not found!")
+                Logger.print_warn(_tr("Mobileraker's companion directory not found!"))
 
             if MOBILERAKER_ENV_DIR.exists():
-                Logger.print_status("Removing Mobileraker's companion environment ...")
+                Logger.print_status(_tr("Removing Mobileraker's companion environment ..."))
                 shutil.rmtree(MOBILERAKER_ENV_DIR)
                 Logger.print_ok(
-                    "Mobileraker's companion environment successfully removed!"
+                    _tr("Mobileraker's companion environment successfully removed!")
                 )
             else:
-                Logger.print_warn("Mobileraker's companion environment not found!")
+                Logger.print_warn(_tr("Mobileraker's companion environment not found!"))
 
             if MOBILERAKER_SERVICE_FILE.exists():
                 remove_system_service(MOBILERAKER_SERVICE_NAME)
@@ -143,25 +141,25 @@ class MobilerakerExtension(BaseExtension):
             for instance in kl_instances:
                 logfile = instance.base.log_dir.joinpath(MOBILERAKER_LOG_NAME)
                 if logfile.exists():
-                    Logger.print_status(f"Removing {logfile} ...")
+                    Logger.print_status(_tr("Removing {} ...").format(logfile))
                     Path(logfile).unlink()
-                    Logger.print_ok(f"{logfile} successfully removed!")
+                    Logger.print_ok(_tr("{} successfully removed!").format(logfile))
 
             mr_instances: List[Moonraker] = get_instances(Moonraker)
             if mr_instances:
                 Logger.print_status(
-                    "Removing Mobileraker's companion from update manager ..."
+                    _tr("Removing Mobileraker's companion from update manager ...")
                 )
                 BackupService().backup_moonraker_conf()
                 remove_config_section(MOBILERAKER_UPDATER_SECTION_NAME, mr_instances)
                 Logger.print_ok(
-                    "Mobileraker's companion successfully removed from update manager!"
+                    _tr("Mobileraker's companion successfully removed from update manager!")
                 )
 
-            Logger.print_ok("Mobileraker's companion successfully removed!")
+            Logger.print_ok(_tr("Mobileraker's companion successfully removed!"))
 
         except Exception as e:
-            Logger.print_error(f"Error removing Mobileraker's companion:\n{e}")
+            Logger.print_error(_tr("Error removing Mobileraker's companion:\n{}").format(e))
 
     def _patch_mobileraker_update_manager(self, instances: List[Moonraker]) -> None:
         BackupService().backup_moonraker_conf()

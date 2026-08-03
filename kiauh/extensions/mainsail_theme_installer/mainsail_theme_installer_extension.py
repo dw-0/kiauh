@@ -21,6 +21,7 @@ from components.klipper.klipper_dialogs import (
     DisplayType,
     print_instance_overview,
 )
+from core.i18n import _tr
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -60,16 +61,16 @@ class MainsailThemeInstallerExtension(BaseExtension):
             return
 
         for printer in printer_list:
-            Logger.print_status(f"Uninstalling theme from {printer.base.cfg_dir} ...")
+            Logger.print_status(_tr("Uninstalling theme from {} ...").format(printer.base.cfg_dir))
             theme_dir = printer.base.cfg_dir.joinpath(".theme")
             if not theme_dir.exists():
-                Logger.print_info(f"{theme_dir} not found. Skipping ...")
+                Logger.print_info(_tr("{} not found. Skipping ...").format(theme_dir))
                 continue
             try:
                 shutil.rmtree(theme_dir)
-                Logger.print_ok("Theme successfully uninstalled!")
+                Logger.print_ok(_tr("Theme successfully uninstalled!"))
             except OSError as e:
-                Logger.print_error("Unable to uninstall theme")
+                Logger.print_error(_tr("Unable to uninstall theme"))
                 Logger.print_error(e)
 
 
@@ -81,7 +82,7 @@ class MainsailThemeInstallMenu(BaseMenu):
 
     def __init__(self, instances: List[Klipper]):
         super().__init__()
-        self.title = "Mainsail Theme Installer"
+        self.title = _tr("Mainsail Theme Installer")
         self.title_color = Color.YELLOW
         self.themes: List[ThemeData] = self.load_themes()
         self.instances = instances
@@ -101,7 +102,7 @@ class MainsailThemeInstallMenu(BaseMenu):
 
     def print_menu(self) -> None:
         line1 = Color.apply(
-            "A preview of each Mainsail theme can be found here:", Color.YELLOW
+            _tr("A preview of each Mainsail theme can be found here:"), Color.YELLOW
         )
         menu = textwrap.dedent(
             f"""
@@ -125,7 +126,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             csv_data: List[str] = content.splitlines()
             fieldnames = ["name", "short_note", "author", "repo"]
             csv_reader = csv.DictReader(csv_data, fieldnames=fieldnames, delimiter=",")
-            next(csv_reader)  # skip the header of the csv file
+            next(csv_reader)
             for row in csv_reader:
                 row: Dict[str, str]  # type: ignore
                 theme: ThemeData = ThemeData(**row)
@@ -137,7 +138,7 @@ class MainsailThemeInstallMenu(BaseMenu):
         opt_index: str | None = kwargs.get("opt_index", None)
 
         if not opt_index:
-            raise ValueError("No option index provided")
+            raise ValueError(_tr("No option index provided"))
 
         index: int = int(opt_index)
         theme_data: ThemeData = self.themes[index]
@@ -161,7 +162,7 @@ class MainsailThemeInstallMenu(BaseMenu):
             git_clone_wrapper(theme_repo_url, printer.base.cfg_dir.joinpath(".theme"))
 
         if len(theme_data.short_note) > 1:
-            Logger.print_warn("Info from the creator:", prefix=False, start="\n")
+            Logger.print_warn(_tr("Info from the creator:"), prefix=False, start="\n")
             Logger.print_info(theme_data.short_note, prefix=False, end="\n\n")
 
 
@@ -172,9 +173,9 @@ def get_printer_selection(
     options.extend(["a", "b"])
 
     if is_install:
-        q = "Select the printer to install the theme for"
+        q = _tr("Select the printer to install the theme for")
     else:
-        q = "Select the printer to remove the theme from"
+        q = _tr("Select the printer to remove the theme from")
     selection = get_selection_input(q, options)
 
     install_for = []

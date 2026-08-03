@@ -21,6 +21,7 @@ def patched_settings_menu(monkeypatch: pytest.MonkeyPatch) -> SettingsMenu:
 
     class FakeKiauh:
         backup_before_update = True
+        language = None
 
     class FakeSettings:
         kiauh = FakeKiauh()

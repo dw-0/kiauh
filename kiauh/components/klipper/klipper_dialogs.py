@@ -11,6 +11,7 @@ import textwrap
 from enum import Enum, unique
 from typing import List
 
+from core.i18n import _tr
 from core.menus.base_menu import print_back_footer
 from core.types.color import Color
 from utils.instance_type import InstanceType
@@ -33,16 +34,16 @@ def print_instance_overview(
     dialog = "╔═══════════════════════════════════════════════════════╗\n"
     if show_headline:
         d_type = (
-            "Klipper instances"
+            _tr("Klipper instances")
             if display_type is DisplayType.SERVICE_NAME
-            else "printer directories"
+            else _tr("printer directories")
         )
-        headline = Color.apply(f"The following {d_type} were found:", Color.GREEN)
+        headline = Color.apply(_tr("The following {} were found:").format(d_type), Color.GREEN)
         dialog += f"║{headline:^64}║\n"
         dialog += "╟───────────────────────────────────────────────────────╢\n"
 
     if show_select_all:
-        select_all = Color.apply("a) Select all", Color.YELLOW)
+        select_all = Color.apply(_tr("a) Select all"), Color.YELLOW)
         dialog += f"║ {select_all:<63}║\n"
         dialog += "║                                                       ║\n"
 
@@ -52,7 +53,11 @@ def print_instance_overview(
         else:
             name = s.data_dir
         line = Color.apply(
-            f"{f'{i + start_index})' if show_index else '●'} {name}", Color.CYAN
+            _tr("{} {}").format(
+                f"{i + start_index})" if show_index else "●",
+                name,
+            ),
+            Color.CYAN,
         )
         dialog += f"║ {line:<63}║\n"
     dialog += "╟───────────────────────────────────────────────────────╢\n"
@@ -62,16 +67,16 @@ def print_instance_overview(
 
 
 def print_select_instance_count_dialog() -> None:
-    line1 = Color.apply("WARNING:", Color.YELLOW)
+    line1 = Color.apply(_tr("WARNING:"), Color.YELLOW)
     line2 = Color.apply(
-        "Setting up too many instances may crash your system.", Color.YELLOW
+        _tr("Setting up too many instances may crash your system."), Color.YELLOW
     )
     dialog = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗
-        ║ Please select the number of Klipper instances to set  ║
-        ║ up. The number of Klipper instances will determine    ║
-        ║ the amount of printers you can run from this host.    ║
+        ║ {_tr("Please select the number of Klipper instances to set"):<62}║
+        ║ {_tr("up. The number of Klipper instances will determine"):<62}║
+        ║ {_tr("the amount of printers you can run from this host."):<62}║
         ║                                                       ║
         ║ {line1:<63}║
         ║ {line2:<63}║
@@ -84,24 +89,24 @@ def print_select_instance_count_dialog() -> None:
 
 
 def print_select_custom_name_dialog() -> None:
-    line1 = Color.apply("INFO:", Color.YELLOW)
-    line2 = Color.apply("Only alphanumeric characters are allowed!", Color.YELLOW)
+    line1 = Color.apply(_tr("INFO:"), Color.YELLOW)
+    line2 = Color.apply(_tr("Only alphanumeric characters are allowed!"), Color.YELLOW)
     dialog = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗
-        ║ Do you want to assign a custom name to each instance? ║
+        ║ {_tr("Do you want to assign a custom name to each instance?"):<62}║
         ║                                                       ║
-        ║ Assigning a custom name will create a Klipper service ║
-        ║ and a printer directory with the chosen name.         ║
+        ║ {_tr("Assigning a custom name will create a Klipper service"):<62}║
+        ║ {_tr("and a printer directory with the chosen name."):<62}║
         ║                                                       ║
-        ║ Example for custom name 'kiauh':                      ║
+        ║ {_tr("Example for custom name 'kiauh':"):<62}║
         ║  ● Klipper service:   klipper-kiauh.service           ║
         ║  ● Printer directory: printer_kiauh_data              ║
         ║                                                       ║
-        ║ If skipped, each instance will get an index assigned  ║
-        ║ in ascending order, starting at '1' in case of a new  ║
-        ║ installation. Otherwise, the index will be derived    ║
-        ║ from amount of already existing instances.            ║
+        ║ {_tr("If skipped, each instance will get an index assigned"):<62}║
+        ║ {_tr("in ascending order, starting at '1' in case of a new"):<62}║
+        ║ {_tr("installation. Otherwise, the index will be derived"):<62}║
+        ║ {_tr("from amount of already existing instances."):<62}║
         ║                                                       ║
         ║ {line1:<63}║
         ║ {line2:<63}║

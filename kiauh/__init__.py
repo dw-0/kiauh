@@ -13,3 +13,13 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 APPLICATION_ROOT = Path(__file__).resolve().parent
 sys.path.append(str(APPLICATION_ROOT))
+
+from core.i18n import N_, _ntr, _tr  # noqa: E402
+
+__all__ = [
+    "PROJECT_ROOT",
+    "APPLICATION_ROOT",
+    "_tr",
+    "_ntr",
+    "N_",
+]

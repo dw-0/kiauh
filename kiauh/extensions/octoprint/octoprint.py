@@ -15,6 +15,7 @@ from textwrap import dedent
 
 from components.klipper.klipper import Klipper
 from core.instance_manager.base_instance import BaseInstance
+from core.i18n import _tr
 from core.logger import Logger
 from extensions.octoprint import (
     OP_BASEDIR_PREFIX,
@@ -45,7 +46,6 @@ class Octoprint:
 
         self.service_file_path = get_service_file_path(Octoprint, self.suffix)
 
-        # OctoPrint stores its data under ~/.octoprint[_SUFFIX]
         self.basedir = (
             Path.home().joinpath(OP_BASEDIR_PREFIX)
             if self.suffix == ""
@@ -53,7 +53,6 @@ class Octoprint:
         )
         self.cfg_file = self.basedir.joinpath("config.yaml")
 
-        # OctoPrint virtualenv lives under ~/OctoPrint[_SUFFIX]
         self.env_dir = (
             Path.home().joinpath(OP_ENV_PREFIX)
             if self.suffix == ""
@@ -62,17 +61,16 @@ class Octoprint:
 
     def create(self, port: int) -> None:
         Logger.print_status(
-            f"Creating OctoPrint instance '{self.service_file_path.stem}' ..."
+            _tr("Creating OctoPrint instance '{}' ...").format(self.service_file_path.stem)
         )
 
-        # Ensure basedir exists and config.yaml is present
         create_folders([self.basedir])
         if not self.cfg_file.exists():
-            Logger.print_status("Creating config.yaml ...")
+            Logger.print_status(_tr("Creating config.yaml ..."))
             self.cfg_file.write_text(self._prep_config_yaml())
-            Logger.print_ok("config.yaml created!")
+            Logger.print_ok(_tr("config.yaml created!"))
         else:
-            Logger.print_info("config.yaml already exists. Skipped ...")
+            Logger.print_info(_tr("config.yaml already exists. Skipped ..."))
 
         create_service_file(self.service_file_path.name, self._prep_service_content(port))
 

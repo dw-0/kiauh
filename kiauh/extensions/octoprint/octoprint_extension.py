@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Set
 
 from components.klipper.klipper import Klipper
 from core.instance_manager.instance_manager import InstanceManager
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.types.color import Color
 from core.menus.base_menu import print_back_footer
@@ -36,14 +37,14 @@ from utils.sys_utils import (
 # noinspection PyMethodMayBeStatic
 class OctoprintExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing OctoPrint ...")
+        Logger.print_status(_tr("Installing OctoPrint ..."))
 
         klipper_instances: List[Klipper] = get_instances(Klipper)
         if not klipper_instances:
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    "Klipper not found! Please install Klipper first.",
+                    _tr("Klipper not found! Please install Klipper first."),
                 ],
             )
             return
@@ -58,24 +59,24 @@ class OctoprintExtension(BaseExtension):
             k = klipper_instances[0]
             if k.suffix in existing_by_suffix:
                 if not get_confirm(
-                    f"OctoPrint already exists for '{k.service_file_path.stem}'. Reinstall?",
+                    _tr("OctoPrint already exists for '{}'. Reinstall?").format(k.service_file_path.stem),
                     default_choice=True,
                     allow_go_back=True,
                 ):
-                    Logger.print_info("Aborted OctoPrint installation.")
+                    Logger.print_info(_tr("Aborted OctoPrint installation."))
                     return
             chosen = [k]
         else:
             while True:
                 dialog = "╔═══════════════════════════════════════════════════════╗\n"
                 headline = Color.apply(
-                    "The following Klipper instances were found:", Color.GREEN
+                    _tr("The following Klipper instances were found:"), Color.GREEN
                 )
                 dialog += f"║{headline:^64}║\n"
                 dialog += "╟───────────────────────────────────────────────────────╢\n"
 
                 if candidates:
-                    line_all = Color.apply("a) Select all (install for all missing)", Color.YELLOW)
+                    line_all = Color.apply(_tr("a) Select all (install for all missing)"), Color.YELLOW)
                     dialog += f"║ {line_all:<63}║\n"
                     dialog += "║                                                       ║\n"
 
@@ -92,10 +93,10 @@ class OctoprintExtension(BaseExtension):
                 print_back_footer()
 
                 allowed = list(index_map.keys()) + ["b"] + (["a"] if candidates else [])
-                choice = get_selection_input("Choose instance to install OctoPrint for", allowed)
+                choice = get_selection_input(_tr("Choose instance to install OctoPrint for"), allowed)
 
                 if choice == "b":
-                    Logger.print_info("Aborted OctoPrint installation.")
+                    Logger.print_info(_tr("Aborted OctoPrint installation."))
                     return
                 if choice == "a":
                     chosen = candidates
@@ -104,12 +105,11 @@ class OctoprintExtension(BaseExtension):
                 selected = index_map[choice]
                 if selected.suffix in existing_by_suffix:
                     confirm = get_confirm(
-                        f"OctoPrint already exists for '{selected.service_file_path.stem}'. Reinstall?",
+                        _tr("OctoPrint already exists for '{}'. Reinstall?").format(selected.service_file_path.stem),
                         default_choice=True,
                         allow_go_back=True,
                     )
                     if not confirm:
-                        # back to menu
                         continue
                 chosen = [selected]
                 break
@@ -126,7 +126,6 @@ class OctoprintExtension(BaseExtension):
         }
         check_install_dependencies(deps)
 
-        # Determine used ports from existing OctoPrint services and prepare regex
         used_ports: Set[int] = set()
         port_re = re.compile(r"--port=(\d+)")
         for op in existing_ops:
@@ -138,7 +137,6 @@ class OctoprintExtension(BaseExtension):
             except OSError:
                 pass
 
-        # noinspection PyShadowingNames
         def read_existing_port(suffix: str) -> Optional[int]:
             op = existing_by_suffix.get(suffix)
             if not op:
@@ -159,7 +157,6 @@ class OctoprintExtension(BaseExtension):
 
         created_ops: List[Octoprint] = []
         for k in chosen:
-            # Keep existing port on reinstall, otherwise assign next free one
             existing_port = read_existing_port(k.suffix)
             port = existing_port if existing_port is not None else next_free_port(OP_DEFAULT_PORT, used_ports)
 
@@ -167,11 +164,11 @@ class OctoprintExtension(BaseExtension):
 
             if create_python_venv(instance.env_dir, force=False):
                 Logger.print_ok(
-                    f"Virtualenv created: {instance.env_dir}", prefix=False
+                    _tr("Virtualenv created: {}").format(instance.env_dir), prefix=False
                 )
             else:
                 Logger.print_info(
-                    f"Virtualenv exists: {instance.env_dir}. Skipping creation ..."
+                    _tr("Virtualenv exists: {}. Skipping creation ...").format(instance.env_dir)
                 )
 
             install_python_packages(instance.env_dir, ["octoprint"])
@@ -185,17 +182,16 @@ class OctoprintExtension(BaseExtension):
                 InstanceManager.start(inst)
             except Exception as e:
                 Logger.print_error(
-                    f"Failed to enable/start {inst.service_file_path.name}: {e}"
+                    _tr("Failed to enable/start {}: {}").format(inst.service_file_path.name, e)
                 )
 
         ip = get_ipv4_addr()
-        lines = ["Access your new OctoPrint instance(s) at:"]
+        lines = [_tr("Access your new OctoPrint instance(s) at:")]
         for inst in created_ops:
             try:
                 content = inst.service_file_path.read_text()
                 m = port_re.search(content)
                 if m:
-                    # noinspection HttpUrlsUsage
                     lines.append(f"● {inst.service_file_path.stem}: http://{ip}:{m.group(1)}")
             except OSError:
                 pass
@@ -203,12 +199,12 @@ class OctoprintExtension(BaseExtension):
         Logger.print_dialog(DialogType.SUCCESS, lines, center_content=False)
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing OctoPrint ...")
+        Logger.print_status(_tr("Removing OctoPrint ..."))
 
         try:
             op_instances: List[Octoprint] = get_instances(Octoprint)
             if not op_instances:
-                Logger.print_info("No OctoPrint instances found. Skipped ...")
+                Logger.print_info(_tr("No OctoPrint instances found. Skipped ..."))
                 return
 
             remove_all = False
@@ -217,11 +213,11 @@ class OctoprintExtension(BaseExtension):
             else:
                 dialog = "╔═══════════════════════════════════════════════════════╗\n"
                 headline = Color.apply(
-                    "The following OctoPrint instances were found:", Color.GREEN
+                    _tr("The following OctoPrint instances were found:"), Color.GREEN
                 )
                 dialog += f"║{headline:^64}║\n"
                 dialog += "╟───────────────────────────────────────────────────────╢\n"
-                select_all = Color.apply("a) Select all", Color.YELLOW)
+                select_all = Color.apply(_tr("a) Select all"), Color.YELLOW)
                 dialog += f"║ {select_all:<63}║\n"
                 dialog += "║                                                       ║\n"
 
@@ -236,13 +232,13 @@ class OctoprintExtension(BaseExtension):
 
                 allowed = [str(i) for i in range(1, len(op_instances) + 1)]
                 allowed.extend(["a", "b"])
-                choice = get_selection_input("Choose instance to remove", allowed)
+                choice = get_selection_input(_tr("Choose instance to remove"), allowed)
 
                 if choice == "a":
                     remove_all = True
                     to_remove = op_instances
                 elif choice == "b":
-                    Logger.print_info("Aborted OctoPrint removal.")
+                    Logger.print_info(_tr("Aborted OctoPrint removal."))
                     return
                 else:
                     idx = int(choice) - 1
@@ -250,38 +246,36 @@ class OctoprintExtension(BaseExtension):
 
             for inst in to_remove:
                 Logger.print_status(
-                    f"Removing instance {inst.service_file_path.stem} ..."
+                    _tr("Removing instance {} ...").format(inst.service_file_path.stem)
                 )
                 try:
                     InstanceManager.remove(inst)
                 except Exception as e:
                     Logger.print_error(
-                        f"Failed to remove service {inst.service_file_path.name}: {e}"
+                        _tr("Failed to remove service {}: {}").format(inst.service_file_path.name, e)
                     )
 
-                # Remove only this instance's env and basedir
                 if inst.env_dir.exists():
-                    Logger.print_status(f"Removing {inst.env_dir} ...")
+                    Logger.print_status(_tr("Removing {} ...").format(inst.env_dir))
                     run_remove_routines(inst.env_dir)
                 if inst.basedir.exists():
-                    Logger.print_status(f"Removing {inst.basedir} ...")
+                    Logger.print_status(_tr("Removing {} ...").format(inst.basedir))
                     run_remove_routines(inst.basedir)
 
-            # Remove sudoers file only if no instances remain
             remaining = get_instances(Octoprint)
             if not remaining and OP_SUDOERS_FILE.exists():
-                Logger.print_status(f"Removing {OP_SUDOERS_FILE} ...")
+                Logger.print_status(_tr("Removing {} ...").format(OP_SUDOERS_FILE))
                 remove_with_sudo(OP_SUDOERS_FILE)
 
+            if not remove_all:
+                success_msg = _tr("Selected OctoPrint instance(s) successfully removed!")
+            else:
+                success_msg = _tr("All OctoPrint instances successfully removed!")
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                [
-                    "Selected OctoPrint instance(s) successfully removed!"
-                    if not remove_all
-                    else "All OctoPrint instances successfully removed!",
-                ],
+                [success_msg],
                 center_content=True,
             )
 
         except Exception as e:
-            Logger.print_error(f"Error during OctoPrint removal: {e}")
+            Logger.print_error(_tr("Error during OctoPrint removal: {}").format(e))

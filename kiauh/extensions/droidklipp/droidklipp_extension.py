@@ -10,6 +10,7 @@
 from subprocess import CalledProcessError, run
 
 from components.klipperscreen import KLIPPERSCREEN_DIR, KLIPPERSCREEN_ENV_DIR
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
 from extensions.droidklipp import (
@@ -33,17 +34,17 @@ from utils.sys_utils import cmd_sysctl_service
 # noinspection PyMethodMayBeStatic
 class DroidKlippExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing DroidKlipp ...")
+        Logger.print_status(_tr("Installing DroidKlipp ..."))
 
         if not self._klipperscreen_exists():
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    "No KIAUH v6 KlipperScreen installation found!",
-                    "DroidKlipp expects KlipperScreen at:",
+                    _tr("No KIAUH v6 KlipperScreen installation found!"),
+                    _tr("DroidKlipp expects KlipperScreen at:"),
                     f"● {KLIPPERSCREEN_DIR.joinpath('screen.py')}",
                     f"● {KLIPPERSCREEN_ENV_DIR.joinpath('bin/python')}",
-                    "Install KlipperScreen first, then run this installer again.",
+                    _tr("Install KlipperScreen first, then run this installer again."),
                 ],
             )
             return
@@ -51,19 +52,19 @@ class DroidKlippExtension(BaseExtension):
         Logger.print_dialog(
             DialogType.INFO,
             [
-                "DroidKlipp requires the Android APK to be installed on your Android device:",
+                _tr("DroidKlipp requires the Android APK to be installed on your Android device:"),
                 DROIDKLIPP_APK_URL,
                 "\n\n",
-                "The installer will configure ADB forwarding, udev rules, the DroidKlipp monitor, and WiFi fallback.",
+                _tr("The installer will configure ADB forwarding, udev rules, the DroidKlipp monitor, and WiFi fallback."),
             ],
         )
 
         if not get_confirm(
-            "Continue DroidKlipp installation?",
+            _tr("Continue DroidKlipp installation?"),
             default_choice=True,
             allow_go_back=True,
         ):
-            Logger.print_info("Exiting DroidKlipp installation ...")
+            Logger.print_info(_tr("Exiting DroidKlipp installation ..."))
             return
 
         try:
@@ -73,19 +74,19 @@ class DroidKlippExtension(BaseExtension):
             run([DROIDKLIPP_INSTALL_SCRIPT], check=True)
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                ["DroidKlipp successfully installed!"],
+                [_tr("DroidKlipp successfully installed!")],
                 center_content=True,
             )
         except CalledProcessError as e:
-            Logger.print_error(f"Error during DroidKlipp installation:\n{e}")
+            Logger.print_error(_tr("Error during DroidKlipp installation:\n{}").format(e))
         except Exception as e:
-            Logger.print_error(f"Error during DroidKlipp installation:\n{e}")
+            Logger.print_error(_tr("Error during DroidKlipp installation:\n{}").format(e))
 
     def update_extension(self, **kwargs) -> None:
-        Logger.print_status("Updating DroidKlipp ...")
+        Logger.print_status(_tr("Updating DroidKlipp ..."))
 
         if not check_file_exist(DROIDKLIPP_DIR):
-            Logger.print_info("Extension does not seem to be installed! Skipping ...")
+            Logger.print_info(_tr("Extension does not seem to be installed! Skipping ..."))
             return
 
         try:
@@ -109,29 +110,29 @@ class DroidKlippExtension(BaseExtension):
 
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                ["DroidKlipp successfully updated!"],
+                [_tr("DroidKlipp successfully updated!")],
                 center_content=True,
             )
         except CalledProcessError as e:
-            Logger.print_error(f"Error during DroidKlipp update:\n{e}")
+            Logger.print_error(_tr("Error during DroidKlipp update:\n{}").format(e))
             cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "start")
         except Exception as e:
-            Logger.print_error(f"Error during DroidKlipp update:\n{e}")
+            Logger.print_error(_tr("Error during DroidKlipp update:\n{}").format(e))
             cmd_sysctl_service(DROIDKLIPP_SERVICE_NAME, "start")
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing DroidKlipp ...")
+        Logger.print_status(_tr("Removing DroidKlipp ..."))
 
         if not check_file_exist(DROIDKLIPP_DIR):
-            Logger.print_info("Extension does not seem to be installed! Skipping ...")
+            Logger.print_info(_tr("Extension does not seem to be installed! Skipping ..."))
             return
 
         if not get_confirm(
-            "Do you really want to uninstall DroidKlipp?",
+            _tr("Do you really want to uninstall DroidKlipp?"),
             default_choice=True,
             allow_go_back=True,
         ):
-            Logger.print_info("Exiting DroidKlipp uninstallation ...")
+            Logger.print_info(_tr("Exiting DroidKlipp uninstallation ..."))
             return
 
         try:
@@ -141,13 +142,13 @@ class DroidKlippExtension(BaseExtension):
             run_remove_routines(DROIDKLIPP_DIR)
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                ["DroidKlipp successfully removed!"],
+                [_tr("DroidKlipp successfully removed!")],
                 center_content=True,
             )
         except CalledProcessError as e:
-            Logger.print_error(f"Error during DroidKlipp removal:\n{e}")
+            Logger.print_error(_tr("Error during DroidKlipp removal:\n{}").format(e))
         except Exception as e:
-            Logger.print_error(f"Error during DroidKlipp removal:\n{e}")
+            Logger.print_error(_tr("Error during DroidKlipp removal:\n{}").format(e))
 
     def _klipperscreen_exists(self) -> bool:
         return bool(

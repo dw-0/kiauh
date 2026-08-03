@@ -23,6 +23,7 @@ from components.webui_client.client_utils import (
     create_client_config_symlink,
     detect_client_cfg_conflict,
 )
+from core.i18n import _tr
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from core.services.backup_service import BackupService
@@ -57,29 +58,27 @@ class WebClientConfigSetupService:
         cfg_backup: bool = True,
         interactive: bool = True,
     ) -> bool:
-        """Install the client config for this service's client.
-
-        Returns ``True`` on success or when the install is legitimately skipped
-        (conflict or already installed), and ``False`` when installation fails.
-        """
         client_config: BaseWebClientConfig = self.client.client_config
         display_name = client_config.display_name
 
         if detect_client_cfg_conflict(self.client):
-            Logger.print_info("Another Client-Config is already installed! Skipped ...")
+            Logger.print_info(
+                _tr("Another Client-Config is already installed! Skipped ...")
+            )
             return True
 
         if client_config.config_dir.exists():
             if interactive:
                 print_client_already_installed_dialog(display_name)
-                if get_confirm(f"Re-install {display_name}?", allow_go_back=True):
+                if get_confirm(_tr("Re-install {}?").format(display_name), allow_go_back=True):
                     shutil.rmtree(client_config.config_dir)
                 else:
                     return True
             else:
                 Logger.print_info(
-                    f"{display_name} is already installed; "
-                    "skipping non-interactive install."
+                    _tr("{} is already installed; skipping non-interactive install.").format(
+                        display_name
+                    )
                 )
                 return True
 
@@ -108,24 +107,22 @@ class WebClientConfigSetupService:
             InstanceManager.restart_all(kl_instances)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error(f"{display_name} installation failed!")
+            Logger.print_error(_tr("{} installation failed!").format(display_name))
             return False
 
-        Logger.print_ok(f"{display_name} installation complete!", start="\n")
+        Logger.print_ok(_tr("{} installation complete!").format(display_name), start="\n")
         return True
 
     def update(self, interactive: bool = True) -> bool:
-        """Update the client config. Honors ``interactive`` to gate the
-        post-update "Restart Klipper" hint.
-        """
         client_config: BaseWebClientConfig = self.client.client_config
 
-        Logger.print_status(f"Updating {client_config.display_name} ...")
+        Logger.print_status(_tr("Updating {} ...").format(client_config.display_name))
 
         if not client_config.config_dir.exists():
             Logger.print_info(
-                f"Unable to update {client_config.display_name}. "
-                "Directory does not exist! Skipping ..."
+                _tr("Unable to update {}. Directory does not exist! Skipping ...").format(
+                    client_config.display_name
+                )
             )
             return True
 
@@ -136,22 +133,18 @@ class WebClientConfigSetupService:
             git_pull_wrapper(client_config.config_dir)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error(f"Updating {client_config.display_name} failed!")
+            Logger.print_error(_tr("Updating {} failed!").format(client_config.display_name))
             return False
 
-        Logger.print_ok(f"Successfully updated {client_config.display_name}.")
+        Logger.print_ok(_tr("Successfully updated {}.").format(client_config.display_name))
         if interactive:
-            Logger.print_info("Restart Klipper to reload the configuration!")
+            Logger.print_info(_tr("Restart Klipper to reload the configuration!"))
         return True
 
     def remove(
         self,
         backup_config: bool = True,
     ) -> bool:
-        """Remove the client config dir, symlinks and config sections.
-
-        Returns ``True`` on success and ``False`` if removal failed.
-        """
         client_config: BaseWebClientConfig = self.client.client_config
         try:
             message = self.remove_config(
@@ -162,7 +155,7 @@ class WebClientConfigSetupService:
             MessageService().set_message(message)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error(f"Error while removing {client_config.display_name}!")
+            Logger.print_error(_tr("Error while removing {}!").format(client_config.display_name))
             return False
         return True
 
@@ -173,22 +166,16 @@ class WebClientConfigSetupService:
         backup_config: bool = True,
         svc: BackupService | None = None,
     ) -> Message:
-        """Remove the client config dir, its symlinks and config sections.
-
-        This method performs the actual (destructive) removal work and returns
-        the resulting completion ``Message``. It is named ``remove_config``
-        (not ``build_*``) so the call site obviously mutates the filesystem.
-        ``WebClientSetupService.remove`` merges this message into the combined
-        client-removal message without double-setting it.
-        """
         client_config: BaseWebClientConfig = self.client.client_config
         completion_msg = Message(
-            title=f"{client_config.display_name} Removal Process completed",
+            title=_tr("{} Removal Process completed").format(client_config.display_name),
             color=Color.GREEN,
         )
-        Logger.print_status(f"Removing {client_config.display_name} ...")
+        Logger.print_status(_tr("Removing {} ...").format(client_config.display_name))
         if run_remove_routines(client_config.config_dir):
-            completion_msg.text.append(f"● {client_config.display_name} removed")
+            completion_msg.text.append(
+                _tr("● {} removed").format(client_config.display_name)
+            )
 
         if svc is None:
             svc = BackupService()
@@ -203,15 +190,15 @@ class WebClientConfigSetupService:
         )
 
         if completion_msg.text:
-            completion_msg.text.insert(0, "The following actions were performed:")
+            completion_msg.text.insert(0, _tr("The following actions were performed:"))
         else:
             completion_msg.color = Color.YELLOW
             completion_msg.centered = True
-            completion_msg.text = ["Nothing to remove."]
+            completion_msg.text = [_tr("Nothing to remove.")]
         return completion_msg
 
     def __download_client_config(self, client_config: BaseWebClientConfig) -> None:
-        Logger.print_status(f"Downloading {client_config.display_name} ...")
+        Logger.print_status(_tr("Downloading {} ...").format(client_config.display_name))
         git_clone_wrapper(client_config.repo_url, client_config.config_dir)
 
     @staticmethod
@@ -219,7 +206,7 @@ class WebClientConfigSetupService:
         if not instances:
             return message
         instance_names = [i.service_file_path.stem for i in instances]
-        message.text.append(f"● {text}: {', '.join(instance_names)}")
+        message.text.append(_tr("● {}: {}").format(text, ", ".join(instance_names)))
         return message
 
     def __remove_printer_config_section(
@@ -233,7 +220,7 @@ class WebClientConfigSetupService:
         self.__update_msg(
             handled,
             message,
-            f"Klipper config section '{kl_section}' removed for instance",
+            _tr("Klipper config section '{}' removed for instance").format(kl_section),
         )
 
     def __remove_moonraker_config_section(
@@ -247,5 +234,5 @@ class WebClientConfigSetupService:
         self.__update_msg(
             handled,
             message,
-            f"Moonraker config section '{mr_section}' removed for instance",
+            _tr("Moonraker config section '{}' removed for instance").format(mr_section),
         )

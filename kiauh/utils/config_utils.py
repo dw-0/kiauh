@@ -14,6 +14,7 @@ import tempfile
 from pathlib import Path
 from typing import List, Tuple, Union
 
+from core.i18n import _tr
 from core.logger import Logger
 from core.simple_config_parser.simple_config_parser import (
     SimpleConfigParser,
@@ -33,16 +34,16 @@ def add_config_section(
 
     for instance in instances:
         cfg_file = instance.cfg_file
-        Logger.print_status(f"Add section '[{section}]' to '{cfg_file}' ...")
+        Logger.print_status(_tr("Add section '[{}]' to '{}' ...").format(section, cfg_file))
 
         if not Path(cfg_file).exists():
-            Logger.print_warn(f"'{cfg_file}' not found!")
+            Logger.print_warn(_tr("'{}' not found!").format(cfg_file))
             continue
 
         scp = SimpleConfigParser()
         scp.read_file(cfg_file)
         if scp.has_section(section):
-            Logger.print_info("Section already exist. Skipped ...")
+            Logger.print_info(_tr("Section already exist. Skipped ..."))
             continue
 
         scp.add_section(section)
@@ -55,7 +56,7 @@ def add_config_section(
 
         scp.write_file(cfg_file)
 
-        Logger.print_ok("OK!")
+        Logger.print_ok()
 
 
 def add_config_section_at_top(section: str, instances: List[InstanceType]) -> None:
@@ -78,7 +79,7 @@ def add_config_section_at_top(section: str, instances: List[InstanceType]) -> No
         cfg_file.unlink()
         shutil.move(tmp_cfg_path.as_posix(), cfg_file)
 
-        Logger.print_ok("OK!")
+        Logger.print_ok()
 
 
 def remove_config_section(
@@ -87,22 +88,22 @@ def remove_config_section(
     removed_from: List[InstanceType] = []
     for instance in instances:
         cfg_file = instance.cfg_file
-        Logger.print_status(f"Remove section '[{section}]' from '{cfg_file}' ...")
+        Logger.print_status(_tr("Remove section '[{}]' from '{}' ...").format(section, cfg_file))
 
         if not Path(cfg_file).exists():
-            Logger.print_warn(f"'{cfg_file}' not found!")
+            Logger.print_warn(_tr("'{}' not found!").format(cfg_file))
             continue
 
         scp = SimpleConfigParser()
         scp.read_file(cfg_file)
         if not scp.has_section(section):
-            Logger.print_info("Section does not exist. Skipped ...")
+            Logger.print_info(_tr("Section does not exist. Skipped ..."))
             continue
 
         scp.remove_section(section)
         scp.write_file(cfg_file)
 
         removed_from.append(instance)
-        Logger.print_ok("OK!")
+        Logger.print_ok()
 
     return removed_from

@@ -13,6 +13,7 @@ import textwrap
 from typing import Type
 
 from components.moonraker.services.moonraker_setup_service import MoonrakerSetupService
+from core.i18n import _tr
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu
 from core.types.color import Color
@@ -23,7 +24,7 @@ class MoonrakerRemoveMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
 
-        self.title = "Remove Moonraker"
+        self.title = _tr("Remove Moonraker")
         self.title_color = Color.RED
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.footer_type = FooterType.BACK
@@ -58,21 +59,23 @@ class MoonrakerRemoveMenu(BaseMenu):
         o2 = checked if self.rm_dir else unchecked
         o3 = checked if self.rm_env else unchecked
         o4 = checked if self.rm_pk else unchecked
-        sel_state = f"{'Select' if not self.select_state else 'Deselect'} everything"
+        sel_state = _tr("{} everything").format(
+            _tr("Select") if not self.select_state else _tr("Deselect")
+        )
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ Enter a number and hit enter to select / deselect     ║
-            ║ the specific option for removal.                      ║
+            ║ {_tr("Enter a number and hit enter to select / deselect"):<62}║
+            ║ {_tr("the specific option for removal."):<62}║
             ╟───────────────────────────────────────────────────────╢
             ║  a) {sel_state:49} ║
             ╟───────────────────────────────────────────────────────╢
-            ║  1) {o1} Remove Service                                ║
-            ║  2) {o2} Remove Local Repository                       ║
-            ║  3) {o3} Remove Python Environment                     ║
-            ║  4) {o4} Remove Policy Kit Rules                       ║
+            ║  1) {o1} {_tr("Remove Service"):38} ║
+            ║  2) {o2} {_tr("Remove Local Repository"):38} ║
+            ║  3) {o3} {_tr("Remove Python Environment"):38} ║
+            ║  4) {o4} {_tr("Remove Policy Kit Rules"):38} ║
             ╟───────────────────────────────────────────────────────╢
-            ║  C) Continue                                          ║
+            ║  C) {_tr("Continue"):48} ║
             ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
@@ -99,7 +102,7 @@ class MoonrakerRemoveMenu(BaseMenu):
 
     def run_removal_process(self, **kwargs) -> None:
         if not self.rm_svc and not self.rm_dir and not self.rm_env and not self.rm_pk:
-            msg = "Nothing selected! Select options to remove first."
+            msg = _tr("Nothing selected! Select options to remove first.")
             print(Color.apply(msg, Color.RED))
             return
 
@@ -109,3 +112,4 @@ class MoonrakerRemoveMenu(BaseMenu):
         self.rm_dir = False
         self.rm_env = False
         self.rm_pk = False
+        self.select_state = False

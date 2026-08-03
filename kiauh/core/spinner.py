@@ -3,6 +3,7 @@ import threading
 import time
 from typing import List, Literal, Set
 
+from core.i18n import _tr
 from core.types.color import Color
 
 SpinnerColor = Literal["white", "red", "green", "yellow"]
@@ -15,10 +16,11 @@ class Spinner:
 
     def __init__(
         self,
-        message: str = "Loading",
+        message: str = "",
         interval: float = 0.2,
     ) -> None:
-        self.message = f"{message} ..."
+        msg = message or _tr("Loading")
+        self.message = _tr("{} ...").format(msg)
         self.interval = interval
         self._stop_event = threading.Event()
         self._pause_event = threading.Event()

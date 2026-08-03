@@ -518,10 +518,13 @@ class TestPackaging:
         import subprocess as sp
         import sys
 
-        result = sp.run(
-            [sys.executable, "-m", "pip", "install", "--dry-run", "-e", ".[dev]"],
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-        )
+        cmd = [sys.executable, "-m", "pip", "install", "--dry-run", "-e", ".[dev]"]
+        result = sp.run(cmd, cwd=project_root, capture_output=True, text=True)
+        if result.returncode != 0 and "externally-managed-environment" in result.stderr:
+            result = sp.run(
+                [*cmd[:5], "--break-system-packages", *cmd[5:]],
+                cwd=project_root,
+                capture_output=True,
+                text=True,
+            )
         assert result.returncode == 0, result.stderr

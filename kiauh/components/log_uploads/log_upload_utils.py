@@ -13,6 +13,7 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.log_uploads import LogFile
+from core.i18n import _tr
 from core.logger import Logger
 from utils.instance_utils import get_instances
 
@@ -40,7 +41,7 @@ def get_display_name(filepath: Path) -> str:
 def upload_logfile(logfile: LogFile) -> None:
     file = logfile.get("filepath")
     name = logfile.get("display_name")
-    Logger.print_status(f"Uploading the following logfile from {name} ...")
+    Logger.print_status(_tr("Uploading the following logfile from {} ...").format(name))
 
     with open(file, "rb") as f:
         headers = {"x-random": ""}
@@ -48,8 +49,8 @@ def upload_logfile(logfile: LogFile) -> None:
         try:
             response = urllib.request.urlopen(req)
             link = response.read().decode("utf-8")
-            Logger.print_ok("Upload successful! Access it via the following link:")
+            Logger.print_ok(_tr("Upload successful! Access it via the following link:"))
             Logger.print_ok(f">>>> {link}", False)
         except Exception as e:
-            Logger.print_error("Uploading logfile failed!")
+            Logger.print_error(_tr("Uploading logfile failed!"))
             Logger.print_error(str(e))

@@ -1,0 +1,4473 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kiauh package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: KIAUH 1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/dw-0/kiauh/issues\n"
+"POT-Creation-Date: 2026-08-03 00:41-0700\n"
+"PO-Revision-Date: 2026-08-03 00:41-0700\n"
+"Last-Translator: KIAUH i18n contributors <zh-cn-translators@example.com>\n"
+"Language-Team: Chinese Simplified <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: components/crowsnest/crowsnest.py:65
+msgid "Do you want to continue with the installation?"
+msgstr "是否继续进行安装？"
+
+#: components/crowsnest/crowsnest.py:66
+msgid "Crowsnest installation aborted!"
+msgstr "Crowsnest 安装已中止！"
+
+#: components/crowsnest/crowsnest.py:69
+msgid "Launching crowsnest's install configurator ..."
+msgstr "正在启动 crowsnest's安装程序 ..."
+
+#: components/crowsnest/crowsnest.py:73
+msgid "Launching crowsnest installer ..."
+msgstr "正在启动 crowsnest安装程序 ..."
+
+#: components/crowsnest/crowsnest.py:74
+msgid "Installer will prompt you for sudo password!"
+msgstr "安装er will prompt you for sudo 密码!"
+
+#: components/crowsnest/crowsnest.py:83 components/crowsnest/crowsnest.py:112
+#: components/crowsnest/crowsnest.py:147 components/crowsnest/crowsnest.py:222
+#, python-brace-format
+msgid ""
+"Something went wrong! Please try again...\n"
+"{}"
+msgstr ""
+"Something went wrong! 请 try again...\n"
+"{}"
+
+#: components/crowsnest/crowsnest.py:91
+msgid "Multi instance install detected!"
+msgstr "检测到多实例安装！"
+
+#: components/crowsnest/crowsnest.py:93
+msgid "Crowsnest is NOT designed to support multi instances. A workaround for this is to choose the most used instance as a 'master' and use this instance to set up your 'crowsnest.conf' and steering it's service."
+msgstr "Crowsnest is NOT designed to sup端口 multi 实例. A workaround for this is to choose the most used 实例 as a 'master' and use this 实例 to set up your 'crowsnest.conf' and steering it's 服务."
+
+#: components/crowsnest/crowsnest.py:97
+#: components/moonraker/moonraker_dialogs.py:26
+msgid "The following instances were found:"
+msgstr "发现以下实例："
+
+#: components/crowsnest/crowsnest.py:98 components/klipper/klipper_utils.py:108
+#: components/klipper/services/klipper_setup_service.py:416
+#: components/webui_client/client_dialogs.py:58
+#, python-brace-format
+msgid "● {}"
+msgstr "● {}"
+
+#: components/crowsnest/crowsnest.py:118
+msgid "Generating .config failed, installation aborted"
+msgstr "生成 .config 失败，已中止安装"
+
+#: components/crowsnest/crowsnest.py:128
+msgid "Updating Crowsnest ..."
+msgstr "正在更新 Crowsnest ..."
+
+#: components/crowsnest/crowsnest.py:145
+msgid "Crowsnest updated successfully."
+msgstr "Crowsnest 更新d 成功."
+
+#: components/crowsnest/crowsnest.py:181
+msgid "Parsing Crowsnest system dependencies  ..."
+msgstr "解析 Crowsnest 系统 依赖项  ..."
+
+#: components/crowsnest/crowsnest.py:187 components/crowsnest/crowsnest.py:197
+#: components/moonraker/utils/utils.py:52
+#: components/moonraker/utils/utils.py:63
+#, python-brace-format
+msgid "Parsing system dependencies from {} ..."
+msgstr "解析 系统 依赖项 from {} ..."
+
+#: components/crowsnest/crowsnest.py:204
+msgid "Error parsing crowsnest dependencies!"
+msgstr "解析 Crowsnest 依赖失败！"
+
+#: components/crowsnest/crowsnest.py:211
+msgid "Crowsnest does not seem to be installed! Skipping ..."
+msgstr "似乎未安装 Crowsnest！跳过 ..."
+
+#: components/crowsnest/crowsnest.py:225
+msgid "Removing crowsnest directory ..."
+msgstr "正在移除 crowsnest 目录 ..."
+
+#: components/crowsnest/crowsnest.py:227
+msgid "Directory removed!"
+msgstr "目录 removed!"
+
+#: components/klipper/__init__.py:38
+msgid "Exiting Klipper setup ..."
+msgstr "正在退出 Klipper 设置 ..."
+
+#: components/klipper/klipper.py:63
+msgid "Creating new Klipper Instance ..."
+msgstr "正在创建 new Klipper 实例 ..."
+
+#: components/klipper/klipper.py:79 components/moonraker/moonraker.py:84
+#: extensions/obico/moonraker_obico.py:78 extensions/octoapp/octoapp.py:65
+#: extensions/octoeverywhere/octoeverywhere.py:67
+#: extensions/telegram_bot/moonraker_telegram_bot.py:72
+#, python-brace-format
+msgid "Error creating instance: {}"
+msgstr "创建 实例: {} 时出错："
+
+#: components/klipper/klipper.py:82 components/moonraker/moonraker.py:87
+#: extensions/obico/moonraker_obico.py:81
+#: extensions/telegram_bot/moonraker_telegram_bot.py:75 utils/sys_utils.py:456
+#, python-brace-format
+msgid "Error creating env file: {}"
+msgstr "创建环境文件时出错：{}"
+
+#: components/klipper/klipper.py:92 components/klipper/klipper.py:120
+#: components/moonraker/moonraker.py:97 components/moonraker/moonraker.py:125
+#: extensions/obico/moonraker_obico.py:106
+#: extensions/obico/moonraker_obico.py:134
+#: extensions/telegram_bot/moonraker_telegram_bot.py:85
+#: extensions/telegram_bot/moonraker_telegram_bot.py:113
+#, python-brace-format
+msgid "Unable to open {} - File not found"
+msgstr "Unable to open {} - 文件 not 找到"
+
+#: components/klipper/klipper_dialogs.py:37
+msgid "Klipper instances"
+msgstr "Klipper 实例"
+
+#: components/klipper/klipper_dialogs.py:39
+msgid "printer directories"
+msgstr "打印机 directories"
+
+#: components/klipper/klipper_dialogs.py:41
+#, python-brace-format
+msgid "The following {} were found:"
+msgstr "找到以下 {}："
+
+#: components/klipper/klipper_dialogs.py:46
+#: components/moonraker/moonraker_dialogs.py:36
+#: extensions/octoprint/octoprint_extension.py:220
+msgid "a) Select all"
+msgstr "a) 全选"
+
+#: components/klipper/klipper_dialogs.py:56 utils/input_utils.py:42
+#, python-brace-format
+msgid "{} {}"
+msgstr "{} {}"
+
+#: components/klipper/klipper_dialogs.py:70
+msgid "WARNING:"
+msgstr "警告："
+
+#: components/klipper/klipper_dialogs.py:72
+msgid "Setting up too many instances may crash your system."
+msgstr "设置 up too many 实例 may crash your 系统."
+
+#: components/klipper/klipper_dialogs.py:77
+msgid "Please select the number of Klipper instances to set"
+msgstr "请 选择 the number of Klipper 实例 to set"
+
+#: components/klipper/klipper_dialogs.py:78
+msgid "up. The number of Klipper instances will determine"
+msgstr "up. The number of Klipper 实例 will 确定e"
+
+#: components/klipper/klipper_dialogs.py:79
+msgid "the amount of printers you can run from this host."
+msgstr "the amount of 打印机s you can 运行 from this 主机."
+
+#: components/klipper/klipper_dialogs.py:92
+#: components/klipper/klipper_utils.py:112
+msgid "INFO:"
+msgstr "信息："
+
+#: components/klipper/klipper_dialogs.py:93
+msgid "Only alphanumeric characters are allowed!"
+msgstr "仅允许字母数字字符！"
+
+#: components/klipper/klipper_dialogs.py:97
+msgid "Do you want to assign a custom name to each instance?"
+msgstr "Do you want to 分配 a 自定义 名称 to each 实例?"
+
+#: components/klipper/klipper_dialogs.py:99
+msgid "Assigning a custom name will create a Klipper service"
+msgstr "分配ing a 自定义 名称 will 创建 a Klipper 服务"
+
+#: components/klipper/klipper_dialogs.py:100
+msgid "and a printer directory with the chosen name."
+msgstr "and a 打印机 目录 with the chosen 名称."
+
+#: components/klipper/klipper_dialogs.py:102
+msgid "Example for custom name 'kiauh':"
+msgstr "Example for 自定义 名称 'kiauh':"
+
+#: components/klipper/klipper_dialogs.py:106
+msgid "If skipped, each instance will get an index assigned"
+msgstr "若跳过，每个实例将按"
+
+#: components/klipper/klipper_dialogs.py:107
+msgid "in ascending order, starting at '1' in case of a new"
+msgstr "递增顺序分配索引，新安装时从"
+
+#: components/klipper/klipper_dialogs.py:108
+msgid "installation. Otherwise, the index will be derived"
+msgstr "安装. Otherwise, the 索引 will be derived"
+
+#: components/klipper/klipper_dialogs.py:109
+msgid "from amount of already existing instances."
+msgstr "from amount of 已经 存在ing 实例."
+
+#: components/klipper/klipper_utils.py:58
+msgid "Add new instances?"
+msgstr "Add new 实例?"
+
+#: components/klipper/klipper_utils.py:71
+#, python-brace-format
+msgid "Number of {} Klipper instances to set up"
+msgstr "Number of {} Klipper 实例 to set up"
+
+#: components/klipper/klipper_utils.py:72
+msgid " additional"
+msgstr " 额外的"
+
+#: components/klipper/klipper_utils.py:84
+#, python-brace-format
+msgid "Enter name for instance {}"
+msgstr "请输入实例 {} 的名称"
+
+#: components/klipper/klipper_utils.py:107
+msgid "Your current user is not in group:"
+msgstr "当前用户不在以下用户组："
+
+#: components/klipper/klipper_utils.py:110
+msgid "It is possible that you won't be able to successfully connect and/or flash the controller board without your user being a member of that group. If you want to add the current user to the group(s) listed above, answer with 'Y'. Else skip with 'n'."
+msgstr "It is possible that you won't be able to 成功 connect and/or 烧录 the controller 主板 没有 your 用户 being a member of that 用户组. If you want to add the 当前 用户 to the 用户组(s) listed 以上, answer with 'Y'. Else skip with 'n'."
+
+#: components/klipper/klipper_utils.py:113
+msgid "Relog required for group assignments to take effect!"
+msgstr "Re日志 必需的 for 用户组 分配ments to take effect!"
+
+#: components/klipper/klipper_utils.py:117
+#, python-brace-format
+msgid "Add user '{}' to group(s) now?"
+msgstr "是否现在将用户 “{}” 添加到这些用户组？"
+
+#: components/klipper/klipper_utils.py:118
+msgid "Skipped adding user to required groups. You might encounter issues."
+msgstr "已跳过将用户添加到必需用户组的步骤，后续可能会遇到问题。"
+
+#: components/klipper/klipper_utils.py:123
+#, python-brace-format
+msgid "Adding user '{}' to required groups: {}"
+msgstr "Adding 用户 '{}' to 必需的 用户组s: {}"
+
+#: components/klipper/klipper_utils.py:132
+#, python-brace-format
+msgid "Adding user '{}' to group {} ..."
+msgstr "正在将用户 “{}” 添加到用户组 {} ..."
+
+#: components/klipper/klipper_utils.py:137
+#, python-brace-format
+msgid "Group {} assigned to user '{}'."
+msgstr "用户组 {} 已分配给用户 “{}”。"
+
+#: components/klipper/klipper_utils.py:140
+#, python-brace-format
+msgid "Unable to add user to usergroups: {}"
+msgstr "Unable to add 用户 to 用户用户组s: {}"
+
+#: components/klipper/klipper_utils.py:144
+msgid "Remember to relog/restart this machine for the group(s) to be applied!"
+msgstr "Remember to re日志/re开始 this machine for the 用户组(s) to be applied!"
+
+#: components/klipper/klipper_utils.py:174
+#, python-brace-format
+msgid "KIAUH was unable to mask the {} system service. Please fix the problem manually. Otherwise, this may have undesirable effects on the operation of Klipper."
+msgstr "KIAUH was unable to mask the {} 系统 服务. 请 fix the problem 手动ly. Otherwise, this may have undesirable effects on the operation of Klipper."
+
+#: components/klipper/klipper_utils.py:185
+#, python-brace-format
+msgid "Creating example printer.cfg in '{}'"
+msgstr "创建 example 打印机.cfg in '{}'"
+
+#: components/klipper/klipper_utils.py:188
+#: components/moonraker/utils/utils.py:99
+#, python-brace-format
+msgid "'{}' already exists."
+msgstr "“{}” 已存在。"
+
+#: components/klipper/klipper_utils.py:196
+#, python-brace-format
+msgid ""
+"Unable to create example printer.cfg:\n"
+"{}"
+msgstr ""
+"Unable to 创建 example 打印机.cfg:\n"
+"{}"
+
+#: components/klipper/klipper_utils.py:214
+#, python-brace-format
+msgid "Example printer.cfg created in '{}'"
+msgstr "Example 打印机.cfg 已创建 in '{}'"
+
+#: components/klipper/klipper_utils.py:248
+msgid "Required Klipper python environment not found!"
+msgstr "未找到必需的 Klipper Python 环境！"
+
+#: components/klipper/klipper_utils.py:254
+msgid "Resonance measurements and shaper auto-calibration require additional software dependencies which are not installed by default. If you agree, the following additional system packages will be installed:"
+msgstr "即将安装 Resonance measurements and shaper auto-calibration require 额外的 software 依赖项 其中 are not 已安装 by 默认值. If you agree, the 以下 额外的 系统 包："
+
+#: components/klipper/klipper_utils.py:259
+msgid "Also, the following Python package will be installed:"
+msgstr "此外还将安装以下 Python 包："
+
+#: components/klipper/klipper_utils.py:262
+msgid "Install Input Shaper Dependencies"
+msgstr "安装 输入 Shaper 依赖项"
+
+#: components/klipper/klipper_utils.py:265
+msgid "Do you want to install the required packages?"
+msgstr "是否安装必需的依赖包？"
+
+#: components/klipper/menus/klipper_remove_menu.py:27
+msgid "Remove Klipper"
+msgstr "移除 Klipper"
+
+#: components/klipper/menus/klipper_remove_menu.py:59
+#: components/moonraker/menus/moonraker_remove_menu.py:62
+#, python-brace-format
+msgid "{} everything"
+msgstr "全部{}"
+
+#: components/klipper/menus/klipper_remove_menu.py:60
+#: components/moonraker/menus/moonraker_remove_menu.py:63
+msgid "Deselect"
+msgstr "取消选择"
+
+#: components/klipper/menus/klipper_remove_menu.py:60
+#: components/moonraker/menus/moonraker_remove_menu.py:63
+msgid "Select"
+msgstr "选择"
+
+#: components/klipper/menus/klipper_remove_menu.py:65
+#: components/moonraker/menus/moonraker_remove_menu.py:68
+#: components/webui_client/menus/client_remove_menu.py:68
+msgid "Enter a number and hit enter to select / deselect"
+msgstr "输入编号后按回车 选择 / 取消选择"
+
+#: components/klipper/menus/klipper_remove_menu.py:66
+#: components/moonraker/menus/moonraker_remove_menu.py:69
+#: components/webui_client/menus/client_remove_menu.py:69
+msgid "the specific option for removal."
+msgstr "the specific 选项 for 移除."
+
+#: components/klipper/menus/klipper_remove_menu.py:70
+#: components/moonraker/menus/moonraker_remove_menu.py:73
+msgid "Remove Service"
+msgstr "移除 服务"
+
+#: components/klipper/menus/klipper_remove_menu.py:71
+#: components/moonraker/menus/moonraker_remove_menu.py:74
+msgid "Remove Local Repository"
+msgstr "移除 Local 仓库"
+
+#: components/klipper/menus/klipper_remove_menu.py:72
+#: components/moonraker/menus/moonraker_remove_menu.py:75
+msgid "Remove Python Environment"
+msgstr "移除 Python 环境"
+
+#: components/klipper/menus/klipper_remove_menu.py:74
+#: components/moonraker/menus/moonraker_remove_menu.py:78
+msgid "Continue"
+msgstr "继续"
+
+#: components/klipper/menus/klipper_remove_menu.py:97
+#: components/moonraker/menus/moonraker_remove_menu.py:105
+msgid "Nothing selected! Select options to remove first."
+msgstr "任何内容 已选择! 选择 选项s to remove first."
+
+#: components/klipper/services/klipper_setup_service.py:124
+msgid "Installing Klipper ..."
+msgstr "正在安装 Klipper ..."
+
+#: components/klipper/services/klipper_setup_service.py:170
+msgid "Create example printer.cfg?"
+msgstr "是否创建示例 打印机.cfg？"
+
+#: components/klipper/services/klipper_setup_service.py:177
+msgid "Klipper installation failed!"
+msgstr "Klipper 安装 失败!"
+
+#: components/klipper/services/klipper_setup_service.py:194
+msgid "Do NOT continue if there are ongoing prints running!"
+msgstr "若有正在进行中的打印任务，请勿继续！"
+
+#: components/klipper/services/klipper_setup_service.py:195
+msgid "All Klipper instances will be restarted during the update process and ongoing prints WILL FAIL."
+msgstr "All Klipper 实例 will be re开始ed during the 更新 过程 and 正在进行的 打印任务 WILL FAIL."
+
+#: components/klipper/services/klipper_setup_service.py:199
+msgid "Update Klipper now?"
+msgstr "更新 Klipper now?"
+
+#: components/klipper/services/klipper_setup_service.py:215
+msgid "Error while updating Klipper!"
+msgstr "更新 Klipper! 时出错："
+
+#: components/klipper/services/klipper_setup_service.py:246
+msgid "Klipper Removal Process completed"
+msgstr "Klipper 移除 过程 完成d"
+
+#: components/klipper/services/klipper_setup_service.py:251
+msgid "Removing Klipper instances ..."
+msgstr "正在移除 Klipper 实例 ..."
+
+#: components/klipper/services/klipper_setup_service.py:259
+#, python-brace-format
+msgid "● Klipper instances removed: {}"
+msgstr "● Klipper 实例 removed: {}"
+
+#: components/klipper/services/klipper_setup_service.py:265
+msgid "No Klipper Services installed! Skipped ..."
+msgstr "No Klipper 服务s 已安装! Skipped ..."
+
+#: components/klipper/services/klipper_setup_service.py:272
+#: components/moonraker/services/moonraker_setup_service.py:285
+msgid "Some Klipper services are still installed:"
+msgstr "Some Klipper 服务s are still 已安装:"
+
+#: components/klipper/services/klipper_setup_service.py:273
+#: components/klipper/services/klipper_setup_service.py:276
+#: components/moonraker/services/moonraker_setup_service.py:287
+#: components/moonraker/services/moonraker_setup_service.py:290
+#, python-brace-format
+msgid "● '{}' was not removed, even though selected for removal."
+msgstr "● '{}' was not removed, even though 已选择 for 移除."
+
+#: components/klipper/services/klipper_setup_service.py:282
+msgid "Removing Klipper local repository ..."
+msgstr "正在移除 Klipper local 仓库 ..."
+
+#: components/klipper/services/klipper_setup_service.py:285
+msgid "● Klipper local repository removed"
+msgstr "● Klipper local 仓库 removed"
+
+#: components/klipper/services/klipper_setup_service.py:288
+msgid "Removing Klipper Python environment ..."
+msgstr "正在移除 Klipper Python 环境 ..."
+
+#: components/klipper/services/klipper_setup_service.py:291
+msgid "● Klipper Python environment removed"
+msgstr "● 已移除 Klipper Python 环境"
+
+#: components/klipper/services/klipper_setup_service.py:296
+#: components/moonraker/services/moonraker_setup_service.py:318
+#: components/webui_client/services/web_client_config_setup_service.py:193
+#: components/webui_client/services/web_client_setup_service.py:313
+msgid "The following actions were performed:"
+msgstr "已执行以下操作："
+
+#: components/klipper/services/klipper_setup_service.py:301
+#: components/moonraker/services/moonraker_setup_service.py:323
+#: components/webui_client/services/web_client_config_setup_service.py:197
+#: components/webui_client/services/web_client_setup_service.py:311
+msgid "Nothing to remove."
+msgstr "没有可移除的内容。"
+
+#: components/klipper/services/klipper_setup_service.py:311
+msgid "Refusing to remove Klipper instances: no explicit intent. Pass remove_all=True or instance_suffixes."
+msgstr "Refusing to remove Klipper 实例: no explicit intent. Pass remove_all=True or 实例_suffixes."
+
+#: components/klipper/services/klipper_setup_service.py:320
+msgid "Klipper services still installed; skipping repository/env removal."
+msgstr "Klipper 服务s still 已安装; skipping 仓库/env 移除."
+
+#: components/klipper/services/klipper_setup_service.py:330
+msgid "Error while removing Klipper!"
+msgstr "re除 Klipper! 时出错："
+
+#: components/klipper/services/klipper_setup_service.py:407
+msgid "Error during installation of Klipper requirements!"
+msgstr "during 安装 of Klipper requirements! 时出错："
+
+#: components/klipper/services/klipper_setup_service.py:415
+msgid "Existing Moonraker instances detected:"
+msgstr "存在ing Moonraker 实例 检测ed:"
+
+#: components/klipper/services/klipper_setup_service.py:418
+msgid "The following Klipper instances will be installed:"
+msgstr "即将安装 The 以下 Klipper 实例："
+
+#: components/klipper/services/klipper_setup_service.py:419
+#, python-brace-format
+msgid "● klipper-{}"
+msgstr "● klipper-{}"
+
+#: components/klipper/services/klipper_setup_service.py:422
+msgid "Proceed with installation?"
+msgstr "Proceed with 安装?"
+
+#: components/klipper/services/klipper_setup_service.py:449
+msgid "Assign custom names?"
+msgstr "分配 自定义 名称?"
+
+#: components/klipper/services/klipper_setup_service.py:470
+msgid "Select Klipper instance to remove"
+msgstr "选择要移除的 Klipper 实例"
+
+#: components/klipper/services/klipper_setup_service.py:508
+#: components/moonraker/services/moonraker_setup_service.py:539
+#: extensions/obico/moonraker_obico_extension.py:352
+#: extensions/octoapp/octoapp_extension.py:173
+#: extensions/octoeverywhere/octoeverywhere_extension.py:173
+#: extensions/octoprint/octoprint_extension.py:249
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:192
+#, python-brace-format
+msgid "Removing instance {} ..."
+msgstr "正在移除实例 {} ..."
+
+#: components/klipper/services/klipper_setup_service.py:516
+#: components/moonraker/services/moonraker_setup_service.py:547
+#: core/instance_manager/instance_manager.py:105
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:227
+#, python-brace-format
+msgid "Remove '{}'"
+msgstr "正在移除 '{}'"
+
+#: components/klipper/services/klipper_setup_service.py:518
+#: components/moonraker/services/moonraker_setup_service.py:549
+#, python-brace-format
+msgid "Env file in {} not found. Skipped ..."
+msgstr "未找到 {} 中的环境文件，已跳过 ..."
+
+#: components/klipperscreen/klipperscreen.py:56
+msgid "Installing KlipperScreen ..."
+msgstr "正在安装 KlipperScreen ..."
+
+#: components/klipperscreen/klipperscreen.py:66
+msgid "Moonraker not found! KlipperScreen will not properly work without a working Moonraker installation."
+msgstr "Moonraker not 找到! KlipperScreen will not properly work 没有 a 工作 Moonraker 安装."
+
+#: components/klipperscreen/klipperscreen.py:69
+msgid "KlipperScreens update manager configuration for Moonraker will not be added to any moonraker.conf."
+msgstr "KlipperScreens 更新 manager 配置 for Moonraker will not be added to any moonraker.conf."
+
+#: components/klipperscreen/klipperscreen.py:74
+msgid "Continue KlipperScreen installation?"
+msgstr "继续 KlipperScreen 安装?"
+
+#: components/klipperscreen/klipperscreen.py:91
+msgid "Moonraker is not installed! Cannot add KlipperScreen to update manager!"
+msgstr "Moonraker is not 已安装! Cannot add KlipperScreen to 更新 manager!"
+
+#: components/klipperscreen/klipperscreen.py:94
+msgid "KlipperScreen successfully installed!"
+msgstr "KlipperScreen 成功 已安装!"
+
+#: components/klipperscreen/klipperscreen.py:96
+#, python-brace-format
+msgid ""
+"Error installing KlipperScreen:\n"
+"{}"
+msgstr ""
+"安装 KlipperScreen 时出错:\n"
+"{}"
+
+#: components/klipperscreen/klipperscreen.py:119
+msgid "KlipperScreen does not seem to be installed! Skipping ..."
+msgstr "似乎未安装 KlipperScreen！跳过 ..."
+
+#: components/klipperscreen/klipperscreen.py:123
+msgid "Updating KlipperScreen ..."
+msgstr "正在更新 KlipperScreen ..."
+
+#: components/klipperscreen/klipperscreen.py:137
+msgid "KlipperScreen updated successfully."
+msgstr "KlipperScreen 更新d 成功."
+
+#: components/klipperscreen/klipperscreen.py:139
+#, python-brace-format
+msgid ""
+"Error updating KlipperScreen:\n"
+"{}"
+msgstr ""
+"更新 KlipperScreen 时出错:\n"
+"{}"
+
+#: components/klipperscreen/klipperscreen.py:152
+msgid "Removing KlipperScreen ..."
+msgstr "正在移除 KlipperScreen ..."
+
+#: components/klipperscreen/klipperscreen.py:155
+msgid "Removing KlipperScreen directory ..."
+msgstr "正在移除 KlipperScreen 目录 ..."
+
+#: components/klipperscreen/klipperscreen.py:157
+msgid "KlipperScreen directory successfully removed!"
+msgstr "KlipperScreen 目录 成功 removed!"
+
+#: components/klipperscreen/klipperscreen.py:159
+msgid "KlipperScreen directory not found!"
+msgstr "KlipperScreen 目录 not 找到!"
+
+#: components/klipperscreen/klipperscreen.py:162
+msgid "Removing KlipperScreen environment ..."
+msgstr "正在移除 KlipperScreen 环境 ..."
+
+#: components/klipperscreen/klipperscreen.py:164
+msgid "KlipperScreen environment successfully removed!"
+msgstr "KlipperScreen 环境 成功 removed!"
+
+#: components/klipperscreen/klipperscreen.py:166
+msgid "KlipperScreen environment not found!"
+msgstr "未找到 KlipperScreen 环境！"
+
+#: components/klipperscreen/klipperscreen.py:173
+msgid "Removing KlipperScreen log file ..."
+msgstr "正在移除 KlipperScreen 日志 文件 ..."
+
+#: components/klipperscreen/klipperscreen.py:175
+msgid "KlipperScreen log file successfully removed!"
+msgstr "KlipperScreen 日志 文件 成功 removed!"
+
+#: components/klipperscreen/klipperscreen.py:181
+#: components/webui_client/services/web_client_config_setup_service.py:174
+#: components/webui_client/services/web_client_setup_service.py:318
+#: extensions/klipper_backup/klipper_backup_extension.py:45
+#: extensions/mobileraker/mobileraker_extension.py:144
+#: extensions/octoprint/octoprint_extension.py:259
+#: extensions/octoprint/octoprint_extension.py:262
+#: extensions/octoprint/octoprint_extension.py:267 utils/sys_utils.py:470
+#, python-brace-format
+msgid "Removing {} ..."
+msgstr "正在移除 {} ..."
+
+#: components/klipperscreen/klipperscreen.py:183
+#: extensions/mobileraker/mobileraker_extension.py:146 utils/sys_utils.py:476
+#, python-brace-format
+msgid "{} successfully removed!"
+msgstr "已成功移除 {}！"
+
+#: components/klipperscreen/klipperscreen.py:187
+msgid "Removing KlipperScreen from update manager ..."
+msgstr "正在移除 KlipperScreen from 更新 manager ..."
+
+#: components/klipperscreen/klipperscreen.py:190
+msgid "KlipperScreen successfully removed from update manager!"
+msgstr "KlipperScreen 成功 removed from 更新 manager!"
+
+#: components/klipperscreen/klipperscreen.py:192
+msgid "KlipperScreen successfully removed!"
+msgstr "KlipperScreen 成功 removed!"
+
+#: components/klipperscreen/klipperscreen.py:195
+#, python-brace-format
+msgid ""
+"Error removing KlipperScreen:\n"
+"{}"
+msgstr ""
+"移除 KlipperScreen 时出错:\n"
+"{}"
+
+#: components/log_uploads/log_upload_utils.py:44
+#, python-brace-format
+msgid "Uploading the following logfile from {} ..."
+msgstr "上传ing the 以下 日志文件 from {} ..."
+
+#: components/log_uploads/log_upload_utils.py:52
+msgid "Upload successful! Access it via the following link:"
+msgstr "上传 成功! 访问 it via the 以下 link:"
+
+#: components/log_uploads/log_upload_utils.py:55
+msgid "Uploading logfile failed!"
+msgstr "上传ing 日志文件 失败!"
+
+#: components/log_uploads/menus/log_upload_menu.py:27
+msgid "Log Upload"
+msgstr "日志 上传"
+
+#: components/log_uploads/menus/log_upload_menu.py:47
+msgid "You can select the following logfiles for uploading:"
+msgstr "You can 选择 the 以下 日志文件s for 上传ing:"
+
+#: components/log_uploads/menus/log_upload_menu.py:69
+msgid "Log upload failed!"
+msgstr "日志 上传 失败!"
+
+#: components/moonraker/__init__.py:45
+msgid "Exiting Moonraker setup ..."
+msgstr "正在退出 Moonraker 设置 ..."
+
+#: components/moonraker/menus/moonraker_remove_menu.py:27
+msgid "Remove Moonraker"
+msgstr "移除 Moonraker"
+
+#: components/moonraker/menus/moonraker_remove_menu.py:76
+msgid "Remove Policy Kit Rules"
+msgstr "移除 Policy Kit 规则"
+
+#: components/moonraker/moonraker.py:69
+msgid "Creating new Moonraker Instance ..."
+msgstr "正在创建 new Moonraker 实例 ..."
+
+#: components/moonraker/moonraker_dialogs.py:53
+#, python-brace-format
+msgid "{} {} {}"
+msgstr "{} {} {}"
+
+#: components/moonraker/moonraker_dialogs.py:62
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:93
+msgid "PLEASE NOTE:"
+msgstr "请注意："
+
+#: components/moonraker/moonraker_dialogs.py:64
+msgid "If you select an instance with an existing Moonraker"
+msgstr "如果您选择的实例同时绑定了 Moonraker"
+
+#: components/moonraker/moonraker_dialogs.py:67
+msgid "instance, that Moonraker instance will be re-created!"
+msgstr "实例，则该 Moonraker 实例也将被重新创建！"
+
+#: components/moonraker/services/moonraker_setup_service.py:156
+msgid "Select Klipper instance to setup Moonraker for"
+msgstr "选择要为其设置 Moonraker 的 Klipper 实例"
+
+#: components/moonraker/services/moonraker_setup_service.py:172
+msgid "Error selecting instance!"
+msgstr "选择实例时出错！"
+
+#: components/moonraker/services/moonraker_setup_service.py:182
+msgid "Create example moonraker.conf?"
+msgstr "是否创建示例 moonraker.conf？"
+
+#: components/moonraker/services/moonraker_setup_service.py:189
+msgid "Error while installing Moonraker!"
+msgstr "安装 Moonraker! 时出错："
+
+#: components/moonraker/services/moonraker_setup_service.py:206
+msgid "Be careful if there are ongoing prints running!"
+msgstr "如有正在进行的打印任务，请谨慎操作！"
+
+#: components/moonraker/services/moonraker_setup_service.py:207
+msgid "All Moonraker instances will be restarted during the update process and ongoing prints COULD FAIL."
+msgstr "All Moonraker 实例 will be re开始ed during the 更新 过程 and 正在进行的 打印任务 COULD FAIL."
+
+#: components/moonraker/services/moonraker_setup_service.py:211
+msgid "Update Moonraker now?"
+msgstr "更新 Moonraker now?"
+
+#: components/moonraker/services/moonraker_setup_service.py:227
+msgid "Error while updating Moonraker!"
+msgstr "更新 Moonraker! 时出错："
+
+#: components/moonraker/services/moonraker_setup_service.py:259
+msgid "Moonraker Removal Process completed"
+msgstr "Moonraker 移除 过程 完成d"
+
+#: components/moonraker/services/moonraker_setup_service.py:264
+msgid "Removing Moonraker instances ..."
+msgstr "正在移除 Moonraker 实例 ..."
+
+#: components/moonraker/services/moonraker_setup_service.py:272
+#, python-brace-format
+msgid "● Moonraker instances removed: {}"
+msgstr "● Moonraker 实例 removed: {}"
+
+#: components/moonraker/services/moonraker_setup_service.py:278
+msgid "No Moonraker Services installed! Skipped ..."
+msgstr "No Moonraker 服务s 已安装! Skipped ..."
+
+#: components/moonraker/services/moonraker_setup_service.py:286
+msgid "● Moonraker PolicyKit rules were not removed, even though selected for removal."
+msgstr "● Moonraker PolicyKit 规则 were not removed, even though 已选择 for 移除."
+
+#: components/moonraker/services/moonraker_setup_service.py:297
+msgid "Removing all Moonraker policykit rules ..."
+msgstr "正在移除所有 Moonraker polkit 规则 ..."
+
+#: components/moonraker/services/moonraker_setup_service.py:301
+msgid "● Moonraker policykit rules removed"
+msgstr "● 已移除 Moonraker polkit 规则"
+
+#: components/moonraker/services/moonraker_setup_service.py:304
+msgid "Removing Moonraker local repository ..."
+msgstr "正在移除 Moonraker local 仓库 ..."
+
+#: components/moonraker/services/moonraker_setup_service.py:307
+msgid "● Moonraker local repository removed"
+msgstr "● Moonraker local 仓库 removed"
+
+#: components/moonraker/services/moonraker_setup_service.py:310
+msgid "Removing Moonraker Python environment ..."
+msgstr "正在移除 Moonraker Python 环境 ..."
+
+#: components/moonraker/services/moonraker_setup_service.py:313
+msgid "● Moonraker Python environment removed"
+msgstr "● 已移除 Moonraker Python 环境"
+
+#: components/moonraker/services/moonraker_setup_service.py:333
+msgid "Refusing to remove Moonraker instances: no explicit intent. Pass remove_all=True or instance_suffixes."
+msgstr "Refusing to remove Moonraker 实例: no explicit intent. Pass remove_all=True or 实例_suffixes."
+
+#: components/moonraker/services/moonraker_setup_service.py:342
+msgid "Moonraker services still installed; skipping repository/env removal."
+msgstr "Moonraker 服务s still 已安装; skipping 仓库/env 移除."
+
+#: components/moonraker/services/moonraker_setup_service.py:354
+msgid "Error while removing Moonraker!"
+msgstr "re除 Moonraker! 时出错："
+
+#: components/moonraker/services/moonraker_setup_service.py:398
+#, python-brace-format
+msgid "● {}: http://{}:{}"
+msgstr "● {}: http://{}:{}"
+
+#: components/moonraker/services/moonraker_setup_service.py:404
+msgid "You can access Moonraker via the following URL:"
+msgstr "您可以通过以下地址访问 Moonraker："
+
+#: components/moonraker/services/moonraker_setup_service.py:410
+#: components/moonraker/services/moonraker_setup_service.py:419
+msgid "Moonraker successfully installed!"
+msgstr "Moonraker 成功 已安装!"
+
+#: components/moonraker/services/moonraker_setup_service.py:424
+msgid "Klipper not installed!"
+msgstr "未安装 Klipper！"
+
+#: components/moonraker/services/moonraker_setup_service.py:425
+msgid "Moonraker cannot be installed! Install Klipper first."
+msgstr "Moonraker cannot be 已安装! 安装 Klipper first."
+
+#: components/moonraker/services/moonraker_setup_service.py:454
+msgid "Error during installation of Moonraker requirements!"
+msgstr "during 安装 of Moonraker requirements! 时出错："
+
+#: components/moonraker/services/moonraker_setup_service.py:458
+msgid "Installing Moonraker policykit rules ..."
+msgstr "正在安装 Moonraker polkit 权限 规则 ..."
+
+#: components/moonraker/services/moonraker_setup_service.py:465
+msgid "Moonraker policykit rules are already installed."
+msgstr "Moonraker polkit 规则已安装。"
+
+#: components/moonraker/services/moonraker_setup_service.py:477
+msgid "Installing Moonraker policykit rules failed!"
+msgstr "安装ing Moonraker polkit 权限 规则 失败!"
+
+#: components/moonraker/services/moonraker_setup_service.py:482
+msgid "Moonraker policykit rules successfully installed!"
+msgstr "Moonraker polkit 权限 规则 成功 已安装!"
+
+#: components/moonraker/services/moonraker_setup_service.py:501
+msgid "Select Moonraker instance to remove"
+msgstr "选择要移除的 Moonraker 实例"
+
+#: components/moonraker/utils/utils.py:47
+msgid "Parsing Moonraker system dependencies  ..."
+msgstr "解析 Moonraker 系统 依赖项  ..."
+
+#: components/moonraker/utils/utils.py:61
+#, python-brace-format
+msgid "{} not found!"
+msgstr "未找到 {}！"
+
+#: components/moonraker/utils/utils.py:70
+msgid "Error parsing Moonraker dependencies!"
+msgstr "解析 Moonraker 依赖失败！"
+
+#: components/moonraker/utils/utils.py:77
+msgid "Cannot remove policykit rules. Moonraker directory not found."
+msgstr "Cannot remove polkit 权限 规则. Moonraker 目录 not 找到."
+
+#: components/moonraker/utils/utils.py:86
+#, python-brace-format
+msgid "Error while removing policykit rules: {}"
+msgstr "re除 polkit 权限 规则: {} 时出错："
+
+#: components/moonraker/utils/utils.py:96
+#, python-brace-format
+msgid "Creating example moonraker.conf in '{}'"
+msgstr "正在在 “{}” 中创建示例 moonraker.conf"
+
+#: components/moonraker/utils/utils.py:107
+#, python-brace-format
+msgid ""
+"Unable to create example moonraker.conf:\n"
+"{}"
+msgstr ""
+"Unable to 创建 example moonraker.conf:\n"
+"{}"
+
+#: components/moonraker/utils/utils.py:174
+#, python-brace-format
+msgid "Example moonraker.conf created in '{}'"
+msgstr "已在 “{}” 中创建示例 moonraker.conf"
+
+#: components/moonraker/utils/utils.py:196
+msgid "No Moonraker instances found via systemd services."
+msgstr "No Moonraker 实例 找到 via 系统d 服务s."
+
+#: components/moonraker/utils/utils.py:198 core/services/backup_service.py:187
+msgid "Attempting to find printer data directories in home directory..."
+msgstr "正在尝试在主目录中查找打印机数据目录..."
+
+#: components/moonraker/utils/utils.py:210 core/services/backup_service.py:199
+msgid "Unable to find directory to backup!"
+msgstr "找不到要备份的目录！"
+
+#: components/moonraker/utils/utils.py:212 core/services/backup_service.py:201
+msgid "No printer data directories found in home directory."
+msgstr "在主目录中未找到任何打印机数据目录。"
+
+#: components/moonraker/utils/utils.py:237
+#, python-brace-format
+msgid ""
+"Unable to parse {}:\n"
+"{}"
+msgstr ""
+"Unable to 解析 {}:\n"
+"{}"
+
+#: components/webui_client/client_dialogs.py:21
+msgid "No local Moonraker installation was found!"
+msgstr "No local Moonraker 安装 was 找到!"
+
+#: components/webui_client/client_dialogs.py:23
+#, python-brace-format
+msgid "It is possible to install {} without a local Moonraker installation. If you continue, you need to make sure, that Moonraker is installed on another machine in your network. Otherwise {} will NOT work correctly."
+msgstr "It is possible to install {} 没有 a local Moonraker 安装. If you 继续, you need to make sure, that Moonraker is 已安装 on another machine in your network. Otherwise {} will NOT work 正确ly."
+
+#: components/webui_client/client_dialogs.py:35
+#, python-brace-format
+msgid "{} seems to be already installed!"
+msgstr "{} 似乎已经安装过了！"
+
+#: components/webui_client/client_dialogs.py:36
+#, python-brace-format
+msgid "If you continue, your current {} installation will be overwritten."
+msgstr "If you 继续, your 当前 {} 安装 will be overwritten."
+
+#: components/webui_client/client_dialogs.py:45
+#, python-brace-format
+msgid "Please select the port, {} should be served on. If your are unsure what to select, hit Enter to apply the suggested value of: {}"
+msgstr "请 选择 the 端口, {} should be served on. If your are unsure what to 选择, hit 输入 to 应用 the suggested 值 of: {}"
+
+#: components/webui_client/client_dialogs.py:48
+#, python-brace-format
+msgid "In case you need {} to be served on a specific port, you can set it now. Make sure that the port is not already used by another application on your system!"
+msgstr "In case you need {} to be served on a specific 端口, you can set it now. Make sure that the 端口 is not 已经 used by another application on your 系统!"
+
+#: components/webui_client/client_dialogs.py:57
+msgid "The following ports were found to be already in use:"
+msgstr "The 以下 端口s were 找到 to be 已经 in use:"
+
+#: components/webui_client/client_dialogs.py:71
+#, python-brace-format
+msgid "It is recommended to use special macros in order to have {} fully functional and working."
+msgstr "建议使用配套的宏，以便 {} 全部功能可以正常运作。"
+
+#: components/webui_client/client_dialogs.py:74
+#, python-brace-format
+msgid "The recommended macros for {} can be seen here:"
+msgstr "{} 的推荐宏可在此查看："
+
+#: components/webui_client/client_dialogs.py:77
+msgid "If you already use these macros skip this step. Otherwise you should consider to answer with 'Y' to download the recommended macros."
+msgstr "If you 已经 use these 宏 skip this 步骤. Otherwise you should consider to answer with 'Y' to 下载 the 推荐 宏."
+
+#: components/webui_client/client_dialogs.py:87
+msgid "It looks like IPv6 is enabled on this system!"
+msgstr "It looks like IPv6 is 已启用 on this 系统!"
+
+#: components/webui_client/client_dialogs.py:88
+msgid "This may cause issues with the installation of NGINX in the following steps! It is recommended to disable IPv6 on your system to avoid this issue."
+msgstr "This may cause issues with the 安装 of NGINX in the 以下 步骤s! It is 推荐 to disable IPv6 on your 系统 to avoid this issue."
+
+#: components/webui_client/client_dialogs.py:91
+msgid "If you think this warning is a false alarm, and you are sure that IPv6 is disabled, you can continue with the installation."
+msgstr "If you think this warning is a false alarm, and you are sure that IPv6 is 已禁用, you can 继续 with the 安装."
+
+#: components/webui_client/client_utils.py:112
+msgid "Enable Mainsails remote mode ..."
+msgstr "正在启用 Mainsail 远程模式 ..."
+
+#: components/webui_client/client_utils.py:118
+msgid "Remote mode already configured. Skipped ..."
+msgstr "Remote mode 已经 configured. Skipped ..."
+
+#: components/webui_client/client_utils.py:121
+msgid "Setting instance storage location to 'browser' ..."
+msgstr "设置 实例 storage location to 'browser' ..."
+
+#: components/webui_client/client_utils.py:126
+msgid "Mainsails remote mode enabled!"
+msgstr "Mainsails remote mode 已启用!"
+
+#: components/webui_client/client_utils.py:132
+msgid "Link NGINX logs into log directory ..."
+msgstr "Link NGINX 日志s into 日志 目录 ..."
+
+#: components/webui_client/client_utils.py:165
+msgid "Invalid 'release_info.json'"
+msgstr "无效的 'release_info.json'"
+
+#: components/webui_client/client_utils.py:173
+msgid "Unable to read '.version'"
+msgstr "无法读取 '.version'"
+
+#: components/webui_client/client_utils.py:264
+#: components/webui_client/client_utils.py:276
+#, python-brace-format
+msgid "Unable to create upstreams.conf: {}"
+msgstr "Unable to 创建 upstreams.conf: {}"
+
+#: components/webui_client/client_utils.py:299
+#, python-brace-format
+msgid "Unable to create '{}': {}"
+msgstr "Unable to 创建 '{}': {}"
+
+#: components/webui_client/client_utils.py:313
+#, python-brace-format
+msgid "Creating NGINX config for {} ..."
+msgstr "正在创建 NGINX config for {} ..."
+
+#: components/webui_client/client_utils.py:322
+#, python-brace-format
+msgid "NGINX config for {} successfully created."
+msgstr "NGINX config for {} 成功 已创建."
+
+#: components/webui_client/client_utils.py:324
+#, python-brace-format
+msgid "Creating NGINX config for {} failed!"
+msgstr "创建 NGINX config for {} 失败!"
+
+#: components/webui_client/client_utils.py:352
+#, python-brace-format
+msgid "Unable to parse listen port {} from {}!"
+msgstr "Unable to 解析 listen 端口 {} from {}!"
+
+#: components/webui_client/client_utils.py:388
+msgid "Configure"
+msgstr "配置"
+
+#: components/webui_client/client_utils.py:388
+msgid "Reconfigure"
+msgstr "重新配置"
+
+#: components/webui_client/client_utils.py:389
+#, python-brace-format
+msgid "{} {} for port"
+msgstr "{} {} for 端口"
+
+#: components/webui_client/client_utils.py:399
+msgid "This port is already in use. Please select another one."
+msgstr "This 端口 is 已经 in use. 请 选择 another one."
+
+#: components/webui_client/client_utils.py:426
+#, python-brace-format
+msgid "Create symlink for {} ..."
+msgstr "正在为 {} 创建符号链接 ..."
+
+#: components/webui_client/client_utils.py:429
+#, python-brace-format
+msgid "Linking {} to {}"
+msgstr "正在将 {} 链接到 {}"
+
+#: components/webui_client/client_utils.py:433
+msgid "Creating symlink failed!"
+msgstr "创建 符号链接 失败!"
+
+#: components/webui_client/menus/client_install_menu.py:40
+#, python-brace-format
+msgid "Installation Menu > {}"
+msgstr "安装菜单 > {}"
+
+#: components/webui_client/menus/client_install_menu.py:60
+#, python-brace-format
+msgid "(Current: {})"
+msgstr "(当前: {})"
+
+#: components/webui_client/menus/client_install_menu.py:87
+msgid "Saving new port configuration ..."
+msgstr "Saving new 端口 配置 ..."
+
+#: components/webui_client/menus/client_install_menu.py:90
+msgid "Port configuration saved!"
+msgstr "端口 配置 saved!"
+
+#: components/webui_client/menus/client_install_menu.py:95
+msgid "Port reconfiguration complete!"
+msgstr "端口 re配置 完成!"
+
+#: components/webui_client/menus/client_install_menu.py:97
+#, python-brace-format
+msgid "Open {} now on: http://{}:{}"
+msgstr "现在通过 http://{}:{} 打开 {}"
+
+#: components/webui_client/menus/client_remove_menu.py:31
+#, python-brace-format
+msgid "Remove {}"
+msgstr "移除 {}"
+
+#: components/webui_client/menus/client_remove_menu.py:64
+msgid "Deselect everything"
+msgstr "De选择 everything"
+
+#: components/webui_client/menus/client_remove_menu.py:64
+msgid "Select everything"
+msgstr "选择 everything"
+
+#: components/webui_client/menus/client_remove_menu.py:104
+msgid "Nothing selected ..."
+msgstr "任何内容 已选择 ..."
+
+#: components/webui_client/services/web_client_config_setup_service.py:66
+msgid "Another Client-Config is already installed! Skipped ..."
+msgstr "已经安装了另一种客户端配置，已跳过 ..."
+
+#: components/webui_client/services/web_client_config_setup_service.py:73
+#, python-brace-format
+msgid "Re-install {}?"
+msgstr "是否重新安装 {}？"
+
+#: components/webui_client/services/web_client_config_setup_service.py:79
+#, python-brace-format
+msgid "{} is already installed; skipping non-interactive install."
+msgstr "{} is 已经 已安装; skipping non-interactive install."
+
+#: components/webui_client/services/web_client_config_setup_service.py:110
+#: components/webui_client/services/web_client_setup_service.py:165
+#, python-brace-format
+msgid "{} installation failed!"
+msgstr "{} 安装 失败!"
+
+#: components/webui_client/services/web_client_config_setup_service.py:113
+#: components/webui_client/services/web_client_setup_service.py:173
+#, python-brace-format
+msgid "{} installation complete!"
+msgstr "{} 安装 完成!"
+
+#: components/webui_client/services/web_client_config_setup_service.py:119
+#: components/webui_client/services/web_client_setup_service.py:195
+#, python-brace-format
+msgid "Updating {} ..."
+msgstr "正在更新 {} ..."
+
+#: components/webui_client/services/web_client_config_setup_service.py:123
+#: components/webui_client/services/web_client_setup_service.py:198
+#, python-brace-format
+msgid "Unable to update {}. Directory does not exist! Skipping ..."
+msgstr "Unable to 更新 {}. 目录 does not 存在! Skipping ..."
+
+#: components/webui_client/services/web_client_config_setup_service.py:136
+#: components/webui_client/services/web_client_setup_service.py:216
+#, python-brace-format
+msgid "Updating {} failed!"
+msgstr "更新 {} 失败!"
+
+#: components/webui_client/services/web_client_config_setup_service.py:139
+#, python-brace-format
+msgid "Successfully updated {}."
+msgstr "成功y 更新d {}."
+
+#: components/webui_client/services/web_client_config_setup_service.py:141
+msgid "Restart Klipper to reload the configuration!"
+msgstr "Re开始 Klipper to reload the 配置!"
+
+#: components/webui_client/services/web_client_config_setup_service.py:158
+#: components/webui_client/services/web_client_setup_service.py:238
+#, python-brace-format
+msgid "Error while removing {}!"
+msgstr "re除 {}! 时出错："
+
+#: components/webui_client/services/web_client_config_setup_service.py:171
+#: components/webui_client/services/web_client_setup_service.py:250
+#, python-brace-format
+msgid "{} Removal Process completed"
+msgstr "{} 移除 过程 完成d"
+
+#: components/webui_client/services/web_client_config_setup_service.py:177
+#: components/webui_client/services/web_client_setup_service.py:279
+#, python-brace-format
+msgid "● {} removed"
+msgstr "● 已移除 {}"
+
+#: components/webui_client/services/web_client_config_setup_service.py:201
+#, python-brace-format
+msgid "Downloading {} ..."
+msgstr "正在下载 {} ..."
+
+#: components/webui_client/services/web_client_config_setup_service.py:209
+#, python-brace-format
+msgid "● {}: {}"
+msgstr "● {}: {}"
+
+#: components/webui_client/services/web_client_config_setup_service.py:223
+#, python-brace-format
+msgid "Klipper config section '{}' removed for instance"
+msgstr "已为实例移除 Klipper 配置节 “{}”"
+
+#: components/webui_client/services/web_client_config_setup_service.py:237
+#, python-brace-format
+msgid "Moonraker config section '{}' removed for instance"
+msgstr "已为实例移除 Moonraker 配置节 “{}”"
+
+#: components/webui_client/services/web_client_setup_service.py:81
+#, python-brace-format
+msgid "Continue {} installation?"
+msgstr "继续 {} 安装?"
+
+#: components/webui_client/services/web_client_setup_service.py:86
+#, python-brace-format
+msgid "Moonraker not installed; skipping {} installation."
+msgstr "Moonraker not 已安装; skipping {} 安装."
+
+#: components/webui_client/services/web_client_setup_service.py:104
+#, python-brace-format
+msgid "Download the recommended {}?"
+msgstr "下载 the 推荐 {}?"
+
+#: components/webui_client/services/web_client_setup_service.py:178
+#, python-brace-format
+msgid "Open {} now on: {}"
+msgstr "Open {} now on: {}"
+
+#: components/webui_client/services/web_client_setup_service.py:182
+#, python-brace-format
+msgid "Installation of {} complete! URL: {}"
+msgstr "安装ation of {} 完成! URL: {}"
+
+#: components/webui_client/services/web_client_setup_service.py:207
+#, python-brace-format
+msgid "Creating temporary backup of {} as {} ..."
+msgstr "正在创建 temporary 备份 of {} as {} ..."
+
+#: components/webui_client/services/web_client_setup_service.py:273
+#, python-brace-format
+msgid "● {} backup created"
+msgstr "● {} 备份 已创建"
+
+#: components/webui_client/services/web_client_setup_service.py:282
+msgid "● NGINX config removed"
+msgstr "● 已移除 Nginx 配置"
+
+#: components/webui_client/services/web_client_setup_service.py:284
+msgid "● NGINX logs removed"
+msgstr "● NGINX 日志s removed"
+
+#: components/webui_client/services/web_client_setup_service.py:292
+#, python-brace-format
+msgid "● Moonraker config section '{}' removed for instance: {}"
+msgstr "● 已为实例移除 Moonraker 配置节 “{}”：{}"
+
+#: components/webui_client/services/web_client_setup_service.py:322
+#, python-brace-format
+msgid "Removing NGINX config for {} ..."
+msgstr "正在移除 {} 的 Nginx 配置 ..."
+
+#: components/webui_client/services/web_client_setup_service.py:333
+#, python-brace-format
+msgid "Removing NGINX logs for {} ..."
+msgstr "正在移除 NGINX 日志s for {} ..."
+
+#: components/webui_client/services/web_client_setup_service.py:351
+#, python-brace-format
+msgid "Downloading {} from {} ..."
+msgstr "正在下载 {} from {} ..."
+
+#: components/webui_client/services/web_client_setup_service.py:356
+msgid "Download complete!"
+msgstr "下载 完成!"
+
+#: components/webui_client/services/web_client_setup_service.py:358
+#, python-brace-format
+msgid "Extracting {} ..."
+msgstr "正在解压 {} ..."
+
+#: components/webui_client/services/web_client_setup_service.py:361
+#: utils/sys_utils.py:390
+msgid "OK!"
+msgstr "完成！"
+
+#: components/webui_client/services/web_client_setup_service.py:363
+#, python-brace-format
+msgid "Downloading {} failed!"
+msgstr "下载ing {} 失败!"
+
+#: core/constants.py:18
+msgid "Invalid choice. Please select a valid value."
+msgstr "无效选项。请选择有效值。"
+
+#: core/instance_manager/instance_manager.py:29
+#, python-brace-format
+msgid "Error enabling service {}:"
+msgstr "enabling 服务 {} 时出错："
+
+#: core/instance_manager/instance_manager.py:38
+#, python-brace-format
+msgid "Error disabling {}: {}"
+msgstr "disabling {}: {} 时出错："
+
+#: core/instance_manager/instance_manager.py:47
+#, python-brace-format
+msgid "Error starting {}: {}"
+msgstr "开始ing {}: {} 时出错："
+
+#: core/instance_manager/instance_manager.py:56
+#, python-brace-format
+msgid "Error stopping {}: {}"
+msgstr "stopping {}: {} 时出错："
+
+#: core/instance_manager/instance_manager.py:65
+#, python-brace-format
+msgid "Error restarting {}: {}"
+msgstr "re开始ing {}: {} 时出错："
+
+#: core/instance_manager/instance_manager.py:109
+#, python-brace-format
+msgid "Error removing service: {}"
+msgstr "re除 服务: {} 时出错："
+
+#: core/logger.py:42
+#, python-brace-format
+msgid "[INFO] {}"
+msgstr "[INFO] {}"
+
+#: core/logger.py:47
+msgid "Success!"
+msgstr "成功！"
+
+#: core/logger.py:48
+#, python-brace-format
+msgid "[OK] {}"
+msgstr "[OK] {}"
+
+#: core/logger.py:53
+#, python-brace-format
+msgid "[WARN] {}"
+msgstr "[WARN] {}"
+
+#: core/logger.py:58
+#, python-brace-format
+msgid "[ERROR] {}"
+msgstr "[ERROR] {}"
+
+#: core/logger.py:127
+#, python-brace-format
+msgid "[ {} ]"
+msgstr "[ {} ]"
+
+#: core/menus/advanced_menu.py:41
+msgid "Advanced Menu"
+msgstr "高级菜单"
+
+#: core/menus/advanced_menu.py:66
+msgid "Klipper Firmware:"
+msgstr "Klipper 固件:"
+
+#: core/menus/advanced_menu.py:66
+msgid "Repository Rollback:"
+msgstr "仓库 Rollback:"
+
+#: core/menus/advanced_menu.py:70
+msgid "System:"
+msgstr "系统:"
+
+#: core/menus/advanced_menu.py:72
+msgid "Extra Dependencies:"
+msgstr "Extra 依赖项:"
+
+#: core/menus/backup_menu.py:39
+msgid "Backup Menu"
+msgstr "备份菜单"
+
+#: core/menus/backup_menu.py:63
+msgid "INFO: Backups are located in '~/kiauh_backups'"
+msgstr "INFO: 备份s are located in '~/kiauh_备份s'"
+
+#: core/menus/backup_menu.py:70 core/menus/install_menu.py:74
+#: core/menus/update_menu.py:178
+msgid "Client-Config:"
+msgstr "客户端配置:"
+
+#: core/menus/backup_menu.py:70
+msgid "Klipper & Moonraker API:"
+msgstr "Klipper 与 Moonraker API："
+
+#: core/menus/backup_menu.py:74 core/menus/install_menu.py:66
+#: core/menus/remove_menu.py:61
+msgid "Touchscreen GUI:"
+msgstr "触摸屏界面:"
+
+#: core/menus/backup_menu.py:76 core/menus/install_menu.py:70
+#: core/menus/update_menu.py:174
+msgid "Webinterface:"
+msgstr "网页界面:"
+
+#: core/menus/base_menu.py:35
+msgid " [ KIAUH ] "
+msgstr " [ KIAUH ] "
+
+#: core/menus/base_menu.py:36
+msgid "Klipper Installation And Update Helper"
+msgstr "Klipper 安装与更新助手"
+
+#: core/menus/base_menu.py:53
+msgid "Q) Quit"
+msgstr "Q) 退出"
+
+#: core/menus/base_menu.py:66 core/menus/base_menu.py:79
+msgid "B) « Back"
+msgstr "B) « 返回"
+
+#: core/menus/base_menu.py:80
+msgid "H) Help [?]"
+msgstr "H) 帮助 [?]"
+
+#: core/menus/base_menu.py:115 extensions/obico/moonraker_obico_extension.py:73
+msgid "Perform action"
+msgstr "请选择操作"
+
+#: core/menus/base_menu.py:133
+msgid "BaseMenu cannot be instantiated directly."
+msgstr "无法直接实例化 BaseMenu。"
+
+#: core/menus/base_menu.py:160 core/menus/main_menu.py:186 main.py:38
+msgid "###### Happy printing!"
+msgstr "###### 打印愉快！"
+
+#: core/menus/base_menu.py:223
+msgid "FooterType not correctly implemented!"
+msgstr "Footer类型 not 正确ly implemented!"
+
+#: core/menus/base_menu.py:256
+#, python-brace-format
+msgid ""
+"An unexpected error occured:\n"
+"{error}\n"
+"{traceback}"
+msgstr ""
+"An 意外 error occured:\n"
+"{error}\n"
+"{traceback}"
+
+#: core/menus/install_menu.py:39
+msgid "Installation Menu"
+msgstr "安装菜单"
+
+#: core/menus/install_menu.py:66 core/menus/remove_menu.py:61
+msgid "Firmware & API:"
+msgstr "固件 & API:"
+
+#: core/menus/install_menu.py:69 core/menus/remove_menu.py:64
+msgid "Webcam Streamer:"
+msgstr "摄像头串流:"
+
+#: core/menus/language_menu.py:33
+msgid "English"
+msgstr "英语"
+
+#: core/menus/language_menu.py:34
+msgid "Simplified Chinese"
+msgstr "简体中文"
+
+#: core/menus/language_menu.py:35
+msgid "Traditional Chinese"
+msgstr "繁体中文"
+
+#: core/menus/language_menu.py:42 core/menus/language_menu.py:112
+#: core/menus/main_menu.py:157 core/menus/main_menu.py:171
+msgid "Language"
+msgstr "语言"
+
+#: core/menus/language_menu.py:87
+#, python-brace-format
+msgid "Currently active: {}"
+msgstr "当前语言：{}"
+
+#: core/menus/language_menu.py:90
+msgid "Select a language from the list below."
+msgstr "从下面的列表中选择一种语言。"
+
+#: core/menus/main_menu.py:55
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: core/menus/main_menu.py:89 core/types/component_status.py:20
+msgid "Not installed"
+msgstr "未安装"
+
+#: core/menus/main_menu.py:136
+msgid "Changelog:"
+msgstr "更新日志:"
+
+#: core/menus/main_menu.py:161
+msgid "Log-Upload"
+msgstr "日志上传"
+
+#: core/menus/main_menu.py:163 extensions/extensions_menu.py:196
+msgid "Install"
+msgstr "安装"
+
+#: core/menus/main_menu.py:164 extensions/extensions_menu.py:201
+msgid "Update"
+msgstr "更新"
+
+#: core/menus/main_menu.py:165 extensions/extensions_menu.py:202
+#: extensions/extensions_menu.py:204
+msgid "Remove"
+msgstr "移除"
+
+#: core/menus/main_menu.py:166
+msgid "Advanced"
+msgstr "高级"
+
+#: core/menus/main_menu.py:167
+msgid "Backup"
+msgstr "备份"
+
+#: core/menus/main_menu.py:169
+msgid "Settings"
+msgstr "设置"
+
+#: core/menus/main_menu.py:173
+msgid "Community:"
+msgstr "社区扩展:"
+
+#: core/menus/main_menu.py:174
+msgid "Extensions"
+msgstr "扩展"
+
+#: core/menus/remove_menu.py:35
+msgid "Remove Menu"
+msgstr "移除菜单"
+
+#: core/menus/remove_menu.py:55
+msgid "INFO: Configurations and/or any backups will be kept!"
+msgstr "INFO: 配置s and/or any 备份s will be kept!"
+
+#: core/menus/remove_menu.py:65
+msgid "Klipper Webinterface:"
+msgstr "Klipper 网页界面:"
+
+#: core/menus/repo_select_menu.py:37
+msgid "Select repository"
+msgstr "选择 仓库"
+
+#: core/menus/repo_select_menu.py:42
+msgid "Klipper Repository Selection Menu"
+msgstr "Klipper 仓库 选择ion Menu"
+
+#: core/menus/repo_select_menu.py:45
+msgid "Moonraker Repository Selection Menu"
+msgstr "Moonraker 仓库 选择ion Menu"
+
+#: core/menus/repo_select_menu.py:66
+msgid "Available Repositories:"
+msgstr "可用 Repositories:"
+
+#: core/menus/repo_select_menu.py:67
+msgid "A) Add repository"
+msgstr "A) Add 仓库"
+
+#: core/menus/repo_select_menu.py:68
+msgid "R) Remove repository"
+msgstr "R) 移除 仓库"
+
+#: core/menus/repo_select_menu.py:73
+msgid "● Repo:"
+msgstr "● 仓库:"
+
+#: core/menus/repo_select_menu.py:74
+msgid "└► Branch:"
+msgstr "└► 分支:"
+
+#: core/menus/repo_select_menu.py:88
+#, python-brace-format
+msgid "Switching to {name}'s new source repository ..."
+msgstr "Switching to {name}'s new source 仓库 ..."
+
+#: core/menus/repo_select_menu.py:98
+msgid "Enter the repository URL"
+msgstr "输入 the 仓库 URL"
+
+#: core/menus/repo_select_menu.py:101
+msgid "NOTE: There is no input validation in place, please check your input for correctness"
+msgstr "NOTE: There is no 输入 validation in place, 请 check your 输入 for 正确ness"
+
+#: core/menus/repo_select_menu.py:107
+msgid "Repository URL"
+msgstr "仓库 URL"
+
+#: core/menus/repo_select_menu.py:112
+msgid "Enter the branch name"
+msgstr "输入 the branch 名称"
+
+#: core/menus/repo_select_menu.py:113
+msgid "Press Enter to use the default branch (master)."
+msgstr "按 输入 to use the 默认值 branch (master)."
+
+#: core/menus/repo_select_menu.py:117
+msgid "Branch"
+msgstr "分支"
+
+#: core/menus/repo_select_menu.py:121
+msgid "Summary"
+msgstr "摘要"
+
+#: core/menus/repo_select_menu.py:127
+msgid "Save repository"
+msgstr "Save 仓库"
+
+#: core/menus/repo_select_menu.py:138
+msgid "Repository added and saved."
+msgstr "仓库 added and saved."
+
+#: core/menus/repo_select_menu.py:144
+msgid "Operation cancelled by user."
+msgstr "Operation 取消led by 用户."
+
+#: core/menus/repo_select_menu.py:150
+msgid "No repositories configured."
+msgstr "No 仓库 configured."
+
+#: core/menus/repo_select_menu.py:158
+msgid "Available Repositories"
+msgstr "可用 Repositories"
+
+#: core/menus/repo_select_menu.py:161
+msgid "Select the repository to remove"
+msgstr "选择 the 仓库 to remove"
+
+#: core/menus/repo_select_menu.py:172
+#, python-brace-format
+msgid "Removed repository: {url} [{branch}]"
+msgstr "移除d 仓库: {url} [{branch}]"
+
+#: core/menus/settings_menu.py:36 core/menus/settings_menu.py:157
+msgid "Settings Menu"
+msgstr "设置菜单"
+
+#: core/menus/settings_menu.py:45
+msgid "Not available!"
+msgstr "不可用！"
+
+#: core/menus/settings_menu.py:79
+msgid "1) Switch Klipper source repository"
+msgstr "1) 切换 Klipper 源码仓库"
+
+#: core/menus/settings_menu.py:80 core/menus/settings_menu.py:85
+msgid "Current repository:"
+msgstr "当前仓库:"
+
+#: core/menus/settings_menu.py:81 core/menus/settings_menu.py:86
+msgid "Repo:"
+msgstr "仓库:"
+
+#: core/menus/settings_menu.py:82 core/menus/settings_menu.py:87
+msgid "Branch:"
+msgstr "分支:"
+
+#: core/menus/settings_menu.py:84
+msgid "2) Switch Moonraker source repository"
+msgstr "2) 切换 Moonraker 源码仓库"
+
+#: core/menus/settings_menu.py:89
+msgid "Install unstable releases:"
+msgstr "安装不稳定版本:"
+
+#: core/menus/settings_menu.py:93
+msgid "Auto-Backup:"
+msgstr "自动备份:"
+
+#: core/menus/settings_menu.py:94
+msgid "Backup before update"
+msgstr "备份 之前 更新"
+
+#: core/menus/settings_menu.py:96
+msgid "6) Language:"
+msgstr "6) 语言:"
+
+#: core/menus/settings_menu.py:127
+#, python-brace-format
+msgid "No {name} repositories configured in kiauh.cfg!"
+msgstr "No {name} 仓库 configured in kiauh.cfg!"
+
+#: core/menus/update_menu.py:57
+msgid "Loading update menu, please wait"
+msgstr "Loading 更新 menu, 请 wait"
+
+#: core/menus/update_menu.py:60
+msgid "Update Menu"
+msgstr "更新菜单"
+
+#: core/menus/update_menu.py:152
+msgid "No upgrades available."
+msgstr "No upgrades 可用."
+
+#: core/menus/update_menu.py:168
+msgid "Update all"
+msgstr "更新 all"
+
+#: core/menus/update_menu.py:169
+msgid "Current:"
+msgstr "当前:"
+
+#: core/menus/update_menu.py:169
+msgid "Latest:"
+msgstr "最新："
+
+#: core/menus/update_menu.py:170
+msgid "Klipper & API:"
+msgstr "Klipper 與 API："
+
+#: core/menus/update_menu.py:182
+msgid "Other:"
+msgstr "其他："
+
+#: core/menus/update_menu.py:193
+msgid "Updating all components ..."
+msgstr "正在更新 all components ..."
+
+#: core/menus/update_menu.py:268
+#, python-brace-format
+msgid "Could not update the system package lists; system package status may be incomplete. ({error})"
+msgstr "Could not 更新 the 系统 包 lists; 系统 包 status may be in完成. ({error})"
+
+#: core/menus/update_menu.py:325
+#, python-brace-format
+msgid "{name} is not installed! Skipped ..."
+msgstr "{name} is not 已安装! Skipped ..."
+
+#: core/menus/update_menu.py:330
+#, python-brace-format
+msgid "{name} is already up to date! Skipped ..."
+msgstr "{name} is 已经 up to date! Skipped ..."
+
+#: core/menus/update_menu.py:364
+msgid "No system upgrades available!"
+msgstr "No 系统 upgrades 可用!"
+
+#: core/menus/update_menu.py:372
+msgid "The following packages will be upgraded:"
+msgstr "The 以下 包 will be upgraded:"
+
+#: core/menus/update_menu.py:373
+msgid "UPGRADABLE SYSTEM UPDATES"
+msgstr "可升级的系统更新"
+
+#: core/menus/update_menu.py:376
+msgid "Upgrade packages?"
+msgstr "Upgrade 包?"
+
+#: core/menus/update_menu.py:379
+msgid "Upgrading system packages ..."
+msgstr "Upgrading 系统 包 ..."
+
+#: core/menus/update_menu.py:386
+#, python-brace-format
+msgid ""
+"Error upgrading system packages:\n"
+"{error}"
+msgstr ""
+"Error upgrading 系统 包:\n"
+"{error}"
+
+#: core/services/backup_service.py:49 core/services/backup_service.py:98
+#, python-brace-format
+msgid "Creating backup of {} ..."
+msgstr "正在创建 {} 的备份 ..."
+
+#: core/services/backup_service.py:53
+#, python-brace-format
+msgid "File '{}' does not exist! Skipping backup..."
+msgstr "文件 '{}' 不存在！跳过备份..."
+
+#: core/services/backup_service.py:58
+#, python-brace-format
+msgid "'{}' is not a file! Skipping backup..."
+msgstr "'{}' 不是文件！跳过备份..."
+
+#: core/services/backup_service.py:76
+#, python-brace-format
+msgid "File '{}' already exists. Skipping ..."
+msgstr "文件 '{}' 已存在，跳过 ..."
+
+#: core/services/backup_service.py:82 core/services/backup_service.py:143
+#, python-brace-format
+msgid "Successfully backed up '{}' to '{}'"
+msgstr "已成功将 '{}' 备份到 '{}'"
+
+#: core/services/backup_service.py:87
+#, python-brace-format
+msgid "Failed to backup '{}': {}"
+msgstr "备份 '{}' 失败：{}"
+
+#: core/services/backup_service.py:102
+#, python-brace-format
+msgid "Directory '{}' does not exist! Skipping backup..."
+msgstr "目录 '{}' 不存在！跳过备份..."
+
+#: core/services/backup_service.py:107
+#, python-brace-format
+msgid "'{}' is not a directory! Skipping backup..."
+msgstr "'{}' 不是目录！跳过备份..."
+
+#: core/services/backup_service.py:121
+#, python-brace-format
+msgid "Reusing existing backup directory '{}'"
+msgstr "复用现有的备份目录 '{}'"
+
+#: core/services/backup_service.py:130
+#, python-brace-format
+msgid "File '{}' already exists. Skipping..."
+msgstr "文件 '{}' 已存在，跳过..."
+
+#: core/services/backup_service.py:148
+#, python-brace-format
+msgid "Failed to backup directory '{}': {}"
+msgstr "备份目录 '{}' 失败：{}"
+
+#: core/services/backup_service.py:185
+msgid "No Klipper instances found via systemd services."
+msgstr "未通过 systemd 服务找到任何 Klipper 实例。"
+
+#: core/settings/kiauh_settings.py:39
+#, python-brace-format
+msgid "Invalid value '{}' for option '{}' in section '{}'"
+msgstr "节 '{}' 中选项 '{}' 的值 '{}' 无效"
+
+#: core/settings/kiauh_settings.py:249
+#, python-brace-format
+msgid "Option '{}' in section '{}' not defined. Falling back to '{}'."
+msgstr "节 '{}' 中未定义选项 '{}'，回退到 '{}'。"
+
+#: core/spinner.py:22
+msgid "Loading"
+msgstr "正在加载"
+
+#: core/spinner.py:23
+#, python-brace-format
+msgid "{} ..."
+msgstr "{} ..."
+
+#: core/types/component_status.py:21
+msgid "Incomplete"
+msgstr "不完整"
+
+#: core/types/component_status.py:22
+msgid "Installed"
+msgstr "已安装"
+
+#: extensions/droidklipp/droidklipp_extension.py:37
+msgid "Installing DroidKlipp ..."
+msgstr "正在安装 DroidKlipp ..."
+
+#: extensions/droidklipp/droidklipp_extension.py:43
+msgid "No KIAUH v6 KlipperScreen installation found!"
+msgstr "No KIAUH v6 KlipperScreen 安装 找到!"
+
+#: extensions/droidklipp/droidklipp_extension.py:44
+msgid "DroidKlipp expects KlipperScreen at:"
+msgstr "DroidKlipp 期望安装 KlipperScreen 于："
+
+#: extensions/droidklipp/droidklipp_extension.py:47
+msgid "Install KlipperScreen first, then run this installer again."
+msgstr "安装 KlipperScreen first, then 运行 this installer again."
+
+#: extensions/droidklipp/droidklipp_extension.py:55
+msgid "DroidKlipp requires the Android APK to be installed on your Android device:"
+msgstr "DroidKlipp requires the Android APK to be 已安装 on your Android 设备:"
+
+#: extensions/droidklipp/droidklipp_extension.py:58
+msgid "The installer will configure ADB forwarding, udev rules, the DroidKlipp monitor, and WiFi fallback."
+msgstr "The installer will configure ADB forwarding, udev 规则, the DroidKlipp monitor, and WiFi fallback."
+
+#: extensions/droidklipp/droidklipp_extension.py:63
+msgid "Continue DroidKlipp installation?"
+msgstr "继续 DroidKlipp 安装?"
+
+#: extensions/droidklipp/droidklipp_extension.py:67
+msgid "Exiting DroidKlipp installation ..."
+msgstr "Exiting DroidKlipp 安装 ..."
+
+#: extensions/droidklipp/droidklipp_extension.py:77
+msgid "DroidKlipp successfully installed!"
+msgstr "DroidKlipp 成功 已安装!"
+
+#: extensions/droidklipp/droidklipp_extension.py:81
+#: extensions/droidklipp/droidklipp_extension.py:83
+#, python-brace-format
+msgid ""
+"Error during DroidKlipp installation:\n"
+"{}"
+msgstr ""
+"Error during DroidKlipp 安装:\n"
+"{}"
+
+#: extensions/droidklipp/droidklipp_extension.py:86
+msgid "Updating DroidKlipp ..."
+msgstr "正在更新 DroidKlipp ..."
+
+#: extensions/droidklipp/droidklipp_extension.py:89
+#: extensions/droidklipp/droidklipp_extension.py:127
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:81
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:129
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:177
+#: extensions/klipper_backup/klipper_backup_extension.py:35
+#: extensions/klipper_backup/klipper_backup_extension.py:155
+#: extensions/tmc_autotune/tmc_autotune_extension.py:164
+#: extensions/tmc_autotune/tmc_autotune_extension.py:208
+msgid "Extension does not seem to be installed! Skipping ..."
+msgstr "似乎未安装 Extension！跳过 ..."
+
+#: extensions/droidklipp/droidklipp_extension.py:113
+msgid "DroidKlipp successfully updated!"
+msgstr "DroidKlipp 成功 更新d!"
+
+#: extensions/droidklipp/droidklipp_extension.py:117
+#: extensions/droidklipp/droidklipp_extension.py:120
+#, python-brace-format
+msgid ""
+"Error during DroidKlipp update:\n"
+"{}"
+msgstr ""
+"Error during DroidKlipp 更新:\n"
+"{}"
+
+#: extensions/droidklipp/droidklipp_extension.py:124
+msgid "Removing DroidKlipp ..."
+msgstr "正在移除 DroidKlipp ..."
+
+#: extensions/droidklipp/droidklipp_extension.py:131
+msgid "Do you really want to uninstall DroidKlipp?"
+msgstr "是否确实要卸载 DroidKlipp？"
+
+#: extensions/droidklipp/droidklipp_extension.py:135
+msgid "Exiting DroidKlipp uninstallation ..."
+msgstr "Exiting DroidKlipp un安装 ..."
+
+#: extensions/droidklipp/droidklipp_extension.py:145
+msgid "DroidKlipp successfully removed!"
+msgstr "DroidKlipp 成功 removed!"
+
+#: extensions/droidklipp/droidklipp_extension.py:149
+#: extensions/droidklipp/droidklipp_extension.py:151
+#, python-brace-format
+msgid ""
+"Error during DroidKlipp removal:\n"
+"{}"
+msgstr ""
+"Error during DroidKlipp 移除:\n"
+"{}"
+
+#: extensions/extensions_menu.py:33
+msgid "Extensions Menu"
+msgstr "扩展菜单"
+
+#: extensions/extensions_menu.py:66
+#, python-brace-format
+msgid "Failed loading extension {}: duplicate index '{}' already used by '{}'. Skipping '{}'. Please report this at {}."
+msgstr "Failed loading extension {}: duplicate 索引 '{}' 已经 used by '{}'. Skipping '{}'. 请 re端口 this at {}."
+
+#: extensions/extensions_menu.py:99
+#, python-brace-format
+msgid "Failed loading extension {}: {}. Please report this at {}."
+msgstr "Failed loading extension {}: {}. 请 re端口 this at {}."
+
+#: extensions/extensions_menu.py:110
+msgid "Available Extensions:"
+msgstr "可用 扩展:"
+
+#: extensions/extensions_menu.py:173
+msgid "Links:"
+msgstr "链接："
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:39
+msgid "Create an example shell command?"
+msgstr "创建 an example shell 命令?"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:44
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:48
+#: extensions/tmc_autotune/tmc_autotune_extension.py:52
+msgid "No Klipper directory found! Unable to install extension."
+msgstr "No Klipper 目录 找到! Unable to install extension."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:52
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:61
+#: extensions/tmc_autotune/tmc_autotune_extension.py:66
+msgid "Extension seems to be installed already. Overwrite?"
+msgstr "Extension seems to be 已安装 已经. Overwrite?"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:58
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:67
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:281
+#: extensions/tmc_autotune/tmc_autotune_extension.py:72
+#: extensions/tmc_autotune/tmc_autotune_extension.py:300
+msgid "Installation aborted due to user request."
+msgstr "安装ation 已中止 due to 用户 request."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:65
+#, python-brace-format
+msgid "Copy extension to '{}' ..."
+msgstr "Copy extension to '{}' ..."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:68
+#, python-brace-format
+msgid "Unable to install extension: {}"
+msgstr "Unable to install extension: {}"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:76
+msgid "Installing G-Code Shell Command extension successful!"
+msgstr "安装ing G-Code Shell 命令 extension 成功!"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:84
+#: extensions/klipper_backup/klipper_backup_extension.py:95
+msgid "Do you really want to remove the extension?"
+msgstr "是否确实要移除此扩展？"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:87
+#, python-brace-format
+msgid "Removing '{}' ..."
+msgstr "正在移除 '{}' ..."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:89
+msgid "Extension successfully removed!"
+msgstr "Extension 成功 removed!"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:91
+#, python-brace-format
+msgid "Unable to remove extension: {}"
+msgstr "Unable to remove extension: {}"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:95
+msgid "Remaining gcode shell command will cause Klipper to throw an error."
+msgstr "Remaining gcode shell 命令 will cause Klipper to throw an error."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:97
+msgid "Make sure to remove them from the printer.cfg!"
+msgstr "Make sure to remove them from the 打印机.cfg!"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:102
+#, python-brace-format
+msgid "Create shell_command.cfg in '{}' ..."
+msgstr "创建 shell_命令.cfg in '{}' ..."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:104
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:236
+#: extensions/tmc_autotune/tmc_autotune_extension.py:262
+msgid "File already exists! Skipping ..."
+msgstr "文件 已经 存在s! Skipping ..."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:108
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:132
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:264
+#: extensions/tmc_autotune/tmc_autotune_extension.py:266
+#: extensions/tmc_autotune/tmc_autotune_extension.py:283
+msgid "Done!"
+msgstr "完成！"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:110
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:248
+#: extensions/tmc_autotune/tmc_autotune_extension.py:268
+#, python-brace-format
+msgid "Unable to create example config: {}"
+msgstr "Unable to 创建 example config: {}"
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:124
+#, python-brace-format
+msgid "Include shell_command.cfg in '{}' ..."
+msgstr "Include shell_命令.cfg in '{}' ..."
+
+#: extensions/gcode_shell_cmd/gcode_shell_cmd_extension.py:128
+#: extensions/tmc_autotune/tmc_autotune_extension.py:279
+msgid "Section already defined! Skipping ..."
+msgstr "节 已经 defined! Skipping ..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:43
+msgid "Installing Klipper Adaptive Meshing Purging..."
+msgstr "安装ing Klipper Adaptive Meshing Purging..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:71
+msgid "Add Klipper Adaptive Meshing and Purging to Moonraker update manager(s)?"
+msgstr "Add Klipper Adaptive Meshing and Purging to Moonraker 更新 manager(s)?"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:77
+msgid "installation of KAMP"
+msgstr "安装 of KAMP"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:91
+#: extensions/tmc_autotune/tmc_autotune_extension.py:129
+msgid "Skipping update section creation as per user request."
+msgstr "Skipping 更新 节 creation as per 用户 request."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:94
+#: extensions/tmc_autotune/tmc_autotune_extension.py:132
+msgid "Make sure to create the corresponding section in your moonraker.conf in order to have it appear in your frontend update manager!"
+msgstr "Make sure to 创建 the 对应 节 in your moonraker.conf in 顺序 to have it appear in your frontend 更新 manager!"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:99
+#, python-brace-format
+msgid ""
+"Error during Klipper Adaptive Meshing and Purging installation:\n"
+"{}"
+msgstr ""
+"Error during Klipper Adaptive Meshing and Purging 安装:\n"
+"{}"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:112
+#: extensions/tmc_autotune/tmc_autotune_extension.py:149
+msgid "Basic configuration files were created per instance. You must edit them to enable the extension."
+msgstr "Basic 配置 文件s were 已创建 per 实例. You must edit them to enable the extension."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:113
+#: extensions/tmc_autotune/tmc_autotune_extension.py:150
+msgid "Documentation:"
+msgstr "文档:"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:116
+#: extensions/tmc_autotune/tmc_autotune_extension.py:153
+msgid "IMPORTANT:"
+msgstr "重要："
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:117
+msgid "1. If you'd like to use adaptive meshing, Klipper already has built-in support. Just call BED_MESH_CALIBRATE ADAPTIVE=1 in your PRINT_START macro. DO NOT USE THE FEATURE FROM THE EXTENSION"
+msgstr "1. If you'd like to use adaptive meshing, Klipper 已经 has built-in sup端口. Just call BED_MESH_CALIBRATE ADAPTIVE=1 in your PRINT_START 宏. DO NOT USE THE FEATURE FROM THE EXTENSION"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:118
+msgid "2. You MUST be thoughtful when editing values for the purge settings, as there is a risk to break parts of your printer."
+msgstr "2. You MUST be thoughtful when editing 值s for the purge 设置s, as there is a risk to break parts of your 打印机."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:119
+msgid "3. According to KAMP's documentation, you should define 'max_extrude_cross_section' in 'printer.cfg' according to your needs."
+msgstr "3. According to KAMP's 文档, you should define 'max_extrude_cross_节' in '打印机.cfg' according to your needs."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:124
+msgid "Klipper Adaptive Meshing and Purging installed successfully!"
+msgstr "Klipper Adaptive Meshing and Purging 已安装 成功!"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:133
+msgid "Backup Klipper Adaptive Meshing and Purging directory before update?"
+msgstr "备份 Klipper Adaptive Meshing and Purging 目录 之前 更新?"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:140
+msgid "update of KAMP"
+msgstr "更新 of KAMP"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:143
+msgid "Updating Klipper Adaptive Meshing and Purging..."
+msgstr "更新 Klipper Adaptive Meshing and Purging..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:147
+msgid "Backing up Klipper Adaptive Meshing and Purging directory ..."
+msgstr "Backing up Klipper Adaptive Meshing and Purging 目录 ..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:154
+#: extensions/tmc_autotune/tmc_autotune_extension.py:189
+msgid "Backup completed successfully."
+msgstr "备份 完成d 成功."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:160
+#, python-brace-format
+msgid ""
+"Error during Klipper Adaptive Meshing and Purging update:\n"
+"{}"
+msgstr ""
+"Error during Klipper Adaptive Meshing and Purging 更新:\n"
+"{}"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:171
+msgid "Klipper Adaptive Meshing and Purging updated successfully."
+msgstr "Klipper Adaptive Meshing and Purging 更新d 成功."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:182
+msgid "removal of KAMP"
+msgstr "移除 of KAMP"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:198
+msgid "You might want to remove [exclude_object] sections from 'printer.cfg', unless you use them for some other reason."
+msgstr "You might want to remove [exclude_object] 节s from '打印机.cfg', unless you use them for some other reason."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:200
+msgid "You might also want to remove the [file_manager] sections from 'moonraker.conf', unless used otherwise."
+msgstr "You might also want to remove the [文件_manager] 节s from 'moonraker.conf', unless used otherwise."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:202
+#: extensions/tmc_autotune/tmc_autotune_extension.py:238
+msgid "NOTE:"
+msgstr "注："
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:203
+msgid "'KAMP_Settings.cfg' is NOT removed automatically. "
+msgstr "'KAMP_设置.cfg' is NOT removed automatically. "
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:204
+msgid "Please delete it manually if no longer needed."
+msgstr "请 delete it 手动ly if no longer needed."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:210
+#: extensions/tmc_autotune/tmc_autotune_extension.py:245
+#, python-brace-format
+msgid ""
+"Unable to remove extension:\n"
+"{}"
+msgstr ""
+"Unable to remove extension:\n"
+"{}"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:219
+msgid "Klipper Adaptive Meshing and Purging removed successfully."
+msgstr "Klipper Adaptive Meshing and Purging removed 成功."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:226
+#, python-brace-format
+msgid "Creating symlink for KAMP directory in '{}' ..."
+msgstr "正在创建 符号链接 for KAMP 目录 in '{}' ..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:230
+#, python-brace-format
+msgid "Symlink successfully created for instance '{}'."
+msgstr "符号链接 成功 已创建 for 实例 '{}'."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:232
+msgid "Symlink successfully created."
+msgstr "符号链接 成功 已创建."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:234
+#, python-brace-format
+msgid "Creating KAMP_Settings.cfg in '{}' ..."
+msgstr "正在创建 KAMP_设置.cfg in '{}' ..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:244
+#, python-brace-format
+msgid "Config file successfully created for instance '{}'."
+msgstr "Config 文件 成功 已创建 for 实例 '{}'."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:246
+msgid "Config file successfully created."
+msgstr "Config 文件 成功 已创建."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:261
+#, python-brace-format
+msgid "Add '{}' to '{}' ..."
+msgstr "Add '{}' to '{}' ..."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:273
+msgid "Moonraker not found! Klipper Adaptive Meshing and Purging update manager support for Moonraker will not be added to moonraker.conf."
+msgstr "Moonraker not 找到! Klipper Adaptive Meshing and Purging 更新 manager sup端口 for Moonraker will not be added to moonraker.conf."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:277
+msgid "Continue Klipper Adaptive Meshing and Purging installation?"
+msgstr "继续 Klipper Adaptive Meshing and Purging 安装?"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:310
+msgid "Klipper Adaptive Meshing and Purging successfully added to Moonraker update manager(s)!"
+msgstr "Klipper Adaptive Meshing and Purging 成功 added to Moonraker 更新 manager(s)!"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:320
+msgid "Moonraker not found! Klipper Adaptive Meshing and Purging update manager support for Moonraker will not be removed from moonraker.conf."
+msgstr "Moonraker not 找到! Klipper Adaptive Meshing and Purging 更新 manager sup端口 for Moonraker will not be removed from moonraker.conf."
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:331
+msgid "Klipper Adaptive Meshing and Purging successfully removed from Moonraker update manager(s)!"
+msgstr "Klipper Adaptive Meshing and Purging 成功 removed from Moonraker 更新 manager(s)!"
+
+#: extensions/klipper_adaptive_meshing_purging/klipper_adaptive_meshing_purging_extension.py:354
+#, python-brace-format
+msgid "Removing KAMP symlink in '{}' ..."
+msgstr "正在移除 KAMP 符号链接 in '{}' ..."
+
+#: extensions/klipper_backup/klipper_backup_extension.py:47
+#, python-brace-format
+msgid "{}.{} successfully removed!"
+msgstr "{}.{} 成功 removed!"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:52
+#, python-brace-format
+msgid "Unknown unit type {} of {}"
+msgstr "Unknown unit 类型 {} of {}"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:55
+#, python-brace-format
+msgid "Failed to remove {}: {}"
+msgstr "Failed to remove {}: {}"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:82
+msgid "Removing Klipper-Backup moonraker entry ..."
+msgstr "正在移除 Klipper-备份 moonraker entry ..."
+
+#: extensions/klipper_backup/klipper_backup_extension.py:91
+msgid "Klipper-Backup moonraker entry successfully removed!"
+msgstr "Klipper-备份 moonraker entry 成功 removed!"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:110
+msgid "Removing Klipper-Backup crontab entry ..."
+msgstr "正在移除 Klipper-备份 crontab entry ..."
+
+#: extensions/klipper_backup/klipper_backup_extension.py:126
+msgid "Klipper-Backup crontab entry successfully removed!"
+msgstr "Klipper-备份 crontab entry 成功 removed!"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:129
+msgid "Unable to remove the Klipper-Backup cron entry"
+msgstr "Unable to remove the Klipper-备份 cron entry"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:135
+msgid "Unable to remove the Klipper-Backup moonraker entry"
+msgstr "Unable to remove the Klipper-备份 moonraker entry"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:138
+msgid "Removing Klipper-Backup extension ..."
+msgstr "正在移除 Klipper-备份 extension ..."
+
+#: extensions/klipper_backup/klipper_backup_extension.py:143
+msgid "Extension Klipper-Backup successfully removed!"
+msgstr "Extension Klipper-备份 成功 removed!"
+
+#: extensions/klipper_backup/klipper_backup_extension.py:145
+msgid "Unable to remove Klipper-Backup extension"
+msgstr "Unable to remove Klipper-备份 extension"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:64
+#, python-brace-format
+msgid "Uninstalling theme from {} ..."
+msgstr "Un安装 theme from {} ..."
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:67
+#, python-brace-format
+msgid "{} not found. Skipping ..."
+msgstr "{} not 找到. Skipping ..."
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:71
+msgid "Theme successfully uninstalled!"
+msgstr "Theme 成功 un已安装!"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:73
+msgid "Unable to uninstall theme"
+msgstr "无法卸载主题"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:85
+msgid "Mainsail Theme Installer"
+msgstr "Mainsail Theme 安装er"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:105
+msgid "A preview of each Mainsail theme can be found here:"
+msgstr "A preview of each Mainsail theme can be 找到 here:"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:141
+msgid "No option index provided"
+msgstr "No 选项 索引 provided"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:165
+msgid "Info from the creator:"
+msgstr "作者说明："
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:176
+msgid "Select the printer to install the theme for"
+msgstr "选择 the 打印机 to install the theme for"
+
+#: extensions/mainsail_theme_installer/mainsail_theme_installer_extension.py:178
+msgid "Select the printer to remove the theme from"
+msgstr "选择 the 打印机 to remove the theme from"
+
+#: extensions/mobileraker/mobileraker_extension.py:50
+msgid "Installing Mobileraker's companion ..."
+msgstr "正在安装 Mobileraker's companion ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:60
+msgid "Moonraker not found! Mobileraker's companion will not properly work without a working Moonraker installation."
+msgstr "Moonraker not 找到! Mobileraker's companion will not properly work 没有 a 工作 Moonraker 安装."
+
+#: extensions/mobileraker/mobileraker_extension.py:61
+msgid "Mobileraker's companion's update manager configuration for Moonraker will not be added to any moonraker.conf."
+msgstr "Mobileraker's companion's 更新 manager 配置 for Moonraker will not be added to any moonraker.conf."
+
+#: extensions/mobileraker/mobileraker_extension.py:65
+msgid "Continue Mobileraker's companion installation?"
+msgstr "继续 Mobileraker's companion 安装?"
+
+#: extensions/mobileraker/mobileraker_extension.py:82
+msgid "Moonraker is not installed! Cannot add Mobileraker's companion to update manager!"
+msgstr "Moonraker is not 已安装! Cannot add Mobileraker's companion to 更新 manager!"
+
+#: extensions/mobileraker/mobileraker_extension.py:84
+msgid "Mobileraker's companion successfully installed!"
+msgstr "Mobileraker's companion 成功 已安装!"
+
+#: extensions/mobileraker/mobileraker_extension.py:86
+#, python-brace-format
+msgid ""
+"Error installing Mobileraker's companion:\n"
+"{}"
+msgstr ""
+"Error 安装 Mobileraker's companion:\n"
+"{}"
+
+#: extensions/mobileraker/mobileraker_extension.py:93
+msgid "Mobileraker's companion doesn't seem to be installed! Skipping ..."
+msgstr "Mobileraker's companion doesn't seem to be 已安装! Skipping ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:97
+msgid "Updating Mobileraker's companion ..."
+msgstr "正在更新 Mobileraker's companion ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:111
+msgid "Mobileraker's companion updated successfully."
+msgstr "Mobileraker's companion 更新d 成功."
+
+#: extensions/mobileraker/mobileraker_extension.py:113
+#, python-brace-format
+msgid ""
+"Error updating Mobileraker's companion:\n"
+"{}"
+msgstr ""
+"Error 更新 Mobileraker's companion:\n"
+"{}"
+
+#: extensions/mobileraker/mobileraker_extension.py:117
+msgid "Removing Mobileraker's companion ..."
+msgstr "正在移除 Mobileraker's companion ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:120
+msgid "Removing Mobileraker's companion directory ..."
+msgstr "正在移除 Mobileraker's companion 目录 ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:123
+msgid "Mobileraker's companion directory successfully removed!"
+msgstr "Mobileraker's companion 目录 成功 removed!"
+
+#: extensions/mobileraker/mobileraker_extension.py:126
+msgid "Mobileraker's companion directory not found!"
+msgstr "Mobileraker's companion 目录 not 找到!"
+
+#: extensions/mobileraker/mobileraker_extension.py:129
+msgid "Removing Mobileraker's companion environment ..."
+msgstr "正在移除 Mobileraker's companion 环境 ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:132
+msgid "Mobileraker's companion environment successfully removed!"
+msgstr "Mobileraker's companion 环境 成功 removed!"
+
+#: extensions/mobileraker/mobileraker_extension.py:135
+msgid "Mobileraker's companion environment not found!"
+msgstr "Mobileraker's companion 环境 not 找到!"
+
+#: extensions/mobileraker/mobileraker_extension.py:151
+msgid "Removing Mobileraker's companion from update manager ..."
+msgstr "正在移除 Mobileraker's companion from 更新 manager ..."
+
+#: extensions/mobileraker/mobileraker_extension.py:156
+msgid "Mobileraker's companion successfully removed from update manager!"
+msgstr "Mobileraker's companion 成功 removed from 更新 manager!"
+
+#: extensions/mobileraker/mobileraker_extension.py:159
+msgid "Mobileraker's companion successfully removed!"
+msgstr "Mobileraker's companion 成功 removed!"
+
+#: extensions/mobileraker/mobileraker_extension.py:162
+#, python-brace-format
+msgid ""
+"Error removing Mobileraker's companion:\n"
+"{}"
+msgstr ""
+"Error re除 Mobileraker's companion:\n"
+"{}"
+
+#: extensions/moongate/moongate_extension.py:58
+msgid "Installing Moongate for Klipper ..."
+msgstr "正在安装 Moongate for Klipper ..."
+
+#: extensions/moongate/moongate_extension.py:65
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:51
+#: utils/common.py:175
+msgid "No Moonraker instances found!"
+msgstr "No Moonraker 实例 找到!"
+
+#: extensions/moongate/moongate_extension.py:66
+msgid "Moongate is a Moonraker component and needs Moonraker to be installed first. Please install Moonraker, then try again."
+msgstr "Moongate is a Moonraker component and needs Moonraker to be 已安装 first. 请 install Moonraker, then try again."
+
+#: extensions/moongate/moongate_extension.py:76
+msgid "Multiple Moonraker instances detected."
+msgstr "Multiple Moonraker 实例 检测ed."
+
+#: extensions/moongate/moongate_extension.py:77
+#, python-brace-format
+msgid "Moongate currently supports a single-printer setup. The instance '{}' will be used."
+msgstr "Moongate 当前仅支持单打印机设置。将使用实例 '{}'。"
+
+#: extensions/moongate/moongate_extension.py:84
+msgid "Installation aborted."
+msgstr "安装ation 已中止."
+
+#: extensions/moongate/moongate_extension.py:88
+msgid "HTTP port your Mainsail/Fluidd UI is served on"
+msgstr "HTTP 端口 your Mainsail/Fluidd UI is served on"
+
+#: extensions/moongate/moongate_extension.py:97
+msgid "Install in LAN-only mode (no cloud tunnel, LAN/VPN access only)?"
+msgstr "安装 in LAN-only mode (no cloud tunnel, LAN/VPN 访问 only)?"
+
+#: extensions/moongate/moongate_extension.py:118
+#, python-brace-format
+msgid ""
+"Error during Moongate installation:\n"
+"{}"
+msgstr ""
+"Error during Moongate 安装:\n"
+"{}"
+
+#: extensions/moongate/moongate_extension.py:124
+msgid "Moongate installed successfully!"
+msgstr "Moongate 已安装 成功!"
+
+#: extensions/moongate/moongate_extension.py:126
+msgid "Next steps:"
+msgstr "Next 步骤s:"
+
+#: extensions/moongate/moongate_extension.py:127
+msgid "● Install the Moongate app on your Android device."
+msgstr "● 安装 the Moongate app on your Android 设备."
+
+#: extensions/moongate/moongate_extension.py:129
+msgid "● In the app: Add printer > Direct (LAN/VPN), then run MOONGATE_PAIR in the Klipper console and scan the QR (or type the printer's address)."
+msgstr "● In the app: Add 打印机 > Direct (LAN/VPN), then 运行 MOONGATE_PAIR in the Klipper 控制台 and 扫描 the QR (or 类型 the 打印机's address)."
+
+#: extensions/moongate/moongate_extension.py:131
+msgid "● Run MOONGATE_PAIR in the Klipper console (or open the pair page printed above) and scan the QR code."
+msgstr "● 运行 MOONGATE_PAIR in the Klipper 控制台 (or open the pair page 打印任务ed 以上) and 扫描 the QR code."
+
+#: extensions/moongate/moongate_extension.py:133
+msgid "● Updates from now on: Mainsail/Fluidd > Software Updates > Moongate."
+msgstr "● 更新s from now on: Mainsail/Fluidd > Software 更新s > Moongate."
+
+#: extensions/moongate/moongate_extension.py:139
+msgid "Updating Moongate for Klipper ..."
+msgstr "正在更新 Moongate for Klipper ..."
+
+#: extensions/moongate/moongate_extension.py:142
+msgid "Moongate does not seem to be installed. Skipping ..."
+msgstr "Moongate does not seem to be 已安装. Skipping ..."
+
+#: extensions/moongate/moongate_extension.py:147
+msgid "No Moonraker instance found. Skipping ..."
+msgstr "No Moonraker 实例 找到. Skipping ..."
+
+#: extensions/moongate/moongate_extension.py:155
+#, python-brace-format
+msgid ""
+"Error during Moongate update:\n"
+"{}"
+msgstr ""
+"Error during Moongate 更新:\n"
+"{}"
+
+#: extensions/moongate/moongate_extension.py:158
+msgid "Moongate updated successfully."
+msgstr "Moongate 更新d 成功."
+
+#: extensions/moongate/moongate_extension.py:161
+msgid "Removing Moongate for Klipper ..."
+msgstr "正在移除 Moongate for Klipper ..."
+
+#: extensions/moongate/moongate_extension.py:166
+msgid "This removes Moongate, cloudflared, both systemd services and all Moongate config. Continue?"
+msgstr "This removes Moongate, cloudflared, both 系统d 服务s and all Moongate config. 继续?"
+
+#: extensions/moongate/moongate_extension.py:170
+msgid "Removal aborted."
+msgstr "移除 已中止."
+
+#: extensions/moongate/moongate_extension.py:182
+msgid "Moongate removed successfully."
+msgstr "Moongate removed 成功."
+
+#: extensions/moongate/moongate_extension.py:185
+#, python-brace-format
+msgid ""
+"Error during Moongate removal:\n"
+"{}"
+msgstr ""
+"Error during Moongate 移除:\n"
+"{}"
+
+#: extensions/moongate/moongate_extension.py:188
+msgid "Moongate uninstaller not found — doing a best-effort cleanup. You may need to remove cloudflared and the moongate-* systemd services manually."
+msgstr "Moongate uninstaller not 找到 — doing a best-effort cleanup. You may need to remove cloudflared and the moongate-* 系统d 服务s 手动ly."
+
+#: extensions/moongate/moongate_extension.py:195
+msgid "Moongate configuration removed."
+msgstr "Moongate 配置 removed."
+
+#: extensions/moongate/moongate_extension.py:204
+msgid "Moongate pairs this printer with the Moongate Android app for secure remote access and print monitoring."
+msgstr "Moongate pairs this 打印机 with the Moongate Android app for secure remote 访问 and 打印任务 monitoring."
+
+#: extensions/moongate/moongate_extension.py:206
+msgid "This is a heavier install than most extensions. It will:"
+msgstr "此扩展相比多数扩展安装内容更丰富，将执行："
+
+#: extensions/moongate/moongate_extension.py:207
+msgid "● clone the Moongate repo to ~/moongate"
+msgstr "● 将 Moongate 仓库克隆到 ~/moongate"
+
+#: extensions/moongate/moongate_extension.py:208
+msgid "● add the Moongate component to Moonraker and register it with the update manager"
+msgstr "● add the Moongate component to Moonraker and register it with the 更新 manager"
+
+#: extensions/moongate/moongate_extension.py:209
+msgid "● install cloudflared and open a Cloudflare quick-tunnel"
+msgstr "● 安装 cloudflared 并开启 Cloudflare 快速通道"
+
+#: extensions/moongate/moongate_extension.py:210
+msgid "● add two systemd services: moongate-authproxy + moongate-tunnel"
+msgstr "● add two 系统d 服务s: moongate-authproxy + moongate-tunnel"
+
+#: extensions/moongate/moongate_extension.py:211
+msgid "● bind Moonraker to 127.0.0.1 (the auth proxy fronts the tunnel)"
+msgstr "● 将 Moonraker 绑定到 127.0.0.1（由授权代理位于通道前端）"
+
+#: extensions/moongate/moongate_extension.py:212
+msgid "● add a tightly-scoped Avahi sudoers entry for LAN discovery"
+msgstr "● 为局域网发现添加最小权限的 Avahi sudoers 条目"
+
+#: extensions/moongate/moongate_extension.py:214
+msgid "Prefer no cloud at all? A LAN-only option is offered after this dialog - it skips the tunnel, the auth proxy and the Moonraker rebind, and the printer stays reachable over your LAN or your own VPN only."
+msgstr "Prefer no cloud at all? A LAN-only 选项 is offered 之后 this dia日志 - it skips the tunnel, the auth proxy and the Moonraker rebind, and the 打印机 stays reachable over your LAN or your own VPN only."
+
+#: extensions/moongate/moongate_extension.py:216
+msgid "Remote access relies on cloud infrastructure operated by the Moongate author. Moongate is licensed under PolyForm Noncommercial 1.0.0 (non-commercial use only)."
+msgstr "Remote 访问 relies on cloud infrastructure operated by the Moongate author. Moongate is licensed under PolyForm Noncommercial 1.0.0 (non-commercial use only)."
+
+#: extensions/moongate/moongate_extension.py:223
+msgid "Continue Moongate installation?"
+msgstr "继续 Moongate 安装?"
+
+#: extensions/obico/moonraker_obico.py:64
+msgid "Creating new Obico for Klipper Instance ..."
+msgstr "正在创建 new Obico for Klipper 实例 ..."
+
+#: extensions/obico/moonraker_obico.py:86
+#, python-brace-format
+msgid "Linking instance for printer {} to the Obico server ..."
+msgstr "链接 实例 for 打印机 {} to the Obico server ..."
+
+#: extensions/obico/moonraker_obico.py:96
+#, python-brace-format
+msgid "Error during Obico linking: {}"
+msgstr "during Obico 链接: {} 时出错："
+
+#: extensions/obico/moonraker_obico_extension.py:63
+msgid "Installing Obico for Klipper ..."
+msgstr "正在安装 Obico for Klipper ..."
+
+#: extensions/obico/moonraker_obico_extension.py:75
+msgid "Exiting Obico for Klipper installation ..."
+msgstr "Exiting Obico for Klipper 安装 ..."
+
+#: extensions/obico/moonraker_obico_extension.py:84
+msgid "Re-Installing Obico for Klipper ..."
+msgstr "Re-安装ing Obico for Klipper ..."
+
+#: extensions/obico/moonraker_obico_extension.py:91
+msgid "Continue Obico for Klipper installation?"
+msgstr "继续 Obico for Klipper 安装?"
+
+#: extensions/obico/moonraker_obico_extension.py:131
+msgid "Obico for Klipper successfully installed!"
+msgstr "Obico for Klipper 成功 已安装!"
+
+#: extensions/obico/moonraker_obico_extension.py:136
+#, python-brace-format
+msgid ""
+"Error during Obico for Klipper installation:\n"
+"{}"
+msgstr ""
+"Error during Obico for Klipper 安装:\n"
+"{}"
+
+#: extensions/obico/moonraker_obico_extension.py:139
+msgid "Updating Obico for Klipper ..."
+msgstr "正在更新 Obico for Klipper ..."
+
+#: extensions/obico/moonraker_obico_extension.py:148
+msgid "Obico for Klipper successfully updated!"
+msgstr "Obico for Klipper 成功 更新d!"
+
+#: extensions/obico/moonraker_obico_extension.py:151
+#, python-brace-format
+msgid ""
+"Error during Obico for Klipper update:\n"
+"{}"
+msgstr ""
+"Error during Obico for Klipper 更新:\n"
+"{}"
+
+#: extensions/obico/moonraker_obico_extension.py:154
+msgid "Removing Obico for Klipper ..."
+msgstr "正在移除 Obico for Klipper ..."
+
+#: extensions/obico/moonraker_obico_extension.py:169
+msgid "Obico for Klipper successfully removed!"
+msgstr "Obico for Klipper 成功 removed!"
+
+#: extensions/obico/moonraker_obico_extension.py:174
+#, python-brace-format
+msgid ""
+"Error during Obico for Klipper removal:\n"
+"{}"
+msgstr ""
+"Error during Obico for Klipper 移除:\n"
+"{}"
+
+#: extensions/obico/moonraker_obico_extension.py:179
+#: extensions/obico/moonraker_obico_extension.py:223
+msgid "Obico Server URL"
+msgstr "Obico 服务端网址"
+
+#: extensions/obico/moonraker_obico_extension.py:181
+msgid "You can use a self-hosted Obico Server or the Obico Cloud. For more information, please visit:"
+msgstr "You can use a self-主机ed Obico Server or the Obico Cloud. For more information, 请 visit:"
+
+#: extensions/obico/moonraker_obico_extension.py:184
+msgid "For the Obico Cloud, leave it as the default:"
+msgstr "For the Obico Cloud, leave it as the 默认值:"
+
+#: extensions/obico/moonraker_obico_extension.py:187
+msgid "For self-hosted server, specify:"
+msgstr "For self-主机ed server, specify:"
+
+#: extensions/obico/moonraker_obico_extension.py:189
+msgid "For instance, 'http://192.168.0.5:3334'."
+msgstr "For 实例, 'http://192.168.0.5:3334'."
+
+#: extensions/obico/moonraker_obico_extension.py:199
+#: extensions/octoapp/octoapp_extension.py:80
+#: extensions/octoeverywhere/octoeverywhere_extension.py:79
+#: extensions/simply_print/simply_print_extension.py:89
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:63
+msgid "The following Moonraker instances were found:"
+msgstr "The 以下 Moonraker 实例 were 找到:"
+
+#: extensions/obico/moonraker_obico_extension.py:202
+msgid "The setup will apply the same names to Obico!"
+msgstr "The setup will 应用 the same 名称 to Obico!"
+
+#: extensions/obico/moonraker_obico_extension.py:210
+msgid "Obico is already installed!"
+msgstr "Obico is 已经 已安装!"
+
+#: extensions/obico/moonraker_obico_extension.py:211
+#: extensions/octoapp/octoapp_extension.py:63
+#: extensions/octoeverywhere/octoeverywhere_extension.py:62
+msgid "It is safe to run the installer again to link your printer or repair any issues."
+msgstr "It is safe to 运行 the installer again to link your 打印机 or repair any issues."
+
+#: extensions/obico/moonraker_obico_extension.py:213
+msgid "You can perform the following actions:"
+msgstr "You can 执行 the 以下 操作:"
+
+#: extensions/obico/moonraker_obico_extension.py:214
+msgid "L) Link printer to the Obico server"
+msgstr "L) Link 打印机 to the Obico server"
+
+#: extensions/obico/moonraker_obico_extension.py:215
+msgid "R) Repair installation"
+msgstr "R) Repair 安装"
+
+#: extensions/obico/moonraker_obico_extension.py:243
+#: extensions/obico/moonraker_obico_extension.py:255
+#, python-brace-format
+msgid "Obico's '{}' in {} already exists! Skipped ..."
+msgstr "Obico's '{}' in {} 已经 存在s! Skipped ..."
+
+#: extensions/obico/moonraker_obico_extension.py:268
+#, python-brace-format
+msgid "Obico config template file {} does not exist!"
+msgstr "Obico config template 文件 {} does not 存在!"
+
+#: extensions/obico/moonraker_obico_extension.py:279
+#, python-brace-format
+msgid "Obico config in {} already exists! Skipped ..."
+msgstr "Obico config in {} 已经 存在s! Skipped ..."
+
+#: extensions/obico/moonraker_obico_extension.py:311
+msgid "Checking link status of Obico instances ..."
+msgstr "Checking link status of Obico 实例 ..."
+
+#: extensions/obico/moonraker_obico_extension.py:326
+msgid "The Obico instances for the following printers are not linked to the server:"
+msgstr "The Obico 实例 for the 以下 打印机s are not linked to the server:"
+
+#: extensions/obico/moonraker_obico_extension.py:329
+msgid "It will take only 10 seconds to link the printer to the Obico server."
+msgstr "It will take only 10 seconds to link the 打印机 to the Obico server."
+
+#: extensions/obico/moonraker_obico_extension.py:330
+msgid "For more information visit:"
+msgstr "了解更多信息请访问："
+
+#: extensions/obico/moonraker_obico_extension.py:333
+msgid "If you don't want to link the printer now, you can restart the linking process later by running this installer again."
+msgstr "If you don't want to link the 打印机 now, you can re开始 the 链接 过程 later by 运行中 this installer again."
+
+#: extensions/obico/moonraker_obico_extension.py:336
+msgid "Do you want to link the printers now?"
+msgstr "Do you want to link the 打印机s now?"
+
+#: extensions/obico/moonraker_obico_extension.py:337
+msgid "Linking to Obico server skipped ..."
+msgstr "链接 to Obico server skipped ..."
+
+#: extensions/obico/moonraker_obico_extension.py:347
+msgid "No Obico instances found. Skipped ..."
+msgstr "No Obico 实例 找到. Skipped ..."
+
+#: extensions/obico/moonraker_obico_extension.py:359
+msgid "Removing Obico for Klipper directory ..."
+msgstr "正在移除 Obico for Klipper 目录 ..."
+
+#: extensions/obico/moonraker_obico_extension.py:362
+#: extensions/obico/moonraker_obico_extension.py:371
+#: extensions/octoapp/octoapp_extension.py:181
+#: extensions/octoapp/octoapp_extension.py:194
+#: extensions/octoapp/octoapp_extension.py:203
+#: extensions/octoeverywhere/octoeverywhere_extension.py:181
+#: extensions/octoeverywhere/octoeverywhere_extension.py:190
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:200
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:210
+#, python-brace-format
+msgid "'{}' does not exist. Skipped ..."
+msgstr "'{}' does not 存在. Skipped ..."
+
+#: extensions/obico/moonraker_obico_extension.py:368
+msgid "Removing Obico for Klipper environment ..."
+msgstr "正在移除 Obico for Klipper 环境 ..."
+
+#: extensions/octoapp/octoapp.py:58
+msgid "Creating OctoApp for Klipper Instance ..."
+msgstr "正在创建 OctoApp for Klipper 实例 ..."
+
+#: extensions/octoapp/octoapp.py:74
+#, python-brace-format
+msgid "Error updating OctoApp for Klipper: {}"
+msgstr "更新 OctoApp for Klipper: {} 时出错："
+
+#: extensions/octoapp/octoapp_extension.py:51
+msgid "Installing OctoApp for Klipper ..."
+msgstr "正在安装 OctoApp for Klipper ..."
+
+#: extensions/octoapp/octoapp_extension.py:62
+msgid "OctoApp is already installed!"
+msgstr "OctoApp is 已经 已安装!"
+
+#: extensions/octoapp/octoapp_extension.py:66
+msgid "Re-run OctoApp installation?"
+msgstr "Re-运行 OctoApp 安装?"
+
+#: extensions/octoapp/octoapp_extension.py:67
+#: extensions/octoapp/octoapp_extension.py:92
+msgid "Exiting OctoApp for Klipper installation ..."
+msgstr "Exiting OctoApp for Klipper 安装 ..."
+
+#: extensions/octoapp/octoapp_extension.py:70
+msgid "Re-Installing OctoApp for Klipper ..."
+msgstr "Re-安装ing OctoApp for Klipper ..."
+
+#: extensions/octoapp/octoapp_extension.py:83
+msgid "The setup will apply the same names to OctoApp!"
+msgstr "The setup will 应用 the same 名称 to OctoApp!"
+
+#: extensions/octoapp/octoapp_extension.py:88
+msgid "Continue OctoApp for Klipper installation?"
+msgstr "继续 OctoApp for Klipper 安装?"
+
+#: extensions/octoapp/octoapp_extension.py:106
+msgid "OctoApp for Klipper successfully installed!"
+msgstr "OctoApp for Klipper 成功 已安装!"
+
+#: extensions/octoapp/octoapp_extension.py:111
+#, python-brace-format
+msgid ""
+"Error during OctoApp for Klipper installation:\n"
+"{}"
+msgstr ""
+"Error during OctoApp for Klipper 安装:\n"
+"{}"
+
+#: extensions/octoapp/octoapp_extension.py:114
+msgid "Updating OctoApp for Klipper ..."
+msgstr "正在更新 OctoApp for Klipper ..."
+
+#: extensions/octoapp/octoapp_extension.py:119
+msgid "OctoApp for Klipper successfully updated!"
+msgstr "OctoApp for Klipper 成功 更新d!"
+
+#: extensions/octoapp/octoapp_extension.py:124
+#, python-brace-format
+msgid ""
+"Error during OctoApp for Klipper update:\n"
+"{}"
+msgstr ""
+"Error during OctoApp for Klipper 更新:\n"
+"{}"
+
+#: extensions/octoapp/octoapp_extension.py:127
+msgid "Removing OctoApp for Klipper ..."
+msgstr "正在移除 OctoApp for Klipper ..."
+
+#: extensions/octoapp/octoapp_extension.py:142
+msgid "OctoApp for Klipper successfully removed!"
+msgstr "OctoApp for Klipper 成功 removed!"
+
+#: extensions/octoapp/octoapp_extension.py:147
+#, python-brace-format
+msgid ""
+"Error during OctoApp for Klipper removal:\n"
+"{}"
+msgstr ""
+"Error during OctoApp for Klipper 移除:\n"
+"{}"
+
+#: extensions/octoapp/octoapp_extension.py:158
+msgid "Error reading OctoApp dependencies!"
+msgstr "reading OctoApp 依赖项! 时出错："
+
+#: extensions/octoapp/octoapp_extension.py:168
+msgid "No OctoApp instances found. Skipped ..."
+msgstr "No OctoApp 实例 找到. Skipped ..."
+
+#: extensions/octoapp/octoapp_extension.py:178
+msgid "Removing OctoApp for Klipper directory ..."
+msgstr "正在移除 OctoApp for Klipper 目录 ..."
+
+#: extensions/octoapp/octoapp_extension.py:187
+msgid "Removing OctoApp for Klipper store directory ..."
+msgstr "正在移除 OctoApp for Klipper store 目录 ..."
+
+#: extensions/octoapp/octoapp_extension.py:200
+msgid "Removing OctoApp for Klipper environment ..."
+msgstr "正在移除 OctoApp for Klipper 环境 ..."
+
+#: extensions/octoeverywhere/octoeverywhere.py:60
+msgid "Creating OctoEverywhere for Klipper Instance ..."
+msgstr "正在创建 OctoEverywhere for Klipper 实例 ..."
+
+#: extensions/octoeverywhere/octoeverywhere.py:76
+#, python-brace-format
+msgid "Error updating OctoEverywhere for Klipper: {}"
+msgstr "更新 OctoEverywhere for Klipper: {} 时出错："
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:50
+msgid "Installing OctoEverywhere for Klipper ..."
+msgstr "正在安装 OctoEverywhere for Klipper ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:61
+msgid "OctoEverywhere is already installed!"
+msgstr "OctoEverywhere is 已经 已安装!"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:65
+msgid "Re-run OctoEverywhere installation?"
+msgstr "Re-运行 OctoEverywhere 安装?"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:66
+#: extensions/octoeverywhere/octoeverywhere_extension.py:91
+msgid "Exiting OctoEverywhere for Klipper installation ..."
+msgstr "Exiting OctoEverywhere for Klipper 安装 ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:69
+msgid "Re-Installing OctoEverywhere for Klipper ..."
+msgstr "Re-安装ing OctoEverywhere for Klipper ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:82
+msgid "The setup will apply the same names to OctoEverywhere!"
+msgstr "The setup will 应用 the same 名称 to OctoEverywhere!"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:87
+msgid "Continue OctoEverywhere for Klipper installation?"
+msgstr "继续 OctoEverywhere for Klipper 安装?"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:105
+msgid "OctoEverywhere for Klipper successfully installed!"
+msgstr "OctoEverywhere for Klipper 成功 已安装!"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:111
+#, python-brace-format
+msgid ""
+"Error during OctoEverywhere for Klipper installation:\n"
+"{}"
+msgstr ""
+"Error during OctoEverywhere for Klipper 安装:\n"
+"{}"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:115
+msgid "Updating OctoEverywhere for Klipper ..."
+msgstr "正在更新 OctoEverywhere for Klipper ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:120
+msgid "OctoEverywhere for Klipper successfully updated!"
+msgstr "OctoEverywhere for Klipper 成功 更新d!"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:125
+#, python-brace-format
+msgid ""
+"Error during OctoEverywhere for Klipper update:\n"
+"{}"
+msgstr ""
+"Error during OctoEverywhere for Klipper 更新:\n"
+"{}"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:128
+msgid "Removing OctoEverywhere for Klipper ..."
+msgstr "正在移除 OctoEverywhere for Klipper ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:142
+msgid "OctoEverywhere for Klipper successfully removed!"
+msgstr "OctoEverywhere for Klipper 成功 removed!"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:147
+#, python-brace-format
+msgid ""
+"Error during OctoEverywhere for Klipper removal:\n"
+"{}"
+msgstr ""
+"Error during OctoEverywhere for Klipper 移除:\n"
+"{}"
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:158
+msgid "Error reading OctoEverywhere dependencies!"
+msgstr "reading OctoEverywhere 依赖项! 时出错："
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:168
+msgid "No OctoEverywhere instances found. Skipped ..."
+msgstr "No OctoEverywhere 实例 找到. Skipped ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:178
+msgid "Removing OctoEverywhere for Klipper directory ..."
+msgstr "正在移除 OctoEverywhere for Klipper 目录 ..."
+
+#: extensions/octoeverywhere/octoeverywhere_extension.py:187
+msgid "Removing OctoEverywhere for Klipper environment ..."
+msgstr "正在移除 OctoEverywhere for Klipper 环境 ..."
+
+#: extensions/octoprint/octoprint.py:64
+#, python-brace-format
+msgid "Creating OctoPrint instance '{}' ..."
+msgstr "正在创建 Octo打印任务 实例 '{}' ..."
+
+#: extensions/octoprint/octoprint.py:69
+msgid "Creating config.yaml ..."
+msgstr "正在创建 config.yaml ..."
+
+#: extensions/octoprint/octoprint.py:71
+msgid "config.yaml created!"
+msgstr "config.yaml 已创建!"
+
+#: extensions/octoprint/octoprint.py:73
+msgid "config.yaml already exists. Skipped ..."
+msgstr "config.yaml 已经 存在s. Skipped ..."
+
+#: extensions/octoprint/octoprint_extension.py:40
+msgid "Installing OctoPrint ..."
+msgstr "正在安装 Octo打印任务 ..."
+
+#: extensions/octoprint/octoprint_extension.py:47
+msgid "Klipper not found! Please install Klipper first."
+msgstr "Klipper not 找到! 请 install Klipper first."
+
+#: extensions/octoprint/octoprint_extension.py:62
+#: extensions/octoprint/octoprint_extension.py:108
+#, python-brace-format
+msgid "OctoPrint already exists for '{}'. Reinstall?"
+msgstr "Octo打印任务 已经 存在s for '{}'. Reinstall?"
+
+#: extensions/octoprint/octoprint_extension.py:66
+#: extensions/octoprint/octoprint_extension.py:99
+msgid "Aborted OctoPrint installation."
+msgstr "中止ed Octo打印任务 安装."
+
+#: extensions/octoprint/octoprint_extension.py:73
+msgid "The following Klipper instances were found:"
+msgstr "The 以下 Klipper 实例 were 找到:"
+
+#: extensions/octoprint/octoprint_extension.py:79
+msgid "a) Select all (install for all missing)"
+msgstr "a) 选择 all (install for all 缺失)"
+
+#: extensions/octoprint/octoprint_extension.py:96
+msgid "Choose instance to install OctoPrint for"
+msgstr "Choose 实例 to install Octo打印任务 for"
+
+#: extensions/octoprint/octoprint_extension.py:167
+#, python-brace-format
+msgid "Virtualenv created: {}"
+msgstr "Virtualenv 已创建: {}"
+
+#: extensions/octoprint/octoprint_extension.py:171
+#, python-brace-format
+msgid "Virtualenv exists: {}. Skipping creation ..."
+msgstr "Virtualenv 存在s: {}. Skipping creation ..."
+
+#: extensions/octoprint/octoprint_extension.py:185
+#, python-brace-format
+msgid "Failed to enable/start {}: {}"
+msgstr "Failed to enable/开始 {}: {}"
+
+#: extensions/octoprint/octoprint_extension.py:189
+msgid "Access your new OctoPrint instance(s) at:"
+msgstr "访问 your new Octo打印任务 实例(s) at:"
+
+#: extensions/octoprint/octoprint_extension.py:202
+msgid "Removing OctoPrint ..."
+msgstr "正在移除 Octo打印任务 ..."
+
+#: extensions/octoprint/octoprint_extension.py:207
+msgid "No OctoPrint instances found. Skipped ..."
+msgstr "No Octo打印任务 实例 找到. Skipped ..."
+
+#: extensions/octoprint/octoprint_extension.py:216
+msgid "The following OctoPrint instances were found:"
+msgstr "The 以下 Octo打印任务 实例 were 找到:"
+
+#: extensions/octoprint/octoprint_extension.py:235
+msgid "Choose instance to remove"
+msgstr "Choose 实例 to remove"
+
+#: extensions/octoprint/octoprint_extension.py:241
+msgid "Aborted OctoPrint removal."
+msgstr "中止ed Octo打印任务 移除."
+
+#: extensions/octoprint/octoprint_extension.py:255
+#, python-brace-format
+msgid "Failed to remove service {}: {}"
+msgstr "Failed to remove 服务 {}: {}"
+
+#: extensions/octoprint/octoprint_extension.py:271
+msgid "Selected OctoPrint instance(s) successfully removed!"
+msgstr "已选择 Octo打印任务 实例(s) 成功 removed!"
+
+#: extensions/octoprint/octoprint_extension.py:273
+msgid "All OctoPrint instances successfully removed!"
+msgstr "All Octo打印任务 实例 成功 removed!"
+
+#: extensions/octoprint/octoprint_extension.py:281
+#, python-brace-format
+msgid "Error during OctoPrint removal: {}"
+msgstr "during Octo打印任务 移除: {} 时出错："
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:35
+msgid "Installing PrettyGCode for Klipper ..."
+msgstr "正在安装 PrettyGCode for Klipper ..."
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:39
+msgid "Make sure you don't select a port which is already in use by another application. Your input will not be validated! Choosing a port which is already in use by another application may cause issues!"
+msgstr "Make sure you don't 选择 a 端口 其中 is 已经 in use by another application. Your 输入 will not be validated! Choosing a 端口 其中 is 已经 in use by another application may cause issues!"
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:40
+msgid "The default port is 7136."
+msgstr "The 默认值 端口 is 7136."
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:45
+msgid "On which port should PrettyGCode run"
+msgstr "On 其中 端口 should PrettyGCode 运行"
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:69
+#, python-brace-format
+msgid "Open PrettyGCode now on: http://{}:{}"
+msgstr "Open PrettyGCode now on: http://{}:{}"
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:70
+msgid "PrettyGCode installation complete!"
+msgstr "PrettyGCode 安装 完成!"
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:75
+#, python-brace-format
+msgid "Error during PrettyGCode for Klipper installation: {}"
+msgstr "during PrettyGCode for Klipper 安装: {} 时出错："
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:79
+msgid "Updating PrettyGCode for Klipper ..."
+msgstr "正在更新 PrettyGCode for Klipper ..."
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:84
+#, python-brace-format
+msgid "Error during PrettyGCode for Klipper update: {}"
+msgstr "during PrettyGCode for Klipper 更新: {} 时出错："
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:88
+msgid "Removing PrettyGCode for Klipper ..."
+msgstr "正在移除 PrettyGCode for Klipper ..."
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:99
+msgid "PrettyGCode for Klipper removed!"
+msgstr "已移除用于 Klipper 的 PrettyGCode！"
+
+#: extensions/pretty_gcode/pretty_gcode_extension.py:102
+#, python-brace-format
+msgid "Error during PrettyGCode for Klipper removal: {}"
+msgstr "during PrettyGCode for Klipper 移除: {} 时出错："
+
+#: extensions/simply_print/simply_print_extension.py:28
+msgid "Installing SimplyPrint ..."
+msgstr "正在安装 Simply打印任务 ..."
+
+#: extensions/simply_print/simply_print_extension.py:30
+msgid "SimplyPrint Installer"
+msgstr "Simply打印任务 安装er"
+
+#: extensions/simply_print/simply_print_extension.py:39
+msgid "Continue SimplyPrint installation?"
+msgstr "继续 Simply打印任务 安装?"
+
+#: extensions/simply_print/simply_print_extension.py:43
+msgid "Exiting SimplyPrint installation ..."
+msgstr "Exiting Simply打印任务 安装 ..."
+
+#: extensions/simply_print/simply_print_extension.py:50
+#: extensions/simply_print/simply_print_extension.py:75
+#, python-brace-format
+msgid ""
+"Error during SimplyPrint installation:\n"
+"{}"
+msgstr ""
+"Error during Simply打印任务 安装:\n"
+"{}"
+
+#: extensions/simply_print/simply_print_extension.py:53
+msgid "Removing SimplyPrint ..."
+msgstr "正在移除 Simply打印任务 ..."
+
+#: extensions/simply_print/simply_print_extension.py:55
+msgid "SimplyPrint Uninstaller"
+msgstr "Simply打印任务 Uninstaller"
+
+#: extensions/simply_print/simply_print_extension.py:64
+msgid "Do you really want to uninstall SimplyPrint?"
+msgstr "Do you really want to uninstall Simply打印任务?"
+
+#: extensions/simply_print/simply_print_extension.py:68
+msgid "Exiting SimplyPrint uninstallation ..."
+msgstr "Exiting Simply打印任务 un安装 ..."
+
+#: extensions/simply_print/simply_print_extension.py:84
+msgid "The setup will install SimplyPrint for all Moonraker instances. After installation, all Moonraker services will be restarted!"
+msgstr "The setup will install Simply打印任务 for all Moonraker 实例. 之后 安装, all Moonraker 服务s will be re开始ed!"
+
+#: extensions/simply_print/simply_print_extension.py:86
+msgid "The setup will uninstall SimplyPrint for all Moonraker instances. After uninstallation, all Moonraker services will be restarted!"
+msgstr "The setup will uninstall Simply打印任务 for all Moonraker 实例. 之后 un安装, all Moonraker 服务s will be re开始ed!"
+
+#: extensions/simply_print/simply_print_extension.py:99
+msgid "Adding"
+msgstr "正在添加"
+
+#: extensions/simply_print/simply_print_extension.py:99
+msgid "Removing"
+msgstr "Re除"
+
+#: extensions/simply_print/simply_print_extension.py:99
+msgid "from"
+msgstr "从"
+
+#: extensions/simply_print/simply_print_extension.py:99
+msgid "to"
+msgstr "到"
+
+#: extensions/simply_print/simply_print_extension.py:104
+#, python-brace-format
+msgid "{} section 'simplyprint' {} {} ..."
+msgstr "{} 节 'simply打印任务' {} {} ..."
+
+#: extensions/simply_print/simply_print_extension.py:115
+msgid "already"
+msgstr "已经"
+
+#: extensions/simply_print/simply_print_extension.py:115
+msgid "does not"
+msgstr "未"
+
+#: extensions/simply_print/simply_print_extension.py:117
+msgid "Section 'simplyprint' already exists! Skipping ..."
+msgstr "节 'simply打印任务' 已经 存在s! Skipping ..."
+
+#: extensions/simply_print/simply_print_extension.py:119
+msgid "Section 'simplyprint' does not exist! Skipping ..."
+msgstr "节 'simply打印任务' does not 存在! Skipping ..."
+
+#: extensions/simply_print/simply_print_extension.py:137
+msgid "SimplyPrint successfully installed!"
+msgstr "Simply打印任务 成功 已安装!"
+
+#: extensions/simply_print/simply_print_extension.py:139
+msgid "SimplyPrint successfully uninstalled!"
+msgstr "Simply打印任务 成功 un已安装!"
+
+#: extensions/simply_print/simply_print_extension.py:142
+msgid "SimplyPrint was already installed!"
+msgstr "Simply打印任务 was 已经 已安装!"
+
+#: extensions/simply_print/simply_print_extension.py:144
+msgid "SimplyPrint was already uninstalled!"
+msgstr "Simply打印任务 was 已经 un已安装!"
+
+#: extensions/spoolman/spoolman.py:94
+#, python-brace-format
+msgid "Error creating Docker Compose file: {}"
+msgstr "创建 Docker Compose 文件: {} 时出错："
+
+#: extensions/spoolman/spoolman.py:106
+#, python-brace-format
+msgid "Failed to start Spoolman container: {}"
+msgstr "Failed to 开始 Spoolman container: {}"
+
+#: extensions/spoolman/spoolman.py:122
+msgid "Failed to get Spoolman Docker image ID"
+msgstr "获取 Spoolman Docker 镜像 ID 失败"
+
+#: extensions/spoolman/spoolman.py:126
+msgid "Pulling latest Spoolman image..."
+msgstr "正在拉取最新的 Spoolman 镜像..."
+
+#: extensions/spoolman/spoolman.py:129
+msgid "Tearing down old Spoolman container..."
+msgstr "正在销毁旧的 Spoolman 容器..."
+
+#: extensions/spoolman/spoolman.py:131
+msgid "Spinning up new Spoolman container..."
+msgstr "正在启动新的 Spoolman 容器..."
+
+#: extensions/spoolman/spoolman.py:134
+msgid "Removing old Spoolman image..."
+msgstr "Re除 old Spoolman image..."
+
+#: extensions/spoolman/spoolman.py:139
+#, python-brace-format
+msgid "Failed to update Spoolman container: {}"
+msgstr "Failed to 更新 Spoolman container: {}"
+
+#: extensions/spoolman/spoolman.py:151
+#, python-brace-format
+msgid "Failed to tear down Spoolman container: {}"
+msgstr "Failed to tear down Spoolman container: {}"
+
+#: extensions/spoolman/spoolman.py:160
+#, python-brace-format
+msgid "Failed to pull Spoolman Docker image: {}"
+msgstr "Failed to pull Spoolman Docker image: {}"
+
+#: extensions/spoolman/spoolman.py:172
+msgid "Spoolman Docker image not found. Nothing to remove."
+msgstr "Spoolman Docker image not 找到. 任何内容 to remove."
+
+#: extensions/spoolman/spoolman.py:178
+#, python-brace-format
+msgid "Failed to remove Spoolman Docker image: {}"
+msgstr "Failed to remove Spoolman Docker image: {}"
+
+#: extensions/spoolman/spoolman_extension.py:46
+msgid "Installing Spoolman using Docker..."
+msgstr "安装ing Spoolman using Docker..."
+
+#: extensions/spoolman/spoolman_extension.py:59
+msgid "Spoolman successfully installed using Docker!"
+msgstr "Spoolman 成功 已安装 using Docker!"
+
+#: extensions/spoolman/spoolman_extension.py:60
+msgid "You can access Spoolman via the following URL:"
+msgstr "You can 访问 Spoolman via the 以下 URL:"
+
+#: extensions/spoolman/spoolman_extension.py:67
+msgid "Updating Spoolman Docker container..."
+msgstr "更新 Spoolman Docker container..."
+
+#: extensions/spoolman/spoolman_extension.py:70
+msgid "Spoolman installation not found or incomplete."
+msgstr "Spoolman 安装 not 找到 or in完成."
+
+#: extensions/spoolman/spoolman_extension.py:77
+msgid "Updating Spoolman container..."
+msgstr "更新 Spoolman container..."
+
+#: extensions/spoolman/spoolman_extension.py:83
+msgid "Spoolman Docker container successfully updated!"
+msgstr "Spoolman Docker container 成功 更新d!"
+
+#: extensions/spoolman/spoolman_extension.py:88
+msgid "Removing Spoolman Docker container..."
+msgstr "Re除 Spoolman Docker container..."
+
+#: extensions/spoolman/spoolman_extension.py:91
+msgid "Spoolman is not installed. Nothing to remove."
+msgstr "Spoolman is not 已安装. 任何内容 to remove."
+
+#: extensions/spoolman/spoolman_extension.py:102
+msgid "Removing Spoolman configuration from moonraker.conf..."
+msgstr "Re除 Spoolman 配置 from moonraker.conf..."
+
+#: extensions/spoolman/spoolman_extension.py:106
+msgid "Removing Spoolman from moonraker.asvc..."
+msgstr "Re除 Spoolman from moonraker.asvc..."
+
+#: extensions/spoolman/spoolman_extension.py:110
+msgid "Stopping and removing Spoolman container..."
+msgstr "Stopping and re除 Spoolman container..."
+
+#: extensions/spoolman/spoolman_extension.py:113
+msgid "Spoolman container removed!"
+msgstr "已移除 Spoolman 容器！"
+
+#: extensions/spoolman/spoolman_extension.py:116
+msgid "Failed to remove Spoolman container! Please remove it manually."
+msgstr "Failed to remove Spoolman container! 请 remove it 手动ly."
+
+#: extensions/spoolman/spoolman_extension.py:120
+msgid "Spoolman container and image removed!"
+msgstr "已移除 Spoolman 容器与镜像！"
+
+#: extensions/spoolman/spoolman_extension.py:123
+msgid "Failed to remove Spoolman image! Please remove it manually."
+msgstr "Failed to remove Spoolman image! 请 remove it 手动ly."
+
+#: extensions/spoolman/spoolman_extension.py:134
+#, python-brace-format
+msgid "Spoolman data backed up to {}"
+msgstr "Spoolman data backed up to {}"
+
+#: extensions/spoolman/spoolman_extension.py:135
+msgid "Removing Spoolman directory..."
+msgstr "Re除 Spoolman 目录..."
+
+#: extensions/spoolman/spoolman_extension.py:137
+msgid "Spoolman directory removed!"
+msgstr "Spoolman 目录 removed!"
+
+#: extensions/spoolman/spoolman_extension.py:140
+msgid "Failed to remove Spoolman directory! Please remove it manually."
+msgstr "Failed to remove Spoolman 目录! 请 remove it 手动ly."
+
+#: extensions/spoolman/spoolman_extension.py:143
+#, python-brace-format
+msgid "Failed to backup Spoolman directory: {}"
+msgstr "Failed to 备份 Spoolman 目录: {}"
+
+#: extensions/spoolman/spoolman_extension.py:144
+msgid "Skipping Spoolman directory removal..."
+msgstr "Skipping Spoolman 目录 移除..."
+
+#: extensions/spoolman/spoolman_extension.py:148
+msgid "Spoolman successfully removed!"
+msgstr "Spoolman 成功 removed!"
+
+#: extensions/spoolman/spoolman_extension.py:153
+msgid "Setting up Spoolman directories..."
+msgstr "设置 up Spoolman directories..."
+
+#: extensions/spoolman/spoolman_extension.py:155
+#: extensions/spoolman/spoolman_extension.py:157
+#, python-brace-format
+msgid "Directory {} created!"
+msgstr "目录 {} 已创建!"
+
+#: extensions/spoolman/spoolman_extension.py:160
+msgid "Setting permissions for Spoolman data directory..."
+msgstr "设置 permissions for Spoolman data 目录..."
+
+#: extensions/spoolman/spoolman_extension.py:162
+msgid "Permissions set!"
+msgstr "权限已设置！"
+
+#: extensions/spoolman/spoolman_extension.py:165
+msgid "Could not set permissions on data directory. This might cause issues."
+msgstr "Could not set permissions on data 目录. This might cause issues."
+
+#: extensions/spoolman/spoolman_extension.py:168
+msgid "Creating Docker Compose file..."
+msgstr "创建 Docker Compose 文件..."
+
+#: extensions/spoolman/spoolman_extension.py:170
+msgid "Docker Compose file created!"
+msgstr "Docker Compose 文件 已创建!"
+
+#: extensions/spoolman/spoolman_extension.py:172
+msgid "Failed to create Docker Compose file!"
+msgstr "Failed to 创建 Docker Compose 文件!"
+
+#: extensions/spoolman/spoolman_extension.py:176
+msgid "Spinning up Spoolman container..."
+msgstr "正在启动 Spoolman 容器..."
+
+#: extensions/spoolman/spoolman_extension.py:178
+msgid "Spoolman container started!"
+msgstr "Spoolman container 开始ed!"
+
+#: extensions/spoolman/spoolman_extension.py:180
+msgid "Failed to start Spoolman container!"
+msgstr "Failed to 开始 Spoolman container!"
+
+#: extensions/spoolman/spoolman_extension.py:183
+msgid "Spoolman integration added to Moonraker!"
+msgstr "已将 Spoolman 集成添加到 Moonraker！"
+
+#: extensions/spoolman/spoolman_extension.py:185
+msgid "Moonraker integration skipped."
+msgstr "已跳过 Moonraker 集成。"
+
+#: extensions/spoolman/spoolman_extension.py:190
+msgid "Docker is not installed or not available."
+msgstr "Docker is not 已安装 or not 可用."
+
+#: extensions/spoolman/spoolman_extension.py:192
+msgid "Please install Docker first: https://docs.docker.com/engine/install/"
+msgstr "请 install Docker first: https://docs.docker.com/engine/install/"
+
+#: extensions/spoolman/spoolman_extension.py:197
+msgid "Docker Compose is not installed or not available."
+msgstr "Docker Compose is not 已安装 or not 可用."
+
+#: extensions/spoolman/spoolman_extension.py:205
+msgid "You can configure Spoolman to run on a different port than the default. Make sure you don't select a port which is already in use by another application. Your input will not be validated! The default port is 7912."
+msgstr "You can configure Spoolman to 运行 on a different 端口 than the 默认值. Make sure you don't 选择 a 端口 其中 is 已经 in use by another application. Your 输入 will not be validated! The 默认值 端口 is 7912."
+
+#: extensions/spoolman/spoolman_extension.py:208
+msgid "Continue with default port 7912?"
+msgstr "继续 with 默认值 端口 7912?"
+
+#: extensions/spoolman/spoolman_extension.py:213
+msgid "Which port should Spoolman run on?"
+msgstr "其中 端口 should Spoolman 运行 on?"
+
+#: extensions/spoolman/spoolman_extension.py:231
+#, python-brace-format
+msgid "Port set to {}..."
+msgstr "端口 set to {}..."
+
+#: extensions/spoolman/spoolman_extension.py:241
+msgid "Spoolman is already installed!"
+msgstr "Spoolman is 已经 已安装!"
+
+#: extensions/spoolman/spoolman_extension.py:245
+msgid "Spoolman container is running but Docker Compose file is missing..."
+msgstr "Spoolman container is 运行中 but Docker Compose 文件 is 缺失..."
+
+#: extensions/spoolman/spoolman_extension.py:248
+msgid "Do you want to recreate the Docker Compose file?"
+msgstr "Do you want to re创建 the Docker Compose 文件?"
+
+#: extensions/spoolman/spoolman_extension.py:256
+msgid "Docker Compose file exists but container is not running..."
+msgstr "Docker Compose 文件 存在s but container is not 运行中..."
+
+#: extensions/spoolman/spoolman_extension.py:263
+msgid "Add Moonraker integration?"
+msgstr "是否添加 Moonraker 集成？"
+
+#: extensions/spoolman/spoolman_extension.py:266
+msgid "Adding Spoolman integration to Moonraker..."
+msgstr "正在向 Moonraker 添加 Spoolman 集成..."
+
+#: extensions/spoolman/spoolman_extension.py:287
+msgid "Adding Spoolman to moonraker.asvc..."
+msgstr "正在将 Spoolman 添加到 moonraker.asvc..."
+
+#: extensions/spoolman/spoolman_extension.py:304
+#, python-brace-format
+msgid "Spoolman already in {}. Skipping..."
+msgstr "Spoolman 已经 in {}. Skipping..."
+
+#: extensions/spoolman/spoolman_extension.py:314
+#, python-brace-format
+msgid "Spoolman added to {}!"
+msgstr "Spoolman added to {}!"
+
+#: extensions/spoolman/spoolman_extension.py:324
+#, python-brace-format
+msgid "Spoolman not in {}. Skipping..."
+msgstr "Spoolman not in {}. Skipping..."
+
+#: extensions/spoolman/spoolman_extension.py:335
+#, python-brace-format
+msgid "Spoolman removed from {}!"
+msgstr "Spoolman removed from {}!"
+
+#: extensions/telegram_bot/moonraker_telegram_bot.py:58
+msgid "Creating new Moonraker Telegram Bot Instance ..."
+msgstr "正在创建 new Moonraker Telegram Bot 实例 ..."
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:44
+msgid "Installing Moonraker Telegram Bot ..."
+msgstr "正在安装 Moonraker Telegram Bot ..."
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:52
+msgid "Moonraker Telegram Bot requires Moonraker to be installed. Please install Moonraker first!"
+msgstr "Moonraker Telegram Bot requires Moonraker to be 已安装. 请 install Moonraker first!"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:66
+msgid "The setup will apply the same names to Telegram Bot!"
+msgstr "The setup will 应用 the same 名称 to Telegram Bot!"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:70
+msgid "Continue Moonraker Telegram Bot installation?"
+msgstr "继续 Moonraker Telegram Bot 安装?"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:76
+msgid "Create example telegram.conf?"
+msgstr "创建 example telegram.conf?"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:92
+#, python-brace-format
+msgid "Creating Telegram Bot config in {} ..."
+msgstr "正在创建 Telegram Bot config in {} ..."
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:103
+#, python-brace-format
+msgid "Telegram Bot config in {} already exists! Skipped ..."
+msgstr "Telegram Bot config in {} 已经 存在s! Skipped ..."
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:121
+msgid "During the installation of the Moonraker Telegram Bot, a basic config was created per instance. You need to edit the config file to set up your Telegram Bot. Please refer to the following wiki page for further information:"
+msgstr "During the 安装 of the Moonraker Telegram Bot, a basic config was 已创建 per 实例. You need to edit the config 文件 to set up your Telegram Bot. 请 refer to the 以下 wiki page for further information:"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:127
+msgid "Telegram Bot installation complete!"
+msgstr "Telegram Bot 安装 完成!"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:130
+#, python-brace-format
+msgid ""
+"Error during installation of Moonraker Telegram Bot:\n"
+"{}"
+msgstr ""
+"Error during 安装 of Moonraker Telegram Bot:\n"
+"{}"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:134
+msgid "Updating Moonraker Telegram Bot ..."
+msgstr "正在更新 Moonraker Telegram Bot ..."
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:145
+msgid "Removing Moonraker Telegram Bot ..."
+msgstr "正在移除 Moonraker Telegram Bot ..."
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:158
+#, python-brace-format
+msgid ""
+"Error during removal of Moonraker Telegram Bot:\n"
+"{}"
+msgstr ""
+"Error during 移除 of Moonraker Telegram Bot:\n"
+"{}"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:160
+msgid "Moonraker Telegram Bot removed!"
+msgstr "已移除 Moonraker Telegram 机器人！"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:206
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:216
+#: utils/fs_utils.py:129
+#, python-brace-format
+msgid ""
+"Unable to delete '{}':\n"
+"{}"
+msgstr ""
+"无法删除 '{}'：\n"
+"{}"
+
+#: extensions/telegram_bot/moonraker_telegram_bot_extension.py:223
+msgid "No Moonraker Telegram Bot logs found. Skipped ..."
+msgstr "No Moonraker Telegram Bot 日志s 找到. Skipped ..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:43
+msgid "Installing Klipper TMC Autotune..."
+msgstr "安装ing Klipper TMC Autotune..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:46
+msgid "Python 3.x is required. Aborting install."
+msgstr "Python 3.x is 必需的. 中止ing install."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:76
+msgid "Add Klipper TMC Autotune to Moonraker update manager(s)?"
+msgstr "Add Klipper TMC Autotune to Moonraker 更新 manager(s)?"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:82
+msgid "Create an example autotune_tmc.cfg for each instance?"
+msgstr "创建 an example autotune_tmc.cfg for each 实例?"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:90
+msgid "installation of TMC Autotune"
+msgstr "安装 of TMC Autotune"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:97
+msgid "Creating symlinks in Klipper extras directory..."
+msgstr "创建 符号链接s in Klipper extras 目录..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:111
+msgid "Symlinks created successfully for all instances."
+msgstr "符号链接s 已创建 成功 for all 实例."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:118
+msgid "Skipping example config creation as per user request."
+msgstr "Skipping example config creation as per 用户 request."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:121
+msgid "Make sure to create and include an autotune_tmc.cfg in your printer.cfg in order to use the extension!"
+msgstr "Make sure to 创建 and include an autotune_tmc.cfg in your 打印机.cfg in 顺序 to use the extension!"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:136
+#, python-brace-format
+msgid ""
+"Error during Klipper TMC Autotune installation:\n"
+"{}"
+msgstr ""
+"Error during Klipper TMC Autotune 安装:\n"
+"{}"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:154
+msgid "Define [autotune_tmc] sections ONLY in 'autotune_tmc.cfg'. Do NOT add them to 'printer.cfg', contrary to official docs. While not fatal, mixing configs breaks file segmentation and is bad practice."
+msgstr "Define [autotune_tmc] 节s ONLY in 'autotune_tmc.cfg'. Do NOT add them to '打印机.cfg', contrary to official docs. While not fatal, mixing configs breaks 文件 segmentation and is bad practice."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:159
+msgid "Klipper TMC Autotune installed successfully!"
+msgstr "Klipper TMC Autotune 已安装 成功!"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:168
+msgid "Backup Klipper TMC Autotune directory before update?"
+msgstr "备份 Klipper TMC Autotune 目录 之前 更新?"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:176
+msgid "update of TMC Autotune"
+msgstr "更新 of TMC Autotune"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:180
+msgid "Updating Klipper TMC Autotune..."
+msgstr "更新 Klipper TMC Autotune..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:183
+msgid "Backing up Klipper TMC Autotune directory..."
+msgstr "Backing up Klipper TMC Autotune 目录..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:194
+#, python-brace-format
+msgid ""
+"Error during Klipper TMC Autotune update:\n"
+"{}"
+msgstr ""
+"Error during Klipper TMC Autotune 更新:\n"
+"{}"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:203
+msgid "Klipper TMC Autotune updated successfully."
+msgstr "Klipper TMC Autotune 更新d 成功."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:214
+msgid "removal of TMC Autotune"
+msgstr "移除 of TMC Autotune"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:219
+msgid "Removing Klipper TMC Autotune extension ..."
+msgstr "正在移除 Klipper TMC Autotune extension ..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:221
+msgid "Removing symlinks from Klipper extras directory ..."
+msgstr "正在移除 符号链接s from Klipper extras 目录 ..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:229
+msgid "Removing include from printer.cfg files ..."
+msgstr "正在移除 include from 打印机.cfg 文件s ..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:236
+msgid "Manual edits to 'printer.cfg' may be required if using exotic stepper configurations."
+msgstr "手动 edits to '打印机.cfg' may be 必需的 if using exotic 步骤per 配置s."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:239
+msgid "'autotune_tmc.cfg' is NOT removed automatically. Please delete it manually if no longer needed."
+msgstr "'autotune_tmc.cfg' is NOT removed automatically. 请 delete it 手动ly if no longer needed."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:254
+msgid "Klipper TMC Autotune removed successfully."
+msgstr "Klipper TMC Autotune removed 成功."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:260
+#, python-brace-format
+msgid "Create autotune_tmc.cfg in '{}' ..."
+msgstr "创建 autotune_tmc.cfg in '{}' ..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:275
+#, python-brace-format
+msgid "Include autotune_tmc.cfg in '{}' ..."
+msgstr "Include autotune_tmc.cfg in '{}' ..."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:292
+msgid "Moonraker not found! Klipper TMC Autotune update manager support for Moonraker will not be added to moonraker.conf."
+msgstr "Moonraker not 找到! Klipper TMC Autotune 更新 manager sup端口 for Moonraker will not be added to moonraker.conf."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:296
+msgid "Continue Klipper TMC Autotune installation?"
+msgstr "继续 Klipper TMC Autotune 安装?"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:321
+msgid "Klipper TMC Autotune successfully added to Moonraker update manager(s)!"
+msgstr "Klipper TMC Autotune 成功 added to Moonraker 更新 manager(s)!"
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:331
+msgid "Moonraker not found! Klipper TMC Autotune update manager support for Moonraker will not be removed from moonraker.conf."
+msgstr "Moonraker not 找到! Klipper TMC Autotune 更新 manager sup端口 for Moonraker will not be removed from moonraker.conf."
+
+#: extensions/tmc_autotune/tmc_autotune_extension.py:342
+msgid "Klipper TMC Autotune successfully removed from Moonraker update manager(s)!"
+msgstr "Klipper TMC Autotune 成功 removed from Moonraker 更新 manager(s)!"
+
+#: procedures/switch_repo.py:55
+msgid "Invalid name: {!r}. Must be 'klipper' or 'moonraker'."
+msgstr "Invalid 名称: {!r}. Must be 'klipper' or 'moonraker'."
+
+#: procedures/switch_repo.py:64
+#, python-brace-format
+msgid "Stopping all {} instances ..."
+msgstr "Stopping all {} 实例 ..."
+
+#: procedures/switch_repo.py:86
+#, python-brace-format
+msgid "Invalid repository URL ({}) or branch ({})!"
+msgstr "Invalid 仓库 URL ({}) or branch ({})!"
+
+#: procedures/switch_repo.py:99
+#, python-brace-format
+msgid "Recreating {} virtualenv ..."
+msgstr "Re创建 {} virtualenv ..."
+
+#: procedures/switch_repo.py:110
+#, python-brace-format
+msgid "Failed to recreate virtualenv for {}"
+msgstr "Failed to re创建 virtualenv for {}"
+
+#: procedures/switch_repo.py:114
+#, python-brace-format
+msgid "Switched to {} at branch {}!"
+msgstr "Switched to {} at branch {}!"
+
+#: procedures/switch_repo.py:119
+#, python-brace-format
+msgid "Error during repository switch: {}"
+msgstr "during 仓库 switch: {} 时出错："
+
+#: procedures/switch_repo.py:120
+#, python-brace-format
+msgid "Restoring last backup of {} ..."
+msgstr "正在恢复 last 备份 of {} ..."
+
+#: procedures/switch_repo.py:130
+#, python-brace-format
+msgid "Something went wrong: {}"
+msgstr "Something went wrong: {}"
+
+#: procedures/switch_repo.py:136
+#, python-brace-format
+msgid "Restarting all {} instances ..."
+msgstr "Re开始ing all {} 实例 ..."
+
+#: procedures/switch_repo.py:150
+#, python-brace-format
+msgid "Unable to restore backup of {}! Path of backups directory is None!"
+msgstr "Unable to 恢复 备份 of {}! Path of 备份s 目录 is None!"
+
+#: procedures/switch_repo.py:160
+#, python-brace-format
+msgid "Restored backup of {} successfully!"
+msgstr "恢复d 备份 of {} 成功!"
+
+#: procedures/switch_repo.py:162
+#, python-brace-format
+msgid "Error restoring backup: {}"
+msgstr "restoring 备份: {} 时出错："
+
+#: procedures/system.py:29
+msgid "Changing the hostname of this system allows you to access an installed webinterface by simply typing the hostname like this in the browser:"
+msgstr "Changing the 主机名 of this 系统 allows you to 访问 an 已安装 webinterface by simply typing the 主机名 like this in the browser:"
+
+#: procedures/system.py:34
+msgid "Example: If you set your hostname to 'my-printer', you can access an installed webinterface by typing 'http://my-printer.local' in the browser."
+msgstr "Example: If you set your 主机名 to 'my-打印机', you can 访问 an 已安装 webinterface by typing 'http://my-打印机.local' in the browser."
+
+#: procedures/system.py:38
+msgid "CHANGE SYSTEM HOSTNAME"
+msgstr "修改系统主机名"
+
+#: procedures/system.py:40
+msgid "Do you want to change the hostname?"
+msgstr "Do you want to change the 主机名?"
+
+#: procedures/system.py:46
+msgid "Allowed characters: a-z, 0-9 and '-'"
+msgstr "允许使用的字符：a-z、0-9 及 '-'"
+
+#: procedures/system.py:47
+msgid "The name must not contain the following:"
+msgstr "名称不能包含以下内容："
+
+#: procedures/system.py:49
+msgid "● Any special characters"
+msgstr "● 任何特殊字符"
+
+#: procedures/system.py:50
+msgid "● No leading or trailing '-'"
+msgstr "● 开头或结尾不能是 '-'"
+
+#: procedures/system.py:54
+msgid "Enter the new hostname"
+msgstr "输入 the new 主机名"
+
+#: procedures/system.py:57
+#, python-brace-format
+msgid "Change the hostname to '{}'?"
+msgstr "Change the 主机名 to '{}'?"
+
+#: procedures/system.py:58
+msgid "Aborting hostname change ..."
+msgstr "中止ing 主机名 change ..."
+
+#: procedures/system.py:62
+msgid "Changing hostname ..."
+msgstr "Changing 主机名 ..."
+
+#: procedures/system.py:64
+msgid "Checking for dependencies ..."
+msgstr "Checking for 依赖项 ..."
+
+#: procedures/system.py:68
+msgid "Creating backup of hosts file ..."
+msgstr "正在创建 备份 of 主机s 文件 ..."
+
+#: procedures/system.py:87
+#, python-brace-format
+msgid "Setting hostname to '{}' ..."
+msgstr "设置 主机名 to '{}' ..."
+
+#: procedures/system.py:93
+msgid "Writing new hostname to /etc/hosts ..."
+msgstr "Writing new 主机名 to /etc/主机s ..."
+
+#: procedures/system.py:99
+msgid "New hostname successfully configured!"
+msgstr "New 主机名 成功 configured!"
+
+#: procedures/system.py:100
+msgid ""
+"Remember to reboot for the changes to take effect!\n"
+msgstr ""
+"Remember to re引导(引导加载程序) for the changes to take effect!\n"
+
+#: procedures/system.py:103
+#, python-brace-format
+msgid "Error during change hostname procedure: {}"
+msgstr "during change 主机名 procedure: {} 时出错："
+
+#: utils/common.py:89
+msgid "Installing dependencies ..."
+msgstr "正在安装 依赖项 ..."
+
+#: utils/common.py:90
+msgid "The following packages need installation:"
+msgstr "The 以下 包 need 安装:"
+
+#: utils/common.py:166
+#, python-brace-format
+msgid "{} requires Moonraker to be installed"
+msgstr "{} requires Moonraker to be 已安装"
+
+#: utils/common.py:168
+msgid "A Moonraker installation is required"
+msgstr "A Moonraker 安装 is 必需的"
+
+#: utils/common.py:176
+#, python-brace-format
+msgid "{}. Please install Moonraker first!"
+msgstr "{}. 请 install Moonraker first!"
+
+#: utils/config_utils.py:37
+#, python-brace-format
+msgid "Add section '[{}]' to '{}' ..."
+msgstr "正在将节 '[{}]' 添加到 '{}' ..."
+
+#: utils/config_utils.py:40 utils/config_utils.py:94
+#, python-brace-format
+msgid "'{}' not found!"
+msgstr "未找到 '{}'！"
+
+#: utils/config_utils.py:46
+msgid "Section already exist. Skipped ..."
+msgstr "节已存在，跳过 ..."
+
+#: utils/config_utils.py:91
+#, python-brace-format
+msgid "Remove section '[{}]' from '{}' ..."
+msgstr "正在从 '{}' 中移除节 '[{}]' ..."
+
+#: utils/config_utils.py:100
+msgid "Section does not exist. Skipped ..."
+msgstr "节不存在，跳过 ..."
+
+#: utils/fs_utils.py:85
+#, python-brace-format
+msgid "Failed to create symlink: {}"
+msgstr "Failed to 创建 符号链接: {}"
+
+#: utils/fs_utils.py:101 utils/fs_utils.py:116
+#, python-brace-format
+msgid "File '{}' does not exist. Skipped ..."
+msgstr "文件 '{}' 不存在，已跳过 ..."
+
+#: utils/fs_utils.py:105 utils/fs_utils.py:126 utils/fs_utils.py:133
+#, python-brace-format
+msgid "File '{}' was successfully removed!"
+msgstr "文件 '{}' 已成功移除！"
+
+#: utils/fs_utils.py:108
+#, python-brace-format
+msgid "Error removing file '{}': {}"
+msgstr "移除文件 '{}' 时出错：{}"
+
+#: utils/fs_utils.py:124
+#, python-brace-format
+msgid "File '{}' is neither a file nor a directory!"
+msgstr "'{}' 既不是文件也不是目录！"
+
+#: utils/fs_utils.py:131
+msgid "Trying to remove with sudo ..."
+msgstr "正在尝试使用 sudo 权限移除 ..."
+
+#: utils/fs_utils.py:136
+#, python-brace-format
+msgid ""
+"Error deleting '{}' with sudo:\n"
+"{}"
+msgstr ""
+"使用 sudo 删除 '{}' 时出错：\n"
+"{}"
+
+#: utils/fs_utils.py:137
+msgid "Remove this directory manually!"
+msgstr "请手动移除此目录！"
+
+#: utils/fs_utils.py:161
+#, python-brace-format
+msgid "Created directory '{}'!"
+msgstr "已创建目录 '{}'！"
+
+#: utils/fs_utils.py:163
+#, python-brace-format
+msgid "Error creating directories: {}"
+msgstr "创建 directories: {} 时出错："
+
+#: utils/git_utils.py:37
+#, python-brace-format
+msgid "Cloning repository from '{}'"
+msgstr "正在克隆仓库：'{}'"
+
+#: utils/git_utils.py:40
+#, python-brace-format
+msgid "'{}' already exists. Overwrite?"
+msgstr "“{}” 已存在，是否覆盖？"
+
+#: utils/git_utils.py:42
+msgid "Skip cloning of repository ..."
+msgstr "跳过克隆仓库 ..."
+
+#: utils/git_utils.py:52
+msgid "An unexpected error occured during cloning of the repository."
+msgstr "克隆仓库时发生意外错误。"
+
+#: utils/git_utils.py:56 utils/git_utils.py:57
+#, python-brace-format
+msgid "Error removing existing repository: {}"
+msgstr "re除 存在ing 仓库: {} 时出错："
+
+#: utils/git_utils.py:67
+msgid "Updating repository ..."
+msgstr "正在更新 仓库 ..."
+
+#: utils/git_utils.py:71
+msgid "An unexpected error occured during updating the repository."
+msgstr "An 意外 error occured during 更新 the 仓库."
+
+#: utils/git_utils.py:214
+#, python-brace-format
+msgid "Error retrieving tags: HTTP status code {}"
+msgstr "retrieving tags: HTTP status code {} 时出错："
+
+#: utils/git_utils.py:221
+#, python-brace-format
+msgid "Error while processing the response: {}"
+msgstr "过程ing the response: {} 时出错："
+
+#: utils/git_utils.py:255
+msgid "Error while getting the latest unstable tag"
+msgstr "getting the latest unstable tag 时出错："
+
+#: utils/git_utils.py:333
+msgid "Clone successful!"
+msgstr "Clone 成功!"
+
+#: utils/git_utils.py:335
+msgid "Unknown error"
+msgstr "Unknown error"
+
+#: utils/git_utils.py:336
+#, python-brace-format
+msgid "Error cloning repository {}: {}"
+msgstr "cloning 仓库 {}: {} 时出错："
+
+#: utils/git_utils.py:346 utils/git_utils.py:364 utils/git_utils.py:380
+#, python-brace-format
+msgid "'{}' is not a valid git repository."
+msgstr "'{}' is not a valid git 仓库."
+
+#: utils/git_utils.py:354
+msgid "Checkout successful!"
+msgstr "Checkout 成功!"
+
+#: utils/git_utils.py:357
+#, python-brace-format
+msgid "Error checking out branch {}: {}"
+msgstr "checking out branch {}: {} 时出错："
+
+#: utils/git_utils.py:373
+#, python-brace-format
+msgid "Error on git pull: {}"
+msgstr "Error on git pull: {}"
+
+#: utils/git_utils.py:384
+msgid "How many commits do you want to roll back"
+msgstr "希望回退多少个提交"
+
+#: utils/git_utils.py:389
+msgid "Do not continue if you have ongoing prints!"
+msgstr "Do not 继续 if you have 正在进行的 打印任务!"
+
+#: utils/git_utils.py:391
+#, python-brace-format
+msgid "All currently running {} services will be stopped!"
+msgstr "所有当前正在运行的 {} 服务都将被停止！"
+
+#: utils/git_utils.py:394
+#, python-brace-format
+msgid "Roll back {} commit{}"
+msgstr "Roll back {} commit{}"
+
+#: utils/git_utils.py:398
+msgid "Aborting roll back ..."
+msgstr "中止ing roll back ..."
+
+#: utils/git_utils.py:406
+#, python-brace-format
+msgid "Rolled back {} commits!"
+msgstr "Rolled back {} commits!"
+
+#: utils/git_utils.py:408
+#, python-brace-format
+msgid ""
+"An error occured during repo rollback:\n"
+"{}"
+msgstr ""
+"An error occured during repo rollback:\n"
+"{}"
+
+#: utils/input_utils.py:34
+msgid "(Y/n)"
+msgstr "(是/否，默认是)"
+
+#: utils/input_utils.py:37
+msgid "(y/N)"
+msgstr "(是/否，默认否)"
+
+#: utils/input_utils.py:114
+msgid "Input must not be empty!"
+msgstr "输入不能为空！"
+
+#: utils/input_utils.py:118
+msgid "This value is already in use/reserved."
+msgstr "该值已被占用或保留。"
+
+#: utils/input_utils.py:147
+msgid "Invalid option! Please select a valid option."
+msgstr "选项无效！请选择一个有效选项。"
+
+#: utils/input_utils.py:159
+#, python-brace-format
+msgid "{} (default={})"
+msgstr "{} (默认值={})"
+
+#: utils/input_utils.py:161
+#, python-brace-format
+msgid "###### {}: "
+msgstr "###### {}: "
+
+#: utils/instance_utils.py:32
+msgid "instance_type must be a class"
+msgstr "instance_type 必须是类"
+
+#: utils/instance_utils.py:82
+msgid "No instances found, skipping instance stopping."
+msgstr "No 实例 找到, skipping 实例 stopping."
+
+#: utils/instance_utils.py:88
+msgid "Do NOT continue if there are ongoing prints running"
+msgstr "Do NOT 继续 if there are 正在进行的 打印任务 运行中"
+
+#: utils/instance_utils.py:89
+#, python-brace-format
+msgid "All Klipper instances will be restarted during the {} and ongoing prints WILL FAIL."
+msgstr "All Klipper 实例 will be re开始ed during the {} and 正在进行的 打印任务 WILL FAIL."
+
+#: utils/instance_utils.py:94
+#, python-brace-format
+msgid "Stop Klipper now and proceed with {}?"
+msgstr "Stop Klipper now and proceed with {}?"
+
+#: utils/instance_utils.py:103
+#, python-brace-format
+msgid "{} aborted due to user request."
+msgstr "{} 已中止 due to 用户 request."
+
+#: utils/sys_utils.py:90
+msgid "A critical error has occured. KIAUH was terminated."
+msgstr "发生严重错误。KIAUH 已终止。"
+
+#: utils/sys_utils.py:96
+msgid "Versioncheck failed!"
+msgstr "版本检查失败！"
+
+#: utils/sys_utils.py:97
+#, python-brace-format
+msgid "Python {}.{} or newer required."
+msgstr "Python {}.{} or newer 必需的."
+
+#: utils/sys_utils.py:123
+msgid "Set up Python virtual environment ..."
+msgstr "正在设置 Python 虚拟环境 ..."
+
+#: utils/sys_utils.py:135
+msgid "Setup of virtualenv successful!"
+msgstr "虚拟环境设置成功！"
+
+#: utils/sys_utils.py:138
+#, python-brace-format
+msgid ""
+"Error setting up virtualenv:\n"
+"{}"
+msgstr ""
+"设置虚拟环境时出错：\n"
+"{}"
+
+#: utils/sys_utils.py:142
+msgid "Virtualenv still exists after deletion."
+msgstr "删除后虚拟环境仍然存在。"
+
+#: utils/sys_utils.py:147
+msgid "Virtualenv already exists; skipping re-creation ..."
+msgstr "Virtualenv 已经 存在s; skipping re-creation ..."
+
+#: utils/sys_utils.py:151
+msgid "Virtualenv already exists. Re-create?"
+msgstr "虚拟环境已存在，是否重新创建？"
+
+#: utils/sys_utils.py:153
+msgid "Skipping re-creation of virtualenv ..."
+msgstr "跳过重新创建虚拟环境 ..."
+
+#: utils/sys_utils.py:160
+#, python-brace-format
+msgid "Error removing existing virtualenv: {}"
+msgstr "移除现有虚拟环境时出错：{}"
+
+#: utils/sys_utils.py:166
+msgid "Updating pip ..."
+msgstr "正在更新 pip ..."
+
+#: utils/sys_utils.py:172
+msgid "Error updating pip! Not found."
+msgstr "更新 pip 失败！未找到 pip。"
+
+#: utils/sys_utils.py:178 utils/sys_utils.py:179
+msgid "Updating pip failed!"
+msgstr "更新 pip 失败！"
+
+#: utils/sys_utils.py:181
+msgid "Updating pip successful!"
+msgstr "pip 更新成功！"
+
+#: utils/sys_utils.py:186
+#, python-brace-format
+msgid ""
+"Error updating pip:\n"
+"{}"
+msgstr ""
+"更新 pip 时出错：\n"
+"{}"
+
+#: utils/sys_utils.py:192 utils/sys_utils.py:215
+msgid "Installing Python requirements ..."
+msgstr "正在安装 Python 依赖 ..."
+
+#: utils/sys_utils.py:203 utils/sys_utils.py:226
+msgid "Installing Python requirements failed!"
+msgstr "安装 Python 依赖失败！"
+
+#: utils/sys_utils.py:205 utils/sys_utils.py:228
+msgid "Installing Python requirements successful!"
+msgstr "Python 依赖安装成功！"
+
+#: utils/sys_utils.py:208 utils/sys_utils.py:231
+#, python-brace-format
+msgid "Error installing Python requirements: {}"
+msgstr "安装 Python 依赖时出错：{}"
+
+#: utils/sys_utils.py:253
+msgid "Updating package list..."
+msgstr "正在更新软件包列表..."
+
+#: utils/sys_utils.py:263 utils/sys_utils.py:264
+msgid "Updating system package list failed!"
+msgstr "更新系统软件包列表失败！"
+
+#: utils/sys_utils.py:266
+msgid "System package list update successful!"
+msgstr "系统软件包列表更新成功！"
+
+#: utils/sys_utils.py:268
+#, python-brace-format
+msgid ""
+"Error updating system package list:\n"
+"{}"
+msgstr ""
+"更新系统软件包列表时出错：\n"
+"{}"
+
+#: utils/sys_utils.py:286
+#, python-brace-format
+msgid "Error reading upgradable packages: {}"
+msgstr "读取可升级软件包时出错：{}"
+
+#: utils/sys_utils.py:312
+msgid "Packages successfully installed."
+msgstr "软件包安装成功。"
+
+#: utils/sys_utils.py:314
+#, python-brace-format
+msgid ""
+"Error installing packages:\n"
+"{}"
+msgstr ""
+"安装软件包时出错：\n"
+"{}"
+
+#: utils/sys_utils.py:325
+msgid "Packages successfully upgraded."
+msgstr "软件包升级成功。"
+
+#: utils/sys_utils.py:327
+#, python-brace-format
+msgid ""
+"Error upgrading packages:\n"
+"{}"
+msgstr ""
+"升级软件包时出错：\n"
+"{}"
+
+#: utils/sys_utils.py:351
+#, python-brace-format
+msgid "Download failed! HTTP error occured: {}"
+msgstr "下载失败！发生 HTTP 错误：{}"
+
+#: utils/sys_utils.py:354
+#, python-brace-format
+msgid "Download failed! URL error occured: {}"
+msgstr "下载失败！发生 URL 错误：{}"
+
+#: utils/sys_utils.py:357
+#, python-brace-format
+msgid "Download failed! An error occured: {}"
+msgstr "下载失败！发生错误：{}"
+
+#: utils/sys_utils.py:368
+#, python-brace-format
+msgid "Downloading: [{}{}]{:.2f}% ({:.2f}/{:.2f}MB)"
+msgstr "下载中：[{}{}]{:.2f}% ({:.2f}/{:.2f}MB)"
+
+#: utils/sys_utils.py:381
+msgid "Granting NGINX the required permissions ..."
+msgstr "正在授予 NGINX 所需权限 ..."
+
+#: utils/sys_utils.py:383
+msgid "Permissions granted."
+msgstr "权限已授予。"
+
+#: utils/sys_utils.py:388
+#, python-brace-format
+msgid "{} {} ..."
+msgstr "{} {} ..."
+
+#: utils/sys_utils.py:392
+#, python-brace-format
+msgid "Failed to {} {}: {}"
+msgstr "{} {} 失败：{}"
+
+#: utils/sys_utils.py:401
+#, python-brace-format
+msgid "Failed to run {}: {}"
+msgstr "运行 {} 失败：{}"
+
+#: utils/sys_utils.py:444
+#, python-brace-format
+msgid "Service file created: {}"
+msgstr "服务文件已创建：{}"
+
+#: utils/sys_utils.py:446
+#, python-brace-format
+msgid "Error creating service file: {}"
+msgstr "创建服务文件时出错：{}"
+
+#: utils/sys_utils.py:454
+#, python-brace-format
+msgid "Env file created: {}"
+msgstr "环境文件已创建：{}"
+
+#: utils/sys_utils.py:463
+#, python-brace-format
+msgid "service_name '{}' must end with '.service'"
+msgstr "service_name '{}' 必须以 '.service' 结尾"
+
+#: utils/sys_utils.py:467
+#, python-brace-format
+msgid "Service '{}' does not exist! Skipped ..."
+msgstr "服务 '{}' 不存在！跳过 ..."
+
+#: utils/sys_utils.py:478
+#, python-brace-format
+msgid "Error removing {}: {}"
+msgstr "移除 {} 时出错：{}"
+
+#: utils/sys_utils.py:501
+msgid "Error reading distro info!"
+msgstr "读取发行版信息失败！"
+
+#: utils/sys_utils.py:519
+msgid "Error reading distro id!"
+msgstr "读取发行版 ID 失败！"
+
+#: utils/sys_utils.py:521
+msgid "Error reading distro version!"
+msgstr "读取发行版版本失败！"
+
+#: utils/sys_utils.py:550
+msgid "Could not determine system timezone, using UTC"
+msgstr "无法确定系统时区，使用 UTC"
+

@@ -16,6 +16,7 @@ import textwrap
 from pathlib import Path
 from typing import Dict, List, Type
 
+from core.i18n import _tr
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -29,7 +30,7 @@ from extensions.base_extension import BaseExtension
 class ExtensionsMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.title = "Extensions Menu"
+        self.title = _tr("Extensions Menu")
         self.title_color = Color.CYAN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.extensions: Dict[str, BaseExtension] = self.discover_extensions()
@@ -55,20 +56,16 @@ class ExtensionsMenu(BaseMenu):
 
             try:
                 with open(metadata_json, "r") as m:
-                    # read extension metadata from json
                     metadata = json.load(m).get("metadata")
                     index = str(metadata.get("index"))
 
-                    # Prevent collisions where one extension silently overrides another.
                     if index in ext_dict:
                         existing_name = ext_dict[index].metadata.get("display_name")
                         duplicate_name = metadata.get("display_name")
                         Logger.print_warn(
-                            "Failed loading extension"
-                            f" {ext}: duplicate index '{index}'"
-                            f" already used by '{existing_name}'."
-                            f" Skipping '{duplicate_name}'."
-                            f" Please report this at {GITHUB_ISSUES_URL}."
+                            _tr("Failed loading extension {}: duplicate index '{}' already used by '{}'. Skipping '{}'. Please report this at {}.").format(
+                                ext, index, existing_name, duplicate_name, GITHUB_ISSUES_URL
+                            )
                         )
                         continue
 
@@ -76,7 +73,6 @@ class ExtensionsMenu(BaseMenu):
                     module_name = metadata.get("module")
                     module_path = f"kiauh.extensions.{ext.name}.{module_name}"
 
-                    # get the class name of the extension
                     module = importlib.import_module(module_path)
 
                     def predicate(o):
@@ -88,7 +84,6 @@ class ExtensionsMenu(BaseMenu):
 
                     ext_class: type = inspect.getmembers(module, predicate)[0][1]
 
-                    # instantiate the extension with its metadata and add to dict
                     ext_instance: BaseExtension = ext_class(metadata)
                     ext_dict[index] = ext_instance
 
@@ -101,8 +96,9 @@ class ExtensionsMenu(BaseMenu):
                 AttributeError,
             ) as e:
                 Logger.print_warn(
-                    f"Failed loading extension {ext}: {e}. "
-                    f"Please report this at {GITHUB_ISSUES_URL}."
+                    _tr("Failed loading extension {}: {}. Please report this at {}.").format(
+                        ext, e, GITHUB_ISSUES_URL
+                    )
                 )
 
         return dict(sorted(ext_dict.items(), key=lambda x: int(x[0])))
@@ -111,7 +107,7 @@ class ExtensionsMenu(BaseMenu):
         ExtensionSubmenu(kwargs.get("opt_data"), self.__class__).run()
 
     def print_menu(self) -> None:
-        line1 = Color.apply("Available Extensions:", Color.YELLOW)
+        line1 = Color.apply(_tr("Available Extensions:"), Color.YELLOW)
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
@@ -171,11 +167,10 @@ class ExtensionSubmenu(BaseMenu):
         )[1:]
         menu += f"{description_text}\n"
 
-        # add links if available
         website: str = (self.extension.metadata.get("website") or "").strip()
         repo: str = (self.extension.metadata.get("repo") or "").strip()
         if website or repo:
-            links_lines: List[str] = ["Links:"]
+            links_lines: List[str] = [_tr("Links:")]
             if website:
                 links_lines.append(f"● {website}")
             if repo:
@@ -196,17 +191,17 @@ class ExtensionSubmenu(BaseMenu):
             menu += f"{links_text}\n"
 
         menu += textwrap.dedent(
-            """
+            f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ 1) Install                                            ║
+            ║ 1) {_tr("Install"):<51} ║
             """
         )[1:]
 
         if self.extension.metadata.get("updates"):
-            menu += "║ 2) Update                                             ║\n"
-            menu += "║ 3) Remove                                             ║\n"
+            menu += f"║ 2) {_tr('Update'):<51} ║\n"
+            menu += f"║ 3) {_tr('Remove'):<51} ║\n"
         else:
-            menu += "║ 2) Remove                                             ║\n"
+            menu += f"║ 2) {_tr('Remove'):<51} ║\n"
         menu += "╟───────────────────────────────────────────────────────╢\n"
 
         print(menu, end="")

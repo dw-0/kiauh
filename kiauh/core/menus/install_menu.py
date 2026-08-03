@@ -25,6 +25,7 @@ from components.webui_client.services.web_client_config_setup_service import (
 from components.webui_client.services.web_client_setup_service import (
     WebClientSetupService,
 )
+from core.i18n import _tr
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.types.color import Color
@@ -35,7 +36,7 @@ from core.types.color import Color
 class InstallMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.title = "Installation Menu"
+        self.title = _tr("Installation Menu")
         self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.klsvc = KlipperSetupService()
@@ -60,17 +61,17 @@ class InstallMenu(BaseMenu):
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
-            """
+            f"""
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Firmware & API:           │ Touchscreen GUI:          ║
+            ║ {_tr("Firmware & API:"):<25} │ {_tr("Touchscreen GUI:"):<25} ║
             ║  1) [Klipper]             │  7) [KlipperScreen]       ║
             ║  2) [Moonraker]           │                           ║
-            ║                           │ Webcam Streamer:          ║
-            ║ Webinterface:             │  8) [Crowsnest]           ║
+            ║                           │ {_tr("Webcam Streamer:"):<25} ║
+            ║ {_tr("Webinterface:"):<25} │  8) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
             ║  4) [Fluidd]              │                           ║
             ║                           │                           ║
-            ║ Client-Config:            │                           ║
+            ║ {_tr("Client-Config:"):<25} │                           ║
             ║  5) [Mainsail-Config]     │                           ║
             ║  6) [Fluidd-Config]       │                           ║
             ╟───────────────────────────┴───────────────────────────╢

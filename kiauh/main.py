@@ -11,6 +11,7 @@ import io
 import sys
 
 from core.cli import run_cli
+from core.i18n import _tr, setup_i18n
 from core.logger import Logger
 from core.menus.main_menu import MainMenu
 from core.settings.kiauh_settings import KiauhSettings
@@ -27,13 +28,14 @@ def main() -> None:
     rc = run_cli()
     if rc == -1:
         try:
-            KiauhSettings()
+            settings = KiauhSettings()
+            setup_i18n(settings.kiauh.language)
             ensure_encoding()
             MainMenu().run()
         except KeyboardInterrupt:
             # in case any spinner is still running, stop it before exiting
             Spinner.stop_all()
-            Logger.print_ok("\nHappy printing!\n", prefix=False)
+            Logger.print_ok(_tr("###### Happy printing!"), False)
     elif rc > 0:
         sys.exit(rc)
 

@@ -35,6 +35,7 @@ from components.webui_client.services.web_client_config_setup_service import (
 from components.webui_client.services.web_client_setup_service import (
     WebClientSetupService,
 )
+from core.i18n import _ntr, _tr
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -53,10 +54,10 @@ from utils.sys_utils import (
 class UpdateMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.loading_msg = "Loading update menu, please wait"
+        self.loading_msg = _tr("Loading update menu, please wait")
         self.is_loading(True)
 
-        self.title = "Update Menu"
+        self.title = _tr("Update Menu")
         self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
@@ -148,32 +149,37 @@ class UpdateMenu(BaseMenu):
         }
 
     def print_menu(self) -> None:
-        sysupgrades: str = "No upgrades available."
+        sysupgrades: str = _tr("No upgrades available.")
         padding = 29
         if self.package_count > 0:
             sysupgrades = Color.apply(
-                f"{self.package_count} upgrades available!", Color.GREEN
+                _ntr(
+                    "{count} upgrade available!",
+                    "{count} upgrades available!",
+                    self.package_count,
+                ).format(count=self.package_count),
+                Color.GREEN,
             )
             padding = 38
 
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────┬───────────────┬───────────────╢
-            ║  a) Update all        │               │               ║
-            ║                       │ Current:      │ Latest:       ║
-            ║ Klipper & API:        ├───────────────┼───────────────╢
+            ║  a) {_tr("Update all"):<14} │               │               ║
+            ║                       │ {_tr("Current:"):<13} │ {_tr("Latest:"):<13} ║
+            ║ {_tr("Klipper & API:"):<23} ├───────────────┼───────────────╢
             ║  1) Klipper           │ {self.klipper_local:<22} │ {self.klipper_remote:<22} ║
             ║  2) Moonraker         │ {self.moonraker_local:<22} │ {self.moonraker_remote:<22} ║
             ║                       │               │               ║
-            ║ Webinterface:         ├───────────────┼───────────────╢
+            ║ {_tr("Webinterface:"):<23} ├───────────────┼───────────────╢
             ║  3) Mainsail          │ {self.mainsail_local:<22} │ {self.mainsail_remote:<22} ║
             ║  4) Fluidd            │ {self.fluidd_local:<22} │ {self.fluidd_remote:<22} ║
             ║                       │               │               ║
-            ║ Client-Config:        ├───────────────┼───────────────╢
+            ║ {_tr("Client-Config:"):<23} ├───────────────┼───────────────╢
             ║  5) Mainsail-Config   │ {self.mainsail_config_local:<22} │ {self.mainsail_config_remote:<22} ║
             ║  6) Fluidd-Config     │ {self.fluidd_config_local:<22} │ {self.fluidd_config_remote:<22} ║
             ║                       │               │               ║
-            ║ Other:                ├───────────────┼───────────────╢
+            ║ {_tr("Other:"):<23} ├───────────────┼───────────────╢
             ║  7) KlipperScreen     │ {self.klipperscreen_local:<22} │ {self.klipperscreen_remote:<22} ║
             ║  8) Crowsnest         │ {self.crowsnest_local:<22} │ {self.crowsnest_remote:<22} ║
             ║                       ├───────────────┴───────────────╢
@@ -184,7 +190,7 @@ class UpdateMenu(BaseMenu):
         print(menu, end="")
 
     def update_all(self, **kwargs) -> None:
-        Logger.print_status("Updating all components ...")
+        Logger.print_status(_tr("Updating all components ..."))
         self.update_klipper()
         self.update_moonraker()
         self.update_mainsail()
@@ -253,16 +259,15 @@ class UpdateMenu(BaseMenu):
         self._fetch_system_package_update_status()
 
     def _fetch_system_package_update_status(self) -> None:
-        # Treat apt update failures as non-fatal here so the menu remains usable
-        # even when package metadata is unavailable. Dependency installation still
-        # fails fast elsewhere.
         try:
             with self.pause_loading():
                 update_system_package_lists(silent=True)
         except RuntimeError as exc:
             Logger.print_warn(
-                "Could not update the system package lists; "
-                f"system package status may be incomplete. ({exc})"
+                _tr(
+                    "Could not update the system package lists; "
+                    "system package status may be incomplete. ({error})"
+                ).format(error=exc)
             )
         self.packages = get_upgradable_packages()
         self.package_count = len(self.packages)
@@ -316,10 +321,14 @@ class UpdateMenu(BaseMenu):
         is_update_available = self._is_update_available(name)
 
         if not is_installed:
-            Logger.print_info(f"{display_name} is not installed! Skipped ...")
+            Logger.print_info(
+                _tr("{name} is not installed! Skipped ...").format(name=display_name)
+            )
             return
         elif not is_update_available:
-            Logger.print_info(f"{display_name} is already up to date! Skipped ...")
+            Logger.print_info(
+                _tr("{name} is already up to date! Skipped ...").format(name=display_name)
+            )
             return
 
         update_fn(*args)
@@ -327,7 +336,6 @@ class UpdateMenu(BaseMenu):
         self._refresh_component_status(name)
 
     def _refresh_component_status(self, name: str) -> None:
-        """Refresh the status data for a component after an update."""
         if name == "klipper":
             self._set_status_data("klipper", get_klipper_status)
         elif name == "moonraker":
@@ -353,7 +361,7 @@ class UpdateMenu(BaseMenu):
 
     def _run_system_updates(self) -> None:
         if not self.packages:
-            Logger.print_info("No system upgrades available!")
+            Logger.print_info(_tr("No system upgrades available!"))
             return
 
         try:
@@ -361,18 +369,20 @@ class UpdateMenu(BaseMenu):
 
             Logger.print_dialog(
                 DialogType.CUSTOM,
-                ["The following packages will be upgraded:", "\n\n", pkgs],
-                custom_title="UPGRADABLE SYSTEM UPDATES",
+                [_tr("The following packages will be upgraded:"), "\n\n", pkgs],
+                custom_title=_tr("UPGRADABLE SYSTEM UPDATES"),
             )
 
-            if not get_confirm("Upgrade packages?"):
+            if not get_confirm(_tr("Upgrade packages?")):
                 return
 
-            Logger.print_status("Upgrading system packages ...")
+            Logger.print_status(_tr("Upgrading system packages ..."))
 
             with self.pause_loading():
                 upgrade_system_packages(self.packages)
             self._fetch_system_package_update_status()
         except Exception as e:
-            Logger.print_error(f"Error upgrading system packages:\n{e}")
+            Logger.print_error(
+                _tr("Error upgrading system packages:\n{error}").format(error=e)
+            )
             raise

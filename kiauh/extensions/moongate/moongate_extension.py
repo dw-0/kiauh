@@ -20,6 +20,7 @@ from typing import Dict, List
 
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
@@ -54,39 +55,37 @@ class MoongateExtension(BaseExtension):
     """
 
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing Moongate for Klipper ...")
+        Logger.print_status(_tr("Installing Moongate for Klipper ..."))
 
         mr_instances: List[Moonraker] = get_instances(Moonraker)
         if not mr_instances:
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    "No Moonraker instances found!",
-                    "Moongate is a Moonraker component and needs Moonraker to be "
-                    "installed first. Please install Moonraker, then try again.",
+                    _tr("No Moonraker instances found!"),
+                    _tr("Moongate is a Moonraker component and needs Moonraker to be installed first. Please install Moonraker, then try again."),
                 ],
             )
             return
 
-        # Moongate is a single-printer integration. On a multi-instance host we
-        # target the first Moonraker instance and say so.
         moonraker = mr_instances[0]
         if len(mr_instances) > 1:
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    "Multiple Moonraker instances detected.",
-                    "Moongate currently supports a single-printer setup. The "
-                    f"instance '{moonraker.data_dir.name}' will be used.",
+                    _tr("Multiple Moonraker instances detected."),
+                    _tr("Moongate currently supports a single-printer setup. The instance '{}' will be used.").format(
+                        moonraker.data_dir.name
+                    ),
                 ],
             )
 
         if not self._confirm_install():
-            Logger.print_info("Installation aborted.")
+            Logger.print_info(_tr("Installation aborted."))
             return
 
         port = get_number_input(
-            "HTTP port your Mainsail/Fluidd UI is served on",
+            _tr("HTTP port your Mainsail/Fluidd UI is served on"),
             min_value=1,
             max_value=65535,
             default=MOONGATE_DEFAULT_PORT,
@@ -94,11 +93,8 @@ class MoongateExtension(BaseExtension):
         if port is None:
             return
 
-        # LAN-only mode skips the Cloudflare tunnel + auth proxy and keeps
-        # Moonraker reachable on the LAN - for users who reach their printer
-        # over their own VPN (WireGuard/Tailscale) and want no cloud at all.
         lan_only = get_confirm(
-            "Install in LAN-only mode (no cloud tunnel, LAN/VPN access only)?",
+            _tr("Install in LAN-only mode (no cloud tunnel, LAN/VPN access only)?"),
             default_choice=False,
             allow_go_back=True,
         )
@@ -110,12 +106,6 @@ class MoongateExtension(BaseExtension):
 
             BackupService().backup_moonraker_conf()
 
-            # Hand off to Moongate's own installer. It is idempotent and
-            # env-driven: it installs cloudflared, adds the two systemd
-            # services, patches moonraker.conf and restarts Moonraker +
-            # Klipper itself. MOONGATE_LAN_ONLY is passed either way: an
-            # explicit value also suppresses the installer's own terminal
-            # prompt, so KIAUH users only ever see KIAUH-styled questions.
             self._run_script(
                 MOONGATE_INSTALL_SCRIPT,
                 moonraker,
@@ -125,39 +115,36 @@ class MoongateExtension(BaseExtension):
                 },
             )
         except (GitException, CalledProcessError, OSError) as e:
-            Logger.print_error(f"Error during Moongate installation:\n{e}")
+            Logger.print_error(_tr("Error during Moongate installation:\n{}").format(e))
             return
 
         Logger.print_dialog(
             DialogType.SUCCESS,
             [
-                "Moongate installed successfully!",
+                _tr("Moongate installed successfully!"),
                 "\n\n",
-                "Next steps:",
-                "● Install the Moongate app on your Android device.",
+                _tr("Next steps:"),
+                _tr("● Install the Moongate app on your Android device."),
                 (
-                    "● In the app: Add printer > Direct (LAN/VPN), then run "
-                    "MOONGATE_PAIR in the Klipper console and scan the QR (or "
-                    "type the printer's address)."
+                    _tr("● In the app: Add printer > Direct (LAN/VPN), then run MOONGATE_PAIR in the Klipper console and scan the QR (or type the printer's address).")
                     if lan_only
-                    else "● Run MOONGATE_PAIR in the Klipper console (or open "
-                    "the pair page printed above) and scan the QR code."
+                    else _tr("● Run MOONGATE_PAIR in the Klipper console (or open the pair page printed above) and scan the QR code.")
                 ),
-                "● Updates from now on: Mainsail/Fluidd > Software Updates > Moongate.",
+                _tr("● Updates from now on: Mainsail/Fluidd > Software Updates > Moongate."),
             ],
             margin_bottom=1,
         )
 
     def update_extension(self, **kwargs) -> None:
-        Logger.print_status("Updating Moongate for Klipper ...")
+        Logger.print_status(_tr("Updating Moongate for Klipper ..."))
 
         if not check_file_exist(MOONGATE_DIR.joinpath(".git")):
-            Logger.print_info("Moongate does not seem to be installed. Skipping ...")
+            Logger.print_info(_tr("Moongate does not seem to be installed. Skipping ..."))
             return
 
         mr_instances: List[Moonraker] = get_instances(Moonraker)
         if not mr_instances:
-            Logger.print_warn("No Moonraker instance found. Skipping ...")
+            Logger.print_warn(_tr("No Moonraker instance found. Skipping ..."))
             return
 
         try:
@@ -165,29 +152,24 @@ class MoongateExtension(BaseExtension):
             self._run_script(MOONGATE_UPDATE_SCRIPT, mr_instances[0])
             InstanceManager.restart_all(mr_instances)
         except (GitException, CalledProcessError, OSError) as e:
-            Logger.print_error(f"Error during Moongate update:\n{e}")
+            Logger.print_error(_tr("Error during Moongate update:\n{}").format(e))
             return
 
-        Logger.print_ok("Moongate updated successfully.", end="\n\n")
+        Logger.print_ok(_tr("Moongate updated successfully."), end="\n\n")
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing Moongate for Klipper ...")
+        Logger.print_status(_tr("Removing Moongate for Klipper ..."))
 
         mr_instances: List[Moonraker] = get_instances(Moonraker)
 
         if not get_confirm(
-            "This removes Moongate, cloudflared, both systemd services and all "
-            "Moongate config. Continue?",
+            _tr("This removes Moongate, cloudflared, both systemd services and all Moongate config. Continue?"),
             default_choice=True,
             allow_go_back=True,
         ):
-            Logger.print_info("Removal aborted.")
+            Logger.print_info(_tr("Removal aborted."))
             return
 
-        # Preferred path: delegate to Moongate's own uninstaller, which stops
-        # and removes the services, cleans moonraker.conf, restores its backup
-        # and restarts Moonraker. MOONGATE_YES=1 makes it non-interactive
-        # (KIAUH already collected the confirmation above).
         if check_file_exist(MOONGATE_UNINSTALL_SCRIPT):
             try:
                 BackupService().backup_moonraker_conf()
@@ -197,25 +179,20 @@ class MoongateExtension(BaseExtension):
                     target,
                     extra_env={"MOONGATE_YES": "1"},
                 )
-                Logger.print_ok("Moongate removed successfully.")
+                Logger.print_ok(_tr("Moongate removed successfully."))
                 return
             except (CalledProcessError, OSError) as e:
-                Logger.print_error(f"Error during Moongate removal:\n{e}")
-                # fall through to a best-effort native cleanup
+                Logger.print_error(_tr("Error during Moongate removal:\n{}").format(e))
 
-        # Fallback: the upstream uninstaller is gone (repo already deleted).
-        # Do a best-effort native cleanup so moonraker.conf is left consistent.
         Logger.print_warn(
-            "Moongate uninstaller not found — doing a best-effort cleanup. You "
-            "may need to remove cloudflared and the moongate-* systemd services "
-            "manually."
+            _tr("Moongate uninstaller not found — doing a best-effort cleanup. You may need to remove cloudflared and the moongate-* systemd services manually.")
         )
         if mr_instances:
             BackupService().backup_moonraker_conf()
             remove_config_section(MOONGATE_UPDATER_NAME, mr_instances)
             remove_config_section(MOONGATE_CONFIG_SECTION, mr_instances)
             InstanceManager.restart_all(mr_instances)
-        Logger.print_ok("Moongate configuration removed.")
+        Logger.print_ok(_tr("Moongate configuration removed."))
 
     # ------------------------------------------------------------------ #
     #  helpers                                                            #
@@ -224,33 +201,26 @@ class MoongateExtension(BaseExtension):
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Moongate pairs this printer with the Moongate Android app for "
-                "secure remote access and print monitoring.",
+                _tr("Moongate pairs this printer with the Moongate Android app for secure remote access and print monitoring."),
                 "\n\n",
-                "This is a heavier install than most extensions. It will:",
-                "● clone the Moongate repo to ~/moongate",
-                "● add the Moongate component to Moonraker and register it with "
-                "the update manager",
-                "● install cloudflared and open a Cloudflare quick-tunnel",
-                "● add two systemd services: moongate-authproxy + moongate-tunnel",
-                "● bind Moonraker to 127.0.0.1 (the auth proxy fronts the tunnel)",
-                "● add a tightly-scoped Avahi sudoers entry for LAN discovery",
+                _tr("This is a heavier install than most extensions. It will:"),
+                _tr("● clone the Moongate repo to ~/moongate"),
+                _tr("● add the Moongate component to Moonraker and register it with the update manager"),
+                _tr("● install cloudflared and open a Cloudflare quick-tunnel"),
+                _tr("● add two systemd services: moongate-authproxy + moongate-tunnel"),
+                _tr("● bind Moonraker to 127.0.0.1 (the auth proxy fronts the tunnel)"),
+                _tr("● add a tightly-scoped Avahi sudoers entry for LAN discovery"),
                 "\n\n",
-                "Prefer no cloud at all? A LAN-only option is offered after "
-                "this dialog - it skips the tunnel, the auth proxy and the "
-                "Moonraker rebind, and the printer stays reachable over your "
-                "LAN or your own VPN only.",
+                _tr("Prefer no cloud at all? A LAN-only option is offered after this dialog - it skips the tunnel, the auth proxy and the Moonraker rebind, and the printer stays reachable over your LAN or your own VPN only."),
                 "\n\n",
-                "Remote access relies on cloud infrastructure operated by the "
-                "Moongate author. Moongate is licensed under PolyForm "
-                "Noncommercial 1.0.0 (non-commercial use only).",
+                _tr("Remote access relies on cloud infrastructure operated by the Moongate author. Moongate is licensed under PolyForm Noncommercial 1.0.0 (non-commercial use only)."),
                 MOONGATE_REPO_URL,
             ],
             margin_bottom=1,
         )
         return bool(
             get_confirm(
-                "Continue Moongate installation?",
+                _tr("Continue Moongate installation?"),
                 default_choice=True,
                 allow_go_back=True,
             )

@@ -20,6 +20,12 @@
 
 <hr>
 
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README_zh.md">简体中文</a> ·
+  <a href="README_zh_Hant.md">繁體中文</a>
+</p>
+
 <h2 align="center">
   📄️ Instructions 📄
 </h2>
@@ -103,8 +109,17 @@ cd ~ && git clone https://github.com/dw-0/kiauh.git
   You should now find yourself in the main menu of KIAUH. You will see several
   actions to choose from depending
   on what you want to do. To choose an action, simply type the corresponding
-  number into the "Perform action"
+  number into the prompt
   prompt and confirm by hitting ENTER.
+
+### 🌐 Language / Localization
+
+KIAUH includes a built-in language selector:
+
+- Press `L` in the Main Menu to open the language list (English / 简体中文 / 繁體中文).
+- Or open `S) [Settings]` → option `6) Language`.
+
+KIAUH uses Python stdlib `gettext` with safe English fallback (missing translations show English and never crash).
 
 <hr>
 

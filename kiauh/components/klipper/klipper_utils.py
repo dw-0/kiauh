@@ -27,6 +27,7 @@ from components.klipper.klipper_dialogs import (
 )
 from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_utils import create_client_config_symlink
+from core.i18n import _tr
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
@@ -54,7 +55,7 @@ def get_klipper_status() -> ComponentStatus:
 def add_to_existing() -> bool | None:
     kl_instances: List[Klipper] = get_instances(Klipper)
     print_instance_overview(kl_instances)
-    _input: bool | None = get_confirm("Add new instances?", allow_go_back=True)
+    _input: bool | None = get_confirm(_tr("Add new instances?"), allow_go_back=True)
     return _input
 
 
@@ -67,11 +68,9 @@ def get_install_count() -> int | None:
     """
     kl_instances = get_instances(Klipper)
     print_select_instance_count_dialog()
-    question = (
-        f"Number of"
-        f"{' additional' if len(kl_instances) > 0 else ''} "
-        f"Klipper instances to set up"
-    )
+    question = _tr("Number of {} Klipper instances to set up").format(
+        _tr(" additional") if len(kl_instances) > 0 else ""
+    ).replace("  ", " ")
     _input: int | None = get_number_input(question, 1, default=1, allow_go_back=True)
     return _input
 
@@ -82,7 +81,7 @@ def assign_custom_name(key: int, name_dict: Dict[int, str]) -> None:
     existing_names.extend(name_dict[n] for n in name_dict)
     pattern = r"^[a-zA-Z0-9]+$"
 
-    question = f"Enter name for instance {key}"
+    question = _tr("Enter name for instance {}").format(key)
     name_dict[key] = get_string_input(question, exclude=existing_names, regex=pattern)
 
 
@@ -105,41 +104,44 @@ def check_user_groups(interactive: bool = True) -> None:
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Your current user is not in group:",
-                *[f"● {g}" for g in missing_groups],
+                _tr("Your current user is not in group:"),
+                *[_tr("● {}").format(g) for g in missing_groups],
                 "\n\n",
-                "It is possible that you won't be able to successfully connect and/or "
-                "flash the controller board without your user being a member of that "
-                "group. If you want to add the current user to the group(s) listed above, "
-                "answer with 'Y'. Else skip with 'n'.",
+                _tr("It is possible that you won't be able to successfully connect and/or flash the controller board without your user being a member of that group. If you want to add the current user to the group(s) listed above, answer with 'Y'. Else skip with 'n'."),
                 "\n\n",
-                "INFO:",
-                "Relog required for group assignments to take effect!",
+                _tr("INFO:"),
+                _tr("Relog required for group assignments to take effect!"),
             ],
         )
 
-        if not get_confirm(f"Add user '{current_user}' to group(s) now?"):
-            log = "Skipped adding user to required groups. You might encounter issues."
+        if not get_confirm(_tr("Add user '{}' to group(s) now?").format(current_user)):
+            log = _tr("Skipped adding user to required groups. You might encounter issues.")
             Logger.print_warn(log)
             return
     else:
         Logger.print_info(
-            f"Adding user '{current_user}' to required groups: "
-            f"{', '.join(missing_groups)}"
+            _tr("Adding user '{}' to required groups: {}").format(
+                current_user,
+                ", ".join(missing_groups),
+            )
         )
 
     try:
         for group in missing_groups:
-            Logger.print_status(f"Adding user '{current_user}' to group {group} ...")
+            Logger.print_status(
+                _tr("Adding user '{}' to group {} ...").format(current_user, group)
+            )
             command = ["sudo", "usermod", "-a", "-G", group, current_user]
             run(command, check=True)
-            Logger.print_ok(f"Group {group} assigned to user '{current_user}'.")
+            Logger.print_ok(
+                _tr("Group {} assigned to user '{}'.").format(group, current_user)
+            )
     except CalledProcessError as e:
-        Logger.print_error(f"Unable to add user to usergroups: {e}")
+        Logger.print_error(_tr("Unable to add user to usergroups: {}").format(e))
         raise
 
     if interactive:
-        log = "Remember to relog/restart this machine for the group(s) to be applied!"
+        log = _tr("Remember to relog/restart this machine for the group(s) to be applied!")
         Logger.print_warn(log)
 
 
@@ -169,9 +171,9 @@ def handle_disruptive_system_packages() -> None:
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    f"KIAUH was unable to mask the {service} system service. "
-                    "Please fix the problem manually. Otherwise, this may have "
-                    "undesirable effects on the operation of Klipper."
+                    _tr("KIAUH was unable to mask the {} system service. Please fix the problem manually. Otherwise, this may have undesirable effects on the operation of Klipper.").format(
+                        service
+                    )
                 ],
             )
 
@@ -179,9 +181,11 @@ def handle_disruptive_system_packages() -> None:
 def create_example_printer_cfg(
     instance: Klipper, clients: List[BaseWebClient] | None = None
 ) -> None:
-    Logger.print_status(f"Creating example printer.cfg in '{instance.base.cfg_dir}'")
+    Logger.print_status(
+        _tr("Creating example printer.cfg in '{}'").format(instance.base.cfg_dir)
+    )
     if instance.cfg_file.is_file():
-        Logger.print_info(f"'{instance.cfg_file}' already exists.")
+        Logger.print_info(_tr("'{}' already exists.").format(instance.cfg_file))
         return
 
     source = MODULE_PATH.joinpath("assets/printer.cfg")
@@ -189,7 +193,7 @@ def create_example_printer_cfg(
     try:
         shutil.copy(source, target)
     except OSError as e:
-        Logger.print_error(f"Unable to create example printer.cfg:\n{e}")
+        Logger.print_error(_tr("Unable to create example printer.cfg:\n{}").format(e))
         return
 
     scp = SimpleConfigParser()
@@ -206,7 +210,9 @@ def create_example_printer_cfg(
 
     scp.write_file(target)
 
-    Logger.print_ok(f"Example printer.cfg created in '{instance.base.cfg_dir}'")
+    Logger.print_ok(
+        _tr("Example printer.cfg created in '{}'").format(instance.base.cfg_dir)
+    )
 
 
 def backup_klipper_dir() -> None:
@@ -239,26 +245,24 @@ def install_klipper_packages() -> None:
 
 def install_input_shaper_deps() -> None:
     if not KLIPPER_ENV_DIR.exists():
-        Logger.print_warn("Required Klipper python environment not found!")
+        Logger.print_warn(_tr("Required Klipper python environment not found!"))
         return
 
     Logger.print_dialog(
         DialogType.CUSTOM,
         [
-            "Resonance measurements and shaper auto-calibration require additional "
-            "software dependencies which are not installed by default. "
-            "If you agree, the following additional system packages will be installed:",
+            _tr("Resonance measurements and shaper auto-calibration require additional software dependencies which are not installed by default. If you agree, the following additional system packages will be installed:"),
             "● python3-numpy",
             "● python3-matplotlib",
             "● libopenblas-dev",
             "\n\n",
-            "Also, the following Python package will be installed:",
+            _tr("Also, the following Python package will be installed:"),
             "● numpy",
         ],
-        custom_title="Install Input Shaper Dependencies",
+        custom_title=_tr("Install Input Shaper Dependencies"),
     )
     if not get_confirm(
-        "Do you want to install the required packages?", default_choice=False
+        _tr("Do you want to install the required packages?"), default_choice=False
     ):
         return
 

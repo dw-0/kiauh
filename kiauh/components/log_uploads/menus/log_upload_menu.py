@@ -13,6 +13,7 @@ import textwrap
 from typing import Type
 
 from components.log_uploads.log_upload_utils import get_logfile_list, upload_logfile
+from core.i18n import _tr
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -23,7 +24,7 @@ from core.types.color import Color
 class LogUploadMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.title = "Log Upload"
+        self.title = _tr("Log Upload")
         self.title_color = Color.YELLOW
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.logfile_list = get_logfile_list()
@@ -41,9 +42,9 @@ class LogUploadMenu(BaseMenu):
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
-            """
+            f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ You can select the following logfiles for uploading:  ║
+            ║ {_tr("You can select the following logfiles for uploading:")}  ║
             ║                                                       ║
             """
         )[1:]
@@ -65,4 +66,4 @@ class LogUploadMenu(BaseMenu):
             upload_logfile(self.logfile_list[index])
         except Exception as e:
             Logger.print_error(e)
-            Logger.print_error("Log upload failed!")
+            Logger.print_error(_tr("Log upload failed!"))

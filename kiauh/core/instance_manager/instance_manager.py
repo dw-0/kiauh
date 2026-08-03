@@ -13,6 +13,7 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import List
 
+from core.i18n import _tr
 from core.logger import Logger
 from utils.instance_type import InstanceType
 from utils.sys_utils import cmd_sysctl_service
@@ -25,7 +26,7 @@ class InstanceManager:
         try:
             cmd_sysctl_service(service_name, "enable")
         except CalledProcessError as e:
-            Logger.print_error(f"Error enabling service {service_name}:")
+            Logger.print_error(_tr("Error enabling service {}:").format(service_name))
             Logger.print_error(f"{e}")
 
     @staticmethod
@@ -34,7 +35,7 @@ class InstanceManager:
         try:
             cmd_sysctl_service(service_name, "disable")
         except CalledProcessError as e:
-            Logger.print_error(f"Error disabling {service_name}: {e}")
+            Logger.print_error(_tr("Error disabling {}: {}").format(service_name, e))
             raise
 
     @staticmethod
@@ -43,7 +44,7 @@ class InstanceManager:
         try:
             cmd_sysctl_service(service_name, "start")
         except CalledProcessError as e:
-            Logger.print_error(f"Error starting {service_name}: {e}")
+            Logger.print_error(_tr("Error starting {}: {}").format(service_name, e))
             raise
 
     @staticmethod
@@ -52,7 +53,7 @@ class InstanceManager:
         try:
             cmd_sysctl_service(name, "stop")
         except CalledProcessError as e:
-            Logger.print_error(f"Error stopping {name}: {e}")
+            Logger.print_error(_tr("Error stopping {}: {}").format(name, e))
             raise
 
     @staticmethod
@@ -61,7 +62,7 @@ class InstanceManager:
         try:
             cmd_sysctl_service(name, "restart")
         except CalledProcessError as e:
-            Logger.print_error(f"Error restarting {name}: {e}")
+            Logger.print_error(_tr("Error restarting {}: {}").format(name, e))
             raise
 
     @staticmethod
@@ -101,9 +102,9 @@ class InstanceManager:
             files = instance.base.log_dir.iterdir()
             logs = [f for f in files if f.name.startswith(instance.log_file_name)]
             for log in logs:
-                Logger.print_status(f"Remove '{log}'")
+                Logger.print_status(_tr("Remove '{}'").format(log))
                 run_remove_routines(log)
 
         except Exception as e:
-            Logger.print_error(f"Error removing service: {e}")
+            Logger.print_error(_tr("Error removing service: {}").format(e))
             raise

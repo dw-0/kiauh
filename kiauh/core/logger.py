@@ -13,6 +13,7 @@ import textwrap
 from enum import Enum
 from typing import List
 
+from core.i18n import _tr
 from core.types.color import Color
 
 
@@ -38,22 +39,23 @@ BORDER_RIGHT: str = "┃"
 class Logger:
     @staticmethod
     def print_info(msg, prefix=True, start="", end="\n") -> None:
-        message = f"[INFO] {msg}" if prefix else msg
+        message = _tr("[INFO] {}").format(msg) if prefix else msg
         Logger.__print(Color.WHITE, start, message, end)
 
     @staticmethod
-    def print_ok(msg: str = "Success!", prefix=True, start="", end="\n") -> None:
-        message = f"[OK] {msg}" if prefix else msg
+    def print_ok(msg: str = "", prefix=True, start="", end="\n") -> None:
+        msg = msg or _tr("Success!")
+        message = _tr("[OK] {}").format(msg) if prefix else msg
         Logger.__print(Color.GREEN, start, message, end)
 
     @staticmethod
     def print_warn(msg, prefix=True, start="", end="\n") -> None:
-        message = f"[WARN] {msg}" if prefix else msg
+        message = _tr("[WARN] {}").format(msg) if prefix else msg
         Logger.__print(Color.YELLOW, start, message, end)
 
     @staticmethod
     def print_error(msg, prefix=True, start="", end="\n") -> None:
-        message = f"[ERROR] {msg}" if prefix else msg
+        message = _tr("[ERROR] {}").format(msg) if prefix else msg
         Logger.__print(Color.RED, start, message, end)
 
     @staticmethod
@@ -122,7 +124,7 @@ class Logger:
     ) -> str | None:
         if title == DialogType.CUSTOM and custom_title:
             return f"[ {custom_title} ]"
-        return f"[ {title.value[0]} ]" if title.value[0] else None
+        return _tr("[ {} ]").format(_tr(title.value[0])) if title.value[0] else None
 
     @staticmethod
     def _get_dialog_color(

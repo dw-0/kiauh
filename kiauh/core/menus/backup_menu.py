@@ -24,6 +24,7 @@ from components.webui_client.client_utils import (
 )
 from components.webui_client.fluidd_data import FluiddData
 from components.webui_client.mainsail_data import MainsailData
+from core.i18n import _tr
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
 from core.services.backup_service import BackupService
@@ -35,7 +36,7 @@ from core.types.color import Color
 class BackupMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None) -> None:
         super().__init__()
-        self.title = "Backup Menu"
+        self.title = _tr("Backup Menu")
         self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
 
@@ -59,20 +60,20 @@ class BackupMenu(BaseMenu):
 
     def print_menu(self) -> None:
         line1 = Color.apply(
-            "INFO: Backups are located in '~/kiauh_backups'", Color.YELLOW
+            _tr("INFO: Backups are located in '~/kiauh_backups'"), Color.YELLOW
         )
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
             ║ {line1:^62} ║
             ╟───────────────────────────┬───────────────────────────╢
-            ║ Klipper & Moonraker API:  │ Client-Config:            ║
+            ║ {_tr("Klipper & Moonraker API:"):<25} │ {_tr("Client-Config:"):<25} ║
             ║  1) [Klipper]             │  7) [Mainsail-Config]     ║
             ║  2) [Moonraker]           │  8) [Fluidd-Config]       ║
             ║  3) [Config Folder]       │                           ║
-            ║  4) [Moonraker Database]  │ Touchscreen GUI:          ║
+            ║  4) [Moonraker Database]  │ {_tr("Touchscreen GUI:"):<25} ║
             ║                           │  9) [KlipperScreen]       ║
-            ║ Webinterface:             │                           ║
+            ║ {_tr("Webinterface:"):<25} │                           ║
             ║  5) [Mainsail]            │                           ║
             ║  6) [Fluidd]              │                           ║
             ╟───────────────────────────┴───────────────────────────╢

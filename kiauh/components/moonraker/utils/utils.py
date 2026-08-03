@@ -24,6 +24,7 @@ from components.moonraker import (
 from components.moonraker.moonraker import Moonraker
 from components.moonraker.utils.sysdeps_parser import SysDepsParser
 from components.webui_client.base_data import BaseWebClient
+from core.i18n import _tr
 from core.logger import Logger
 from core.services.backup_service import BackupService
 from core.simple_config_parser.simple_config_parser import (
@@ -43,33 +44,37 @@ def get_moonraker_status() -> ComponentStatus:
 
 
 def install_moonraker_packages() -> None:
-    Logger.print_status("Parsing Moonraker system dependencies  ...")
+    Logger.print_status(_tr("Parsing Moonraker system dependencies  ..."))
 
     moonraker_deps = []
     if MOONRAKER_DEPS_JSON_FILE.exists():
         Logger.print_info(
-            f"Parsing system dependencies from {MOONRAKER_DEPS_JSON_FILE.name} ..."
+            _tr("Parsing system dependencies from {} ...").format(
+                MOONRAKER_DEPS_JSON_FILE.name
+            )
         )
         parser = SysDepsParser()
         sysdeps = load_sysdeps_json(MOONRAKER_DEPS_JSON_FILE)
         moonraker_deps.extend(parser.parse_dependencies(sysdeps))
 
     elif MOONRAKER_INSTALL_SCRIPT.exists():
-        Logger.print_warn(f"{MOONRAKER_DEPS_JSON_FILE.name} not found!")
+        Logger.print_warn(_tr("{} not found!").format(MOONRAKER_DEPS_JSON_FILE.name))
         Logger.print_info(
-            f"Parsing system dependencies from {MOONRAKER_INSTALL_SCRIPT.name} ..."
+            _tr("Parsing system dependencies from {} ...").format(
+                MOONRAKER_INSTALL_SCRIPT.name
+            )
         )
         moonraker_deps = parse_packages_from_file(MOONRAKER_INSTALL_SCRIPT)
 
     if not moonraker_deps:
-        raise ValueError("Error parsing Moonraker dependencies!")
+        raise ValueError(_tr("Error parsing Moonraker dependencies!"))
 
     check_install_dependencies({*moonraker_deps})
 
 
 def remove_polkit_rules() -> bool:
     if not MOONRAKER_DIR.exists():
-        log = "Cannot remove policykit rules. Moonraker directory not found."
+        log = _tr("Cannot remove policykit rules. Moonraker directory not found.")
         Logger.print_warn(log)
         return False
 
@@ -78,7 +83,7 @@ def remove_polkit_rules() -> bool:
         run(cmd, stderr=PIPE, stdout=DEVNULL, check=True)
         return True
     except CalledProcessError as e:
-        Logger.print_error(f"Error while removing policykit rules: {e}")
+        Logger.print_error(_tr("Error while removing policykit rules: {}").format(e))
         return False
 
 
@@ -87,9 +92,11 @@ def create_example_moonraker_conf(
     ports_map: Dict[str, int],
     clients: Optional[List[BaseWebClient]] = None,
 ) -> None:
-    Logger.print_status(f"Creating example moonraker.conf in '{instance.base.cfg_dir}'")
+    Logger.print_status(
+        _tr("Creating example moonraker.conf in '{}'").format(instance.base.cfg_dir)
+    )
     if instance.cfg_file.is_file():
-        Logger.print_info(f"'{instance.cfg_file}' already exists.")
+        Logger.print_info(_tr("'{}' already exists.").format(instance.cfg_file))
         return
 
     source = MODULE_PATH.joinpath("assets/moonraker.conf")
@@ -97,7 +104,7 @@ def create_example_moonraker_conf(
     try:
         shutil.copy(source, target)
     except OSError as e:
-        Logger.print_error(f"Unable to create example moonraker.conf:\n{e}")
+        Logger.print_error(_tr("Unable to create example moonraker.conf:\n{}").format(e))
         return
 
     ports = [
@@ -163,7 +170,9 @@ def create_example_moonraker_conf(
                     scp.set_option(c_config_section, option[0], option[1])
 
     scp.write_file(target)
-    Logger.print_ok(f"Example moonraker.conf created in '{instance.base.cfg_dir}'")
+    Logger.print_ok(
+        _tr("Example moonraker.conf created in '{}'").format(instance.base.cfg_dir)
+    )
 
 
 def backup_moonraker_dir() -> None:
@@ -184,9 +193,9 @@ def backup_moonraker_db_dir() -> None:
 
     if not instances:
         # fallback: search for printer data directories in the user's home directory
-        Logger.print_info("No Moonraker instances found via systemd services.")
+        Logger.print_info(_tr("No Moonraker instances found via systemd services."))
         Logger.print_info(
-            "Attempting to find printer data directories in home directory..."
+            _tr("Attempting to find printer data directories in home directory...")
         )
 
         home_dir = Path.home()
@@ -198,8 +207,10 @@ def backup_moonraker_db_dir() -> None:
                     printer_data_dirs.append(data_dir)
 
         if not printer_data_dirs:
-            Logger.print_info("Unable to find directory to backup!")
-            Logger.print_info("No printer data directories found in home directory.")
+            Logger.print_info(_tr("Unable to find directory to backup!"))
+            Logger.print_info(
+                _tr("No printer data directories found in home directory.")
+            )
             return
 
         for data_dir in printer_data_dirs:
@@ -223,7 +234,7 @@ def load_sysdeps_json(file: Path) -> Dict[str, List[str]]:
     try:
         sysdeps: Dict[str, List[str]] = json.loads(file.read_bytes())
     except json.JSONDecodeError as e:
-        Logger.print_error(f"Unable to parse {file.name}:\n{e}")
+        Logger.print_error(_tr("Unable to parse {}:\n{}").format(file.name, e))
         return {}
     else:
         return sysdeps

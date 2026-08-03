@@ -16,3 +16,6 @@ __pycache__
 .coverage
 kiauh.cfg
 klipper_repos.txt
+*~
+kiauh/components/webui_client/client_config/
+kiauh/locale/en/

@@ -14,6 +14,7 @@ import subprocess
 from pathlib import Path
 
 from core.constants import SYSTEMD
+from core.i18n import _tr
 from core.logger import Logger
 from extensions.base_extension import BaseExtension
 from extensions.klipper_backup import (
@@ -31,7 +32,7 @@ from utils.sys_utils import cmd_sysctl_manage, remove_system_service, unit_file_
 class KlipperbackupExtension(BaseExtension):
     def remove_extension(self, **kwargs) -> None:
         if not check_file_exist(KLIPPERBACKUP_DIR):
-            Logger.print_info("Extension does not seem to be installed! Skipping ...")
+            Logger.print_info(_tr("Extension does not seem to be installed! Skipping ..."))
             return
 
         def uninstall_service(service_name: str, unit_type: str) -> bool:
@@ -41,17 +42,17 @@ class KlipperbackupExtension(BaseExtension):
                     remove_system_service(full_service_name)
                 elif unit_type == "timer":
                     full_service_path: Path = SYSTEMD.joinpath(full_service_name)
-                    Logger.print_status(f"Removing {full_service_name} ...")
+                    Logger.print_status(_tr("Removing {} ...").format(full_service_name))
                     remove_with_sudo(full_service_path)
-                    Logger.print_ok(f"{service_name}.{unit_type} successfully removed!")
+                    Logger.print_ok(_tr("{}.{} successfully removed!").format(service_name, unit_type))
                     cmd_sysctl_manage("daemon-reload")
                     cmd_sysctl_manage("reset-failed")
                 else:
                     Logger.print_error(
-                        f"Unknown unit type {unit_type} of {full_service_name}"
+                        _tr("Unknown unit type {} of {}").format(unit_type, full_service_name)
                     )
-            except:
-                Logger.print_error(f"Failed to remove {full_service_name}: {str(e)}")
+            except Exception as e:
+                Logger.print_error(_tr("Failed to remove {}: {}").format(full_service_name, str(e)))
 
         def check_crontab_entry(entry) -> bool:
             try:
@@ -78,7 +79,7 @@ class KlipperbackupExtension(BaseExtension):
                 original_content = original_file.read()
                 comparison_content = comparison_file.read()
             if comparison_content in original_content:
-                Logger.print_status("Removing Klipper-Backup moonraker entry ...")
+                Logger.print_status(_tr("Removing Klipper-Backup moonraker entry ..."))
                 modified_content = original_content.replace(
                     comparison_content, ""
                 ).strip()
@@ -87,12 +88,11 @@ class KlipperbackupExtension(BaseExtension):
                 )
                 with open(original_file_path, "w") as original_file:
                     original_file.write(modified_content)
-                Logger.print_ok("Klipper-Backup moonraker entry successfully removed!")
+                Logger.print_ok(_tr("Klipper-Backup moonraker entry successfully removed!"))
                 return True
             return False
 
-        if get_confirm("Do you really want to remove the extension?", True, False):
-            # Remove systemd timer and services
+        if get_confirm(_tr("Do you really want to remove the extension?"), True, False):
             service_names = [
                 "klipper-backup-on-boot",
                 "klipper-backup-filewatch",
@@ -105,10 +105,9 @@ class KlipperbackupExtension(BaseExtension):
                     if unit_file_exists(service_name, unit_type):
                         uninstall_service(service_name, unit_type)
 
-            # Remnove crontab entry
             try:
                 if check_crontab_entry("/klipper-backup/script.sh"):
-                    Logger.print_status("Removing Klipper-Backup crontab entry ...")
+                    Logger.print_status(_tr("Removing Klipper-Backup crontab entry ..."))
                     crontab_content = subprocess.check_output(
                         ["crontab", "-l"], text=True
                     )
@@ -124,28 +123,26 @@ class KlipperbackupExtension(BaseExtension):
                         check=True,
                     )
                     Logger.print_ok(
-                        "Klipper-Backup crontab entry successfully removed!"
+                        _tr("Klipper-Backup crontab entry successfully removed!")
                     )
             except subprocess.CalledProcessError:
-                Logger.print_error("Unable to remove the Klipper-Backup cron entry")
+                Logger.print_error(_tr("Unable to remove the Klipper-Backup cron entry"))
 
-            # Remove moonraker entry
             try:
                 remove_moonraker_entry()
-            except:
+            except Exception:
                 Logger.print_error(
-                    "Unable to remove the Klipper-Backup moonraker entry"
+                    _tr("Unable to remove the Klipper-Backup moonraker entry")
                 )
 
-            # Remove Klipper-backup extension
-            Logger.print_status("Removing Klipper-Backup extension ...")
+            Logger.print_status(_tr("Removing Klipper-Backup extension ..."))
             try:
                 remove_with_sudo(KLIPPERBACKUP_DIR)
                 if check_file_exist(KLIPPERBACKUP_CONFIG_DIR):
                     remove_with_sudo(KLIPPERBACKUP_CONFIG_DIR)
-                Logger.print_ok("Extension Klipper-Backup successfully removed!")
-            except:
-                Logger.print_error("Unable to remove Klipper-Backup extension")
+                Logger.print_ok(_tr("Extension Klipper-Backup successfully removed!"))
+            except Exception:
+                Logger.print_error(_tr("Unable to remove Klipper-Backup extension"))
 
     def install_extension(self, **kwargs) -> None:
         if not KLIPPERBACKUP_DIR.exists():
@@ -155,6 +152,6 @@ class KlipperbackupExtension(BaseExtension):
 
     def update_extension(self, **kwargs) -> None:
         if not check_file_exist(KLIPPERBACKUP_DIR):
-            Logger.print_info("Extension does not seem to be installed! Skipping ...")
+            Logger.print_info(_tr("Extension does not seem to be installed! Skipping ..."))
             return
         subprocess.run([str(KLIPPERBACKUP_DIR / "install.sh"), "check_updates"])

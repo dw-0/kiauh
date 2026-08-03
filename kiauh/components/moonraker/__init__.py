@@ -9,6 +9,8 @@
 
 from pathlib import Path
 
+from core.i18n import N_
+
 MODULE_PATH = Path(__file__).resolve().parent
 
 MOONRAKER_REPO_URL = "https://github.com/Arksine/moonraker.git"
@@ -40,4 +42,9 @@ MOONRAKER_SERVICE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{MOONRAKER_SERVICE_NA
 MOONRAKER_ENV_FILE_TEMPLATE = MODULE_PATH.joinpath(f"assets/{MOONRAKER_ENV_FILE_NAME}")
 
 
-EXIT_MOONRAKER_SETUP = "Exiting Moonraker setup ..."
+_EXIT_MOONRAKER_SETUP_MSG = N_("Exiting Moonraker setup ...")
+
+
+def EXIT_MOONRAKER_SETUP():
+    from core.i18n import _tr
+    return _tr(_EXIT_MOONRAKER_SETUP_MSG)

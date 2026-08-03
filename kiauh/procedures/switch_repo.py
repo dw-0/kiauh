@@ -29,6 +29,7 @@ from components.moonraker.moonraker import Moonraker
 from components.moonraker.services.moonraker_setup_service import (
     install_moonraker_packages,
 )
+from core.i18n import _tr
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import Logger
 from core.services.backup_service import BackupService
@@ -51,7 +52,7 @@ def run_switch_repo_routine(
 ) -> None:
     if name not in ("klipper", "moonraker"):
         raise ValueError(
-            f"Invalid name: {name!r}. Must be 'klipper' or 'moonraker'."
+            _tr("Invalid name: {!r}. Must be 'klipper' or 'moonraker'.").format(name)
         )
         
     repo_dir: Path = KLIPPER_DIR if name == "klipper" else MOONRAKER_DIR
@@ -60,7 +61,7 @@ def run_switch_repo_routine(
     _type = Klipper if name == "klipper" else Moonraker
 
     # step 1: stop all instances
-    Logger.print_status(f"Stopping all {_type.__name__} instances ...")
+    Logger.print_status(_tr("Stopping all {} instances ...").format(_type.__name__))
     instances = get_instances(_type)
     InstanceManager.stop_all(instances)
 
@@ -82,7 +83,7 @@ def run_switch_repo_routine(
         )
 
         if not (repo_url or branch):
-            error = f"Invalid repository URL ({repo_url}) or branch ({branch})!"
+            error = _tr("Invalid repository URL ({}) or branch ({})!").format(repo_url, branch)
             raise ValueError(error)
 
         # step 4: clone new repo
@@ -95,7 +96,7 @@ def run_switch_repo_routine(
             install_moonraker_packages()
 
         # step 6: recreate python virtualenv
-        Logger.print_status(f"Recreating {_type.__name__} virtualenv ...")
+        Logger.print_status(_tr("Recreating {} virtualenv ...").format(_type.__name__))
 
         settings = KiauhSettings()
         if name == "klipper":
@@ -106,17 +107,17 @@ def run_switch_repo_routine(
         if not create_python_venv(
             env_dir, force=True, use_python_binary=use_python_binary
         ):
-            raise GitException(f"Failed to recreate virtualenv for {_type.__name__}")
+            raise GitException(_tr("Failed to recreate virtualenv for {}").format(_type.__name__))
         else:
             install_python_requirements(env_dir, req_file)
 
-        Logger.print_ok(f"Switched to {repo_url} at branch {branch}!")
+        Logger.print_ok(_tr("Switched to {} at branch {}!").format(repo_url, branch))
 
     except (GitException, VenvCreationFailedException) as e:
         # if something goes wrong during cloning or recreating the virtualenv,
         # we restore the backup of the repo and env
-        Logger.print_error(f"Error during repository switch: {e}", start="\n")
-        Logger.print_status(f"Restoring last backup of {_type.__name__} ...")
+        Logger.print_error(_tr("Error during repository switch: {}").format(e), start="\n")
+        Logger.print_status(_tr("Restoring last backup of {} ...").format(_type.__name__))
         _restore_repo_backup(
             _type.__name__,
             env_dir,
@@ -126,13 +127,13 @@ def run_switch_repo_routine(
         )
 
     except RepoSwitchFailedException as e:
-        Logger.print_error(f"Something went wrong: {e}")
+        Logger.print_error(_tr("Something went wrong: {}").format(e))
         return
 
     except Exception as e:
         raise RepoSwitchFailedException(e)
 
-    Logger.print_status(f"Restarting all {_type.__name__} instances ...")
+    Logger.print_status(_tr("Restarting all {} instances ...").format(_type.__name__))
     InstanceManager.start_all(instances)
 
 
@@ -146,7 +147,7 @@ def _restore_repo_backup(
     # if repo_dir_backup_path is not None and env_dir_backup_path is not None:
     if not repo_dir_backup_path or not env_dir_backup_path:
         raise RepoSwitchFailedException(
-            f"Unable to restore backup of {name}! Path of backups directory is None!"
+            _tr("Unable to restore backup of {}! Path of backups directory is None!").format(name)
         )
 
     try:
@@ -156,6 +157,6 @@ def _restore_repo_backup(
         if env_dir.exists():
             shutil.rmtree(env_dir)
             shutil.copytree(env_dir_backup_path, env_dir)
-        Logger.print_warn(f"Restored backup of {name} successfully!")
+        Logger.print_warn(_tr("Restored backup of {} successfully!").format(name))
     except Exception as e:
-        raise RepoSwitchFailedException(f"Error restoring backup: {e}")
+        raise RepoSwitchFailedException(_tr("Error restoring backup: {}").format(e))

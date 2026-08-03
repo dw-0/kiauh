@@ -45,6 +45,7 @@ from components.webui_client.client_utils import (
     get_existing_clients,
 )
 from components.webui_client.mainsail_data import MainsailData
+from core.i18n import _tr
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
 from core.services.message_service import Message, MessageService
@@ -152,11 +153,11 @@ class MoonrakerSetupService:
                 options = {str(i + 1): k for i, k in enumerate(self.klipper_list)}
                 additional_options = {"a": None, "b": None}
                 options = {**options, **additional_options}
-                question = "Select Klipper instance to setup Moonraker for"
+                question = _tr("Select Klipper instance to setup Moonraker for")
                 selected_option = get_selection_input(question, options)
 
                 if selected_option == "b":
-                    Logger.print_status(EXIT_MOONRAKER_SETUP)
+                    Logger.print_status(EXIT_MOONRAKER_SETUP())
                     return True
 
                 if selected_option == "a":
@@ -168,7 +169,7 @@ class MoonrakerSetupService:
                 else:
                     klipper_instance: Klipper | None = options.get(selected_option)
                     if klipper_instance is None:
-                        raise Exception("Error selecting instance!")
+                        raise Exception(_tr("Error selecting instance!"))
                     new_instances.append(
                         self.misvc.create_new_instance(klipper_instance.suffix)
                     )
@@ -178,14 +179,14 @@ class MoonrakerSetupService:
 
         if create_example_cfg is None:
             create_example_cfg = (
-                get_confirm("Create example moonraker.conf?") if interactive else False
+                get_confirm(_tr("Create example moonraker.conf?")) if interactive else False
             )
 
         try:
             self._run_setup(new_instances, create_example_cfg, interactive=interactive)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error("Error while installing Moonraker!")
+            Logger.print_error(_tr("Error while installing Moonraker!"))
             return False
 
         return True
@@ -202,13 +203,12 @@ class MoonrakerSetupService:
             Logger.print_dialog(
                 DialogType.WARNING,
                 [
-                    "Be careful if there are ongoing prints running!",
-                    "All Moonraker instances will be restarted during the update process and "
-                    "ongoing prints COULD FAIL.",
+                    _tr("Be careful if there are ongoing prints running!"),
+                    _tr("All Moonraker instances will be restarted during the update process and ongoing prints COULD FAIL."),
                 ],
             )
 
-            if not get_confirm("Update Moonraker now?"):
+            if not get_confirm(_tr("Update Moonraker now?")):
                 return False
 
         self._refresh_state()
@@ -224,7 +224,7 @@ class MoonrakerSetupService:
             InstanceManager.start_all(self.moonraker_list)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error("Error while updating Moonraker!")
+            Logger.print_error(_tr("Error while updating Moonraker!"))
             return False
 
         return True
@@ -256,12 +256,12 @@ class MoonrakerSetupService:
         try:
             if interactive:
                 completion_msg = Message(
-                    title="Moonraker Removal Process completed",
+                    title=_tr("Moonraker Removal Process completed"),
                     color=Color.GREEN,
                 )
 
                 if remove_service:
-                    Logger.print_status("Removing Moonraker instances ...")
+                    Logger.print_status(_tr("Removing Moonraker instances ..."))
                     if self.moonraker_list:
                         selected = self._get_instances_to_remove()
                         self.__remove_instances(selected)
@@ -269,52 +269,58 @@ class MoonrakerSetupService:
                             instance_names = [
                                 i.service_file_path.stem for i in selected
                             ]
-                            txt = f"● Moonraker instances removed: {', '.join(instance_names)}"
+                            txt = _tr("● Moonraker instances removed: {}").format(
+                                ", ".join(instance_names)
+                            )
                             completion_msg.text.append(txt)
                     else:
                         Logger.print_info(
-                            "No Moonraker Services installed! Skipped ..."
+                            _tr("No Moonraker Services installed! Skipped ...")
                         )
 
                 if (remove_polkit or remove_dir or remove_env) and unit_file_exists(
                     "moonraker", suffix="service"
                 ):
                     completion_msg.text = [
-                        "Some Klipper services are still installed:",
-                        "● Moonraker PolicyKit rules were not removed, even though selected for removal.",
-                        f"● '{MOONRAKER_DIR}' was not removed, even though selected for removal.",
-                        f"● '{MOONRAKER_ENV_DIR}' was not removed, even though selected for removal.",
+                        _tr("Some Klipper services are still installed:"),
+                        _tr("● Moonraker PolicyKit rules were not removed, even though selected for removal."),
+                        _tr("● '{}' was not removed, even though selected for removal.").format(
+                            MOONRAKER_DIR
+                        ),
+                        _tr("● '{}' was not removed, even though selected for removal.").format(
+                            MOONRAKER_ENV_DIR
+                        ),
                     ]
                 else:
                     if remove_polkit:
                         Logger.print_status(
-                            "Removing all Moonraker policykit rules ..."
+                            _tr("Removing all Moonraker policykit rules ...")
                         )
                         if remove_polkit_rules():
                             completion_msg.text.append(
-                                "● Moonraker policykit rules removed"
+                                _tr("● Moonraker policykit rules removed")
                             )
                     if remove_dir:
-                        Logger.print_status("Removing Moonraker local repository ...")
+                        Logger.print_status(_tr("Removing Moonraker local repository ..."))
                         if run_remove_routines(MOONRAKER_DIR):
                             completion_msg.text.append(
-                                "● Moonraker local repository removed"
+                                _tr("● Moonraker local repository removed")
                             )
                     if remove_env:
-                        Logger.print_status("Removing Moonraker Python environment ...")
+                        Logger.print_status(_tr("Removing Moonraker Python environment ..."))
                         if run_remove_routines(MOONRAKER_ENV_DIR):
                             completion_msg.text.append(
-                                "● Moonraker Python environment removed"
+                                _tr("● Moonraker Python environment removed")
                             )
 
                 if completion_msg.text:
                     completion_msg.text.insert(
-                        0, "The following actions were performed:"
+                        0, _tr("The following actions were performed:")
                     )
                 else:
                     completion_msg.color = Color.YELLOW
                     completion_msg.centered = True
-                    completion_msg.text = ["Nothing to remove."]
+                    completion_msg.text = [_tr("Nothing to remove.")]
 
                 self.msgsvc.set_message(completion_msg)
             else:
@@ -324,8 +330,7 @@ class MoonrakerSetupService:
                     )
                     if selected is None:
                         Logger.print_error(
-                            "Refusing to remove Moonraker instances: no explicit "
-                            "intent. Pass remove_all=True or instance_suffixes."
+                            _tr("Refusing to remove Moonraker instances: no explicit intent. Pass remove_all=True or instance_suffixes.")
                         )
                         return False
                     self.__remove_instances(selected)
@@ -334,7 +339,7 @@ class MoonrakerSetupService:
                     "moonraker", suffix="service"
                 ):
                     Logger.print_info(
-                        "Moonraker services still installed; skipping repository/env removal."
+                        _tr("Moonraker services still installed; skipping repository/env removal.")
                     )
                     return True
 
@@ -346,7 +351,7 @@ class MoonrakerSetupService:
                     run_remove_routines(MOONRAKER_ENV_DIR)
         except Exception:
             Logger.print_error(traceback.format_exc())
-            Logger.print_error("Error while removing Moonraker!")
+            Logger.print_error(_tr("Error while removing Moonraker!"))
             return False
 
         return True
@@ -390,19 +395,19 @@ class MoonrakerSetupService:
         ip: str = get_ipv4_addr()
         # noinspection HttpUrlsUsage
         url_list = [
-            f"● {i.service_file_path.stem}: http://{ip}:{i.port}"
+            _tr("● {}: http://{}:{}").format(i.service_file_path.stem, ip, i.port)
             for i in new_instances
             if i.port
         ]
         dialog_content = []
         if url_list:
-            dialog_content.append("You can access Moonraker via the following URL:")
+            dialog_content.append(_tr("You can access Moonraker via the following URL:"))
             dialog_content.extend(url_list)
 
         if interactive:
             Logger.print_dialog(
                 DialogType.CUSTOM,
-                custom_title="Moonraker successfully installed!",
+                custom_title=_tr("Moonraker successfully installed!"),
                 custom_color=Color.GREEN,
                 content=dialog_content,
             )
@@ -411,13 +416,13 @@ class MoonrakerSetupService:
                 for url in url_list:
                     Logger.print_info(url)
             else:
-                Logger.print_info("Moonraker successfully installed!")
+                Logger.print_info(_tr("Moonraker successfully installed!"))
 
     def _check_requirements(self, klipper_list: List[Klipper]) -> bool:
         is_klipper_installed = len(klipper_list) >= 1
         if not is_klipper_installed:
-            Logger.print_warn("Klipper not installed!")
-            Logger.print_warn("Moonraker cannot be installed! Install Klipper first.")
+            Logger.print_warn(_tr("Klipper not installed!"))
+            Logger.print_warn(_tr("Moonraker cannot be installed! Install Klipper first."))
 
         is_python_ok = check_python_version(3, 7)
 
@@ -446,18 +451,18 @@ class MoonrakerSetupService:
                     )
             self._install_polkit()
         except Exception:
-            Logger.print_error("Error during installation of Moonraker requirements!")
+            Logger.print_error(_tr("Error during installation of Moonraker requirements!"))
             raise
 
     def _install_polkit(self) -> None:
-        Logger.print_status("Installing Moonraker policykit rules ...")
+        Logger.print_status(_tr("Installing Moonraker policykit rules ..."))
 
         legacy_file_exists = check_file_exist(POLKIT_LEGACY_FILE, True)
         polkit_file_exists = check_file_exist(POLKIT_FILE, True)
         usr_file_exists = check_file_exist(POLKIT_USR_FILE, True)
 
         if legacy_file_exists or (polkit_file_exists and usr_file_exists):
-            Logger.print_info("Moonraker policykit rules are already installed.")
+            Logger.print_info(_tr("Moonraker policykit rules are already installed."))
             return
 
         command = [POLKIT_SCRIPT, "--disable-systemctl"]
@@ -469,12 +474,12 @@ class MoonrakerSetupService:
         )
         if result.returncode != 0 or result.stderr:
             Logger.print_error(f"{result.stderr}", False)
-            Logger.print_error("Installing Moonraker policykit rules failed!")
+            Logger.print_error(_tr("Installing Moonraker policykit rules failed!"))
             # Intentional fail-soft: polkit rules are optional on many systems
             # and a failure here must not abort the whole Moonraker installation.
             return
 
-        Logger.print_ok("Moonraker policykit rules successfully installed!")
+        Logger.print_ok(_tr("Moonraker policykit rules successfully installed!"))
 
     def _get_instances_to_remove(self) -> List[Moonraker] | None:
         start_index = 1
@@ -493,7 +498,7 @@ class MoonrakerSetupService:
             show_index=True,
             show_select_all=True,
         )
-        selection = get_selection_input("Select Moonraker instance to remove", options)
+        selection = get_selection_input(_tr("Select Moonraker instance to remove"), options)
 
         if selection == "b":
             return None
@@ -531,7 +536,7 @@ class MoonrakerSetupService:
 
         for instance in instance_list:
             Logger.print_status(
-                f"Removing instance {instance.service_file_path.stem} ..."
+                _tr("Removing instance {} ...").format(instance.service_file_path.stem)
             )
             InstanceManager.remove(instance)
             self.__delete_env_file(instance)
@@ -539,9 +544,11 @@ class MoonrakerSetupService:
         self._refresh_state()
 
     def __delete_env_file(self, instance: Moonraker):
-        Logger.print_status(f"Remove '{instance.env_file}'")
+        Logger.print_status(_tr("Remove '{}'").format(instance.env_file))
         if not instance.env_file.exists():
-            msg = f"Env file in {instance.base.sysd_dir} not found. Skipped ..."
+            msg = _tr("Env file in {} not found. Skipped ...").format(
+                instance.base.sysd_dir
+            )
             Logger.print_info(msg)
             return
         run_remove_routines(instance.env_file)

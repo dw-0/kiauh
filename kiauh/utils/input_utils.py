@@ -13,6 +13,7 @@ import re
 from typing import Dict, List
 
 from core.constants import INVALID_CHOICE
+from core.i18n import _tr
 from core.logger import Logger
 from core.types.color import Color
 
@@ -30,15 +31,15 @@ def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool
     options_go_back = ["b", "B"]
 
     if default_choice:
-        def_choice = "(Y/n)"
+        def_choice = _tr("(Y/n)")
         options_confirm.append("")
     else:
-        def_choice = "(y/N)"
+        def_choice = _tr("(y/N)")
         options_decline.append("")
 
     while True:
         choice = (
-            input(format_question(question + f" {def_choice}", None)).strip().lower()
+            input(format_question(_tr("{} {}").format(question, def_choice), None)).strip().lower()
         )
 
         if choice in options_confirm:
@@ -48,7 +49,7 @@ def get_confirm(question: str, default_choice=True, allow_go_back=False) -> bool
         elif allow_go_back and choice in options_go_back:
             return None
         else:
-            Logger.print_error(INVALID_CHOICE)
+            Logger.print_error(INVALID_CHOICE())
 
 
 def get_number_input(
@@ -80,7 +81,7 @@ def get_number_input(
         try:
             return validate_number_input(_input, min_value, max_value)
         except ValueError:
-            Logger.print_error(INVALID_CHOICE)
+            Logger.print_error(INVALID_CHOICE())
 
 
 def get_string_input(
@@ -110,17 +111,17 @@ def get_string_input(
         if default is not None and _input == "":
             return default
         elif _input == "" and not allow_empty:
-            Logger.print_error("Input must not be empty!")
+            Logger.print_error(_tr("Input must not be empty!"))
         elif _pattern is not None and _pattern.match(_input):
             return _input
         elif _input.lower() in _exclude:
-            Logger.print_error("This value is already in use/reserved.")
+            Logger.print_error(_tr("This value is already in use/reserved."))
         elif allow_special_chars:
             return _input
         elif not allow_special_chars and _input.isalnum():
             return _input
         else:
-            Logger.print_error(INVALID_CHOICE)
+            Logger.print_error(INVALID_CHOICE())
 
 
 def get_selection_input(question: str, option_list: List | Dict, default=None) -> str:
@@ -143,7 +144,7 @@ def get_selection_input(question: str, option_list: List | Dict, default=None) -
         else:
             raise ValueError("Invalid option_list type")
 
-        Logger.print_error("Invalid option! Please select a valid option.", False)
+        Logger.print_error(_tr("Invalid option! Please select a valid option."), False)
 
 
 def format_question(question: str, default=None) -> str:
@@ -155,9 +156,9 @@ def format_question(question: str, default=None) -> str:
     """
     formatted_q = question
     if default is not None:
-        formatted_q += f" (default={default})"
+        formatted_q = _tr("{} (default={})").format(formatted_q, default)
 
-    return str(Color.apply(f"###### {formatted_q}: ", Color.CYAN))
+    return str(Color.apply(_tr("###### {}: ").format(formatted_q), Color.CYAN))
 
 
 def validate_number_input(value: str, min_count: int, max_count: int | None) -> int:

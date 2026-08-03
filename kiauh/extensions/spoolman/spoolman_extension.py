@@ -17,6 +17,7 @@ from components.moonraker.services.moonraker_instance_service import (
     MoonrakerInstanceService,
 )
 from core.instance_manager.instance_manager import InstanceManager
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
@@ -42,7 +43,7 @@ class SpoolmanExtension(BaseExtension):
     port: int = SPOOLMAN_DEFAULT_PORT
 
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing Spoolman using Docker...")
+        Logger.print_status(_tr("Installing Spoolman using Docker..."))
 
         docker_available, docker_compose_available = self.__check_docker_prereqs()
         if not docker_available or not docker_compose_available:
@@ -52,77 +53,74 @@ class SpoolmanExtension(BaseExtension):
             self.ip: str = get_ipv4_addr()
             self.__run_setup()
 
-            # noinspection HttpUrlsUsage
             Logger.print_dialog(
                 DialogType.SUCCESS,
                 [
-                    "Spoolman successfully installed using Docker!",
-                    "You can access Spoolman via the following URL:",
+                    _tr("Spoolman successfully installed using Docker!"),
+                    _tr("You can access Spoolman via the following URL:"),
                     f"http://{self.ip}:{self.port}",
                 ],
                 center_content=True,
             )
 
     def update_extension(self, **kwargs) -> None:
-        Logger.print_status("Updating Spoolman Docker container...")
+        Logger.print_status(_tr("Updating Spoolman Docker container..."))
 
         if not SPOOLMAN_DIR.exists() or not SPOOLMAN_COMPOSE_FILE.exists():
-            Logger.print_error("Spoolman installation not found or incomplete.")
+            Logger.print_error(_tr("Spoolman installation not found or incomplete."))
             return
 
         docker_available, docker_compose_available = self.__check_docker_prereqs()
         if not docker_available or not docker_compose_available:
             return
 
-        Logger.print_status("Updating Spoolman container...")
+        Logger.print_status(_tr("Updating Spoolman container..."))
         if not Spoolman.update_container():
             return
 
         Logger.print_dialog(
             DialogType.SUCCESS,
-            ["Spoolman Docker container successfully updated!"],
+            [_tr("Spoolman Docker container successfully updated!")],
             center_content=True,
         )
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing Spoolman Docker container...")
+        Logger.print_status(_tr("Removing Spoolman Docker container..."))
 
         if not SPOOLMAN_DIR.exists():
-            Logger.print_info("Spoolman is not installed. Nothing to remove.")
+            Logger.print_info(_tr("Spoolman is not installed. Nothing to remove."))
             return
 
         docker_available, docker_compose_available = self.__check_docker_prereqs()
         if not docker_available or not docker_compose_available:
             return
 
-        # remove moonraker integration
         mrsvc = MoonrakerInstanceService()
         mrsvc.load_instances()
         mr_instances: List[Moonraker] = mrsvc.get_all_instances()
 
-        Logger.print_status("Removing Spoolman configuration from moonraker.conf...")
+        Logger.print_status(_tr("Removing Spoolman configuration from moonraker.conf..."))
         BackupService().backup_moonraker_conf()
         remove_config_section("spoolman", mr_instances)
 
-        Logger.print_status("Removing Spoolman from moonraker.asvc...")
+        Logger.print_status(_tr("Removing Spoolman from moonraker.asvc..."))
         self.__remove_from_moonraker_asvc()
 
-        # stop and remove the container if docker-compose exists
         if SPOOLMAN_COMPOSE_FILE.exists():
-            Logger.print_status("Stopping and removing Spoolman container...")
+            Logger.print_status(_tr("Stopping and removing Spoolman container..."))
 
             if Spoolman.tear_down_container():
-                Logger.print_ok("Spoolman container removed!")
+                Logger.print_ok(_tr("Spoolman container removed!"))
             else:
                 Logger.print_error(
-                    "Failed to remove Spoolman container! Please remove it manually."
+                    _tr("Failed to remove Spoolman container! Please remove it manually.")
                 )
 
             if Spoolman.remove_image():
-                Logger.print_ok("Spoolman container and image removed!")
+                Logger.print_ok(_tr("Spoolman container and image removed!"))
             else:
                 Logger.print_error(
-                    "Failed to remove Spoolman image! Please remove it manually."
+                    _tr("Failed to remove Spoolman image! Please remove it manually.")
                 )
 
         try:
@@ -133,95 +131,86 @@ class SpoolmanExtension(BaseExtension):
                 target_path="spoolman",
             )
             if success:
-                Logger.print_ok(f"Spoolman data backed up to {success}")
-                Logger.print_status("Removing Spoolman directory...")
+                Logger.print_ok(_tr("Spoolman data backed up to {}").format(success))
+                Logger.print_status(_tr("Removing Spoolman directory..."))
                 if run_remove_routines(SPOOLMAN_DIR):
-                    Logger.print_ok("Spoolman directory removed!")
+                    Logger.print_ok(_tr("Spoolman directory removed!"))
                 else:
                     Logger.print_error(
-                        "Failed to remove Spoolman directory! Please remove it manually."
+                        _tr("Failed to remove Spoolman directory! Please remove it manually.")
                     )
         except Exception as e:
-            Logger.print_error(f"Failed to backup Spoolman directory: {e}")
-            Logger.print_info("Skipping Spoolman directory removal...")
+            Logger.print_error(_tr("Failed to backup Spoolman directory: {}").format(e))
+            Logger.print_info(_tr("Skipping Spoolman directory removal..."))
 
         Logger.print_dialog(
             DialogType.SUCCESS,
-            ["Spoolman successfully removed!"],
+            [_tr("Spoolman successfully removed!")],
             center_content=True,
         )
 
     def __run_setup(self) -> None:
-        # Create Spoolman directory and data directory
-        Logger.print_status("Setting up Spoolman directories...")
+        Logger.print_status(_tr("Setting up Spoolman directories..."))
         SPOOLMAN_DIR.mkdir(parents=True)
-        Logger.print_ok(f"Directory {SPOOLMAN_DIR} created!")
+        Logger.print_ok(_tr("Directory {} created!").format(SPOOLMAN_DIR))
         SPOOLMAN_DATA_DIR.mkdir(parents=True)
-        Logger.print_ok(f"Directory {SPOOLMAN_DATA_DIR} created!")
+        Logger.print_ok(_tr("Directory {} created!").format(SPOOLMAN_DATA_DIR))
 
-        # Set correct permissions for data directory
         try:
-            Logger.print_status("Setting permissions for Spoolman data directory...")
+            Logger.print_status(_tr("Setting permissions for Spoolman data directory..."))
             run(["chown", "1000:1000", str(SPOOLMAN_DATA_DIR)], check=True)
-            Logger.print_ok("Permissions set!")
+            Logger.print_ok(_tr("Permissions set!"))
         except CalledProcessError:
             Logger.print_warn(
-                "Could not set permissions on data directory. This might cause issues."
+                _tr("Could not set permissions on data directory. This might cause issues.")
             )
 
-        Logger.print_status("Creating Docker Compose file...")
+        Logger.print_status(_tr("Creating Docker Compose file..."))
         if Spoolman.create_docker_compose():
-            Logger.print_ok("Docker Compose file created!")
+            Logger.print_ok(_tr("Docker Compose file created!"))
         else:
-            Logger.print_error("Failed to create Docker Compose file!")
+            Logger.print_error(_tr("Failed to create Docker Compose file!"))
 
         self.__port_config_prompt()
 
-        Logger.print_status("Spinning up Spoolman container...")
+        Logger.print_status(_tr("Spinning up Spoolman container..."))
         if Spoolman.start_container():
-            Logger.print_ok("Spoolman container started!")
+            Logger.print_ok(_tr("Spoolman container started!"))
         else:
-            Logger.print_error("Failed to start Spoolman container!")
+            Logger.print_error(_tr("Failed to start Spoolman container!"))
 
         if self.__add_moonraker_integration():
-            Logger.print_ok("Spoolman integration added to Moonraker!")
+            Logger.print_ok(_tr("Spoolman integration added to Moonraker!"))
         else:
-            Logger.print_info("Moonraker integration skipped.")
+            Logger.print_info(_tr("Moonraker integration skipped."))
 
     def __check_docker_prereqs(self) -> Tuple[bool, bool]:
-        # check if Docker is available
         is_docker_available = Spoolman.is_docker_available()
         if not is_docker_available:
-            Logger.print_error("Docker is not installed or not available.")
+            Logger.print_error(_tr("Docker is not installed or not available."))
             Logger.print_info(
-                "Please install Docker first: https://docs.docker.com/engine/install/"
+                _tr("Please install Docker first: https://docs.docker.com/engine/install/")
             )
 
-        # check if Docker Compose is available
         is_docker_compose_available = Spoolman.is_docker_compose_available()
         if not is_docker_compose_available:
-            Logger.print_error("Docker Compose is not installed or not available.")
+            Logger.print_error(_tr("Docker Compose is not installed or not available."))
 
         return is_docker_available, is_docker_compose_available
 
     def __port_config_prompt(self) -> None:
-        """Prompt for advanced configuration options"""
         Logger.print_dialog(
             DialogType.INFO,
             [
-                "You can configure Spoolman to run on a different port than the default. "
-                "Make sure you don't select a port which is already in use by "
-                "another application. Your input will not be validated! "
-                "The default port is 7912.",
+                _tr("You can configure Spoolman to run on a different port than the default. Make sure you don't select a port which is already in use by another application. Your input will not be validated! The default port is 7912."),
             ],
         )
-        if not get_confirm("Continue with default port 7912?", default_choice=True):
+        if not get_confirm(_tr("Continue with default port 7912?"), default_choice=True):
             self.__set_port()
 
     def __set_port(self) -> None:
-        """Configure advanced options for Spoolman Docker container"""
         port = get_number_input(
-            "Which port should Spoolman run on?",
+            _tr("Which port should Spoolman run on?"),
             default=SPOOLMAN_DEFAULT_PORT,
             min_value=1024,
             max_value=65535,
@@ -239,7 +228,7 @@ class SpoolmanExtension(BaseExtension):
             with open(SPOOLMAN_COMPOSE_FILE, "w") as f:
                 f.write(content)
 
-            Logger.print_ok(f"Port set to {port}...")
+            Logger.print_ok(_tr("Port set to {}...").format(port))
 
     def __handle_existing_installation(self) -> bool:
         if not (SPOOLMAN_DIR.exists() and SPOOLMAN_DIR.is_dir()):
@@ -249,14 +238,14 @@ class SpoolmanExtension(BaseExtension):
         container_running = Spoolman.is_container_running()
 
         if container_running and compose_file_exists:
-            Logger.print_info("Spoolman is already installed!")
+            Logger.print_info(_tr("Spoolman is already installed!"))
             return True
         elif container_running and not compose_file_exists:
             Logger.print_status(
-                "Spoolman container is running but Docker Compose file is missing..."
+                _tr("Spoolman container is running but Docker Compose file is missing...")
             )
             if get_confirm(
-                "Do you want to recreate the Docker Compose file?",
+                _tr("Do you want to recreate the Docker Compose file?"),
                 default_choice=True,
             ):
                 Spoolman.create_docker_compose()
@@ -264,25 +253,22 @@ class SpoolmanExtension(BaseExtension):
             return True
         elif not container_running and compose_file_exists:
             Logger.print_status(
-                "Docker Compose file exists but container is not running..."
+                _tr("Docker Compose file exists but container is not running...")
             )
             Spoolman.start_container()
             return True
         return False
 
     def __add_moonraker_integration(self) -> bool:
-        """Enable Moonraker integration for Spoolman Docker container"""
-        if not get_confirm("Add Moonraker integration?", default_choice=True):
+        if not get_confirm(_tr("Add Moonraker integration?"), default_choice=True):
             return False
 
-        Logger.print_status("Adding Spoolman integration to Moonraker...")
+        Logger.print_status(_tr("Adding Spoolman integration to Moonraker..."))
 
-        # read port from the docker-compose file
         port = SPOOLMAN_DEFAULT_PORT
         if SPOOLMAN_COMPOSE_FILE.exists():
             with open(SPOOLMAN_COMPOSE_FILE, "r") as f:
                 content = f.read()
-                # Extract port from the port mapping
                 port_match = re.search(r'"(\d+):8000"', content)
                 if port_match:
                     port = port_match.group(1)
@@ -292,14 +278,13 @@ class SpoolmanExtension(BaseExtension):
         mr_instances = mrsvc.get_all_instances()
 
         BackupService().backup_moonraker_conf()
-        # noinspection HttpUrlsUsage
         add_config_section(
             section="spoolman",
             instances=mr_instances,
             options=[("server", f"http://{self.ip}:{port}")],
         )
 
-        Logger.print_status("Adding Spoolman to moonraker.asvc...")
+        Logger.print_status(_tr("Adding Spoolman to moonraker.asvc..."))
         self.__add_to_moonraker_asvc()
 
         InstanceManager.restart_all(mr_instances)
@@ -307,7 +292,6 @@ class SpoolmanExtension(BaseExtension):
         return True
 
     def __add_to_moonraker_asvc(self) -> None:
-        """Add Spoolman to moonraker.asvc"""
         mrsvc = MoonrakerInstanceService()
         mrsvc.load_instances()
         mr_instances = mrsvc.get_all_instances()
@@ -317,7 +301,7 @@ class SpoolmanExtension(BaseExtension):
                 with open(asvc_path, "a+") as f:
                     if "Spoolman" in f.read():
                         Logger.print_info(
-                            f"Spoolman already in {asvc_path}. Skipping..."
+                            _tr("Spoolman already in {}. Skipping...").format(asvc_path)
                         )
                         continue
 
@@ -327,10 +311,9 @@ class SpoolmanExtension(BaseExtension):
 
                     f.write("Spoolman\n")
 
-                Logger.print_ok(f"Spoolman added to {asvc_path}!")
+                Logger.print_ok(_tr("Spoolman added to {}!").format(asvc_path))
 
     def __remove_from_moonraker_asvc(self) -> None:
-        """Remove Spoolman from moonraker.asvc"""
         mrsvc = MoonrakerInstanceService()
         mrsvc.load_instances()
         mr_instances = mrsvc.get_all_instances()
@@ -338,7 +321,7 @@ class SpoolmanExtension(BaseExtension):
             asvc_path = instance.data_dir.joinpath("moonraker.asvc")
             if asvc_path.exists():
                 if "Spoolman" not in open(asvc_path).read():
-                    Logger.print_info(f"Spoolman not in {asvc_path}. Skipping...")
+                    Logger.print_info(_tr("Spoolman not in {}. Skipping...").format(asvc_path))
                     continue
 
                 with open(asvc_path, "r") as f:
@@ -349,4 +332,4 @@ class SpoolmanExtension(BaseExtension):
                 with open(asvc_path, "w") as f:
                     f.writelines(new_lines)
 
-                Logger.print_ok(f"Spoolman removed from {asvc_path}!")
+                Logger.print_ok(_tr("Spoolman removed from {}!").format(asvc_path))

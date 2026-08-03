@@ -12,6 +12,12 @@
 </p>
 
 <p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README_zh.md">简体中文</a> ·
+  <a href="README_zh_Hant.md">繁體中文</a>
+</p>
+
+<p align="center">
   <a><img src="https://img.shields.io/github/license/dw-0/kiauh"></a>
   <a><img src="https://img.shields.io/github/stars/dw-0/kiauh"></a>
   <a><img src="https://img.shields.io/github/forks/dw-0/kiauh"></a>
@@ -86,7 +92,16 @@ cd ~ && git clone https://github.com/dw-0/kiauh.git
 您现在应该会看到 KIAUH 的主菜单。
 根据您的选择，
 您会看到几个可选操作。
-要选择某个操作，只需在 "Perform action" 提示后输入对应的数字并按回车键确认。
+要选择某个操作，只需在提示中输入对应的选项并按回车键确认。
+
+### 🌐 语言 / 本地化
+
+KIAUH 内置语言选择器：
+
+- 在主菜单按 `L` 打开语言列表（English / 简体中文 / 繁體中文）
+- 或进入 `S) [设置]` → 选项 `6) 语言`
+
+KIAUH 使用 Python 标准库 `gettext`，缺失翻译时会安全回退为英文显示，不会导致程序崩溃。
 
 ## ❗ 注意事项
 

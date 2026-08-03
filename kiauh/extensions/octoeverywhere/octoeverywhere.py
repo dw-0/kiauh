@@ -16,6 +16,7 @@ from subprocess import CalledProcessError, run
 from components.moonraker import MOONRAKER_CFG_NAME
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.base_instance import BaseInstance
+from core.i18n import _tr
 from core.logger import Logger
 from extensions.octoeverywhere import (
     OE_CFG_NAME,
@@ -56,14 +57,14 @@ class Octoeverywhere:
         self.sys_cfg_file = self.base.cfg_dir.joinpath(OE_SYS_CFG_NAME)
 
     def create(self) -> None:
-        Logger.print_status("Creating OctoEverywhere for Klipper Instance ...")
+        Logger.print_status(_tr("Creating OctoEverywhere for Klipper Instance ..."))
 
         try:
             cmd = f"{OE_INSTALL_SCRIPT} {self.base.cfg_dir}/{MOONRAKER_CFG_NAME}"
             run(cmd, check=True, shell=True)
 
         except CalledProcessError as e:
-            Logger.print_error(f"Error creating instance: {e}")
+            Logger.print_error(_tr("Error creating instance: {}").format(e))
             raise
 
     @staticmethod
@@ -72,5 +73,5 @@ class Octoeverywhere:
             run(OE_UPDATE_SCRIPT.as_posix(), check=True, shell=True, cwd=OE_DIR)
 
         except CalledProcessError as e:
-            Logger.print_error(f"Error updating OctoEverywhere for Klipper: {e}")
+            Logger.print_error(_tr("Error updating OctoEverywhere for Klipper: {}").format(e))
             raise

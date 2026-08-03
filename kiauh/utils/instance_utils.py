@@ -15,6 +15,7 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from core.constants import SYSTEMD
+from core.i18n import _tr
 from core.instance_manager.base_instance import SUFFIX_BLACKLIST
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
@@ -28,7 +29,7 @@ def get_instances(
     from utils.common import convert_camelcase_to_kebabcase
 
     if not isinstance(instance_type, type):
-        raise ValueError("instance_type must be a class")
+        raise ValueError(_tr("instance_type must be a class"))
 
     name = convert_camelcase_to_kebabcase(instance_type.__name__)
     pattern = re.compile(f"^{name}(-[0-9a-zA-Z]+)?.service$")
@@ -78,19 +79,19 @@ def stop_klipper_instances_interactively(
     """
 
     if not kl_instances:
-        Logger.print_warn("No instances found, skipping instance stopping.")
+        Logger.print_warn(_tr("No instances found, skipping instance stopping."))
         return True
 
     Logger.print_dialog(
         DialogType.ATTENTION,
         [
-            "Do NOT continue if there are ongoing prints running",
-            f"All Klipper instances will be restarted during the {operation_name} and "
-            "ongoing prints WILL FAIL.",
+            _tr("Do NOT continue if there are ongoing prints running"),
+            _tr("All Klipper instances will be restarted during the {} and "
+            "ongoing prints WILL FAIL.").format(operation_name),
         ],
     )
     stop_klipper = get_confirm(
-        question=f"Stop Klipper now and proceed with {operation_name}?",
+        question=_tr("Stop Klipper now and proceed with {}?").format(operation_name),
         default_choice=False,
         allow_go_back=True,
     )
@@ -99,5 +100,5 @@ def stop_klipper_instances_interactively(
         InstanceManager.stop_all(kl_instances)
         return True
     else:
-        Logger.print_warn(f"{operation_name.capitalize()} aborted due to user request.")
+        Logger.print_warn(_tr("{} aborted due to user request.").format(operation_name.capitalize()))
         return False

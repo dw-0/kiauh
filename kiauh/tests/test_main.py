@@ -15,6 +15,16 @@ import main as main_module
 import pytest
 
 
+class _FakeKiauhAppSettings:
+    def __init__(self, language: str | None = None) -> None:
+        self.language = language
+
+
+class _FakeKiauhSettings:
+    def __init__(self, language: str | None = None) -> None:
+        self.kiauh = _FakeKiauhAppSettings(language=language)
+
+
 class _FakeMainMenu:
     """Minimal stand-in for ``core.menus.main_menu.MainMenu``."""
 
@@ -41,7 +51,8 @@ def _reset_fake_menu() -> None:
 
 def _patch_tui_seeds(monkeypatch: pytest.MonkeyPatch) -> None:
     """Neutralise the heavyweight side-effects triggered when launching the TUI."""
-    monkeypatch.setattr(main_module, "KiauhSettings", lambda: None)
+    monkeypatch.setattr(main_module, "KiauhSettings", _FakeKiauhSettings)
+    monkeypatch.setattr(main_module, "setup_i18n", lambda language=None: None)
     monkeypatch.setattr(main_module, "ensure_encoding", lambda: None)
     monkeypatch.setattr(main_module, "MainMenu", _FakeMainMenu)
 
@@ -88,7 +99,8 @@ class TestMainDispatch:
                 raise KeyboardInterrupt()
 
         monkeypatch.setattr(main_module, "run_cli", lambda: -1)
-        monkeypatch.setattr(main_module, "KiauhSettings", lambda: None)
+        monkeypatch.setattr(main_module, "KiauhSettings", _FakeKiauhSettings)
+        monkeypatch.setattr(main_module, "setup_i18n", lambda language=None: None)
         monkeypatch.setattr(main_module, "ensure_encoding", lambda: None)
         monkeypatch.setattr(main_module, "MainMenu", _InterruptingMenu)
 
@@ -106,7 +118,8 @@ class TestMainDispatch:
                 raise KeyboardInterrupt()
 
         monkeypatch.setattr(main_module, "run_cli", lambda: -1)
-        monkeypatch.setattr(main_module, "KiauhSettings", lambda: None)
+        monkeypatch.setattr(main_module, "KiauhSettings", _FakeKiauhSettings)
+        monkeypatch.setattr(main_module, "setup_i18n", lambda language=None: None)
         monkeypatch.setattr(main_module, "ensure_encoding", lambda: None)
         monkeypatch.setattr(main_module, "MainMenu", _InterruptingMenu)
         monkeypatch.setattr(

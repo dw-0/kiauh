@@ -12,6 +12,7 @@ from pathlib import Path
 
 from components.webui_client.client_utils import create_nginx_cfg
 from core.constants import NGINX_SITES_AVAILABLE, NGINX_SITES_ENABLED
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from extensions.base_extension import BaseExtension
 from utils.common import check_install_dependencies
@@ -31,19 +32,17 @@ PGC_CONF = "pgcode.local.conf"
 # noinspection PyMethodMayBeStatic
 class PrettyGcodeExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing PrettyGCode for Klipper ...")
+        Logger.print_status(_tr("Installing PrettyGCode for Klipper ..."))
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Make sure you don't select a port which is already in use by "
-                "another application. Your input will not be validated! Choosing a port "
-                "which is already in use by another application may cause issues!",
-                "The default port is 7136.",
+                _tr("Make sure you don't select a port which is already in use by another application. Your input will not be validated! Choosing a port which is already in use by another application may cause issues!"),
+                _tr("The default port is 7136."),
             ],
         )
 
         port = get_number_input(
-            "On which port should PrettyGCode run",
+            _tr("On which port should PrettyGCode run"),
             min_value=0,
             default=7136,
             allow_go_back=True,
@@ -67,40 +66,37 @@ class PrettyGcodeExtension(BaseExtension):
 
             cmd_sysctl_service("nginx", "restart")
 
-            log = f"Open PrettyGCode now on: http://{get_ipv4_addr()}:{port}"
-            Logger.print_ok("PrettyGCode installation complete!", start="\n")
+            log = _tr("Open PrettyGCode now on: http://{}:{}").format(get_ipv4_addr(), port)
+            Logger.print_ok(_tr("PrettyGCode installation complete!"), start="\n")
             Logger.print_ok(log, prefix=False, end="\n\n")
 
         except Exception as e:
             Logger.print_error(
-                f"Error during PrettyGCode for Klipper installation: {e}"
+                _tr("Error during PrettyGCode for Klipper installation: {}").format(e)
             )
 
     def update_extension(self, **kwargs) -> None:
-        Logger.print_status("Updating PrettyGCode for Klipper ...")
+        Logger.print_status(_tr("Updating PrettyGCode for Klipper ..."))
         try:
             git_pull_wrapper(PGC_DIR)
 
         except Exception as e:
-            Logger.print_error(f"Error during PrettyGCode for Klipper update: {e}")
+            Logger.print_error(_tr("Error during PrettyGCode for Klipper update: {}").format(e))
 
     def remove_extension(self, **kwargs) -> None:
         try:
-            Logger.print_status("Removing PrettyGCode for Klipper ...")
+            Logger.print_status(_tr("Removing PrettyGCode for Klipper ..."))
 
-            # remove pgc dir
             shutil.rmtree(PGC_DIR)
-            # remove nginx config
             remove_with_sudo(
                 [
                     NGINX_SITES_AVAILABLE.joinpath(PGC_CONF),
                     NGINX_SITES_ENABLED.joinpath(PGC_CONF),
                 ]
             )
-            # restart nginx
             cmd_sysctl_service("nginx", "restart")
 
-            Logger.print_ok("PrettyGCode for Klipper removed!")
+            Logger.print_ok(_tr("PrettyGCode for Klipper removed!"))
 
         except Exception as e:
-            Logger.print_error(f"Error during PrettyGCode for Klipper removal: {e}")
+            Logger.print_error(_tr("Error during PrettyGCode for Klipper removal: {}").format(e))

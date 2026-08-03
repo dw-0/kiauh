@@ -16,6 +16,7 @@ from typing import List, Optional
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
+from core.i18n import _tr
 from core.logger import Logger
 from utils.instance_utils import get_instances
 
@@ -45,16 +46,16 @@ class BackupService:
     ) -> bool:
         source_path = Path(source_path)
 
-        Logger.print_status(f"Creating backup of {source_path} ...")
+        Logger.print_status(_tr("Creating backup of {} ...").format(source_path))
 
         if not source_path.exists():
             Logger.print_info(
-                f"File '{source_path}' does not exist! Skipping backup..."
+                _tr("File '{}' does not exist! Skipping backup...").format(source_path)
             )
             return False
 
         if not source_path.is_file():
-            Logger.print_info(f"'{source_path}' is not a file! Skipping backup...")
+            Logger.print_info(_tr("'{}' is not a file! Skipping backup...").format(source_path))
             return False
 
         try:
@@ -72,18 +73,18 @@ class BackupService:
             backup_dir.mkdir(parents=True, exist_ok=True)
             target_path = backup_dir.joinpath(filename)
             if target_path.exists():
-                Logger.print_info(f"File '{target_path}' already exists. Skipping ...")
+                Logger.print_info(_tr("File '{}' already exists. Skipping ...").format(target_path))
                 return True
 
             shutil.copy2(source_path, target_path)
 
             Logger.print_ok(
-                f"Successfully backed up '{source_path}' to '{target_path}'"
+                _tr("Successfully backed up '{}' to '{}'").format(source_path, target_path)
             )
             return True
 
         except Exception as e:
-            Logger.print_error(f"Failed to backup '{source_path}': {e}")
+            Logger.print_error(_tr("Failed to backup '{}': {}").format(source_path, e))
             return False
 
     def backup_directory(
@@ -94,16 +95,16 @@ class BackupService:
     ) -> Optional[Path]:
         source_path = Path(source_path)
 
-        Logger.print_status(f"Creating backup of {source_path} ...")
+        Logger.print_status(_tr("Creating backup of {} ...").format(source_path))
 
         if not source_path.exists():
             Logger.print_info(
-                f"Directory '{source_path}' does not exist! Skipping backup..."
+                _tr("Directory '{}' does not exist! Skipping backup...").format(source_path)
             )
             return None
 
         if not source_path.is_dir():
-            Logger.print_info(f"'{source_path}' is not a directory! Skipping backup...")
+            Logger.print_info(_tr("'{}' is not a directory! Skipping backup...").format(source_path))
             return None
 
         try:
@@ -117,7 +118,7 @@ class BackupService:
                 backup_path = self._backup_root.joinpath(backup_dir_name)
 
             if backup_path.exists():
-                Logger.print_info(f"Reusing existing backup directory '{backup_path}'")
+                Logger.print_info(_tr("Reusing existing backup directory '{}'").format(backup_path))
                 for item in source_path.rglob("*"):
                     relative_path = item.relative_to(source_path)
                     target_item = backup_path.joinpath(relative_path)
@@ -126,7 +127,7 @@ class BackupService:
                             target_item.parent.mkdir(parents=True, exist_ok=True)
                             shutil.copy2(item, target_item)
                         else:
-                            Logger.print_info(f"File '{target_item}' already exists. Skipping...")
+                            Logger.print_info(_tr("File '{}' already exists. Skipping...").format(target_item))
                     elif item.is_dir():
                         target_item.mkdir(parents=True, exist_ok=True)
             else:
@@ -139,12 +140,12 @@ class BackupService:
                 )
 
             Logger.print_ok(
-                f"Successfully backed up '{source_path}' to '{backup_path}'"
+                _tr("Successfully backed up '{}' to '{}'").format(source_path, backup_path)
             )
             return backup_path
 
         except Exception as e:
-            Logger.print_error(f"Failed to backup directory '{source_path}': {e}")
+            Logger.print_error(_tr("Failed to backup directory '{}': {}").format(source_path, e))
             return None
 
     ################################################
@@ -181,9 +182,9 @@ class BackupService:
         instances: List[Klipper] = get_instances(Klipper)
         if not instances:
             # fallback: search for printer data directories in the user's home directory
-            Logger.print_info("No Klipper instances found via systemd services.")
+            Logger.print_info(_tr("No Klipper instances found via systemd services."))
             Logger.print_info(
-                "Attempting to find printer data directories in home directory..."
+                _tr("Attempting to find printer data directories in home directory...")
             )
 
             home_dir = Path.home()
@@ -195,9 +196,9 @@ class BackupService:
                         printer_data_dirs.append(data_dir)
 
             if not printer_data_dirs:
-                Logger.print_info("Unable to find directory to backup!")
+                Logger.print_info(_tr("Unable to find directory to backup!"))
                 Logger.print_info(
-                    "No printer data directories found in home directory."
+                    _tr("No printer data directories found in home directory.")
                 )
                 return
 

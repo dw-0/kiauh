@@ -15,6 +15,7 @@ from typing import Any, Callable, List, TypeVar
 
 from components.klipper import KLIPPER_REPO_URL
 from components.moonraker import MOONRAKER_REPO_URL
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from core.simple_config_parser.simple_config_parser import (
@@ -35,13 +36,16 @@ class InvalidValueError(Exception):
     """Raised when a value is invalid for an option"""
 
     def __init__(self, section: str, option: str, value: str):
-        msg = f"Invalid value '{value}' for option '{option}' in section '{section}'"
+        msg = _tr("Invalid value '{}' for option '{}' in section '{}'").format(
+            value, option, section
+        )
         super().__init__(msg)
 
 
 @dataclass
 class AppSettings:
     backup_before_update: bool | None = field(default=None)
+    language: str | None = field(default=None)
 
 
 @dataclass
@@ -158,6 +162,14 @@ class KiauhSettings:
             self.config.getboolean,
             False,
         )
+        self.kiauh.language = self.__read_from_cfg(
+            "kiauh",
+            "language",
+            self.config.getval,
+            None,
+        )
+        if self.kiauh.language is not None:
+            self.kiauh.language = str(self.kiauh.language).strip() or None
 
         # parse Klipper options
         self.klipper.use_python_binary = self.__read_from_cfg(
@@ -234,7 +246,9 @@ class KiauhSettings:
         if not (has_section and has_option):
             if not silent:
                 Logger.print_warn(
-                    f"Option '{option}' in section '{section}' not defined. Falling back to '{fallback}'."
+                    _tr("Option '{}' in section '{}' not defined. Falling back to '{}'.").format(
+                        option, section, fallback
+                    )
                 )
             return False
         return True
@@ -299,6 +313,12 @@ class KiauhSettings:
                 "kiauh",
                 "backup_before_update",
                 str(self.kiauh.backup_before_update),
+            )
+        if self.kiauh.language is not None:
+            self.config.set_option(
+                "kiauh",
+                "language",
+                str(self.kiauh.language),
             )
 
         # Handle repositories

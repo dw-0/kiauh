@@ -21,6 +21,7 @@ from components.webui_client.client_utils import (
 from components.webui_client.services.web_client_setup_service import (
     WebClientSetupService,
 )
+from core.i18n import _tr
 from core.logger import Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -36,7 +37,7 @@ class ClientInstallMenu(BaseMenu):
         self, client: BaseWebClient, previous_menu: Type[BaseMenu] | None = None
     ):
         super().__init__()
-        self.title = f"Installation Menu > {client.display_name}"
+        self.title = _tr("Installation Menu > {}").format(client.display_name)
         self.title_color = Color.GREEN
         self.previous_menu: Type[BaseMenu] | None = previous_menu
         self.client: BaseWebClient = client
@@ -56,7 +57,7 @@ class ClientInstallMenu(BaseMenu):
 
     def print_menu(self) -> None:
         client_name = self.client.display_name
-        port = f"(Current: {Color.apply(self._get_current_port(), Color.GREEN)})"
+        port = _tr("(Current: {})").format(Color.apply(self._get_current_port(), Color.GREEN))
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
@@ -83,19 +84,19 @@ class ClientInstallMenu(BaseMenu):
         cmd_sysctl_service("nginx", "stop")
         set_listen_port(self.client, curr_port, new_port)
 
-        Logger.print_status("Saving new port configuration ...")
+        Logger.print_status(_tr("Saving new port configuration ..."))
         self.client_settings.port = new_port
         self.settings.save()
-        Logger.print_ok("Port configuration saved!")
+        Logger.print_ok(_tr("Port configuration saved!"))
 
         cmd_sysctl_service("nginx", "start")
 
-        # noinspection HttpUrlsUsage
         message = Message(
-            title="Port reconfiguration complete!",
+            title=_tr("Port reconfiguration complete!"),
             text=[
-                f"Open {self.client.display_name} now on: "
-                f"http://{get_ipv4_addr()}:{new_port}",
+                _tr("Open {} now on: http://{}:{}").format(
+                    self.client.display_name, get_ipv4_addr(), new_port
+                ),
             ],
             color=Color.GREEN,
         )
@@ -104,7 +105,5 @@ class ClientInstallMenu(BaseMenu):
     def _get_current_port(self) -> int:
         curr_port: int | None = get_nginx_listen_port(self.client.nginx_config)
         if curr_port is None:
-            # if the port is not found in the config file we use
-            # the default port from the kiauh settings as fallback
             return int(self.client_settings.port)
         return curr_port

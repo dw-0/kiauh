@@ -18,8 +18,10 @@ from contextlib import contextmanager
 from enum import Enum
 from typing import Dict, Iterator, Type
 
+from core.i18n import _tr
 from core.logger import Logger
 from core.menus import FooterType, Option
+from core.menus.align import BOX_INNER_CONTENT_WIDTH, BOX_OUTER_WIDTH, display_width
 from core.services.message_service import MessageService
 from core.spinner import Spinner
 from core.types.color import Color
@@ -30,67 +32,87 @@ def clear() -> None:
     subprocess.call("clear -x", shell=True)
 
 
+def _center_to(text: str, width: int, fill: str = " ") -> str:
+    pad = width - display_width(text)
+    if pad <= 0:
+        return text
+    lp = pad // 2
+    rp = pad - lp
+    return f"{fill * lp}{text}{fill * rp}"
+
+
 def print_header() -> None:
-    line1 = " [ KIAUH ] "
-    line2 = "Klipper Installation And Update Helper"
+    line1 = _tr(" [ KIAUH ] ")
+    line2 = _tr("Klipper Installation And Update Helper")
     line3 = ""
     color = Color.CYAN
-    count = 62 - len(str(color)) - len(str(Color.RST))
+    count = BOX_INNER_CONTENT_WIDTH
+    top = "╔" + ("═" * (BOX_OUTER_WIDTH - 2)) + "╗"
+    bot = "╚" + ("═" * (BOX_OUTER_WIDTH - 2)) + "╝"
     header = textwrap.dedent(
         f"""
-        ╔═══════════════════════════════════════════════════════╗
-        ║ {Color.apply(f"{line1:~^{count}}", color)} ║
-        ║ {Color.apply(f"{line2:^{count}}", color)} ║
-        ║ {Color.apply(f"{line3:~^{count}}", color)} ║
-        ╚═══════════════════════════════════════════════════════╝
+        {top}
+        ║ {Color.apply(_center_to(line1, count, "~"), color)} ║
+        ║ {Color.apply(_center_to(line2, count, " "), color)} ║
+        ║ {Color.apply(_center_to(line3, count, "~"), color)} ║
+        {bot}
         """
     )[1:]
     print(header, end="")
 
 
 def print_quit_footer() -> None:
-    text = "Q) Quit"
+    text = _tr("Q) Quit")
     color = Color.RED
-    count = 62 - len(str(color)) - len(str(Color.RST))
+    count = BOX_INNER_CONTENT_WIDTH
+    bot = "╚" + ("═" * (BOX_OUTER_WIDTH - 2)) + "╝"
     footer = textwrap.dedent(
         f"""
-        ║ {color}{text:^{count}}{Color.RST} ║
-        ╚═══════════════════════════════════════════════════════╝
+        ║ {color}{_center_to(text, count)}{Color.RST} ║
+        {bot}
         """
     )[1:]
     print(footer, end="")
 
 
 def print_back_footer() -> None:
-    text = "B) « Back"
+    text = _tr("B) « Back")
     color = Color.GREEN
-    count = 62 - len(str(color)) - len(str(Color.RST))
+    count = BOX_INNER_CONTENT_WIDTH
+    bot = "╚" + ("═" * (BOX_OUTER_WIDTH - 2)) + "╝"
     footer = textwrap.dedent(
         f"""
-        ║ {color}{text:^{count}}{Color.RST} ║
-        ╚═══════════════════════════════════════════════════════╝
+        ║ {color}{_center_to(text, count)}{Color.RST} ║
+        {bot}
         """
     )[1:]
     print(footer, end="")
 
 
 def print_back_help_footer() -> None:
-    text1 = "B) « Back"
-    text2 = "H) Help [?]"
+    text1 = _tr("B) « Back")
+    text2 = _tr("H) Help [?]")
     color1 = Color.GREEN
     color2 = Color.YELLOW
-    count = 34 - len(str(color1)) - len(str(Color.RST))
+    col = (BOX_INNER_CONTENT_WIDTH - 3) // 2
+    bot = (
+        "╚"
+        + ("═" * (col + 2))
+        + "╧"
+        + ("═" * (BOX_OUTER_WIDTH - 3 - (col + 2)))
+        + "╝"
+    )
     footer = textwrap.dedent(
         f"""
-        ║ {color1}{text1:^{count}}{Color.RST} │ {color2}{text2:^{count}}{Color.RST} ║
-        ╚═══════════════════════════╧═══════════════════════════╝
+        ║ {color1}{_center_to(text1, col)}{Color.RST} │ {color2}{_center_to(text2, col)}{Color.RST} ║
+        {bot}
         """
     )[1:]
     print(footer, end="")
 
 
 def print_blank_footer() -> None:
-    print("╚═══════════════════════════════════════════════════════╝")
+    print("╚" + ("═" * (BOX_OUTER_WIDTH - 2)) + "╝")
 
 
 class MenuTitleStyle(Enum):
@@ -129,13 +151,12 @@ class BaseMenu(metaclass=PostInitCaller):
 
     def __init__(self, **kwargs) -> None:
         if type(self) is BaseMenu:
-            raise NotImplementedError("BaseMenu cannot be instantiated directly.")
+            raise NotImplementedError(_tr("BaseMenu cannot be instantiated directly."))
 
     def __post_init__(self) -> None:
         self.set_previous_menu(self.previous_menu)
         self.set_options()
 
-        # conditionally add options based on footer type
         if self.footer_type is FooterType.QUIT:
             self.options["q"] = Option(method=self.__exit)
         if self.footer_type is FooterType.BACK:
@@ -143,7 +164,6 @@ class BaseMenu(metaclass=PostInitCaller):
         if self.footer_type is FooterType.BACK_HELP:
             self.options["b"] = Option(method=self.__go_back)
             self.options["h"] = Option(method=self.__go_to_help)
-        # if defined, add the default option to the options dict
         if self.default_option is not None:
             self.options[""] = self.default_option
 
@@ -158,7 +178,7 @@ class BaseMenu(metaclass=PostInitCaller):
         self.help_menu(previous_menu=self.__class__).run()
 
     def __exit(self, **kwargs) -> None:
-        Logger.print_ok("###### Happy printing!", False)
+        Logger.print_ok(_tr("###### Happy printing!"), False)
         sys.exit(0)
 
     @abstractmethod
@@ -185,12 +205,6 @@ class BaseMenu(metaclass=PostInitCaller):
 
     @contextmanager
     def pause_loading(self) -> Iterator[None]:
-        """Temporarily pause the loading spinner while an interactive command runs.
-
-        Use this around subprocess calls that may prompt the user on the
-        terminal (for example ``sudo`` asking for a password). Pausing clears
-        the spinner line so the prompt is not overwritten.
-        """
         spinner = self.spinner
         if spinner is not None:
             spinner.pause()
@@ -201,19 +215,18 @@ class BaseMenu(metaclass=PostInitCaller):
                 spinner.resume()
 
     def __print_menu_title(self) -> None:
-        count = 62 - len(str(self.title_color)) - len(str(Color.RST))
-        menu_title = "╔═══════════════════════════════════════════════════════╗\n"
+        count = BOX_INNER_CONTENT_WIDTH
+        menu_title = "╔" + ("═" * (BOX_OUTER_WIDTH - 2)) + "╗\n"
         if self.title:
             title = (
                 f" [ {self.title} ] "
                 if self.title_style == MenuTitleStyle.STYLED
                 else self.title
             )
-            line = (
-                f"{title:~^{count}}"
-                if self.title_style == MenuTitleStyle.STYLED
-                else f"{title:^{count}}"
-            )
+            if self.title_style == MenuTitleStyle.STYLED:
+                line = _center_to(title, count, "~")
+            else:
+                line = _center_to(title, count, " ")
             menu_title += f"║ {Color.apply(line, self.title_color)} ║\n"
         print(menu_title, end="")
 
@@ -227,7 +240,7 @@ class BaseMenu(metaclass=PostInitCaller):
         elif self.footer_type is FooterType.BLANK:
             print_blank_footer()
         else:
-            raise NotImplementedError("FooterType not correctly implemented!")
+            raise NotImplementedError(_tr("FooterType not correctly implemented!"))
 
     def __display_menu(self) -> None:
         self.message_service.display_message()
@@ -240,10 +253,9 @@ class BaseMenu(metaclass=PostInitCaller):
         self.__print_footer()
 
     def run(self) -> None:
-        """Start the menu lifecycle. When this function returns, the lifecycle of the menu ends."""
         try:
             self.__display_menu()
-            option = get_selection_input(self.input_label_txt, self.options)
+            option = get_selection_input(_tr(self.input_label_txt), self.options)
             selected_option: Option = self.options.get(option)
 
             selected_option.method(
@@ -254,8 +266,6 @@ class BaseMenu(metaclass=PostInitCaller):
             self.run()
 
         except KeyboardInterrupt:
-            # Stop the spinner so the terminal is left in a clean state and the
-            # animation thread does not keep running during interpreter shutdown.
             if self.spinner is not None:
                 self.spinner.stop()
                 self.spinner = None
@@ -263,5 +273,7 @@ class BaseMenu(metaclass=PostInitCaller):
 
         except Exception as e:
             Logger.print_error(
-                f"An unexpected error occured:\n{e}\n{traceback.format_exc()}"
+                _tr("An unexpected error occured:\n{error}\n{traceback}").format(
+                    error=e, traceback=traceback.format_exc()
+                )
             )

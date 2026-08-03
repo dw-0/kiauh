@@ -13,6 +13,7 @@ from typing import List
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from extensions.base_extension import BaseExtension
@@ -47,9 +48,8 @@ from utils.sys_utils import (
 # noinspection PyMethodMayBeStatic
 class OctoappExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
-        Logger.print_status("Installing OctoApp for Klipper ...")
+        Logger.print_status(_tr("Installing OctoApp for Klipper ..."))
 
-        # check if moonraker is installed. if not, notify the user and exit
         if not moonraker_exists():
             return
 
@@ -59,16 +59,15 @@ class OctoappExtension(BaseExtension):
             Logger.print_dialog(
                 DialogType.INFO,
                 [
-                    "OctoApp is already installed!",
-                    "It is safe to run the installer again to link your "
-                    "printer or repair any issues.",
+                    _tr("OctoApp is already installed!"),
+                    _tr("It is safe to run the installer again to link your printer or repair any issues."),
                 ],
             )
-            if not get_confirm("Re-run OctoApp installation?"):
-                Logger.print_info("Exiting OctoApp for Klipper installation ...")
+            if not get_confirm(_tr("Re-run OctoApp installation?")):
+                Logger.print_info(_tr("Exiting OctoApp for Klipper installation ..."))
                 return
             else:
-                Logger.print_status("Re-Installing OctoApp for Klipper ...")
+                Logger.print_status(_tr("Re-Installing OctoApp for Klipper ..."))
                 force_clone = True
 
         mr_instances: List[Moonraker] = get_instances(Moonraker)
@@ -78,19 +77,19 @@ class OctoappExtension(BaseExtension):
             Logger.print_dialog(
                 DialogType.INFO,
                 [
-                    "The following Moonraker instances were found:",
+                    _tr("The following Moonraker instances were found:"),
                     *mr_names,
                     "\n\n",
-                    "The setup will apply the same names to OctoApp!",
+                    _tr("The setup will apply the same names to OctoApp!"),
                 ],
             )
 
         if not get_confirm(
-            "Continue OctoApp for Klipper installation?",
+            _tr("Continue OctoApp for Klipper installation?"),
             default_choice=True,
             allow_go_back=True,
         ):
-            Logger.print_info("Exiting OctoApp for Klipper installation ...")
+            Logger.print_info(_tr("Exiting OctoApp for Klipper installation ..."))
             return
 
         try:
@@ -104,28 +103,28 @@ class OctoappExtension(BaseExtension):
 
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                ["OctoApp for Klipper successfully installed!"],
+                [_tr("OctoApp for Klipper successfully installed!")],
                 center_content=True,
             )
 
         except Exception as e:
-            Logger.print_error(f"Error during OctoApp for Klipper installation:\n{e}")
+            Logger.print_error(_tr("Error during OctoApp for Klipper installation:\n{}").format(e))
 
     def update_extension(self, **kwargs) -> None:
-        Logger.print_status("Updating OctoApp for Klipper ...")
+        Logger.print_status(_tr("Updating OctoApp for Klipper ..."))
         try:
             Octoapp.update()
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                ["OctoApp for Klipper successfully updated!"],
+                [_tr("OctoApp for Klipper successfully updated!")],
                 center_content=True,
             )
 
         except Exception as e:
-            Logger.print_error(f"Error during OctoApp for Klipper update:\n{e}")
+            Logger.print_error(_tr("Error during OctoApp for Klipper update:\n{}").format(e))
 
     def remove_extension(self, **kwargs) -> None:
-        Logger.print_status("Removing OctoApp for Klipper ...")
+        Logger.print_status(_tr("Removing OctoApp for Klipper ..."))
 
         mr_instances: List[Moonraker] = get_instances(Moonraker)
         ob_instances: List[Octoapp] = get_instances(Octoapp)
@@ -140,12 +139,12 @@ class OctoappExtension(BaseExtension):
             run_remove_routines(OA_INSTALLER_LOG_FILE)
             Logger.print_dialog(
                 DialogType.SUCCESS,
-                ["OctoApp for Klipper successfully removed!"],
+                [_tr("OctoApp for Klipper successfully removed!")],
                 center_content=True,
             )
 
         except Exception as e:
-            Logger.print_error(f"Error during OctoApp for Klipper removal:\n{e}")
+            Logger.print_error(_tr("Error during OctoApp for Klipper removal:\n{}").format(e))
 
     def _install_OA_dependencies(self) -> None:
         OA_deps = []
@@ -156,7 +155,7 @@ class OctoappExtension(BaseExtension):
             OA_deps = parse_packages_from_file(OA_INSTALL_SCRIPT)
 
         if not OA_deps:
-            raise ValueError("Error reading OctoApp dependencies!")
+            raise ValueError(_tr("Error reading OctoApp dependencies!"))
 
         check_install_dependencies({*OA_deps})
         install_python_requirements(OA_ENV_DIR, OA_REQ_FILE)
@@ -166,42 +165,42 @@ class OctoappExtension(BaseExtension):
         instance_list: List[Octoapp],
     ) -> None:
         if not instance_list:
-            Logger.print_info("No OctoApp instances found. Skipped ...")
+            Logger.print_info(_tr("No OctoApp instances found. Skipped ..."))
             return
 
         for instance in instance_list:
             Logger.print_status(
-                f"Removing instance {instance.service_file_path.stem} ..."
+                _tr("Removing instance {} ...").format(instance.service_file_path.stem)
             )
             InstanceManager.remove(instance)
 
     def _remove_OA_dir(self) -> None:
-        Logger.print_status("Removing OctoApp for Klipper directory ...")
+        Logger.print_status(_tr("Removing OctoApp for Klipper directory ..."))
 
         if not OA_DIR.exists():
-            Logger.print_info(f"'{OA_DIR}' does not exist. Skipped ...")
+            Logger.print_info(_tr("'{}' does not exist. Skipped ...").format(OA_DIR))
             return
 
         run_remove_routines(OA_DIR)
 
     def _remove_OA_store_dirs(self) -> None:
-        Logger.print_status("Removing OctoApp for Klipper store directory ...")
+        Logger.print_status(_tr("Removing OctoApp for Klipper store directory ..."))
 
         klipper_instances: List[Moonraker] = get_instances(Klipper)
 
         for instance in klipper_instances:
             store_dir = instance.data_dir.joinpath("octoapp-store")
             if not store_dir.exists():
-                Logger.print_info(f"'{store_dir}' does not exist. Skipped ...")
+                Logger.print_info(_tr("'{}' does not exist. Skipped ...").format(store_dir))
                 return
 
             run_remove_routines(store_dir)
 
     def _remove_OA_env(self) -> None:
-        Logger.print_status("Removing OctoApp for Klipper environment ...")
+        Logger.print_status(_tr("Removing OctoApp for Klipper environment ..."))
 
         if not OA_ENV_DIR.exists():
-            Logger.print_info(f"'{OA_ENV_DIR}' does not exist. Skipped ...")
+            Logger.print_info(_tr("'{}' does not exist. Skipped ...").format(OA_ENV_DIR))
             return
 
         run_remove_routines(OA_ENV_DIR)

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import List, Literal, Type
 
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.menus import Option
 from core.menus.base_menu import BaseMenu
@@ -33,15 +34,15 @@ class RepoSelectMenu(BaseMenu):
         self.title_color = Color.CYAN
         self.previous_menu = previous_menu
         self.settings = KiauhSettings()
-        self.input_label_txt = "Select repository"
+        self.input_label_txt = _tr("Select repository")
         self.name = name
         self.repos = repos
 
         if self.name == "klipper":
-            self.title = "Klipper Repository Selection Menu"
+            self.title = _tr("Klipper Repository Selection Menu")
 
         elif self.name == "moonraker":
-            self.title = "Moonraker Repository Selection Menu"
+            self.title = _tr("Moonraker Repository Selection Menu")
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.settings_menu import SettingsMenu
@@ -62,24 +63,31 @@ class RepoSelectMenu(BaseMenu):
         self.options["b"] = Option(method=self.go_back)
 
     def print_menu(self) -> None:
+        available_repos_header = _tr("Available Repositories:")
+        add_repo_label = _tr("A) Add repository")
+        remove_repo_label = _tr("R) Remove repository")
         menu = "╟───────────────────────────────────────────────────────╢\n"
-        menu += "║ Available Repositories:                               ║\n"
+        menu += f"║ {available_repos_header:<55} ║\n"
         menu += "╟───────────────────────────────────────────────────────╢\n"
         for idx, repo in enumerate(self.repos, start=1):
-            url = f"● Repo: {repo.url.replace('.git', '')}"
-            branch = f"└► Branch: {repo.branch}"
+            url_label = _tr("● Repo:")
+            branch_label = _tr("└► Branch:")
+            url = f"{url_label} {repo.url.replace('.git', '')}"
+            branch = f"{branch_label} {repo.branch}"
             menu += f"║ {idx}) {Color.apply(url, Color.CYAN):<59} ║\n"
             menu += f"║    {Color.apply(branch, Color.CYAN):<59} ║\n"
         menu += "╟───────────────────────────────────────────────────────╢\n"
-        menu += "║ A) Add repository                                     ║\n"
-        menu += "║ R) Remove repository                                  ║\n"
+        menu += f"║ {add_repo_label:<55} ║\n"
+        menu += f"║ {remove_repo_label:<55} ║\n"
         menu += "╟───────────────────────────────────────────────────────╢\n"
         print(menu, end="")
 
     def select_repository(self, **kwargs) -> None:
         repo: Repository = kwargs.get("opt_data")
         Logger.print_status(
-            f"Switching to {self.name.capitalize()}'s new source repository ..."
+            _tr("Switching to {name}'s new source repository ...").format(
+                name=self.name.capitalize()
+            )
         )
         run_switch_repo_routine(self.name, repo.url, repo.branch)
 
@@ -87,30 +95,36 @@ class RepoSelectMenu(BaseMenu):
         while True:
             Logger.print_dialog(
                 DialogType.CUSTOM,
-                custom_title="Enter the repository URL",
+                custom_title=_tr("Enter the repository URL"),
                 content=[
-                    "NOTE: There is no input validation in place, "
-                    "please check your input for correctness",
+                    _tr(
+                        "NOTE: There is no input validation in place, "
+                        "please check your input for correctness"
+                    ),
                 ],
             )
-            url = get_string_input("Repository URL", allow_special_chars=True).strip()
+            url = get_string_input(
+                _tr("Repository URL"), allow_special_chars=True
+            ).strip()
 
             Logger.print_dialog(
                 DialogType.CUSTOM,
-                custom_title="Enter the branch name",
-                content=[ "Press Enter to use the default branch (master)." ],
+                custom_title=_tr("Enter the branch name"),
+                content=[_tr("Press Enter to use the default branch (master).")],
                 center_content=False,
             )
-            branch = get_string_input("Branch", allow_special_chars=True, default="master").strip()
+            branch = get_string_input(
+                _tr("Branch"), allow_special_chars=True, default="master"
+            ).strip()
             Logger.print_dialog(
                 DialogType.CUSTOM,
-                custom_title="Summary",
+                custom_title=_tr("Summary"),
                 content=[
                     f"● URL:    {url}",
                     f"● Branch: {branch}",
                 ],
             )
-            confirm = get_confirm("Save repository")
+            confirm = get_confirm(_tr("Save repository"))
             if confirm:
                 repo = Repository(url, branch)
                 if self.name == "klipper":
@@ -121,28 +135,30 @@ class RepoSelectMenu(BaseMenu):
                     self.settings.moonraker.repositories.append(repo)
                     self.settings.save()
                     self.repos = self.settings.moonraker.repositories
-                Logger.print_ok("Repository added and saved.")
+                Logger.print_ok(_tr("Repository added and saved."))
 
-                # Refresh menu to show new repo immediately and update options
                 self.set_options()
                 self.run()
                 break
             else:
-                Logger.print_info("Operation cancelled by user.")
+                Logger.print_info(_tr("Operation cancelled by user."))
                 break
 
     def remove_repository(self, **kwargs) -> None:
         repos = self.repos
         if not repos:
-            Logger.print_info("No repositories configured.")
+            Logger.print_info(_tr("No repositories configured."))
             return
-        repo_lines = [f"{idx}) {repo.url} [{repo.branch}]" for idx, repo in enumerate(repos, start=1)]
+        repo_lines = [
+            f"{idx}) {repo.url} [{repo.branch}]"
+            for idx, repo in enumerate(repos, start=1)
+        ]
         Logger.print_dialog(
             DialogType.CUSTOM,
-            custom_title="Available Repositories",
+            custom_title=_tr("Available Repositories"),
             content=[*repo_lines],
         )
-        idx = get_number_input("Select the repository to remove", 1, len(repos))
+        idx = get_number_input(_tr("Select the repository to remove"), 1, len(repos))
         removed = repos.pop(idx - 1)
         if self.name == "klipper":
             self.settings.klipper.repositories = repos
@@ -152,9 +168,12 @@ class RepoSelectMenu(BaseMenu):
             self.settings.moonraker.repositories = repos
             self.settings.save()
             self.repos = self.settings.moonraker.repositories
-        Logger.print_ok(f"Removed repository: {removed.url} [{removed.branch}]")
+        Logger.print_ok(
+            _tr("Removed repository: {url} [{branch}]").format(
+                url=removed.url, branch=removed.branch
+            )
+        )
 
-        # Refresh menu to show updated repo list and options
         self.set_options()
         self.run()
 

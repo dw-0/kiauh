@@ -18,6 +18,7 @@ from components.moonraker.moonraker import Moonraker
 from core.constants import (
     GLOBAL_DEPS,
 )
+from core.i18n import _tr
 from core.logger import DialogType, Logger
 from core.types.color import Color
 from core.types.component_status import ComponentStatus, StatusCode
@@ -85,8 +86,8 @@ def check_install_dependencies(
 
     requirements = check_package_install(deps)
     if requirements:
-        Logger.print_status("Installing dependencies ...")
-        Logger.print_info("The following packages need installation:")
+        Logger.print_status(_tr("Installing dependencies ..."))
+        Logger.print_info(_tr("The following packages need installation:"))
         for r in requirements:
             print(Color.apply(f"● {r}", Color.CYAN))
         # Installing against stale or missing package metadata is unsafe, so abort
@@ -162,17 +163,17 @@ def moonraker_exists(name: str = "") -> List[Moonraker]:
     mr_instances: List[Moonraker] = get_instances(Moonraker)
 
     info = (
-        f"{name} requires Moonraker to be installed"
+        _tr("{} requires Moonraker to be installed").format(name)
         if name
-        else "A Moonraker installation is required"
+        else _tr("A Moonraker installation is required")
     )
 
     if not mr_instances:
         Logger.print_dialog(
             DialogType.WARNING,
             [
-                "No Moonraker instances found!",
-                f"{info}. Please install Moonraker first!",
+                _tr("No Moonraker instances found!"),
+                _tr("{}. Please install Moonraker first!").format(info),
             ],
         )
         return []

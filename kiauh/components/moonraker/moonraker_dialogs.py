@@ -12,6 +12,7 @@ from typing import List
 
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
+from core.i18n import _tr
 from core.menus.base_menu import print_back_footer
 from core.types.color import Color
 
@@ -22,7 +23,7 @@ def print_moonraker_overview(
     show_index=False,
     show_select_all=False,
 ):
-    headline = Color.apply("The following instances were found:", Color.GREEN)
+    headline = Color.apply(_tr("The following instances were found:"), Color.GREEN)
     dialog = textwrap.dedent(
         f"""
         ╔═══════════════════════════════════════════════════════╗
@@ -32,7 +33,7 @@ def print_moonraker_overview(
     )[1:]
 
     if show_select_all:
-        select_all = Color.apply("a) Select all", Color.YELLOW)
+        select_all = Color.apply(_tr("a) Select all"), Color.YELLOW)
         dialog += f"║ {select_all:<63}║\n"
         dialog += "║                                                       ║\n"
 
@@ -48,15 +49,22 @@ def print_moonraker_overview(
     for i, k in enumerate(instance_map):
         mr_name = instance_map.get(k)
         m = f"<-> {mr_name}" if mr_name != "" else ""
-        line = Color.apply(f"{f'{i + 1})' if show_index else '●'} {k} {m}", Color.CYAN)
+        line = Color.apply(
+            _tr("{} {} {}").format(
+                f"{i + 1})" if show_index else "●",
+                k,
+                m,
+            ),
+            Color.CYAN,
+        )
         dialog += f"║ {line:<63}║\n"
 
-    warn_l1 = Color.apply("PLEASE NOTE:", Color.YELLOW)
+    warn_l1 = Color.apply(_tr("PLEASE NOTE:"), Color.YELLOW)
     warn_l2 = Color.apply(
-        "If you select an instance with an existing Moonraker", Color.YELLOW
+        _tr("If you select an instance with an existing Moonraker"), Color.YELLOW
     )
     warn_l3 = Color.apply(
-        "instance, that Moonraker instance will be re-created!", Color.YELLOW
+        _tr("instance, that Moonraker instance will be re-created!"), Color.YELLOW
     )
     warning = textwrap.dedent(
         f"""
