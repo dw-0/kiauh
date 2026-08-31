@@ -28,6 +28,9 @@ class HappyHareExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
         Logger.print_status("Installing Happy Hare ...")
 
+        if not self._is_supported_version():
+            return
+
         try:
             if check_file_exist(HAPPY_HARE_DIR.joinpath(".git")):
                 git_pull_wrapper(HAPPY_HARE_DIR)
@@ -39,6 +42,8 @@ class HappyHareExtension(BaseExtension):
                 return
             else:
                 git_clone_wrapper(HAPPY_HARE_REPO, HAPPY_HARE_DIR)
+            if not self._is_supported_version():
+                return
             self._run_installer("-z", "-f", "--last")
         except (GitException, CalledProcessError, OSError) as e:
             Logger.print_error(f"Error during Happy Hare installation:\n{e}")
@@ -53,6 +58,9 @@ class HappyHareExtension(BaseExtension):
     def update_extension(self, **kwargs) -> None:
         Logger.print_status("Updating Happy Hare ...")
 
+        if not self._is_supported_version():
+            return
+
         if not check_file_exist(HAPPY_HARE_DIR.joinpath(".git")):
             Logger.print_info(
                 "Happy Hare does not seem to be installed. Use Install first."
@@ -61,6 +69,8 @@ class HappyHareExtension(BaseExtension):
 
         try:
             git_pull_wrapper(HAPPY_HARE_DIR)
+            if not self._is_supported_version():
+                return
             self._run_installer("-z", "-f", "--last")
         except (CalledProcessError, OSError) as e:
             Logger.print_error(f"Error during Happy Hare update:\n{e}")
@@ -74,6 +84,9 @@ class HappyHareExtension(BaseExtension):
 
     def remove_extension(self, **kwargs) -> None:
         Logger.print_status("Removing Happy Hare ...")
+
+        if not self._is_supported_version():
+            return
 
         if not check_file_exist(HAPPY_HARE_INSTALL_SCRIPT):
             Logger.print_warn(
@@ -114,3 +127,17 @@ class HappyHareExtension(BaseExtension):
             cwd=HAPPY_HARE_DIR,
             check=True,
         )
+
+    def _is_supported_version(self) -> bool:
+        if not check_file_exist(HAPPY_HARE_INSTALL_SCRIPT):
+            return True
+
+        try:
+            supported = "Happy Hare v4" in HAPPY_HARE_INSTALL_SCRIPT.read_text()
+        except OSError:
+            supported = False
+
+        if not supported:
+            Logger.print_error("Kiauh only supports Happy Hare version 4")
+
+        return supported
