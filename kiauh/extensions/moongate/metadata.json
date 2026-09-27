@@ -5,9 +5,8 @@
     "maintained_by": "PEEKYPAUL",
     "display_name": "Moongate for Klipper",
     "description": [
-      "Pair this printer with the Moongate Android app for secure remote",
-      "access and print monitoring. Installs cloudflared, a Cloudflare",
-      "quick-tunnel and an EdDSA auth gate in front of Moonraker."
+      "Pair this printer with the Moongate app on Android or iPhone for secure remote access and print monitoring.",
+      "Installs cloudflared, a Cloudflare quick-tunnel and an EdDSA auth gate in front of Moonraker."
     ],
     "repo": "https://github.com/PEEKYPAUL/Moongate",
     "updates": true
