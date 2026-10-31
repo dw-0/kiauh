@@ -107,5 +107,7 @@ class TestThemeMenuNumbering:
     ) -> None:
         menu.print_menu()
         out = capsys.readouterr().out
-        assert "https://docs.mainsail.xyz/features/custom-themes/" in out
+        # the url is too long for the menu box, so it is wrapped over two lines
+        assert "║ https://docs.mainsail.xyz/features/custom-            ║" in out
+        assert "║ themes/community-themes/                              ║" in out
         assert "theming/themes" not in out

@@ -108,7 +108,8 @@ class MainsailThemeInstallMenu(BaseMenu):
             f"""
             ╟───────────────────────────────────────────────────────╢
             ║ {line1:<62} ║
-            ║ https://docs.mainsail.xyz/features/custom-themes/     ║
+            ║ https://docs.mainsail.xyz/features/custom-            ║
+            ║ themes/community-themes/                              ║
             ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
