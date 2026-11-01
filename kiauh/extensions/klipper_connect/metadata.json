@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "index": 17,
+        "module": "klipper_connect_extension",
+        "maintained_by": "amd989",
+        "display_name": "klipper-connect",
+        "description": [
+            "Use Prusa Connect with Klipper printers.",
+            "A bridge that runs next to Moonraker, one service per printer.",
+            "Not affiliated with Prusa Research."
+        ],
+        "repo": "https://github.com/amd989/klipper-connect",
+        "updates": true
+    }
+}
