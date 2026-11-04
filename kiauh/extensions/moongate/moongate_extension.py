@@ -134,7 +134,8 @@ class MoongateExtension(BaseExtension):
                 "Moongate installed successfully!",
                 "\n\n",
                 "Next steps:",
-                "● Install the Moongate app on your Android device.",
+                "● Install the Moongate app on your phone (Google Play for "
+                "Android, the App Store for iPhone).",
                 (
                     "● In the app: Add printer > Direct (LAN/VPN), then run "
                     "MOONGATE_PAIR in the Klipper console and scan the QR (or "
@@ -224,8 +225,8 @@ class MoongateExtension(BaseExtension):
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Moongate pairs this printer with the Moongate Android app for "
-                "secure remote access and print monitoring.",
+                "Moongate pairs this printer with the Moongate app on Android or "
+                "iPhone for secure remote access and print monitoring.",
                 "\n\n",
                 "This is a heavier install than most extensions. It will:",
                 "● clone the Moongate repo to ~/moongate",
