@@ -13,6 +13,7 @@ import textwrap
 from typing import Type
 
 from components.crowsnest.crowsnest import install_crowsnest
+from components.katapult.katapult import install_katapult
 from components.klipper.services.klipper_setup_service import KlipperSetupService
 from components.klipperscreen.klipperscreen import install_klipperscreen
 from components.moonraker.services.moonraker_setup_service import MoonrakerSetupService
@@ -56,6 +57,7 @@ class InstallMenu(BaseMenu):
             "6": Option(method=self.install_fluidd_config),
             "7": Option(method=self.install_klipperscreen),
             "8": Option(method=self.install_crowsnest),
+            "9": Option(method=self.install_katapult),
         }
 
     def print_menu(self) -> None:
@@ -68,8 +70,8 @@ class InstallMenu(BaseMenu):
             ║                           │ Webcam Streamer:          ║
             ║ Webinterface:             │  8) [Crowsnest]           ║
             ║  3) [Mainsail]            │                           ║
-            ║  4) [Fluidd]              │                           ║
-            ║                           │                           ║
+            ║  4) [Fluidd]              │ CAN Flashtool:            ║
+            ║                           │  9) [Katapult]            ║
             ║ Client-Config:            │                           ║
             ║  5) [Mainsail-Config]     │                           ║
             ║  6) [Fluidd-Config]       │                           ║
@@ -109,3 +111,6 @@ class InstallMenu(BaseMenu):
 
     def install_crowsnest(self, **kwargs) -> None:
         install_crowsnest()
+        
+    def install_katapult(self, **kwargs) -> None:
+        install_katapult()
