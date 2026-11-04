@@ -76,7 +76,7 @@ class MainsailThemeInstallerExtension(BaseExtension):
 # noinspection PyMethodMayBeStatic
 class MainsailThemeInstallMenu(BaseMenu):
     THEMES_URL: str = (
-        "https://raw.githubusercontent.com/mainsail-crew/gb-docs/main/_data/themes.csv"
+        "https://raw.githubusercontent.com/mainsail-crew/docs/zensical/_data/themes.csv"
     )
 
     def __init__(self, instances: List[Klipper]):
@@ -94,8 +94,9 @@ class MainsailThemeInstallMenu(BaseMenu):
         )
 
     def set_options(self) -> None:
+        # Menu numbers start at 1 to match the theme IDs on the Mainsail docs page
         self.options = {
-            f"{index}": Option(self.install_theme, opt_index=f"{index}")
+            f"{index + 1}": Option(self.install_theme, opt_index=f"{index}")
             for index in range(len(self.themes))
         }
 
@@ -107,11 +108,12 @@ class MainsailThemeInstallMenu(BaseMenu):
             f"""
             ╟───────────────────────────────────────────────────────╢
             ║ {line1:<62} ║
-            ║ https://docs.mainsail.xyz/theming/themes              ║
+            ║ https://docs.mainsail.xyz/features/custom-            ║
+            ║ themes/community-themes/                              ║
             ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
-        for i, theme in enumerate(self.themes):
+        for i, theme in enumerate(self.themes, start=1):
             j: str = f" {i}" if i < 10 else f"{i}"
             row: str = f"{j}) [{theme.name}]"
             menu += f"║ {row:<53} ║\n"
@@ -123,12 +125,19 @@ class MainsailThemeInstallMenu(BaseMenu):
             themes: List[ThemeData] = []
             content: str = response.read().decode()
             csv_data: List[str] = content.splitlines()
-            fieldnames = ["name", "short_note", "author", "repo"]
-            csv_reader = csv.DictReader(csv_data, fieldnames=fieldnames, delimiter=",")
-            next(csv_reader)  # skip the header of the csv file
+            # read columns by the csv header, so extra columns in the list
+            # (e.g. "branch" and "preview", used by the docs page) are ignored
+            csv_reader = csv.DictReader(csv_data, delimiter=",")
             for row in csv_reader:
                 row: Dict[str, str]  # type: ignore
-                theme: ThemeData = ThemeData(**row)
+                if not row.get("author") or not row.get("repo"):
+                    continue
+                theme: ThemeData = ThemeData(
+                    name=row.get("name") or row["repo"],
+                    short_note=row.get("short_note") or "",
+                    author=row["author"],
+                    repo=row["repo"],
+                )
                 themes.append(theme)
 
         return themes
