@@ -210,17 +210,17 @@ changes!**
 <tr>
     <th><h3><a href="https://github.com/CodeMasterCody3D/DroidKlipp">DroidKlipp</a></h3></th>
     <th><h3><a href="https://github.com/PEEKYPAUL/Moongate">Moongate</a></h3></th>
-    <th></th>
+    <th><h3><a href="https://github.com/umeiko/KlipperScreen-esp">KlipperScreen-esp</a></h3></th>
 </tr>
 <tr>
     <th><a href="https://github.com/CodeMasterCody3D/DroidKlipp"><img src="https://raw.githubusercontent.com/CodeMasterCody3D/DroidKlipp/main/logo.png" alt="DroidKlipp Logo" height="64"></a></th>
     <th><a href="https://github.com/PEEKYPAUL/Moongate"><img src="https://raw.githubusercontent.com/PEEKYPAUL/Moongate/master/docs/moongate-icon.png" alt="Moongate Logo" height="64"></a></th>
-    <th></th>
+    <th><a href="https://github.com/umeiko/KlipperScreen-esp"><img src="https://raw.githubusercontent.com/umeiko/KlipperScreen-esp/main/docs/assets/branding/klipperscreen-esp-logo-v1.png" alt="KlipperScreen-esp Logo" height="64"></a></th>
 </tr>
 <tr>
     <th>by <a href="https://github.com/CodeMasterCody3D">CodeMasterCody3D</a></th>
     <th>by <a href="https://github.com/PEEKYPAUL">PEEKYPAUL</a></th>
-    <th></th>
+    <th>by <a href="https://github.com/umeiko">umeiko</a></th>
 </tr>
 </table>
 

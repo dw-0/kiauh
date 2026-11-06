@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "index": 17,
+    "module": "klipperscreen_esp_extension",
+    "maintained_by": "umeiko",
+    "display_name": "KlipperScreen-esp",
+    "description": [
+      "A lightweight C++ display and controller for multiple Klipper and Bambu printers",
+      "- Regular desktop app or dedicated display service",
+      "- Wayland or X11 backend for service mode",
+      "- Prebuilt packages for x86_64, arm64, and armhf"
+    ],
+    "website": "https://umeiko.github.io/KlipperScreen-esp/",
+    "repo": "https://github.com/umeiko/KlipperScreen-esp",
+    "updates": false
+  }
+}
