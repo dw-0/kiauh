@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 from json import JSONDecodeError
 from pathlib import Path
@@ -48,6 +47,7 @@ from utils.git_utils import (
 )
 from utils.input_utils import get_number_input
 from utils.instance_utils import get_instances
+from utils.nginx_utils import config_enables_https, listen_ports
 
 
 def get_client_status(
@@ -384,17 +384,21 @@ def get_nginx_listen_port(config: Path) -> int | None:
     :return: The listen port as int or None if not found/parsable
     """
 
-    # noinspection HttpUrlsUsage
-    pattern = r"default_server|http://|https://|[;\[\]]"
     port = ""
     with open(config, "r") as cfg:
         for line in cfg.readlines():
-            line = re.sub(pattern, "", line.strip())
-            if line.startswith("listen"):
-                if ":" not in line:
-                    port = line.split()[-1]
-                else:
-                    port = line.split(":")[-1]
+            stripped = line.strip()
+            if not stripped.startswith("listen"):
+                continue
+            # take the address[:port] token right after the "listen" keyword and
+            # keep the part after the last ":" so both "listen 443 ssl http2;" and
+            # "listen [::]:80;" yield the numeric port instead of a trailing flag
+            fields = stripped[len("listen") :].strip().rstrip(";").split()
+            if not fields:
+                continue
+            token = fields[0].split(":")[-1].strip("[]")
+            if token.isdigit():
+                port = token
         try:
             return int(port)
         except ValueError:
@@ -404,22 +408,36 @@ def get_nginx_listen_port(config: Path) -> int | None:
             return None
 
 
+def is_https_nginx_config(config: Path) -> bool:
+    """
+    Check whether an NGINX site already contains a TLS (HTTPS) server block.
+    :param config: The NGINX config file to inspect
+    :return: True if an active 'listen 443 ssl' directive is present, else False
+    """
+    try:
+        return config_enables_https(config.read_text())
+    except OSError:
+        return False
+
+
 def read_ports_from_nginx_configs() -> List[int]:
     """
     Helper function to iterate over all NGINX configs
-    and read all ports defined for listen
-    :return: A sorted list of listen ports
+    and read EVERY port defined for listen (not just the last one per file, so
+    a dual-listen HTTPS site reports both its redirect port and 443).
+    :return: A sorted list of unique listen ports
     """
     if not NGINX_SITES_ENABLED.exists():
         return []
 
-    port_list: List[int] = []
+    ports: set[int] = set()
     for config in get_nginx_config_list():
-        port = get_nginx_listen_port(config)
-        if port is not None:
-            port_list.append(port)
+        try:
+            ports.update(listen_ports(config.read_text()))
+        except OSError:
+            continue
 
-    return sorted(port_list, key=lambda x: int(x))
+    return sorted(ports)
 
 
 def get_client_port_selection(
