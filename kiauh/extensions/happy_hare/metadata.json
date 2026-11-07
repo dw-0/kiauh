@@ -1,0 +1,13 @@
+{
+    "metadata": {
+        "index": 17,
+        "module": "happy_hare_extension",
+        "maintained_by": "moggieuk",
+        "display_name": "Happy Hare",
+        "description": [
+            "Install or remove Happy Hare MMU/AFC software for Klipper."
+        ],
+        "repo": "https://github.com/moggieuk/Happy-Hare",
+        "updates": true
+    }
+}
