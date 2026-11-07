@@ -182,8 +182,12 @@ def get_crowsnest_version() -> int:
     Get the current major version. Starting with v5 the default branch will be named
     after the major version.
     :return: Current major version
-    """
-    version = get_current_branch(CROWSNEST_DIR)
+    """ 
+
+if not CROWSNEST_DIR.exists():
+    return 0
+
+version = get_current_branch(CROWSNEST_DIR)
     if version is None:
         return 0
     if version == "master":
