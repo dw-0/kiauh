@@ -22,6 +22,48 @@
   <a><img src="https://img.shields.io/github/contributors/dw-0/kiauh"></a>
 </p>
 
+<hr>
+
+<h2 align="center">⚠️ Official Website Disclaimer ⚠️</h2>
+
+**The only official source and website for KIAUH is this GitHub repository:
+[https://github.com/dw-0/kiauh/](https://github.com/dw-0/kiauh/).**
+
+The website **kiauh[.]com** is **not** an official website of this project and
+is **not** affiliated with, endorsed by, or connected to KIAUH or its maintainer
+[dw-0](https://github.com/dw-0) in any way. Its operator neither asked for
+permission nor informed the maintainer. The maintainer has no control over, and
+takes no responsibility for, its content, downloads, instructions, or any other
+material offered there.
+
+Please be aware of the following:
+
+* **Do not download, open, or run anything from kiauh[.]com.** Its start page
+  offers a ZIP file for download. Under no circumstances should you download it,
+  open it, or execute any code from it. Its contents are unverified and may be
+  malicious.
+* **Do not use the contact form on kiauh[.]com.** It does not send your message to
+  any official party of this project. Never submit the form or disclose personal
+  data there. This repository is the only official source and communication channel.
+* **Do not let its appearance, name, or content mislead you.** It is not the project's website, regardless
+  of how it presents itself.
+* **Do not trust any of the information.** Any statement on that site about KIAUH, its usage, its support, or its
+  licensing has no connection to the maintainer and may be inaccurate or
+  outdated.
+
+Please download and install KIAUH from this repository only. Do not run scripts
+or commands obtained from any other source without verifying them against this
+repository first.
+
+The KIAUH name and logo must not be used in a way that suggests an official
+affiliation with or endorsement by this project.
+
+If you come across websites or sources that present or suggest themselves as official KIAUH
+channels, please report them in the
+[GitHub Discussions](https://github.com/dw-0/kiauh/discussions).
+
+This statement remains valid until explicitly revoked by the maintainer.
+
 ## 📄 使用说明
 
 ### 📋 系统要求
