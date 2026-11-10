@@ -1,0 +1,16 @@
+{
+    "metadata": {
+        "index": 17,
+        "module": "klipper_auto_eject_extension",
+        "maintained_by": "ahmedbebars",
+        "display_name": "Klipper Auto-Eject",
+        "description": [
+            "Pushes finished prints off the bed with a blade on the toolhead, so the print queue runs unattended.",
+            "- Cools the bed, then pushes the parts off and checks the bed with the probe",
+            "- Web page with a live bed map, the print queue and every setting",
+            "- Optional: notifications, a printer farm page, Spoolman"
+        ],
+        "repo": "https://github.com/ahmedbebars/klipper-auto-eject",
+        "updates": true
+    }
+}
