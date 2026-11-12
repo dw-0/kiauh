@@ -20,12 +20,13 @@ from utils.git_utils import GitException
 
 class TestInstallKatapult:
     @pytest.fixture
-    def cloned(self, monkeypatch) -> List[str]:
+    def cloned(self, tmp_path: Path, monkeypatch) -> List[str]:
         cloned: List[str] = []
+        monkeypatch.setattr(katapult, "KATAPULT_DIR", tmp_path.joinpath("katapult"))
         monkeypatch.setattr(katapult, "print_katapult_brick_warning", lambda: None)
         monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: True)
         monkeypatch.setattr(
-            katapult, "git_clone_wrapper", lambda repo, *a: cloned.append(repo)
+            katapult, "git_clone_wrapper", lambda repo, *a, **k: cloned.append(repo)
         )
         return cloned
 
@@ -38,12 +39,31 @@ class TestInstallKatapult:
         katapult.install_katapult()
         assert cloned == []
 
-    def test_reports_clone_failure(self, monkeypatch) -> None:
-        def fail(*args) -> None:
+    def test_overwrites_existing_dir_after_confirmation(
+        self, cloned: List[str]
+    ) -> None:
+        katapult.KATAPULT_DIR.mkdir()
+        katapult.install_katapult()
+        assert cloned == [katapult.KATAPULT_REPO]
+
+    def test_keeps_existing_dir_when_overwrite_is_declined(
+        self, cloned: List[str], monkeypatch
+    ) -> None:
+        answers = iter([True, False])
+        monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: next(answers))
+        katapult.KATAPULT_DIR.mkdir()
+
+        katapult.install_katapult()
+
+        assert cloned == []
+
+    def test_reports_clone_failure(self, tmp_path: Path, monkeypatch) -> None:
+        def fail(*args, **kwargs) -> None:
             raise GitException("clone failed")
 
         monkeypatch.setattr(katapult, "print_katapult_brick_warning", lambda: None)
         monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: True)
+        monkeypatch.setattr(katapult, "KATAPULT_DIR", tmp_path.joinpath("katapult"))
         monkeypatch.setattr(katapult, "git_clone_wrapper", fail)
 
         katapult.install_katapult()

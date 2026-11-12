@@ -50,10 +50,18 @@ def install_katapult() -> None:
 
     Logger.print_status("Installing Katapult ...")
 
+    # asked here instead of in git_clone_wrapper, which returns silently when
+    # the overwrite is declined
+    if KATAPULT_DIR.exists() and not get_confirm(
+        f"'{KATAPULT_DIR}' already exists. Overwrite?", default_choice=False
+    ):
+        Logger.print_info("Katapult installation aborted!")
+        return
+
     # step 2: clone Katapult repo
     # build and flash dependencies are checked for when they are needed
     try:
-        git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
+        git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master", force=True)
     except GitException:
         Logger.print_error("Katapult installation failed!")
         return
