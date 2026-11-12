@@ -24,6 +24,8 @@ from components.katapult.flashtool import (
     build_flash_cmd,
     build_request_bootloader_cmd,
     check_katapult_running,
+    convert_serial_to_can_uuid,
+    find_can_bridge_uuids,
     find_canbus_uuids,
     find_uart_devices,
     find_usb_serial_devices,
@@ -152,6 +154,41 @@ class TestCommands:
             "250000",
             "-r",
         ]
+
+
+class TestCanBridges:
+    # checked against flashtool's convert_usbsn_to_uuid()
+    SERIAL = "0123456789abcdef01234567"
+    UUID = "38c9bdae9652"
+
+    def test_converts_serial_like_klipper(self) -> None:
+        assert convert_serial_to_can_uuid(self.SERIAL) == self.UUID
+        assert convert_serial_to_can_uuid(self.SERIAL.upper()) == self.UUID
+
+    def _make_usb_dev(
+        self, sysfs: Path, name: str, usb_id: str, manufacturer: str, serial: str
+    ) -> None:
+        dev = sysfs.joinpath(name)
+        dev.mkdir(parents=True)
+        vendor, product = usb_id.split(":")
+        dev.joinpath("idVendor").write_text(f"{vendor}\n")
+        dev.joinpath("idProduct").write_text(f"{product}\n")
+        dev.joinpath("manufacturer").write_text(f"{manufacturer}\n")
+        dev.joinpath("serial").write_text(f"{serial}\n")
+
+    def test_finds_klipper_bridges(self, tmp_path: Path) -> None:
+        self._make_usb_dev(tmp_path, "1-1", "1d50:606f", "Klipper", self.SERIAL)
+        # Katapult, a Klipper USB device and a third party CAN adapter
+        self._make_usb_dev(tmp_path, "1-2", "1d50:6177", "Klipper", "aabbccdd")
+        self._make_usb_dev(tmp_path, "1-3", "1d50:614e", "Klipper", "aabbccdd")
+        self._make_usb_dev(tmp_path, "1-4", "1d50:606f", "bytewerk", "aabbccdd")
+        # serial numbers that aren't a chip ID are ignored
+        self._make_usb_dev(tmp_path, "1-5", "1d50:606f", "Klipper", "not-hex")
+
+        assert find_can_bridge_uuids(tmp_path) == {self.UUID}
+
+    def test_missing_sysfs(self, tmp_path: Path) -> None:
+        assert find_can_bridge_uuids(tmp_path.joinpath("missing")) == set()
 
 
 class TestCheckKatapultRunning:
@@ -292,6 +329,16 @@ class TestFlashWithFlashtool:
 
         assert len(env["calls"]) == 1
         assert env["started"] is True
+
+    def test_calls_back_for_each_flashed_mcu(self, env) -> None:
+        heads = [_can("000000000000"), _can("111111111111")]
+        env["targets"] = list(heads)
+        env["answers"] = [True, True, True, False]
+        flashed: List[FlashtoolTarget] = []
+
+        flash_with_flashtool(env["firmware"], "test", on_flashed=flashed.append)
+
+        assert flashed == heads
 
     def test_failed_flash_is_not_marked_as_flashed(self, env) -> None:
         env["targets"] = [

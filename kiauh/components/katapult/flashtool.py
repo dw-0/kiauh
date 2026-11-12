@@ -10,11 +10,12 @@
 from __future__ import annotations
 
 import re
+import struct
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import List, Set, Tuple
+from typing import Callable, List, Set, Tuple
 
 from components.katapult import KATAPULT_FLASHTOOL_PATH
 from components.katapult.firmware_utils import install_flash_deps
@@ -30,12 +31,19 @@ from utils.input_utils import (
 from utils.instance_utils import get_instances, stop_klipper_instances_interactively
 
 SYSFS_NET_DIR = Path("/sys/class/net")
+SYSFS_USB_DIR = Path("/sys/bus/usb/devices")
 SERIAL_BY_ID_DIR = Path("/dev/serial/by-id")
 UART_DEVICE_PATTERNS = ["serial[0-9]", "ttyAMA[0-9]*", "ttyS0"]
 DEFAULT_SERIAL_BAUD = 250000
 # flashtool needs pyserial for USB and UART targets, but also for CAN when the
 # target is a USB to CAN bridge, as it then switches over to its USB serial port
 FLASHTOOL_DEPS = {"python3-serial"}
+
+# USB ID of Klipper running in USB to CAN bridge mode
+CAN_BRIDGE_USB_ID = "1d50:606f"
+# seed Klipper uses to derive the CAN UUID of a bridge from its serial number
+CAN_BRIDGE_UUID_SEED = 0xA16231A7
+MASK_64 = 0xFFFFFFFFFFFFFFFF
 
 # interface type of CAN network devices, see linux/if_arp.h
 ARPHRD_CAN = "280"
@@ -125,6 +133,68 @@ def _read_sysfs(path: Path) -> str:
         return ""
 
 
+def find_can_bridge_uuids(sysfs_usb_dir: Path = SYSFS_USB_DIR) -> Set[str]:
+    """
+    Find the CAN UUIDs of the USB to CAN bridge MCUs running Klipper, the same
+    way flashtool does, without sending anything on the CAN bus |
+    :param sysfs_usb_dir: The sysfs directory of the USB devices
+    :return: The CAN UUIDs of the connected bridges
+    """
+    if not sysfs_usb_dir.is_dir():
+        return set()
+
+    uuids: Set[str] = set()
+    for device in sysfs_usb_dir.iterdir():
+        vendor = _read_sysfs(device.joinpath("idVendor")).lower()
+        product = _read_sysfs(device.joinpath("idProduct")).lower()
+        manufacturer = _read_sysfs(device.joinpath("manufacturer")).lower()
+        serial = _read_sysfs(device.joinpath("serial"))
+        if f"{vendor}:{product}" != CAN_BRIDGE_USB_ID or manufacturer != "klipper":
+            continue
+        try:
+            uuids.add(convert_serial_to_can_uuid(serial))
+        except ValueError:
+            continue
+    return uuids
+
+
+def convert_serial_to_can_uuid(serial: str) -> str:
+    """
+    Derive the CAN UUID of a USB to CAN bridge from its USB serial number, which
+    is the chip ID of the MCU, as Klipper does |
+    :param serial: The USB serial number, in hex
+    :return: The CAN UUID
+    """
+    result = _fasthash64(bytes.fromhex(serial), CAN_BRIDGE_UUID_SEED)
+    # the UUID reported by Klipper is byteswapped
+    uuid = 0
+    for i in range(6):
+        uuid |= ((result >> (i * 8)) & 0xFF) << ((5 - i) * 8)
+    return f"{uuid:012x}"
+
+
+def _fasthash64(buffer: bytes, seed: int) -> int:
+    """Port of the fasthash64 function used by Klipper and flashtool"""
+
+    def mix(value: int) -> int:
+        value ^= value >> 23
+        value = (value * 0x2127599BF4325C37) & MASK_64
+        value ^= value >> 47
+        return value
+
+    m = 0x880355F21E6D1965
+    h = seed ^ ((len(buffer) * m) & MASK_64)
+    long_count = len(buffer) // 8
+    for value in struct.unpack(f"<{long_count}Q", buffer[: long_count * 8]):
+        h ^= mix(value)
+        h = (h * m) & MASK_64
+    remaining = buffer[long_count * 8 :]
+    if remaining:
+        h ^= mix(int.from_bytes(remaining, "little"))
+        h = (h * m) & MASK_64
+    return mix(h)
+
+
 def find_canbus_uuids(cfg_dirs: List[Path]) -> List[Tuple[str, str]]:
     """
     Collect the 'canbus_uuid' values from the Klipper configs |
@@ -182,7 +252,10 @@ def build_request_bootloader_cmd(target: FlashtoolTarget) -> List[str]:
 
 
 def flash_with_flashtool(
-    firmware: Path, operation_name: str, firmware_info: List[str] | None = None
+    firmware: Path,
+    operation_name: str,
+    firmware_info: List[str] | None = None,
+    on_flashed: Callable[[FlashtoolTarget], None] | None = None,
 ) -> None:
     """
     Interactively flash a firmware file to one or more MCUs running Katapult.
@@ -190,6 +263,7 @@ def flash_with_flashtool(
     :param firmware: The firmware file to flash
     :param operation_name: Name of the operation for user messaging, not capitalized
     :param firmware_info: Optional details about the firmware to show before flashing
+    :param on_flashed: Optional callback for each successfully flashed MCU
     :return: None
     """
     if not KATAPULT_FLASHTOOL_PATH.is_file():
@@ -216,8 +290,11 @@ def flash_with_flashtool(
 
     try:
         while target is not None:
-            if run_flashtool(firmware, target) and target.uuid is not None:
-                flashed_uuids.add(target.uuid)
+            if run_flashtool(firmware, target):
+                if target.uuid is not None:
+                    flashed_uuids.add(target.uuid)
+                if on_flashed is not None:
+                    on_flashed(target)
 
             question = f"Flash '{firmware.name}' to another MCU?"
             if not get_confirm(question, default_choice=False):
