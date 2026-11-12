@@ -19,6 +19,7 @@ from typing import Any, Dict, List
 import pytest
 from components.katapult import flashtool
 from components.katapult.flashtool import (
+    Connection,
     FlashtoolTarget,
     build_flash_cmd,
     build_request_bootloader_cmd,
@@ -30,6 +31,10 @@ from components.katapult.flashtool import (
     get_can_interfaces,
     is_interface_up,
 )
+
+
+def _can(uuid: str) -> FlashtoolTarget:
+    return FlashtoolTarget(Connection.CAN, interface="can0", uuid=uuid)
 
 
 def _make_net_dev(sysfs: Path, name: str, dev_type: str, flags: str) -> None:
@@ -121,7 +126,7 @@ class TestCommands:
         monkeypatch.setattr(
             flashtool, "KATAPULT_FLASHTOOL_PATH", Path("/k/flashtool.py")
         )
-        target = FlashtoolTarget("CAN", ["-i", "can0", "-u", "abcdef012345"])
+        target = FlashtoolTarget(Connection.CAN, interface="can0", uuid="abcdef012345")
         assert build_flash_cmd(Path("/klipper/out/klipper.bin"), target) == [
             "python3",
             "/k/flashtool.py",
@@ -137,7 +142,7 @@ class TestCommands:
         monkeypatch.setattr(
             flashtool, "KATAPULT_FLASHTOOL_PATH", Path("/k/flashtool.py")
         )
-        target = FlashtoolTarget("UART", ["-d", "/dev/ttyAMA0", "-b", "250000"])
+        target = FlashtoolTarget(Connection.UART, device="/dev/ttyAMA0", baud=250000)
         assert build_request_bootloader_cmd(target) == [
             "python3",
             "/k/flashtool.py",
@@ -250,20 +255,20 @@ class TestFlashWithFlashtool:
 
     def test_uart_requests_bootloader_before_flashing(self, env) -> None:
         env["targets"] = [
-            FlashtoolTarget("UART", ["-d", "/dev/ttyAMA0"], request_bootloader=True)
+            FlashtoolTarget(Connection.UART, device="/dev/ttyAMA0", baud=250000)
         ]
         env["answers"] = [True, False]
 
         flash_with_flashtool(env["firmware"], "flashing")
 
-        assert [cmd[-1] for cmd in env["calls"]] == ["-r", "/dev/ttyAMA0"]
+        assert [cmd[-1] for cmd in env["calls"]] == ["-r", "250000"]
         assert "-f" in env["calls"][1]
         assert env["started"] is True
 
     def test_flashes_several_mcus_with_klipper_stopped(self, env) -> None:
         env["targets"] = [
-            FlashtoolTarget("T0", ["-u", "000000000000"], uuid="000000000000"),
-            FlashtoolTarget("T1", ["-u", "111111111111"], uuid="111111111111"),
+            _can("000000000000"),
+            _can("111111111111"),
         ]
         # confirm T0, flash another, confirm T1, don't flash another
         env["answers"] = [True, True, True, False]
@@ -277,8 +282,8 @@ class TestFlashWithFlashtool:
 
     def test_declining_the_next_mcu_restarts_klipper(self, env) -> None:
         env["targets"] = [
-            FlashtoolTarget("T0", ["-u", "000000000000"], uuid="000000000000"),
-            FlashtoolTarget("T1", ["-u", "111111111111"], uuid="111111111111"),
+            _can("000000000000"),
+            _can("111111111111"),
         ]
         # confirm T0, flash another, but don't confirm T1
         env["answers"] = [True, True, False]
@@ -290,7 +295,7 @@ class TestFlashWithFlashtool:
 
     def test_failed_flash_is_not_marked_as_flashed(self, env) -> None:
         env["targets"] = [
-            FlashtoolTarget("T0", ["-u", "000000000000"], uuid="000000000000"),
+            _can("000000000000"),
             None,
         ]
         env["answers"] = [True, True]
@@ -302,7 +307,7 @@ class TestFlashWithFlashtool:
         assert env["started"] is True
 
     def test_shows_firmware_info(self, env) -> None:
-        env["targets"] = [FlashtoolTarget("USB", ["-d", "/dev/x"])]
+        env["targets"] = [FlashtoolTarget(Connection.USB, device="/dev/x")]
         env["answers"] = [False]
 
         flash_with_flashtool(env["firmware"], "flashing", ["MCU: stm32g0b1xx"])
@@ -318,7 +323,7 @@ class TestFlashWithFlashtool:
         assert env["stopped"] is False
 
     def test_aborts_before_stopping_klipper(self, env) -> None:
-        env["targets"] = [FlashtoolTarget("USB", ["-d", "/dev/x"])]
+        env["targets"] = [FlashtoolTarget(Connection.USB, device="/dev/x")]
         env["answers"] = [False]
 
         flash_with_flashtool(env["firmware"], "flashing")

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List, Set, Tuple
@@ -47,15 +48,43 @@ CANBUS_UUID_REGEX = re.compile(r"^canbus_uuid\s*[:=]\s*([0-9a-fA-F]{12})\s*([#;]
 CFG_BACKUP_REGEX = re.compile(r"^printer-\d{8}_\d{6}\.cfg$")
 
 
-@dataclass
+class Connection(Enum):
+    CAN = "can"
+    USB = "usb"
+    UART = "uart"
+
+
+@dataclass(frozen=True)
 class FlashtoolTarget:
-    description: str
-    args: List[str]
-    # MCUs connected over UART can't be put into the bootloader automatically
-    # by flashtool, so the bootloader has to be requested before flashing
-    request_bootloader: bool = False
-    # set for CAN targets, to mark already flashed MCUs when flashing several
+    connection: Connection
+    # CAN interface and UUID of CAN targets
+    interface: str | None = None
     uuid: str | None = None
+    # serial device of USB and UART targets, and the baud rate of UART targets
+    device: str | None = None
+    baud: int | None = None
+
+    @property
+    def description(self) -> str:
+        if self.connection is Connection.CAN:
+            return f"CAN interface {self.interface}, UUID {self.uuid}"
+        if self.connection is Connection.USB:
+            return f"USB {self.device}"
+        return f"UART {self.device} at {self.baud} baud"
+
+    @property
+    def args(self) -> List[str]:
+        if self.connection is Connection.CAN:
+            return ["-i", str(self.interface), "-u", str(self.uuid)]
+        if self.connection is Connection.USB:
+            return ["-d", str(self.device)]
+        return ["-d", str(self.device), "-b", str(self.baud)]
+
+    @property
+    def request_bootloader(self) -> bool:
+        # MCUs connected over UART can't be put into the bootloader automatically
+        # by flashtool, so the bootloader has to be requested before flashing
+        return self.connection is Connection.UART
 
 
 def check_katapult_running() -> bool:
@@ -274,11 +303,7 @@ def _select_can_target(flashed_uuids: Set[str]) -> FlashtoolTarget | None:
     if uuid is None:
         return None
 
-    return FlashtoolTarget(
-        description=f"CAN interface {interface}, UUID {uuid}",
-        args=["-i", interface, "-u", uuid],
-        uuid=uuid,
-    )
+    return FlashtoolTarget(Connection.CAN, interface=interface, uuid=uuid)
 
 
 def _select_canbus_uuid(flashed_uuids: Set[str]) -> str | None:
@@ -329,7 +354,7 @@ def _select_usb_target() -> FlashtoolTarget | None:
     if device is None:
         return None
 
-    return FlashtoolTarget(description=f"USB {device}", args=["-d", device])
+    return FlashtoolTarget(Connection.USB, device=device)
 
 
 def _select_uart_target() -> FlashtoolTarget | None:
@@ -348,11 +373,7 @@ def _select_uart_target() -> FlashtoolTarget | None:
         default=DEFAULT_SERIAL_BAUD,
     )
 
-    return FlashtoolTarget(
-        description=f"UART {device} at {baud} baud",
-        args=["-d", device, "-b", str(baud)],
-        request_bootloader=True,
-    )
+    return FlashtoolTarget(Connection.UART, device=device, baud=baud)
 
 
 def _get_uart_device_input() -> str | None:
