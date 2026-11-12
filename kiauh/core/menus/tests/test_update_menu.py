@@ -49,6 +49,10 @@ def patched_menu(monkeypatch: pytest.MonkeyPatch) -> UpdateMenu:
         lambda: _make_status(),
     )
     monkeypatch.setattr(
+        "core.menus.update_menu.get_katapult_status",
+        lambda: _make_status(),
+    )
+    monkeypatch.setattr(
         "core.menus.update_menu.update_system_package_lists", lambda silent: None
     )
     monkeypatch.setattr("core.menus.update_menu.get_upgradable_packages", lambda: [])
@@ -76,7 +80,7 @@ def patched_menu(monkeypatch: pytest.MonkeyPatch) -> UpdateMenu:
 
 class TestUpdateMenuConstruction:
     def test_options_cover_all_components(self, patched_menu: UpdateMenu) -> None:
-        expected = {"a", "1", "2", "3", "4", "5", "6", "7", "8", "9", "b"}
+        expected = {"a", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "b"}
         assert set(patched_menu.options.keys()) == expected
 
     def test_status_data_marked_installed(self, patched_menu: UpdateMenu) -> None:
@@ -253,6 +257,9 @@ class TestUpdateAll:
             patched_menu, "update_crowsnest", lambda **k: calls.append("crowsnest")
         )
         monkeypatch.setattr(
+            patched_menu, "update_katapult", lambda **k: calls.append("katapult")
+        )
+        monkeypatch.setattr(
             patched_menu, "upgrade_system_packages", lambda **k: calls.append("system")
         )
 
@@ -267,5 +274,6 @@ class TestUpdateAll:
             "fluidd_config",
             "klipperscreen",
             "crowsnest",
+            "katapult",
             "system",
         }
