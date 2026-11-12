@@ -9,8 +9,7 @@
 from __future__ import annotations
 
 import shutil
-import time
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError
 from typing import List
 
 from components.katapult import (
@@ -26,6 +25,7 @@ from core.services.backup_service import BackupService
 from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.git_utils import (
+    GitException,
     git_clone_wrapper,
     git_pull_wrapper,
 )
@@ -44,16 +44,9 @@ def install_katapult() -> None:
         Logger.print_info("Katapult installation aborted!")
         return
 
-    Logger.print_status("Starting the installer script for Katapult ...")
-    time.sleep(1)
+    Logger.print_status("Installing Katapult ...")
 
-    # step 2: check for a valid CAN interface
-    # TODO add support for multiple CAN interfaces (or at least list them for the user to choose from)
-    if not check_can_interface("can0"):
-        Logger.print_info("Aborting Katapult installation — no CAN interface found.")
-        return
-
-    # step 3: check for Multi Instances
+    # step 2: check for Multi Instances
 
     # TODO Add multi instance support.
     # I believe we only need to ensure people are offered a way to choose which CAN interface to use.
@@ -79,12 +72,15 @@ def install_katapult() -> None:
         Logger.print_info("Katapult installation aborted!")
         return
 
-    # step 4: clone Katapult repo
-    git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
+    # step 3: clone Katapult repo
+    # build and flash dependencies are checked for when they are needed
+    try:
+        git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
+    except GitException:
+        Logger.print_error("Katapult installation failed!")
+        return
 
-    # step 5: install dependencies
-    # TODO: check for python3-serial, or maybe add an interactive prompt (only used for flashing over USB/UART)
-    # as of now, we only check for python3-serial when building, which will install it along with Katapult even if not needed.
+    Logger.print_ok("Katapult successfully installed!")
 
 
 def print_katapult_brick_warning() -> None:
@@ -198,16 +194,3 @@ def flash_klipper_via_katapult() -> None:
         return
 
     flash_with_flashtool(KLIPPER_FIRMWARE_BIN, "flashing of Klipper")
-
-
-def check_can_interface(interface="can0") -> bool:
-    try:
-        run(
-            ["ip", "link", "show", interface],
-            check=True,
-            capture_output=True,
-        )
-        return True
-    except CalledProcessError:
-        Logger.print_error(f"CAN interface '{interface}' not found or not up!")
-        return False
