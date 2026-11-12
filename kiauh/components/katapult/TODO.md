@@ -2,25 +2,15 @@
 
 ## Automated MCU updates (#480)
 
-Goal: update the Klipper firmware of every MCU with little to no input, by
-remembering which firmware config each MCU uses.
+Done: MCUs flashed with a firmware built from a saved config can be
+remembered (`klipper_flashing.py`), and "Update all remembered MCUs" rebuilds
+each config once, flashes every MCU with Klipper stopped once, USB to CAN
+bridges last, then checks the version each MCU reports to Klipper. Left to do:
 
-- After a successful flash in `flash_with_flashtool()`, offer to remember the
-  MCU (CAN UUID or `/dev/serial/by-id` path) together with the Klipper config
-  it was built with (`FlashOptions().selected_kconfig`, saved configs live in
-  `KLIPPER_KCONFIGS_DIR`). Store the mapping as a small JSON file next to the
-  saved configs, so removing them removes the mapping too.
-- Add an "Update all MCUs" entry: group the remembered MCUs by config, build
-  each config once (`make clean` + `make KCONFIG_CONFIG=...`), then flash its
-  MCUs with `run_flashtool()`, keeping Klipper stopped for the whole run like
-  the "flash another MCU" loop does.
-- Before flashing, compare the MCU in the build's `klipper.dict`
-  (`get_klipper_firmware_info()`) with the remembered one, and skip the MCU on a
-  mismatch instead of flashing it.
-- Flash USB to CAN bridges last: their CAN interface goes down while flashing,
-  which would make the following CAN MCUs fail.
 - Shipping preset configs for common boards, as suggested in #480, needs a
   maintainer decision first, as KIAUH would have to keep them up to date.
+  Esoterical's CANBus guide documents the settings of many boards and could be
+  the source.
 
 ## Multi-instance support
 
