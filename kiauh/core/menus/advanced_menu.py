@@ -17,10 +17,7 @@ from components.katapult.menus.katapult_build_menu import (
     KatapultBuildBootloaderMenu,
     KatapultKConfigMenu,
 )
-from components.katapult.menus.katapult_flash_menu import (
-    KatapultFlashMethodMenu,
-    # KatapultSelectMcuConnectionMenu,
-)
+from components.katapult.menus.katapult_flash_menu import KatapultFlashMethodMenu
 from components.klipper import KLIPPER_DIR
 from components.klipper.klipper import Klipper
 from components.klipper.klipper_utils import install_input_shaper_deps
@@ -62,7 +59,7 @@ class AdvancedMenu(BaseMenu):
             "3": Option(method=self.build_flash),
             "4": Option(method=self.get_id),
             "5": Option(method=self.build_katapult),
-            "6": Option(method=self.flash_deployer),
+            "6": Option(method=self.flash_katapult),
             "7": Option(method=self.flash_klipper_via_katapult),
             "8": Option(method=self.input_shaper),
             "9": Option(method=self.klipper_rollback),
@@ -85,7 +82,7 @@ class AdvancedMenu(BaseMenu):
             ║                           │  10) [Moonraker]          ║
             ║ Katapult:                 │                           ║
             ║  5) [Build Katapult]      │ System:                   ║
-            ║  6) [Flash Deployer]      │  11) [Change hostname]    ║
+            ║  6) [Flash Katapult]      │  11) [Change hostname]    ║
             ║  7) [Flash Klipper]       │                           ║
             ║                           │                           ║
             ╟───────────────────────────┴───────────────────────────╢
@@ -129,8 +126,7 @@ class AdvancedMenu(BaseMenu):
         KatapultKConfigMenu().run()
         KatapultBuildBootloaderMenu(previous_menu=self.__class__).run()
 
-    def flash_deployer(self, **kwargs) -> None:
-        KatapultKConfigMenu().run()
+    def flash_katapult(self, **kwargs) -> None:
         KatapultFlashMethodMenu(previous_menu=self.__class__).run()
 
     def flash_klipper_via_katapult(self, **kwargs) -> None:

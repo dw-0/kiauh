@@ -9,39 +9,45 @@
 from __future__ import annotations
 
 import textwrap
-import time
 from pathlib import Path
-from typing import Type
+from subprocess import CalledProcessError
+from typing import List, Type
 
+from components.katapult import (
+    KATAPULT_BIN,
+    KATAPULT_DEPLOYER_BIN,
+    KATAPULT_FLASHTOOL_PATH,
+    KATAPULT_UF2,
+)
 from components.katapult.firmware_utils import (
-    find_bootloader_file,
-    find_uart_device,
-    find_usb_device_by_id,
-    find_usb_dfu_device,
-    find_usb_rp2_boot_device,
-    get_sd_flash_board_list,
-    start_flash_process,
+    KatapultArch,
+    find_usb_rp2_boot_devices,
+    get_kconfig_arch,
+    run_make_flash,
 )
-from components.katapult.menus.katapult_flash_error_menu import (
-    KatapultNoBoardTypesErrorMenu,
-    KatapultNoDeployerErrorMenu,
-)
+from components.katapult.flashtool import flash_with_flashtool
+from components.katapult.menus.katapult_build_menu import KatapultKConfigMenu
 from components.katapult.menus.katapult_flash_help_menu import (
-    KatapultFlashCommandHelpMenu,
     KatapultFlashMethodHelpMenu,
-    KatapultMcuConnectionHelpMenu,
 )
-from components.klipper_firmware.flash_options import (
-    ConnectionType,
-    FlashCommand,
-    FlashMethod,
-    FlashOptions,
-)
+from components.klipper_firmware.firmware_utils import find_usb_dfu_device
+from components.klipper_firmware.flash_options import FlashOptions
 from core.logger import DialogType, Logger
 from core.menus import FooterType, Option
 from core.menus.base_menu import BaseMenu, MenuTitleStyle
 from core.types.color import Color
-from utils.input_utils import get_number_input
+from utils.input_utils import get_confirm, get_number_input
+from utils.sys_utils import (
+    check_package_install,
+    install_system_packages,
+    update_system_package_lists,
+)
+
+FLASH_DEPS = {
+    KatapultArch.STM32: {"dfu-util"},
+    # required to build rp2040_flash
+    KatapultArch.RP2: {"libusb-1.0-0-dev", "pkg-config"},
+}
 
 
 # noinspection PyUnusedLocal
@@ -49,12 +55,11 @@ from utils.input_utils import get_number_input
 class KatapultFlashMethodMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.title = "MCU Bootloader Flash Menu"
+        self.title = "Flash Katapult Menu"
         self.title_color = Color.CYAN
         self.help_menu = KatapultFlashMethodHelpMenu
         self.input_label_txt = "Select flash method"
         self.footer_type = FooterType.BACK_HELP
-        self.flash_options = FlashOptions()
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         from core.menus.advanced_menu import AdvancedMenu
@@ -65,67 +70,107 @@ class KatapultFlashMethodMenu(BaseMenu):
 
     def set_options(self) -> None:
         self.options = {
-            "1": Option(self.select_regular),
-            "2": Option(self.select_sdcard),
+            "1": Option(self.flash_directly),
+            "2": Option(self.update_through_katapult),
+            "3": Option(self.flash_through_other_bootloader),
         }
 
     def print_menu(self) -> None:
-        subheader = Color.apply("ATTENTION:", Color.YELLOW)
-        subline1 = Color.apply(
-            "Make sure to select the correct method for the MCU!", Color.YELLOW
+        line1 = Color.apply("Flashing a Katapult build with wrong settings", Color.RED)
+        line2 = Color.apply(
+            "can brick the MCU! Double-check the build config", Color.RED
         )
-        subline2 = Color.apply("Not all MCUs support both methods!", Color.YELLOW)
-        subline3 = Color.apply(
-            "Make sure you double-checked settings before proceeding!", Color.RED
-        )
-        subline4 = Color.apply(
-            "Pay special attention to the bootloader offset!!!", Color.RED
-        )
+        line3 = Color.apply("and have a recovery method at hand.", Color.RED)
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ Select the flash method for flashing the MCU.         ║
+            ║ How should Katapult be flashed to the MCU?            ║
             ║                                                       ║
-            ║ {subheader:<62} ║
-            ║ {subline1:<62} ║
-            ║ {subline2:<62} ║
-            ║ {subline3:<62} ║
-            ║ {subline4:<62} ║
+            ║ {line1:<62} ║
+            ║ {line2:<62} ║
+            ║ {line3:<62} ║
             ╟───────────────────────────────────────────────────────╢
-            ║ 1) Regular flashing method                            ║
-            ║ 2) Updating via SD-Card Update                        ║
-            ╟───────────────────────────┬───────────────────────────╢
+            ║ 1) Directly (STM32 DFU mode / RP2040 boot mode)       ║
+            ║ 2) Update through Katapult (deployer)                 ║
+            ║ 3) Through another bootloader (deployer)              ║
+            ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         print(menu, end="")
 
-    def select_regular(self, **kwargs):
-        self.flash_options.flash_method = FlashMethod.REGULAR
-        self.goto_next_menu()
+    def flash_directly(self, **kwargs) -> None:
+        KatapultKConfigMenu().run()
+        kconfig = Path(FlashOptions().selected_kconfig)
+        arch = get_kconfig_arch(kconfig)
 
-    def select_sdcard(self, **kwargs):
-        self.flash_options.flash_method = FlashMethod.SD_CARD
-        self.goto_next_menu()
-
-    def goto_next_menu(self, **kwargs):
-        if find_bootloader_file():
-            KatapultFlashCommandMenu(previous_menu=self.__class__).run()
+        if arch is KatapultArch.STM32:
+            build_output = KATAPULT_BIN
+        elif arch is KatapultArch.RP2:
+            build_output = KATAPULT_UF2
         else:
-            KatapultNoDeployerErrorMenu().run()
+            Logger.print_dialog(
+                DialogType.ERROR,
+                [
+                    f"Katapult can't be flashed directly with the config '{kconfig}'.",
+                    "\n\n",
+                    "Only STM32 MCUs in DFU mode and RP2040/RP235x MCUs in boot "
+                    "mode are supported. Build Katapult first, or flash it with a "
+                    "programmer or through the deployer.",
+                ],
+            )
+            return
+
+        if not install_flash_deps(arch):
+            return
+
+        flash_device = select_flash_device(arch)
+        if flash_device is None:
+            return
+
+        Logger.print_dialog(
+            DialogType.ATTENTION,
+            [
+                f"Config: {kconfig}",
+                f"Device: {flash_device}",
+                "\n\n",
+                f"Katapult will be rebuilt from scratch and '{build_output.name}' "
+                "will be flashed to the device.",
+            ],
+        )
+        if not get_confirm("Start flashing?", default_choice=False):
+            Logger.print_info("Flashing of Katapult aborted!")
+            return
+
+        try:
+            run_make_flash(
+                kconfig, flash_device if arch is KatapultArch.STM32 else None
+            )
+            Logger.print_ok("Flashing successful!", start="\n", end="\n\n")
+        except CalledProcessError:
+            Logger.print_error("Flashing failed! See the output above.")
+
+    def update_through_katapult(self, **kwargs) -> None:
+        if not check_deployer_built():
+            return
+        flash_with_flashtool(KATAPULT_DEPLOYER_BIN, "update of Katapult")
+
+    def flash_through_other_bootloader(self, **kwargs) -> None:
+        if not check_deployer_built():
+            return
+        KatapultDeployerInstructionsMenu(previous_menu=self.__class__).run()
 
 
 # noinspection PyUnusedLocal
 # noinspection PyMethodMayBeStatic
-class KatapultFlashCommandMenu(BaseMenu):
+class KatapultDeployerInstructionsMenu(BaseMenu):
     def __init__(self, previous_menu: Type[BaseMenu] | None = None):
         super().__init__()
-        self.title = "Which flash command to use for flashing the MCU?"
+        self.title = "Flash the Katapult deployer"
+        self.title_color = Color.CYAN
         self.title_style = MenuTitleStyle.PLAIN
-        self.title_color = Color.YELLOW
-        self.help_menu = KatapultFlashCommandHelpMenu
-        self.input_label_txt = "Select flash command"
-        self.footer_type = FooterType.BACK_HELP
-        self.flash_options = FlashOptions()
+        self.previous_menu: Type[BaseMenu] | None = previous_menu
+        self.footer_type = FooterType.BLANK
+        self.input_label_txt = "Press ENTER to go back"
 
     def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
         self.previous_menu = (
@@ -133,365 +178,106 @@ class KatapultFlashCommandMenu(BaseMenu):
         )
 
     def set_options(self) -> None:
-        self.options = {
-            "1": Option(self.select_flash),
-            "2": Option(self.select_serialflash),
-        }
-        self.default_option = Option(self.select_flash)
+        self.default_option = Option(method=self.go_back)
 
     def print_menu(self) -> None:
-        menu = textwrap.dedent(
-            """
-            ╟───────────────────────────────────────────────────────╢
-            ║ 1) make flash (default)                               ║
-            ║ 2) make serialflash (stm32flash)                      ║
-            ╟───────────────────────────┬───────────────────────────╢
-            """
-        )[1:]
-        print(menu, end="")
-
-    def select_flash(self, **kwargs):
-        self.flash_options.flash_command = FlashCommand.FLASH
-        self.goto_next_menu()
-
-    def select_serialflash(self, **kwargs):
-        self.flash_options.flash_command = FlashCommand.SERIAL_FLASH
-        self.goto_next_menu()
-
-    def goto_next_menu(self, **kwargs):
-        KatapultSelectMcuConnectionMenu(previous_menu=self.__class__).run()
-
-
-# noinspection PyUnusedLocal
-# noinspection PyMethodMayBeStatic
-class KatapultSelectMcuConnectionMenu(BaseMenu):
-    def __init__(
-        self, previous_menu: Type[BaseMenu] | None = None, standalone: bool = False
-    ):
-        super().__init__()
-        self.title = "Make sure that the controller board is connected now!"
-        self.title_style = MenuTitleStyle.PLAIN
-        self.title_color = Color.YELLOW
-        self.previous_menu: Type[BaseMenu] | None = previous_menu
-        self.__standalone = standalone
-        self.help_menu = KatapultMcuConnectionHelpMenu
-        self.input_label_txt = "Select connection type"
-        self.footer_type = FooterType.BACK_HELP
-        self.flash_options = FlashOptions()
-
-    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
-        self.previous_menu = (
-            previous_menu if previous_menu is not None else KatapultFlashCommandMenu
-        )
-
-    def set_options(self) -> None:
-        self.options = {
-            "1": Option(method=self.select_usb),
-            "2": Option(method=self.select_dfu),
-            "3": Option(method=self.select_usb_dfu),
-            "4": Option(method=self.select_usb_rp2040),
-        }
-
-    def print_menu(self) -> None:
-        # TODO add 5) can flash using older katapult bootloader (custom command)
-        menu = textwrap.dedent(
-            """
-            ╟───────────────────────────────────────────────────────╢
-            ║ How is the controller board connected to the host?    ║
-            ╟───────────────────────────────────────────────────────╢
-            ║ 1) USB                                                ║
-            ║ 2) UART                                               ║
-            ║ 3) USB (DFU mode)                                     ║
-            ║ 4) USB (RP2040 mode)                                  ║
-            ╟───────────────────────────┬───────────────────────────╢
-            """
-        )[1:]
-        print(menu, end="")
-
-    def select_usb(self, **kwargs):
-        self.flash_options.connection_type = ConnectionType.USB
-        self.get_mcu_list()
-
-    def select_dfu(self, **kwargs):
-        self.flash_options.connection_type = ConnectionType.UART
-        self.get_mcu_list()
-
-    def select_usb_dfu(self, **kwargs):
-        self.flash_options.connection_type = ConnectionType.USB_DFU
-        self.get_mcu_list()
-
-    def select_usb_rp2040(self, **kwargs):
-        self.flash_options.connection_type = ConnectionType.USB_RP2040
-        self.get_mcu_list()
-
-    # TODO add can flashing support
-    # def select_canbus(self, **kwargs):
-    #     raise NotImplementedError("Automated flashing over CAN is not supported yet.")
-
-    def get_mcu_list(self, **kwargs):
-        conn_type = self.flash_options.connection_type
-
-        if conn_type is ConnectionType.USB:
-            Logger.print_status("Identifying MCU connected via USB ...")
-            self.flash_options.mcu_list = find_usb_device_by_id()
-        elif conn_type is ConnectionType.UART:
-            Logger.print_status("Identifying MCU possibly connected via UART ...")
-            self.flash_options.mcu_list = find_uart_device()
-        elif conn_type is ConnectionType.USB_DFU:
-            Logger.print_status("Identifying MCU connected via USB in DFU mode ...")
-            self.flash_options.mcu_list = find_usb_dfu_device()
-        elif conn_type is ConnectionType.USB_RP2040:
-            Logger.print_status(
-                "Identifying MCU connected via USB in RP2 Boot mode ..."
-            )
-            self.flash_options.mcu_list = find_usb_rp2_boot_device()
-
-        if len(self.flash_options.mcu_list) < 1:
-            Logger.print_warn("No MCUs found!")
-            Logger.print_warn("Make sure they are connected and repeat this step.")
-
-        # if standalone is True, we only display the MCUs to the user and return
-        if self.__standalone and len(self.flash_options.mcu_list) > 0:
-            Logger.print_ok("The following MCUs were found:", prefix=False)
-            for i, mcu in enumerate(self.flash_options.mcu_list):
-                print(f"   ● MCU #{i}: {Color.CYAN}{mcu}{Color.RST}")
-            time.sleep(3)
-            return
-
-        self.goto_next_menu()
-
-    def goto_next_menu(self, **kwargs):
-        KatapultSelectMcuIdMenu(previous_menu=self.__class__).run()
-
-
-# noinspection PyUnusedLocal
-# noinspection PyMethodMayBeStatic
-class KatapultSelectMcuIdMenu(BaseMenu):
-    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
-        super().__init__()
-        self.title = "!!! ATTENTION !!!"
-        self.title_style = MenuTitleStyle.PLAIN
-        self.title_color = Color.RED
-        self.flash_options = FlashOptions()
-        self.mcu_list = self.flash_options.mcu_list
-        self.input_label_txt = "Select MCU to flash"
-        self.footer_type = FooterType.BACK
-
-    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
-        self.previous_menu = (
-            previous_menu
-            if previous_menu is not None
-            else KatapultSelectMcuConnectionMenu
-        )
-
-    def set_options(self) -> None:
-        self.options = {
-            f"{i}": Option(self.flash_mcu, f"{i}") for i in range(len(self.mcu_list))
-        }
-
-    def print_menu(self) -> None:
-        header2 = f"[{Color.apply('List of detected MCUs', Color.CYAN)}]"
+        deployer = Color.apply("~/katapult/out/deployer.bin", Color.CYAN)
         menu = textwrap.dedent(
             f"""
             ╟───────────────────────────────────────────────────────╢
-            ║ Make sure to select the correct MCU!                  ║
-            ║ ONLY flash a bootloader created for the specific MCU! ║
+            ║ Flash the deployer with the existing bootloader of    ║
+            ║ the MCU, as you would flash Klipper with it:          ║
+            ║ ● {deployer:<60} ║
             ║                                                       ║
-            ╟{header2:─^64}╢
+            ║ For SD card bootloaders, copy the deployer to the SD  ║
+            ║ card under the name the bootloader expects (usually   ║
+            ║ 'firmware.bin'), then power cycle the board.          ║
             ║                                                       ║
-            """
-        )[1:]
-
-        for i, mcu in enumerate(self.mcu_list):
-            mcu = mcu.split("/")[-1]
-            menu += f"║ {i}) {Color.apply(f'{mcu:<51}', Color.CYAN)}║\n"
-
-        menu += textwrap.dedent(
-            """
-            ║                                                       ║
+            ║ The deployer replaces the existing bootloader with    ║
+            ║ Katapult, then starts Katapult. Flash Klipper again   ║
+            ║ afterwards, built for Katapult's application offset.  ║
             ╟───────────────────────────────────────────────────────╢
             """
         )[1:]
         print(menu, end="")
 
-    def flash_mcu(self, **kwargs):
-        try:
-            index: int | None = kwargs.get("opt_index", None)
-            if index is None:
-                raise Exception("opt_index is None")
-
-            index = int(index)
-            selected_mcu = self.mcu_list[index]
-            self.flash_options.selected_mcu = selected_mcu
-
-            if self.flash_options.flash_method == FlashMethod.SD_CARD:
-                KatapultSelectSDFlashBoardMenu(previous_menu=self.__class__).run()
-            elif self.flash_options.flash_method == FlashMethod.REGULAR:
-                KatapultFlashOverviewMenu(previous_menu=self.__class__).run()
-        except Exception as e:
-            Logger.print_error(e)
-            Logger.print_error("Flashing failed!")
+    def go_back(self, **kwargs) -> None:
+        if self.previous_menu is not None:
+            self.previous_menu().run()
 
 
-# noinspection PyUnusedLocal
-# noinspection PyMethodMayBeStatic
-class KatapultSelectSDFlashBoardMenu(BaseMenu):
-    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
-        super().__init__()
-        self.flash_options = FlashOptions()
-        self.available_boards = get_sd_flash_board_list()
-        self.input_label_txt = "Select board type"
-
-    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
-        self.previous_menu = (
-            previous_menu if previous_menu is not None else KatapultSelectMcuIdMenu
-        )
-
-    def set_options(self) -> None:
-        self.options = {
-            f"{i}": Option(self.board_select, f"{i}")
-            for i in range(len(self.available_boards))
-        }
-
-    def print_menu(self) -> None:
-        if len(self.available_boards) < 1:
-            KatapultNoBoardTypesErrorMenu().run()
-        else:
-            menu = textwrap.dedent(
-                """
-                ║ Please select the type of board that corresponds to   ║
-                ║ the currently selected MCU ID you chose before.       ║
-                ║                                                       ║
-                ║ The following boards are currently supported:         ║
-                ╟───────────────────────────────────────────────────────╢
-                """
-            )[1:]
-
-            for i, board in enumerate(self.available_boards):
-                line = f" {i}) {board}"
-                menu += f"║{line:<55}║\n"
-            menu += "╟───────────────────────────────────────────────────────╢"
-            print(menu, end="")
-
-    def board_select(self, **kwargs):
-        try:
-            index: int | None = kwargs.get("opt_index", None)
-            if index is None:
-                raise Exception("opt_index is None")
-
-            index = int(index)
-            self.flash_options.selected_board = self.available_boards[index]
-            self.baudrate_select()
-        except Exception as e:
-            Logger.print_error(e)
-            Logger.print_error("Board selection failed!")
-
-    def baudrate_select(self, **kwargs):
+def check_deployer_built() -> bool:
+    if not KATAPULT_FLASHTOOL_PATH.is_file():
+        Logger.print_error("Katapult is not installed! Install it first.")
+        return False
+    if not KATAPULT_DEPLOYER_BIN.is_file():
         Logger.print_dialog(
-            DialogType.CUSTOM,
+            DialogType.ERROR,
             [
-                "If your board is flashed with firmware that connects "
-                "at a custom baud rate, please change it now.",
+                f"No deployer found at '{KATAPULT_DEPLOYER_BIN}'!",
                 "\n\n",
-                "If you are unsure, stick to the default 250000!",
+                "Build Katapult with the 'Build Katapult deployment application' "
+                "option set to the offset of the MCU's current bootloader.",
             ],
         )
-        self.flash_options.selected_baudrate = get_number_input(
-            question="Please set the baud rate",
-            default=250000,
-            min_value=0,
-            allow_go_back=True,
-        )
-        KatapultFlashOverviewMenu(previous_menu=self.__class__).run()
+        return False
+    return True
 
 
-# noinspection PyUnusedLocal
-# noinspection PyMethodMayBeStatic
-class KatapultFlashOverviewMenu(BaseMenu):
-    def __init__(self, previous_menu: Type[BaseMenu] | None = None):
-        super().__init__()
-        self.title = "!!! ATTENTION !!!"
-        self.title_style = MenuTitleStyle.PLAIN
-        self.title_color = Color.RED
-        self.flash_options = FlashOptions()
-        self.input_label_txt = "Perform action (default=Y)"
+def install_flash_deps(arch: KatapultArch) -> bool:
+    missing_deps = check_package_install(FLASH_DEPS[arch])
+    if not missing_deps:
+        return True
 
-    def set_previous_menu(self, previous_menu: Type[BaseMenu] | None) -> None:
-        self.previous_menu: Type[BaseMenu] | None = previous_menu
+    Logger.print_dialog(
+        DialogType.ATTENTION,
+        [
+            "Flashing Katapult requires the following packages:",
+            *[f"● {dep}" for dep in missing_deps],
+        ],
+    )
+    if not get_confirm("Install the missing packages now?"):
+        Logger.print_info("Flashing of Katapult aborted!")
+        return False
 
-    def set_options(self) -> None:
-        self.options = {
-            "y": Option(self.execute_flash),
-            "n": Option(self.abort_process),
-        }
+    try:
+        update_system_package_lists(silent=False)
+        install_system_packages(missing_deps)
+        return True
+    except Exception as e:
+        Logger.print_error(f"Installing the dependencies failed!\n{e}")
+        return False
 
-        self.default_option = Option(self.execute_flash)
 
-    def print_menu(self) -> None:
-        method = self.flash_options.flash_method.value
-        command = self.flash_options.flash_command.value
-        conn_type = self.flash_options.connection_type.value
-        mcu = self.flash_options.selected_mcu.split("/")[-1]
-        board = self.flash_options.selected_board
-        baudrate = self.flash_options.selected_baudrate
-        kconfig = Path(self.flash_options.selected_kconfig).name
-        color = Color.CYAN
-        subheader = f"[{Color.apply('Overview', color)}]"
-        menu = textwrap.dedent(
-            f"""
-            ╟───────────────────────────────────────────────────────╢
-            ║ Before contuining the flashing process, please check  ║
-            ║ if all parameters were set correctly! Once you made   ║
-            ║ sure everything is correct, start the process. If any ║
-            ║ parameter needs to be changed, you can go back (B)    ║
-            ║ step by step or abort and start from the beginning.   ║
-            ║{subheader:─^64}║
-            ║                                                       ║
-            """
-        )[1:]
+def select_flash_device(arch: KatapultArch) -> str | None:
+    if arch is KatapultArch.STM32:
+        devices: List[str] = find_usb_dfu_device()
+        mode = "DFU mode"
+    else:
+        devices = find_usb_rp2_boot_devices()
+        mode = "boot mode"
 
-        menu += textwrap.dedent(
-            f"""
-            ║ MCU: {Color.apply(f"{mcu:<48}", color)} ║
-            ║ Connection: {Color.apply(f"{conn_type:<41}", color)} ║
-            ║ Flash method: {Color.apply(f"{method:<39}", color)} ║
-            ║ Flash command: {Color.apply(f"{command:<38}", color)} ║
-            """
-        )[1:]
+    if not devices:
+        Logger.print_error(f"No MCU in {mode} found!")
+        Logger.print_error(f"Put the MCU in {mode} and try again.", prefix=False)
+        return None
+    if len(devices) == 1:
+        return devices[0]
+    if arch is KatapultArch.RP2:
+        # rp2040_flash always flashes the first device it finds
+        Logger.print_error(f"Found {len(devices)} MCUs in {mode}!")
+        Logger.print_error("Only connect the MCU to flash.", prefix=False)
+        return None
 
-        if self.flash_options.flash_method is FlashMethod.SD_CARD:
-            menu += textwrap.dedent(
-                f"""
-                ║ Board type: {Color.apply(f"{board:<41}", color)} ║
-                ║ Baudrate: {Color.apply(f"{baudrate:<43}", color)} ║
-                """
-            )[1:]
-
-        if self.flash_options.flash_method is FlashMethod.REGULAR:
-            menu += textwrap.dedent(
-                f"""
-                ║ Firmware config: {Color.apply(f"{kconfig:<36}", color)} ║
-                """
-            )[1:]
-
-        menu += textwrap.dedent(
-            """
-            ║                                                       ║
-            ╟───────────────────────────────────────────────────────╢
-            ║  Y) Start flash process                               ║
-            ║  N) Abort - Return to Advanced Menu                   ║
-            ╟───────────────────────────────────────────────────────╢
-            """
-        )[1:]
-        print(menu, end="")
-
-    def execute_flash(self, **kwargs):
-        start_flash_process(self.flash_options)
-        Logger.print_info("Returning to MCU Flash Menu in 5 seconds ...")
-        time.sleep(5)
-        KatapultFlashMethodMenu().run()
-
-    def abort_process(self, **kwargs):
-        from core.menus.advanced_menu import AdvancedMenu
-
-        AdvancedMenu().run()
+    Logger.print_dialog(
+        DialogType.CUSTOM,
+        [f"{i}) {device}" for i, device in enumerate(devices, 1)],
+        custom_title=f"MCUs in {mode}",
+    )
+    index = get_number_input(
+        "Select MCU to flash (b=back)",
+        min_value=1,
+        max_value=len(devices),
+        allow_go_back=True,
+    )
+    return devices[index - 1] if index is not None else None

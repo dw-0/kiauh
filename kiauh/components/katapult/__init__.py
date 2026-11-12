@@ -15,6 +15,12 @@ KATAPULT_REPO = "https://github.com/Arksine/katapult"
 # directories
 KATAPULT_DIR = Path.home().joinpath("katapult")
 KATAPULT_KCONFIGS_DIR = Path.home().joinpath("katapult-kconfigs")
+KATAPULT_OUT_DIR = KATAPULT_DIR.joinpath("out")
+
+# build outputs
+KATAPULT_BIN = KATAPULT_OUT_DIR.joinpath("katapult.bin")
+KATAPULT_UF2 = KATAPULT_OUT_DIR.joinpath("katapult.uf2")
+KATAPULT_DEPLOYER_BIN = KATAPULT_OUT_DIR.joinpath("deployer.bin")
 
 # scripts
 KATAPULT_FLASHTOOL_PATH = KATAPULT_DIR.joinpath("scripts/flashtool.py")
