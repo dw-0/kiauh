@@ -13,7 +13,13 @@ from pathlib import Path
 from shutil import copyfile
 from typing import List, Set, Type
 
-from components.katapult import KATAPULT_DIR, KATAPULT_KCONFIGS_DIR
+from components.katapult import (
+    KATAPULT_BIN,
+    KATAPULT_DEPLOYER_BIN,
+    KATAPULT_DIR,
+    KATAPULT_KCONFIGS_DIR,
+    KATAPULT_UF2,
+)
 from components.katapult.firmware_utils import (
     run_make,
     run_make_clean,
@@ -201,7 +207,7 @@ class KatapultBuildBootloaderMenu(BaseMenu):
             run_make(self.kconfig)
 
             Logger.print_ok("Katapult successfully built!")
-            Logger.print_ok(f"Katapult file located in '{KATAPULT_DIR}/out'!")
+            self.print_build_outputs()
 
             if self.kconfig == self.kconfig_default:
                 self.save_katapult_config()
@@ -213,6 +219,17 @@ class KatapultBuildBootloaderMenu(BaseMenu):
         finally:
             if self.previous_menu is not None:
                 self.previous_menu().run()
+
+    def print_build_outputs(self) -> None:
+        outputs = [KATAPULT_BIN, KATAPULT_UF2, KATAPULT_DEPLOYER_BIN]
+        for output in outputs:
+            if output.is_file():
+                Logger.print_ok(f"Built '{output}'", prefix=False)
+        if not KATAPULT_DEPLOYER_BIN.is_file():
+            Logger.print_info(
+                "No deployer was built. Set 'Build Katapult deployment application' "
+                "to flash Katapult through an existing bootloader."
+            )
 
     def save_katapult_config(self) -> None:
         Logger.print_dialog(
