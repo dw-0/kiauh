@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import shutil
 import time
+from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import List
 
-import psutil
 from components.katapult import (
     KATAPULT_DIR,
     KATAPULT_FLASHTOOL_PATH,
@@ -141,7 +141,8 @@ def print_multi_instance_warning(instances: List[Klipper]) -> None:
 def update_katapult() -> None:
     try:
         if check_katapult_running():
-            raise Exception("An instance of Katapult is running! Aborting...")
+            Logger.print_error("Katapult's flashtool is running! Aborting update.")
+            return
 
         if not KATAPULT_DIR.exists():
             git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
@@ -235,7 +236,8 @@ def flash_klipper_via_katapult() -> None:
     # check katapult not already running
     if check_katapult_running():
         restart_all_klipper_instances()
-        raise Exception("An instance of Katapult is already running! Aborting...")
+        Logger.print_error("Katapult's flashtool is already running! Aborting.")
+        return
 
     if choice == "1":
         # CAN flash
@@ -331,12 +333,15 @@ def check_can_interface(interface="can0") -> bool:
         return False
 
 
-# TODO Maybe there is a better way to do this using a helper ? Couldn't find it
 def check_katapult_running() -> bool:
-    for proc in psutil.process_iter(attrs=["cmdline"]):
-        cmd = " ".join(proc.info["cmdline"])
-        if "katapult" in cmd and "flashtool.py" in cmd:
-            Logger.print_error("Katapult flashing process detected! Aborting update.")
+    """Check if a Katapult flashtool.py process is currently running"""
+    for cmdline in Path("/proc").glob("[0-9]*/cmdline"):
+        try:
+            args = cmdline.read_bytes().split(b"\0")
+        except OSError:
+            # the process exited or is not readable by the current user
+            continue
+        if any(arg.endswith(b"flashtool.py") for arg in args):
             return True
     return False
 
