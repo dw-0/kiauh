@@ -164,17 +164,22 @@ class TestCheckKatapultRunning:
 
 class TestFlashWithFlashtool:
     @pytest.fixture
-    def env(self, tmp_path: Path, monkeypatch):
+    def env(self, tmp_path: Path, monkeypatch) -> Dict[str, Any]:
         tool = tmp_path.joinpath("flashtool.py")
         tool.touch()
         firmware = tmp_path.joinpath("klipper.bin")
         firmware.touch()
 
         state: Dict[str, Any] = {
+            "firmware": firmware,
             "calls": [],
-            "started": False,
-            "stopped": False,
             "fail": False,
+            "stopped": False,
+            "started": False,
+            # answers to the confirmations, and the targets selected, in order
+            "answers": [],
+            "targets": [],
+            "dialogs": [],
         }
 
         def fake_run(cmd: List[str], check: bool) -> None:
@@ -189,27 +194,36 @@ class TestFlashWithFlashtool:
         def fake_start(instances) -> None:
             state["started"] = True
 
+        def fake_select(flashed_uuids) -> FlashtoolTarget | None:
+            state.setdefault("flashed_seen", []).append(set(flashed_uuids))
+            target: FlashtoolTarget | None = state["targets"].pop(0)
+            return target
+
         monkeypatch.setattr(flashtool, "KATAPULT_FLASHTOOL_PATH", tool)
         monkeypatch.setattr(flashtool, "check_katapult_running", lambda: False)
         monkeypatch.setattr(flashtool, "install_flash_deps", lambda deps: True)
         monkeypatch.setattr(flashtool, "get_instances", lambda _: [])
-        monkeypatch.setattr(flashtool, "get_confirm", lambda *a, **k: True)
+        monkeypatch.setattr(
+            flashtool, "get_confirm", lambda *a, **k: state["answers"].pop(0)
+        )
+        monkeypatch.setattr(
+            flashtool.Logger,
+            "print_dialog",
+            lambda _type, content, **k: state["dialogs"].append(content),
+        )
+        monkeypatch.setattr(flashtool, "select_flashtool_target", fake_select)
         monkeypatch.setattr(
             flashtool, "stop_klipper_instances_interactively", fake_stop
         )
         monkeypatch.setattr(flashtool.InstanceManager, "start_all", fake_start)
         monkeypatch.setattr(flashtool, "run", fake_run)
-        state["firmware"] = firmware
         return state
 
-    def _set_target(self, monkeypatch, target: FlashtoolTarget | None) -> None:
-        monkeypatch.setattr(flashtool, "select_flashtool_target", lambda: target)
-
-    def test_uart_requests_bootloader_before_flashing(self, env, monkeypatch) -> None:
-        target = FlashtoolTarget(
-            "UART", ["-d", "/dev/ttyAMA0"], request_bootloader=True
-        )
-        self._set_target(monkeypatch, target)
+    def test_uart_requests_bootloader_before_flashing(self, env) -> None:
+        env["targets"] = [
+            FlashtoolTarget("UART", ["-d", "/dev/ttyAMA0"], request_bootloader=True)
+        ]
+        env["answers"] = [True, False]
 
         flash_with_flashtool(env["firmware"], "flashing")
 
@@ -217,26 +231,66 @@ class TestFlashWithFlashtool:
         assert "-f" in env["calls"][1]
         assert env["started"] is True
 
-    def test_restarts_klipper_when_flashing_fails(self, env, monkeypatch) -> None:
-        self._set_target(monkeypatch, FlashtoolTarget("USB", ["-d", "/dev/x"]))
-        env["fail"] = True
+    def test_flashes_several_mcus_with_klipper_stopped(self, env) -> None:
+        env["targets"] = [
+            FlashtoolTarget("T0", ["-u", "000000000000"], uuid="000000000000"),
+            FlashtoolTarget("T1", ["-u", "111111111111"], uuid="111111111111"),
+        ]
+        # confirm T0, flash another, confirm T1, don't flash another
+        env["answers"] = [True, True, True, False]
+
+        flash_with_flashtool(env["firmware"], "flashing")
+
+        assert [cmd[-1] for cmd in env["calls"]] == ["000000000000", "111111111111"]
+        # T0 is marked as flashed when selecting the next MCU
+        assert env["flashed_seen"] == [set(), {"000000000000"}]
+        assert env["started"] is True
+
+    def test_declining_the_next_mcu_restarts_klipper(self, env) -> None:
+        env["targets"] = [
+            FlashtoolTarget("T0", ["-u", "000000000000"], uuid="000000000000"),
+            FlashtoolTarget("T1", ["-u", "111111111111"], uuid="111111111111"),
+        ]
+        # confirm T0, flash another, but don't confirm T1
+        env["answers"] = [True, True, False]
 
         flash_with_flashtool(env["firmware"], "flashing")
 
         assert len(env["calls"]) == 1
         assert env["started"] is True
 
-    def test_nothing_happens_without_target(self, env, monkeypatch) -> None:
-        self._set_target(monkeypatch, None)
+    def test_failed_flash_is_not_marked_as_flashed(self, env) -> None:
+        env["targets"] = [
+            FlashtoolTarget("T0", ["-u", "000000000000"], uuid="000000000000"),
+            None,
+        ]
+        env["answers"] = [True, True]
+        env["fail"] = True
+
+        flash_with_flashtool(env["firmware"], "flashing")
+
+        assert env["flashed_seen"] == [set(), set()]
+        assert env["started"] is True
+
+    def test_shows_firmware_info(self, env) -> None:
+        env["targets"] = [FlashtoolTarget("USB", ["-d", "/dev/x"])]
+        env["answers"] = [False]
+
+        flash_with_flashtool(env["firmware"], "flashing", ["MCU: stm32g0b1xx"])
+
+        assert "MCU: stm32g0b1xx" in env["dialogs"][0]
+
+    def test_nothing_happens_without_target(self, env) -> None:
+        env["targets"] = [None]
 
         flash_with_flashtool(env["firmware"], "flashing")
 
         assert env["calls"] == []
         assert env["stopped"] is False
 
-    def test_aborts_before_stopping_klipper(self, env, monkeypatch) -> None:
-        self._set_target(monkeypatch, FlashtoolTarget("USB", ["-d", "/dev/x"]))
-        monkeypatch.setattr(flashtool, "get_confirm", lambda *a, **k: False)
+    def test_aborts_before_stopping_klipper(self, env) -> None:
+        env["targets"] = [FlashtoolTarget("USB", ["-d", "/dev/x"])]
+        env["answers"] = [False]
 
         flash_with_flashtool(env["firmware"], "flashing")
 
@@ -244,7 +298,6 @@ class TestFlashWithFlashtool:
         assert env["stopped"] is False
 
     def test_aborts_when_deps_are_not_installed(self, env, monkeypatch) -> None:
-        self._set_target(monkeypatch, FlashtoolTarget("USB", ["-d", "/dev/x"]))
         monkeypatch.setattr(flashtool, "install_flash_deps", lambda deps: False)
 
         flash_with_flashtool(env["firmware"], "flashing")
@@ -252,9 +305,7 @@ class TestFlashWithFlashtool:
         assert env["calls"] == []
         assert env["stopped"] is False
 
-    def test_missing_firmware(self, env, monkeypatch) -> None:
-        self._set_target(monkeypatch, FlashtoolTarget("USB", ["-d", "/dev/x"]))
-
+    def test_missing_firmware(self, env) -> None:
         flash_with_flashtool(env["firmware"].with_name("missing.bin"), "flashing")
 
         assert env["calls"] == []

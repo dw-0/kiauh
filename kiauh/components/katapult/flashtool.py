@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import List, Tuple
+from typing import List, Set, Tuple
 
 from components.katapult import KATAPULT_FLASHTOOL_PATH
 from components.katapult.firmware_utils import install_flash_deps
@@ -54,6 +54,8 @@ class FlashtoolTarget:
     # MCUs connected over UART can't be put into the bootloader automatically
     # by flashtool, so the bootloader has to be requested before flashing
     request_bootloader: bool = False
+    # set for CAN targets, to mark already flashed MCUs when flashing several
+    uuid: str | None = None
 
 
 def check_katapult_running() -> bool:
@@ -150,11 +152,15 @@ def build_request_bootloader_cmd(target: FlashtoolTarget) -> List[str]:
     return ["python3", KATAPULT_FLASHTOOL_PATH.as_posix(), *target.args, "-r"]
 
 
-def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
+def flash_with_flashtool(
+    firmware: Path, operation_name: str, firmware_info: List[str] | None = None
+) -> None:
     """
-    Interactively flash a firmware file to an MCU running Katapult |
+    Interactively flash a firmware file to one or more MCUs running Katapult.
+    Klipper stays stopped until the last MCU was flashed. |
     :param firmware: The firmware file to flash
     :param operation_name: Name of the operation for user messaging, not capitalized
+    :param firmware_info: Optional details about the firmware to show before flashing
     :return: None
     """
     if not KATAPULT_FLASHTOOL_PATH.is_file():
@@ -169,21 +175,9 @@ def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
     if not install_flash_deps(FLASHTOOL_DEPS):
         return
 
-    target = select_flashtool_target()
-    if target is None:
-        return
-
-    Logger.print_dialog(
-        DialogType.ATTENTION,
-        [
-            f"Firmware: {firmware}",
-            f"Target: {target.description}",
-            "\n\n",
-            "Make sure the firmware was built for this MCU, with a bootloader "
-            "offset matching the application offset of Katapult on it.",
-        ],
-    )
-    if not get_confirm("Start flashing?", default_choice=False):
+    flashed_uuids: Set[str] = set()
+    target = select_flashtool_target(flashed_uuids)
+    if target is None or not confirm_flash(firmware, target, firmware_info):
         Logger.print_info(f"{operation_name.capitalize()} aborted!")
         return
 
@@ -192,20 +186,55 @@ def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
         return
 
     try:
-        if target.request_bootloader:
-            Logger.print_status("Requesting the bootloader ...")
-            run(build_request_bootloader_cmd(target), check=True)
+        while target is not None:
+            if run_flashtool(firmware, target) and target.uuid is not None:
+                flashed_uuids.add(target.uuid)
 
-        Logger.print_status(f"Flashing '{firmware.name}' ...")
-        run(build_flash_cmd(firmware, target), check=True)
-        Logger.print_ok("Flashing successful!", start="\n", end="\n\n")
-    except CalledProcessError:
-        Logger.print_error("Flashing failed! See the flashtool output above.")
+            question = f"Flash '{firmware.name}' to another MCU?"
+            if not get_confirm(question, default_choice=False):
+                break
+            target = select_flashtool_target(flashed_uuids)
+            if target is not None and not confirm_flash(
+                firmware, target, firmware_info
+            ):
+                target = None
     finally:
         InstanceManager.start_all(instances)
 
 
-def select_flashtool_target() -> FlashtoolTarget | None:
+def confirm_flash(
+    firmware: Path, target: FlashtoolTarget, firmware_info: List[str] | None
+) -> bool:
+    Logger.print_dialog(
+        DialogType.ATTENTION,
+        [
+            f"Firmware: {firmware}",
+            *(firmware_info or []),
+            f"Target: {target.description}",
+            "\n\n",
+            "Make sure the firmware was built for this MCU, with a bootloader "
+            "offset matching the application offset of Katapult on it.",
+        ],
+    )
+    return get_confirm("Start flashing?", default_choice=False) is True
+
+
+def run_flashtool(firmware: Path, target: FlashtoolTarget) -> bool:
+    try:
+        if target.request_bootloader:
+            Logger.print_status("Requesting the bootloader ...")
+            run(build_request_bootloader_cmd(target), check=True)
+
+        Logger.print_status(f"Flashing '{firmware.name}' to {target.description} ...")
+        run(build_flash_cmd(firmware, target), check=True)
+        Logger.print_ok("Flashing successful!", start="\n", end="\n\n")
+        return True
+    except CalledProcessError:
+        Logger.print_error("Flashing failed! See the flashtool output above.")
+        return False
+
+
+def select_flashtool_target(flashed_uuids: Set[str]) -> FlashtoolTarget | None:
     Logger.print_dialog(
         DialogType.CUSTOM,
         [
@@ -220,7 +249,7 @@ def select_flashtool_target() -> FlashtoolTarget | None:
     choice = get_selection_input("Select connection (b=back)", ["1", "2", "3", "b"])
 
     if choice == "1":
-        return _select_can_target()
+        return _select_can_target(flashed_uuids)
     elif choice == "2":
         return _select_usb_target()
     elif choice == "3":
@@ -228,7 +257,7 @@ def select_flashtool_target() -> FlashtoolTarget | None:
     return None
 
 
-def _select_can_target() -> FlashtoolTarget | None:
+def _select_can_target(flashed_uuids: Set[str]) -> FlashtoolTarget | None:
     interfaces = get_can_interfaces()
     if not interfaces:
         Logger.print_error("No CAN interface found! Set up the CAN interface first.")
@@ -241,17 +270,18 @@ def _select_can_target() -> FlashtoolTarget | None:
         Logger.print_error(f"CAN interface '{interface}' is down!")
         return None
 
-    uuid = _select_canbus_uuid()
+    uuid = _select_canbus_uuid(flashed_uuids)
     if uuid is None:
         return None
 
     return FlashtoolTarget(
         description=f"CAN interface {interface}, UUID {uuid}",
         args=["-i", interface, "-u", uuid],
+        uuid=uuid,
     )
 
 
-def _select_canbus_uuid() -> str | None:
+def _select_canbus_uuid(flashed_uuids: Set[str]) -> str | None:
     cfg_dirs = [instance.base.cfg_dir for instance in get_instances(Klipper)]
     uuids = find_canbus_uuids(cfg_dirs)
 
@@ -263,6 +293,7 @@ def _select_canbus_uuid() -> str | None:
                 "\n\n",
                 *[
                     f"{i}) {uuid} [{section}]"
+                    + (" (flashed)" if uuid in flashed_uuids else "")
                     for i, (uuid, section) in enumerate(uuids, 1)
                 ],
                 "\n\n",
