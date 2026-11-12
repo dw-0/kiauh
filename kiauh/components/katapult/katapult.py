@@ -20,6 +20,7 @@ from components.katapult.flashtool import check_katapult_running, flash_with_fla
 from components.klipper import KLIPPER_DIR
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
+from core.settings.kiauh_settings import KiauhSettings
 from core.types.component_status import ComponentStatus
 from utils.common import get_install_status
 from utils.git_utils import (
@@ -92,14 +93,17 @@ def update_katapult() -> None:
         else:
             Logger.print_status("Updating Katapult ...")
 
-            if get_confirm(
-                "Do you want to backup the Katapult directory before updating?"
-            ):
+            settings = KiauhSettings()
+            if settings.kiauh.backup_before_update:
                 backup_katapult_dir()
 
             git_pull_wrapper(KATAPULT_DIR)
 
-        Logger.print_ok("Katapult updated successfully.", end="\n\n")
+        Logger.print_ok("Katapult updated successfully.")
+        Logger.print_info(
+            "This doesn't update Katapult on your MCUs, use 'Flash Katapult' for that.",
+            end="\n\n",
+        )
     except CalledProcessError as e:
         Logger.print_error(f"Something went wrong! Please try again...\n{e}")
         return

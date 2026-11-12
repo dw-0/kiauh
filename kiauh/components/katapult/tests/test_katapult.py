@@ -45,3 +45,44 @@ class TestInstallKatapult:
         monkeypatch.setattr(katapult, "git_clone_wrapper", fail)
 
         katapult.install_katapult()
+
+
+class TestUpdateKatapult:
+    @pytest.fixture
+    def env(self, tmp_path, monkeypatch) -> dict:
+        state = {"backup": False, "pulled": False, "backup_before_update": False}
+
+        class FakeSettings:
+            class kiauh:
+                backup_before_update = False
+
+        def fake_settings():
+            FakeSettings.kiauh.backup_before_update = state["backup_before_update"]
+            return FakeSettings
+
+        monkeypatch.setattr(katapult, "KATAPULT_DIR", tmp_path)
+        monkeypatch.setattr(katapult, "check_katapult_running", lambda: False)
+        monkeypatch.setattr(katapult, "KiauhSettings", fake_settings)
+        monkeypatch.setattr(
+            katapult, "backup_katapult_dir", lambda: state.update(backup=True)
+        )
+        monkeypatch.setattr(
+            katapult, "git_pull_wrapper", lambda _: state.update(pulled=True)
+        )
+        return state
+
+    @pytest.mark.parametrize("backup_before_update", [True, False])
+    def test_backup_follows_setting(self, env, backup_before_update: bool) -> None:
+        env["backup_before_update"] = backup_before_update
+
+        katapult.update_katapult()
+
+        assert env["backup"] is backup_before_update
+        assert env["pulled"] is True
+
+    def test_skips_while_flashtool_is_running(self, env, monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "check_katapult_running", lambda: True)
+
+        katapult.update_katapult()
+
+        assert env["pulled"] is False
