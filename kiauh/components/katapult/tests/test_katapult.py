@@ -22,7 +22,6 @@ class TestInstallKatapult:
         cloned: List[str] = []
         monkeypatch.setattr(katapult, "print_katapult_brick_warning", lambda: None)
         monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: True)
-        monkeypatch.setattr(katapult, "get_instances", lambda _: [])
         monkeypatch.setattr(
             katapult, "git_clone_wrapper", lambda repo, *a: cloned.append(repo)
         )
@@ -43,7 +42,6 @@ class TestInstallKatapult:
 
         monkeypatch.setattr(katapult, "print_katapult_brick_warning", lambda: None)
         monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: True)
-        monkeypatch.setattr(katapult, "get_instances", lambda _: [])
         monkeypatch.setattr(katapult, "git_clone_wrapper", fail)
 
         katapult.install_katapult()

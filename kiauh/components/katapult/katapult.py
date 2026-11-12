@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import shutil
 from subprocess import CalledProcessError
-from typing import List
 
 from components.katapult import (
     KATAPULT_DIR,
@@ -19,7 +18,6 @@ from components.katapult import (
 )
 from components.katapult.flashtool import check_katapult_running, flash_with_flashtool
 from components.klipper import KLIPPER_DIR
-from components.klipper.klipper import Klipper
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
 from core.types.component_status import ComponentStatus
@@ -30,7 +28,6 @@ from utils.git_utils import (
     git_pull_wrapper,
 )
 from utils.input_utils import get_confirm
-from utils.instance_utils import get_instances
 
 # Katapult can only flash the raw binary, not the elf/hex/uf2 build outputs
 KLIPPER_FIRMWARE_BIN = KLIPPER_DIR.joinpath("out/klipper.bin")
@@ -46,33 +43,7 @@ def install_katapult() -> None:
 
     Logger.print_status("Installing Katapult ...")
 
-    # step 2: check for Multi Instances
-
-    # TODO Add multi instance support.
-    # I believe we only need to ensure people are offered a way to choose which CAN interface to use.
-    # For now, default is to block multi instance installs.
-    # This should really be thought through more carefully later on,
-    # as Katapult has the potential to brick devices if used improperly.
-
-    # if len(instances) > 1:
-    #     Logger.print_dialog(DialogType.INFO, ["Multiple Klipper instances found:"])
-    #     for i, instance in enumerate(instances, 1):
-    #         print(f"{i}. {instance.data_dir.name}")
-    #     choice = input("Select instance to flash: ")
-    #     selected = instances[int(choice) - 1]
-    # else:
-    #     selected = instances[0]
-    #
-    # Then we'd only need to find a way to 'assign' each interface to its corresponding instance
-
-    instances: List[Klipper] = get_instances(Klipper)
-
-    if len(instances) > 1:
-        print_multi_instance_warning(instances)
-        Logger.print_info("Katapult installation aborted!")
-        return
-
-    # step 3: clone Katapult repo
+    # step 2: clone Katapult repo
     # build and flash dependencies are checked for when they are needed
     try:
         git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
@@ -106,22 +77,6 @@ def print_katapult_brick_warning() -> None:
             "responsibility for any damage, data loss, harm, or hardware failure "
             "resulting from use or misuse of this tool. You use Katapult and KIAUH "
             "entirely at your own risk.",
-        ],
-    )
-
-
-def print_multi_instance_warning(instances: List[Klipper]) -> None:
-    Logger.print_dialog(
-        DialogType.WARNING,
-        [
-            "Multi instance install detected!",
-            "\n\n",
-            "Katapult is NOT designed to support multi instances. There is currently "
-            "no support whatsoever for this. If you are interested in this feature "
-            "being added, please open an issue on GitHub.",
-            "\n\n",
-            "The following instances were found:",
-            *[f"● {instance.data_dir.name}" for instance in instances],
         ],
     )
 
