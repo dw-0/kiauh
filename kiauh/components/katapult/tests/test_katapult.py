@@ -9,6 +9,8 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import List
 
 import pytest
@@ -86,3 +88,45 @@ class TestUpdateKatapult:
         katapult.update_katapult()
 
         assert env["pulled"] is False
+
+
+class TestKlipperFirmwareInfo:
+    def _write_dict(self, tmp_path: Path, version: str) -> Path:
+        dict_file = tmp_path.joinpath("klipper.dict")
+        dict_file.write_text(
+            json.dumps({"version": version, "config": {"MCU": "stm32g0b1xx"}})
+        )
+        return dict_file
+
+    def test_matching_version(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "get_klipper_version", lambda: "v0.13.0-1-gabc")
+        dict_file = self._write_dict(tmp_path, "v0.13.0-1-gabc")
+
+        assert katapult.get_klipper_firmware_info(dict_file) == [
+            "MCU: stm32g0b1xx",
+            "Version: v0.13.0-1-gabc",
+        ]
+
+    def test_dirty_build_matches(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(
+            katapult, "get_klipper_version", lambda: "v0.13.0-1-gabc-dirty"
+        )
+        dict_file = self._write_dict(
+            tmp_path, "v0.13.0-1-gabc-dirty-20261112_120000-pi"
+        )
+
+        assert len(katapult.get_klipper_firmware_info(dict_file)) == 2
+
+    def test_warns_about_other_version(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "get_klipper_version", lambda: "v0.13.0-5-gdef")
+        dict_file = self._write_dict(tmp_path, "v0.12.0-418-gabc")
+
+        info = katapult.get_klipper_firmware_info(dict_file)
+
+        assert "v0.13.0-5-gdef" in info[-1]
+
+    def test_missing_or_invalid_dict(self, tmp_path: Path) -> None:
+        assert katapult.get_klipper_firmware_info(tmp_path.joinpath("x")) == []
+        invalid = tmp_path.joinpath("klipper.dict")
+        invalid.write_text("not json")
+        assert katapult.get_klipper_firmware_info(invalid) == []

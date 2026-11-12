@@ -9,8 +9,11 @@
 # ======================================================================= #
 from __future__ import annotations
 
+import json
 import shutil
-from subprocess import CalledProcessError
+from pathlib import Path
+from subprocess import CalledProcessError, run
+from typing import List
 
 from components.katapult import (
     KATAPULT_DIR,
@@ -33,6 +36,8 @@ from utils.input_utils import get_confirm
 
 # Katapult can only flash the raw binary, not the elf/hex/uf2 build outputs
 KLIPPER_FIRMWARE_BIN = KLIPPER_DIR.joinpath("out/klipper.bin")
+# written by Klipper's build, holds the firmware version and the target MCU
+KLIPPER_FIRMWARE_DICT = KLIPPER_DIR.joinpath("out/klipper.dict")
 
 
 def install_katapult() -> None:
@@ -154,4 +159,50 @@ def flash_klipper_via_katapult() -> None:
         )
         return
 
-    flash_with_flashtool(KLIPPER_FIRMWARE_BIN, "flashing of Klipper")
+    flash_with_flashtool(
+        KLIPPER_FIRMWARE_BIN, "flashing of Klipper", get_klipper_firmware_info()
+    )
+
+
+def get_klipper_firmware_info(dict_file: Path = KLIPPER_FIRMWARE_DICT) -> List[str]:
+    """
+    Describe the built Klipper firmware, and warn if it was built from another
+    version than the installed Klipper |
+    :param dict_file: The klipper.dict written by the Klipper build
+    :return: Lines to show before flashing, empty if the dictionary can't be read
+    """
+    try:
+        data = json.loads(dict_file.read_text())
+    except (OSError, ValueError):
+        return []
+
+    info: List[str] = []
+    mcu = data.get("config", {}).get("MCU")
+    if mcu:
+        info.append(f"MCU: {mcu}")
+
+    version = data.get("version")
+    if version:
+        info.append(f"Version: {version}")
+        installed = get_klipper_version()
+        # dirty and non-clean builds get a build date and hostname appended
+        if installed and not (
+            version == installed or version.startswith(f"{installed}-")
+        ):
+            info += [
+                "\n\n",
+                f"The installed Klipper is {installed}. Klipper may refuse to "
+                "connect to an MCU running another version, rebuild the firmware "
+                "unless this is intended.",
+            ]
+    return info
+
+
+def get_klipper_version() -> str | None:
+    """Get the version of the installed Klipper, like Klipper's build does"""
+    cmd = ["git", "-C", KLIPPER_DIR.as_posix(), "describe"]
+    cmd += ["--always", "--tags", "--long", "--dirty"]
+    try:
+        return run(cmd, capture_output=True, text=True, check=True).stdout.strip()
+    except (CalledProcessError, OSError):
+        return None
