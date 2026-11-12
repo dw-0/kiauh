@@ -12,10 +12,12 @@ from __future__ import annotations
 import textwrap
 from typing import Type
 
-from components.katapult.katapult import flash_klipper_via_katapult
 from components.katapult.menus.katapult_build_menu import (
     KatapultBuildBootloaderMenu,
     KatapultKConfigMenu,
+)
+from components.katapult.menus.katapult_flash_klipper_menu import (
+    KatapultFlashKlipperMenu,
 )
 from components.katapult.menus.katapult_flash_menu import KatapultFlashMethodMenu
 from components.klipper import KLIPPER_DIR
@@ -126,4 +128,4 @@ class AdvancedMenu(BaseMenu):
         KatapultFlashMethodMenu(previous_menu=self.__class__).run()
 
     def flash_klipper_via_katapult(self, **kwargs) -> None:
-        flash_klipper_via_katapult()
+        KatapultFlashKlipperMenu(previous_menu=self.__class__).run()

@@ -13,14 +13,14 @@ import json
 import shutil
 from pathlib import Path
 from subprocess import CalledProcessError, run
-from typing import List
+from typing import Dict, List
 
 from components.katapult import (
     KATAPULT_DIR,
     KATAPULT_KCONFIGS_DIR,
     KATAPULT_REPO,
 )
-from components.katapult.flashtool import check_katapult_running, flash_with_flashtool
+from components.katapult.flashtool import check_katapult_running
 from components.klipper import KLIPPER_DIR
 from core.logger import DialogType, Logger
 from core.services.backup_service import BackupService
@@ -154,24 +154,6 @@ def backup_katapult_dir() -> None:
     )
 
 
-def flash_klipper_via_katapult() -> None:
-    if not KLIPPER_FIRMWARE_BIN.is_file():
-        Logger.print_dialog(
-            DialogType.ERROR,
-            [
-                f"No Klipper firmware found at '{KLIPPER_FIRMWARE_BIN}'!",
-                "\n\n",
-                "Build the Klipper firmware first, with a bootloader offset matching "
-                "the application offset of Katapult on the MCU.",
-            ],
-        )
-        return
-
-    flash_with_flashtool(
-        KLIPPER_FIRMWARE_BIN, "flashing of Klipper", get_klipper_firmware_info()
-    )
-
-
 def get_klipper_firmware_info(dict_file: Path = KLIPPER_FIRMWARE_DICT) -> List[str]:
     """
     Describe the built Klipper firmware, and warn if it was built from another
@@ -179,13 +161,13 @@ def get_klipper_firmware_info(dict_file: Path = KLIPPER_FIRMWARE_DICT) -> List[s
     :param dict_file: The klipper.dict written by the Klipper build
     :return: Lines to show before flashing, empty if the dictionary can't be read
     """
-    try:
-        data = json.loads(dict_file.read_text())
-    except (OSError, ValueError):
+    data = read_klipper_firmware_dict(dict_file)
+    if not data:
         return []
 
     info: List[str] = []
-    mcu = data.get("config", {}).get("MCU")
+    config = data.get("config")
+    mcu = config.get("MCU") if isinstance(config, dict) else None
     if mcu:
         info.append(f"MCU: {mcu}")
 
@@ -204,6 +186,14 @@ def get_klipper_firmware_info(dict_file: Path = KLIPPER_FIRMWARE_DICT) -> List[s
                 "unless this is intended.",
             ]
     return info
+
+
+def read_klipper_firmware_dict(dict_file: Path = KLIPPER_FIRMWARE_DICT) -> Dict:
+    try:
+        data = json.loads(dict_file.read_text())
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
 
 
 def get_klipper_version() -> str | None:
