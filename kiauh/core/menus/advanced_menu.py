@@ -65,10 +65,7 @@ class AdvancedMenu(BaseMenu):
             "9": Option(method=self.klipper_rollback),
             "10": Option(method=self.moonraker_rollback),
             "11": Option(method=self.change_hostname),
-            # "12": Option(method=self.can_management),
         }
-
-        # TODO implement system canbus interface add/remove
 
     def print_menu(self) -> None:
         menu = textwrap.dedent(
@@ -89,7 +86,6 @@ class AdvancedMenu(BaseMenu):
             """
         )[1:]
         print(menu, end="")
-        # TODO implement Can bus check, add/remove.. 12) [CAN Management]
 
     def klipper_rollback(self, **kwargs) -> None:
         rollback_repository(KLIPPER_DIR, Klipper)

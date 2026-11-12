@@ -1,5 +1,6 @@
 # ======================================================================= #
-#  Copyright (C) 2020 - 2025 Dominik Willner <th33xitus@gmail.com>        #
+#  Copyright (C) 2020 - 2026 Dominik Willner <dev.dw-0@proton.me>         #
+#  Copyright (C) 2026 Théo Gaillard <theo.gayar@gmail.com>                #
 #                                                                         #
 #  This file is part of KIAUH - Klipper Installation And Update Helper    #
 #  https://github.com/dw-0/kiauh                                          #
@@ -61,8 +62,9 @@ def print_katapult_brick_warning() -> None:
         [
             "CRITICAL WARNING — PROCEED AT YOUR OWN RISK",
             "\n\n",
-            "Katapult is a low-level CAN bootloader and flashtool for 3D printer "
-            "controllers. It writes directly to your device’s firmware memory, and "
+            "Katapult is a bootloader for 3D printer controllers, which updates "
+            "their firmware over CAN, USB or UART. Flashing it writes directly to "
+            "your device's firmware memory, and "
             "improper use can permanently disable or 'brick' your hardware.",
             "\n\n",
             "Proceed only if you fully understand the flashing process, have verified "
@@ -120,13 +122,13 @@ def remove_katapult() -> None:
 
     Logger.print_status("Removing katapult directory ...")
     shutil.rmtree(KATAPULT_DIR)
-    Logger.print_ok("Directory removed! Katapult has been sucessfully uninstalled.")
+    Logger.print_ok("Directory removed! Katapult has been successfully uninstalled.")
 
     if KATAPULT_KCONFIGS_DIR.exists():
         if get_confirm("Do you also want to remove the configurations directory ?"):
             shutil.rmtree(KATAPULT_KCONFIGS_DIR)
             Logger.print_ok(
-                "Directory removed! Katapult configurations have been sucessfully deleted."
+                "Directory removed! Katapult configurations have been successfully deleted."
             )
 
 
