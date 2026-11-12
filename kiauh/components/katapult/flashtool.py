@@ -310,8 +310,10 @@ def _select_canbus_uuid(flashed_uuids: Set[str]) -> str | None:
 
     while True:
         uuid = get_string_input(
-            "Enter the UUID of the MCU to flash (e.g. 'bd9dc195c7eb')"
+            "Enter the UUID of the MCU to flash (e.g. 'bd9dc195c7eb', b=back)"
         )
+        if uuid.lower() == "b":
+            return None
         if UUID_REGEX.match(uuid):
             return uuid.lower()
         Logger.print_error("A UUID consists of 12 hexadecimal characters!")
@@ -353,12 +355,14 @@ def _select_uart_target() -> FlashtoolTarget | None:
     )
 
 
-def _get_uart_device_input() -> str:
+def _get_uart_device_input() -> str | None:
     while True:
         device = get_string_input(
-            "Enter the UART device path (e.g. /dev/ttyAMA0)",
+            "Enter the UART device path (e.g. /dev/ttyAMA0, b=back)",
             allow_special_chars=True,
         )
+        if device.lower() == "b":
+            return None
         if device.startswith("/dev/") and Path(device).exists():
             return device
         Logger.print_error(f"Device '{device}' not found!")

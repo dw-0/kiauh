@@ -162,6 +162,35 @@ class TestCheckKatapultRunning:
             proc.wait()
 
 
+class TestManualInput:
+    @pytest.fixture
+    def answer(self, monkeypatch):
+        def set_answers(*answers: str) -> None:
+            inputs = iter(answers)
+            monkeypatch.setattr(
+                flashtool, "get_string_input", lambda *a, **k: next(inputs)
+            )
+
+        monkeypatch.setattr(flashtool, "get_instances", lambda _: [])
+        return set_answers
+
+    def test_uuid_is_validated(self, answer) -> None:
+        answer("xyz", "BD9DC195C7EB")
+        assert flashtool._select_canbus_uuid(set()) == "bd9dc195c7eb"
+
+    def test_uuid_entry_can_go_back(self, answer) -> None:
+        answer("b")
+        assert flashtool._select_canbus_uuid(set()) is None
+
+    def test_uart_device_is_validated(self, answer) -> None:
+        answer("/dev/does-not-exist", "/dev/null")
+        assert flashtool._get_uart_device_input() == "/dev/null"
+
+    def test_uart_device_entry_can_go_back(self, answer) -> None:
+        answer("b")
+        assert flashtool._get_uart_device_input() is None
+
+
 class TestFlashWithFlashtool:
     @pytest.fixture
     def env(self, tmp_path: Path, monkeypatch) -> Dict[str, Any]:
