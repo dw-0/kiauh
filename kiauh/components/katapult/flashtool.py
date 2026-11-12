@@ -26,11 +26,19 @@ from utils.input_utils import (
     get_string_input,
 )
 from utils.instance_utils import get_instances, stop_klipper_instances_interactively
+from utils.sys_utils import (
+    check_package_install,
+    install_system_packages,
+    update_system_package_lists,
+)
 
 SYSFS_NET_DIR = Path("/sys/class/net")
 SERIAL_BY_ID_DIR = Path("/dev/serial/by-id")
 UART_DEVICE_PATTERNS = ["serial[0-9]", "ttyAMA[0-9]*", "ttyS0"]
 DEFAULT_SERIAL_BAUD = 250000
+# flashtool needs pyserial for USB and UART targets, but also for CAN when the
+# target is a USB to CAN bridge, as it then switches over to its USB serial port
+FLASHTOOL_DEPS = {"python3-serial"}
 
 # interface type of CAN network devices, see linux/if_arp.h
 ARPHRD_CAN = "280"
@@ -162,6 +170,8 @@ def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
     if check_katapult_running():
         Logger.print_error("Katapult's flashtool is already running! Aborting.")
         return
+    if not install_flashtool_deps():
+        return
 
     target = select_flashtool_target()
     if target is None:
@@ -197,6 +207,31 @@ def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
         Logger.print_error("Flashing failed! See the flashtool output above.")
     finally:
         InstanceManager.start_all(instances)
+
+
+def install_flashtool_deps() -> bool:
+    missing_deps = check_package_install(FLASHTOOL_DEPS)
+    if not missing_deps:
+        return True
+
+    Logger.print_dialog(
+        DialogType.ATTENTION,
+        [
+            "Katapult's flashtool requires the following packages:",
+            *[f"● {dep}" for dep in missing_deps],
+        ],
+    )
+    if not get_confirm("Install the missing packages now?"):
+        Logger.print_info("Flashing aborted!")
+        return False
+
+    try:
+        update_system_package_lists(silent=False)
+        install_system_packages(missing_deps)
+        return True
+    except Exception as e:
+        Logger.print_error(f"Installing the flashtool dependencies failed!\n{e}")
+        return False
 
 
 def select_flashtool_target() -> FlashtoolTarget | None:

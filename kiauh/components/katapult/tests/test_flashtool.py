@@ -149,6 +149,27 @@ class TestCommands:
         ]
 
 
+class TestInstallFlashtoolDeps:
+    def test_nothing_to_install(self, monkeypatch) -> None:
+        monkeypatch.setattr(flashtool, "check_package_install", lambda deps: [])
+        assert flashtool.install_flashtool_deps() is True
+
+    def test_installs_missing_deps(self, monkeypatch) -> None:
+        installed: List[str] = []
+        monkeypatch.setattr(flashtool, "check_package_install", lambda deps: list(deps))
+        monkeypatch.setattr(flashtool, "get_confirm", lambda *a, **k: True)
+        monkeypatch.setattr(flashtool, "update_system_package_lists", lambda **k: None)
+        monkeypatch.setattr(flashtool, "install_system_packages", installed.extend)
+
+        assert flashtool.install_flashtool_deps() is True
+        assert installed == ["python3-serial"]
+
+    def test_declined_install(self, monkeypatch) -> None:
+        monkeypatch.setattr(flashtool, "check_package_install", lambda deps: list(deps))
+        monkeypatch.setattr(flashtool, "get_confirm", lambda *a, **k: False)
+        assert flashtool.install_flashtool_deps() is False
+
+
 class TestCheckKatapultRunning:
     def test_detects_running_flashtool(self, tmp_path: Path) -> None:
         script = tmp_path.joinpath("flashtool.py")
@@ -186,6 +207,7 @@ class TestFlashWithFlashtool:
 
         monkeypatch.setattr(flashtool, "KATAPULT_FLASHTOOL_PATH", tool)
         monkeypatch.setattr(flashtool, "check_katapult_running", lambda: False)
+        monkeypatch.setattr(flashtool, "install_flashtool_deps", lambda: True)
         monkeypatch.setattr(flashtool, "get_instances", lambda _: [])
         monkeypatch.setattr(flashtool, "get_confirm", lambda *a, **k: True)
         monkeypatch.setattr(
@@ -231,6 +253,15 @@ class TestFlashWithFlashtool:
     def test_aborts_before_stopping_klipper(self, env, monkeypatch) -> None:
         self._set_target(monkeypatch, FlashtoolTarget("USB", ["-d", "/dev/x"]))
         monkeypatch.setattr(flashtool, "get_confirm", lambda *a, **k: False)
+
+        flash_with_flashtool(env["firmware"], "flashing")
+
+        assert env["calls"] == []
+        assert env["stopped"] is False
+
+    def test_aborts_when_deps_are_not_installed(self, env, monkeypatch) -> None:
+        self._set_target(monkeypatch, FlashtoolTarget("USB", ["-d", "/dev/x"]))
+        monkeypatch.setattr(flashtool, "install_flashtool_deps", lambda: False)
 
         flash_with_flashtool(env["firmware"], "flashing")
 
