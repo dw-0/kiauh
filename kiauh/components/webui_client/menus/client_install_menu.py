@@ -16,6 +16,7 @@ from components.webui_client.base_data import BaseWebClient
 from components.webui_client.client_utils import (
     get_client_port_selection,
     get_nginx_listen_port,
+    is_https_nginx_config,
     set_listen_port,
 )
 from components.webui_client.services.web_client_setup_service import (
@@ -68,11 +69,41 @@ class ClientInstallMenu(BaseMenu):
         print(menu, end="")
 
     def reinstall_client(self, **kwargs) -> None:
+        # reinstalling regenerates the plain-HTTP nginx site from the template,
+        # which would silently strip the TLS block and orphan the certificate;
+        # refuse while HTTPS is on and point at the HTTPS extension instead
+        if is_https_nginx_config(self.client.nginx_config):
+            message = Message(
+                title="HTTPS is enabled",
+                text=[
+                    f"{self.client.display_name} is currently served over HTTPS.",
+                    "Disable HTTPS (Extensions menu) before reinstalling.",
+                ],
+                color=Color.YELLOW,
+            )
+            self.message_service.set_message(message)
+            return
+
         WebClientSetupService(self.client.name).install(
             reinstall=True, interactive=True
         )
 
     def change_listen_port(self, **kwargs) -> None:
+        # an HTTPS site has a dedicated 443 TLS block plus an :80 redirect;
+        # rewriting the port here would strip the TLS config and orphan the
+        # certificate, so refuse and point at the HTTPS extension instead
+        if is_https_nginx_config(self.client.nginx_config):
+            message = Message(
+                title="HTTPS is enabled",
+                text=[
+                    f"{self.client.display_name} is currently served over HTTPS.",
+                    "Disable HTTPS (Extensions menu) before changing the listen port.",
+                ],
+                color=Color.YELLOW,
+            )
+            self.message_service.set_message(message)
+            return
+
         curr_port = self._get_current_port()
         new_port = get_client_port_selection(
             self.client,

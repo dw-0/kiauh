@@ -29,6 +29,7 @@ from components.webui_client.client_utils import (
     get_next_free_port,
     get_nginx_listen_port,
     get_remote_client_version,
+    is_https_nginx_config,
     read_ports_from_nginx_configs,
     set_listen_port,
 )
@@ -150,6 +151,37 @@ class TestNginxPortParsing:
         cfg.write_text("server {\n}\n")
         assert get_nginx_listen_port(cfg) is None
 
+    @pytest.mark.parametrize(
+        ("listen_line", "expected"),
+        [
+            ("    listen 80 default_server;", 80),
+            ("    listen [::]:80;", 80),
+            # a TLS listen: the trailing flags must not be mistaken for the port
+            ("    listen 443 ssl http2;", 443),
+            ("    listen [::]:443 ssl http2;", 443),
+        ],
+    )
+    def test_parses_tls_and_ipv6_listen(
+        self, tmp_path: Path, listen_line: str, expected: int
+    ) -> None:
+        cfg = tmp_path / "site"
+        cfg.write_text(f"server {{\n{listen_line}\n    server_name _;\n}}\n")
+        assert get_nginx_listen_port(cfg) == expected
+
+    def test_returns_none_when_unparsable(self, tmp_path: Path) -> None:
+        cfg = tmp_path / "site"
+        cfg.write_text("server {\n    listen ssl;\n}\n")
+        assert get_nginx_listen_port(cfg) is None
+
+    def test_https_dual_block_returns_443(self, tmp_path: Path) -> None:
+        # the HTTPS rewrite yields an :80 redirect block plus a 443 TLS block
+        cfg = tmp_path / "site"
+        cfg.write_text(
+            "server {\n    listen 80;\n    return 301 https://printer.example.com$request_uri;\n}\n"
+            "server {\n    listen 443 ssl http2;\n    server_name printer.example.com _;\n}\n"
+        )
+        assert get_nginx_listen_port(cfg) == 443
+
     def test_reads_all_configs_in_enabled_dir(
         self, monkeypatch, tmp_path: Path
     ) -> None:
@@ -162,9 +194,45 @@ class TestNginxPortParsing:
         ports = read_ports_from_nginx_configs()
         assert ports == [1000, 2000]
 
+    def test_reads_every_listen_port_not_just_the_last(
+        self, monkeypatch, tmp_path: Path
+    ) -> None:
+        # an HTTPS site has both the :80 redirect block and the :443 TLS block;
+        # availability checks must see BOTH, not just the last listen in the file
+        sites = tmp_path / "sites-enabled"
+        sites.mkdir()
+        (sites / "mainsail").write_text(
+            "server {\n    listen 80;\n}\nserver {\n    listen 443 ssl http2;\n}\n"
+        )
+        (sites / "fluidd").write_text("server {\n    listen 8080;\n}\n")
+        monkeypatch.setattr(client_utils, "NGINX_SITES_ENABLED", sites)
+
+        assert read_ports_from_nginx_configs() == [80, 443, 8080]
+
     def test_returns_empty_when_enabled_dir_missing(self, monkeypatch) -> None:
         monkeypatch.setattr(client_utils, "NGINX_SITES_ENABLED", Path("/missing"))
         assert read_ports_from_nginx_configs() == []
+
+
+class TestIsHttpsNginxConfig:
+    def test_true_for_tls_block(self, tmp_path: Path) -> None:
+        cfg = tmp_path / "site"
+        cfg.write_text("server {\n    listen 443 ssl http2;\n}\n")
+        assert is_https_nginx_config(cfg) is True
+
+    def test_false_for_plain_http(self, tmp_path: Path) -> None:
+        cfg = tmp_path / "site"
+        cfg.write_text("server {\n    listen 80;\n}\n")
+        assert is_https_nginx_config(cfg) is False
+
+    def test_false_when_missing(self, tmp_path: Path) -> None:
+        assert is_https_nginx_config(tmp_path / "nope") is False
+
+    def test_ignores_commented_directive(self, tmp_path: Path) -> None:
+        # a commented-out example must not be read as an enabled TLS block
+        cfg = tmp_path / "site"
+        cfg.write_text("server {\n    listen 80;\n    # listen 443 ssl;\n}\n")
+        assert is_https_nginx_config(cfg) is False
 
 
 class TestSetListenPort:

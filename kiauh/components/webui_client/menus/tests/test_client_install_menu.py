@@ -104,3 +104,89 @@ class TestClientInstallMenu:
         assert captured["nginx"] == ["stop", "start"]
         assert captured["set_port"] == (80, 9090)
         assert menu.client_settings.port == 9090
+
+
+class _CapturingMessageService:
+    def __init__(self) -> None:
+        self.messages: List[Any] = []
+
+    def set_message(self, message: Any) -> None:
+        self.messages.append(message)
+
+
+class TestHttpsGuards:
+    """Both menu actions rewrite the nginx site from the plain-HTTP template.
+
+    Doing that on a TLS site strips the 443 block and orphans the certificate,
+    so both must refuse while HTTPS is enabled.
+    """
+
+    def _menu_for(
+        self, monkeypatch, tmp_path: Path, config_text: str
+    ) -> ClientInstallMenu:
+        site = tmp_path.joinpath("mainsail")
+        site.write_text(config_text)
+        menu = _build_menu(monkeypatch)
+        menu.client.nginx_config = site
+        menu.message_service = _CapturingMessageService()
+        return menu
+
+    def test_reinstall_refused_on_https_site(self, monkeypatch, tmp_path) -> None:
+        menu = self._menu_for(
+            monkeypatch,
+            tmp_path,
+            "server {\n    listen 443 ssl http2;\n    server_name x _;\n}\n",
+        )
+        installed: List[Any] = []
+        monkeypatch.setattr(
+            cim_module, "WebClientSetupService", lambda name: installed.append(name)
+        )
+
+        menu.reinstall_client()
+
+        assert not installed
+        assert menu.message_service.messages
+
+    def test_change_listen_port_refused_on_https_site(
+        self, monkeypatch, tmp_path
+    ) -> None:
+        menu = self._menu_for(
+            monkeypatch,
+            tmp_path,
+            "server {\n    listen 443 ssl http2;\n    server_name x _;\n}\n",
+        )
+        touched: List[Any] = []
+        monkeypatch.setattr(
+            cim_module, "set_listen_port", lambda *a: touched.append("set_port")
+        )
+        monkeypatch.setattr(
+            cim_module, "cmd_sysctl_service", lambda *a: touched.append("nginx")
+        )
+
+        menu.change_listen_port()
+
+        # the port is never rewritten and nginx is never bounced
+        assert not touched
+        assert menu.message_service.messages
+
+    def test_reinstall_proceeds_on_plain_http_site(self, monkeypatch, tmp_path) -> None:
+        menu = self._menu_for(
+            monkeypatch,
+            tmp_path,
+            "server {\n    listen 80;\n    server_name _;\n}\n",
+        )
+        calls: List[Any] = []
+
+        class _FakeService:
+            def install(self, **kwargs) -> bool:
+                calls.append(kwargs)
+                return True
+
+        monkeypatch.setattr(
+            cim_module, "WebClientSetupService", lambda name: _FakeService()
+        )
+
+        menu.reinstall_client()
+
+        assert calls
+        assert calls[0]["reinstall"] is True

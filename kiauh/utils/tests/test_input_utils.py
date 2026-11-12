@@ -10,12 +10,14 @@
 from __future__ import annotations
 
 from typing import Any, List
+from unittest.mock import patch
 
 import pytest
 from utils.input_utils import (
     format_question,
     get_confirm,
     get_number_input,
+    get_secret_input,
     get_selection_input,
     get_string_input,
     validate_number_input,
@@ -165,3 +167,26 @@ class TestValidateNumberInput:
     def test_raises(self, value: str, min_count: int, max_count: Any) -> None:
         with pytest.raises(ValueError):
             validate_number_input(value, min_count, max_count)
+
+
+class TestGetSecretInput:
+    def test_returns_value(self) -> None:
+        with patch("utils.input_utils.getpass", return_value="s3cr3t-token") as gp:
+            assert get_secret_input("Token") == "s3cr3t-token"
+        gp.assert_called_once()
+
+    def test_reprompts_on_empty(self) -> None:
+        with patch("utils.input_utils.getpass", side_effect=["", "  ", "tok"]) as gp:
+            assert get_secret_input("Token") == "tok"
+        assert gp.call_count == 3
+
+    def test_allows_empty_when_requested(self) -> None:
+        with patch("utils.input_utils.getpass", return_value="") as gp:
+            assert get_secret_input("Token", allow_empty=True) == ""
+        gp.assert_called_once()
+
+    def test_uses_getpass_not_input(self) -> None:
+        # a secret must never go through input() (which echoes to the terminal)
+        with patch("utils.input_utils.getpass", return_value="tok"):
+            with patch("builtins.input", side_effect=AssertionError("must not echo")):
+                assert get_secret_input("Token") == "tok"
