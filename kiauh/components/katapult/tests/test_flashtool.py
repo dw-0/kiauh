@@ -14,7 +14,7 @@ import sys
 import time
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import List
+from typing import Any, Dict, List
 
 import pytest
 from components.katapult import flashtool
@@ -191,7 +191,12 @@ class TestFlashWithFlashtool:
         firmware = tmp_path.joinpath("klipper.bin")
         firmware.touch()
 
-        state = {"calls": [], "started": False, "stopped": False, "fail": False}
+        state: Dict[str, Any] = {
+            "calls": [],
+            "started": False,
+            "stopped": False,
+            "fail": False,
+        }
 
         def fake_run(cmd: List[str], check: bool) -> None:
             state["calls"].append(cmd)
