@@ -12,13 +12,28 @@ from __future__ import annotations
 from enum import Enum
 from pathlib import Path
 from subprocess import DEVNULL, CalledProcessError, check_output, run
-from typing import List
+from typing import List, Set
 
 from components.katapult import KATAPULT_DIR
 from core.logger import Logger
+from utils.common import check_install_dependencies
 
 # USB IDs of RP2040 and RP235x MCUs in boot mode
 RP2_BOOT_USB_IDS = ["2e8a:0003", "2e8a:000f"]
+
+
+def install_flash_deps(deps: Set[str]) -> bool:
+    """
+    Install missing packages required for flashing |
+    :param deps: The required system packages
+    :return: True if all packages are installed, False otherwise
+    """
+    try:
+        check_install_dependencies({*deps}, include_global=False)
+        return True
+    except Exception as e:
+        Logger.print_error(f"Installing the flashing dependencies failed!\n{e}")
+        return False
 
 
 class KatapultArch(Enum):

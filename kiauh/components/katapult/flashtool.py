@@ -16,6 +16,7 @@ from subprocess import CalledProcessError, run
 from typing import List, Tuple
 
 from components.katapult import KATAPULT_FLASHTOOL_PATH
+from components.katapult.firmware_utils import install_flash_deps
 from components.klipper.klipper import Klipper
 from core.instance_manager.instance_manager import InstanceManager
 from core.logger import DialogType, Logger
@@ -26,11 +27,6 @@ from utils.input_utils import (
     get_string_input,
 )
 from utils.instance_utils import get_instances, stop_klipper_instances_interactively
-from utils.sys_utils import (
-    check_package_install,
-    install_system_packages,
-    update_system_package_lists,
-)
 
 SYSFS_NET_DIR = Path("/sys/class/net")
 SERIAL_BY_ID_DIR = Path("/dev/serial/by-id")
@@ -170,7 +166,7 @@ def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
     if check_katapult_running():
         Logger.print_error("Katapult's flashtool is already running! Aborting.")
         return
-    if not install_flashtool_deps():
+    if not install_flash_deps(FLASHTOOL_DEPS):
         return
 
     target = select_flashtool_target()
@@ -207,31 +203,6 @@ def flash_with_flashtool(firmware: Path, operation_name: str) -> None:
         Logger.print_error("Flashing failed! See the flashtool output above.")
     finally:
         InstanceManager.start_all(instances)
-
-
-def install_flashtool_deps() -> bool:
-    missing_deps = check_package_install(FLASHTOOL_DEPS)
-    if not missing_deps:
-        return True
-
-    Logger.print_dialog(
-        DialogType.ATTENTION,
-        [
-            "Katapult's flashtool requires the following packages:",
-            *[f"● {dep}" for dep in missing_deps],
-        ],
-    )
-    if not get_confirm("Install the missing packages now?"):
-        Logger.print_info("Flashing aborted!")
-        return False
-
-    try:
-        update_system_package_lists(silent=False)
-        install_system_packages(missing_deps)
-        return True
-    except Exception as e:
-        Logger.print_error(f"Installing the flashtool dependencies failed!\n{e}")
-        return False
 
 
 def select_flashtool_target() -> FlashtoolTarget | None:

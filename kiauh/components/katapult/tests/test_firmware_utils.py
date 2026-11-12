@@ -18,6 +18,7 @@ from components.katapult.firmware_utils import (
     KatapultArch,
     find_usb_rp2_boot_devices,
     get_kconfig_arch,
+    install_flash_deps,
     run_make_flash,
 )
 
@@ -101,3 +102,22 @@ class TestRunMakeFlash:
             "KCONFIG_CONFIG=/cfg/rp2040.config",
             "flash",
         ]
+
+
+class TestInstallFlashDeps:
+    def test_installs_without_global_deps(self, monkeypatch) -> None:
+        calls: List[tuple] = []
+        monkeypatch.setattr(
+            firmware_utils,
+            "check_install_dependencies",
+            lambda deps, include_global: calls.append((deps, include_global)),
+        )
+        assert install_flash_deps({"python3-serial"}) is True
+        assert calls == [({"python3-serial"}, False)]
+
+    def test_reports_failure(self, monkeypatch) -> None:
+        def fail(*args, **kwargs) -> None:
+            raise RuntimeError("apt failed")
+
+        monkeypatch.setattr(firmware_utils, "check_install_dependencies", fail)
+        assert install_flash_deps({"dfu-util"}) is False
