@@ -111,22 +111,7 @@ class TmcAutotuneExtension(BaseExtension):
         try:
             git_clone_wrapper(TMCA_REPO, TMCA_DIR, force=True)
 
-            Logger.print_info("Creating symlinks in Klipper extras directory...")
-            create_symlink(
-                TMCA_DIR.joinpath("autotune_tmc.py"),
-                KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"),
-            )
-            create_symlink(
-                TMCA_DIR.joinpath("motor_constants.py"),
-                KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"),
-            )
-            create_symlink(
-                TMCA_DIR.joinpath("motor_database.cfg"),
-                KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"),
-            )
-            Logger.print_ok(
-                "Symlinks created successfully for all instances.", end="\n\n"
-            )
+            self._link_extension()
 
             if create_example_config:
                 self._install_example_cfg(kl_instances)
@@ -207,6 +192,8 @@ class TmcAutotuneExtension(BaseExtension):
                 Logger.print_ok("Backup completed successfully.")
 
             git_pull_wrapper(TMCA_DIR)
+            # restore the links lost when the Klipper directory was cloned again
+            self._link_extension()
 
         except Exception as e:
             Logger.print_error(f"Error during Klipper TMC Autotune update:\n{e}")
@@ -271,6 +258,14 @@ class TmcAutotuneExtension(BaseExtension):
             InstanceManager.start_all(kl_instances)
 
         Logger.print_ok("Klipper TMC Autotune removed successfully.")
+
+    def _link_extension(self) -> None:
+        Logger.print_info("Creating symlinks in Klipper extras directory...")
+        for name in ("autotune_tmc.py", "motor_constants.py", "motor_database.cfg"):
+            create_symlink(
+                TMCA_DIR.joinpath(name), KLIPPER_EXTENSIONS_PATH.joinpath(name)
+            )
+        Logger.print_ok("Symlinks created successfully for all instances.", end="\n\n")
 
     def _klipper_uses_python3(self) -> bool:
         # like the upstream install script, check Klipper's Python and not KIAUH's
