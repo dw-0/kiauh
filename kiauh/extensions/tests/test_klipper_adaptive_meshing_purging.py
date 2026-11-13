@@ -10,7 +10,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from types import SimpleNamespace
+
 import pytest
+from core.simple_config_parser.simple_config_parser import SimpleConfigParser
 from extensions.klipper_adaptive_meshing_purging.klipper_adaptive_meshing_purging_extension import (
     KlipperAdaptiveMeshingPurgingExtension,
 )
@@ -49,3 +53,19 @@ def test_failed_update_is_not_reported_as_successful(
     extension.update_extension()
 
     assert ok_messages == []
+
+
+def test_object_processing_is_enabled_in_existing_file_manager_section(
+    tmp_path: Path, extension
+) -> None:
+    cfg_file = tmp_path.joinpath("moonraker.conf")
+    cfg_file.write_text(
+        "[file_manager]\nqueue_gcode_uploads: True\nenable_object_processing: False\n"
+    )
+
+    extension._enable_object_processing([SimpleNamespace(cfg_file=cfg_file)])
+
+    scp = SimpleConfigParser()
+    scp.read_file(cfg_file)
+    assert scp.getval("file_manager", "enable_object_processing") == "True"
+    assert scp.getval("file_manager", "queue_gcode_uploads") == "True"
