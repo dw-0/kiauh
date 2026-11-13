@@ -66,11 +66,32 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             Logger.print_warn("Installation aborted due to user request.")
             return
 
-        add_moonraker_update_section = get_confirm(
-            question="Add Klipper Adaptive Meshing and Purging to Moonraker update manager(s)?",
-            default_choice=True,
-            allow_go_back=False,
-        )
+        mr_instances: List[Moonraker] = get_instances(Moonraker)
+        add_moonraker_update_section = False
+        if mr_instances:
+            add_moonraker_update_section = get_confirm(
+                question="Add Klipper Adaptive Meshing and Purging to Moonraker update manager(s)?",
+                default_choice=True,
+                allow_go_back=False,
+            )
+        else:
+            Logger.print_dialog(
+                DialogType.WARNING,
+                [
+                    "Moonraker not found! Klipper Adaptive Meshing and Purging update "
+                    "manager support for Moonraker will not be added to moonraker.conf.",
+                    "\n\n",
+                    "Object processing will not be enabled either, make sure your "
+                    "slicer labels the objects of each print.",
+                ],
+            )
+            if not get_confirm(
+                "Continue Klipper Adaptive Meshing and Purging installation?",
+                default_choice=False,
+                allow_go_back=True,
+            ):
+                Logger.print_info("Installation aborted due to user request.")
+                return
 
         if not stop_klipper_instances_interactively(
             kl_instances, "installation of KAMP"
@@ -82,16 +103,21 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
 
             self._install_cfg(kl_instances)
 
-            if add_moonraker_update_section:
-                mr_instances: List[Moonraker] = get_instances(Moonraker)
-                self._add_moonraker_update_manager_section(mr_instances)
-            else:
-                Logger.print_info(
-                    "Skipping update section creation as per user request."
-                )
-                Logger.print_warn(
-                    "Make sure to create the corresponding section in your moonraker.conf in order to have it appear in your frontend update manager!"
-                )
+            if mr_instances:
+                BackupService().backup_moonraker_conf()
+                self._enable_object_processing(mr_instances)
+
+                if add_moonraker_update_section:
+                    self._add_moonraker_update_manager_section(mr_instances)
+                else:
+                    Logger.print_info(
+                        "Skipping update section creation as per user request."
+                    )
+                    Logger.print_warn(
+                        "Make sure to create the corresponding section in your moonraker.conf in order to have it appear in your frontend update manager!"
+                    )
+
+                InstanceManager.restart_all(mr_instances)
 
         except Exception as e:
             Logger.print_error(
@@ -108,7 +134,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Basic configuration files were created per instance. You must edit them to enable the extension.",
+                "Each instance now has a KAMP_Settings.cfg (existing ones were kept). You must edit it to enable the extension.",
                 "Documentation:",
                 f"{KAMP_REPO}",
                 "\n\n",
@@ -161,7 +187,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
 
             if kl_instances:
                 InstanceManager.start_all(kl_instances)
-                return
+            return
 
         if kl_instances:
             InstanceManager.start_all(kl_instances)
@@ -243,9 +269,9 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
                 if is_multi_instance:
                     Logger.print_ok(f"Config file successfully created for instance '{instance.suffix}'.")
                 else:
-                    Logger.print_ok(f"Config file successfully created.")
+                    Logger.print_ok("Config file successfully created.")
             except OSError as e:
-                Logger.print_error(f"Unable to create example config: {e}")
+                Logger.print_error(f"Unable to create KAMP_Settings.cfg: {e}")
 
         BackupService().backup_printer_cfg()
 
@@ -255,35 +281,19 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             scp = SimpleConfigParser()
             scp.read_file(cfg_file)
 
-            for section in sections:
-                if scp.has_section(section):
-                    continue
+            missing = [s for s in sections if not scp.has_section(s)]
+            if not missing:
+                continue
+
+            for section in missing:
                 Logger.print_status(f"Add '{section}' to '{cfg_file}' ...")
                 scp.add_section(section)
-                scp.write_file(cfg_file)
-                Logger.print_ok("Done!")
+            scp.write_file(cfg_file)
+            Logger.print_ok("Done!")
 
     def _add_moonraker_update_manager_section(
         self, mr_instances: List[Moonraker]
     ) -> None:
-        if not mr_instances:
-            Logger.print_dialog(
-                DialogType.WARNING,
-                [
-                    "Moonraker not found! Klipper Adaptive Meshing and Purging update "
-                    "manager support for Moonraker will not be added to moonraker.conf.",
-                ],
-            )
-            if not get_confirm(
-                "Continue Klipper Adaptive Meshing and Purging installation?",
-                default_choice=False,
-                allow_go_back=True,
-            ):
-                Logger.print_info("Installation aborted due to user request.")
-                return
-
-        BackupService().backup_moonraker_conf()
-
         add_config_section(
             section=KAMP_MOONRAKER_UPDATER_NAME,
             instances=mr_instances,
@@ -297,19 +307,23 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             ],
         )
 
-        add_config_section(
-            section="file_manager",
-            instances=mr_instances,
-            options=[
-                ("enable_object_processing", "True"),
-            ],
-        )
-
-        InstanceManager.restart_all(mr_instances)
-
         Logger.print_ok(
             "Klipper Adaptive Meshing and Purging successfully added to Moonraker update manager(s)!"
         )
+
+    def _enable_object_processing(self, mr_instances: List[Moonraker]) -> None:
+        # set the option even if [file_manager] already exists, KAMP needs it
+        for instance in mr_instances:
+            cfg_file = instance.cfg_file
+            Logger.print_status(f"Enable object processing in '{cfg_file}' ...")
+            if not check_file_exist(cfg_file):
+                Logger.print_warn(f"'{cfg_file}' not found!")
+                continue
+            scp = SimpleConfigParser()
+            scp.read_file(cfg_file)
+            scp.set_option("file_manager", "enable_object_processing", "True")
+            scp.write_file(cfg_file)
+            Logger.print_ok("Done!")
 
     def _remove_moonraker_update_manager_section(
         self, mr_instances: List[Moonraker]
