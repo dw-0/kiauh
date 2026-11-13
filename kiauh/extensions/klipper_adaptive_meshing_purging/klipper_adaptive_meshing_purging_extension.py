@@ -161,7 +161,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
 
             if kl_instances:
                 InstanceManager.start_all(kl_instances)
-                return
+            return
 
         if kl_instances:
             InstanceManager.start_all(kl_instances)
