@@ -1,0 +1,216 @@
+# ======================================================================= #
+#  Copyright (C) 2020 - 2026 Dominik Willner <dev.dw-0@proton.me>         #
+#  Copyright (C) 2026 Théo Gaillard <theo.gayar@gmail.com>                #
+#                                                                         #
+#  This file is part of KIAUH - Klipper Installation And Update Helper    #
+#  https://github.com/dw-0/kiauh                                          #
+#                                                                         #
+#  This file may be distributed under the terms of the GNU GPLv3 license  #
+# ======================================================================= #
+from __future__ import annotations
+
+import json
+import shutil
+from pathlib import Path
+from subprocess import CalledProcessError, run
+from typing import List
+
+from components.katapult import (
+    KATAPULT_DIR,
+    KATAPULT_KCONFIGS_DIR,
+    KATAPULT_REPO,
+)
+from components.katapult.flashtool import check_katapult_running, flash_with_flashtool
+from components.klipper import KLIPPER_DIR
+from core.logger import DialogType, Logger
+from core.services.backup_service import BackupService
+from core.settings.kiauh_settings import KiauhSettings
+from core.types.component_status import ComponentStatus
+from utils.common import get_install_status
+from utils.git_utils import (
+    GitException,
+    git_clone_wrapper,
+    git_pull_wrapper,
+)
+from utils.input_utils import get_confirm
+
+# Katapult can only flash the raw binary, not the elf/hex/uf2 build outputs
+KLIPPER_FIRMWARE_BIN = KLIPPER_DIR.joinpath("out/klipper.bin")
+# written by Klipper's build, holds the firmware version and the target MCU
+KLIPPER_FIRMWARE_DICT = KLIPPER_DIR.joinpath("out/klipper.dict")
+
+
+def install_katapult() -> None:
+    # step 1: print disclaimer and get confirmation
+    print_katapult_brick_warning()
+
+    if not get_confirm("Do you want to continue with the installation?"):
+        Logger.print_info("Katapult installation aborted!")
+        return
+
+    Logger.print_status("Installing Katapult ...")
+
+    # asked here instead of in git_clone_wrapper, which returns silently when
+    # the overwrite is declined
+    if KATAPULT_DIR.exists() and not get_confirm(
+        f"'{KATAPULT_DIR}' already exists. Overwrite?", default_choice=False
+    ):
+        Logger.print_info("Katapult installation aborted!")
+        return
+
+    # step 2: clone Katapult repo
+    # build and flash dependencies are checked for when they are needed
+    try:
+        git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master", force=True)
+    except GitException:
+        Logger.print_error("Katapult installation failed!")
+        return
+
+    Logger.print_ok("Katapult successfully installed!")
+
+
+def print_katapult_brick_warning() -> None:
+    Logger.print_dialog(
+        DialogType.WARNING,
+        [
+            "CRITICAL WARNING — PROCEED AT YOUR OWN RISK",
+            "\n\n",
+            "Katapult is a bootloader for 3D printer controllers, which updates "
+            "their firmware over CAN, USB or UART. Flashing it writes directly to "
+            "your device's firmware memory, and "
+            "improper use can permanently disable or 'brick' your hardware.",
+            "\n\n",
+            "Proceed only if you fully understand the flashing process, have verified "
+            "your firmware and configuration, and backed up all necessary data. "
+            "Flashing the deployer is far riskier than flashing standard firmware "
+            "such as Klipper.",
+            "\n\n",
+            "If you are unsure, stop immediately and seek help from experienced "
+            "community members. A bricked device WILL require recovery using an "
+            "external programmer.",
+            "\n\n",
+            "DISCLAIMER: The developers and maintainers of KIAUH assume no "
+            "responsibility for any damage, data loss, harm, or hardware failure "
+            "resulting from use or misuse of this tool. You use Katapult and KIAUH "
+            "entirely at your own risk.",
+        ],
+    )
+
+
+def update_katapult() -> None:
+    try:
+        if check_katapult_running():
+            Logger.print_error("Katapult's flashtool is running! Aborting update.")
+            return
+
+        if not KATAPULT_DIR.exists():
+            git_clone_wrapper(KATAPULT_REPO, KATAPULT_DIR, "master")
+        else:
+            Logger.print_status("Updating Katapult ...")
+
+            settings = KiauhSettings()
+            if settings.kiauh.backup_before_update:
+                backup_katapult_dir()
+
+            git_pull_wrapper(KATAPULT_DIR)
+
+        Logger.print_ok("Katapult updated successfully.")
+        Logger.print_info(
+            "This doesn't update Katapult on your MCUs, use 'Flash Katapult' for that.",
+            end="\n\n",
+        )
+    except CalledProcessError as e:
+        Logger.print_error(f"Something went wrong! Please try again...\n{e}")
+        return
+
+
+def get_katapult_status() -> ComponentStatus:
+    return get_install_status(KATAPULT_DIR)
+
+
+def remove_katapult() -> None:
+    if not KATAPULT_DIR.exists():
+        Logger.print_info("Katapult does not seem to be installed! Skipping ...")
+        return
+
+    Logger.print_status("Removing katapult directory ...")
+    shutil.rmtree(KATAPULT_DIR)
+    Logger.print_ok("Directory removed! Katapult has been successfully uninstalled.")
+
+    if KATAPULT_KCONFIGS_DIR.exists():
+        if get_confirm("Do you also want to remove the configurations directory ?"):
+            shutil.rmtree(KATAPULT_KCONFIGS_DIR)
+            Logger.print_ok(
+                "Directory removed! Katapult configurations have been successfully deleted."
+            )
+
+
+def backup_katapult_dir() -> None:
+    svc = BackupService()
+    svc.backup_directory(
+        source_path=KATAPULT_DIR,
+        backup_name="Katapult",
+        target_path="Katapult",
+    )
+
+
+def flash_klipper_via_katapult() -> None:
+    if not KLIPPER_FIRMWARE_BIN.is_file():
+        Logger.print_dialog(
+            DialogType.ERROR,
+            [
+                f"No Klipper firmware found at '{KLIPPER_FIRMWARE_BIN}'!",
+                "\n\n",
+                "Build the Klipper firmware first, with a bootloader offset matching "
+                "the application offset of Katapult on the MCU.",
+            ],
+        )
+        return
+
+    flash_with_flashtool(
+        KLIPPER_FIRMWARE_BIN, "flashing of Klipper", get_klipper_firmware_info()
+    )
+
+
+def get_klipper_firmware_info(dict_file: Path = KLIPPER_FIRMWARE_DICT) -> List[str]:
+    """
+    Describe the built Klipper firmware, and warn if it was built from another
+    version than the installed Klipper |
+    :param dict_file: The klipper.dict written by the Klipper build
+    :return: Lines to show before flashing, empty if the dictionary can't be read
+    """
+    try:
+        data = json.loads(dict_file.read_text())
+    except (OSError, ValueError):
+        return []
+
+    info: List[str] = []
+    mcu = data.get("config", {}).get("MCU")
+    if mcu:
+        info.append(f"MCU: {mcu}")
+
+    version = data.get("version")
+    if version:
+        info.append(f"Version: {version}")
+        installed = get_klipper_version()
+        # dirty and non-clean builds get a build date and hostname appended
+        if installed and not (
+            version == installed or version.startswith(f"{installed}-")
+        ):
+            info += [
+                "\n\n",
+                f"The installed Klipper is {installed}. Klipper may refuse to "
+                "connect to an MCU running another version, rebuild the firmware "
+                "unless this is intended.",
+            ]
+    return info
+
+
+def get_klipper_version() -> str | None:
+    """Get the version of the installed Klipper, like Klipper's build does"""
+    cmd = ["git", "-C", KLIPPER_DIR.as_posix(), "describe"]
+    cmd += ["--always", "--tags", "--long", "--dirty"]
+    try:
+        return run(cmd, capture_output=True, text=True, check=True).stdout.strip()
+    except (CalledProcessError, OSError):
+        return None

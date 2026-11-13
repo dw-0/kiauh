@@ -1,0 +1,152 @@
+# ======================================================================= #
+#  Copyright (C) 2020 - 2026 Dominik Willner <dev.dw-0@proton.me>         #
+#  Copyright (C) 2026 Théo Gaillard <theo.gayar@gmail.com>                #
+#                                                                         #
+#  This file is part of KIAUH - Klipper Installation And Update Helper    #
+#  https://github.com/dw-0/kiauh                                          #
+#                                                                         #
+#  This file may be distributed under the terms of the GNU GPLv3 license  #
+# ======================================================================= #
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import List
+
+import pytest
+from components.katapult import katapult
+from utils.git_utils import GitException
+
+
+class TestInstallKatapult:
+    @pytest.fixture
+    def cloned(self, tmp_path: Path, monkeypatch) -> List[str]:
+        cloned: List[str] = []
+        monkeypatch.setattr(katapult, "KATAPULT_DIR", tmp_path.joinpath("katapult"))
+        monkeypatch.setattr(katapult, "print_katapult_brick_warning", lambda: None)
+        monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: True)
+        monkeypatch.setattr(
+            katapult, "git_clone_wrapper", lambda repo, *a, **k: cloned.append(repo)
+        )
+        return cloned
+
+    def test_installs_without_can_interface(self, cloned: List[str]) -> None:
+        katapult.install_katapult()
+        assert cloned == [katapult.KATAPULT_REPO]
+
+    def test_aborts_without_confirmation(self, cloned: List[str], monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: False)
+        katapult.install_katapult()
+        assert cloned == []
+
+    def test_overwrites_existing_dir_after_confirmation(
+        self, cloned: List[str]
+    ) -> None:
+        katapult.KATAPULT_DIR.mkdir()
+        katapult.install_katapult()
+        assert cloned == [katapult.KATAPULT_REPO]
+
+    def test_keeps_existing_dir_when_overwrite_is_declined(
+        self, cloned: List[str], monkeypatch
+    ) -> None:
+        answers = iter([True, False])
+        monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: next(answers))
+        katapult.KATAPULT_DIR.mkdir()
+
+        katapult.install_katapult()
+
+        assert cloned == []
+
+    def test_reports_clone_failure(self, tmp_path: Path, monkeypatch) -> None:
+        def fail(*args, **kwargs) -> None:
+            raise GitException("clone failed")
+
+        monkeypatch.setattr(katapult, "print_katapult_brick_warning", lambda: None)
+        monkeypatch.setattr(katapult, "get_confirm", lambda *a, **k: True)
+        monkeypatch.setattr(katapult, "KATAPULT_DIR", tmp_path.joinpath("katapult"))
+        monkeypatch.setattr(katapult, "git_clone_wrapper", fail)
+
+        katapult.install_katapult()
+
+
+class TestUpdateKatapult:
+    @pytest.fixture
+    def env(self, tmp_path, monkeypatch) -> dict:
+        state = {"backup": False, "pulled": False, "backup_before_update": False}
+
+        class FakeSettings:
+            class kiauh:
+                backup_before_update = False
+
+        def fake_settings():
+            FakeSettings.kiauh.backup_before_update = state["backup_before_update"]
+            return FakeSettings
+
+        monkeypatch.setattr(katapult, "KATAPULT_DIR", tmp_path)
+        monkeypatch.setattr(katapult, "check_katapult_running", lambda: False)
+        monkeypatch.setattr(katapult, "KiauhSettings", fake_settings)
+        monkeypatch.setattr(
+            katapult, "backup_katapult_dir", lambda: state.update(backup=True)
+        )
+        monkeypatch.setattr(
+            katapult, "git_pull_wrapper", lambda _: state.update(pulled=True)
+        )
+        return state
+
+    @pytest.mark.parametrize("backup_before_update", [True, False])
+    def test_backup_follows_setting(self, env, backup_before_update: bool) -> None:
+        env["backup_before_update"] = backup_before_update
+
+        katapult.update_katapult()
+
+        assert env["backup"] is backup_before_update
+        assert env["pulled"] is True
+
+    def test_skips_while_flashtool_is_running(self, env, monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "check_katapult_running", lambda: True)
+
+        katapult.update_katapult()
+
+        assert env["pulled"] is False
+
+
+class TestKlipperFirmwareInfo:
+    def _write_dict(self, tmp_path: Path, version: str) -> Path:
+        dict_file = tmp_path.joinpath("klipper.dict")
+        dict_file.write_text(
+            json.dumps({"version": version, "config": {"MCU": "stm32g0b1xx"}})
+        )
+        return dict_file
+
+    def test_matching_version(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "get_klipper_version", lambda: "v0.13.0-1-gabc")
+        dict_file = self._write_dict(tmp_path, "v0.13.0-1-gabc")
+
+        assert katapult.get_klipper_firmware_info(dict_file) == [
+            "MCU: stm32g0b1xx",
+            "Version: v0.13.0-1-gabc",
+        ]
+
+    def test_dirty_build_matches(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(
+            katapult, "get_klipper_version", lambda: "v0.13.0-1-gabc-dirty"
+        )
+        dict_file = self._write_dict(
+            tmp_path, "v0.13.0-1-gabc-dirty-20261112_120000-pi"
+        )
+
+        assert len(katapult.get_klipper_firmware_info(dict_file)) == 2
+
+    def test_warns_about_other_version(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(katapult, "get_klipper_version", lambda: "v0.13.0-5-gdef")
+        dict_file = self._write_dict(tmp_path, "v0.12.0-418-gabc")
+
+        info = katapult.get_klipper_firmware_info(dict_file)
+
+        assert "v0.13.0-5-gdef" in info[-1]
+
+    def test_missing_or_invalid_dict(self, tmp_path: Path) -> None:
+        assert katapult.get_klipper_firmware_info(tmp_path.joinpath("x")) == []
+        invalid = tmp_path.joinpath("klipper.dict")
+        invalid.write_text("not json")
+        assert katapult.get_klipper_firmware_info(invalid) == []
