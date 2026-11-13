@@ -72,11 +72,29 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_warn("Installation aborted due to user request.")
             return
 
-        add_moonraker_update_section = get_confirm(
-            question="Add Klipper TMC Autotune to Moonraker update manager(s)?",
-            default_choice=True,
-            allow_go_back=False,
-        )
+        mr_instances: List[Moonraker] = get_instances(Moonraker)
+        add_moonraker_update_section = False
+        if mr_instances:
+            add_moonraker_update_section = get_confirm(
+                question="Add Klipper TMC Autotune to Moonraker update manager(s)?",
+                default_choice=True,
+                allow_go_back=False,
+            )
+        else:
+            Logger.print_dialog(
+                DialogType.WARNING,
+                [
+                    "Moonraker not found! Klipper TMC Autotune update manager support "
+                    "for Moonraker will not be added to moonraker.conf.",
+                ],
+            )
+            if not get_confirm(
+                "Continue Klipper TMC Autotune installation?",
+                default_choice=False,
+                allow_go_back=True,
+            ):
+                Logger.print_info("Installation aborted due to user request.")
+                return
 
         create_example_config = get_confirm(
             question="Create an example autotune_tmc.cfg for each instance?",
@@ -122,9 +140,8 @@ class TmcAutotuneExtension(BaseExtension):
                 )
 
             if add_moonraker_update_section:
-                mr_instances: List[Moonraker] = get_instances(Moonraker)
                 self._add_moonraker_update_manager_section(mr_instances)
-            else:
+            elif mr_instances:
                 Logger.print_info(
                     "Skipping update section creation as per user request."
                 )
@@ -288,22 +305,6 @@ class TmcAutotuneExtension(BaseExtension):
     def _add_moonraker_update_manager_section(
         self, mr_instances: List[Moonraker]
     ) -> None:
-        if not mr_instances:
-            Logger.print_dialog(
-                DialogType.WARNING,
-                [
-                    "Moonraker not found! Klipper TMC Autotune update manager support "
-                    "for Moonraker will not be added to moonraker.conf.",
-                ],
-            )
-            if not get_confirm(
-                "Continue Klipper TMC Autotune installation?",
-                default_choice=False,
-                allow_go_back=True,
-            ):
-                Logger.print_info("Installation aborted due to user request.")
-                return
-
         BackupService().backup_moonraker_conf()
 
         add_config_section(
