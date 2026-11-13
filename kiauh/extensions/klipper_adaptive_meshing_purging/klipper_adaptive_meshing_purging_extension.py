@@ -134,7 +134,7 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
         Logger.print_dialog(
             DialogType.ATTENTION,
             [
-                "Basic configuration files were created per instance. You must edit them to enable the extension.",
+                "Each instance now has a KAMP_Settings.cfg (existing ones were kept). You must edit it to enable the extension.",
                 "Documentation:",
                 f"{KAMP_REPO}",
                 "\n\n",
@@ -269,9 +269,9 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
                 if is_multi_instance:
                     Logger.print_ok(f"Config file successfully created for instance '{instance.suffix}'.")
                 else:
-                    Logger.print_ok(f"Config file successfully created.")
+                    Logger.print_ok("Config file successfully created.")
             except OSError as e:
-                Logger.print_error(f"Unable to create example config: {e}")
+                Logger.print_error(f"Unable to create KAMP_Settings.cfg: {e}")
 
         BackupService().backup_printer_cfg()
 
