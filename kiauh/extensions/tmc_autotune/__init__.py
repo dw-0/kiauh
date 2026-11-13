@@ -18,12 +18,14 @@ MODULE_PATH = Path(__file__).resolve().parent
 KLIPPER_DIR = Path.home().joinpath("klipper")
 KLIPPER_EXTRAS = KLIPPER_DIR.joinpath("klippy/extras")
 KLIPPER_PLUGINS = KLIPPER_DIR.joinpath("klippy/plugins")
-KLIPPER_EXTENSIONS_PATH = (
-    KLIPPER_PLUGINS if KLIPPER_PLUGINS.is_dir() else KLIPPER_EXTRAS
-)
 
 # files
 TMCA_EXAMPLE_CONFIG = TMCA_DIR.joinpath("docs/example.cfg")
 
 # names
 TMCA_MOONRAKER_UPDATER_NAME = "update_manager klipper_tmc_autotune"
+
+
+def get_klipper_extensions_path() -> Path:
+    # checked on each use, Klipper may have been swapped for Kalico in the meantime
+    return KLIPPER_PLUGINS if KLIPPER_PLUGINS.is_dir() else KLIPPER_EXTRAS
