@@ -353,7 +353,7 @@ class TmcAutotuneExtension(BaseExtension):
 
         BackupService().backup_moonraker_conf()
 
-        remove_config_section("update_manager klipper_tmc_autotune", mr_instances)
+        remove_config_section(TMCA_MOONRAKER_UPDATER_NAME, mr_instances)
         InstanceManager.restart_all(mr_instances)
 
         Logger.print_ok(
