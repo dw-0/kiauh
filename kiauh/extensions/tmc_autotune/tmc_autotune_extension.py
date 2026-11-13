@@ -9,8 +9,10 @@
 # ======================================================================= #
 
 import shutil
+from subprocess import PIPE, CalledProcessError, run
 from typing import List
 
+from components.klipper import KLIPPER_ENV_DIR
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
@@ -22,29 +24,23 @@ from core.simple_config_parser.simple_config_parser import (
 from extensions.base_extension import BaseExtension
 from extensions.tmc_autotune import (
     KLIPPER_DIR,
-    KLIPPER_EXTENSIONS_PATH,
     TMCA_DIR,
     TMCA_EXAMPLE_CONFIG,
     TMCA_MOONRAKER_UPDATER_NAME,
     TMCA_REPO,
+    get_klipper_extensions_path,
 )
 from utils.config_utils import add_config_section, remove_config_section
 from utils.fs_utils import check_file_exist, create_symlink, run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.instance_utils import get_instances, stop_klipper_instances_interactively
-from utils.sys_utils import check_python_version
 
 
 # noinspection PyMethodMayBeStatic
 class TmcAutotuneExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
         Logger.print_status("Installing Klipper TMC Autotune...")
-
-        # Check for Python 3.x, aligned with upstream install script
-        if not check_python_version(3, 0):
-            Logger.print_warn("Python 3.x is required. Aborting install.")
-            return
 
         klipper_dir_exists = check_file_exist(KLIPPER_DIR)
         if not klipper_dir_exists:
@@ -53,11 +49,15 @@ class TmcAutotuneExtension(BaseExtension):
             )
             return
 
+        if not self._klipper_uses_python3():
+            return
+
+        extensions_path = get_klipper_extensions_path()
         tmca_exists = (
             check_file_exist(TMCA_DIR)
-            and check_file_exist(KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"))
-            and check_file_exist(KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"))
-            and check_file_exist(KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"))
+            and check_file_exist(extensions_path.joinpath("autotune_tmc.py"))
+            and check_file_exist(extensions_path.joinpath("motor_constants.py"))
+            and check_file_exist(extensions_path.joinpath("motor_database.cfg"))
         )
 
         overwrite = True
@@ -72,11 +72,29 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_warn("Installation aborted due to user request.")
             return
 
-        add_moonraker_update_section = get_confirm(
-            question="Add Klipper TMC Autotune to Moonraker update manager(s)?",
-            default_choice=True,
-            allow_go_back=False,
-        )
+        mr_instances: List[Moonraker] = get_instances(Moonraker)
+        add_moonraker_update_section = False
+        if mr_instances:
+            add_moonraker_update_section = get_confirm(
+                question="Add Klipper TMC Autotune to Moonraker update manager(s)?",
+                default_choice=True,
+                allow_go_back=False,
+            )
+        else:
+            Logger.print_dialog(
+                DialogType.WARNING,
+                [
+                    "Moonraker not found! Klipper TMC Autotune update manager support "
+                    "for Moonraker will not be added to moonraker.conf.",
+                ],
+            )
+            if not get_confirm(
+                "Continue Klipper TMC Autotune installation?",
+                default_choice=False,
+                allow_go_back=True,
+            ):
+                Logger.print_info("Installation aborted due to user request.")
+                return
 
         create_example_config = get_confirm(
             question="Create an example autotune_tmc.cfg for each instance?",
@@ -94,22 +112,7 @@ class TmcAutotuneExtension(BaseExtension):
         try:
             git_clone_wrapper(TMCA_REPO, TMCA_DIR, force=True)
 
-            Logger.print_info("Creating symlinks in Klipper extras directory...")
-            create_symlink(
-                TMCA_DIR.joinpath("autotune_tmc.py"),
-                KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"),
-            )
-            create_symlink(
-                TMCA_DIR.joinpath("motor_constants.py"),
-                KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"),
-            )
-            create_symlink(
-                TMCA_DIR.joinpath("motor_database.cfg"),
-                KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"),
-            )
-            Logger.print_ok(
-                "Symlinks created successfully for all instances.", end="\n\n"
-            )
+            self._link_extension()
 
             if create_example_config:
                 self._install_example_cfg(kl_instances)
@@ -122,9 +125,8 @@ class TmcAutotuneExtension(BaseExtension):
                 )
 
             if add_moonraker_update_section:
-                mr_instances: List[Moonraker] = get_instances(Moonraker)
                 self._add_moonraker_update_manager_section(mr_instances)
-            else:
+            elif mr_instances:
                 Logger.print_info(
                     "Skipping update section creation as per user request."
                 )
@@ -146,7 +148,7 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_dialog(
                 DialogType.ATTENTION,
                 [
-                    "Basic configuration files were created per instance. You must edit them to enable the extension.",
+                    "Each instance now has an autotune_tmc.cfg (existing ones were kept). You must edit it to enable the extension.",
                     "Documentation:",
                     f"{TMCA_REPO}",
                     "\n\n",
@@ -191,13 +193,15 @@ class TmcAutotuneExtension(BaseExtension):
                 Logger.print_ok("Backup completed successfully.")
 
             git_pull_wrapper(TMCA_DIR)
+            # restore the links lost when the Klipper directory was cloned again
+            self._link_extension()
 
         except Exception as e:
             Logger.print_error(f"Error during Klipper TMC Autotune update:\n{e}")
 
             if kl_instances:
                 InstanceManager.start_all(kl_instances)
-                return
+            return
 
         if kl_instances:
             InstanceManager.start_all(kl_instances)
@@ -221,9 +225,10 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_info("Removing Klipper TMC Autotune extension ...")
             run_remove_routines(TMCA_DIR)
             Logger.print_info("Removing symlinks from Klipper extras directory ...")
-            run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("autotune_tmc.py"))
-            run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("motor_constants.py"))
-            run_remove_routines(KLIPPER_EXTENSIONS_PATH.joinpath("motor_database.cfg"))
+            extensions_path = get_klipper_extensions_path()
+            run_remove_routines(extensions_path.joinpath("autotune_tmc.py"))
+            run_remove_routines(extensions_path.joinpath("motor_constants.py"))
+            run_remove_routines(extensions_path.joinpath("motor_database.cfg"))
 
             mr_instances: List[Moonraker] = get_instances(Moonraker)
             self._remove_moonraker_update_manager_section(mr_instances)
@@ -255,6 +260,31 @@ class TmcAutotuneExtension(BaseExtension):
             InstanceManager.start_all(kl_instances)
 
         Logger.print_ok("Klipper TMC Autotune removed successfully.")
+
+    def _link_extension(self) -> None:
+        Logger.print_info("Creating symlinks in Klipper extras directory...")
+        extensions_path = get_klipper_extensions_path()
+        for name in ("autotune_tmc.py", "motor_constants.py", "motor_database.cfg"):
+            create_symlink(TMCA_DIR.joinpath(name), extensions_path.joinpath(name))
+        Logger.print_ok("Symlinks created successfully for all instances.", end="\n\n")
+
+    def _klipper_uses_python3(self) -> bool:
+        # like the upstream install script, check Klipper's Python and not KIAUH's
+        python = KLIPPER_ENV_DIR.joinpath("bin/python")
+        cmd = [python.as_posix(), "-c", "import sys; print(sys.version_info.major)"]
+        try:
+            result = run(cmd, stdout=PIPE, stderr=PIPE, text=True, check=True)
+        except (OSError, CalledProcessError):
+            Logger.print_warn(
+                f"Unable to run Klipper's Python at '{python}'. Aborting install."
+            )
+            return False
+
+        if int(result.stdout.strip()) < 3:
+            Logger.print_warn("Klipper must be using Python 3. Aborting install.")
+            return False
+
+        return True
 
     def _install_example_cfg(self, kl_instances: List[Klipper]):
         cfg_dirs = [instance.base.cfg_dir for instance in kl_instances]
@@ -288,22 +318,6 @@ class TmcAutotuneExtension(BaseExtension):
     def _add_moonraker_update_manager_section(
         self, mr_instances: List[Moonraker]
     ) -> None:
-        if not mr_instances:
-            Logger.print_dialog(
-                DialogType.WARNING,
-                [
-                    "Moonraker not found! Klipper TMC Autotune update manager support "
-                    "for Moonraker will not be added to moonraker.conf.",
-                ],
-            )
-            if not get_confirm(
-                "Continue Klipper TMC Autotune installation?",
-                default_choice=False,
-                allow_go_back=True,
-            ):
-                Logger.print_info("Installation aborted due to user request.")
-                return
-
         BackupService().backup_moonraker_conf()
 
         add_config_section(
@@ -340,7 +354,7 @@ class TmcAutotuneExtension(BaseExtension):
 
         BackupService().backup_moonraker_conf()
 
-        remove_config_section("update_manager klipper_tmc_autotune", mr_instances)
+        remove_config_section(TMCA_MOONRAKER_UPDATER_NAME, mr_instances)
         InstanceManager.restart_all(mr_instances)
 
         Logger.print_ok(
