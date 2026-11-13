@@ -147,7 +147,7 @@ class TmcAutotuneExtension(BaseExtension):
             Logger.print_dialog(
                 DialogType.ATTENTION,
                 [
-                    "Basic configuration files were created per instance. You must edit them to enable the extension.",
+                    "Each instance now has an autotune_tmc.cfg (existing ones were kept). You must edit it to enable the extension.",
                     "Documentation:",
                     f"{TMCA_REPO}",
                     "\n\n",
