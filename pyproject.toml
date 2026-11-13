@@ -46,6 +46,7 @@ skip_covered = false
 [tool.pytest.ini_options]
 minversion = "8.2.1"
 testpaths = [
+    "kiauh/components/katapult/tests",
     "kiauh/components/klipper/services/tests",
     "kiauh/components/moonraker/services/tests",
     "kiauh/components/moonraker/utils/tests",
