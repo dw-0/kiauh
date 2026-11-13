@@ -281,13 +281,15 @@ class KlipperAdaptiveMeshingPurgingExtension(BaseExtension):
             scp = SimpleConfigParser()
             scp.read_file(cfg_file)
 
-            for section in sections:
-                if scp.has_section(section):
-                    continue
+            missing = [s for s in sections if not scp.has_section(s)]
+            if not missing:
+                continue
+
+            for section in missing:
                 Logger.print_status(f"Add '{section}' to '{cfg_file}' ...")
                 scp.add_section(section)
-                scp.write_file(cfg_file)
-                Logger.print_ok("Done!")
+            scp.write_file(cfg_file)
+            Logger.print_ok("Done!")
 
     def _add_moonraker_update_manager_section(
         self, mr_instances: List[Moonraker]
