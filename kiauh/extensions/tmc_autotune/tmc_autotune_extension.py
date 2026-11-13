@@ -9,8 +9,10 @@
 # ======================================================================= #
 
 import shutil
+from subprocess import PIPE, CalledProcessError, run
 from typing import List
 
+from components.klipper import KLIPPER_ENV_DIR
 from components.klipper.klipper import Klipper
 from components.moonraker.moonraker import Moonraker
 from core.instance_manager.instance_manager import InstanceManager
@@ -33,7 +35,6 @@ from utils.fs_utils import check_file_exist, create_symlink, run_remove_routines
 from utils.git_utils import git_clone_wrapper, git_pull_wrapper
 from utils.input_utils import get_confirm
 from utils.instance_utils import get_instances, stop_klipper_instances_interactively
-from utils.sys_utils import check_python_version
 
 
 # noinspection PyMethodMayBeStatic
@@ -41,16 +42,14 @@ class TmcAutotuneExtension(BaseExtension):
     def install_extension(self, **kwargs) -> None:
         Logger.print_status("Installing Klipper TMC Autotune...")
 
-        # Check for Python 3.x, aligned with upstream install script
-        if not check_python_version(3, 0):
-            Logger.print_warn("Python 3.x is required. Aborting install.")
-            return
-
         klipper_dir_exists = check_file_exist(KLIPPER_DIR)
         if not klipper_dir_exists:
             Logger.print_warn(
                 "No Klipper directory found! Unable to install extension."
             )
+            return
+
+        if not self._klipper_uses_python3():
             return
 
         tmca_exists = (
@@ -272,6 +271,24 @@ class TmcAutotuneExtension(BaseExtension):
             InstanceManager.start_all(kl_instances)
 
         Logger.print_ok("Klipper TMC Autotune removed successfully.")
+
+    def _klipper_uses_python3(self) -> bool:
+        # like the upstream install script, check Klipper's Python and not KIAUH's
+        python = KLIPPER_ENV_DIR.joinpath("bin/python")
+        cmd = [python.as_posix(), "-c", "import sys; print(sys.version_info.major)"]
+        try:
+            result = run(cmd, stdout=PIPE, stderr=PIPE, text=True, check=True)
+        except (OSError, CalledProcessError):
+            Logger.print_warn(
+                f"Unable to run Klipper's Python at '{python}'. Aborting install."
+            )
+            return False
+
+        if int(result.stdout.strip()) < 3:
+            Logger.print_warn("Klipper must be using Python 3. Aborting install.")
+            return False
+
+        return True
 
     def _install_example_cfg(self, kl_instances: List[Klipper]):
         cfg_dirs = [instance.base.cfg_dir for instance in kl_instances]
